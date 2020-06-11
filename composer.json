@@ -1,0 +1,36 @@
+{
+    "name": "gzhegow/di",
+    "description": "Dependency-Injection Container",
+    "type": "library",
+    "authors": [
+        {
+            "name": "gzhegow",
+            "email": "6562680@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require": {
+        "psr/container": "^1.0"
+    },
+    "require-dev": {
+        "symfony/var-dumper": "4.*",
+        "phpunit/phpunit": "8"
+    },
+    "autoload": {
+        "psr-4": {
+            "Gzhegow\\Di\\": "src/gzhegow/Di"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Gzhegow\\Di\\": "src/gzhegow/Di",
+            "Tests\\": "tests/"
+        },
+        "files": [
+            "config/symfony.var-dumper.php",
+            
+            "helpers/dd.php"
+        ]
+    }
+}
