@@ -3,7 +3,9 @@
 namespace Gzhegow\Di;
 
 use Psr\Container\ContainerInterface;
+use Gzhegow\Di\Exceptions\RuntimeException;
 use Gzhegow\Di\Exceptions\OutOfRangeException;
+use Gzhegow\Di\Exceptions\InvalidArgumentException;
 
 /**
  * Class Di
@@ -54,7 +56,7 @@ class Di implements ContainerInterface, DiInterface
 			$result = $this->get($id);
 		}
 		catch ( OutOfRangeException $e ) {
-			throw new \RuntimeException('Unable to ' . __METHOD__, null, $e);
+			throw new RuntimeException('Unable to ' . __METHOD__, null, $e);
 		}
 
 		return $result;
@@ -108,7 +110,7 @@ class Di implements ContainerInterface, DiInterface
 			$result = $this->setShared($id, $item);
 		}
 		catch ( OutOfRangeException $e ) {
-			throw new \RuntimeException('Unable to ' . __METHOD__, null, $e);
+			throw new RuntimeException('Unable to ' . __METHOD__, null, $e);
 		}
 
 		return $result;
@@ -123,6 +125,14 @@ class Di implements ContainerInterface, DiInterface
 	 */
 	public function get($id)
 	{
+		if (! is_string($id)) {
+			throw new InvalidArgumentException('Id should be string');
+		}
+
+		if ('' === $id) {
+			throw new InvalidArgumentException('Id should be not empty');
+		}
+
 		if ($this->hasItem($id)) {
 			return $this->items[ $id ];
 		}
@@ -164,6 +174,10 @@ class Di implements ContainerInterface, DiInterface
 	 */
 	public function set(string $id, $item, bool $shared = false)
 	{
+		if ('' === $id) {
+			throw new InvalidArgumentException('Id should be not empty');
+		}
+
 		if ($this->hasItem($id)) {
 			throw new OutOfRangeException('Bind is already defined: ' . $id);
 		}
@@ -179,7 +193,7 @@ class Di implements ContainerInterface, DiInterface
 
 
 	/**
-	 * @param $func
+	 * @param string|array $func
 	 *
 	 * @return bool
 	 */
@@ -190,7 +204,17 @@ class Di implements ContainerInterface, DiInterface
 	}
 
 	/**
-	 * @param $func
+	 * @param string $class
+	 *
+	 * @return bool
+	 */
+	protected function isClass($class) : bool
+	{
+		return is_string($class) && class_exists($class);
+	}
+
+	/**
+	 * @param \Closure $func
 	 *
 	 * @return bool
 	 */
@@ -200,16 +224,16 @@ class Di implements ContainerInterface, DiInterface
 	}
 
 	/**
-	 * @param $func
+	 * @param string $handler
 	 *
 	 * @return bool
 	 */
-	protected function isHandler($func) : bool
+	protected function isHandler($handler) : bool
 	{
-		return is_string($func)
-			&& ( '' !== $func )
-			&& ( $func[ 0 ] !== '@' )
-			&& ( false !== strpos($func, '@') );
+		return is_string($handler)
+			&& ( '' !== $handler )
+			&& ( $handler[ 0 ] !== '@' )
+			&& ( false !== strpos($handler, '@') );
 	}
 
 
@@ -221,7 +245,7 @@ class Di implements ContainerInterface, DiInterface
 	public function loadConfig(string $configPath)
 	{
 		if ('' === $configPath) {
-			throw new \InvalidArgumentException('ConfigPath should be not empty');
+			throw new InvalidArgumentException('ConfigPath should be not empty');
 		}
 
 		require_once $configPath;
@@ -239,6 +263,10 @@ class Di implements ContainerInterface, DiInterface
 	 */
 	public function createAutowired(string $id, array $params = [])
 	{
+		if ('' === $id) {
+			throw new InvalidArgumentException('Id should be not empty');
+		}
+
 		if ($this->hasBind($id)) {
 			$bind = $this->bind[ $id ];
 
@@ -310,14 +338,18 @@ class Di implements ContainerInterface, DiInterface
 
 
 	/**
-	 * @param string $id
-	 * @param mixed  $bind
-	 * @param bool   $shared
+	 * @param string          $id
+	 * @param string|\Closure $bind
+	 * @param bool            $shared
 	 *
 	 * @return Di
 	 */
 	public function bind(string $id, $bind, bool $shared = false)
 	{
+		if ('' === $id) {
+			throw new InvalidArgumentException('Bind should be not empty');
+		}
+
 		if ($this->hasBind($id)) {
 			throw new \RuntimeException('Bind is already defined');
 		}
@@ -326,23 +358,23 @@ class Di implements ContainerInterface, DiInterface
 	}
 
 	/**
-	 * @param string $id
-	 * @param mixed  $item
+	 * @param string          $id
+	 * @param string|\Closure $bind
 	 *
 	 * @return Di
 	 */
-	public function bindShared(string $id, $item)
+	public function bindShared(string $id, $bind)
 	{
-		$this->bind($id, $item, $shared = true);
+		$this->bind($id, $bind, $shared = true);
 
 		return $this;
 	}
 
 
 	/**
-	 * @param string $id
-	 * @param mixed  $bind
-	 * @param bool   $shared
+	 * @param string          $id
+	 * @param string|\Closure $bind
+	 * @param bool            $shared
 	 *
 	 * @return Di
 	 */
@@ -350,7 +382,7 @@ class Di implements ContainerInterface, DiInterface
 	{
 		switch ( true ):
 			case ( is_string($bind) ):
-			case ( is_object($bind) && ( get_class($bind) === \Closure::class ) ):
+			case ( $this->isClosure($bind) ):
 				$this->bind[ $id ] = $bind;
 
 				if ($shared) {
@@ -359,7 +391,7 @@ class Di implements ContainerInterface, DiInterface
 				break;
 
 			default:
-				throw new \RuntimeException('Unable to resolve: ' . $id);
+				throw new InvalidArgumentException('Bind should be string or closure: ' . $id);
 
 		endswitch;
 
