@@ -4,13 +4,17 @@ namespace Gzhegow\Di;
 
 use Psr\Container\ContainerInterface;
 use Gzhegow\Di\Exceptions\RuntimeException;
+use Gzhegow\Di\Exceptions\OverflowException;
+use Gzhegow\Di\Exceptions\NotFoundException;
 use Gzhegow\Di\Exceptions\OutOfRangeException;
 use Gzhegow\Di\Exceptions\InvalidArgumentException;
 
 /**
  * Class Di
  */
-class Di implements ContainerInterface, DiInterface
+class Di implements
+	DiInterface,
+	ContainerInterface
 {
 	/**
 	 * @var array
@@ -20,16 +24,49 @@ class Di implements ContainerInterface, DiInterface
 	/**
 	 * @var array
 	 */
-	protected $shared = [];
+	protected $bind = [];
 	/**
 	 * @var array
 	 */
-	protected $bind = [];
+	protected $bindDeferable = [];
+
+	/**
+	 * @var array
+	 */
+	protected $shared = [];
 
 	/**
 	 * @var array
 	 */
 	protected $extends = [];
+
+	/**
+	 * @var ProviderInterface[]
+	 */
+	protected $providers = [];
+	/**
+	 * @var BootableProviderInterface[]
+	 */
+	protected $providersBootable = [];
+	/**
+	 * @var DeferableProviderInterface[][]
+	 */
+	protected $providersDeferable = [];
+
+	/**
+	 * @var array
+	 */
+	protected $providerSnapshots = [
+		'items'   => [],
+		'bind'    => [],
+		'shared'  => [],
+		'extends' => [],
+	];
+
+	/**
+	 * @var bool
+	 */
+	protected $isBooted = false;
 
 
 	/**
@@ -41,7 +78,9 @@ class Di implements ContainerInterface, DiInterface
 			static::$instances[ static::class ] = $this;
 		}
 
-		$this->setSharedOrFail(static::class, $this);
+		if (! $this->hasShared(static::class)) {
+			$this->setSharedOrFail(static::class, $this);
+		}
 	}
 
 
@@ -55,11 +94,107 @@ class Di implements ContainerInterface, DiInterface
 		try {
 			$result = $this->get($id);
 		}
-		catch ( OutOfRangeException $e ) {
-			throw new RuntimeException('Unable to ' . __METHOD__, null, $e);
+		catch ( NotFoundException $e ) {
+			throw new RuntimeException(null, null, $e);
 		}
 
 		return $result;
+	}
+
+
+	/**
+	 * @param string $id
+	 *
+	 * @return mixed
+	 * @throws NotFoundException
+	 */
+	public function getItem(string $id)
+	{
+		if ('' === $id) {
+			throw new InvalidArgumentException('Id should be not empty');
+		}
+
+		if (! $this->hasItem($id)) {
+			throw new NotFoundException('Item not found: ' . $id);
+		}
+
+		$item = $this->items[ $id ];
+
+		if ($this->hasDeferableBind($id)) {
+			$this->bootDeferable($id);
+		}
+
+		return $item;
+	}
+
+	/**
+	 * @param string $id
+	 *
+	 * @return mixed
+	 * @throws NotFoundException
+	 */
+	public function getBind(string $id)
+	{
+		if ('' === $id) {
+			throw new InvalidArgumentException('Id should be not empty');
+		}
+
+		if (! $this->hasBind($id)) {
+			throw new NotFoundException('Item not found: ' . $id);
+		}
+
+		$bind = $this->bind[ $id ];
+
+		if ($this->hasDeferableBind($bind)) {
+			$this->bootDeferable($bind);
+		}
+
+		return $bind;
+	}
+
+
+	/**
+	 * @return ProviderInterface[]
+	 */
+	public function getProviders() : array
+	{
+		return $this->providers;
+	}
+
+	/**
+	 * @return BootableProviderInterface[]
+	 */
+	public function getProvidersBootable() : array
+	{
+		return $this->providersBootable;
+	}
+
+	/**
+	 * @return DeferableProviderInterface[][]
+	 */
+	public function getProvidersDeferable() : array
+	{
+		return $this->providersDeferable;
+	}
+
+
+	/**
+	 * @return bool
+	 */
+	public function isBooted() : bool
+	{
+		return $this->isBooted;
+	}
+
+
+	/**
+	 * @param mixed $id
+	 *
+	 * @return bool
+	 */
+	public function hasItem($id) : bool
+	{
+		return is_string($id) && isset($this->items[ $id ]);
 	}
 
 
@@ -78,9 +213,31 @@ class Di implements ContainerInterface, DiInterface
 	 *
 	 * @return bool
 	 */
-	public function hasItem($id) : bool
+	public function hasDeferableBind($id) : bool
 	{
-		return is_string($id) && isset($this->items[ $id ]);
+		return is_string($id) && isset($this->bindDeferable[ $id ]);
+	}
+
+
+	/**
+	 * @param mixed $id
+	 *
+	 * @return bool
+	 */
+	public function hasShared($id) : bool
+	{
+		return is_string($id) && isset($this->shared[ $id ]);
+	}
+
+
+	/**
+	 * @param mixed $id
+	 *
+	 * @return bool
+	 */
+	public function hasExtends($id) : bool
+	{
+		return is_string($id) && isset($this->extends[ $id ]);
 	}
 
 
@@ -110,7 +267,7 @@ class Di implements ContainerInterface, DiInterface
 			$result = $this->setShared($id, $item);
 		}
 		catch ( OutOfRangeException $e ) {
-			throw new RuntimeException('Unable to ' . __METHOD__, null, $e);
+			throw new RuntimeException(null, null, $e);
 		}
 
 		return $result;
@@ -118,10 +275,77 @@ class Di implements ContainerInterface, DiInterface
 
 
 	/**
+	 * @param array $providers
+	 *
+	 * @return Di
+	 */
+	public function setProviders(array $providers)
+	{
+		foreach ( $this->providers as $provider ) {
+			$this->removeProvider($provider);
+		}
+
+		$this->addProviders($providers);
+
+		return $this;
+	}
+
+
+	/**
+	 * @param array $providers
+	 *
+	 * @return $this
+	 */
+	public function addProviders(array $providers)
+	{
+		foreach ( $providers as $provider ) {
+			$this->addProvider($provider);
+		}
+
+		return $this;
+	}
+
+	/**
+	 * @param ProviderInterface $provider
+	 *
+	 * @return Di
+	 */
+	public function addProvider(ProviderInterface $provider)
+	{
+		/** @var ProviderInterface $provider */
+		/** @var BootableProviderInterface $bootableProvider */
+		/** @var DeferableProviderInterface $deferableProvider */
+
+		$class = get_class($provider);
+
+		$this->providers[ $class ] = $provider;
+
+		$this->providerRegistration($provider);
+
+		if (is_a($bootableProvider = $provider, BootableProviderInterface::class)) {
+			$this->providersBootable[ $class ] = $provider;
+
+			if ($this->isBooted()) {
+				$this->providerBooting($bootableProvider);
+			}
+		}
+
+		if (is_a($deferableProvider = $provider, DeferableProviderInterface::class)) {
+			$this->providersDeferable[ $class ] = $provider;
+
+			foreach ( $deferableProvider->provides() as $id ) {
+				$this->bindDeferable[ $id ][ $class ] = true;
+			}
+		}
+
+		return $this;
+	}
+
+	/**
 	 * @param string $id
 	 *
 	 * @return mixed
-	 * @throws OutOfRangeException
+	 * @throws NotFoundException
 	 */
 	public function get($id)
 	{
@@ -133,23 +357,31 @@ class Di implements ContainerInterface, DiInterface
 			throw new InvalidArgumentException('Id should be not empty');
 		}
 
+		$result = null;
+
 		if ($this->hasItem($id)) {
-			return $this->items[ $id ];
-		}
+			$result = $this->getItem($id);
 
-		if ($this->hasBind($id)) {
-			$bind = $this->bind[ $id ];
+		} else {
+			if ($this->hasBind($id)) {
+				$bind = $this->bind[ $id ];
 
-			if (is_string($bind) && $this->hasItem($bind)) {
-				return $this->items[ $bind ];
+				if ($this->hasItem($bind)) {
+					$result = $this->getItem($bind);
+				}
+
+			} else {
+				$bind = $id;
+
+			}
+
+			if (! $result) {
+				$result = $this->createAutowired($bind);
 			}
 		}
 
-		$item = $this->createAutowired($id);
-
-		return $item;
+		return $result;
 	}
-
 
 	/**
 	 * @param string $id
@@ -162,7 +394,6 @@ class Di implements ContainerInterface, DiInterface
 			|| $this->hasBind($id)
 			|| ( is_string($id) && class_exists($id) );
 	}
-
 
 	/**
 	 * @param string $id
@@ -191,7 +422,6 @@ class Di implements ContainerInterface, DiInterface
 		return $this;
 	}
 
-
 	/**
 	 * @param string|array $func
 	 *
@@ -214,7 +444,7 @@ class Di implements ContainerInterface, DiInterface
 	}
 
 	/**
-	 * @param \Closure $func
+	 * @param mixed $func
 	 *
 	 * @return bool
 	 */
@@ -255,85 +485,15 @@ class Di implements ContainerInterface, DiInterface
 
 
 	/**
-	 * @param string $id
-	 * @param array  $params
+	 * @param mixed $provider
 	 *
-	 * @return mixed
-	 * @throws OutOfRangeException
+	 * @return $this
 	 */
-	public function createAutowired(string $id, array $params = [])
+	public function registerProvider($provider)
 	{
-		if ('' === $id) {
-			throw new InvalidArgumentException('Id should be not empty');
-		}
+		$this->pipeRegisterProvider($provider);
 
-		if ($this->hasBind($id)) {
-			$bind = $this->bind[ $id ];
-
-		} elseif (class_exists($id)) {
-			$bind = $id;
-
-		} else {
-			throw new OutOfRangeException('Bind not found: ' . $id);
-
-		}
-
-		switch ( true ):
-			case ( is_string($bind) && class_exists($bind) ):
-				$arguments = $this->autowireClass($bind, $params);
-
-				$item = new $bind(...$arguments);
-
-				if (isset($this->shared[ $bind ])) {
-					if (! isset($this->items[ $bind ])) {
-						$this->items[ $bind ] = $item;
-					}
-				}
-
-				break;
-
-			case ( is_object($bind) && is_a($bind, \Closure::class) ):
-				$item = $this->callAutowired($bind, $params);
-
-				break;
-
-			default:
-				throw new \RuntimeException('Incorrect bind found');
-
-		endswitch;
-
-		if (isset($this->extends[ $id ])) {
-			foreach ( $this->extends[ $id ] as $func ) {
-				$item = $this->callAutowired($func, [ $item ])
-					?? $item; // if null returns previous instance
-			}
-		}
-
-		if (isset($this->shared[ $id ])) {
-			if (! isset($this->items[ $id ])) {
-				$this->items[ $id ] = $item;
-			}
-		}
-
-		return $item;
-	}
-
-	/**
-	 * @param string $id
-	 * @param array  $params
-	 *
-	 * @return mixed
-	 */
-	public function createAutowiredOrFail(string $id, array $params = [])
-	{
-		try {
-			$result = $this->createAutowired($id, $params);
-		}
-		catch ( OutOfRangeException $e ) {
-			throw new \RuntimeException('Unable to ' . __METHOD__, null, $e);
-		}
-
-		return $result;
+		return $this;
 	}
 
 
@@ -347,14 +507,16 @@ class Di implements ContainerInterface, DiInterface
 	public function bind(string $id, $bind, bool $shared = false)
 	{
 		if ('' === $id) {
-			throw new InvalidArgumentException('Bind should be not empty');
+			throw new InvalidArgumentException('Id should be not empty');
 		}
 
 		if ($this->hasBind($id)) {
-			throw new \RuntimeException('Bind is already defined');
+			throw new OverflowException('Bind is already defined: ' . $id);
 		}
 
-		return $this->rebind($id, $bind, $shared);
+		$this->rebind($id, $bind, $shared);
+
+		return $this;
 	}
 
 	/**
@@ -380,18 +542,26 @@ class Di implements ContainerInterface, DiInterface
 	 */
 	public function rebind(string $id, $bind, bool $shared = false)
 	{
+		if ('' === $id) {
+			throw new InvalidArgumentException('Id should be not empty');
+		}
+
+		if (! ( 0
+			|| is_string($bind)
+			|| $this->isClosure($bind)
+		)) {
+			throw new InvalidArgumentException('Bind should be string or closure');
+		}
+
 		switch ( true ):
-			case ( is_string($bind) ):
 			case ( $this->isClosure($bind) ):
+			case ( $this->isClass($bind) ):
 				$this->bind[ $id ] = $bind;
 
 				if ($shared) {
 					$this->shared[ $id ] = true;
 				}
 				break;
-
-			default:
-				throw new InvalidArgumentException('Bind should be string or closure: ' . $id);
 
 		endswitch;
 
@@ -413,16 +583,204 @@ class Di implements ContainerInterface, DiInterface
 
 
 	/**
-	 * @param string   $id
-	 * @param \Closure $func
+	 * @param string $id
+	 * @param mixed  $item
+	 *
+	 * @return Di
+	 * @throws OutOfRangeException()
+	 */
+	public function singleton(string $id, $item)
+	{
+		$this->setShared($id, $item);
+
+		return $this;
+	}
+
+
+	/**
+	 * @param string                   $id
+	 * @param string|callable|\Closure $func
 	 *
 	 * @return Di
 	 */
-	public function extend(string $id, \Closure $func)
+	public function extend(string $id, $func)
 	{
+		if ('' === $id) {
+			throw new InvalidArgumentException('Id should be not empty');
+		}
+
+		if (! ( 0
+			|| $this->isClosure($func)
+			|| $this->isHandler($func)
+			|| $this->isCallable($func)
+		)) {
+			throw new InvalidArgumentException('Func should be closure, handler or callable');
+		}
+
 		$this->extends[ $id ][] = $func;
 
 		return $this;
+	}
+
+
+	/**
+	 * @param ProviderInterface $provider
+	 *
+	 * @return Di
+	 */
+	public function removeProvider(ProviderInterface $provider)
+	{
+		/** @var DeferableProviderInterface $deferableProvider */
+
+		$class = get_class($provider);
+
+		if (isset($this->providerSnapshots[ $class ])) {
+			foreach ( $this->providerSnapshots[ $class ] as $key => $items ) {
+				foreach ( $items as $idx => $item ) {
+					unset($this->{$key}[ $idx ]);
+				}
+			}
+
+			unset($this->providerSnapshots[ $class ]);
+		}
+
+		if (is_a($deferableProvider = $provider, BootableProviderInterface::class)) {
+			unset($this->providersBootable[ $class ]);
+		}
+
+		if (is_a($deferableProvider = $provider, DeferableProviderInterface::class)) {
+			foreach ( $this->bindDeferable as $id => $providers ) {
+				unset($this->bindDeferable[ $id ][ $class ]);
+			}
+
+			unset($this->providersDeferable[ $class ]);
+		}
+
+		return $this;
+	}
+
+
+	/**
+	 * @return Di
+	 */
+	public function boot()
+	{
+		$this->isBooted = true;
+
+		foreach ( $this->providersBootable as $provider ) {
+			$this->providerBooting($provider);
+		}
+
+		return $this;
+	}
+
+	/**
+	 * @param string $id
+	 *
+	 * @return Di
+	 * @throws NotFoundException
+	 */
+	public function bootDeferable(string $id)
+	{
+		if ('' === $id) {
+			throw new InvalidArgumentException('Id should be not empty');
+		}
+
+		if (! $this->hasDeferableBind($id)) {
+			throw new NotFoundException('Deferable bind not found: ' . $id);
+		}
+
+		foreach ( $this->bindDeferable[ $id ] as $provider ) {
+			$this->providerBooting($provider);
+		}
+
+		return $this;
+	}
+
+
+	/**
+	 * @param string $id
+	 * @param array  $params
+	 *
+	 * @return mixed
+	 * @throws NotFoundException
+	 */
+	public function createAutowired(string $id, array $params = [])
+	{
+		if ('' === $id) {
+			throw new InvalidArgumentException('Id should be not empty');
+		}
+
+		if ($this->hasBind($id)) {
+			$bind = $this->bind[ $id ];
+
+		} elseif (class_exists($id)) {
+			$bind = $id;
+
+		} else {
+			throw new NotFoundException('Bind not found: ' . $id);
+
+		}
+
+		if ($this->hasDeferableBind($bind)) {
+			$this->bootDeferable($bind);
+		}
+
+		switch ( true ):
+			case ( $this->isClosure($bind) ):
+				$item = $this->callAutowired($bind, $params);
+
+				break;
+
+			case ( $this->isClass($bind) ):
+				$arguments = $this->autowireClass($bind, $params);
+				$item = new $bind(...$arguments);
+
+				break;
+
+			default:
+				throw new RuntimeException('Unsupported bind type: ' . gettype($bind));
+
+		endswitch;
+
+		if ($this->hasExtends($id)) {
+			foreach ( $this->extends[ $id ] as $func ) {
+				$item = null
+					?? $this->callAutowired($func, [
+						0   => $item,
+						$id => $item,
+					])
+					?? $item;
+			}
+		}
+
+		foreach ( [ $id, $bind ] as $key ) {
+			if ($this->hasShared($key)) {
+				if (! isset($this->items[ $key ])) {
+					$this->items[ $key ] = $item;
+				}
+			}
+		}
+
+		return $item;
+	}
+
+	/**
+	 * @param string $id
+	 * @param array  $params
+	 *
+	 * @return mixed
+	 */
+	public function createAutowiredOrFail(string $id, array $params = [])
+	{
+		try {
+			$result = $this->createAutowired($id, $params);
+		}
+		catch ( NotFoundException $e ) {
+			throw new RuntimeException(null, null, $e);
+		}
+
+		return $result;
 	}
 
 
@@ -434,6 +792,15 @@ class Di implements ContainerInterface, DiInterface
 	 */
 	public function callAutowired(callable $func, array $params = [])
 	{
+		if (! ( 0
+			|| $this->isClosure($func)
+			|| $this->isHandler($func)
+			|| $this->isCallable($func)
+		)) {
+			throw new InvalidArgumentException('Func should be closure, handler or callable');
+		}
+
+		$arguments = [];
 		switch ( true ) {
 			case $this->isClosure($func):
 				$arguments = $this->autowireClosure($func, $params);
@@ -444,11 +811,8 @@ class Di implements ContainerInterface, DiInterface
 				break;
 
 			case $this->isCallable($func):
-				$arguments = $this->autowireMethod($func[ 0 ], $func[ 1 ], $params);
+				$arguments = $this->autowireCallable($func, $params);
 				break;
-
-			default:
-				throw new \InvalidArgumentException('Incorrect callable passed');
 		}
 
 		$result = call_user_func_array($func, $arguments);
@@ -456,22 +820,95 @@ class Di implements ContainerInterface, DiInterface
 		return $result;
 	}
 
+
 	/**
-	 * @param callable $func
-	 * @param array    $params
+	 * @param ProviderInterface $provider
 	 *
-	 * @return mixed
+	 * @return Di
 	 */
-	public function callAutowiredOrFail(callable $func, array &$params = [])
+	protected function providerRegistration(ProviderInterface $provider)
 	{
-		try {
-			$result = $this->callAutowired($func, $params);
-		}
-		catch ( \Exception $e ) {
-			throw new \RuntimeException('Unable to ' . __METHOD__, null, $e);
+		if ($provider->isRegistered()) {
+			return $this;
 		}
 
-		return $result;
+		$class = get_class($provider);
+
+		$snapshot = [
+			'items'   => $this->items,
+			'bind'    => $this->bind,
+			'shared'  => $this->shared,
+			'extends' => $this->extends,
+		];
+
+		$provider->register();
+
+		foreach ( array_keys($snapshot) as $key ) {
+			$snapshot[ $key ] = array_diff_key($this->{$key}, $snapshot[ $key ]);
+
+			$this->providerSnapshots[ $class ] = $snapshot;
+		}
+
+		return $this;
+	}
+
+	/**
+	 * @param BootProviderInterface $provider
+	 *
+	 * @return Di
+	 */
+	protected function providerBooting(BootProviderInterface $provider)
+	{
+		if (! $provider->isBooted()) {
+			$provider->boot();
+		}
+
+		return $this;
+	}
+
+
+	/**
+	 * @param mixed $provider
+	 *
+	 * @return ProviderInterface
+	 */
+	protected function pipeRegisterProvider($provider) : ProviderInterface
+	{
+		$instance = $this->registerProviderClass($provider)
+			?? $this->registerProviderInstance($provider);
+
+		return $instance;
+	}
+
+	/**
+	 * @param mixed $provider
+	 *
+	 * @return null|Di
+	 */
+	protected function registerProviderClass($provider) : ?ProviderInterface
+	{
+		if (! is_string($provider)) return null;
+
+		$instance = $this->createAutowiredOrFail($provider);
+
+		$this->addProvider($instance);
+
+		return $instance;
+	}
+
+	/**
+	 * @param mixed $provider
+	 *
+	 * @return ProviderInterface
+	 */
+	protected function registerProviderInstance($provider) : ?ProviderInterface
+	{
+		if (! is_object($provider)) return null;
+		if (! is_a($provider, ProviderInterface::class)) return null;
+
+		$this->addProvider($provider);
+
+		return $provider;
 	}
 
 
@@ -486,22 +923,31 @@ class Di implements ContainerInterface, DiInterface
 		$rc = $this->reflectClass($class);
 		$rm = $rc->getConstructor();
 
-		return isset($rm)
+		$result = isset($rm)
 			? $this->autowireParams($rm->getParameters(), $params)
 			: [];
+
+		return $result;
 	}
 
+
 	/**
-	 * @param \Closure $func
-	 * @param array    $params
+	 * @param       $callable
+	 * @param array $params
 	 *
 	 * @return array
 	 */
-	protected function autowireCallable(\Closure $func, array &$params = []) : array
+	protected function autowireCallable($callable, array &$params = []) : array
 	{
-		$rf = $this->reflectClosure($func);
+		if (! $this->isCallable($callable)) {
+			throw new InvalidArgumentException('Callable should be callable');
+		}
 
-		return $this->autowireParams($rf->getParameters(), $params);
+		$rf = $this->reflectCallable($callable);
+
+		$result = $this->autowireParams($rf->getParameters(), $params);
+
+		return $result;
 	}
 
 	/**
@@ -514,7 +960,9 @@ class Di implements ContainerInterface, DiInterface
 	{
 		$rf = $this->reflectClosure($func);
 
-		return $this->autowireParams($rf->getParameters(), $params);
+		$result = $this->autowireParams($rf->getParameters(), $params);
+
+		return $result;
 	}
 
 	/**
@@ -524,12 +972,19 @@ class Di implements ContainerInterface, DiInterface
 	 * @return array
 	 * @noinspection PhpUnusedParameterInspection
 	 */
-	protected function autowireHandler($handler, array &$params = []) : array
+	protected function autowireHandler(string $handler, array &$params = []) : array
 	{
+		if (! $this->isHandler($handler)) {
+			throw new InvalidArgumentException('Handler should be handler-like');
+		}
+
 		[ $id, $method ] = explode('@', $handler) + [ null, null ];
 
-		return $this->autowireMethod($this->getOrFail($id), $method);
+		$result = $this->autowireMethod($this->getOrFail($id), $method);
+
+		return $result;
 	}
+
 
 	/**
 	 * @param mixed  $object
@@ -540,6 +995,10 @@ class Di implements ContainerInterface, DiInterface
 	 */
 	protected function autowireMethod($object, string $method, array &$params = []) : array
 	{
+		if (! is_object($object)) {
+			throw new InvalidArgumentException('Object should be object');
+		}
+
 		$rc = $this->reflectClass($object);
 		$rm = $this->reflectMethod($rc, $method);
 
@@ -608,8 +1067,8 @@ class Di implements ContainerInterface, DiInterface
 					try {
 						$item = $this->get($rpTypeName);
 					}
-					catch ( \Exception $e ) {
-						throw new \RuntimeException('Unable to ' . __METHOD__, null, $e);
+					catch ( NotFoundException $e ) {
+						throw new RuntimeException(null, null, $e);
 					}
 				}
 			}
@@ -625,7 +1084,7 @@ class Di implements ContainerInterface, DiInterface
 		if (isset($item)) {
 			$int = array_merge(
 				array_slice($int, 0, $rpPos, true),
-				[ $rpPos => $item ],
+				[ $rpPos => $item ], // insert between
 				array_slice($int, $rpPos, null, true)
 			);
 		}
@@ -636,21 +1095,59 @@ class Di implements ContainerInterface, DiInterface
 
 
 	/**
-	 * @param $object
+	 * @param string|object $object
 	 *
 	 * @return \ReflectionClass
 	 */
 	protected function reflectClass($object) : \ReflectionClass
 	{
 		try {
-			$rc = new \ReflectionClass($object);
+			if (is_object($object)) {
+				if (is_a($object, \ReflectionClass::class)) {
+					$rc = $object;
+
+				} else {
+					$rc = new \ReflectionClass(get_class($object));
+
+				}
+			} else {
+				$rc = new \ReflectionClass($object);
+
+			}
 		}
 		catch ( \ReflectionException $e ) {
-			throw new \RuntimeException('Unable to ' . __METHOD__);
+			throw new RuntimeException(null, null, $e);
 		}
 
 		return $rc;
 	}
+
+	/**
+	 * @param        $object
+	 * @param string $method
+	 *
+	 * @return \ReflectionMethod
+	 */
+	protected function reflectMethod($object, string $method) : \ReflectionMethod
+	{
+		/** @var \ReflectionClass $reflectionClass */
+
+		try {
+			if (is_object($object) && is_a($reflectionClass = $object, \ReflectionClass::class)) {
+				$rm = $reflectionClass->getMethod($method);
+
+			} else {
+				$rm = new \ReflectionMethod($object, $method);
+
+			}
+		}
+		catch ( \ReflectionException $e ) {
+			throw new RuntimeException(null, null, $e);
+		}
+
+		return $rm;
+	}
+
 
 	/**
 	 * @param \Closure $func
@@ -663,28 +1160,36 @@ class Di implements ContainerInterface, DiInterface
 			$rf = new \ReflectionFunction($func);
 		}
 		catch ( \ReflectionException $e ) {
-			throw new \RuntimeException('Unable to ' . __METHOD__);
+			throw new RuntimeException(null, null, $e);
 		}
 
 		return $rf;
 	}
 
 	/**
-	 * @param \ReflectionClass $rc
-	 * @param string           $method
+	 * @param callable $callable
 	 *
-	 * @return \ReflectionMethod
+	 * @return \ReflectionFunction|\ReflectionMethod
 	 */
-	protected function reflectMethod(\ReflectionClass $rc, string $method) : \ReflectionMethod
+	protected function reflectCallable($callable)
 	{
 		try {
-			$rm = $rc->getMethod($method);
+			if ($this->isClosure($callable)) {
+				$rf = $this->reflectClosure($callable);
+
+			} elseif (is_array($callable)) {
+				$rf = $this->reflectMethod($callable[ 0 ], $callable[ 1 ]);
+
+			} else {
+				$rf = new \ReflectionFunction($callable);
+
+			}
 		}
 		catch ( \ReflectionException $e ) {
-			throw new \RuntimeException('Unable to ' . __METHOD__);
+			throw new RuntimeException(null, null, $e);
 		}
 
-		return $rm;
+		return $rf;
 	}
 
 
@@ -709,9 +1214,10 @@ class Di implements ContainerInterface, DiInterface
 	/**
 	 * @return static
 	 */
-	public static function getInstance()
+	public static function getInstance() : Di
 	{
-		return static::$instances[ static::class ] = static::$instances[ static::class ] ?? new static();
+		return static::$instances[ static::class ] = static::$instances[ static::class ]
+			?? new static();
 	}
 
 
@@ -720,8 +1226,20 @@ class Di implements ContainerInterface, DiInterface
 	 * @param array  $params
 	 *
 	 * @return mixed
+	 * @throws NotFoundException
 	 */
 	public static function make(string $id, array $params = [])
+	{
+		return static::getInstance()->createAutowired($id, $params);
+	}
+
+	/**
+	 * @param string $id
+	 * @param array  $params
+	 *
+	 * @return mixed
+	 */
+	public static function makeOrFail(string $id, array $params = [])
 	{
 		return static::getInstance()->createAutowiredOrFail($id, $params);
 	}

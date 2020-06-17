@@ -3,6 +3,7 @@
 namespace Gzhegow\Di;
 
 
+use Gzhegow\Di\Exceptions\NotFoundException;
 use Gzhegow\Di\Exceptions\OutOfRangeException;
 
 /**
@@ -19,11 +20,44 @@ interface DiInterface
 
 
 	/**
-	 * @param mixed $id
+	 * @param string $id
 	 *
+	 * @return mixed
+	 * @throws NotFoundException
+	 */
+	public function getItem(string $id);
+
+
+	/**
+	 * @param string $id
+	 *
+	 * @return mixed
+	 * @throws NotFoundException
+	 */
+	public function getBind(string $id);
+
+
+	/**
+	 * @return ProviderInterface[]
+	 */
+	public function getProviders() : array;
+
+	/**
+	 * @return BootableProviderInterface[]
+	 */
+	public function getProvidersBootable() : array;
+
+	/**
+	 * @return DeferableProviderInterface[][]
+	 */
+	public function getProvidersDeferable() : array;
+
+
+	/**
 	 * @return bool
 	 */
-	public function hasBind($id) : bool;
+	public function isBooted() : bool;
+
 
 	/**
 	 * @param mixed $id
@@ -31,6 +65,38 @@ interface DiInterface
 	 * @return bool
 	 */
 	public function hasItem($id) : bool;
+
+
+	/**
+	 * @param mixed $id
+	 *
+	 * @return bool
+	 */
+	public function hasBind($id) : bool;
+
+
+	/**
+	 * @param mixed $id
+	 *
+	 * @return bool
+	 */
+	public function hasDeferableBind($id) : bool;
+
+
+	/**
+	 * @param mixed $id
+	 *
+	 * @return bool
+	 */
+	public function hasShared($id) : bool;
+
+
+	/**
+	 * @param mixed $id
+	 *
+	 * @return bool
+	 */
+	public function hasExtends($id) : bool;
 
 
 	/**
@@ -52,13 +118,34 @@ interface DiInterface
 
 
 	/**
+	 * @param array $providers
+	 *
+	 * @return Di
+	 */
+	public function setProviders(array $providers);
+
+	/**
+	 * @param array $providers
+	 *
+	 * @return $this
+	 */
+	public function addProviders(array $providers);
+
+	/**
+	 * @param ProviderInterface $provider
+	 *
+	 * @return Di
+	 */
+	public function addProvider(ProviderInterface $provider);
+
+
+	/**
 	 * @param string $id
 	 *
 	 * @return mixed
-	 * @throws OutOfRangeException
+	 * @throws NotFoundException
 	 */
 	public function get($id);
-
 
 	/**
 	 * @param string $id
@@ -66,7 +153,6 @@ interface DiInterface
 	 * @return bool
 	 */
 	public function has($id);
-
 
 	/**
 	 * @param string $id
@@ -78,6 +164,7 @@ interface DiInterface
 	 */
 	public function set(string $id, $item, bool $shared = false);
 
+
 	/**
 	 * @param string $configPath
 	 *
@@ -87,45 +174,35 @@ interface DiInterface
 
 
 	/**
-	 * @param string $id
-	 * @param array  $params
+	 * @param mixed $provider
 	 *
-	 * @return mixed
-	 * @throws OutOfRangeException
+	 * @return $this
 	 */
-	public function createAutowired(string $id, array $params = []);
-
-	/**
-	 * @param string $id
-	 * @param array  $params
-	 *
-	 * @return mixed
-	 */
-	public function createAutowiredOrFail(string $id, array $params = []);
+	public function registerProvider($provider);
 
 
 	/**
-	 * @param string $id
-	 * @param mixed  $bind
-	 * @param bool   $shared
+	 * @param string          $id
+	 * @param string|\Closure $bind
+	 * @param bool            $shared
 	 *
 	 * @return Di
 	 */
 	public function bind(string $id, $bind, bool $shared = false);
 
 	/**
-	 * @param string $id
-	 * @param mixed  $item
+	 * @param string          $id
+	 * @param string|\Closure $bind
 	 *
 	 * @return Di
 	 */
-	public function bindShared(string $id, $item);
+	public function bindShared(string $id, $bind);
 
 
 	/**
-	 * @param string $id
-	 * @param mixed  $bind
-	 * @param bool   $shared
+	 * @param string          $id
+	 * @param string|\Closure $bind
+	 * @param bool            $shared
 	 *
 	 * @return Di
 	 */
@@ -141,12 +218,61 @@ interface DiInterface
 
 
 	/**
-	 * @param string   $id
-	 * @param \Closure $func
+	 * @param string $id
+	 * @param mixed  $item
+	 *
+	 * @return Di
+	 * @throws OutOfRangeException()
+	 */
+	public function singleton(string $id, $item);
+
+	/**
+	 * @param string                   $id
+	 * @param string|callable|\Closure $func
 	 *
 	 * @return Di
 	 */
-	public function extend(string $id, \Closure $func);
+	public function extend(string $id, $func);
+
+
+	/**
+	 * @param ProviderInterface $provider
+	 *
+	 * @return Di
+	 */
+	public function removeProvider(ProviderInterface $provider);
+
+
+	/**
+	 * @return Di
+	 */
+	public function boot();
+
+	/**
+	 * @param string $id
+	 *
+	 * @return Di
+	 * @throws NotFoundException
+	 */
+	public function bootDeferable(string $id);
+
+
+	/**
+	 * @param string $id
+	 * @param array  $params
+	 *
+	 * @return mixed
+	 * @throws NotFoundException
+	 */
+	public function createAutowired(string $id, array $params = []);
+
+	/**
+	 * @param string $id
+	 * @param array  $params
+	 *
+	 * @return mixed
+	 */
+	public function createAutowiredOrFail(string $id, array $params = []);
 
 
 	/**
@@ -156,12 +282,4 @@ interface DiInterface
 	 * @return mixed
 	 */
 	public function callAutowired(callable $func, array $params = []);
-
-	/**
-	 * @param callable $func
-	 * @param array    $params
-	 *
-	 * @return mixed
-	 */
-	public function callAutowiredOrFail(callable $func, array &$params = []);
 }
