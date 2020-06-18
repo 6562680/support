@@ -769,24 +769,24 @@ class Di implements
 	public function callAutowired(callable $func, array $params = [])
 	{
 		if (! ( 0
-			|| $this->isClosure($func)
-			|| $this->isHandler($func)
-			|| $this->isCallable($func)
+			|| ( $isClosure = $this->isClosure($func) )
+			|| ( $isHandler = $this->isHandler($func) )
+			|| ( $isCallable = $this->isCallable($func) )
 		)) {
 			throw new InvalidArgumentException('Func should be closure, handler or callable');
 		}
 
 		$arguments = [];
 		switch ( true ) {
-			case $this->isClosure($func):
+			case $isClosure:
 				$arguments = $this->autowireClosure($func, $params);
 				break;
 
-			case $this->isHandler($func):
+			case $isHandler:
 				$arguments = $this->autowireHandler($func, $params);
 				break;
 
-			case $this->isCallable($func):
+			case $isCallable:
 				$arguments = $this->autowireCallable($func, $params);
 				break;
 		}
@@ -850,7 +850,8 @@ class Di implements
 	 */
 	protected function pipeRegisterProvider($provider) : ProviderInterface
 	{
-		$instance = $this->registerProviderClass($provider)
+		$instance = null
+			?? $this->registerProviderClass($provider)
 			?? $this->registerProviderInstance($provider);
 
 		return $instance;
@@ -867,9 +868,9 @@ class Di implements
 
 		$instance = $this->createAutowiredOrFail($provider);
 
-		$this->addProvider($instance);
+		$provider = $this->registerProviderInstance($instance);
 
-		return $instance;
+		return $provider;
 	}
 
 	/**
@@ -962,49 +963,14 @@ class Di implements
 	protected function autowireClass(string $class, array &$params = []) : array
 	{
 		$rc = $this->reflectClass($class);
-		$rm = $rc->getConstructor();
 
 		$result = isset($rm)
-			? $this->autowireParams($rm->getParameters(), $params)
+			? $this->autowireParams($rc->getConstructor()->getParameters(), $params)
 			: [];
 
 		return $result;
 	}
 
-
-	/**
-	 * @param       $callable
-	 * @param array $params
-	 *
-	 * @return array
-	 */
-	protected function autowireCallable($callable, array &$params = []) : array
-	{
-		if (! $this->isCallable($callable)) {
-			throw new InvalidArgumentException('Callable should be callable');
-		}
-
-		$rf = $this->reflectCallable($callable);
-
-		$result = $this->autowireParams($rf->getParameters(), $params);
-
-		return $result;
-	}
-
-	/**
-	 * @param \Closure $func
-	 * @param array    $params
-	 *
-	 * @return array
-	 */
-	protected function autowireClosure(\Closure $func, array &$params = []) : array
-	{
-		$rf = $this->reflectClosure($func);
-
-		$result = $this->autowireParams($rf->getParameters(), $params);
-
-		return $result;
-	}
 
 	/**
 	 * @param mixed $handler
@@ -1044,6 +1010,41 @@ class Di implements
 		$rm = $this->reflectMethod($rc, $method);
 
 		return $this->autowireParams($rm->getParameters(), $params);
+	}
+
+
+	/**
+	 * @param       $callable
+	 * @param array $params
+	 *
+	 * @return array
+	 */
+	protected function autowireCallable($callable, array &$params = []) : array
+	{
+		if (! $this->isCallable($callable)) {
+			throw new InvalidArgumentException('Callable should be callable');
+		}
+
+		$rf = $this->reflectCallable($callable);
+
+		$result = $this->autowireParams($rf->getParameters(), $params);
+
+		return $result;
+	}
+
+	/**
+	 * @param \Closure $func
+	 * @param array    $params
+	 *
+	 * @return array
+	 */
+	protected function autowireClosure(\Closure $func, array &$params = []) : array
+	{
+		$rf = $this->reflectClosure($func);
+
+		$result = $this->autowireParams($rf->getParameters(), $params);
+
+		return $result;
 	}
 
 
@@ -1097,7 +1098,8 @@ class Di implements
 			if (isset($str[ $rpTypeName = $rpType->getName() ])) {
 				$item = $str[ $rpTypeName ];
 
-			} elseif (interface_exists($rpTypeName)
+			} elseif (0
+				|| interface_exists($rpTypeName)
 				|| class_exists($rpTypeName)
 			) {
 				if (isset($int[ $rpPos ]) && is_object($int[ $rpPos ]) && is_a($int[ $rpPos ], $rpTypeName)) {
