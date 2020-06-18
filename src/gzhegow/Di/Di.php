@@ -127,6 +127,7 @@ class Di implements
 		return $item;
 	}
 
+
 	/**
 	 * @param string $id
 	 *
@@ -305,6 +306,7 @@ class Di implements
 		return $this;
 	}
 
+
 	/**
 	 * @param ProviderInterface $provider
 	 *
@@ -340,6 +342,7 @@ class Di implements
 
 		return $this;
 	}
+
 
 	/**
 	 * @param string $id
@@ -383,6 +386,7 @@ class Di implements
 		return $result;
 	}
 
+
 	/**
 	 * @param string $id
 	 *
@@ -390,10 +394,12 @@ class Di implements
 	 */
 	public function has($id)
 	{
-		return $this->hasItem($id)
+		return 0
+			|| $this->hasItem($id)
 			|| $this->hasBind($id)
-			|| ( is_string($id) && class_exists($id) );
+			|| $this->isClass($id);
 	}
+
 
 	/**
 	 * @param string $id
@@ -421,6 +427,7 @@ class Di implements
 
 		return $this;
 	}
+
 
 	/**
 	 * @param string|array $func
@@ -485,19 +492,6 @@ class Di implements
 
 
 	/**
-	 * @param mixed $provider
-	 *
-	 * @return $this
-	 */
-	public function registerProvider($provider)
-	{
-		$this->pipeRegisterProvider($provider);
-
-		return $this;
-	}
-
-
-	/**
 	 * @param string          $id
 	 * @param string|\Closure $bind
 	 * @param bool            $shared
@@ -547,23 +541,17 @@ class Di implements
 		}
 
 		if (! ( 0
-			|| is_string($bind)
-			|| $this->isClosure($bind)
+			|| ( $isClosure = $this->isClosure($bind) )
+			|| ( $isClass = $this->isClass($bind) )
 		)) {
-			throw new InvalidArgumentException('Bind should be string or closure');
+			throw new InvalidArgumentException('Bind should be class name or closure');
 		}
 
-		switch ( true ):
-			case ( $this->isClosure($bind) ):
-			case ( $this->isClass($bind) ):
-				$this->bind[ $id ] = $bind;
+		$this->bind[ $id ] = $bind;
 
-				if ($shared) {
-					$this->shared[ $id ] = true;
-				}
-				break;
-
-		endswitch;
+		if ($shared) {
+			$this->shared[ $id ] = true;
+		}
 
 		return $this;
 	}
@@ -624,37 +612,25 @@ class Di implements
 
 
 	/**
-	 * @param ProviderInterface $provider
+	 * @param mixed $provider
+	 *
+	 * @return $this
+	 */
+	public function registerProvider($provider)
+	{
+		$this->pipeRegisterProvider($provider);
+
+		return $this;
+	}
+
+	/**
+	 * @param mixed $provider
 	 *
 	 * @return Di
 	 */
-	public function removeProvider(ProviderInterface $provider)
+	public function removeProvider($provider)
 	{
-		/** @var DeferableProviderInterface $deferableProvider */
-
-		$class = get_class($provider);
-
-		if (isset($this->providerSnapshots[ $class ])) {
-			foreach ( $this->providerSnapshots[ $class ] as $key => $items ) {
-				foreach ( $items as $idx => $item ) {
-					unset($this->{$key}[ $idx ]);
-				}
-			}
-
-			unset($this->providerSnapshots[ $class ]);
-		}
-
-		if (is_a($deferableProvider = $provider, BootableProviderInterface::class)) {
-			unset($this->providersBootable[ $class ]);
-		}
-
-		if (is_a($deferableProvider = $provider, DeferableProviderInterface::class)) {
-			foreach ( $this->bindDeferable as $id => $providers ) {
-				unset($this->bindDeferable[ $id ][ $class ]);
-			}
-
-			unset($this->providersDeferable[ $class ]);
-		}
+		$this->pipeRemoveProvider($provider);
 
 		return $this;
 	}
@@ -909,6 +885,71 @@ class Di implements
 		$this->addProvider($provider);
 
 		return $provider;
+	}
+
+
+	/**
+	 * @param string $provider
+	 *
+	 * @return Di
+	 */
+	protected function pipeRemoveProvider($provider) : Di
+	{
+		$di = null
+			?? $this->removeProviderInstance($provider)
+			?? $this->removeProviderClass($provider);
+
+		return $di;
+	}
+
+	/**
+	 * @param mixed $provider
+	 *
+	 * @return Di
+	 */
+	protected function removeProviderInstance($provider) : ?Di
+	{
+		if (! is_object($provider)) return null;
+		if (! is_a($provider, ProviderInterface::class)) return null;
+
+		$di = $this->removeProviderClass(get_class($provider));
+
+		return $di;
+	}
+
+	/**
+	 * @param mixed $providerClass
+	 *
+	 * @return Di
+	 */
+	protected function removeProviderClass($providerClass) : ?Di
+	{
+		if (! is_string($providerClass)) return null;
+		if ('' === $providerClass) return null;
+
+		if (isset($this->providerSnapshots[ $providerClass ])) {
+			foreach ( $this->providerSnapshots[ $providerClass ] as $key => $items ) {
+				foreach ( $items as $idx => $item ) {
+					unset($this->{$key}[ $idx ]);
+				}
+			}
+
+			unset($this->providerSnapshots[ $providerClass ]);
+		}
+
+		if (is_a($deferableProvider = $providerClass, BootableProviderInterface::class, true)) {
+			unset($this->providersBootable[ $providerClass ]);
+		}
+
+		if (is_a($deferableProvider = $providerClass, DeferableProviderInterface::class, true)) {
+			foreach ( $this->bindDeferable as $id => $providers ) {
+				unset($this->bindDeferable[ $id ][ $providerClass ]);
+			}
+
+			unset($this->providersDeferable[ $providerClass ]);
+		}
+
+		return $this;
 	}
 
 
