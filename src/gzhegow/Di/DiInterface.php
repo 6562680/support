@@ -2,7 +2,6 @@
 
 namespace Gzhegow\Di;
 
-
 use Gzhegow\Di\Exceptions\NotFoundException;
 use Gzhegow\Di\Exceptions\OutOfRangeException;
 
@@ -276,10 +275,36 @@ interface DiInterface
 
 
 	/**
+	 * @param object $newthis
+	 * @param mixed  $func
+	 * @param mixed  ...$arguments
+	 *
+	 * @return mixed
+	 */
+	public function call($newthis, $func, ...$arguments);
+
+	/**
+	 * @param       $newthis
+	 * @param       $func
+	 * @param array $params
+	 *
+	 * @return mixed
+	 */
+	public function apply($newthis, $func, array $params = []);
+
+	/**
+	 * @param callable $func
+	 * @param mixed    ...$arguments
+	 *
+	 * @return mixed
+	 */
+	public function callAutowired($func, ...$arguments);
+
+	/**
 	 * @param callable $func
 	 * @param array    $params
 	 *
 	 * @return mixed
 	 */
-	public function callAutowired(callable $func, array $params = []);
+	public function applyAutowired($func, array $params = []);
 }

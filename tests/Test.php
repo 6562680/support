@@ -3,17 +3,41 @@
 namespace Tests;
 
 use Gzhegow\Di\Di;
+use Tests\Services\MyService;
 use PHPUnit\Framework\TestCase;
 use Tests\Providers\MyProvider;
+use Tests\Services\MyServiceInterface;
 use Tests\Providers\MyBootableProvider;
 use Tests\Providers\MyDeferableProvider;
-use Tests\Services\MyServiceInterface;
 
 /**
  * Class Test
  */
 class Test extends TestCase
 {
+	/**
+	 * @return void
+	 */
+	public function testDecorate()
+	{
+		/** @var MyServiceInterface $testService */
+
+		$di = new Di();
+		$di->bind(MyServiceInterface::class, MyService::class);
+		$testService = $di->getOrFail(MyServiceInterface::class);
+
+		$di->call($testService, function () {
+			// dynamicOption is protected, we used dynamic this
+			// to allow make properties readonly filled with factory/builder classes
+
+			$testService = $this;
+			$testService->dynamicOption = 123;
+		});
+
+		$this->assertEquals(123, $testService->getDynamicOption());
+	}
+
+
 	/**
 	 * @return void
 	 */

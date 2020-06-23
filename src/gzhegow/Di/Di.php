@@ -599,7 +599,6 @@ class Di implements
 
 		if (! ( 0
 			|| $this->isClosure($func)
-			|| $this->isHandler($func)
 			|| $this->isCallable($func)
 		)) {
 			throw new InvalidArgumentException('Func should be closure, handler or callable');
@@ -761,16 +760,32 @@ class Di implements
 
 
 	/**
-	 * @param callable $func
-	 * @param array    $params
+	 * @param object $newthis
+	 * @param mixed  $func
+	 * @param mixed  ...$arguments
 	 *
 	 * @return mixed
 	 */
-	public function callAutowired(callable $func, array $params = [])
+	public function call($newthis, $func, ...$arguments)
 	{
+		$result = $this->apply($newthis, $func, $arguments);
+
+		return $result;
+	}
+
+	/**
+	 * @param       $newthis
+	 * @param       $func
+	 * @param array $params
+	 *
+	 * @return mixed
+	 */
+	public function apply($newthis, $func, array $params = [])
+	{
+		/** @var \Closure $closure */
+
 		if (! ( 0
 			|| ( $isClosure = $this->isClosure($func) )
-			|| ( $isHandler = $this->isHandler($func) )
 			|| ( $isCallable = $this->isCallable($func) )
 		)) {
 			throw new InvalidArgumentException('Func should be closure, handler or callable');
@@ -782,8 +797,72 @@ class Di implements
 				$arguments = $this->autowireClosure($func, $params);
 				break;
 
+			case $isCallable:
+				$arguments = $this->autowireCallable($func, $params);
+				break;
+		}
+
+		switch ( true ) {
+			case $isClosure:
+				$closure = $func;
+				break;
+
+			case $isCallable:
+				$closure = \Closure::fromCallable($func);
+				break;
+		}
+
+		$result = $closure->call($newthis, ...$arguments);
+
+		return $result;
+	}
+
+
+	/**
+	 * @param callable $func
+	 * @param mixed    ...$arguments
+	 *
+	 * @return mixed
+	 */
+	public function callAutowired($func, ...$arguments)
+	{
+		$result = $this->applyAutowired($func, ...$arguments);
+
+		return $result;
+	}
+
+	/**
+	 * @param callable $func
+	 * @param array    $params
+	 *
+	 * @return mixed
+	 */
+	public function applyAutowired($func, array $params = [])
+	{
+		/** @var \Closure $closure */
+
+		if (! ( 0
+			|| ( $isHandler = $this->isHandler($func) )
+			|| ( $isClosure = $this->isClosure($func) )
+			|| ( $isCallable = $this->isCallable($func) )
+		)) {
+			throw new InvalidArgumentException('Func should be closure, handler or callable');
+		}
+
+		$arguments = [];
+		switch ( true ) {
 			case $isHandler:
-				$arguments = $this->autowireHandler($func, $params);
+				[ $id, $method ] = explode('@', $func) + [ null, null ];
+
+				$object = $this->getOrFail($id);
+				$arguments = $this->autowireMethod($object, $method, $params);
+
+				$func = [ $object, $method ];
+
+				break;
+
+			case $isClosure:
+				$arguments = $this->autowireClosure($func, $params);
 				break;
 
 			case $isCallable:
@@ -791,7 +870,7 @@ class Di implements
 				break;
 		}
 
-		$result = call_user_func_array($func, $arguments);
+		$result = call_user_func($func, $arguments);
 
 		return $result;
 	}
@@ -973,27 +1052,6 @@ class Di implements
 
 
 	/**
-	 * @param mixed $handler
-	 * @param array $params
-	 *
-	 * @return array
-	 * @noinspection PhpUnusedParameterInspection
-	 */
-	protected function autowireHandler(string $handler, array &$params = []) : array
-	{
-		if (! $this->isHandler($handler)) {
-			throw new InvalidArgumentException('Handler should be handler-like');
-		}
-
-		[ $id, $method ] = explode('@', $handler) + [ null, null ];
-
-		$result = $this->autowireMethod($this->getOrFail($id), $method);
-
-		return $result;
-	}
-
-
-	/**
 	 * @param mixed  $object
 	 * @param string $method
 	 * @param array  $params
@@ -1009,7 +1067,9 @@ class Di implements
 		$rc = $this->reflectClass($object);
 		$rm = $this->reflectMethod($rc, $method);
 
-		return $this->autowireParams($rm->getParameters(), $params);
+		$result = $this->autowireParams($rm->getParameters(), $params);
+
+		return $result;
 	}
 
 
