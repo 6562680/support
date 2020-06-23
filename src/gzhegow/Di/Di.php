@@ -8,6 +8,7 @@ use Gzhegow\Di\Exceptions\OverflowException;
 use Gzhegow\Di\Exceptions\NotFoundException;
 use Gzhegow\Di\Exceptions\OutOfRangeException;
 use Gzhegow\Di\Exceptions\InvalidArgumentException;
+use Gzhegow\Di\Exceptions\Runtime\AutowireLoopException;
 
 /**
  * Class Di
@@ -20,6 +21,10 @@ class Di implements
 	 * @var array
 	 */
 	protected $items = [];
+	/**
+	 * @var array
+	 */
+	protected $graph = [];
 
 	/**
 	 * @var array
@@ -352,6 +357,8 @@ class Di implements
 	 */
 	public function get($id)
 	{
+		$this->graph = [];
+
 		if (! is_string($id)) {
 			throw new InvalidArgumentException('Id should be string');
 		}
@@ -360,28 +367,7 @@ class Di implements
 			throw new InvalidArgumentException('Id should be not empty');
 		}
 
-		$result = null;
-
-		if ($this->hasItem($id)) {
-			$result = $this->getItem($id);
-
-		} else {
-			if ($this->hasBind($id)) {
-				$bind = $this->bind[ $id ];
-
-				if ($this->hasItem($bind)) {
-					$result = $this->getItem($bind);
-				}
-
-			} else {
-				$bind = $id;
-
-			}
-
-			if (! $result) {
-				$result = $this->createAutowired($bind);
-			}
-		}
+		$result = $this->_get($id);
 
 		return $result;
 	}
@@ -686,58 +672,11 @@ class Di implements
 			throw new InvalidArgumentException('Id should be not empty');
 		}
 
-		if ($this->hasBind($id)) {
-			$bind = $this->bind[ $id ];
+		$this->graph = [];
 
-		} elseif (class_exists($id)) {
-			$bind = $id;
+		$result = $this->_createAutowired($id, $params);
 
-		} else {
-			throw new NotFoundException('Bind not found: ' . $id);
-
-		}
-
-		if ($this->hasDeferableBind($bind)) {
-			$this->bootDeferable($bind);
-		}
-
-		switch ( true ):
-			case ( $this->isClosure($bind) ):
-				$item = $this->callAutowired($bind, $params);
-
-				break;
-
-			case ( $this->isClass($bind) ):
-				$arguments = $this->autowireClass($bind, $params);
-				$item = new $bind(...$arguments);
-
-				break;
-
-			default:
-				throw new RuntimeException('Unsupported bind type: ' . gettype($bind));
-
-		endswitch;
-
-		if ($this->hasExtends($id)) {
-			foreach ( $this->extends[ $id ] as $func ) {
-				$item = null
-					?? $this->callAutowired($func, [
-						0   => $item,
-						$id => $item,
-					])
-					?? $item;
-			}
-		}
-
-		foreach ( [ $id, $bind ] as $key ) {
-			if ($this->hasShared($key)) {
-				if (! isset($this->items[ $key ])) {
-					$this->items[ $key ] = $item;
-				}
-			}
-		}
-
-		return $item;
+		return $result;
 	}
 
 	/**
@@ -774,8 +713,8 @@ class Di implements
 	}
 
 	/**
-	 * @param       $newthis
-	 * @param       $func
+	 * @param mixed $newthis
+	 * @param mixed $func
 	 * @param array $params
 	 *
 	 * @return mixed
@@ -783,6 +722,8 @@ class Di implements
 	public function apply($newthis, $func, array $params = [])
 	{
 		/** @var \Closure $closure */
+
+		$this->graph = [];
 
 		if (! ( 0
 			|| ( $isClosure = $this->isClosure($func) )
@@ -841,6 +782,8 @@ class Di implements
 	{
 		/** @var \Closure $closure */
 
+		$this->graph = [];
+
 		if (! ( 0
 			|| ( $isHandler = $this->isHandler($func) )
 			|| ( $isClosure = $this->isClosure($func) )
@@ -854,7 +797,13 @@ class Di implements
 			case $isHandler:
 				[ $id, $method ] = explode('@', $func) + [ null, null ];
 
-				$object = $this->getOrFail($id);
+				try {
+					$object = $this->_get($id);
+				}
+				catch ( NotFoundException $exception ) {
+					throw new RuntimeException(null, null, $exception);
+				}
+
 				$arguments = $this->autowireMethod($object, $method, $params);
 
 				$func = [ $object, $method ];
@@ -873,6 +822,102 @@ class Di implements
 		$result = call_user_func($func, $arguments);
 
 		return $result;
+	}
+
+
+	/**
+	 * @param string $id
+	 *
+	 * @return null|mixed
+	 * @throws NotFoundException
+	 */
+	protected function _get(string $id)
+	{
+		$result = null;
+
+		if ($this->hasItem($id)) {
+			$result = $this->getItem($id);
+
+		} else {
+			if ($this->hasBind($id)) {
+				$bind = $this->bind[ $id ];
+
+				if ($this->hasItem($bind)) {
+					$result = $this->getItem($bind);
+				}
+			} else {
+				$bind = $id;
+			}
+
+			if (! $result) {
+				$result = $this->_createAutowired($bind);
+			}
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param string $id
+	 * @param array  $params
+	 *
+	 * @return null|mixed
+	 * @throws NotFoundException
+	 */
+	protected function _createAutowired(string $id, array $params = [])
+	{
+		if ($this->hasBind($id)) {
+			$bind = $this->bind[ $id ];
+
+		} elseif (class_exists($id)) {
+			$bind = $id;
+
+		} else {
+			throw new NotFoundException('Bind not found: ' . $id);
+
+		}
+
+		if ($this->hasDeferableBind($bind)) {
+			$this->bootDeferable($bind);
+		}
+
+		switch ( true ):
+			case ( $this->isClosure($bind) ):
+				$item = $this->callAutowired($bind, $params);
+
+				break;
+
+			case ( $this->isClass($bind) ):
+				$arguments = $this->autowireClass($bind, $params);
+				$item = new $bind(...$arguments);
+
+				break;
+
+			default:
+				throw new RuntimeException('Unsupported bind type: ' . gettype($bind));
+
+		endswitch;
+
+		if ($this->hasExtends($id)) {
+			foreach ( $this->extends[ $id ] as $func ) {
+				$item = null
+					?? $this->callAutowired($func, [
+						0   => $item,
+						$id => $item,
+					])
+					?? $item;
+			}
+		}
+
+		foreach ( [ $id, $bind ] as $key ) {
+			if ($this->hasShared($key)) {
+				if (! isset($this->items[ $key ])) {
+					$this->items[ $key ] = $item;
+				}
+			}
+		}
+
+		return $item;
 	}
 
 
@@ -1131,11 +1176,25 @@ class Di implements
 
 		foreach ( $reflectionParameters as $rp ) {
 			$pos = $rp->getPosition();
-			$value = $this->autowireParam($rp, $int, $str);
 
-			if (( isset($value) || ! $rp->isVariadic() )) {
-				$args[ $pos ] = $value;
+			try {
+				$value = $this->autowireParam($rp, $int, $str);
 			}
+			catch ( \ReflectionException $exception ) {
+				continue;
+			}
+
+			if (null === $value) {
+				continue;
+			}
+
+			if ($rp->isVariadic()) {
+				if ([] === $value) {
+					continue;
+				}
+			}
+
+			$args[ $pos ] = $value;
 		}
 
 		$args += $int;
@@ -1149,52 +1208,117 @@ class Di implements
 	 * @param array                $str
 	 *
 	 * @return mixed
+	 * @throws \ReflectionException
 	 */
 	protected function autowireParam(\ReflectionParameter $rp, array &$int = [], array &$str = [])
 	{
 		$rpPos = $rp->getPosition();
 
-		$item = null;
-		if ($rpType = $rp->getType()) {
-			if (isset($str[ $rpTypeName = $rpType->getName() ])) {
-				$item = $str[ $rpTypeName ];
+		$item = null
+			?? $this->autowireParamType($rp, $int, $str)
+			?? $this->autowireParamName($rp, $int, $str)
+			?? $this->autowireParamPosition($rp, $int, $str)
+			?? $this->autowireParamDefault($rp, $int, $str);
 
-			} elseif (0
-				|| interface_exists($rpTypeName)
-				|| class_exists($rpTypeName)
-			) {
-				if (isset($int[ $rpPos ]) && is_object($int[ $rpPos ]) && is_a($int[ $rpPos ], $rpTypeName)) {
-					// get by position
-					return $int[ $rpPos ];
+		$int = array_merge(
+			array_slice($int, 0, $rpPos, true),
+			[ $rpPos => $item ], // insert between
+			array_slice($int, $rpPos, null, true)
+		);
 
-				} else {
-					try {
-						$item = $this->get($rpTypeName);
-					}
-					catch ( NotFoundException $e ) {
-						throw new RuntimeException(null, null, $e);
-					}
-				}
+		return $item;
+	}
+
+	/**
+	 * @param \ReflectionParameter $rp
+	 * @param array                $int
+	 * @param array                $str
+	 *
+	 * @return null|mixed
+	 */
+	protected function autowireParamType(\ReflectionParameter $rp, array &$int = [], array &$str = [])
+	{
+		if (! $rpType = $rp->getType()) return null;
+		if (! $rpTypeName = $rpType->getName()) return null;
+		if (! ( 0
+			|| interface_exists($rpTypeName)
+			|| class_exists($rpTypeName)
+		)) {
+			return null;
+		}
+
+		if (1
+			&& isset($int[ $rpPos = $rp->getPosition() ])
+			&& is_object($int[ $rpPos ])
+			&& is_a($int[ $rpPos ], $rpTypeName)
+		) {
+			$item = $int[ $rpPos ];
+
+		} else {
+			if (isset($this->graph[ $rpTypeName ])) {
+				throw new AutowireLoopException('Autowire loop detected while creating: ' . $rpTypeName);
 			}
 
-		} elseif (isset($str[ '$' . ( $rpName = $rp->getName() ) ])) {
-			$item = $str[ '$' . $rpName ];
+			$this->graph[ $rpTypeName ] = true;
 
-		} elseif (! isset($int[ $rpPos ])) {
-			$item = $this->reflectParamDefaultValue($rp);
-
+			try {
+				$item = $this->_get($rpTypeName);
+			}
+			catch ( NotFoundException $exception ) {
+				throw new RuntimeException(null, null, $exception);
+			}
 		}
 
-		if (isset($item)) {
-			$int = array_merge(
-				array_slice($int, 0, $rpPos, true),
-				[ $rpPos => $item ], // insert between
-				array_slice($int, $rpPos, null, true)
-			);
-		}
+		return $item;
+	}
 
-		return $int[ $rpPos ]
-			?? null;
+	/**
+	 * @param \ReflectionParameter $rp
+	 * @param array                $int
+	 * @param array                $str
+	 *
+	 * @return null|mixed
+	 */
+	protected function autowireParamName(\ReflectionParameter $rp, array &$int = [], array &$str = [])
+	{
+		if (! $rpName = $rp->getName()) return null;
+		if (! isset($str[ $rpName ])) return null;
+
+		$item = $str[ $rpName ];
+
+		return $item;
+	}
+
+	/**
+	 * @param \ReflectionParameter $rp
+	 * @param array                $int
+	 * @param array                $str
+	 *
+	 * @return null|mixed
+	 */
+	protected function autowireParamPosition(\ReflectionParameter $rp, array &$int = [], array &$str = [])
+	{
+		if (! $rpPos = $rp->getPosition()) return null;
+		if (! isset($int[ $rpPos ])) return null;
+
+		$item = $int[ $rpPos ];
+
+		return $item;
+	}
+
+	/**
+	 * @param \ReflectionParameter $rp
+	 * @param array                $int
+	 * @param array                $str
+	 *
+	 * @return mixed
+	 * @throws \ReflectionException
+	 */
+	protected function autowireParamDefault(\ReflectionParameter $rp, array &$int = [], array &$str = [])
+	{
+		$item = $rp->getDefaultValue();
+
+		return $item;
 	}
 
 
@@ -1294,24 +1418,6 @@ class Di implements
 		}
 
 		return $rf;
-	}
-
-
-	/**
-	 * @param \ReflectionParameter $rp
-	 *
-	 * @return mixed
-	 */
-	protected function reflectParamDefaultValue(\ReflectionParameter $rp)
-	{
-		try {
-			$value = $rp->getDefaultValue();
-		}
-		catch ( \ReflectionException $e ) {
-			$value = null;
-		}
-
-		return $value;
 	}
 
 

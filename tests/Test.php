@@ -6,9 +6,11 @@ use Gzhegow\Di\Di;
 use Tests\Services\MyService;
 use PHPUnit\Framework\TestCase;
 use Tests\Providers\MyProvider;
+use Tests\Services\MyBadService;
 use Tests\Services\MyServiceInterface;
 use Tests\Providers\MyBootableProvider;
 use Tests\Providers\MyDeferableProvider;
+use Gzhegow\Di\Exceptions\Runtime\AutowireLoopException;
 
 /**
  * Class Test
@@ -93,5 +95,19 @@ class Test extends TestCase
 
 		$this->assertEquals(null, $testService->getDynamicOption());
 		$this->assertEquals(1, $testService->getStaticOption()); // same result
+	}
+
+
+	/**
+	 * @return void
+	 */
+	public function testLoop()
+	{
+		/** @var MyBadService $myBadService */
+
+		$this->expectException(AutowireLoopException::class);
+
+		$di = new Di();
+		$di->getOrFail(MyBadService::class);
 	}
 }
