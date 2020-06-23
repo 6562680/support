@@ -1042,9 +1042,10 @@ class Di implements
 	protected function autowireClass(string $class, array &$params = []) : array
 	{
 		$rc = $this->reflectClass($class);
+		$rm = $rc->getConstructor();
 
 		$result = isset($rm)
-			? $this->autowireParams($rc->getConstructor()->getParameters(), $params)
+			? $this->autowireParams($rm->getParameters(), $params)
 			: [];
 
 		return $result;
