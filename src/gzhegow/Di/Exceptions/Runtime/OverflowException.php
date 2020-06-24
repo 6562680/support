@@ -1,6 +1,8 @@
 <?php
 
-namespace Gzhegow\Di\Exceptions;
+namespace Gzhegow\Di\Exceptions\Runtime;
+
+use Gzhegow\Di\Exceptions\RuntimeException;
 
 /**
  * Class OverflowException

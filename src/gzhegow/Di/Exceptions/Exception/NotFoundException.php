@@ -1,7 +1,8 @@
 <?php
 
-namespace Gzhegow\Di\Exceptions;
+namespace Gzhegow\Di\Exceptions\Exception;
 
+use Gzhegow\Di\Exceptions\Exception;
 use Psr\Container\NotFoundExceptionInterface;
 
 /**

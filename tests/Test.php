@@ -6,7 +6,9 @@ use Gzhegow\Di\Di;
 use Tests\Services\MyService;
 use PHPUnit\Framework\TestCase;
 use Tests\Providers\MyProvider;
-use Tests\Services\MyBadService;
+use Tests\Services\MyLoopService;
+use Tests\Services\MySameService;
+use Tests\Services\MyLoopAService;
 use Tests\Services\MyServiceInterface;
 use Tests\Providers\MyBootableProvider;
 use Tests\Providers\MyDeferableProvider;
@@ -101,13 +103,38 @@ class Test extends TestCase
 	/**
 	 * @return void
 	 */
-	public function testLoop()
+	public function testSame()
 	{
-		/** @var MyBadService $myBadService */
+		// both of dependent services required same service, its normal behavior
 
+		$di = new Di();
+		$instance = $di->getOrFail(MySameService::class);
+
+		$this->assertInstanceOf(MySameService::class, $instance);
+	}
+
+
+	/**
+	 * @return void
+	 */
+	public function testBadLoop()
+	{
+		// service requires itself
 		$this->expectException(AutowireLoopException::class);
 
 		$di = new Di();
-		$di->getOrFail(MyBadService::class);
+		$di->getOrFail(MyLoopService::class);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testBadLoopAB()
+	{
+		// service A requires B, and service B requires service A
+		$this->expectException(AutowireLoopException::class);
+
+		$di = new Di();
+		$di->getOrFail(MyLoopAService::class);
 	}
 }
