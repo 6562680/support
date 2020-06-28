@@ -7,7 +7,6 @@ use Gzhegow\Di\Exceptions\RuntimeException;
 use Gzhegow\Di\Exceptions\Runtime\OverflowException;
 use Gzhegow\Di\Exceptions\Logic\OutOfRangeException;
 use Gzhegow\Di\Exceptions\Exception\NotFoundException;
-use Gzhegow\Di\Exceptions\Runtime\AutowireLoopException;
 use Gzhegow\Di\Exceptions\Logic\InvalidArgumentException;
 
 /**
@@ -21,10 +20,6 @@ class Di implements
 	 * @var array
 	 */
 	protected $items = [];
-	/**
-	 * @var array
-	 */
-	protected $graph = [];
 
 	/**
 	 * @var array
@@ -83,9 +78,35 @@ class Di implements
 			static::$instances[ static::class ] = $this;
 		}
 
-		if (! $this->hasShared(static::class)) {
-			$this->setSharedOrFail(static::class, $this);
+		$keys = [
+			ContainerInterface::class,
+			DiInterface::class,
+			static::class,
+		];
+
+		foreach ( $keys as $key ) {
+			if (! $this->hasShared($key)) {
+				$this->setShared($key, $this);
+			}
 		}
+	}
+
+
+	/**
+	 * @param array $loop
+	 *
+	 * @return Loop
+	 */
+	public function newLoop(array $loop = [])
+	{
+		$instance = new Loop($this);
+
+		( function () use ($loop) {
+			$instance = $this;
+			$instance->loop = $loop;
+		} )->call($instance);
+
+		return $instance;
 	}
 
 
@@ -113,6 +134,31 @@ class Di implements
 	 * @return mixed
 	 * @throws NotFoundException
 	 */
+	public function getBind(string $id)
+	{
+		if ('' === $id) {
+			throw new InvalidArgumentException('Id should be not empty');
+		}
+
+		if (! $this->hasBind($id)) {
+			throw new NotFoundException('Item not found: ' . $id);
+		}
+
+		$bind = $this->bind[ $id ];
+
+		if ($this->hasDeferableBind($bind)) {
+			$this->bootDeferable($bind);
+		}
+
+		return $bind;
+	}
+
+	/**
+	 * @param string $id
+	 *
+	 * @return mixed
+	 * @throws NotFoundException
+	 */
 	public function getItem(string $id)
 	{
 		if ('' === $id) {
@@ -132,31 +178,27 @@ class Di implements
 		return $item;
 	}
 
-
 	/**
 	 * @param string $id
 	 *
-	 * @return mixed
+	 * @return array
 	 * @throws NotFoundException
 	 */
-	public function getBind(string $id)
+	public function getExtends(string $id) : array
 	{
 		if ('' === $id) {
 			throw new InvalidArgumentException('Id should be not empty');
 		}
 
-		if (! $this->hasBind($id)) {
-			throw new NotFoundException('Item not found: ' . $id);
+		if (! $this->hasExtends($id)) {
+			throw new NotFoundException('Extends not found: ' . $id);
 		}
 
-		$bind = $this->bind[ $id ];
+		$item = $this->extends[ $id ];
 
-		if ($this->hasDeferableBind($bind)) {
-			$this->bootDeferable($bind);
-		}
-
-		return $bind;
+		return $item;
 	}
+
 
 
 	/**
@@ -203,7 +245,6 @@ class Di implements
 		return is_string($id) && isset($this->items[ $id ]);
 	}
 
-
 	/**
 	 * @param mixed $id
 	 *
@@ -224,7 +265,6 @@ class Di implements
 		return is_string($id) && isset($this->bindDeferable[ $id ]);
 	}
 
-
 	/**
 	 * @param mixed $id
 	 *
@@ -234,7 +274,6 @@ class Di implements
 	{
 		return is_string($id) && isset($this->shared[ $id ]);
 	}
-
 
 	/**
 	 * @param mixed $id
@@ -252,7 +291,7 @@ class Di implements
 	 * @param mixed  $item
 	 *
 	 * @return Di
-	 * @throws OutOfRangeException()
+	 * @throws OutOfRangeException
 	 */
 	public function setShared(string $id, $item)
 	{
@@ -278,7 +317,6 @@ class Di implements
 
 		return $result;
 	}
-
 
 	/**
 	 * @param array $providers
@@ -310,7 +348,6 @@ class Di implements
 
 		return $this;
 	}
-
 
 	/**
 	 * @param ProviderInterface $provider
@@ -355,8 +392,6 @@ class Di implements
 	 */
 	public function get($id)
 	{
-		$this->graph = [];
-
 		if (! is_string($id)) {
 			throw new InvalidArgumentException('Id should be string');
 		}
@@ -365,7 +400,7 @@ class Di implements
 			throw new InvalidArgumentException('Id should be not empty');
 		}
 
-		$result = $this->_get($id);
+		$result = $this->newLoop()->get($id);
 
 		return $result;
 	}
@@ -391,7 +426,7 @@ class Di implements
 	 * @param bool   $shared
 	 *
 	 * @return Di
-	 * @throws OutOfRangeException()
+	 * @throws OutOfRangeException
 	 */
 	public function set(string $id, $item, bool $shared = false)
 	{
@@ -414,7 +449,7 @@ class Di implements
 
 
 	/**
-	 * @param string|array $func
+	 * @param mixed $func
 	 *
 	 * @return bool
 	 */
@@ -425,7 +460,7 @@ class Di implements
 	}
 
 	/**
-	 * @param string $class
+	 * @param mixed $class
 	 *
 	 * @return bool
 	 */
@@ -445,7 +480,7 @@ class Di implements
 	}
 
 	/**
-	 * @param string $handler
+	 * @param mixed $handler
 	 *
 	 * @return bool
 	 */
@@ -510,6 +545,20 @@ class Di implements
 		return $this;
 	}
 
+	/**
+	 * @param string $id
+	 * @param mixed  $item
+	 *
+	 * @return Di
+	 * @throws OutOfRangeException
+	 */
+	public function singleton(string $id, $item)
+	{
+		$this->bindShared($id, $item);
+
+		return $this;
+	}
+
 
 	/**
 	 * @param string          $id
@@ -524,14 +573,16 @@ class Di implements
 			throw new InvalidArgumentException('Id should be not empty');
 		}
 
-		if (! ( 0
+		$isBind = ( 0
 			|| ( $isClosure = $this->isClosure($bind) )
 			|| ( $isClass = $this->isClass($bind) )
-		)) {
-			throw new InvalidArgumentException('Bind should be class name or closure');
-		}
+		);
 
-		$this->bind[ $id ] = $bind;
+		if ($isBind) {
+			$this->bind[ $id ] = $bind;
+		} else {
+			$this->items[ $id ] = $bind;
+		}
 
 		if ($shared) {
 			$this->shared[ $id ] = true;
@@ -549,21 +600,6 @@ class Di implements
 	public function rebindShared(string $id, $item)
 	{
 		$this->rebind($id, $item, $shared = true);
-
-		return $this;
-	}
-
-
-	/**
-	 * @param string $id
-	 * @param mixed  $item
-	 *
-	 * @return Di
-	 * @throws OutOfRangeException()
-	 */
-	public function singleton(string $id, $item)
-	{
-		$this->setShared($id, $item);
 
 		return $this;
 	}
@@ -670,9 +706,7 @@ class Di implements
 			throw new InvalidArgumentException('Id should be not empty');
 		}
 
-		$this->graph = [];
-
-		$result = $this->_createAutowired($id, $params);
+		$result = $this->newLoop()->createAutowired($id, $params);
 
 		return $result;
 	}
@@ -719,26 +753,18 @@ class Di implements
 	 */
 	public function apply($newthis, $func, array $params = [])
 	{
-		$this->graph = [];
+		if (! ( 0
+			|| ( $this->isClosure($func) )
+			|| ( $this->isCallable($func) )
+		)) {
+			throw new InvalidArgumentException('Func should be closure, handler or callable');
+		}
 
-		$result = $this->_apply($newthis, $func, $params);
-
-		return $result;
-	}
-
-
-	/**
-	 * @param callable $func
-	 * @param mixed    ...$arguments
-	 *
-	 * @return mixed
-	 */
-	public function callAutowired($func, ...$arguments)
-	{
-		$result = $this->applyAutowired($func, ...$arguments);
+		$result = $this->newLoop()->apply($newthis, $func, $params);
 
 		return $result;
 	}
+
 
 	/**
 	 * @param callable $func
@@ -746,202 +772,17 @@ class Di implements
 	 *
 	 * @return mixed
 	 */
-	public function applyAutowired($func, array $params = [])
+	public function handle($func, array $params = [])
 	{
-		$this->graph = [];
-
-		$result = $this->_applyAutowired($func, $params);
-
-		return $result;
-	}
-
-
-	/**
-	 * @param string $id
-	 *
-	 * @return null|mixed
-	 * @throws NotFoundException
-	 */
-	protected function _get(string $id)
-	{
-		$result = null;
-
-		if ($this->hasItem($id)) {
-			$result = $this->getItem($id);
-
-		} else {
-			if ($this->hasBind($id)) {
-				$bind = $this->bind[ $id ];
-
-				if ($this->hasItem($bind)) {
-					$result = $this->getItem($bind);
-				}
-			} else {
-				$bind = $id;
-			}
-
-			if (! $result) {
-				$result = $this->_createAutowired($bind);
-			}
-		}
-
-		return $result;
-	}
-
-	/**
-	 * @param string $id
-	 * @param array  $params
-	 *
-	 * @return null|mixed
-	 * @throws NotFoundException
-	 */
-	protected function _createAutowired(string $id, array $params = [])
-	{
-		if ($this->hasBind($id)) {
-			$bind = $this->bind[ $id ];
-
-		} elseif (class_exists($id)) {
-			$bind = $id;
-
-		} else {
-			throw new NotFoundException('Bind not found: ' . $id);
-
-		}
-
-		if ($this->hasDeferableBind($bind)) {
-			$this->bootDeferable($bind);
-		}
-
-		switch ( true ):
-			case ( $this->isClosure($bind) ):
-				$item = $this->_applyAutowired($bind, $params);
-
-				break;
-
-			case ( $this->isClass($bind) ):
-				$arguments = $this->autowireClass($bind, $params);
-				$item = new $bind(...$arguments);
-
-				break;
-
-			default:
-				throw new RuntimeException('Unsupported bind type: ' . gettype($bind));
-
-		endswitch;
-
-		if ($this->hasExtends($id)) {
-			foreach ( $this->extends[ $id ] as $func ) {
-				$item = null
-					?? $this->callAutowired($func, [
-						0   => $item,
-						$id => $item,
-					])
-					?? $item;
-			}
-		}
-
-		foreach ( [ $id, $bind ] as $key ) {
-			if ($this->hasShared($key)) {
-				if (! isset($this->items[ $key ])) {
-					$this->items[ $key ] = $item;
-				}
-			}
-		}
-
-		return $item;
-	}
-
-
-	/**
-	 * @param mixed $newthis
-	 * @param mixed $func
-	 * @param array $params
-	 *
-	 * @return mixed
-	 */
-	protected function _apply($newthis, $func, array $params = [])
-	{
-		/** @var \Closure $closure */
-
 		if (! ( 0
-			|| ( $isClosure = $this->isClosure($func) )
-			|| ( $isCallable = $this->isCallable($func) )
+			|| ( $this->isHandler($func) )
+			|| ( $this->isClosure($func) )
+			|| ( $this->isCallable($func) )
 		)) {
-			throw new InvalidArgumentException('Func should be closure, handler or callable');
+			throw new InvalidArgumentException('Func should be handler, closure or callable');
 		}
 
-		$arguments = [];
-		switch ( true ) {
-			case $isClosure:
-				$arguments = $this->autowireClosure($func, $params);
-				break;
-
-			case $isCallable:
-				$arguments = $this->autowireCallable($func, $params);
-				break;
-		}
-
-		switch ( true ) {
-			case $isClosure:
-				$closure = $func;
-				break;
-
-			case $isCallable:
-				$closure = \Closure::fromCallable($func);
-				break;
-		}
-
-		$result = $closure->call($newthis, ...$arguments);
-
-		return $result;
-	}
-
-	/**
-	 * @param callable $func
-	 * @param array    $params
-	 *
-	 * @return mixed
-	 */
-	protected function _applyAutowired($func, array $params = [])
-	{
-		/** @var \Closure $closure */
-
-		if (! ( 0
-			|| ( $isHandler = $this->isHandler($func) )
-			|| ( $isClosure = $this->isClosure($func) )
-			|| ( $isCallable = $this->isCallable($func) )
-		)) {
-			throw new InvalidArgumentException('Func should be closure, handler or callable');
-		}
-
-		$arguments = [];
-		switch ( true ) {
-			case $isHandler:
-				[ $id, $method ] = explode('@', $func) + [ null, null ];
-
-				try {
-					$object = $this->_get($id);
-				}
-				catch ( NotFoundException $exception ) {
-					throw new RuntimeException(null, null, $exception);
-				}
-
-				$arguments = $this->autowireMethod($object, $method, $params);
-
-				$func = [ $object, $method ];
-
-				break;
-
-			case $isClosure:
-				$arguments = $this->autowireClosure($func, $params);
-				break;
-
-			case $isCallable:
-				$arguments = $this->autowireCallable($func, $params);
-				break;
-		}
-
-		$result = call_user_func($func, $arguments);
+		$result = $this->newLoop()->handle($func, $params);
 
 		return $result;
 	}
@@ -1101,376 +942,6 @@ class Di implements
 		}
 
 		return $this;
-	}
-
-
-	/**
-	 * @param string $class
-	 * @param array  $params
-	 *
-	 * @return array
-	 */
-	protected function autowireClass(string $class, array &$params = []) : array
-	{
-		$rc = $this->reflectClass($class);
-		$rm = $rc->getConstructor();
-
-		$result = isset($rm)
-			? $this->autowireParams($class, $rm->getParameters(), $params)
-			: [];
-
-		return $result;
-	}
-
-
-	/**
-	 * @param mixed  $object
-	 * @param string $method
-	 * @param array  $params
-	 *
-	 * @return array
-	 */
-	protected function autowireMethod($object, string $method, array &$params = []) : array
-	{
-		if (! is_object($object)) {
-			throw new InvalidArgumentException('Object should be object');
-		}
-
-		$graphId = spl_object_hash($object);
-
-		$rc = $this->reflectClass($object);
-		$rm = $this->reflectMethod($rc, $method);
-
-		$result = $this->autowireParams($graphId, $rm->getParameters(), $params);
-
-		return $result;
-	}
-
-
-	/**
-	 * @param       $callable
-	 * @param array $params
-	 *
-	 * @return array
-	 */
-	protected function autowireCallable($callable, array &$params = []) : array
-	{
-		if (! $this->isCallable($callable)) {
-			throw new InvalidArgumentException('Callable should be callable');
-		}
-
-		$graphId = null;
-		if (is_array($callable) && is_object($callable[ 0 ])) {
-			$graphId = spl_object_hash($callable[ 0 ]);
-		}
-
-		$rf = $this->reflectCallable($callable);
-
-		$result = $this->autowireParams($graphId, $rf->getParameters(), $params);
-
-		return $result;
-	}
-
-	/**
-	 * @param \Closure $func
-	 * @param array    $params
-	 *
-	 * @return array
-	 */
-	protected function autowireClosure(\Closure $func, array &$params = []) : array
-	{
-		$graphId = spl_object_hash($func);
-
-		$rf = $this->reflectClosure($func);
-
-		$result = $this->autowireParams($graphId, $rf->getParameters(), $params);
-
-		return $result;
-	}
-
-
-	/**
-	 * @param string                 $graphId
-	 * @param \ReflectionParameter[] $reflectionParameters
-	 * @param array                  $params
-	 *
-	 * @return array
-	 */
-	protected function autowireParams($graphId, array $reflectionParameters, array &$params = []) : array
-	{
-		if ($graphId) {
-			if (! is_string($graphId)) {
-				throw new InvalidArgumentException('GraphId should be string');
-			}
-
-			if ('' === $graphId) {
-				throw new InvalidArgumentException('GraphId should be not empty');
-			}
-		}
-
-		$int = [];
-		$str = [];
-		foreach ( $params as $key => $val ) {
-			if (! is_string($key)) {
-				$int[ $key ] = $val;
-			} else {
-				$str[ $key ] = $val;
-			}
-		}
-
-		$args = [];
-
-		foreach ( $reflectionParameters as $rp ) {
-			$pos = $rp->getPosition();
-
-			try {
-				$value = $this->autowireParam($graphId, $rp, $int, $str);
-			}
-			catch ( \ReflectionException $exception ) {
-				continue;
-			}
-
-			if (null === $value) {
-				continue;
-			}
-
-			if ($rp->isVariadic()) {
-				if ([] === $value) {
-					continue;
-				}
-			}
-
-			$args[ $pos ] = $value;
-		}
-
-		$args += $int;
-
-		return $args;
-	}
-
-	/**
-	 * @param string               $graphId
-	 * @param \ReflectionParameter $rp
-	 * @param array                $int
-	 * @param array                $str
-	 *
-	 * @return mixed
-	 * @throws \ReflectionException
-	 */
-	protected function autowireParam($graphId, \ReflectionParameter $rp, array &$int = [], array &$str = [])
-	{
-		$rpPos = $rp->getPosition();
-
-		$item = null
-			?? $this->autowireParamType($graphId, $rp, $int, $str)
-			?? $this->autowireParamName($graphId, $rp, $int, $str)
-			?? $this->autowireParamPosition($graphId, $rp, $int, $str)
-			?? $this->autowireParamDefault($graphId, $rp, $int, $str);
-
-		$int = array_merge(
-			array_slice($int, 0, $rpPos, true),
-			[ $rpPos => $item ], // insert between
-			array_slice($int, $rpPos, null, true)
-		);
-
-		return $item;
-	}
-
-	/**
-	 * @param string               $graphId
-	 * @param \ReflectionParameter $rp
-	 * @param array                $int
-	 * @param array                $str
-	 *
-	 * @return null|mixed
-	 */
-	protected function autowireParamType($graphId, \ReflectionParameter $rp, array &$int = [], array &$str = [])
-	{
-		if (! $rpType = $rp->getType()) return null;
-		if (! $rpTypeName = $rpType->getName()) return null;
-		if (! ( 0
-			|| interface_exists($rpTypeName)
-			|| class_exists($rpTypeName)
-		)) {
-			return null;
-		}
-
-		if (1
-			&& isset($int[ $rpPos = $rp->getPosition() ])
-			&& is_object($int[ $rpPos ])
-			&& is_a($int[ $rpPos ], $rpTypeName)
-		) {
-			$item = $int[ $rpPos ];
-
-		} else {
-			if ($graphId) {
-				if (isset($this->graph[ $graphId ][ $rpTypeName ])) {
-					throw new AutowireLoopException('Autowire loop detected while creating: ' . $rpTypeName);
-				}
-
-				$this->graph[ $graphId ][ $rpTypeName ] = true;
-			}
-
-			try {
-				$item = $this->_get($rpTypeName);
-			}
-			catch ( NotFoundException $exception ) {
-				throw new RuntimeException(null, null, $exception);
-			}
-		}
-
-		return $item;
-	}
-
-	/**
-	 * @param string               $graphId
-	 * @param \ReflectionParameter $rp
-	 * @param array                $int
-	 * @param array                $str
-	 *
-	 * @return null|mixed
-	 */
-	protected function autowireParamName(string $graphId, \ReflectionParameter $rp, array &$int = [], array &$str = [])
-	{
-		if (! $rpName = $rp->getName()) return null;
-		if (! isset($str[ $rpName ])) return null;
-
-		$item = $str[ $rpName ];
-
-		return $item;
-	}
-
-	/**
-	 * @param string               $graphId
-	 * @param \ReflectionParameter $rp
-	 * @param array                $int
-	 * @param array                $str
-	 *
-	 * @return null|mixed
-	 */
-	protected function autowireParamPosition(string $graphId, \ReflectionParameter $rp, array &$int = [], array &$str = [])
-	{
-		if (! $rpPos = $rp->getPosition()) return null;
-		if (! isset($int[ $rpPos ])) return null;
-
-		$item = $int[ $rpPos ];
-
-		return $item;
-	}
-
-	/**
-	 * @param string               $graphId
-	 * @param \ReflectionParameter $rp
-	 * @param array                $int
-	 * @param array                $str
-	 *
-	 * @return mixed
-	 * @throws \ReflectionException
-	 */
-	protected function autowireParamDefault(string $graphId, \ReflectionParameter $rp, array &$int = [], array &$str = [])
-	{
-		$item = $rp->getDefaultValue();
-
-		return $item;
-	}
-
-
-	/**
-	 * @param string|object $object
-	 *
-	 * @return \ReflectionClass
-	 */
-	protected function reflectClass($object) : \ReflectionClass
-	{
-		try {
-			if (is_object($object)) {
-				if (is_a($object, \ReflectionClass::class)) {
-					$rc = $object;
-
-				} else {
-					$rc = new \ReflectionClass(get_class($object));
-
-				}
-			} else {
-				$rc = new \ReflectionClass($object);
-
-			}
-		}
-		catch ( \ReflectionException $e ) {
-			throw new RuntimeException(null, null, $e);
-		}
-
-		return $rc;
-	}
-
-	/**
-	 * @param        $object
-	 * @param string $method
-	 *
-	 * @return \ReflectionMethod
-	 */
-	protected function reflectMethod($object, string $method) : \ReflectionMethod
-	{
-		/** @var \ReflectionClass $reflectionClass */
-
-		try {
-			if (is_object($object) && is_a($reflectionClass = $object, \ReflectionClass::class)) {
-				$rm = $reflectionClass->getMethod($method);
-
-			} else {
-				$rm = new \ReflectionMethod($object, $method);
-
-			}
-		}
-		catch ( \ReflectionException $e ) {
-			throw new RuntimeException(null, null, $e);
-		}
-
-		return $rm;
-	}
-
-
-	/**
-	 * @param \Closure $func
-	 *
-	 * @return \ReflectionFunction
-	 */
-	protected function reflectClosure(\Closure $func) : \ReflectionFunction
-	{
-		try {
-			$rf = new \ReflectionFunction($func);
-		}
-		catch ( \ReflectionException $e ) {
-			throw new RuntimeException(null, null, $e);
-		}
-
-		return $rf;
-	}
-
-	/**
-	 * @param callable $callable
-	 *
-	 * @return \ReflectionFunction|\ReflectionMethod
-	 */
-	protected function reflectCallable($callable)
-	{
-		try {
-			if ($this->isClosure($callable)) {
-				$rf = $this->reflectClosure($callable);
-
-			} elseif (is_array($callable)) {
-				$rf = $this->reflectMethod($callable[ 0 ], $callable[ 1 ]);
-
-			} else {
-				$rf = new \ReflectionFunction($callable);
-
-			}
-		}
-		catch ( \ReflectionException $e ) {
-			throw new RuntimeException(null, null, $e);
-		}
-
-		return $rf;
 	}
 
 

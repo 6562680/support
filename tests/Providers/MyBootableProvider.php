@@ -2,7 +2,7 @@
 
 namespace Tests\Providers;
 
-use Tests\Services\MyService;
+use Tests\Services\MyAService;
 use Tests\Services\MyServiceInterface;
 use Gzhegow\Di\AbstractBootableProvider;
 
@@ -25,7 +25,7 @@ class MyBootableProvider extends AbstractBootableProvider
 	 */
 	public function register() : void
 	{
-		$this->di->bind(MyServiceInterface::class, MyService::class);
+		$this->di->bind(MyServiceInterface::class, MyAService::class);
 	}
 
 	/**

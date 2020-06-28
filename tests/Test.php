@@ -3,11 +3,11 @@
 namespace Tests;
 
 use Gzhegow\Di\Di;
-use Tests\Services\MyService;
+use Tests\Services\MyAService;
+use Tests\Services\MyCService;
 use PHPUnit\Framework\TestCase;
 use Tests\Providers\MyProvider;
 use Tests\Services\MyLoopService;
-use Tests\Services\MySameService;
 use Tests\Services\MyLoopAService;
 use Tests\Services\MyServiceInterface;
 use Tests\Providers\MyBootableProvider;
@@ -27,7 +27,7 @@ class Test extends TestCase
 		/** @var MyServiceInterface $testService */
 
 		$di = new Di();
-		$di->bind(MyServiceInterface::class, MyService::class);
+		$di->bind(MyServiceInterface::class, MyAService::class);
 		$testService = $di->getOrFail(MyServiceInterface::class);
 
 		$di->call($testService, function () {
@@ -108,9 +108,9 @@ class Test extends TestCase
 		// both of dependent services required same service, its normal behavior
 
 		$di = new Di();
-		$instance = $di->getOrFail(MySameService::class);
+		$instance = $di->getOrFail(MyCService::class);
 
-		$this->assertInstanceOf(MySameService::class, $instance);
+		$this->assertInstanceOf(MyCService::class, $instance);
 	}
 
 

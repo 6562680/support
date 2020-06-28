@@ -2,8 +2,8 @@
 
 namespace Gzhegow\Di;
 
-use Gzhegow\Di\Exceptions\NotFoundException;
-use Gzhegow\Di\Exceptions\OutOfRangeException;
+use Gzhegow\Di\Exceptions\Logic\OutOfRangeException;
+use Gzhegow\Di\Exceptions\Exception\NotFoundException;
 
 /**
  * Class Di
@@ -103,7 +103,7 @@ interface DiInterface
 	 * @param mixed  $item
 	 *
 	 * @return Di
-	 * @throws OutOfRangeException()
+	 * @throws OutOfRangeException
 	 */
 	public function setShared(string $id, $item);
 
@@ -292,13 +292,6 @@ interface DiInterface
 	 */
 	public function apply($newthis, $func, array $params = []);
 
-	/**
-	 * @param callable $func
-	 * @param mixed    ...$arguments
-	 *
-	 * @return mixed
-	 */
-	public function callAutowired($func, ...$arguments);
 
 	/**
 	 * @param callable $func
@@ -306,5 +299,5 @@ interface DiInterface
 	 *
 	 * @return mixed
 	 */
-	public function applyAutowired($func, array $params = []);
+	public function handle($func, array $params = []);
 }

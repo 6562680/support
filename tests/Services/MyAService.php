@@ -3,9 +3,9 @@
 namespace Tests\Services;
 
 /**
- * Class MyService
+ * Class MyAService
  */
-class MyService implements MyServiceInterface
+class MyAService implements MyServiceInterface
 {
 	/**
 	 * @var mixed
@@ -24,7 +24,7 @@ class MyService implements MyServiceInterface
 	/**
 	 * @param mixed $value
 	 *
-	 * @return MyService
+	 * @return MyAService
 	 */
 	public function setDynamicOption($value)
 	{
