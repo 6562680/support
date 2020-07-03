@@ -3,9 +3,9 @@
 namespace Gzhegow\Di;
 
 /**
- * Class AbstractDeferableProvider
+ * Class BootableProvider
  */
-abstract class AbstractDeferableProvider implements DeferableProviderInterface
+class BootableProvider implements BootableProviderInterface
 {
 	/**
 	 * @var Di
@@ -62,14 +62,5 @@ abstract class AbstractDeferableProvider implements DeferableProviderInterface
 	 */
 	public function boot() : void
 	{
-	}
-
-
-	/**
-	 * @return array
-	 */
-	public function provides() : array
-	{
-		return [];
 	}
 }

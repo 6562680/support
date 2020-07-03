@@ -4,12 +4,12 @@ namespace Tests\Providers;
 
 use Tests\Services\MyAService;
 use Tests\Services\MyServiceInterface;
-use Gzhegow\Di\AbstractBootableProvider;
+use Gzhegow\Di\BootableProvider;
 
 /**
  * Class MyBootableProvider
  */
-class MyBootableProvider extends AbstractBootableProvider
+class MyBootableProvider extends BootableProvider
 {
 	/**
 	 * @return MyServiceInterface

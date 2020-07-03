@@ -3,9 +3,9 @@
 namespace Gzhegow\Di;
 
 /**
- * Class AbstractProvider
+ * Class Provider
  */
-abstract class AbstractProvider implements ProviderInterface
+class Provider implements ProviderInterface
 {
 	/**
 	 * @var Di

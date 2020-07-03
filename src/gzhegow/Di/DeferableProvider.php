@@ -3,9 +3,9 @@
 namespace Gzhegow\Di;
 
 /**
- * Class AbstractBootableProvider
+ * Class DeferableProvider
  */
-abstract class AbstractBootableProvider implements BootableProviderInterface
+class DeferableProvider implements DeferableProviderInterface
 {
 	/**
 	 * @var Di

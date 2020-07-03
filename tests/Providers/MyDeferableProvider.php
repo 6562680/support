@@ -4,12 +4,12 @@ namespace Tests\Providers;
 
 use Tests\Services\MyAService;
 use Tests\Services\MyServiceInterface;
-use Gzhegow\Di\AbstractDeferableProvider;
+use Gzhegow\Di\DeferableProvider;
 
 /**
  * Class MyDeferableProvider
  */
-class MyDeferableProvider extends AbstractDeferableProvider
+class MyDeferableProvider extends DeferableProvider
 {
 	/**
 	 * @return MyServiceInterface
