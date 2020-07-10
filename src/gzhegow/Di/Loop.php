@@ -233,7 +233,11 @@ class Loop
 				break;
 
 			case ( $this->isClass($bind) ):
-				$item = new $bind(...$this->autowireClass($bind, $params));
+				$arguments = $this->autowireClass($bind, $params);
+
+				ksort($arguments);
+
+				$item = new $bind(...$arguments);
 
 				break;
 
@@ -336,6 +340,8 @@ class Loop
 				break;
 		}
 
+		ksort($arguments);
+
 		$result = $closure->call($newthis, ...$arguments);
 
 		return $result;
@@ -364,9 +370,7 @@ class Loop
 			case $isHandler:
 				[ $id, $method ] = explode('@', $func) + [ null, null ];
 
-				$object = $this->getChild($id);
-
-				$func = [ $object, $method ];
+				$func = [ $object = $this->getChild($id), $method ];
 
 				$arguments = $this->autowireMethod($object, $method, $params);
 
@@ -381,7 +385,9 @@ class Loop
 				break;
 		}
 
-		$result = call_user_func($func, $arguments);
+		ksort($arguments);
+
+		$result = call_user_func_array($func, $arguments);
 
 		return $result;
 	}
@@ -614,7 +620,7 @@ class Loop
 		$int = [];
 		$str = [];
 		foreach ( $params as $key => $val ) {
-			if (! is_string($key)) {
+			if (is_int($key)) {
 				$int[ $key ] = $val;
 			} else {
 				$str[ $key ] = $val;
@@ -664,19 +670,11 @@ class Loop
 	 */
 	protected function autowireParam(\ReflectionParameter $rp, array &$int = [], array &$str = [])
 	{
-		$rpPos = $rp->getPosition();
-
 		$item = null
 			?? $this->autowireParamType($rp, $int, $str)
 			?? $this->autowireParamName($rp, $int, $str)
 			?? $this->autowireParamPosition($rp, $int, $str)
 			?? $this->autowireParamDefault($rp, $int, $str);
-
-		$int = array_merge(
-			array_slice($int, 0, $rpPos, true),
-			[ $rpPos => $item ], // insert between
-			array_slice($int, $rpPos, null, true)
-		);
 
 		return $item;
 	}
@@ -699,16 +697,25 @@ class Loop
 			return null;
 		}
 
-		if (1
-			&& isset($int[ $rpPos = $rp->getPosition() ])
-			&& is_object($int[ $rpPos ])
-			&& is_a($int[ $rpPos ], $rpTypeName)
+		if (isset($int[ $rpPos = $rp->getPosition() ])
+			&& ( is_object($int[ $rpPos ]) && is_a($int[ $rpPos ], $rpTypeName) )
 		) {
 			$item = $int[ $rpPos ];
 
 		} else {
-			$item = $this->getChild($rpTypeName);
+			if (isset($str[ $rpTypeName ]) && is_object($str[ $rpTypeName ])) {
+				$item = $str[ $rpTypeName ];
 
+			} else {
+				$item = $this->getChild($rpTypeName);
+
+			}
+
+			$int = array_merge(
+				array_slice($int, 0, $rpPos, true),
+				[ $rpPos => $item ], // insert between
+				array_slice($int, $rpPos, null, true)
+			);
 		}
 
 		return $item;
@@ -724,9 +731,17 @@ class Loop
 	protected function autowireParamName(\ReflectionParameter $rp, array &$int = [], array &$str = [])
 	{
 		if (! $rpName = $rp->getName()) return null;
-		if (! isset($str[ $rpName ])) return null;
+		if (! isset($str[ $key = '$' . $rpName ])) return null;
 
-		$item = $str[ $rpName ];
+		$rpPos = $rp->getPosition();
+
+		$item = $str[ $key ];
+
+		$int = array_merge(
+			array_slice($int, 0, $rpPos, true),
+			[ $rpPos => $item ], // insert between
+			array_slice($int, $rpPos, null, true)
+		);
 
 		return $item;
 	}
@@ -758,7 +773,15 @@ class Loop
 	 */
 	protected function autowireParamDefault(\ReflectionParameter $rp, array &$int = [], array &$str = [])
 	{
+		$rpPos = $rp->getPosition();
+
 		$item = $rp->getDefaultValue();
+
+		$int = array_merge(
+			array_slice($int, 0, $rpPos, true),
+			[ $rpPos => $item ], // insert between
+			array_slice($int, $rpPos, null, true)
+		);
 
 		return $item;
 	}

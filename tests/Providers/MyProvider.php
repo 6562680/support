@@ -2,14 +2,14 @@
 
 namespace Tests\Providers;
 
+use Gzhegow\Di\Provider;
 use Tests\Services\MyAService;
 use Tests\Services\MyServiceInterface;
-use Gzhegow\Di\AbstractProvider;
 
 /**
  * Class MyProvider
  */
-class MyProvider extends AbstractProvider
+class MyProvider extends Provider
 {
 	/**
 	 * @return void

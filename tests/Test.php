@@ -46,6 +46,38 @@ class Test extends TestCase
 		$this->assertEquals(123, $testService->getDynamicOption());
 	}
 
+	/**
+	 * @return void
+	 */
+	public function testPass()
+	{
+		/** @var MyServiceInterface $testService */
+
+		$case = $this;
+
+		$di = new Di();
+		$di->bind(MyServiceInterface::class, MyAService::class);
+
+		$decorationService = $testService = $di->getOrFail(MyServiceInterface::class);
+
+		$data = [
+			MyServiceInterface::class => $decorationService,
+
+			'$var2' => 'world',
+
+			0 => 'hello',
+		];
+
+		$di->handle(function ($var, $var2, $var3 = null, MyServiceInterface $testService = null) use ($case, $decorationService) {
+			$case->assertEquals([
+				0 => 'hello',
+				1 => 'world',
+				2 => null,
+				3 => $decorationService,
+			], func_get_args());
+		}, $data);
+	}
+
 
 	/**
 	 * @return void
