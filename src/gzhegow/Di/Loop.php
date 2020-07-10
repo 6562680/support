@@ -246,7 +246,6 @@ class Loop
 			foreach ( $this->di->getExtends($id) as $func ) {
 				$item = null
 					?? $this->handle($func, [
-						0   => $item,
 						$id => $item,
 					])
 					?? $item;
@@ -278,6 +277,10 @@ class Loop
 	 */
 	public function call($newthis, $func, ...$arguments)
 	{
+		if (! is_object($newthis)) {
+			throw new InvalidArgumentException('NewThis should be object');
+		}
+
 		$result = $this->apply($newthis, $func, $arguments);
 
 		return $result;
@@ -295,12 +298,18 @@ class Loop
 	{
 		/** @var \Closure $closure */
 
+		if (! is_object($newthis)) {
+			throw new InvalidArgumentException('NewThis should be object');
+		}
+
 		if (! ( 0
 			|| ( $isClosure = $this->isClosure($func) )
 			|| ( $isCallable = $this->isCallable($func) )
 		)) {
 			throw new InvalidArgumentException('Func should be closure, handler or callable');
 		}
+
+		$params += [ get_class($newthis) => $newthis ];
 
 		$arguments = [];
 		switch ( true ) {

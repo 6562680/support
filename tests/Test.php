@@ -26,14 +26,19 @@ class Test extends TestCase
 	{
 		/** @var MyServiceInterface $testService */
 
+		$case = $this;
+
 		$di = new Di();
 		$di->bind(MyServiceInterface::class, MyAService::class);
-		$testService = $di->getOrFail(MyServiceInterface::class);
 
-		$di->call($testService, function () {
+		$decorationService = $testService = $di->getOrFail(MyServiceInterface::class);
+
+		$di->call($testService, function (MyServiceInterface $testService) use ($case, $decorationService) {
+			$case->assertEquals($decorationService, $this);
+			$case->assertEquals($decorationService, $testService);
+
 			// dynamicOption is protected, we used dynamic this
 			// to allow make properties readonly filled with factory/builder classes
-
 			$testService = $this;
 			$testService->dynamicOption = 123;
 		});
