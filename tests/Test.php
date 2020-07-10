@@ -65,16 +65,29 @@ class Test extends TestCase
 			MyServiceInterface::class => $decorationService,
 
 			'$var2' => 'world',
+			'$var5' => 'foo',
 
 			0 => 'hello',
 		];
 
-		$di->handle(function ($var, $var2, $var3 = null, MyServiceInterface $testService = null) use ($case, $decorationService) {
+		$di->handle(function (
+			$var,
+			$var2,
+			$var3 = 'bar',
+			$var4 = null,
+			MyServiceInterface $service = null
+		) use (
+			$case,
+			$decorationService
+		) {
+			$case->assertEquals($decorationService, $service);
 			$case->assertEquals([
 				0 => 'hello',
 				1 => 'world',
-				2 => null,
-				3 => $decorationService,
+				2 => 'bar',
+				3 => null,
+				4 => $decorationService, // interface
+				5 => 'foo', // $var5
 			], func_get_args());
 		}, $data);
 	}
@@ -82,7 +95,7 @@ class Test extends TestCase
 	/**
 	 * @return void
 	 */
-	public function testPassString()
+	public function testPassNoArguments()
 	{
 		/** @var MyServiceInterface $testService */
 
@@ -91,14 +104,14 @@ class Test extends TestCase
 		$di = new Di();
 		$di->bind(MyServiceInterface::class, MyAService::class);
 
-		$decorationService = $testService = $di->getOrFail(MyServiceInterface::class);
+		$service = $di->getOrFail(MyServiceInterface::class);
 
 		$data = [
-			MyServiceInterface::class => $decorationService,
+			MyServiceInterface::class => $service,
 		];
 
-		$di->handle(function () use ($case, $decorationService) {
-			$case->assertEquals([ $decorationService ], func_get_args());
+		$di->handle(function () use ($case, $service) {
+			$case->assertEquals([ $service ], func_get_args());
 		}, $data);
 	}
 

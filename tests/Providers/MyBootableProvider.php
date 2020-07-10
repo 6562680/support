@@ -3,8 +3,8 @@
 namespace Tests\Providers;
 
 use Tests\Services\MyAService;
-use Tests\Services\MyServiceInterface;
 use Gzhegow\Di\BootableProvider;
+use Tests\Services\MyServiceInterface;
 
 /**
  * Class MyBootableProvider
@@ -36,6 +36,7 @@ class MyBootableProvider extends BootableProvider
 		// will be done on $di->boot() method was called
 
 		$testService = $this->getMyService();
+
 		$testService::setStaticOption(1);
 		$testService->setDynamicOption(2);
 	}

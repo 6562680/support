@@ -627,10 +627,9 @@ class Loop
 			}
 		}
 
-		if (! $reflectionParameters) {
-			$args += $str;
+		$args += $int;
 
-		} else {
+		if ($reflectionParameters) {
 			foreach ( $reflectionParameters as $rp ) {
 				$pos = $rp->getPosition();
 
@@ -656,6 +655,10 @@ class Loop
 		}
 
 		$args += $int;
+
+		ksort($args);
+
+		$args += $str;
 
 		$args = array_values($args);
 
@@ -707,6 +710,7 @@ class Loop
 		} else {
 			if (isset($str[ $rpTypeName ]) && is_object($str[ $rpTypeName ])) {
 				$item = $str[ $rpTypeName ];
+				unset($str[ $rpTypeName ]);
 
 			} else {
 				$item = $this->getChild($rpTypeName);
@@ -738,6 +742,7 @@ class Loop
 		$rpPos = $rp->getPosition();
 
 		$item = $str[ $key ];
+		unset($str[ $key ]);
 
 		$int = array_merge(
 			array_slice($int, 0, $rpPos, true),
