@@ -46,6 +46,7 @@ class Test extends TestCase
 		$this->assertEquals(123, $testService->getDynamicOption());
 	}
 
+
 	/**
 	 * @return void
 	 */
@@ -75,6 +76,29 @@ class Test extends TestCase
 				2 => null,
 				3 => $decorationService,
 			], func_get_args());
+		}, $data);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testPassString()
+	{
+		/** @var MyServiceInterface $testService */
+
+		$case = $this;
+
+		$di = new Di();
+		$di->bind(MyServiceInterface::class, MyAService::class);
+
+		$decorationService = $testService = $di->getOrFail(MyServiceInterface::class);
+
+		$data = [
+			MyServiceInterface::class => $decorationService,
+		];
+
+		$di->handle(function () use ($case, $decorationService) {
+			$case->assertEquals([ $decorationService ], func_get_args());
 		}, $data);
 	}
 

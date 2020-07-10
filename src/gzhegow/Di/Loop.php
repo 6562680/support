@@ -657,6 +657,8 @@ class Loop
 
 		$args += $int;
 
+		$args = array_values($args);
+
 		return $args;
 	}
 
