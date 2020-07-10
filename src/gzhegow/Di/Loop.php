@@ -615,10 +615,9 @@ class Loop
 	 */
 	protected function autowireParams(array $reflectionParameters, array $params = []) : array
 	{
-		$args = [];
-
 		$int = [];
 		$str = [];
+		$used = [];
 		foreach ( $params as $key => $val ) {
 			if (is_int($key)) {
 				$int[ $key ] = $val;
@@ -627,14 +626,13 @@ class Loop
 			}
 		}
 
-		$args += $int;
-
+		$args = $int;
 		if ($reflectionParameters) {
 			foreach ( $reflectionParameters as $rp ) {
 				$pos = $rp->getPosition();
 
 				try {
-					$value = $this->autowireParam($rp, $int, $str);
+					$value = $this->autowireParam($rp, $int, $str, $used);
 				}
 				catch ( \ReflectionException $exception ) {
 					continue;
@@ -658,7 +656,11 @@ class Loop
 
 		ksort($args);
 
-		$args += $str;
+		foreach ( $str as $key => $arg ) {
+			if (! isset($used[ $key ])) {
+				$args += [ $key => $arg ];
+			}
+		}
 
 		$args = array_values($args);
 
@@ -669,17 +671,18 @@ class Loop
 	 * @param \ReflectionParameter $rp
 	 * @param array                $int
 	 * @param array                $str
+	 * @param array                $used
 	 *
 	 * @return mixed
 	 * @throws \ReflectionException
 	 */
-	protected function autowireParam(\ReflectionParameter $rp, array &$int = [], array &$str = [])
+	protected function autowireParam(\ReflectionParameter $rp, array &$int = [], array &$str = [], array &$used = [])
 	{
 		$item = null
-			?? $this->autowireParamType($rp, $int, $str)
-			?? $this->autowireParamName($rp, $int, $str)
-			?? $this->autowireParamPosition($rp, $int, $str)
-			?? $this->autowireParamDefault($rp, $int, $str);
+			?? $this->autowireParamType($rp, $int, $str, $used)
+			?? $this->autowireParamName($rp, $int, $str, $used)
+			?? $this->autowireParamPosition($rp, $int, $str, $used)
+			?? $this->autowireParamDefault($rp, $int, $str, $used);
 
 		return $item;
 	}
@@ -689,9 +692,11 @@ class Loop
 	 * @param array                $int
 	 * @param array                $str
 	 *
+	 * @param array                $used
+	 *
 	 * @return null|mixed
 	 */
-	protected function autowireParamType(\ReflectionParameter $rp, array &$int = [], array &$str = [])
+	protected function autowireParamType(\ReflectionParameter $rp, array &$int = [], array &$str = [], array &$used = [])
 	{
 		if (! $rpType = $rp->getType()) return null;
 		if (! $rpTypeName = $rpType->getName()) return null;
@@ -710,7 +715,8 @@ class Loop
 		} else {
 			if (isset($str[ $rpTypeName ]) && is_object($str[ $rpTypeName ])) {
 				$item = $str[ $rpTypeName ];
-				unset($str[ $rpTypeName ]);
+
+				$used[ $rpTypeName ] = true;
 
 			} else {
 				$item = $this->getChild($rpTypeName);
@@ -732,9 +738,11 @@ class Loop
 	 * @param array                $int
 	 * @param array                $str
 	 *
+	 * @param array                $used
+	 *
 	 * @return null|mixed
 	 */
-	protected function autowireParamName(\ReflectionParameter $rp, array &$int = [], array &$str = [])
+	protected function autowireParamName(\ReflectionParameter $rp, array &$int = [], array &$str = [], array &$used = [])
 	{
 		if (! $rpName = $rp->getName()) return null;
 		if (! isset($str[ $key = '$' . $rpName ])) return null;
@@ -742,7 +750,8 @@ class Loop
 		$rpPos = $rp->getPosition();
 
 		$item = $str[ $key ];
-		unset($str[ $key ]);
+
+		$used[ $key ] = true;
 
 		$int = array_merge(
 			array_slice($int, 0, $rpPos, true),
@@ -758,9 +767,11 @@ class Loop
 	 * @param array                $int
 	 * @param array                $str
 	 *
+	 * @param array                $used
+	 *
 	 * @return null|mixed
 	 */
-	protected function autowireParamPosition(\ReflectionParameter $rp, array &$int = [], array &$str = [])
+	protected function autowireParamPosition(\ReflectionParameter $rp, array &$int = [], array &$str = [], array &$used = [])
 	{
 		if (! $rpPos = $rp->getPosition()) return null;
 		if (! isset($int[ $rpPos ])) return null;
@@ -775,10 +786,12 @@ class Loop
 	 * @param array                $int
 	 * @param array                $str
 	 *
+	 * @param array                $used
+	 *
 	 * @return mixed
 	 * @throws \ReflectionException
 	 */
-	protected function autowireParamDefault(\ReflectionParameter $rp, array &$int = [], array &$str = [])
+	protected function autowireParamDefault(\ReflectionParameter $rp, array &$int = [], array &$str = [], array &$used = [])
 	{
 		$rpPos = $rp->getPosition();
 
