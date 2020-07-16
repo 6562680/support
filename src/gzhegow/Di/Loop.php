@@ -657,7 +657,7 @@ class Loop
 		ksort($args);
 
 		foreach ( $str as $key => $arg ) {
-			if (! isset($used[ $key ])) {
+			if (! array_key_exists($key, $used)) {
 				$args += [ $key => $arg ];
 			}
 		}
@@ -707,13 +707,15 @@ class Loop
 			return null;
 		}
 
-		if (isset($int[ $rpPos = $rp->getPosition() ])
+		$rpPos = $rp->getPosition();
+
+		if (array_key_exists($rpPos, $int)
 			&& ( is_object($int[ $rpPos ]) && is_a($int[ $rpPos ], $rpTypeName) )
 		) {
 			$item = $int[ $rpPos ];
 
 		} else {
-			if (isset($str[ $rpTypeName ]) && is_object($str[ $rpTypeName ])) {
+			if (array_key_exists($rpTypeName, $str) && is_object($str[ $rpTypeName ])) {
 				$item = $str[ $rpTypeName ];
 
 				$used[ $rpTypeName ] = true;
@@ -745,7 +747,7 @@ class Loop
 	protected function autowireParamName(\ReflectionParameter $rp, array &$int = [], array &$str = [], array &$used = [])
 	{
 		if (! $rpName = $rp->getName()) return null;
-		if (! isset($str[ $key = '$' . $rpName ])) return null;
+		if (! array_key_exists($key = '$' . $rpName, $str)) return null;
 
 		$rpPos = $rp->getPosition();
 
@@ -774,7 +776,7 @@ class Loop
 	protected function autowireParamPosition(\ReflectionParameter $rp, array &$int = [], array &$str = [], array &$used = [])
 	{
 		if (! $rpPos = $rp->getPosition()) return null;
-		if (! isset($int[ $rpPos ])) return null;
+		if (! array_key_exists($rpPos, $int)) return null;
 
 		$item = $int[ $rpPos ];
 
