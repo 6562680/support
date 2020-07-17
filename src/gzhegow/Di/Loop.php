@@ -615,9 +615,10 @@ class Loop
 	 */
 	protected function autowireParams(array $reflectionParameters, array $params = []) : array
 	{
+		$used = [];
+
 		$int = [];
 		$str = [];
-		$used = [];
 		foreach ( $params as $key => $val ) {
 			if (is_int($key)) {
 				$int[ $key ] = $val;
@@ -626,45 +627,44 @@ class Loop
 			}
 		}
 
-		$args = $int;
+		$result = [];
+		$args = [];
+
 		if ($reflectionParameters) {
 			foreach ( $reflectionParameters as $rp ) {
 				$pos = $rp->getPosition();
 
-				try {
-					$value = $this->autowireParam($rp, $int, $str, $used);
-				}
-				catch ( \ReflectionException $exception ) {
-					continue;
-				}
+				$result = $this->autowireParam($rp, $int, $str, $used);
 
-				if (null === $value) {
-					continue;
-				}
-
-				if ($rp->isVariadic()) {
-					if ([] === $value) {
+				if (! count($result)) {
+					if ($rp->isVariadic()) {
 						continue;
 					}
+
+					throw new InvalidArgumentException(
+						sprintf('Unable to autowire parameter %d (%s)', $pos, $rp->getName())
+					);
 				}
 
-				$args[ $pos ] = $value;
+				$args[ $pos ] = $result[ 0 ];
 			}
 		}
 
-		$args += $int;
+		$args += array_fill(0, count($args), null);
 
-		ksort($args);
+		$keys = array_keys($args);
+		sort($keys);
 
-		foreach ( $str as $key => $arg ) {
-			if (! array_key_exists($key, $used)) {
-				$args += [ $key => $arg ];
+		$idx = 0;
+		foreach ( $keys as $key ) {
+			if (! is_int($key)) {
+				$key = $idx;
 			}
+
+			$result[ $key ] = $args[ $key ];
 		}
 
-		$args = array_values($args);
-
-		return $args;
+		return $result;
 	}
 
 	/**
@@ -673,139 +673,124 @@ class Loop
 	 * @param array                $str
 	 * @param array                $used
 	 *
-	 * @return mixed
-	 * @throws \ReflectionException
+	 * @return array
 	 */
-	protected function autowireParam(\ReflectionParameter $rp, array &$int = [], array &$str = [], array &$used = [])
+	protected function autowireParam(\ReflectionParameter $rp, array &$int = [], array &$str = [], array &$used = []) : array
 	{
-		$item = null
-			?? $this->autowireParamType($rp, $int, $str, $used)
-			?? $this->autowireParamName($rp, $int, $str, $used)
-			?? $this->autowireParamPosition($rp, $int, $str, $used)
-			?? $this->autowireParamDefault($rp, $int, $str, $used);
+		$order = [
+			[ $this, 'autowireParamPosition' ],
+			[ $this, 'autowireParamType' ],
+			[ $this, 'autowireParamName' ],
+			[ $this, 'autowireParamDefault' ],
+		];
 
-		return $item;
+		$autowireResult = [];
+
+		foreach ( $order as $func ) {
+			$autowireResult = $func($rp, $int, $str, $used);
+
+			if (count($autowireResult)) break;
+		}
+
+		return $autowireResult;
 	}
 
 	/**
 	 * @param \ReflectionParameter $rp
 	 * @param array                $int
 	 * @param array                $str
-	 *
 	 * @param array                $used
 	 *
-	 * @return null|mixed
+	 * @return array
 	 */
-	protected function autowireParamType(\ReflectionParameter $rp, array &$int = [], array &$str = [], array &$used = [])
+	protected function autowireParamPosition(\ReflectionParameter $rp, array &$int = [], array &$str = [], array &$used = []) : array
 	{
-		if (! $rpType = $rp->getType()) return null;
-		if (! $rpTypeName = $rpType->getName()) return null;
-		if (! ( 0
-			|| interface_exists($rpTypeName)
-			|| class_exists($rpTypeName)
-		)) {
-			return null;
-		}
+		if (! array_key_exists($rpPos = $rp->getPosition(), $int)) return [];
 
-		$rpPos = $rp->getPosition();
-
-		if (array_key_exists($rpPos, $int)
-			&& ( is_object($int[ $rpPos ]) && is_a($int[ $rpPos ], $rpTypeName) )
-		) {
-			$item = $int[ $rpPos ];
-
-		} else {
-			if (array_key_exists($rpTypeName, $str) && is_object($str[ $rpTypeName ])) {
-				$item = $str[ $rpTypeName ];
-
-				$used[ $rpTypeName ] = true;
-
-			} else {
-				$item = $this->getChild($rpTypeName);
-
+		if ($rp->isVariadic()) {
+			if (is_null($int[ $rpPos ]) || ( [] === $int[ $rpPos ] )) {
+				return [];
 			}
-
-			$int = array_merge(
-				array_slice($int, 0, $rpPos, true),
-				[ $rpPos => $item ], // insert between
-				array_slice($int, $rpPos, null, true)
-			);
 		}
 
-		return $item;
+		$value = $int[ $rpPos ];
+
+		return [ $value ];
 	}
 
 	/**
 	 * @param \ReflectionParameter $rp
 	 * @param array                $int
 	 * @param array                $str
-	 *
 	 * @param array                $used
 	 *
-	 * @return null|mixed
+	 * @return array
+	 */
+	protected function autowireParamType(\ReflectionParameter $rp, array &$int = [], array &$str = [], array &$used = []) : array
+	{
+		if (! $rpType = $rp->getType()) return [];
+		if (! $rpTypeName = $rpType->getName()) return [];
+
+		if (array_key_exists($rpTypeName, $str) && is_object($str[ $rpTypeName ])) {
+			$value = $str[ $rpTypeName ];
+
+			$used[ $rpTypeName ] = true;
+
+			return [ $value ];
+
+		} elseif (interface_exists($rpTypeName) || class_exists($rpTypeName)) {
+			$value = $this->getChild($rpTypeName);
+
+			return [ $value ];
+		}
+
+		return [];
+	}
+
+	/**
+	 * @param \ReflectionParameter $rp
+	 * @param array                $int
+	 * @param array                $str
+	 * @param array                $used
+	 *
+	 * @return array
 	 */
 	protected function autowireParamName(\ReflectionParameter $rp, array &$int = [], array &$str = [], array &$used = [])
 	{
-		if (! $rpName = $rp->getName()) return null;
-		if (! array_key_exists($key = '$' . $rpName, $str)) return null;
-
-		$rpPos = $rp->getPosition();
-
-		$item = $str[ $key ];
+		if (! $rpName = $rp->getName()) return [];
+		if (! array_key_exists($key = '$' . $rpName, $str)) return [];
 
 		$used[ $key ] = true;
 
-		$int = array_merge(
-			array_slice($int, 0, $rpPos, true),
-			[ $rpPos => $item ], // insert between
-			array_slice($int, $rpPos, null, true)
-		);
+		if ($rp->isVariadic()) {
+			if (is_null($str[ $key ]) || ( [] === $str[ $key ] )) {
+				return [];
+			}
+		}
 
-		return $item;
+		$value = $str[ $key ];
+
+		return [ $value ];
 	}
 
 	/**
 	 * @param \ReflectionParameter $rp
 	 * @param array                $int
 	 * @param array                $str
-	 *
 	 * @param array                $used
 	 *
-	 * @return null|mixed
+	 * @return array
 	 */
-	protected function autowireParamPosition(\ReflectionParameter $rp, array &$int = [], array &$str = [], array &$used = [])
+	protected function autowireParamDefault(\ReflectionParameter $rp, array &$int = [], array &$str = [], array &$used = []) : array
 	{
-		if (! $rpPos = $rp->getPosition()) return null;
-		if (! array_key_exists($rpPos, $int)) return null;
+		try {
+			$value = $rp->getDefaultValue();
+		}
+		catch ( \ReflectionException $exception ) {
+			return [];
+		}
 
-		$item = $int[ $rpPos ];
-
-		return $item;
-	}
-
-	/**
-	 * @param \ReflectionParameter $rp
-	 * @param array                $int
-	 * @param array                $str
-	 *
-	 * @param array                $used
-	 *
-	 * @return mixed
-	 * @throws \ReflectionException
-	 */
-	protected function autowireParamDefault(\ReflectionParameter $rp, array &$int = [], array &$str = [], array &$used = [])
-	{
-		$rpPos = $rp->getPosition();
-
-		$item = $rp->getDefaultValue();
-
-		$int = array_merge(
-			array_slice($int, 0, $rpPos, true),
-			[ $rpPos => $item ], // insert between
-			array_slice($int, $rpPos, null, true)
-		);
-
-		return $item;
+		return [ $value ];
 	}
 
 

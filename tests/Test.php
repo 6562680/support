@@ -80,14 +80,44 @@ class Test extends TestCase
 			$case,
 			$decorationService
 		) {
-			$case->assertEquals($decorationService, $service);
 			$case->assertEquals([
-				0 => 'hello',
-				1 => 'world',
-				2 => 'bar',
-				3 => null,
-				4 => $decorationService, // interface
-				5 => 'foo', // $var5
+				0 => 'hello', // passed as int argument without ordering
+				1 => 'world', // passed as string argument
+				2 => 'bar', // default value
+				3 => null, // default null
+				4 => $decorationService, // created by interface
+
+				// 5 => 'foo', // ignored because no param match
+			], func_get_args());
+
+			$case->assertEquals($decorationService, $service);
+		}, $data);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testPassVariadic()
+	{
+		/** @var MyServiceInterface $testService */
+
+		$case = $this;
+
+		$di = new Di();
+		$di->bind(MyServiceInterface::class, MyAService::class);
+
+		$data = [
+			0        => null,
+			2        => null,
+			'$world' => 'world1',
+			'$args'  => [],
+		];
+
+		$di->handle(function ($hello, $world = null, ...$args) use ($case) {
+			$case->assertEquals([
+				0 => null, // passed by name
+				1 => 'world1', // passed by name
+				// 2 => [], // variadic parameters becomes [] by default, even if null or empty array is passed
 			], func_get_args());
 		}, $data);
 	}
@@ -107,11 +137,11 @@ class Test extends TestCase
 		$service = $di->getOrFail(MyServiceInterface::class);
 
 		$data = [
-			MyServiceInterface::class => $service,
+			MyServiceInterface::class => $service, // will be ignored - no arguments match
 		];
 
 		$di->handle(function () use ($case, $service) {
-			$case->assertEquals([ $service ], func_get_args());
+			$case->assertEquals([], func_get_args());
 		}, $data);
 	}
 
