@@ -2,6 +2,7 @@
 
 namespace Gzhegow\Di;
 
+use Psr\Container\ContainerInterface;
 use Gzhegow\Di\Exceptions\RuntimeException;
 use Gzhegow\Di\Exceptions\Exception\NotFoundException;
 use Gzhegow\Di\Exceptions\Runtime\AutowireException;
@@ -617,6 +618,18 @@ class Loop
 	protected function autowireParams(array $reflectionParameters, array $params = []) : array
 	{
 		$used = [];
+
+		$append = [
+			ContainerInterface::class,
+			DiInterface::class,
+			Di::class,
+
+			'$di',
+			'$container',
+		];
+		foreach ( $append as $key ) {
+			$params += [ $key => $this->di ];
+		}
 
 		$int = [];
 		$str = [];
