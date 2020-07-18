@@ -5,8 +5,8 @@ namespace Gzhegow\Di\Exceptions\Runtime;
 use Gzhegow\Di\Exceptions\RuntimeException;
 
 /**
- * Class AutowireLoopException
+ * Class AutowireException
  */
-class AutowireLoopException extends RuntimeException
+class AutowireException extends RuntimeException
 {
 }

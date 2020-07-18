@@ -4,7 +4,7 @@ namespace Gzhegow\Di;
 
 use Gzhegow\Di\Exceptions\RuntimeException;
 use Gzhegow\Di\Exceptions\Exception\NotFoundException;
-use Gzhegow\Di\Exceptions\Runtime\AutowireLoopException;
+use Gzhegow\Di\Exceptions\Runtime\AutowireException;
 use Gzhegow\Di\Exceptions\Logic\InvalidArgumentException;
 
 /**
@@ -49,6 +49,7 @@ class Loop
 	{
 		return $this->loop;
 	}
+
 
 	/**
 	 * @param string $id
@@ -96,7 +97,7 @@ class Loop
 	 *
 	 * @return null|mixed
 	 */
-	protected function getChild(string $id)
+	protected function getAsChild(string $id)
 	{
 		try {
 			$instance = $this->di->newLoop($this->loop)->get($id);
@@ -213,7 +214,7 @@ class Loop
 				: null );
 
 		if (isset($this->loop[ $bind ])) {
-			throw new AutowireLoopException(sprintf(
+			throw new AutowireException(sprintf(
 				'Autowire loop: %s is required in [ %s ]',
 				$bind,
 				implode(' <- ', array_keys($this->loop))
@@ -370,7 +371,7 @@ class Loop
 			case $isHandler:
 				[ $id, $method ] = explode('@', $func) + [ null, null ];
 
-				$func = [ $object = $this->getChild($id), $method ];
+				$func = [ $object = $this->getAsChild($id), $method ];
 
 				$arguments = $this->autowireMethod($object, $method, $params);
 
@@ -627,34 +628,31 @@ class Loop
 			}
 		}
 
-		$result = [];
 		$args = [];
 
 		if ($reflectionParameters) {
 			foreach ( $reflectionParameters as $rp ) {
-				$pos = $rp->getPosition();
-
 				$result = $this->autowireParam($rp, $int, $str, $used);
 
-				if (! count($result)) {
-					if ($rp->isVariadic()) {
-						continue;
-					}
-
-					throw new InvalidArgumentException(
-						sprintf('Unable to autowire parameter %d (%s)', $pos, $rp->getName())
-					);
+				if (count($result)) {
+					$args[ $rp->getPosition() ] = reset($result);
+					continue;
 				}
 
-				$args[ $pos ] = $result[ 0 ];
+				if ($rp->isVariadic()) {
+					continue;
+				}
+
+				throw new AutowireException(
+					sprintf('Unable to autowire parameter %d (%s)', $rp->getPosition(), $rp->getName())
+				);
 			}
 		}
-
-		$args += array_fill(0, count($args), null);
 
 		$keys = array_keys($args);
 		sort($keys);
 
+		$result = [];
 		$idx = 0;
 		foreach ( $keys as $key ) {
 			if (! is_int($key)) {
@@ -662,6 +660,7 @@ class Loop
 			}
 
 			$result[ $key ] = $args[ $key ];
+			$idx++;
 		}
 
 		return $result;
@@ -678,9 +677,9 @@ class Loop
 	protected function autowireParam(\ReflectionParameter $rp, array &$int = [], array &$str = [], array &$used = []) : array
 	{
 		$order = [
-			[ $this, 'autowireParamPosition' ],
 			[ $this, 'autowireParamType' ],
 			[ $this, 'autowireParamName' ],
+			[ $this, 'autowireParamPosition' ],
 			[ $this, 'autowireParamDefault' ],
 		];
 
@@ -703,43 +702,27 @@ class Loop
 	 *
 	 * @return array
 	 */
-	protected function autowireParamPosition(\ReflectionParameter $rp, array &$int = [], array &$str = [], array &$used = []) : array
-	{
-		if (! array_key_exists($rpPos = $rp->getPosition(), $int)) return [];
-
-		if ($rp->isVariadic()) {
-			if (is_null($int[ $rpPos ]) || ( [] === $int[ $rpPos ] )) {
-				return [];
-			}
-		}
-
-		$value = $int[ $rpPos ];
-
-		return [ $value ];
-	}
-
-	/**
-	 * @param \ReflectionParameter $rp
-	 * @param array                $int
-	 * @param array                $str
-	 * @param array                $used
-	 *
-	 * @return array
-	 */
 	protected function autowireParamType(\ReflectionParameter $rp, array &$int = [], array &$str = [], array &$used = []) : array
 	{
 		if (! $rpType = $rp->getType()) return [];
 		if (! $rpTypeName = $rpType->getName()) return [];
 
-		if (array_key_exists($rpTypeName, $str) && is_object($str[ $rpTypeName ])) {
+		if (array_key_exists($rpTypeName, $str)
+			&& is_object($str[ $rpTypeName ])
+			&& is_a($str[ $rpTypeName ], $rpTypeName)
+		) {
 			$value = $str[ $rpTypeName ];
 
 			$used[ $rpTypeName ] = true;
 
+			$int = $this->array_expand($int, $rp->getPosition(), $value);
+
 			return [ $value ];
 
 		} elseif (interface_exists($rpTypeName) || class_exists($rpTypeName)) {
-			$value = $this->getChild($rpTypeName);
+			$value = $this->getAsChild($rpTypeName);
+
+			$int = $this->array_expand($int, $rp->getPosition(), $value);
 
 			return [ $value ];
 		}
@@ -769,6 +752,31 @@ class Loop
 		}
 
 		$value = $str[ $key ];
+
+		$int = $this->array_expand($int, $rp->getPosition(), $value);
+
+		return [ $value ];
+	}
+
+	/**
+	 * @param \ReflectionParameter $rp
+	 * @param array                $int
+	 * @param array                $str
+	 * @param array                $used
+	 *
+	 * @return array
+	 */
+	protected function autowireParamPosition(\ReflectionParameter $rp, array &$int = [], array &$str = [], array &$used = []) : array
+	{
+		if (! array_key_exists($rpPos = $rp->getPosition(), $int)) return [];
+
+		if ($rp->isVariadic()) {
+			if (is_null($int[ $rpPos ]) || ( [] === $int[ $rpPos ] )) {
+				return [];
+			}
+		}
+
+		$value = $int[ $rpPos ];
 
 		return [ $value ];
 	}
@@ -890,5 +898,28 @@ class Loop
 		}
 
 		return $rf;
+	}
+
+
+	/**
+	 * @param array $array
+	 * @param int   $pos
+	 * @param null  $value
+	 *
+	 * @return array
+	 */
+	protected function array_expand(array $array, int $pos, $value = null) : array
+	{
+		if ($pos < 0) {
+			throw new InvalidArgumentException('Pos should be non-negative');
+		}
+
+		$result = array_merge(
+			array_slice($array, 0, $pos),
+			[ $pos => $value ],
+			array_slice($array, $pos)
+		);
+
+		return $result;
 	}
 }

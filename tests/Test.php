@@ -12,7 +12,7 @@ use Tests\Services\MyLoopAService;
 use Tests\Services\MyServiceInterface;
 use Tests\Providers\MyBootableProvider;
 use Tests\Providers\MyDeferableProvider;
-use Gzhegow\Di\Exceptions\Runtime\AutowireLoopException;
+use Gzhegow\Di\Exceptions\Runtime\AutowireException;
 
 /**
  * Class Test
@@ -145,6 +145,34 @@ class Test extends TestCase
 		}, $data);
 	}
 
+	/**
+	 * @return void
+	 */
+	public function testPassUnexpectedOrder()
+	{
+		/** @var MyServiceInterface $testService */
+
+		$case = $this;
+
+		$di = new Di();
+		$di->bind(MyServiceInterface::class, MyAService::class);
+
+		$myAService = $di->getOrFail(MyServiceInterface::class);
+
+		$data = [
+			'$var2' => '456',
+			0       => '123',
+		];
+
+		$di->handle(function ($var1, MyServiceInterface $myService, $var2) use ($case, $myAService) {
+			$case->assertEquals([
+				0 => '123',
+				1 => $myAService, // array was expanded with autowired dependency
+				2 => '456',
+			], func_get_args());
+		}, $data);
+	}
+
 
 	/**
 	 * @return void
@@ -224,7 +252,7 @@ class Test extends TestCase
 	public function testBadLoop()
 	{
 		// service requires itself
-		$this->expectException(AutowireLoopException::class);
+		$this->expectException(AutowireException::class);
 
 		$di = new Di();
 		$di->getOrFail(MyLoopService::class);
@@ -236,7 +264,7 @@ class Test extends TestCase
 	public function testBadLoopAB()
 	{
 		// service A requires B, and service B requires service A
-		$this->expectException(AutowireLoopException::class);
+		$this->expectException(AutowireException::class);
 
 		$di = new Di();
 		$di->getOrFail(MyLoopAService::class);
