@@ -86,7 +86,7 @@ class Di implements
 
 		foreach ( $keys as $key ) {
 			if (! $this->hasShared($key)) {
-				$this->setShared($key, $this);
+				$this->set($key, $this);
 			}
 		}
 	}
@@ -107,24 +107,6 @@ class Di implements
 		} )->call($instance);
 
 		return $instance;
-	}
-
-
-	/**
-	 * @param string $id
-	 *
-	 * @return mixed
-	 */
-	public function getOrFail(string $id)
-	{
-		try {
-			$result = $this->get($id);
-		}
-		catch ( NotFoundException $e ) {
-			throw new RuntimeException(null, null, $e);
-		}
-
-		return $result;
 	}
 
 
@@ -198,8 +180,6 @@ class Di implements
 
 		return $item;
 	}
-
-
 
 	/**
 	 * @return ProviderInterface[]
@@ -283,39 +263,6 @@ class Di implements
 	public function hasExtends($id) : bool
 	{
 		return is_string($id) && isset($this->extends[ $id ]);
-	}
-
-
-	/**
-	 * @param string $id
-	 * @param mixed  $item
-	 *
-	 * @return Di
-	 * @throws OutOfRangeException
-	 */
-	public function setShared(string $id, $item)
-	{
-		$this->set($id, $item, $shared = true);
-
-		return $this;
-	}
-
-	/**
-	 * @param string $id
-	 * @param mixed  $item
-	 *
-	 * @return mixed
-	 */
-	public function setSharedOrFail(string $id, $item)
-	{
-		try {
-			$result = $this->setShared($id, $item);
-		}
-		catch ( OutOfRangeException $e ) {
-			throw new RuntimeException(null, null, $e);
-		}
-
-		return $result;
 	}
 
 
@@ -406,6 +353,23 @@ class Di implements
 		return $result;
 	}
 
+	/**
+	 * @param string $id
+	 *
+	 * @return mixed
+	 */
+	public function getOrFail(string $id)
+	{
+		try {
+			$result = $this->get($id);
+		}
+		catch ( NotFoundException $e ) {
+			throw new RuntimeException(null, null, $e);
+		}
+
+		return $result;
+	}
+
 
 	/**
 	 * @param string $id
@@ -424,12 +388,11 @@ class Di implements
 	/**
 	 * @param string $id
 	 * @param mixed  $item
-	 * @param bool   $shared
 	 *
 	 * @return Di
 	 * @throws OutOfRangeException
 	 */
-	public function set(string $id, $item, bool $shared = false)
+	public function set(string $id, $item)
 	{
 		if ('' === $id) {
 			throw new InvalidArgumentException('Id should be not empty');
@@ -439,11 +402,44 @@ class Di implements
 			throw new OutOfRangeException('Bind is already defined: ' . $id);
 		}
 
-		$this->items[ $id ] = $item;
+		$this->replace($id, $item);
 
-		if ($shared) {
-			$this->shared[ $id ] = true;
+		return $this;
+	}
+
+	/**
+	 * @param string $id
+	 * @param mixed  $item
+	 *
+	 * @return mixed
+	 */
+	public function setOrFail(string $id, $item)
+	{
+		try {
+			$result = $this->set($id, $item);
 		}
+		catch ( OutOfRangeException $e ) {
+			throw new RuntimeException(null, null, $e);
+		}
+
+		return $result;
+	}
+
+
+	/**
+	 * @param string          $id
+	 * @param string|\Closure $item
+	 * @param bool            $shared
+	 *
+	 * @return Di
+	 */
+	public function replace(string $id, $item, bool $shared = false)
+	{
+		if ('' === $id) {
+			throw new InvalidArgumentException('Id should be not empty');
+		}
+
+		$this->items[ $id ] = $item;
 
 		return $this;
 	}
@@ -493,7 +489,6 @@ class Di implements
 			&& ( false !== strpos($handler, '@') );
 	}
 
-
 	/**
 	 * @param string $configPath
 	 *
@@ -509,7 +504,6 @@ class Di implements
 
 		return $this;
 	}
-
 
 	/**
 	 * @param string          $id
@@ -560,7 +554,6 @@ class Di implements
 		return $this;
 	}
 
-
 	/**
 	 * @param string          $id
 	 * @param string|\Closure $bind
@@ -579,11 +572,11 @@ class Di implements
 			|| ( $isClass = $this->isClass($bind) )
 		);
 
-		if ($isBind) {
-			$this->bind[ $id ] = $bind;
-		} else {
-			$this->items[ $id ] = $bind;
+		if (! $isBind) {
+			throw new InvalidArgumentException('Bind should be closure or class name');
 		}
+
+		$this->bind[ $id ] = $bind;
 
 		if ($shared) {
 			$this->shared[ $id ] = true;
@@ -604,7 +597,6 @@ class Di implements
 
 		return $this;
 	}
-
 
 	/**
 	 * @param string                   $id

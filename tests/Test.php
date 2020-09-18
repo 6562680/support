@@ -5,12 +5,14 @@ namespace Tests;
 use Gzhegow\Di\Di;
 use Tests\Services\MyAService;
 use Tests\Services\MyCService;
+use Tests\Services\MyBService;
 use PHPUnit\Framework\TestCase;
 use Tests\Providers\MyProvider;
 use Tests\Services\MyLoopService;
 use Tests\Services\MyLoopAService;
-use Tests\Services\MyServiceInterface;
+use Tests\Services\MyServiceAInterface;
 use Tests\Providers\MyBootableProvider;
+use Tests\Services\MyServiceBInterface;
 use Tests\Providers\MyDeferableProvider;
 use Gzhegow\Di\Exceptions\Runtime\AutowireException;
 
@@ -24,26 +26,26 @@ class Test extends TestCase
 	 */
 	public function testDecorate()
 	{
-		/** @var MyServiceInterface $testService */
+		/** @var MyServiceAInterface $myAService */
 
 		$case = $this;
 
 		$di = new Di();
-		$di->bind(MyServiceInterface::class, MyAService::class);
+		$di->bind(MyServiceAInterface::class, MyAService::class);
 
-		$decorationService = $testService = $di->getOrFail(MyServiceInterface::class);
+		$decorationService = $myAService = $di->getOrFail(MyServiceAInterface::class);
 
-		$di->call($testService, function (MyServiceInterface $testService) use ($case, $decorationService) {
+		$di->call($myAService, function (MyServiceAInterface $myAService) use ($case, $decorationService) {
 			$case->assertEquals($decorationService, $this);
-			$case->assertEquals($decorationService, $testService);
+			$case->assertEquals($decorationService, $myAService);
 
 			// dynamicOption is protected, we used dynamic this
 			// to allow make properties readonly filled with factory/builder classes
-			$testService = $this;
-			$testService->dynamicOption = 123;
+			$myAService = $this;
+			$myAService->dynamicOption = 123;
 		});
 
-		$this->assertEquals(123, $testService->getDynamicOption());
+		$this->assertEquals(123, $myAService->getDynamicOption());
 	}
 
 
@@ -52,17 +54,17 @@ class Test extends TestCase
 	 */
 	public function testPass()
 	{
-		/** @var MyServiceInterface $testService */
+		/** @var MyServiceAInterface $testService */
 
 		$case = $this;
 
 		$di = new Di();
-		$di->bind(MyServiceInterface::class, MyAService::class);
+		$di->bind(MyServiceAInterface::class, MyAService::class);
 
-		$decorationService = $testService = $di->getOrFail(MyServiceInterface::class);
+		$decorationService = $testService = $di->getOrFail(MyServiceAInterface::class);
 
 		$data = [
-			MyServiceInterface::class => $decorationService,
+			MyServiceAInterface::class => $decorationService,
 
 			'$var2' => 'world',
 			'$var5' => 'foo',
@@ -75,7 +77,7 @@ class Test extends TestCase
 			$var2,
 			$var3 = 'bar',
 			$var4 = null,
-			MyServiceInterface $service = null
+			MyServiceAInterface $service = null
 		) use (
 			$case,
 			$decorationService
@@ -99,12 +101,12 @@ class Test extends TestCase
 	 */
 	public function testPassVariadic()
 	{
-		/** @var MyServiceInterface $testService */
+		/** @var MyServiceAInterface $testService */
 
 		$case = $this;
 
 		$di = new Di();
-		$di->bind(MyServiceInterface::class, MyAService::class);
+		$di->bind(MyServiceAInterface::class, MyAService::class);
 
 		$data = [
 			0        => null,
@@ -127,17 +129,17 @@ class Test extends TestCase
 	 */
 	public function testPassNoArguments()
 	{
-		/** @var MyServiceInterface $testService */
+		/** @var MyServiceAInterface $testService */
 
 		$case = $this;
 
 		$di = new Di();
-		$di->bind(MyServiceInterface::class, MyAService::class);
+		$di->bind(MyServiceAInterface::class, MyAService::class);
 
-		$service = $di->getOrFail(MyServiceInterface::class);
+		$service = $di->getOrFail(MyServiceAInterface::class);
 
 		$data = [
-			MyServiceInterface::class => $service, // will be ignored - no arguments match
+			MyServiceAInterface::class => $service, // will be ignored - no arguments match
 		];
 
 		$di->handle(function () use ($case, $service) {
@@ -150,21 +152,21 @@ class Test extends TestCase
 	 */
 	public function testPassUnexpectedOrder()
 	{
-		/** @var MyServiceInterface $testService */
+		/** @var MyServiceAInterface $testService */
 
 		$case = $this;
 
 		$di = new Di();
-		$di->bind(MyServiceInterface::class, MyAService::class);
+		$di->bind(MyServiceAInterface::class, MyAService::class);
 
-		$myAService = $di->getOrFail(MyServiceInterface::class);
+		$myAService = $di->getOrFail(MyServiceAInterface::class);
 
 		$data = [
 			'$var2' => '456',
 			0       => '123',
 		];
 
-		$di->handle(function ($var1, MyServiceInterface $myService, $var2) use ($case, $myAService) {
+		$di->handle(function ($var1, MyServiceAInterface $myService, $var2) use ($case, $myAService) {
 			$case->assertEquals([
 				0 => '123',
 				1 => $myAService, // array was expanded with autowired dependency
@@ -179,14 +181,18 @@ class Test extends TestCase
 	 */
 	public function testNormal()
 	{
-		/** @var MyServiceInterface $testService */
+		/** @var MyServiceAInterface $myAService */
 
 		$di = new Di();
 		$di->registerProvider(MyProvider::class);
 
-		$testService = $di->getOrFail(MyServiceInterface::class);
+		$myAService = $di->getOrFail(MyServiceAInterface::class);
+		$myBService = $di->getOrFail(MyServiceBInterface::class);
 
-		$this->assertEquals(null, $testService->getStaticOption());
+		$this->assertInstanceOf(MyAService::class, $myAService);
+		$this->assertInstanceOf(MyBService::class, $myBService);
+
+		$this->assertEquals(null, $myAService->getStaticOption());
 	}
 
 	/**
@@ -194,20 +200,20 @@ class Test extends TestCase
 	 */
 	public function testBootable()
 	{
-		/** @var MyServiceInterface $testService */
+		/** @var MyServiceAInterface $myAService */
 
 		$di = new Di();
 		$di->registerProvider(MyBootableProvider::class);
 
-		$testService = $di->getOrFail(MyServiceInterface::class);
+		$myAService = $di->getOrFail(MyServiceAInterface::class);
 
-		$this->assertEquals(null, $testService->getDynamicOption()); // registered, not booted
-		$this->assertEquals(null, $testService->getStaticOption());  // registered, not booted
+		$this->assertEquals(null, $myAService->getDynamicOption()); // registered, not booted
+		$this->assertEquals(null, $myAService->getStaticOption());  // registered, not booted
 
 		$di->boot();
 
-		$this->assertEquals(null, $testService->getDynamicOption()); // not a singleton
-		$this->assertEquals(1, $testService->getStaticOption());     // shared for all classes
+		$this->assertEquals(null, $myAService->getDynamicOption()); // not a singleton
+		$this->assertEquals(1, $myAService->getStaticOption());     // shared for all classes
 	}
 
 	/**
@@ -215,20 +221,20 @@ class Test extends TestCase
 	 */
 	public function testDeferable()
 	{
-		/** @var MyServiceInterface $testService */
+		/** @var MyServiceAInterface $myAService */
 
 		$di = new Di();
 		$di->registerProvider(MyDeferableProvider::class);
 
-		$testService = $di->getOrFail(MyServiceInterface::class);
+		$myAService = $di->getOrFail(MyServiceAInterface::class);
 
-		$this->assertEquals(null, $testService->getDynamicOption());
-		$this->assertEquals(1, $testService->getStaticOption()); // booted on create, so - already booted
+		$this->assertEquals(null, $myAService->getDynamicOption());
+		$this->assertEquals(1, $myAService->getStaticOption()); // booted on create, so - already booted
 
 		$di->boot(); // nothing happens, because of deferable boot
 
-		$this->assertEquals(null, $testService->getDynamicOption());
-		$this->assertEquals(1, $testService->getStaticOption()); // same result
+		$this->assertEquals(null, $myAService->getDynamicOption());
+		$this->assertEquals(1, $myAService->getStaticOption()); // same result
 	}
 
 
@@ -249,7 +255,7 @@ class Test extends TestCase
 	/**
 	 * @return void
 	 */
-	public function testBadLoop()
+	public function testBadLoopSame()
 	{
 		// service requires itself
 		$this->expectException(AutowireException::class);

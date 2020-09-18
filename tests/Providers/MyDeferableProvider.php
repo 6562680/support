@@ -3,8 +3,9 @@
 namespace Tests\Providers;
 
 use Tests\Services\MyAService;
-use Tests\Services\MyServiceInterface;
 use Gzhegow\Di\DeferableProvider;
+use Tests\Services\MyServiceAInterface;
+use Tests\Services\MyServiceBInterface;
 
 /**
  * Class MyDeferableProvider
@@ -12,11 +13,11 @@ use Gzhegow\Di\DeferableProvider;
 class MyDeferableProvider extends DeferableProvider
 {
 	/**
-	 * @return MyServiceInterface
+	 * @return MyServiceAInterface
 	 */
-	protected function getMyService() : MyServiceInterface
+	protected function getMyAService() : MyServiceAInterface
 	{
-		return $this->di->getOrFail(MyServiceInterface::class);
+		return $this->di->getOrFail(MyServiceAInterface::class);
 	}
 
 
@@ -25,7 +26,7 @@ class MyDeferableProvider extends DeferableProvider
 	 */
 	public function register() : void
 	{
-		$this->di->bind(MyServiceInterface::class, MyAService::class);
+		$this->di->bind(MyServiceAInterface::class, MyAService::class);
 	}
 
 	/**
@@ -35,9 +36,10 @@ class MyDeferableProvider extends DeferableProvider
 	{
 		// will be done when you try to get element from container
 
-		$testService = $this->getMyService();
-		$testService::setStaticOption(1);
-		$testService->setDynamicOption(2);
+		$myAService = $this->getMyAService();
+
+		$myAService::setStaticOption(1);
+		$myAService->setDynamicOption(2);
 	}
 
 
@@ -47,7 +49,8 @@ class MyDeferableProvider extends DeferableProvider
 	public function provides() : array
 	{
 		return [
-			MyServiceInterface::class,
+			MyServiceAInterface::class,
+			MyServiceBInterface::class,
 		];
 	}
 }

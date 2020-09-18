@@ -74,14 +74,19 @@ class Loop
 			$result = $this->di->getItem($id);
 
 		} else {
-			if ($this->di->hasBind($id)) {
+			if (! $this->di->hasBind($id)) {
+				$bind = $id;
+
+			} else {
 				$bind = $this->di->getBind($id);
 
 				if ($this->di->hasItem($bind)) {
 					$result = $this->di->getItem($bind);
+
+				} elseif ($this->isClosure($bind)) {
+					$result = $this->handle($bind);
+
 				}
-			} else {
-				$bind = $id;
 			}
 
 			if (! $result) {

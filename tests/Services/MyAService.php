@@ -5,7 +5,7 @@ namespace Tests\Services;
 /**
  * Class MyAService
  */
-class MyAService implements MyServiceInterface
+class MyAService implements MyServiceAInterface
 {
 	/**
 	 * @var mixed

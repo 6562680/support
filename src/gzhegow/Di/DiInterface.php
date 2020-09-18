@@ -14,18 +14,9 @@ interface DiInterface
 	 * @param string $id
 	 *
 	 * @return mixed
-	 */
-	public function getOrFail(string $id);
-
-
-	/**
-	 * @param string $id
-	 *
-	 * @return mixed
 	 * @throws NotFoundException
 	 */
 	public function getItem(string $id);
-
 
 	/**
 	 * @param string $id
@@ -34,7 +25,6 @@ interface DiInterface
 	 * @throws NotFoundException
 	 */
 	public function getBind(string $id);
-
 
 	/**
 	 * @return ProviderInterface[]
@@ -65,14 +55,12 @@ interface DiInterface
 	 */
 	public function hasItem($id) : bool;
 
-
 	/**
 	 * @param mixed $id
 	 *
 	 * @return bool
 	 */
 	public function hasBind($id) : bool;
-
 
 	/**
 	 * @param mixed $id
@@ -81,14 +69,12 @@ interface DiInterface
 	 */
 	public function hasDeferableBind($id) : bool;
 
-
 	/**
 	 * @param mixed $id
 	 *
 	 * @return bool
 	 */
 	public function hasShared($id) : bool;
-
 
 	/**
 	 * @param mixed $id
@@ -99,29 +85,12 @@ interface DiInterface
 
 
 	/**
-	 * @param string $id
-	 * @param mixed  $item
-	 *
-	 * @return Di
-	 * @throws OutOfRangeException
-	 */
-	public function setShared(string $id, $item);
-
-	/**
-	 * @param string $id
-	 * @param mixed  $item
-	 *
-	 * @return mixed
-	 */
-	public function setSharedOrFail(string $id, $item);
-
-
-	/**
 	 * @param array $providers
 	 *
 	 * @return Di
 	 */
 	public function setProviders(array $providers);
+
 
 	/**
 	 * @param array $providers
@@ -149,19 +118,42 @@ interface DiInterface
 	/**
 	 * @param string $id
 	 *
+	 * @return mixed
+	 */
+	public function getOrFail(string $id);
+
+
+	/**
+	 * @param string $id
+	 *
 	 * @return bool
 	 */
 	public function has($id);
 
+
 	/**
 	 * @param string $id
 	 * @param mixed  $item
-	 * @param bool   $shared
 	 *
 	 * @return Di
-	 * @throws OutOfRangeException()
 	 */
-	public function set(string $id, $item, bool $shared = false);
+	public function set(string $id, $item);
+
+	/**
+	 * @param string $id
+	 * @param mixed  $item
+	 *
+	 * @return mixed
+	 */
+	public function setOrFail(string $id, $item);
+
+	/**
+	 * @param string $id
+	 * @param mixed  $item
+	 *
+	 * @return Di
+	 */
+	public function replace(string $id, $item);
 
 
 	/**

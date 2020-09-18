@@ -4,7 +4,7 @@ namespace Tests\Providers;
 
 use Tests\Services\MyAService;
 use Gzhegow\Di\BootableProvider;
-use Tests\Services\MyServiceInterface;
+use Tests\Services\MyServiceAInterface;
 
 /**
  * Class MyBootableProvider
@@ -12,11 +12,11 @@ use Tests\Services\MyServiceInterface;
 class MyBootableProvider extends BootableProvider
 {
 	/**
-	 * @return MyServiceInterface
+	 * @return MyServiceAInterface
 	 */
-	protected function getMyService() : MyServiceInterface
+	protected function getMyAService() : MyServiceAInterface
 	{
-		return $this->di->getOrFail(MyServiceInterface::class);
+		return $this->di->getOrFail(MyServiceAInterface::class);
 	}
 
 
@@ -25,7 +25,7 @@ class MyBootableProvider extends BootableProvider
 	 */
 	public function register() : void
 	{
-		$this->di->bind(MyServiceInterface::class, MyAService::class);
+		$this->di->bind(MyServiceAInterface::class, MyAService::class);
 	}
 
 	/**
@@ -35,9 +35,9 @@ class MyBootableProvider extends BootableProvider
 	{
 		// will be done on $di->boot() method was called
 
-		$testService = $this->getMyService();
+		$myAService = $this->getMyAService();
 
-		$testService::setStaticOption(1);
-		$testService->setDynamicOption(2);
+		$myAService::setStaticOption(1);
+		$myAService->setDynamicOption(2);
 	}
 }
