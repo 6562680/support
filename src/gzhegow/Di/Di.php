@@ -26,7 +26,7 @@ class Di implements
 	 */
 	protected $bind = [];
 	/**
-	 * @var array
+	 * @var bool[][]
 	 */
 	protected $bindDeferable = [];
 
@@ -49,7 +49,7 @@ class Di implements
 	 */
 	protected $providersBootable = [];
 	/**
-	 * @var DeferableProviderInterface[][]
+	 * @var DeferableProviderInterface[]
 	 */
 	protected $providersDeferable = [];
 
@@ -678,8 +678,8 @@ class Di implements
 			throw new NotFoundException('Deferable bind not found: ' . $id);
 		}
 
-		foreach ( $this->bindDeferable[ $id ] as $provider ) {
-			$this->providerBooting($provider);
+		foreach ( $this->bindDeferable[ $id ] as $provider => $bool ) {
+			$this->providerBooting($this->providersDeferable[ $provider ]);
 		}
 
 		return $this;
