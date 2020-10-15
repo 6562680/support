@@ -80,11 +80,11 @@ class Loop
 			} else {
 				$bind = $this->di->getBind($id);
 
-				if ($this->di->hasItem($bind)) {
-					$result = $this->di->getItem($bind);
+				if ($this->isClosure($bind)) {
+					$bind = $id;
 
-				} elseif ($this->isClosure($bind)) {
-					$result = $this->handle($bind);
+				} elseif ($this->di->hasItem($bind)) {
+					$result = $this->di->getItem($bind);
 
 				}
 			}
@@ -206,28 +206,30 @@ class Loop
 
 		if (! ( 0
 			|| ( $hasBind = $this->di->hasBind($id) )
-			|| ( $isCLass = $this->isClass($id) )
+			|| ( $isClass = $this->isClass($id) )
 		)) {
 			throw new NotFoundException('Bind not found: ' . $id);
 		}
 
-		$bind = null
-			?? ( $hasBind
-				? $this->di->getBind($id)
-				: null )
-			?? ( $isCLass
-				? $id
-				: null );
+		$loopKey = $id;
 
-		if (isset($this->loop[ $bind ])) {
+		$bind = $id;
+		if ($hasBind) {
+			$bind = $this->di->getBind($id);
+
+			if (! $this->isClosure($bind)) {
+				$loopKey = $bind;
+			}
+		}
+
+		if (isset($this->loop[ $loopKey ])) {
 			throw new AutowireException(sprintf(
-				'Autowire loop: %s is required in [ %s ]',
-				$bind,
+				'Autowire loop: %s is required in [ %s ]', $bind,
 				implode(' <- ', array_keys($this->loop))
 			));
 		}
 
-		$this->loop[ $bind ] = true;
+		$this->loop[ $loopKey ] = true;
 
 		if ($this->di->hasDeferableBind($bind)) {
 			$this->di->bootDeferable($bind);

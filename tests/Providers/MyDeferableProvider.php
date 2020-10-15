@@ -5,7 +5,6 @@ namespace Tests\Providers;
 use Tests\Services\MyAService;
 use Gzhegow\Di\DeferableProvider;
 use Tests\Services\MyServiceAInterface;
-use Tests\Services\MyServiceBInterface;
 
 /**
  * Class MyDeferableProvider
@@ -50,7 +49,6 @@ class MyDeferableProvider extends DeferableProvider
 	{
 		return [
 			MyServiceAInterface::class,
-			MyServiceBInterface::class,
 		];
 	}
 }

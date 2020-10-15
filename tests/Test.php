@@ -14,6 +14,7 @@ use Tests\Services\MyServiceAInterface;
 use Tests\Providers\MyBootableProvider;
 use Tests\Services\MyServiceBInterface;
 use Tests\Providers\MyDeferableProvider;
+use Tests\Services\MyServiceBClosureInterface;
 use Gzhegow\Di\Exceptions\Runtime\AutowireException;
 
 /**
@@ -235,6 +236,21 @@ class Test extends TestCase
 
 		$this->assertEquals(null, $myAService->getDynamicOption());
 		$this->assertEquals(1, $myAService->getStaticOption()); // same result
+	}
+
+
+	/**
+	 * @return void
+	 */
+	public function testSharedClosure()
+	{
+		$di = new Di();
+		$di->registerProvider(MyProvider::class);
+
+		$myBClosureSharedService1 = $di->getOrFail(MyServiceBClosureInterface::class);
+		$myBClosureSharedService2 = $di->getOrFail(MyServiceBClosureInterface::class);
+
+		$this->assertEquals($myBClosureSharedService1, $myBClosureSharedService2);
 	}
 
 

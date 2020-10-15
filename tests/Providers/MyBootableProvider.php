@@ -5,6 +5,7 @@ namespace Tests\Providers;
 use Tests\Services\MyAService;
 use Gzhegow\Di\BootableProvider;
 use Tests\Services\MyServiceAInterface;
+use Tests\Services\MyServiceAClosureInterface;
 
 /**
  * Class MyBootableProvider
