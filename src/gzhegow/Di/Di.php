@@ -2,6 +2,9 @@
 
 namespace Gzhegow\Di;
 
+use Gzhegow\Di\Libs\Php;
+use Gzhegow\Di\Libs\Arr;
+use Gzhegow\Di\Libs\Type;
 use Psr\Container\ContainerInterface;
 use Gzhegow\Di\Exceptions\RuntimeException;
 use Gzhegow\Di\Exceptions\Runtime\OverflowException;
@@ -13,9 +16,21 @@ use Gzhegow\Di\Exceptions\Logic\InvalidArgumentException;
  * Class Di
  */
 class Di implements
-	DiInterface,
 	ContainerInterface
 {
+	/**
+	 * @var Arr
+	 */
+	protected $arr;
+	/**
+	 * @var Php
+	 */
+	protected $php;
+	/**
+	 * @var Type
+	 */
+	protected $type;
+
 	/**
 	 * @var array
 	 */
@@ -74,13 +89,17 @@ class Di implements
 	 */
 	public function __construct()
 	{
+		$this->arr = new Arr();
+		$this->php = new Php();
+		$this->type = new Type();
+
 		if (! isset(static::$instances[ static::class ])) {
 			static::$instances[ static::class ] = $this;
 		}
 
 		$keys = [
 			ContainerInterface::class,
-			DiInterface::class,
+			// DiInterface::class,
 			static::class,
 		];
 
@@ -93,20 +112,45 @@ class Di implements
 
 
 	/**
-	 * @param array $loop
+	 * @param array $stack
 	 *
 	 * @return Loop
 	 */
-	public function newLoop(array $loop = [])
+	public function newLoop(array $stack = [])
 	{
 		$instance = new Loop($this);
 
-		( function () use ($loop) {
+		( function () use ($stack) {
 			$instance = $this;
-			$instance->loop = $loop;
+			$instance->stack = $stack;
 		} )->call($instance);
 
 		return $instance;
+	}
+
+
+	/**
+	 * @return Arr
+	 */
+	public function getArr() : Arr
+	{
+		return $this->arr;
+	}
+
+	/**
+	 * @return Php
+	 */
+	public function getPhp() : Php
+	{
+		return $this->php;
+	}
+
+	/**
+	 * @return Type
+	 */
+	public function getType() : Type
+	{
+		return $this->type;
 	}
 
 
@@ -135,6 +179,7 @@ class Di implements
 		return $bind;
 	}
 
+
 	/**
 	 * @param string $id
 	 *
@@ -160,6 +205,7 @@ class Di implements
 		return $item;
 	}
 
+
 	/**
 	 * @param string $id
 	 *
@@ -180,6 +226,7 @@ class Di implements
 
 		return $item;
 	}
+
 
 	/**
 	 * @return ProviderInterface[]
@@ -225,6 +272,7 @@ class Di implements
 		return is_string($id) && isset($this->items[ $id ]);
 	}
 
+
 	/**
 	 * @param mixed $id
 	 *
@@ -245,6 +293,7 @@ class Di implements
 		return is_string($id) && isset($this->bindDeferable[ $id ]);
 	}
 
+
 	/**
 	 * @param mixed $id
 	 *
@@ -254,6 +303,7 @@ class Di implements
 	{
 		return is_string($id) && isset($this->shared[ $id ]);
 	}
+
 
 	/**
 	 * @param mixed $id
@@ -381,7 +431,7 @@ class Di implements
 		return 0
 			|| $this->hasItem($id)
 			|| $this->hasBind($id)
-			|| $this->isClass($id);
+			|| $this->type->isClass($id);
 	}
 
 
@@ -429,11 +479,10 @@ class Di implements
 	/**
 	 * @param string          $id
 	 * @param string|\Closure $item
-	 * @param bool            $shared
 	 *
 	 * @return Di
 	 */
-	public function replace(string $id, $item, bool $shared = false)
+	public function replace(string $id, $item)
 	{
 		if ('' === $id) {
 			throw new InvalidArgumentException('Id should be not empty');
@@ -444,66 +493,6 @@ class Di implements
 		return $this;
 	}
 
-
-	/**
-	 * @param mixed $func
-	 *
-	 * @return bool
-	 */
-	protected function isCallable($func) : bool
-	{
-		return ( is_array($func) || is_string($func) )
-			&& is_callable($func);
-	}
-
-	/**
-	 * @param mixed $class
-	 *
-	 * @return bool
-	 */
-	protected function isClass($class) : bool
-	{
-		return is_string($class) && class_exists($class);
-	}
-
-	/**
-	 * @param mixed $func
-	 *
-	 * @return bool
-	 */
-	protected function isClosure($func) : bool
-	{
-		return is_object($func) && ( get_class($func) === \Closure::class );
-	}
-
-	/**
-	 * @param mixed $handler
-	 *
-	 * @return bool
-	 */
-	protected function isHandler($handler) : bool
-	{
-		return is_string($handler)
-			&& ( '' !== $handler )
-			&& ( $handler[ 0 ] !== '@' )
-			&& ( false !== strpos($handler, '@') );
-	}
-
-	/**
-	 * @param string $configPath
-	 *
-	 * @return $this
-	 */
-	public function loadConfig(string $configPath)
-	{
-		if ('' === $configPath) {
-			throw new InvalidArgumentException('ConfigPath should be not empty');
-		}
-
-		require_once $configPath;
-
-		return $this;
-	}
 
 	/**
 	 * @param string          $id
@@ -541,6 +530,8 @@ class Di implements
 	}
 
 	/**
+	 * Alias for bindShared
+	 *
 	 * @param string $id
 	 * @param mixed  $item
 	 *
@@ -553,6 +544,7 @@ class Di implements
 
 		return $this;
 	}
+
 
 	/**
 	 * @param string          $id
@@ -568,8 +560,8 @@ class Di implements
 		}
 
 		$isBind = ( 0
-			|| ( $isClosure = $this->isClosure($bind) )
-			|| ( $isClass = $this->isClass($bind) )
+			|| ( $isClosure = $this->type->isClosure($bind) )
+			|| ( $isClass = $this->type->isClass($bind) )
 		);
 
 		if (! $isBind) {
@@ -598,6 +590,7 @@ class Di implements
 		return $this;
 	}
 
+
 	/**
 	 * @param string                   $id
 	 * @param string|callable|\Closure $func
@@ -611,10 +604,10 @@ class Di implements
 		}
 
 		if (! ( 0
-			|| $this->isClosure($func)
-			|| $this->isCallable($func)
+			|| $this->type->isClosure($func)
+			|| $this->type->isCallable($func)
 		)) {
-			throw new InvalidArgumentException('Func should be closure, handler or callable');
+			throw new InvalidArgumentException('Func should be closure or callable');
 		}
 
 		$this->extends[ $id ][] = $func;
@@ -688,32 +681,32 @@ class Di implements
 
 	/**
 	 * @param string $id
-	 * @param array  $params
+	 * @param array  $arguments
 	 *
 	 * @return mixed
 	 * @throws NotFoundException
 	 */
-	public function createAutowired(string $id, array $params = [])
+	public function createAutowired(string $id, ...$arguments)
 	{
 		if ('' === $id) {
 			throw new InvalidArgumentException('Id should be not empty');
 		}
 
-		$result = $this->newLoop()->createAutowired($id, $params);
+		$result = $this->newLoop()->createAutowired($id, ...$arguments);
 
 		return $result;
 	}
 
 	/**
 	 * @param string $id
-	 * @param array  $params
+	 * @param array  $arguments
 	 *
 	 * @return mixed
 	 */
-	public function createAutowiredOrFail(string $id, array $params = [])
+	public function createAutowiredOrFail(string $id, ...$arguments)
 	{
 		try {
-			$result = $this->createAutowired($id, $params);
+			$result = $this->createAutowired($id, ...$arguments);
 		}
 		catch ( NotFoundException $e ) {
 			throw new RuntimeException(null, null, $e);
@@ -724,58 +717,45 @@ class Di implements
 
 
 	/**
-	 * @param object $newthis
-	 * @param mixed  $func
-	 * @param mixed  ...$arguments
+	 * @param callable $func
+	 * @param array    $arguments
+	 *
+	 * @return mixed
+	 */
+	public function handle($func, ...$arguments)
+	{
+		if (! ( 0
+			|| ( $this->type->isHandler($func) )
+			|| ( $this->type->isClosure($func) )
+			|| ( $this->type->isCallable($func) )
+		)) {
+			throw new InvalidArgumentException('Func should be handler, closure or callable');
+		}
+
+		$result = $this->newLoop()
+			->handle($func, ...$arguments);
+
+		return $result;
+	}
+
+	/**
+	 * @param mixed    $newthis
+	 * @param callable $func
+	 * @param array    $arguments
 	 *
 	 * @return mixed
 	 */
 	public function call($newthis, $func, ...$arguments)
 	{
-		$result = $this->apply($newthis, $func, $arguments);
-
-		return $result;
-	}
-
-	/**
-	 * @param mixed $newthis
-	 * @param mixed $func
-	 * @param array $params
-	 *
-	 * @return mixed
-	 */
-	public function apply($newthis, $func, array $params = [])
-	{
 		if (! ( 0
-			|| ( $this->isClosure($func) )
-			|| ( $this->isCallable($func) )
+			|| ( $this->type->isCallable($func) )
+			|| ( $this->type->isClosure($func) )
 		)) {
 			throw new InvalidArgumentException('Func should be closure, handler or callable');
 		}
 
-		$result = $this->newLoop()->apply($newthis, $func, $params);
-
-		return $result;
-	}
-
-
-	/**
-	 * @param callable $func
-	 * @param array    $params
-	 *
-	 * @return mixed
-	 */
-	public function handle($func, array $params = [])
-	{
-		if (! ( 0
-			|| ( $this->isHandler($func) )
-			|| ( $this->isClosure($func) )
-			|| ( $this->isCallable($func) )
-		)) {
-			throw new InvalidArgumentException('Func should be handler, closure or callable');
-		}
-
-		$result = $this->newLoop()->handle($func, $params);
+		$result = $this->newLoop()
+			->call($newthis, $func, ...$arguments);
 
 		return $result;
 	}
@@ -950,25 +930,25 @@ class Di implements
 
 	/**
 	 * @param string $id
-	 * @param array  $params
+	 * @param array  $arguments
 	 *
 	 * @return mixed
 	 * @throws NotFoundException
 	 */
-	public static function make(string $id, array $params = [])
+	public static function make(string $id, ...$arguments)
 	{
-		return static::getInstance()->createAutowired($id, $params);
+		return static::getInstance()->createAutowired($id, ...$arguments);
 	}
 
 	/**
 	 * @param string $id
-	 * @param array  $params
+	 * @param array  $arguments
 	 *
 	 * @return mixed
 	 */
-	public static function makeOrFail(string $id, array $params = [])
+	public static function makeOrFail(string $id, ...$arguments)
 	{
-		return static::getInstance()->createAutowiredOrFail($id, $params);
+		return static::getInstance()->createAutowiredOrFail($id, ...$arguments);
 	}
 
 
