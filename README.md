@@ -28,6 +28,8 @@ $di->handle(function (Service $service, $a, $b) {}, [
 
 ### Основные возможности:
 ```
+public static function getInstance(); // получить экземпляр контейнера в произвольном месте кода. Паттерн Одиночка
+
 public function get($id); // получить объект, если синглтон, следующий раз вернется тот же обьект
 public function getOrFail(string $id); // получить объект, если синглтон, следующий раз вернется тот же обьект
 public function create(string $id, ...$arguments); // создать обьект, игнорируя синглтоны
