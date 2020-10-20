@@ -29,8 +29,8 @@ $di->handle(function (Service $service, $a, $b) {}, [
 ```
 public function get($id); // получить объект, если синглтон, следующий раз вернется тот же обьект
 public function getOrFail(string $id); // получить объект, если синглтон, следующий раз вернется тот же обьект
-public function createAutowired(string $id, ...$arguments); // создать обьект, игнорируя синглтоны
-public function createAutowiredOrFail(string $id, ...$arguments); // создать обьект, игнорируя синглтоны
+public function create(string $id, ...$arguments); // создать обьект, игнорируя синглтоны
+public function createOrFail(string $id, ...$arguments); // создать обьект, игнорируя синглтоны
 
 
 public static function find(string $id) // получить объект, если синглтон, следующий раз вернется тот же обьект
