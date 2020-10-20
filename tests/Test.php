@@ -203,6 +203,17 @@ class Test extends TestCase
 	{
 		/** @var MyServiceAInterface $myAService */
 
+		// drop old copy
+		$it = new \RecursiveDirectoryIterator($dir = __DIR__ . '/../config/tests/dest', \RecursiveDirectoryIterator::SKIP_DOTS);
+		$iit = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::CHILD_FIRST);
+		foreach ( $iit as $file ) {
+			$todo = ( $file->isDir()
+				? 'rmdir'
+				: 'unlink' );
+			$todo($file->getRealPath());
+		}
+		rmdir($dir);
+
 		$di = new Di();
 		$di->registerProvider(MyBootableProvider::class);
 
@@ -215,6 +226,14 @@ class Test extends TestCase
 
 		$this->assertEquals(null, $myAService->getDynamicOption()); // not a singleton
 		$this->assertEquals(1, $myAService->getStaticOption());     // shared for all classes
+
+		// require
+		$this->assertEquals(BOOTSTRAP, true);
+
+		// copy
+		$this->assertFileExists(__DIR__ . '/../config/tests/dest/file.conf');
+		$this->assertFileExists(__DIR__ . '/../config/tests/dest/dir/file.conf');
+		$this->assertFileExists(__DIR__ . '/../config/tests/dest/dir/dir/file.conf');
 	}
 
 	/**

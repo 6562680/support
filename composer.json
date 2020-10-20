@@ -16,8 +16,9 @@
         "psr/container": "^1.0"
     },
     "require-dev": {
-        "symfony/var-dumper": "4.*",
-        "phpunit/phpunit": "8"
+        "phpunit/phpunit": "8",
+        
+        "symfony/var-dumper": "4.*"
     },
     "autoload": {
         "psr-4": {
@@ -26,7 +27,6 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Gzhegow\\Di\\": "src/gzhegow/Di",
             "Tests\\": "tests/"
         },
         "files": [

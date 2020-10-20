@@ -5,7 +5,6 @@ namespace Tests\Providers;
 use Tests\Services\MyAService;
 use Gzhegow\Di\BootableProvider;
 use Tests\Services\MyServiceAInterface;
-use Tests\Services\MyServiceAClosureInterface;
 
 /**
  * Class MyBootableProvider
@@ -27,6 +26,21 @@ class MyBootableProvider extends BootableProvider
 	public function register() : void
 	{
 		$this->di->bind(MyServiceAInterface::class, MyAService::class);
+	}
+
+	/**
+	 * @return array
+	 */
+	public function sync() : array
+	{
+		return [
+			// copy
+			__DIR__ . '/../../config/tests/source/file.conf' => __DIR__ . '/../../config/tests/dest/file.conf',
+			__DIR__ . '/../../config/tests/source/dir'       => __DIR__ . '/../../config/tests/dest/dir',
+
+			// require
+			__DIR__ . '/../../config/tests/source/bootstrap.php',
+		];
 	}
 
 	/**

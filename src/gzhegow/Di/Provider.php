@@ -38,6 +38,16 @@ class Provider implements ProviderInterface
 	}
 
 	/**
+	 * @param bool|null $registered
+	 *
+	 * @return void
+	 */
+	public function setRegistered(bool $registered = null) : void
+	{
+		$this->isRegistered = $registered ?? true;
+	}
+
+	/**
 	 * @return void
 	 */
 	public function register() : void

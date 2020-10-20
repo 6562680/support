@@ -2,19 +2,11 @@
 
 namespace Gzhegow\Di;
 
+use Gzhegow\Di\Interfaces\CanRegisterInterface;
 
 /**
  * Interface ProviderInterface
  */
-interface ProviderInterface
+interface ProviderInterface extends CanRegisterInterface
 {
-	/**
-	 * @return bool
-	 */
-	public function isRegistered() : bool;
-
-	/**
-	 * @return void
-	 */
-	public function register() : void;
 }

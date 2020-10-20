@@ -7,6 +7,8 @@ use Gzhegow\Di\Libs\Arr;
 use Gzhegow\Di\Libs\Type;
 use Psr\Container\ContainerInterface;
 use Gzhegow\Di\Exceptions\RuntimeException;
+use Gzhegow\Di\Interfaces\CanBootInterface;
+use Gzhegow\Di\Interfaces\CanSyncInterface;
 use Gzhegow\Di\Exceptions\Runtime\OverflowException;
 use Gzhegow\Di\Exceptions\Logic\OutOfRangeException;
 use Gzhegow\Di\Exceptions\Exception\NotFoundException;
@@ -16,7 +18,8 @@ use Gzhegow\Di\Exceptions\Logic\InvalidArgumentException;
  * Class Di
  */
 class Di implements
-	ContainerInterface
+	ContainerInterface,
+	DiInterface
 {
 	/**
 	 * @var Arr
@@ -99,7 +102,7 @@ class Di implements
 
 		$keys = [
 			ContainerInterface::class,
-			// DiInterface::class,
+			DiInterface::class,
 			static::class,
 		];
 
@@ -360,12 +363,14 @@ class Di implements
 
 		$this->providers[ $class = get_class($provider) ] = $provider;
 
-		$this->providerRegistration($provider);
+		$this->providerRegistering($provider);
 
 		if (is_a($bootableProvider = $provider, BootableProviderInterface::class)) {
 			$this->providersBootable[ $class ] = $provider;
 
+			// if already called boot method - we boot immediately
 			if ($this->isBooted()) {
+				$this->providerSyncing($bootableProvider);
 				$this->providerBooting($bootableProvider);
 			}
 		}
@@ -649,6 +654,7 @@ class Di implements
 		$this->isBooted = true;
 
 		foreach ( $this->providersBootable as $provider ) {
+			$this->providerSyncing($provider);
 			$this->providerBooting($provider);
 		}
 
@@ -672,6 +678,7 @@ class Di implements
 		}
 
 		foreach ( $this->bindDeferable[ $id ] as $provider => $bool ) {
+			$this->providerSyncing($this->providersDeferable[ $provider ]);
 			$this->providerBooting($this->providersDeferable[ $provider ]);
 		}
 
@@ -766,7 +773,7 @@ class Di implements
 	 *
 	 * @return Di
 	 */
-	protected function providerRegistration(ProviderInterface $provider)
+	protected function providerRegistering(ProviderInterface $provider)
 	{
 		if ($provider->isRegistered()) {
 			return $this;
@@ -793,18 +800,75 @@ class Di implements
 	}
 
 	/**
-	 * @param BootProviderInterface $provider
+	 * @param CanSyncInterface $provider
 	 *
 	 * @return Di
 	 */
-	protected function providerBooting(BootProviderInterface $provider)
+	protected function providerSyncing(CanSyncInterface $provider)
 	{
-		if (! $provider->isBooted()) {
-			$provider->boot();
+		if (! $provider->isSynced()) {
+			foreach ( $provider->sync() as $from => $to ) {
+				if (is_int($from)) {
+					if ('php' !== pathinfo($to, PATHINFO_EXTENSION)) {
+						throw new RuntimeException('Bootstrap file should be `.php` file: ' . $to . ' in ' . get_class($provider));
+					}
+
+					// exec php file
+					require $to;
+
+				} else {
+					// copy source to destination
+					if (file_exists($to)) {
+						continue;
+					}
+
+					if (! file_exists($from)) {
+						throw new RuntimeException('Source file not found: ' . $from . ' in ' . get_class($provider));
+					}
+
+					if (! is_dir($dest = pathinfo($to, PATHINFO_DIRNAME))) {
+						mkdir($dest, 0755, true);
+					}
+
+					if (! is_dir($from)) {
+						copy($from, $to);
+
+					} else {
+						$it = new \RecursiveDirectoryIterator($from, \RecursiveDirectoryIterator::SKIP_DOTS);
+						$iit = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::SELF_FIRST);
+
+						foreach ( $iit as $file ) {
+							$dest = $to . DIRECTORY_SEPARATOR . $iit->getSubPathName();
+							$file->isDir()
+								? mkdir($dest, 755, true)
+								: copy($file->getRealpath(), $dest);
+						}
+					}
+				}
+			}
+
+			$provider->setSynced(true);
 		}
 
 		return $this;
 	}
+
+	/**
+	 * @param CanBootInterface $provider
+	 *
+	 * @return Di
+	 */
+	protected function providerBooting(CanBootInterface $provider)
+	{
+		if (! $provider->isBooted()) {
+			$provider->boot();
+
+			$provider->setBooted(true);
+		}
+
+		return $this;
+	}
+
 
 
 	/**

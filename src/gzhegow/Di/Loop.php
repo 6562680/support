@@ -56,23 +56,6 @@ class Loop
 
 
 	/**
-	 * @return array
-	 */
-	public function getLoop() : array
-	{
-		return array_keys($this->stack);
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getLoopIndex() : array
-	{
-		return $this->stack;
-	}
-
-
-	/**
 	 * @param string $id
 	 *
 	 * @return null|mixed
@@ -565,7 +548,7 @@ class Loop
 
 		$append = [
 			ContainerInterface::class,
-			// DiInterface::class,
+			DiInterface::class,
 			Di::class,
 
 			'$di',
