@@ -26,6 +26,12 @@ $di->handle(function (Service $service, $a, $b) {}, [
 2. BootableProvider - поддерживает метод boot(), который будет вызван, когда приложение сделает $di->boot(), а в случае, если уже был сделан - то немедленно после регистрации провайдера
 3. DeferableProvider - изменяет поведение метода boot() таким образом, что он вызывается в тот момент, когда инжектор пытается создать класс. Для указания, на какие именно классы он сработает используется метод provides().
 
+### Исключения
+* При попытке зарегистрировать бинд повторно без использования replace()/rebind() будет выброшено `Gzhegow\Di\Exceptions\Runtime\OverflowException`
+* Если бинд не был зарегистрирован, но вы попытались его получить, будет выброшено `Gzhegow\Di\Exceptions\Error\NotFoundError`
+* Если при автоматическом инжектировании параметр невозможно предсказать, будет выброшено `Gzhegow\Di\Exceptions\Runtime\Error\AutowireError`
+* Если при указании зависимостей была допущена рекурсия, будет выброшено `Gzhegow\Di\Exceptions\Runtime\Error\AutowireLoopError`
+
 ### Основные возможности:
 ```
 public static function getInstance(); // получить экземпляр контейнера в произвольном месте кода. Паттерн Одиночка
@@ -73,9 +79,3 @@ public function removeProvider($provider); // удалить провайдер 
 public function boot(); // запустить загрузку BootableProvider-ов
 public function isBooted() : bool; // проверить, была ли загрузка уже запущена ранее
 ```
-
-### Исключения
-* Если бинд не был зарегистрирован, будет выброшено Gzhegow\Di\Exceptions\Error\NotFoundError
-* При попытке зарегистрировать бинд повторно без использования replace()/rebind() будет выброшено Gzhegow\Di\Exceptions\Runtime\OverflowException
-* Если при указании зависимостей была допущена рекурсия, будет выброшено Gzhegow\Di\Exceptions\Runtime\Error\AutowireError
-* Если при автоматическом инжектировании параметр невозможно предсказать, будет выброшено Gzhegow\Di\Exceptions\Runtime\Error\AutowireError
