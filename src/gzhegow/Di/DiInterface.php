@@ -150,7 +150,7 @@ interface DiInterface
 	 * @return mixed
 	 * @throws NotFoundException
 	 */
-	public function createAutowired(string $id, ...$arguments);
+	public function create(string $id, ...$arguments);
 
 	/**
 	 * @param string $id
@@ -158,7 +158,7 @@ interface DiInterface
 	 *
 	 * @return mixed
 	 */
-	public function createAutowiredOrFail(string $id, ...$arguments);
+	public function createOrFail(string $id, ...$arguments);
 
 
 	/**

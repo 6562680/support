@@ -7,9 +7,10 @@ use Gzhegow\Di\Libs\Arr;
 use Gzhegow\Di\Libs\Type;
 use Psr\Container\ContainerInterface;
 use Gzhegow\Di\Exceptions\RuntimeException;
-use Gzhegow\Di\Exceptions\Runtime\AutowireException;
-use Gzhegow\Di\Exceptions\Exception\NotFoundException;
+use Gzhegow\Di\Exceptions\Error\NotFoundError;
+use Gzhegow\Di\Exceptions\Runtime\Error\AutowireError;
 use Gzhegow\Di\Exceptions\Logic\InvalidArgumentException;
+use Gzhegow\Di\Exceptions\Runtime\Error\AutowireLoopError;
 
 /**
  * Class Loop
@@ -59,7 +60,7 @@ class Loop
 	 * @param string $id
 	 *
 	 * @return null|mixed
-	 * @throws NotFoundException
+	 * @throws NotFoundError
 	 */
 	public function get(string $id)
 	{
@@ -93,7 +94,7 @@ class Loop
 			}
 
 			if (! $result) {
-				$result = $this->createAutowired($bind);
+				$result = $this->create($bind);
 			}
 		}
 
@@ -111,7 +112,7 @@ class Loop
 		try {
 			$instance = $this->di->newLoop($this->stack)->get($id);
 		}
-		catch ( NotFoundException $exception ) {
+		catch ( NotFoundError $exception ) {
 			throw new RuntimeException(null, null, $exception);
 		}
 
@@ -125,9 +126,9 @@ class Loop
 	 * @param array  $arguments
 	 *
 	 * @return null|mixed
-	 * @throws NotFoundException
+	 * @throws NotFoundError
 	 */
-	public function createAutowired(string $id, ...$arguments)
+	public function create(string $id, ...$arguments)
 	{
 		if ('' === $id) {
 			throw new InvalidArgumentException('Id should be not empty');
@@ -137,7 +138,7 @@ class Loop
 			|| ( $hasBind = $this->di->hasBind($id) )
 			|| ( $isClass = $this->type->isClass($id) )
 		)) {
-			throw new NotFoundException('Bind not found: ' . $id);
+			throw new NotFoundError('Bind not found: ' . $id);
 		}
 
 		$loopKey = $id;
@@ -152,7 +153,7 @@ class Loop
 		}
 
 		if (isset($this->stack[ $loopKey ])) {
-			throw new AutowireException(sprintf(
+			throw new AutowireLoopError(sprintf(
 				'Autowire loop: %s is required in [ %s ]', $bind,
 				implode(' <- ', array_keys($this->stack))
 			));
@@ -583,7 +584,7 @@ class Loop
 					continue;
 				}
 
-				throw new AutowireException(
+				throw new AutowireError(
 					sprintf('Unable to autowire parameter %d (%s)', $rp->getPosition(), $rp->getName())
 				);
 			}

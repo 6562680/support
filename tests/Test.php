@@ -15,7 +15,7 @@ use Tests\Providers\MyBootableProvider;
 use Tests\Services\MyServiceBInterface;
 use Tests\Providers\MyDeferableProvider;
 use Tests\Services\MyServiceBClosureInterface;
-use Gzhegow\Di\Exceptions\Runtime\AutowireException;
+use Gzhegow\Di\Exceptions\Runtime\Error\AutowireLoopError;
 
 /**
  * Class Test
@@ -293,7 +293,8 @@ class Test extends TestCase
 	public function testBadLoopSame()
 	{
 		// service requires itself
-		$this->expectException(AutowireException::class);
+
+		$this->expectException(AutowireLoopError::class);
 
 		$di = new Di();
 		$di->getOrFail(MyLoopService::class);
@@ -305,7 +306,8 @@ class Test extends TestCase
 	public function testBadLoopAB()
 	{
 		// service A requires B, and service B requires service A
-		$this->expectException(AutowireException::class);
+
+		$this->expectException(AutowireLoopError::class);
 
 		$di = new Di();
 		$di->getOrFail(MyLoopAService::class);

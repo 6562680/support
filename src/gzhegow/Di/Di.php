@@ -9,9 +9,8 @@ use Psr\Container\ContainerInterface;
 use Gzhegow\Di\Exceptions\RuntimeException;
 use Gzhegow\Di\Interfaces\CanBootInterface;
 use Gzhegow\Di\Interfaces\CanSyncInterface;
+use Gzhegow\Di\Exceptions\Error\NotFoundError;
 use Gzhegow\Di\Exceptions\Runtime\OverflowException;
-use Gzhegow\Di\Exceptions\Logic\OutOfRangeException;
-use Gzhegow\Di\Exceptions\Exception\NotFoundException;
 use Gzhegow\Di\Exceptions\Logic\InvalidArgumentException;
 
 /**
@@ -161,7 +160,7 @@ class Di implements
 	 * @param string $id
 	 *
 	 * @return mixed
-	 * @throws NotFoundException
+	 * @throws NotFoundError
 	 */
 	public function getBind(string $id)
 	{
@@ -170,7 +169,7 @@ class Di implements
 		}
 
 		if (! $this->hasBind($id)) {
-			throw new NotFoundException('Item not found: ' . $id);
+			throw new NotFoundError('Item not found: ' . $id);
 		}
 
 		$bind = $this->bind[ $id ];
@@ -187,7 +186,7 @@ class Di implements
 	 * @param string $id
 	 *
 	 * @return mixed
-	 * @throws NotFoundException
+	 * @throws NotFoundError
 	 */
 	public function getItem(string $id)
 	{
@@ -196,7 +195,7 @@ class Di implements
 		}
 
 		if (! $this->hasItem($id)) {
-			throw new NotFoundException('Item not found: ' . $id);
+			throw new NotFoundError('Item not found: ' . $id);
 		}
 
 		$item = $this->items[ $id ];
@@ -213,7 +212,7 @@ class Di implements
 	 * @param string $id
 	 *
 	 * @return array
-	 * @throws NotFoundException
+	 * @throws NotFoundError
 	 */
 	public function getExtends(string $id) : array
 	{
@@ -222,7 +221,7 @@ class Di implements
 		}
 
 		if (! $this->hasExtends($id)) {
-			throw new NotFoundException('Extends not found: ' . $id);
+			throw new NotFoundError('Extends not found: ' . $id);
 		}
 
 		$item = $this->extends[ $id ];
@@ -391,7 +390,7 @@ class Di implements
 	 * @param string $id
 	 *
 	 * @return mixed
-	 * @throws NotFoundException
+	 * @throws NotFoundError
 	 */
 	public function get($id)
 	{
@@ -418,7 +417,7 @@ class Di implements
 		try {
 			$result = $this->get($id);
 		}
-		catch ( NotFoundException $e ) {
+		catch ( NotFoundError $e ) {
 			throw new RuntimeException(null, null, $e);
 		}
 
@@ -445,7 +444,7 @@ class Di implements
 	 * @param mixed  $item
 	 *
 	 * @return Di
-	 * @throws OutOfRangeException
+	 * @throws OverflowException
 	 */
 	public function set(string $id, $item)
 	{
@@ -454,7 +453,7 @@ class Di implements
 		}
 
 		if ($this->hasItem($id)) {
-			throw new OutOfRangeException('Bind is already defined: ' . $id);
+			throw new OverflowException('Bind is already defined: ' . $id);
 		}
 
 		$this->replace($id, $item);
@@ -473,7 +472,7 @@ class Di implements
 		try {
 			$result = $this->set($id, $item);
 		}
-		catch ( OutOfRangeException $e ) {
+		catch ( OverflowException $e ) {
 			throw new RuntimeException(null, null, $e);
 		}
 
@@ -541,7 +540,7 @@ class Di implements
 	 * @param mixed  $item
 	 *
 	 * @return Di
-	 * @throws OutOfRangeException
+	 * @throws OverflowException
 	 */
 	public function singleton(string $id, $item)
 	{
@@ -665,7 +664,7 @@ class Di implements
 	 * @param string $id
 	 *
 	 * @return Di
-	 * @throws NotFoundException
+	 * @throws NotFoundError
 	 */
 	public function bootDeferable(string $id)
 	{
@@ -674,7 +673,7 @@ class Di implements
 		}
 
 		if (! $this->hasDeferableBind($id)) {
-			throw new NotFoundException('Deferable bind not found: ' . $id);
+			throw new NotFoundError('Deferable bind not found: ' . $id);
 		}
 
 		foreach ( $this->bindDeferable[ $id ] as $provider => $bool ) {
@@ -691,15 +690,15 @@ class Di implements
 	 * @param array  $arguments
 	 *
 	 * @return mixed
-	 * @throws NotFoundException
+	 * @throws NotFoundError
 	 */
-	public function createAutowired(string $id, ...$arguments)
+	public function create(string $id, ...$arguments)
 	{
 		if ('' === $id) {
 			throw new InvalidArgumentException('Id should be not empty');
 		}
 
-		$result = $this->newLoop()->createAutowired($id, ...$arguments);
+		$result = $this->newLoop()->create($id, ...$arguments);
 
 		return $result;
 	}
@@ -710,12 +709,12 @@ class Di implements
 	 *
 	 * @return mixed
 	 */
-	public function createAutowiredOrFail(string $id, ...$arguments)
+	public function createOrFail(string $id, ...$arguments)
 	{
 		try {
-			$result = $this->createAutowired($id, ...$arguments);
+			$result = $this->create($id, ...$arguments);
 		}
-		catch ( NotFoundException $e ) {
+		catch ( NotFoundError $e ) {
 			throw new RuntimeException(null, null, $e);
 		}
 
@@ -838,6 +837,8 @@ class Di implements
 						$iit = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::SELF_FIRST);
 
 						foreach ( $iit as $file ) {
+							/** @var \RecursiveDirectoryIterator $iit */
+
 							$dest = $to . DIRECTORY_SEPARATOR . $iit->getSubPathName();
 							$file->isDir()
 								? mkdir($dest, 755, true)
@@ -870,7 +871,6 @@ class Di implements
 	}
 
 
-
 	/**
 	 * @param mixed $provider
 	 *
@@ -894,7 +894,7 @@ class Di implements
 	{
 		if (! is_string($provider)) return null;
 
-		$instance = $this->createAutowiredOrFail($provider);
+		$instance = $this->createOrFail($provider);
 
 		$provider = $this->registerProviderInstance($instance);
 
@@ -994,14 +994,36 @@ class Di implements
 
 	/**
 	 * @param string $id
+	 *
+	 * @return mixed
+	 * @throws NotFoundError
+	 */
+	public static function find(string $id)
+	{
+		return static::getInstance()->get($id);
+	}
+
+	/**
+	 * @param string $id
+	 *
+	 * @return mixed
+	 */
+	public static function findOrFail(string $id)
+	{
+		return static::getInstance()->getOrFail($id);
+	}
+
+
+	/**
+	 * @param string $id
 	 * @param array  $arguments
 	 *
 	 * @return mixed
-	 * @throws NotFoundException
+	 * @throws NotFoundError
 	 */
 	public static function make(string $id, ...$arguments)
 	{
-		return static::getInstance()->createAutowired($id, ...$arguments);
+		return static::getInstance()->create($id, ...$arguments);
 	}
 
 	/**
@@ -1012,7 +1034,7 @@ class Di implements
 	 */
 	public static function makeOrFail(string $id, ...$arguments)
 	{
-		return static::getInstance()->createAutowiredOrFail($id, ...$arguments);
+		return static::getInstance()->createOrFail($id, ...$arguments);
 	}
 
 
