@@ -12,12 +12,13 @@
 6. Это возможность передать в вызываемый метод аргументы через специальный синтаксис без учета порядка их следования:
 ```
 <?php
+$service = new Service(),
 $di->handle(function (Service $service, $a, $b) {}, [
   '$b' => 123,
   '$a' => '123',
-    Service::class => new Service()
-  ]
-);
+  
+  Service::class => $service
+]);
 ```
 
 ### Виды провайдеров:
