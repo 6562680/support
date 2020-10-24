@@ -2,9 +2,9 @@
 
 namespace Gzhegow\Di;
 
-use Gzhegow\Di\Libs\Php;
-use Gzhegow\Di\Libs\Arr;
-use Gzhegow\Di\Libs\Type;
+use Gzhegow\Support\Arr;
+use Gzhegow\Support\Php;
+use Gzhegow\Support\Type;
 use Psr\Container\ContainerInterface;
 use Gzhegow\Di\Exceptions\RuntimeException;
 use Gzhegow\Di\Exceptions\Error\NotFoundError;
@@ -17,10 +17,6 @@ use Gzhegow\Di\Exceptions\Runtime\Error\AutowireLoopError;
  */
 class Loop
 {
-	/**
-	 * @var Di
-	 */
-	protected $di;
 	/**
 	 * @var Arr
 	 */
@@ -35,6 +31,11 @@ class Loop
 	protected $type;
 
 	/**
+	 * @var Di
+	 */
+	protected $di;
+
+	/**
 	 * @var array
 	 */
 	protected $stack = [];
@@ -43,16 +44,24 @@ class Loop
 	/**
 	 * Constructor
 	 *
-	 * @param Di  $di
-	 * @param Php $php
+	 * @param Arr  $arr
+	 * @param Php  $php
+	 * @param Type $type
+	 * @param Di   $di
 	 */
-	public function __construct(Di $di)
-	{
-		$this->di = $di;
+	public function __construct(
+		Arr $arr,
+		Php $php,
+		Type $type,
 
-		$this->arr = $di->getArr();
-		$this->php = $di->getPhp();
-		$this->type = $di->getType();
+		Di $di
+	)
+	{
+		$this->arr = $arr;
+		$this->php = $php;
+		$this->type = $type;
+
+		$this->di = $di;
 	}
 
 

@@ -1,13 +1,13 @@
 <?php
 
-namespace Tests\Providers;
+namespace Gzhegow\Di\Tests\Providers;
 
 use Gzhegow\Di\Provider;
-use Tests\Services\MyAService;
-use Tests\Services\MyBService;
-use Tests\Services\MyServiceAInterface;
-use Tests\Services\MyServiceBInterface;
-use Tests\Services\MyServiceBClosureInterface;
+use Gzhegow\Di\Tests\Services\MyAService;
+use Gzhegow\Di\Tests\Services\MyBService;
+use Gzhegow\Di\Tests\Services\MyServiceAInterface;
+use Gzhegow\Di\Tests\Services\MyServiceBInterface;
+use Gzhegow\Di\Tests\Services\MyServiceBClosureInterface;
 
 /**
  * Class MyProvider

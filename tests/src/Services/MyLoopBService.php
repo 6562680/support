@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Services;
+namespace Gzhegow\Di\Tests\Services;
 
 /**
  * Class MyLoopBService

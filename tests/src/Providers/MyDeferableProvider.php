@@ -1,10 +1,10 @@
 <?php
 
-namespace Tests\Providers;
+namespace Gzhegow\Di\Tests\Providers;
 
-use Tests\Services\MyAService;
 use Gzhegow\Di\DeferableProvider;
-use Tests\Services\MyServiceAInterface;
+use Gzhegow\Di\Tests\Services\MyAService;
+use Gzhegow\Di\Tests\Services\MyServiceAInterface;
 
 /**
  * Class MyDeferableProvider

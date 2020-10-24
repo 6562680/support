@@ -2,9 +2,9 @@
 
 namespace Gzhegow\Di;
 
-use Gzhegow\Di\Libs\Php;
-use Gzhegow\Di\Libs\Arr;
-use Gzhegow\Di\Libs\Type;
+use Gzhegow\Support\Arr;
+use Gzhegow\Support\Php;
+use Gzhegow\Support\Type;
 use Psr\Container\ContainerInterface;
 use Gzhegow\Di\Exceptions\RuntimeException;
 use Gzhegow\Di\Interfaces\CanBootInterface;
@@ -91,9 +91,9 @@ class Di implements
 	 */
 	public function __construct()
 	{
-		$this->arr = new Arr();
-		$this->php = new Php();
-		$this->type = new Type();
+		$this->buildArr();
+		$this->buildPhp();
+		$this->buildType();
 
 		if (! isset(static::$instances[ static::class ])) {
 			static::$instances[ static::class ] = $this;
@@ -112,7 +112,6 @@ class Di implements
 		}
 	}
 
-
 	/**
 	 * @param array $stack
 	 *
@@ -120,7 +119,13 @@ class Di implements
 	 */
 	public function newLoop(array $stack = [])
 	{
-		$instance = new Loop($this);
+		$instance = new Loop(
+			$this->arr,
+			$this->php,
+			$this->type,
+
+			$this
+		);
 
 		( function () use ($stack) {
 			$instance = $this;
@@ -134,25 +139,25 @@ class Di implements
 	/**
 	 * @return Arr
 	 */
-	public function getArr() : Arr
+	protected function buildArr() : Arr
 	{
-		return $this->arr;
+		return $this->arr = $this->arr ?? new Arr($this->buildPhp(), $this->buildType());
 	}
 
 	/**
 	 * @return Php
 	 */
-	public function getPhp() : Php
+	protected function buildPhp() : Php
 	{
-		return $this->php;
+		return $this->php = $this->php ?? new Php();
 	}
 
 	/**
 	 * @return Type
 	 */
-	public function getType() : Type
+	protected function buildType() : Type
 	{
-		return $this->type;
+		return $this->type = $this->type ?? new Type();
 	}
 
 
@@ -444,7 +449,6 @@ class Di implements
 	 * @param mixed  $item
 	 *
 	 * @return Di
-	 * @throws OverflowException
 	 */
 	public function set(string $id, $item)
 	{
@@ -534,13 +538,10 @@ class Di implements
 	}
 
 	/**
-	 * Alias for bindShared
-	 *
 	 * @param string $id
 	 * @param mixed  $item
 	 *
 	 * @return Di
-	 * @throws OverflowException
 	 */
 	public function singleton(string $id, $item)
 	{

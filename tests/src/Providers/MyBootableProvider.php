@@ -1,10 +1,10 @@
 <?php
 
-namespace Tests\Providers;
+namespace Gzhegow\Di\Tests\Providers;
 
-use Tests\Services\MyAService;
 use Gzhegow\Di\BootableProvider;
-use Tests\Services\MyServiceAInterface;
+use Gzhegow\Di\Tests\Services\MyAService;
+use Gzhegow\Di\Tests\Services\MyServiceAInterface;
 
 /**
  * Class MyBootableProvider
@@ -35,11 +35,11 @@ class MyBootableProvider extends BootableProvider
 	{
 		return [
 			// copy
-			__DIR__ . '/../../config/tests/source/file.conf' => __DIR__ . '/../../config/tests/dest/file.conf',
-			__DIR__ . '/../../config/tests/source/dir'       => __DIR__ . '/../../config/tests/dest/dir',
+			__DIR__ . '/../../../config/tests/src/file.conf' => __DIR__ . '/../../../config/tests/dest/file.conf',
+			__DIR__ . '/../../../config/tests/src/dir'       => __DIR__ . '/../../../config/tests/dest/dir',
 
 			// require
-			__DIR__ . '/../../config/tests/source/bootstrap.php',
+			__DIR__ . '/../../../config/tests/src/bootstrap.php',
 		];
 	}
 

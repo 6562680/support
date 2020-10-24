@@ -1,26 +1,25 @@
 <?php
 
-namespace Tests;
+namespace Gzhegow\Di\Tests;
 
 use Gzhegow\Di\Di;
-use Tests\Services\MyAService;
-use Tests\Services\MyCService;
-use Tests\Services\MyBService;
-use PHPUnit\Framework\TestCase;
-use Tests\Providers\MyProvider;
-use Tests\Services\MyLoopService;
-use Tests\Services\MyLoopAService;
-use Tests\Services\MyServiceAInterface;
-use Tests\Providers\MyBootableProvider;
-use Tests\Services\MyServiceBInterface;
-use Tests\Providers\MyDeferableProvider;
-use Tests\Services\MyServiceBClosureInterface;
+use Gzhegow\Di\Tests\Services\MyAService;
+use Gzhegow\Di\Tests\Services\MyCService;
+use Gzhegow\Di\Tests\Services\MyBService;
+use Gzhegow\Di\Tests\Providers\MyProvider;
+use Gzhegow\Di\Tests\Services\MyLoopService;
+use Gzhegow\Di\Tests\Services\MyLoopAService;
+use Gzhegow\Di\Tests\Services\MyServiceAInterface;
+use Gzhegow\Di\Tests\Providers\MyBootableProvider;
+use Gzhegow\Di\Tests\Services\MyServiceBInterface;
+use Gzhegow\Di\Tests\Providers\MyDeferableProvider;
+use Gzhegow\Di\Tests\Services\MyServiceBClosureInterface;
 use Gzhegow\Di\Exceptions\Runtime\Error\AutowireLoopError;
 
 /**
- * Class Test
+ * Class DiTest
  */
-class Test extends TestCase
+class DiTest extends AbstractTestCase
 {
 	/**
 	 * @return void
@@ -204,7 +203,7 @@ class Test extends TestCase
 		/** @var MyServiceAInterface $myAService */
 
 		// drop old copy
-		$it = new \RecursiveDirectoryIterator($dir = __DIR__ . '/../config/tests/dest', \RecursiveDirectoryIterator::SKIP_DOTS);
+		$it = new \RecursiveDirectoryIterator($dir = __DIR__ . '/../../config/tests/dest', \RecursiveDirectoryIterator::SKIP_DOTS);
 		$iit = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::CHILD_FIRST);
 		foreach ( $iit as $file ) {
 			$todo = ( $file->isDir()
@@ -231,9 +230,9 @@ class Test extends TestCase
 		$this->assertEquals(BOOTSTRAP, true);
 
 		// copy
-		$this->assertFileExists(__DIR__ . '/../config/tests/dest/file.conf');
-		$this->assertFileExists(__DIR__ . '/../config/tests/dest/dir/file.conf');
-		$this->assertFileExists(__DIR__ . '/../config/tests/dest/dir/dir/file.conf');
+		$this->assertFileExists(__DIR__ . '/../../config/tests/dest/file.conf');
+		$this->assertFileExists(__DIR__ . '/../../config/tests/dest/dir/file.conf');
+		$this->assertFileExists(__DIR__ . '/../../config/tests/dest/dir/dir/file.conf');
 	}
 
 	/**

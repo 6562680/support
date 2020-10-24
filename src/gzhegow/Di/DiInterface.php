@@ -2,9 +2,7 @@
 
 namespace Gzhegow\Di;
 
-
-use Gzhegow\Di\Exceptions\Logic\OutOfRangeException;
-use Gzhegow\Di\Exceptions\Exception\NotFoundException;
+use Gzhegow\Di\Exceptions\Error\NotFoundError;
 
 /**
  * Class Di
@@ -25,7 +23,7 @@ interface DiInterface
 	 * @param string $id
 	 *
 	 * @return mixed
-	 * @throws NotFoundException
+	 * @throws NotFoundError
 	 */
 	public function get($id);
 
@@ -50,7 +48,6 @@ interface DiInterface
 	 * @param mixed  $item
 	 *
 	 * @return Di
-	 * @throws OutOfRangeException
 	 */
 	public function set(string $id, $item);
 
@@ -90,13 +87,10 @@ interface DiInterface
 	public function bindShared(string $id, $bind);
 
 	/**
-	 * Alias for bindShared
-	 *
 	 * @param string $id
 	 * @param mixed  $item
 	 *
 	 * @return Di
-	 * @throws OutOfRangeException
 	 */
 	public function singleton(string $id, $item);
 
@@ -148,7 +142,6 @@ interface DiInterface
 	 * @param array  $arguments
 	 *
 	 * @return mixed
-	 * @throws NotFoundException
 	 */
 	public function create(string $id, ...$arguments);
 

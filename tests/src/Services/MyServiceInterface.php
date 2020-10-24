@@ -1,11 +1,11 @@
 <?php
 
-namespace Tests\Services;
+namespace Gzhegow\Di\Tests\Services;
 
 /**
- * Interface MyServiceBInterface
+ * Interface MyServiceInterface
  */
-interface MyServiceBInterface
+interface MyServiceInterface
 {
 	/**
 	 * @return mixed
