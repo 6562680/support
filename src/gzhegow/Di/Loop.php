@@ -44,24 +44,66 @@ class Loop
 	/**
 	 * Constructor
 	 *
-	 * @param Arr  $arr
-	 * @param Php  $php
-	 * @param Type $type
-	 * @param Di   $di
+	 * @param Di $di
 	 */
-	public function __construct(
-		Arr $arr,
-		Php $php,
-		Type $type,
-
-		Di $di
-	)
+	public function __construct(Di $di)
 	{
-		$this->arr = $arr;
-		$this->php = $php;
-		$this->type = $type;
-
 		$this->di = $di;
+	}
+
+
+	/**
+	 * @param Arr|null $arr
+	 *
+	 * @return Arr
+	 */
+	public function requireArr(Arr $arr = null) : Arr
+	{
+		return $this->arr = $arr
+			?? $this->arr
+			?? $this->di->requireArr();
+	}
+
+	/**
+	 * @param Php|null $php
+	 *
+	 * @return Php
+	 */
+	public function requirePhp(Php $php = null) : Php
+	{
+		return $this->php = $php
+			?? $this->php
+			?? $this->di->requirePhp();
+	}
+
+	/**
+	 * @param Type|null $type
+	 *
+	 * @return Type
+	 */
+	public function requireType(Type $type = null) : Type
+	{
+		return $this->type = $type
+			?? $this->type
+			?? $this->di->requireType();
+	}
+
+
+	/**
+	 * @param string $id
+	 *
+	 * @return null|mixed
+	 */
+	protected function getAsChild(string $id)
+	{
+		try {
+			$instance = $this->di->newLoop($this->stack)->get($id);
+		}
+		catch ( NotFoundError $exception ) {
+			throw new RuntimeException(null, null, $exception);
+		}
+
+		return $instance;
 	}
 
 
@@ -93,7 +135,7 @@ class Loop
 			} else {
 				$bind = $this->di->getBind($id);
 
-				if ($this->type->isClosure($bind)) {
+				if ($this->requireType()->isClosure($bind)) {
 					$bind = $id;
 
 				} elseif ($this->di->hasItem($bind)) {
@@ -110,26 +152,6 @@ class Loop
 		return $result;
 	}
 
-
-	/**
-	 * @param string $id
-	 *
-	 * @return null|mixed
-	 */
-	protected function getAsChild(string $id)
-	{
-		try {
-			$instance = $this->di->newLoop($this->stack)->get($id);
-		}
-		catch ( NotFoundError $exception ) {
-			throw new RuntimeException(null, null, $exception);
-		}
-
-		return $instance;
-	}
-
-
-
 	/**
 	 * @param string $id
 	 * @param array  $arguments
@@ -145,7 +167,7 @@ class Loop
 
 		if (! ( 0
 			|| ( $hasBind = $this->di->hasBind($id) )
-			|| ( $isClass = $this->type->isClass($id) )
+			|| ( $isClass = $this->requireType()->isClass($id) )
 		)) {
 			throw new NotFoundError('Bind not found: ' . $id);
 		}
@@ -156,7 +178,7 @@ class Loop
 		if ($hasBind) {
 			$bind = $this->di->getBind($id);
 
-			if (! $this->type->isClosure($bind)) {
+			if (! $this->requireType()->isClosure($bind)) {
 				$loopKey = $bind;
 			}
 		}
@@ -175,13 +197,13 @@ class Loop
 		}
 
 		switch ( true ):
-			case ( $this->type->isClosure($bind) ):
+			case ( $this->requireType()->isClosure($bind) ):
 				$item = $this->handle($bind, ...$arguments);
 
 				break;
 
-			case ( $this->type->isClass($bind) ):
-				[ $kwargs, $args ] = $this->php->kwparams(...$arguments);
+			case ( $this->requireType()->isClass($bind) ):
+				[ $kwargs, $args ] = $this->requirePhp()->kwparams(...$arguments);
 
 				$arguments = $this->autowireClass($bind, array_merge($args, $kwargs));
 
@@ -233,14 +255,14 @@ class Loop
 		/** @var \Closure $closure */
 
 		if (! ( 0
-			|| ( $isHandler = $this->type->isHandler($func) )
-			|| ( $isClosure = $this->type->isClosure($func) )
-			|| ( $isCallable = $this->type->isCallableArray($func) )
+			|| ( $isHandler = $this->requireType()->isHandler($func) )
+			|| ( $isClosure = $this->requireType()->isClosure($func) )
+			|| ( $isCallable = $this->requireType()->isCallableArray($func) )
 		)) {
 			throw new InvalidArgumentException('Func should be closure, handler or callable');
 		}
 
-		[ $kwargs, $args ] = $this->php->kwparams(...$arguments);
+		[ $kwargs, $args ] = $this->requirePhp()->kwparams(...$arguments);
 
 		$params = array_merge($args, $kwargs);
 
@@ -287,14 +309,14 @@ class Loop
 		}
 
 		if (! ( 0
-			|| ( $isCallable = $this->type->isHandler($func) )
-			|| ( $isClosure = $this->type->isClosure($func) )
-			|| ( $isCallable = $this->type->isCallable($func) )
+			|| ( $isCallable = $this->requireType()->isHandler($func) )
+			|| ( $isClosure = $this->requireType()->isClosure($func) )
+			|| ( $isCallable = $this->requireType()->isCallable($func) )
 		)) {
 			throw new InvalidArgumentException('Func should be closure, handler or callable');
 		}
 
-		[ $kwargs, $args ] = $this->php->kwparams(...$arguments);
+		[ $kwargs, $args ] = $this->requirePhp()->kwparams(...$arguments);
 
 		$params = array_merge($args, $kwargs)
 			+ [ get_class($newthis) => $newthis ];
@@ -437,7 +459,7 @@ class Loop
 	{
 		if (! is_array($callable)) return null;
 
-		if (! $this->type->isCallableArray($callable)) {
+		if (! $this->requireType()->isCallableArray($callable)) {
 			throw new InvalidArgumentException('Callable should be callable');
 		}
 
@@ -495,7 +517,7 @@ class Loop
 	{
 		if (! is_object($closure)) return null;
 
-		if (! $this->type->isClosure($closure)) {
+		if (! $this->requireType()->isClosure($closure)) {
 			throw new InvalidArgumentException('Closure should be correct closure');
 		}
 
@@ -514,7 +536,7 @@ class Loop
 	{
 		if (! is_string($callable)) return null;
 
-		if (! $this->type->isCallableString($callable)) {
+		if (! $this->requireType()->isCallableString($callable)) {
 			throw new InvalidArgumentException('Callable should be correct callable');
 		}
 
@@ -534,7 +556,7 @@ class Loop
 	 */
 	protected function autowireClosure($closure, array $params = []) : ?array
 	{
-		if (! $this->type->isClosure($closure)) {
+		if (! $this->requireType()->isClosure($closure)) {
 			throw new InvalidArgumentException('Closure should be correct closure');
 		}
 
@@ -665,14 +687,14 @@ class Loop
 
 			$used[ $rpTypeName ] = true;
 
-			$int = $this->arr->expand($int, $rp->getPosition(), $value);
+			$int = $this->requireArr()->expand($int, $rp->getPosition(), $value);
 
 			return [ $value ];
 
 		} elseif (interface_exists($rpTypeName) || class_exists($rpTypeName)) {
 			$value = $this->getAsChild($rpTypeName);
 
-			$int = $this->arr->expand($int, $rp->getPosition(), $value);
+			$int = $this->requireArr()->expand($int, $rp->getPosition(), $value);
 
 			return [ $value ];
 		}
@@ -703,7 +725,7 @@ class Loop
 
 		$value = $str[ $key ];
 
-		$int = $this->arr->expand($int, $rp->getPosition(), $value);
+		$int = $this->requireArr()->expand($int, $rp->getPosition(), $value);
 
 		return [ $value ];
 	}
@@ -832,10 +854,10 @@ class Loop
 	protected function reflectCallable($callable)
 	{
 		try {
-			if ($this->type->isClosure($callable)) {
+			if ($this->requireType()->isClosure($callable)) {
 				$rf = $this->reflectClosure($callable);
 
-			} elseif ($this->type->isCallableArray($callable)) {
+			} elseif ($this->requireType()->isCallableArray($callable)) {
 				$rf = $this->reflectMethod($callable[ 0 ], $callable[ 1 ]);
 
 			} else {

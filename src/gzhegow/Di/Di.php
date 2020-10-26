@@ -91,10 +91,6 @@ class Di implements
 	 */
 	public function __construct()
 	{
-		$this->buildArr();
-		$this->buildPhp();
-		$this->buildType();
-
 		if (! isset(static::$instances[ static::class ])) {
 			static::$instances[ static::class ] = $this;
 		}
@@ -119,13 +115,7 @@ class Di implements
 	 */
 	public function newLoop(array $stack = [])
 	{
-		$instance = new Loop(
-			$this->arr,
-			$this->php,
-			$this->type,
-
-			$this
-		);
+		$instance = new Loop($this);
 
 		( function () use ($stack) {
 			$instance = $this;
@@ -137,27 +127,42 @@ class Di implements
 
 
 	/**
+	 * @param Arr|null $arr
+	 *
 	 * @return Arr
 	 */
-	protected function buildArr() : Arr
+	public function requireArr(Arr $arr = null) : Arr
 	{
-		return $this->arr = $this->arr ?? new Arr($this->buildPhp(), $this->buildType());
+		return $this->arr = $arr
+			?? $this->arr
+			?? new Arr(
+				$this->requirePhp(),
+				$this->requireType()
+			);
 	}
 
 	/**
+	 * @param Php|null $php
+	 *
 	 * @return Php
 	 */
-	protected function buildPhp() : Php
+	public function requirePhp(Php $php = null) : Php
 	{
-		return $this->php = $this->php ?? new Php();
+		return $this->php = $php
+			?? $this->php
+			?? new Php();
 	}
 
 	/**
+	 * @param Type|null $type
+	 *
 	 * @return Type
 	 */
-	protected function buildType() : Type
+	public function requireType(Type $type = null) : Type
 	{
-		return $this->type = $this->type ?? new Type();
+		return $this->type = $type
+			?? $this->type
+			?? new Type();
 	}
 
 
@@ -440,7 +445,7 @@ class Di implements
 		return 0
 			|| $this->hasItem($id)
 			|| $this->hasBind($id)
-			|| $this->type->isClass($id);
+			|| $this->requireType()->isClass($id);
 	}
 
 
@@ -565,8 +570,8 @@ class Di implements
 		}
 
 		$isBind = ( 0
-			|| ( $isClosure = $this->type->isClosure($bind) )
-			|| ( $isClass = $this->type->isClass($bind) )
+			|| ( $isClosure = $this->requireType()->isClosure($bind) )
+			|| ( $isClass = $this->requireType()->isClass($bind) )
 		);
 
 		if (! $isBind) {
@@ -609,8 +614,8 @@ class Di implements
 		}
 
 		if (! ( 0
-			|| $this->type->isClosure($func)
-			|| $this->type->isCallable($func)
+			|| $this->requireType()->isClosure($func)
+			|| $this->requireType()->isCallable($func)
 		)) {
 			throw new InvalidArgumentException('Func should be closure or callable');
 		}
@@ -732,9 +737,9 @@ class Di implements
 	public function handle($func, ...$arguments)
 	{
 		if (! ( 0
-			|| ( $this->type->isHandler($func) )
-			|| ( $this->type->isClosure($func) )
-			|| ( $this->type->isCallable($func) )
+			|| ( $this->requireType()->isHandler($func) )
+			|| ( $this->requireType()->isClosure($func) )
+			|| ( $this->requireType()->isCallable($func) )
 		)) {
 			throw new InvalidArgumentException('Func should be handler, closure or callable');
 		}
@@ -755,8 +760,8 @@ class Di implements
 	public function call($newthis, $func, ...$arguments)
 	{
 		if (! ( 0
-			|| ( $this->type->isCallable($func) )
-			|| ( $this->type->isClosure($func) )
+			|| ( $this->requireType()->isCallable($func) )
+			|| ( $this->requireType()->isClosure($func) )
 		)) {
 			throw new InvalidArgumentException('Func should be closure, handler or callable');
 		}
