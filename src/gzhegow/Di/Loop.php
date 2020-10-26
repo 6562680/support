@@ -5,7 +5,7 @@ namespace Gzhegow\Di;
 use Gzhegow\Support\Arr;
 use Gzhegow\Support\Php;
 use Gzhegow\Support\Type;
-use Gzhegow\Support\Reflection;
+use Gzhegow\Reflection\Reflection;
 use Psr\Container\ContainerInterface;
 use Gzhegow\Di\Exceptions\RuntimeException;
 use Gzhegow\Di\Exceptions\Error\NotFoundError;

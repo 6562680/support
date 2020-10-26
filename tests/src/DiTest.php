@@ -205,7 +205,7 @@ class DiTest extends AbstractTestCase
 		/** @var MyServiceAInterface $myAService */
 
 		// drop old copy
-		$it = new \RecursiveDirectoryIterator($dir = __DIR__ . '/../../config/tests/dest', \RecursiveDirectoryIterator::SKIP_DOTS);
+		$it = new \RecursiveDirectoryIterator($dir = __DIR__ . '/../config/dest', \RecursiveDirectoryIterator::SKIP_DOTS);
 		$iit = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::CHILD_FIRST);
 		foreach ( $iit as $file ) {
 			$todo = ( $file->isDir()
@@ -232,9 +232,9 @@ class DiTest extends AbstractTestCase
 		$this->assertEquals(BOOTSTRAP, true);
 
 		// copy
-		$this->assertFileExists(__DIR__ . '/../../config/tests/dest/file.conf');
-		$this->assertFileExists(__DIR__ . '/../../config/tests/dest/dir/file.conf');
-		$this->assertFileExists(__DIR__ . '/../../config/tests/dest/dir/dir/file.conf');
+		$this->assertFileExists(__DIR__ . '/../config/dest/file.conf');
+		$this->assertFileExists(__DIR__ . '/../config/dest/dir/file.conf');
+		$this->assertFileExists(__DIR__ . '/../config/dest/dir/dir/file.conf');
 	}
 
 	/**

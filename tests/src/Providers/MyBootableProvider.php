@@ -35,11 +35,11 @@ class MyBootableProvider extends BootableProvider
 	{
 		return [
 			// copy
-			__DIR__ . '/../../../config/tests/src/file.conf' => __DIR__ . '/../../../config/tests/dest/file.conf',
-			__DIR__ . '/../../../config/tests/src/dir'       => __DIR__ . '/../../../config/tests/dest/dir',
+			__DIR__ . '/../../config/src/file.conf' => __DIR__ . '/../../config/dest/file.conf',
+			__DIR__ . '/../../config/src/dir'       => __DIR__ . '/../../config/dest/dir',
 
 			// require
-			__DIR__ . '/../../../config/tests/src/bootstrap.php',
+			__DIR__ . '/../../config/src/bootstrap.php',
 		];
 	}
 

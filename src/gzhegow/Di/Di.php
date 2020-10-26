@@ -5,8 +5,10 @@ namespace Gzhegow\Di;
 use Gzhegow\Support\Arr;
 use Gzhegow\Support\Php;
 use Gzhegow\Support\Type;
-use Gzhegow\Support\Reflection;
+use Gzhegow\Reflection\Reflection;
+use Psr\SimpleCache\CacheInterface;
 use Psr\Container\ContainerInterface;
+use Gzhegow\Reflection\CachedReflection;
 use Gzhegow\Di\Exceptions\RuntimeException;
 use Gzhegow\Di\Interfaces\CanBootInterface;
 use Gzhegow\Di\Interfaces\CanSyncInterface;
@@ -21,6 +23,11 @@ class Di implements
 	ContainerInterface,
 	DiInterface
 {
+	/**
+	 * @var CacheInterface
+	 */
+	protected $cache;
+
 	/**
 	 * @var Arr
 	 */
@@ -98,9 +105,13 @@ class Di implements
 
 	/**
 	 * Constructor
+	 *
+	 * @param CacheInterface|null $cache
 	 */
-	public function __construct()
+	public function __construct(CacheInterface $cache = null)
 	{
+		$this->cache = $cache;
+
 		static::$instance = static::$instance ?? $this;
 
 		$keys = [
@@ -215,6 +226,14 @@ class Di implements
 	{
 		return $this->reflection = $reflection
 			?? $this->reflection
+			?? ( $this->cache
+				? new CachedReflection(
+					$this->requirePhp(),
+					$this->requireType(),
+					$this->cache
+				)
+				: null
+			)
 			?? new Reflection(
 				$this->requirePhp(),
 				$this->requireType()
