@@ -5,12 +5,14 @@ namespace Gzhegow\Di;
 use Gzhegow\Support\Arr;
 use Gzhegow\Support\Php;
 use Gzhegow\Support\Type;
+use Gzhegow\Support\Reflection;
 use Psr\Container\ContainerInterface;
 use Gzhegow\Di\Exceptions\RuntimeException;
 use Gzhegow\Di\Exceptions\Error\NotFoundError;
 use Gzhegow\Di\Exceptions\Runtime\Error\AutowireError;
 use Gzhegow\Di\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Di\Exceptions\Runtime\Error\AutowireLoopError;
+use Gzhegow\Di\Exceptions\Runtime\Error\NoDelegateClassError;
 
 /**
  * Class Loop
@@ -29,6 +31,10 @@ class Loop
 	 * @var Type
 	 */
 	protected $type;
+	/**
+	 * @var Reflection
+	 */
+	protected $reflection;
 
 	/**
 	 * @var Di
@@ -38,19 +44,120 @@ class Loop
 	/**
 	 * @var array
 	 */
-	protected $stack = [];
+	protected $parent = null;
+	/**
+	 * @var string
+	 */
+	protected $loopKey = null;
 
 
 	/**
 	 * Constructor
 	 *
-	 * @param Di $di
+	 * @param Di        $di
+	 * @param Loop|null $parent
 	 */
-	public function __construct(Di $di)
+	public function __construct(Di $di, Loop $parent = null)
 	{
 		$this->di = $di;
+
+		$this->parent = $parent;
 	}
 
+	/**
+	 * @param string $id
+	 * @param array  $arguments
+	 *
+	 * @return null|mixed
+	 * @throws NotFoundError
+	 */
+	public function create(string $id, ...$arguments)
+	{
+		if ('' === $id) {
+			throw new InvalidArgumentException('Id should be not empty');
+		}
+
+		if (! ( 0
+			|| ( $hasBind = $this->di->hasBind($id) )
+			|| ( $isClass = $this->requireType()->isClass($id) )
+		)) {
+			throw new NotFoundError('Bind not found: ' . $id);
+		}
+
+		$loopKey = $id;
+
+		$bind = $id;
+		if ($hasBind) {
+			$bind = $this->di->getBind($id);
+
+			if (! $this->requireType()->isClosure($bind)) {
+				$loopKey = $bind;
+			}
+		}
+
+		$parent = $this;
+		while ( $parent = $parent->parent ) {
+			$stack[] = $loopKey;
+
+			if ($parent->loopKey === $loopKey) {
+				throw new AutowireLoopError(sprintf(
+					'Autowire loop: %s is required in [ %s ]',
+					$bind, implode(' <- ', array_reverse($stack))
+				));
+			}
+		}
+
+		$this->loopKey = $loopKey;
+
+		if ($this->di->hasDeferableBind($bind)) {
+			$this->di->bootDeferable($bind);
+		}
+
+		switch ( true ):
+			case ( $this->requireType()->isClosure($bind) ):
+				$item = $this->handle($bind, ...$arguments);
+
+				break;
+
+			case ( $this->requireType()->isClass($bind) ):
+				[ $kwargs, $args ] = $this->requirePhp()->kwparams(...$arguments);
+
+				$arguments = $this->autowireClass($bind, array_merge($args, $kwargs));
+				ksort($arguments);
+
+				$item = new $bind(...$arguments);
+
+				break;
+
+			default:
+				throw new RuntimeException('Unsupported bind type: ' . gettype($bind));
+
+		endswitch;
+
+		if ($this->di->hasExtends($id)) {
+			foreach ( $this->di->getExtends($id) as $func ) {
+				$item = null
+					?? $this->handle($func, [
+						$id => $item,
+					])
+					?? $item;
+			}
+		}
+
+		if ($this->di->hasShared($id)) {
+			if (! $this->di->hasItem($id)) {
+				$this->di->set($id, $item);
+			}
+		}
+
+		if ($this->di->hasShared($bind)) {
+			if (! $this->di->hasItem($bind)) {
+				$this->di->set($bind, $item);
+			}
+		}
+
+		return $item;
+	}
 
 	/**
 	 * @param Arr|null $arr
@@ -88,6 +195,17 @@ class Loop
 			?? $this->di->requireType();
 	}
 
+	/**
+	 * @param Reflection|null $reflection
+	 *
+	 * @return Reflection
+	 */
+	public function requireReflection(Reflection $reflection = null) : Reflection
+	{
+		return $this->reflection = $reflection
+			?? $this->reflection
+			?? $this->di->requireReflection();
+	}
 
 	/**
 	 * @param string $id
@@ -97,7 +215,7 @@ class Loop
 	protected function getAsChild(string $id)
 	{
 		try {
-			$instance = $this->di->newLoop($this->stack)->get($id);
+			$instance = $this->di->newLoop($this)->get($id);
 		}
 		catch ( NotFoundError $exception ) {
 			throw new RuntimeException(null, null, $exception);
@@ -105,7 +223,6 @@ class Loop
 
 		return $instance;
 	}
-
 
 	/**
 	 * @param string $id
@@ -150,97 +267,6 @@ class Loop
 		}
 
 		return $result;
-	}
-
-	/**
-	 * @param string $id
-	 * @param array  $arguments
-	 *
-	 * @return null|mixed
-	 * @throws NotFoundError
-	 */
-	public function create(string $id, ...$arguments)
-	{
-		if ('' === $id) {
-			throw new InvalidArgumentException('Id should be not empty');
-		}
-
-		if (! ( 0
-			|| ( $hasBind = $this->di->hasBind($id) )
-			|| ( $isClass = $this->requireType()->isClass($id) )
-		)) {
-			throw new NotFoundError('Bind not found: ' . $id);
-		}
-
-		$loopKey = $id;
-
-		$bind = $id;
-		if ($hasBind) {
-			$bind = $this->di->getBind($id);
-
-			if (! $this->requireType()->isClosure($bind)) {
-				$loopKey = $bind;
-			}
-		}
-
-		if (isset($this->stack[ $loopKey ])) {
-			throw new AutowireLoopError(sprintf(
-				'Autowire loop: %s is required in [ %s ]', $bind,
-				implode(' <- ', array_keys($this->stack))
-			));
-		}
-
-		$this->stack[ $loopKey ] = true;
-
-		if ($this->di->hasDeferableBind($bind)) {
-			$this->di->bootDeferable($bind);
-		}
-
-		switch ( true ):
-			case ( $this->requireType()->isClosure($bind) ):
-				$item = $this->handle($bind, ...$arguments);
-
-				break;
-
-			case ( $this->requireType()->isClass($bind) ):
-				[ $kwargs, $args ] = $this->requirePhp()->kwparams(...$arguments);
-
-				$arguments = $this->autowireClass($bind, array_merge($args, $kwargs));
-
-				ksort($arguments);
-
-				$item = new $bind(...$arguments);
-
-				break;
-
-			default:
-				throw new RuntimeException('Unsupported bind type: ' . gettype($bind));
-
-		endswitch;
-
-		if ($this->di->hasExtends($id)) {
-			foreach ( $this->di->getExtends($id) as $func ) {
-				$item = null
-					?? $this->handle($func, [
-						$id => $item,
-					])
-					?? $item;
-			}
-		}
-
-		if ($this->di->hasShared($id)) {
-			if (! $this->di->hasItem($id)) {
-				$this->di->set($id, $item);
-			}
-		}
-
-		if ($this->di->hasShared($bind)) {
-			if (! $this->di->hasItem($bind)) {
-				$this->di->set($bind, $item);
-			}
-		}
-
-		return $item;
 	}
 
 
@@ -324,14 +350,10 @@ class Loop
 		$arguments = [];
 		switch ( true ) {
 			case $isClosure:
-				$this->stack[ \Closure::class ] = true;
-
 				$arguments = $this->autowireClosure($func, $params);
 				break;
 
 			case $isCallable:
-				$this->stack[ 'callable' ] = true;
-
 				$arguments = $this->autowireCallable($func, $params);
 				break;
 		}
@@ -362,7 +384,7 @@ class Loop
 	 */
 	protected function autowireClass(string $class, array $params = []) : array
 	{
-		$rm = $this->reflectClass($class)->getConstructor();
+		$rm = $this->requireReflection()->reflectClass($class)->getConstructor();
 
 		$result = isset($rm)
 			? $this->autowireParams($rm->getParameters(), $params)
@@ -406,7 +428,10 @@ class Loop
 	{
 		if (! is_string($class)) return null;
 
-		$rm = $this->reflectMethod($this->reflectClass($class), $method);
+		$rm = $this->requireReflection()->reflectMethod(
+			$this->requireReflection()->reflectClass($class),
+			$method
+		);
 
 		$result = $this->autowireParams($rm->getParameters(), $params);
 
@@ -424,7 +449,10 @@ class Loop
 	{
 		if (! is_object($class)) return null;
 
-		$rm = $this->reflectMethod($this->reflectClass($class), $method);
+		$rm = $this->requireReflection()->reflectMethod(
+			$this->requireReflection()->reflectClass($class),
+			$method
+		);
 
 		$result = $this->autowireParams($rm->getParameters(), $params);
 
@@ -463,7 +491,7 @@ class Loop
 			throw new InvalidArgumentException('Callable should be callable');
 		}
 
-		$rm = $this->reflectMethod($callable[ 0 ], $callable[ 1 ]);
+		$rm = $this->requireReflection()->reflectMethod($callable[ 0 ], $callable[ 1 ]);
 
 		$result = null
 			?? $this->autowireCallableMethodPublic($rm, $callable[ 0 ], $params)
@@ -540,7 +568,7 @@ class Loop
 			throw new InvalidArgumentException('Callable should be correct callable');
 		}
 
-		$rf = $this->reflectCallable($callable);
+		$rf = $this->requireReflection()->reflectCallable($callable);
 
 		$result = $this->autowireParams($rf->getParameters(), $params);
 
@@ -560,7 +588,7 @@ class Loop
 			throw new InvalidArgumentException('Closure should be correct closure');
 		}
 
-		$rf = $this->reflectClosure($closure);
+		$rf = $this->requireReflection()->reflectClosure($closure);
 
 		$result = $this->autowireParams($rf->getParameters(), $params);
 
@@ -579,11 +607,11 @@ class Loop
 		$used = [];
 
 		$append = [
-			ContainerInterface::class,
 			DiInterface::class,
 			Di::class,
-
 			'$di',
+
+			ContainerInterface::class,
 			'$container',
 		];
 		foreach ( $append as $key ) {
@@ -660,7 +688,9 @@ class Loop
 		foreach ( $order as $func ) {
 			$autowireResult = $func($rp, $int, $str, $used);
 
-			if (count($autowireResult)) break;
+			if (count($autowireResult)) {
+				break;
+			}
 		}
 
 		return $autowireResult;
@@ -692,7 +722,29 @@ class Loop
 			return [ $value ];
 
 		} elseif (interface_exists($rpTypeName) || class_exists($rpTypeName)) {
-			$value = $this->getAsChild($rpTypeName);
+			$isNull = false;
+			try {
+				$value = $rp->getDefaultValue();
+				$isNull = is_null($value);
+			}
+			catch ( \ReflectionException $exception ) {
+			}
+
+			if ($isNull) {
+				if (! is_a($rpTypeName, DelegateInterface::class, true)) {
+					return [];
+				}
+
+				if (! $this->di->hasDelegateClass()) {
+					throw new NoDelegateClassError('You must define DelegateClass to use delayed delegation');
+				}
+
+				$class = $this->di->getDelegateClass();
+				$value = new $class($this->di, $rpTypeName);
+
+			} else {
+				$value = $this->getAsChild($rpTypeName);
+			}
 
 			$int = $this->requireArr()->expand($int, $rp->getPosition(), $value);
 
@@ -771,104 +823,5 @@ class Loop
 		}
 
 		return [ $value ];
-	}
-
-
-	/**
-	 * @param mixed $object
-	 *
-	 * @return \ReflectionClass
-	 */
-	protected function reflectClass($object) : \ReflectionClass
-	{
-		try {
-			if (is_object($object)) {
-				if (is_a($object, \ReflectionClass::class)) {
-					$rc = $object;
-
-				} else {
-					$rc = new \ReflectionClass(get_class($object));
-
-				}
-			} else {
-				$rc = new \ReflectionClass($object);
-
-			}
-		}
-		catch ( \ReflectionException $e ) {
-			throw new RuntimeException(null, null, $e);
-		}
-
-		return $rc;
-	}
-
-	/**
-	 * @param mixed  $object
-	 * @param string $method
-	 *
-	 * @return \ReflectionMethod
-	 */
-	protected function reflectMethod($object, string $method) : \ReflectionMethod
-	{
-		/** @var \ReflectionClass $reflectionClass */
-
-		try {
-			if ($this->type->isReflectionClass($reflectionClass = $object)) {
-				$rm = $reflectionClass->getMethod($method);
-
-			} else {
-				$rm = new \ReflectionMethod($object, $method);
-
-			}
-		}
-		catch ( \ReflectionException $e ) {
-			throw new RuntimeException(null, null, $e);
-		}
-
-		return $rm;
-	}
-
-
-	/**
-	 * @param \Closure $func
-	 *
-	 * @return \ReflectionFunction
-	 */
-	protected function reflectClosure(\Closure $func) : \ReflectionFunction
-	{
-		try {
-			$rf = new \ReflectionFunction($func);
-		}
-		catch ( \ReflectionException $e ) {
-			throw new RuntimeException(null, null, $e);
-		}
-
-		return $rf;
-	}
-
-	/**
-	 * @param callable $callable
-	 *
-	 * @return \ReflectionFunction|\ReflectionMethod
-	 */
-	protected function reflectCallable($callable)
-	{
-		try {
-			if ($this->requireType()->isClosure($callable)) {
-				$rf = $this->reflectClosure($callable);
-
-			} elseif ($this->requireType()->isCallableArray($callable)) {
-				$rf = $this->reflectMethod($callable[ 0 ], $callable[ 1 ]);
-
-			} else {
-				$rf = new \ReflectionFunction($callable);
-
-			}
-		}
-		catch ( \ReflectionException $e ) {
-			throw new RuntimeException(null, null, $e);
-		}
-
-		return $rf;
 	}
 }

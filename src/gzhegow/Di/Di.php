@@ -5,6 +5,7 @@ namespace Gzhegow\Di;
 use Gzhegow\Support\Arr;
 use Gzhegow\Support\Php;
 use Gzhegow\Support\Type;
+use Gzhegow\Support\Reflection;
 use Psr\Container\ContainerInterface;
 use Gzhegow\Di\Exceptions\RuntimeException;
 use Gzhegow\Di\Interfaces\CanBootInterface;
@@ -32,6 +33,10 @@ class Di implements
 	 * @var Type
 	 */
 	protected $type;
+	/**
+	 * @var Reflection
+	 */
+	protected $reflection;
 
 	/**
 	 * @var array
@@ -85,15 +90,18 @@ class Di implements
 	 */
 	protected $isBooted = false;
 
+	/**
+	 * @var string
+	 */
+	protected $delegateClass;
+
 
 	/**
 	 * Constructor
 	 */
 	public function __construct()
 	{
-		if (! isset(static::$instances[ static::class ])) {
-			static::$instances[ static::class ] = $this;
-		}
+		static::$instance = static::$instance ?? $this;
 
 		$keys = [
 			ContainerInterface::class,
@@ -108,21 +116,54 @@ class Di implements
 		}
 	}
 
+
 	/**
-	 * @param array $stack
+	 * @param Loop $parent
 	 *
 	 * @return Loop
 	 */
-	public function newLoop(array $stack = [])
+	public function newLoop(Loop $parent = null)
 	{
-		$instance = new Loop($this);
-
-		( function () use ($stack) {
-			$instance = $this;
-			$instance->stack = $stack;
-		} )->call($instance);
+		$instance = new Loop($this, $parent);
 
 		return $instance;
+	}
+
+
+	/**
+	 * @param string $id
+	 * @param array  $arguments
+	 *
+	 * @return mixed
+	 */
+	public function createOrFail(string $id, ...$arguments)
+	{
+		try {
+			$result = $this->create($id, ...$arguments);
+		}
+		catch ( NotFoundError $e ) {
+			throw new RuntimeException(null, null, $e);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param string $id
+	 * @param array  $arguments
+	 *
+	 * @return mixed
+	 * @throws NotFoundError
+	 */
+	public function create(string $id, ...$arguments)
+	{
+		if ('' === $id) {
+			throw new InvalidArgumentException('Id should be not empty');
+		}
+
+		$result = $this->newLoop()->create($id, ...$arguments);
+
+		return $result;
 	}
 
 
@@ -165,6 +206,21 @@ class Di implements
 			?? new Type();
 	}
 
+	/**
+	 * @param Reflection|null $reflection
+	 *
+	 * @return Reflection
+	 */
+	public function requireReflection(Reflection $reflection = null) : Reflection
+	{
+		return $this->reflection = $reflection
+			?? $this->reflection
+			?? new Reflection(
+				$this->requirePhp(),
+				$this->requireType()
+			);
+	}
+
 
 	/**
 	 * @param string $id
@@ -190,7 +246,6 @@ class Di implements
 
 		return $bind;
 	}
-
 
 	/**
 	 * @param string $id
@@ -266,6 +321,15 @@ class Di implements
 
 
 	/**
+	 * @return string
+	 */
+	public function getDelegateClass() : string
+	{
+		return $this->delegateClass;
+	}
+
+
+	/**
 	 * @return bool
 	 */
 	public function isBooted() : bool
@@ -283,7 +347,6 @@ class Di implements
 	{
 		return is_string($id) && isset($this->items[ $id ]);
 	}
-
 
 	/**
 	 * @param mixed $id
@@ -305,7 +368,6 @@ class Di implements
 		return is_string($id) && isset($this->bindDeferable[ $id ]);
 	}
 
-
 	/**
 	 * @param mixed $id
 	 *
@@ -316,7 +378,6 @@ class Di implements
 		return is_string($id) && isset($this->shared[ $id ]);
 	}
 
-
 	/**
 	 * @param mixed $id
 	 *
@@ -325,6 +386,15 @@ class Di implements
 	public function hasExtends($id) : bool
 	{
 		return is_string($id) && isset($this->extends[ $id ]);
+	}
+
+
+	/**
+	 * @return bool
+	 */
+	public function hasDelegateClass() : bool
+	{
+		return ! ! $this->delegateClass;
 	}
 
 
@@ -340,6 +410,22 @@ class Di implements
 		}
 
 		$this->addProviders($providers);
+
+		return $this;
+	}
+
+	/**
+	 * @param string $delegateClass
+	 *
+	 * @return Di
+	 */
+	public function setDelegateClass(string $delegateClass)
+	{
+		if (! is_a($delegateClass, DelegateInterface::class, true)) {
+			throw new InvalidArgumentException('Delegate class should implements ' . DelegateInterface::class);
+		}
+
+		$this->delegateClass = $delegateClass;
 
 		return $this;
 	}
@@ -692,43 +778,6 @@ class Di implements
 
 
 	/**
-	 * @param string $id
-	 * @param array  $arguments
-	 *
-	 * @return mixed
-	 * @throws NotFoundError
-	 */
-	public function create(string $id, ...$arguments)
-	{
-		if ('' === $id) {
-			throw new InvalidArgumentException('Id should be not empty');
-		}
-
-		$result = $this->newLoop()->create($id, ...$arguments);
-
-		return $result;
-	}
-
-	/**
-	 * @param string $id
-	 * @param array  $arguments
-	 *
-	 * @return mixed
-	 */
-	public function createOrFail(string $id, ...$arguments)
-	{
-		try {
-			$result = $this->create($id, ...$arguments);
-		}
-		catch ( NotFoundError $e ) {
-			throw new RuntimeException(null, null, $e);
-		}
-
-		return $result;
-	}
-
-
-	/**
 	 * @param callable $func
 	 * @param array    $arguments
 	 *
@@ -993,8 +1042,15 @@ class Di implements
 	 */
 	public static function getInstance() : Di
 	{
-		return static::$instances[ static::class ] = static::$instances[ static::class ]
-			?? new static();
+		return static::$instance = static::$instance ?? new static();
+	}
+
+	/**
+	 * @return static
+	 */
+	public static function resetInstance() : Di
+	{
+		return static::$instance = new static();
 	}
 
 
@@ -1045,7 +1101,7 @@ class Di implements
 
 
 	/**
-	 * @var array
+	 * @var static
 	 */
-	protected static $instances = [];
+	protected static $instance;
 }

@@ -3,7 +3,8 @@
 namespace Gzhegow\Di\Exceptions;
 
 use Psr\Container\ContainerExceptionInterface;
+use Gzhegow\Support\Exceptions\Exception as SupportException;
 
-class Exception extends \Exception implements ContainerExceptionInterface
+class Exception extends SupportException implements ContainerExceptionInterface
 {
 }

@@ -6,6 +6,8 @@ use Gzhegow\Di\Di;
 use Gzhegow\Di\Tests\Services\MyAService;
 use Gzhegow\Di\Tests\Services\MyCService;
 use Gzhegow\Di\Tests\Services\MyBService;
+use Gzhegow\Di\Tests\Services\MyDService;
+use Gzhegow\Di\Tests\Services\MyDelegate;
 use Gzhegow\Di\Tests\Providers\MyProvider;
 use Gzhegow\Di\Tests\Services\MyLoopService;
 use Gzhegow\Di\Tests\Services\MyLoopAService;
@@ -254,6 +256,24 @@ class DiTest extends AbstractTestCase
 
 		$this->assertEquals(null, $myAService->getDynamicOption());
 		$this->assertEquals(1, $myAService->getStaticOption()); // same result
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testDelegate()
+	{
+		/** @var MyDService $myDService */
+
+		$di = new Di();
+		$di->registerProvider(MyProvider::class);
+		$di->setDelegateClass(MyDelegate::class);
+
+		$myDService = $di->getOrFail(MyDService::class);
+		$myBService = $di->getOrFail(MyBService::class);
+
+		$this->assertInstanceOf(MyDelegate::class, $myDService->getMyBServiceDelegate());
+		$this->assertEquals($myDService->getMyBService(), $myBService);
 	}
 
 
