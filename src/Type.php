@@ -298,26 +298,31 @@ class Type
 	}
 
 	/**
-	 * @param mixed $reflectionClass
+	 * @param mixed        $reflectable
+	 * @param string|null &$class
 	 *
 	 * @return bool
 	 */
-	public function isReflectionClass($reflectionClass) : bool
-	{
-		return is_object($reflectionClass) && is_a($reflectionClass, \ReflectionClass::class);
-	}
-
-	/**
-	 * @param mixed $reflectable
-	 *
-	 * @return bool
-	 */
-	public function isReflectableClass($reflectable) : bool
+	public function isReflectableClass($reflectable, string &$class = null) : bool
 	{
 		return ( 0
-			|| ( is_object($reflectable) )
-			|| ( is_string($reflectable) && class_exists($reflectable) )
+			|| ( is_object($reflectable) && ( $class = get_class($reflectable) ) )
+			|| ( is_string($reflectable) && class_exists($reflectable) && ( $class = $reflectable ) )
 		);
+	}
+
+
+	/**
+	 * @param \ReflectionClass $reflectionClass
+	 * @param string|null &    $class
+	 *
+	 * @return bool
+	 */
+	public function isReflectionClass($reflectionClass, string &$class = null) : bool
+	{
+		return is_object($reflectionClass)
+			&& is_a($reflectionClass, \ReflectionClass::class)
+			&& $class = $reflectionClass->getName();
 	}
 
 

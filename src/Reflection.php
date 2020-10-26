@@ -14,6 +14,10 @@ class Reflection
 	 * @var Php
 	 */
 	protected $php;
+	/**
+	 * @var Type
+	 */
+	protected $type;
 
 	/**
 	 * @var array
@@ -24,11 +28,13 @@ class Reflection
 	/**
 	 * Constructor
 	 *
-	 * @param Php $php
+	 * @param Php  $php
+	 * @param Type $type
 	 */
-	public function __construct(Php $php)
+	public function __construct(Php $php, Type $type)
 	{
 		$this->php = $php;
+		$this->type = $type;
 	}
 
 
@@ -145,20 +151,16 @@ class Reflection
 
 
 	/**
-	 * @param mixed  $item
-	 * @param string $property
+	 * @param mixed        $item
+	 * @param string|null &$class
 	 *
-	 * @return \ReflectionMethod
+	 * @return \ReflectionClass
 	 */
-	public function reflectMethod($item, string $property) : \ReflectionMethod
+	public function reflectClass($item, string &$class = null) : \ReflectionClass
 	{
 		switch ( true ):
-			case is_string($item) && class_exists($item):
-				$class = $item;
-				break;
-
-			case is_object($item):
-				$class = get_class($item);
+			case $this->type->isReflectableClass($item, $class):
+			case $this->type->isReflectionClass($item, $class):
 				break;
 
 			default:
@@ -166,38 +168,65 @@ class Reflection
 
 		endswitch;
 
-		if ('' === $property) {
-			throw new InvalidArgumentException('Property should be not empty', func_get_args());
-		}
-
-		if (! isset($this->cache[ $class . '::' . $property ])) {
+		if (! isset($this->cache[ $class ])) {
 			try {
-				$this->cache[ $class . '::' . $property ] = new \ReflectionProperty($item, $property);
-
+				$this->cache[ $class ] = new \ReflectionClass($item);
 			}
 			catch ( \ReflectionException $e ) {
 				throw new RuntimeException('Unable to reflect', func_get_args(), $e);
 			}
 		}
 
-		return $this->cache[ $class . '::' . $property ];
+		return $this->cache[ $class ];
 	}
 
 	/**
-	 * @param mixed  $item
-	 * @param string $property
+	 * @param mixed        $item
+	 * @param string       $method
+	 * @param string|null &$class
+	 *
+	 * @return \ReflectionMethod
+	 */
+	public function reflectMethod($item, string $method, string &$class = null) : \ReflectionMethod
+	{
+		switch ( true ):
+			case $this->type->isReflectableClass($item, $class):
+			case $this->type->isReflectionClass($item, $class):
+				break;
+
+			default:
+				throw new InvalidArgumentException('Argument 1 should be object or class', func_get_args());
+
+		endswitch;
+
+		if ('' === $method) {
+			throw new InvalidArgumentException('Property should be not empty', func_get_args());
+		}
+
+		if (! isset($this->cache[ $class . '::' . $method ])) {
+			try {
+				$this->cache[ $class . '::' . $method ] = new \ReflectionMethod($item, $method);
+			}
+			catch ( \ReflectionException $e ) {
+				throw new RuntimeException('Unable to reflect', func_get_args(), $e);
+			}
+		}
+
+		return $this->cache[ $class . '::' . $method ];
+	}
+
+	/**
+	 * @param mixed        $item
+	 * @param string       $property
+	 * @param string|null &$class
 	 *
 	 * @return \ReflectionProperty
 	 */
-	public function reflectProperty($item, string $property) : \ReflectionProperty
+	public function reflectProperty($item, string $property, string &$class = null) : \ReflectionProperty
 	{
 		switch ( true ):
-			case is_string($item) && class_exists($item):
-				$class = $item;
-				break;
-
-			case is_object($item):
-				$class = get_class($item);
+			case $this->type->isReflectableClass($item, $class):
+			case $this->type->isReflectionClass($item, $class):
 				break;
 
 			default:
@@ -228,27 +257,12 @@ class Reflection
 	 * @param string $property
 	 *
 	 * @return array
-	 * @throws \ReflectionException
 	 */
 	public function propertyInfo($item, string $property) : array
 	{
-		switch ( true ):
-			case is_string($item) && class_exists($item):
-				$class = $item;
-				break;
-
-			case is_object($item):
-				$class = get_class($item);
-				break;
-
-			default:
-				throw new InvalidArgumentException('Argument 1 should be object or class', func_get_args());
-
-		endswitch;
-
 		$result = [];
 
-		$rp = $this->reflectProperty($item, $property);
+		$rp = $this->reflectProperty($item, $property, $class);
 
 		$result[ 'declared' ] = $rp->getDeclaringClass()->getName() === $class;
 		$result[ 'default' ] = $rp->isDefault();
@@ -265,25 +279,10 @@ class Reflection
 	 * @param string $method
 	 *
 	 * @return array
-	 * @throws \ReflectionException
 	 */
 	public function methodInfo($item, string $method) : array
 	{
-		switch ( true ):
-			case is_string($item) && class_exists($item):
-				$class = $item;
-				break;
-
-			case is_object($item):
-				$class = get_class($item);
-				break;
-
-			default:
-				throw new InvalidArgumentException('Argument 1 should be object or class');
-
-		endswitch;
-
-		$rm = $this->reflectMethod($item, $method);
+		$rm = $this->reflectMethod($item, $method, $class);
 
 		$result = [];
 
