@@ -15,6 +15,16 @@ Class Curl
 	 * @var Type
 	 */
 	protected $type;
+
+	/**
+	 * @var array
+	 */
+	protected $curls;
+	/**
+	 * @var array
+	 */
+	protected $matrix;
+
 	/**
 	 * @var array
 	 */
@@ -25,39 +35,23 @@ Class Curl
 		CURLOPT_SSL_VERIFYHOST => 0,
 		CURLOPT_SSL_VERIFYPEER => 0,
 	];
-	/**
-	 * @var array
-	 */
-	protected $curls;
-	/**
-	 * @var array
-	 */
-	protected $matrix;
-	/**
-	 * @var Math
-	 */
-	protected $math;
+
 
 	/**
 	 * Constructor
 	 *
-	 * @param Math $math
 	 * @param Type $type
 	 */
 	public function __construct(
-		Math $math,
 		Type $type
 	)
 	{
-		$this->math = $math;
 		$this->type = $type;
 
+		static::$infoCodes = static::$infoCodes ?? array_flip(static::$info);
 		static::$curloptCodes = static::$curloptCodes ?? array_flip(static::$curlopt);
-
-		register_shutdown_function(function () {
-			$this->flush();
-		});
 	}
+
 
 
 	/**
@@ -68,7 +62,7 @@ Class Curl
 	 *
 	 * @return resource
 	 */
-	protected function build(string $type, $curl, $data = null, array $curl_options = []) // : resource
+	protected function create(string $type, $curl, $data = null, array $curl_options = []) // : resource
 	{
 		$isUrl = is_string($curl) && (bool) filter_var($curl, FILTER_VALIDATE_URL);
 		$isCurl = $this->isCurl($curl);
@@ -181,9 +175,9 @@ Class Curl
 	 *
 	 * @return resource
 	 */
-	public function buildNew($curl, $data = null, array $curl_options = []) // : resource
+	public function createNew($curl, $data = null, array $curl_options = []) // : resource
 	{
-		return $this->build('new', $curl, $data, $curl_options);
+		return $this->create('new', $curl, $data, $curl_options);
 	}
 
 	/**
@@ -197,9 +191,9 @@ Class Curl
 	 *
 	 * @return resource
 	 */
-	public function buildCopy($curl, $data = null, array $curl_options = []) // : resource
+	public function createCopy($curl, $data = null, array $curl_options = []) // : resource
 	{
-		return $this->build('copy', $curl, $data, $curl_options);
+		return $this->create('copy', $curl, $data, $curl_options);
 	}
 
 
@@ -213,28 +207,42 @@ Class Curl
 
 
 	/**
-	 * @param resource $h
-	 * @param int|null $opt
-	 * @param null     $getinfo
-	 *
-	 * @return boolean
+	 * @return array
 	 */
-	public function isOpenedCurl($h, $opt = null, &$getinfo = null) : bool
+	protected function getCurls() : array
 	{
-		if (! is_resource($h)) return false;
-
-		if (isset(static::$info[ $opt ])) {
-			$getinfo = @curl_getinfo($h, $opt);
-
-		} else {
-			$getinfo = @curl_getinfo($h);
-
-			if ($opt) $getinfo = $getinfo[ $opt ] ?? null;
-		}
-
-		return (bool) $getinfo
-			?: false;
+		return $this->curls ?? [];
 	}
+
+	/**
+	 * @return array
+	 */
+	protected function getMatrix() : array
+	{
+		return $this->matrix ?? [];
+	}
+
+
+	/**
+	 * @param int $id
+	 *
+	 * @return array
+	 */
+	protected function getMatrixById(int $id) : array
+	{
+		return $this->matrix[ $id ];
+	}
+
+	/**
+	 * @param int $id
+	 *
+	 * @return mixed
+	 */
+	protected function getCurlById(int $id) // : resource
+	{
+		return $this->curls[ $id ];
+	}
+
 
 	/**
 	 * @param mixed $h
@@ -257,6 +265,64 @@ Class Curl
 		}
 
 		return false;
+	}
+
+	/**
+	 * @param resource $h
+	 * @param int|null $opt
+	 * @param null     $getinfo
+	 *
+	 * @return boolean
+	 */
+	public function isOpenedCurl($h, $opt = null, &$getinfo = null) : bool
+	{
+		if (! is_resource($h)) return false;
+
+		if (isset(static::$infoCodes[ $opt ])) {
+			$getinfo = @curl_getinfo($h, $opt);
+
+		} else {
+			$getinfo = @curl_getinfo($h);
+
+			if ($opt) {
+				$getinfo = $getinfo[ $opt ] ?? null;
+			}
+		}
+
+		return (bool) $getinfo
+			?: false;
+	}
+
+
+	/**
+	 * @param mixed $matrix
+	 *
+	 * @return bool
+	 */
+	protected function isMatrix($matrix) : bool
+	{
+		return is_array($matrix) && ! array_diff_key($matrix, static::$curloptCodes);
+	}
+
+
+	/**
+	 * @param int $id
+	 *
+	 * @return bool
+	 */
+	protected function hasCurlById(int $id) : bool
+	{
+		return isset($this->curls[ $id ]);
+	}
+
+	/**
+	 * @param int $id
+	 *
+	 * @return bool
+	 */
+	protected function hasMatrixById(int $id) : bool
+	{
+		return isset($this->matrix[ $id ]);
 	}
 
 
@@ -304,89 +370,21 @@ Class Curl
 
 
 	/**
-	 * @param array $options
+	 * @param int   $id
+	 * @param mixed $curl
 	 *
 	 * @return Curl
 	 */
-	public function mergeOptionsDefault(array $options)
+	protected function setCurlById(int $id, $curl)
 	{
-		foreach ( $options as $int => $value ) {
-			$this->setOptionDefault($int, $value);
+		if (! $this->isCurl($curl)) {
+			throw new InvalidArgumentException('Curl should be curl resource', func_get_args());
 		}
+
+		$this->curls[ $id ] = $curl;
 
 		return $this;
 	}
-
-
-	/**
-	 * @return array
-	 */
-	protected function getCurls() : array
-	{
-		return $this->curls ?? [];
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getMatrix() : array
-	{
-		return $this->matrix ?? [];
-	}
-
-	/**
-	 * @param int $id
-	 *
-	 * @return array
-	 */
-	protected function getMatrixById(int $id) : array
-	{
-		return $this->matrix[ $id ];
-	}
-
-
-	/**
-	 * @param int $id
-	 *
-	 * @return mixed
-	 */
-	protected function getCurlById(int $id) // : resource
-	{
-		return $this->curls[ $id ];
-	}
-
-
-	/**
-	 * @param mixed $matrix
-	 *
-	 * @return bool
-	 */
-	protected function isMatrix($matrix) : bool
-	{
-		return is_array($matrix) && ! array_diff_key($matrix, static::$curloptCodes);
-	}
-
-
-	/**
-	 * @param int $id
-	 *
-	 * @return bool
-	 */
-	protected function hasCurlById(int $id) : bool
-	{
-		return isset($this->curls[ $id ]);
-	}
-
-	/**
-	 * @param int $id
-	 *
-	 * @return bool
-	 */
-	protected function hasMatrixById(int $id) : bool
-	{
-		return isset($this->matrix[ $id ]);
-	}
-
 
 	/**
 	 * @param int   $id
@@ -401,23 +399,6 @@ Class Curl
 		}
 
 		$this->matrix[ $id ] = $matrix;
-
-		return $this;
-	}
-
-	/**
-	 * @param int   $id
-	 * @param mixed $curl
-	 *
-	 * @return Curl
-	 */
-	protected function setCurlById(int $id, $curl)
-	{
-		if (! $this->isCurl($curl)) {
-			throw new InvalidArgumentException('Curl should be curl resource', func_get_args());
-		}
-
-		$this->curls[ $id ] = $curl;
 
 		return $this;
 	}
@@ -459,66 +440,36 @@ Class Curl
 
 
 	/**
-	 * @param int $id
+	 * @param array $options
 	 *
 	 * @return Curl
 	 */
-	protected function unsetCurlById(int $id)
+	public function mergeOptionsDefault(array $options)
 	{
-		if (! $this->hasCurlById($id)) return $this;
-
-		if ($this->isOpenedCurl($this->curls[ $id ])) {
-			curl_close($this->curls[ $id ]);
+		foreach ( $options as $int => $value ) {
+			$this->setOptionDefault($int, $value);
 		}
-
-		unset($this->curls[ $id ]);
-
-		return $this;
-	}
-
-	/**
-	 * @param int $id
-	 *
-	 * @return Curl
-	 */
-	protected function unsetMatrixById(int $id)
-	{
-		if (! $this->hasMatrixById($id)) {
-			return $this;
-		}
-
-		unset($this->matrix[ $id ]);
 
 		return $this;
 	}
 
 
 	/**
-	 * закрывает соединение и удаляет данные о его настройках из памяти
+	 * возвращает результат curl_getinfo
 	 *
-	 * @param mixed ...$curls
+	 * @param mixed $curl
+	 * @param mixed $opt
 	 *
-	 * @return Curl
+	 * @return mixed
 	 */
-	public function flush(...$curls)
+	public function info($curl, $opt = null) // : mixed
 	{
-		$curls = $curls
-			?: $this->getCurls();
-
-		foreach ( $curls as $index => $curl ) {
-			$id = intval($curl);
-
-			if ($this->isOpenedCurl($curl, CURLINFO_HTTP_CODE)) {
-				curl_close($curl);
-			}
-
-			$this->unsetCurlById($id);
-			$this->unsetMatrixById($id);
+		if (! $this->isOpenedCurl($curl, $opt, $result)) {
+			throw new BadMethodCallException('Curl should opened curl resource', func_get_args());
 		}
 
-		return $this;
+		return $result;
 	}
-
 
 	/**
 	 * возвращает результат curl_getinfo. работает с массивом ресурсов
@@ -711,7 +662,7 @@ Class Curl
 				$sleepCurrent = $minSleep;
 
 				if ($sleepCurrent !== $maxSleep) {
-					$sleepCurrent = $this->math->rand($minSleep, $maxSleep);
+					$sleepCurrent = ( $minSleep + lcg_value() * ( abs($maxSleep - $minSleep) ) );
 
 					// wait microseconds
 					usleep($sleepCurrent * 1000 * 1000);
@@ -748,7 +699,7 @@ Class Curl
 		$hh = [];
 		$urls = [];
 		foreach ( $curls as $index => $url ) {
-			$hh[ $index ] = $h = $this->buildNew($url, $post, $options);
+			$hh[ $index ] = $h = $this->createNew($url, $post, $options);
 			$urls[ $index ] = $this->info($h, 'url');
 
 			// add handler to multi
@@ -786,72 +737,54 @@ Class Curl
 
 
 	/**
-	 * возвращает результат curl_getinfo
-	 *
-	 * @param mixed $curl
-	 * @param mixed $opt
-	 *
-	 * @return mixed
-	 */
-	public function info($curl, $opt = null) // : mixed
-	{
-		if (! $this->isOpenedCurl($curl, $opt, $result)) {
-			throw new BadMethodCallException('Curl should opened curl resource', func_get_args());
-		}
-
-		return $result;
-	}
-
-
-	/**
 	 * @var array
 	 */
 	protected static $info = [
-		CURLINFO_EFFECTIVE_URL           => true,
-		CURLINFO_FILETIME                => true,
-		CURLINFO_TOTAL_TIME              => true,
-		CURLINFO_NAMELOOKUP_TIME         => true,
-		CURLINFO_CONNECT_TIME            => true,
-		CURLINFO_PRETRANSFER_TIME        => true,
-		CURLINFO_STARTTRANSFER_TIME      => true,
-		CURLINFO_REDIRECT_COUNT          => true,
-		CURLINFO_REDIRECT_TIME           => true,
-		CURLINFO_REDIRECT_URL            => true,
-		CURLINFO_PRIMARY_IP              => true,
-		CURLINFO_PRIMARY_PORT            => true,
-		CURLINFO_LOCAL_IP                => true,
-		CURLINFO_LOCAL_PORT              => true,
-		CURLINFO_SIZE_UPLOAD             => true,
-		CURLINFO_SIZE_DOWNLOAD           => true,
-		CURLINFO_SPEED_DOWNLOAD          => true,
-		CURLINFO_SPEED_UPLOAD            => true,
-		CURLINFO_HEADER_SIZE             => true,
-		CURLINFO_HEADER_OUT              => true,
-		CURLINFO_REQUEST_SIZE            => true,
-		CURLINFO_SSL_VERIFYRESULT        => true,
-		CURLINFO_CONTENT_LENGTH_DOWNLOAD => true,
-		CURLINFO_CONTENT_LENGTH_UPLOAD   => true,
-		CURLINFO_CONTENT_TYPE            => true,
-		CURLINFO_PRIVATE                 => true,
-		CURLINFO_HTTP_CONNECTCODE        => true,
-		CURLINFO_HTTPAUTH_AVAIL          => true,
-		CURLINFO_PROXYAUTH_AVAIL         => true,
-		CURLINFO_OS_ERRNO                => true,
-		CURLINFO_NUM_CONNECTS            => true,
-		CURLINFO_SSL_ENGINES             => true,
-		CURLINFO_COOKIELIST              => true,
-		CURLINFO_FTP_ENTRY_PATH          => true,
-		CURLINFO_APPCONNECT_TIME         => true,
-		CURLINFO_CERTINFO                => true,
-		CURLINFO_CONDITION_UNMET         => true,
-		CURLINFO_RTSP_CLIENT_CSEQ        => true,
-		CURLINFO_RTSP_CSEQ_RECV          => true,
-		CURLINFO_RTSP_SERVER_CSEQ        => true,
-		CURLINFO_RTSP_SESSION_ID         => true,
-
-		CURLINFO_HTTP_CODE => true,
-		// CURLINFO_RESPONSE_CODE => true,
+		'CURLINFO_EFFECTIVE_URL'           => CURLINFO_EFFECTIVE_URL,
+		'CURLINFO_FILETIME'                => CURLINFO_FILETIME,
+		'CURLINFO_TOTAL_TIME'              => CURLINFO_TOTAL_TIME,
+		'CURLINFO_NAMELOOKUP_TIME'         => CURLINFO_NAMELOOKUP_TIME,
+		'CURLINFO_CONNECT_TIME'            => CURLINFO_CONNECT_TIME,
+		'CURLINFO_PRETRANSFER_TIME'        => CURLINFO_PRETRANSFER_TIME,
+		'CURLINFO_STARTTRANSFER_TIME'      => CURLINFO_STARTTRANSFER_TIME,
+		'CURLINFO_REDIRECT_COUNT'          => CURLINFO_REDIRECT_COUNT,
+		'CURLINFO_REDIRECT_TIME'           => CURLINFO_REDIRECT_TIME,
+		'CURLINFO_REDIRECT_URL'            => CURLINFO_REDIRECT_URL,
+		'CURLINFO_PRIMARY_IP'              => CURLINFO_PRIMARY_IP,
+		'CURLINFO_PRIMARY_PORT'            => CURLINFO_PRIMARY_PORT,
+		'CURLINFO_LOCAL_IP'                => CURLINFO_LOCAL_IP,
+		'CURLINFO_LOCAL_PORT'              => CURLINFO_LOCAL_PORT,
+		'CURLINFO_SIZE_UPLOAD'             => CURLINFO_SIZE_UPLOAD,
+		'CURLINFO_SIZE_DOWNLOAD'           => CURLINFO_SIZE_DOWNLOAD,
+		'CURLINFO_SPEED_DOWNLOAD'          => CURLINFO_SPEED_DOWNLOAD,
+		'CURLINFO_SPEED_UPLOAD'            => CURLINFO_SPEED_UPLOAD,
+		'CURLINFO_HEADER_SIZE'             => CURLINFO_HEADER_SIZE,
+		'CURLINFO_HEADER_OUT'              => CURLINFO_HEADER_OUT,
+		'CURLINFO_REQUEST_SIZE'            => CURLINFO_REQUEST_SIZE,
+		'CURLINFO_SSL_VERIFYRESULT'        => CURLINFO_SSL_VERIFYRESULT,
+		'CURLINFO_CONTENT_LENGTH_DOWNLOAD' => CURLINFO_CONTENT_LENGTH_DOWNLOAD,
+		'CURLINFO_CONTENT_LENGTH_UPLOAD'   => CURLINFO_CONTENT_LENGTH_UPLOAD,
+		'CURLINFO_CONTENT_TYPE'            => CURLINFO_CONTENT_TYPE,
+		'CURLINFO_PRIVATE'                 => CURLINFO_PRIVATE,
+		'CURLINFO_HTTP_CONNECTCODE'        => CURLINFO_HTTP_CONNECTCODE,
+		'CURLINFO_HTTPAUTH_AVAIL'          => CURLINFO_HTTPAUTH_AVAIL,
+		'CURLINFO_PROXYAUTH_AVAIL'         => CURLINFO_PROXYAUTH_AVAIL,
+		'CURLINFO_OS_ERRNO'                => CURLINFO_OS_ERRNO,
+		'CURLINFO_NUM_CONNECTS'            => CURLINFO_NUM_CONNECTS,
+		'CURLINFO_SSL_ENGINES'             => CURLINFO_SSL_ENGINES,
+		'CURLINFO_COOKIELIST'              => CURLINFO_COOKIELIST,
+		'CURLINFO_FTP_ENTRY_PATH'          => CURLINFO_FTP_ENTRY_PATH,
+		'CURLINFO_APPCONNECT_TIME'         => CURLINFO_APPCONNECT_TIME,
+		'CURLINFO_CERTINFO'                => CURLINFO_CERTINFO,
+		'CURLINFO_CONDITION_UNMET'         => CURLINFO_CONDITION_UNMET,
+		'CURLINFO_RTSP_CLIENT_CSEQ'        => CURLINFO_RTSP_CLIENT_CSEQ,
+		'CURLINFO_RTSP_CSEQ_RECV'          => CURLINFO_RTSP_CSEQ_RECV,
+		'CURLINFO_RTSP_SERVER_CSEQ'        => CURLINFO_RTSP_SERVER_CSEQ,
+		'CURLINFO_RTSP_SESSION_ID'         => CURLINFO_RTSP_SESSION_ID,
+		'CURLINFO_HTTP_CODE'               => CURLINFO_HTTP_CODE,
+		'CURLINFO_RESPONSE_CODE'           => CURLINFO_RESPONSE_CODE,
 	];
+	protected static $infoCodes;
 
 	/**
 	 * @var array
@@ -1037,20 +970,11 @@ Class Curl
 		"CURLOPT_WRITEHEADER"             => CURLOPT_WRITEHEADER,              // 10029
 		"CURLOPT_XOAUTH2_BEARER"          => CURLOPT_XOAUTH2_BEARER,           // 10220
 
-		"CURLOPT_ACCEPT_ENCODING" => CURLOPT_ACCEPT_ENCODING,  // 10102
-		"CURLOPT_ENCODING"        => CURLOPT_ENCODING,         // 10102
-
-		"CURLOPT_APPEND"    => CURLOPT_APPEND,     // 50
-		"CURLOPT_FTPAPPEND" => CURLOPT_FTPAPPEND,  // 50
-
 		"CURLOPT_DIRLISTONLY" => CURLOPT_DIRLISTONLY,  // 48
 		"CURLOPT_FTPLISTONLY" => CURLOPT_FTPLISTONLY,  // 48
 
-		"CURLOPT_KRB4LEVEL" => CURLOPT_KRB4LEVEL,  // 10063
-		"CURLOPT_KRBLEVEL"  => CURLOPT_KRBLEVEL,   // 10063
-
-		"CURLOPT_SSLCERTPASSWD" => CURLOPT_SSLCERTPASSWD,  // 10026
-		"CURLOPT_SSLKEYPASSWD"  => CURLOPT_SSLKEYPASSWD,   // 10026
+		"CURLOPT_APPEND"    => CURLOPT_APPEND,     // 50
+		"CURLOPT_FTPAPPEND" => CURLOPT_FTPAPPEND,  // 50
 
 		"CURLOPT_USE_SSL" => CURLOPT_USE_SSL,  // 119
 		"CURLOPT_FTP_SSL" => CURLOPT_FTP_SSL,  // 119
@@ -1058,13 +982,22 @@ Class Curl
 		"CURLOPT_READDATA" => CURLOPT_READDATA,  // 10009
 		"CURLOPT_INFILE"   => CURLOPT_INFILE,    // 10009
 
-		"CURLOPT_MAX_RECV_SPEED_LARGE" => CURLOPT_MAX_RECV_SPEED_LARGE,  // 30146
+		"CURLOPT_KRB4LEVEL" => CURLOPT_KRB4LEVEL,  // 10063
+		"CURLOPT_KRBLEVEL"  => CURLOPT_KRBLEVEL,   // 10063
+
+		"CURLOPT_SSLCERTPASSWD" => CURLOPT_SSLCERTPASSWD,  // 10026
+		"CURLOPT_SSLKEYPASSWD"  => CURLOPT_SSLKEYPASSWD,   // 10026
+
+		"CURLOPT_ACCEPT_ENCODING" => CURLOPT_ACCEPT_ENCODING,  // 10102
+		"CURLOPT_ENCODING"        => CURLOPT_ENCODING,         // 10102
+
 		"CURLOPT_MAX_SEND_SPEED_LARGE" => CURLOPT_MAX_SEND_SPEED_LARGE,  // 30145
+		"CURLOPT_MAX_RECV_SPEED_LARGE" => CURLOPT_MAX_RECV_SPEED_LARGE,  // 30146 (?)
 
 		"CURLOPT_PROTOCOLS"       => CURLOPT_PROTOCOLS,        // 181
-		"CURLOPT_REDIR_PROTOCOLS" => CURLOPT_REDIR_PROTOCOLS,  // 182
+		"CURLOPT_REDIR_PROTOCOLS" => CURLOPT_REDIR_PROTOCOLS,  // 182 (?)
 
-		"CURLOPT_SAFE_UPLOAD" => CURLOPT_SAFE_UPLOAD,  // -1
+		"CURLOPT_SAFE_UPLOAD" => CURLOPT_SAFE_UPLOAD,  // -1 (?)
 	];
 	/**
 	 * @var array

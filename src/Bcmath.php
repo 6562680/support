@@ -9,14 +9,17 @@ class Bcmath
 {
 	/**
 	 * @param string $n
+	 * @param int    $p
 	 *
-	 * @return bool
+	 * @return null|string
 	 */
-	public function bcabs(string $n)
+	public function bcround(string $n, $p = 0)
 	{
-		return $this->bcnegative($n)
-			? strpos($n, 1)
-			: $n;
+		$e = bcpow(10, $p + 1);
+
+		return bcdiv(bcadd(bcmul($n, $e, 0), $this->bcnegative($n)
+			? -5
+			: 5), $e, $p);
 	}
 
 	/**
@@ -45,6 +48,7 @@ class Bcmath
 			: strtok($n, '.');
 	}
 
+
 	/**
 	 * @param string $n
 	 *
@@ -55,18 +59,16 @@ class Bcmath
 		return strpos($n, '-') === 0; // Is the number less than 0?
 	}
 
+
 	/**
 	 * @param string $n
-	 * @param int    $p
 	 *
-	 * @return null|string
+	 * @return bool
 	 */
-	public function bcround(string $n, $p = 0)
+	public function bcabs(string $n)
 	{
-		$e = bcpow(10, $p + 1);
-
-		return bcdiv(bcadd(bcmul($n, $e, 0), $this->bcnegative($n)
-			? -5
-			: 5), $e, $p);
+		return $this->bcnegative($n)
+			? strpos($n, 1)
+			: $n;
 	}
 }

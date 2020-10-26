@@ -98,8 +98,8 @@ class Config
 
 
 	/**
-	 * @param      $path
-	 * @param null $default
+	 * @param mixed $path
+	 * @param null  $default
 	 *
 	 * @return mixed
 	 */

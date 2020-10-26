@@ -2,6 +2,8 @@
 
 namespace Gzhegow\Support;
 
+use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+
 /**
  * Class Net
  */
@@ -243,12 +245,12 @@ class Net
 				break;
 
 			default:
-				throw new \InvalidArgumentException('Method is not supported: ' . $method);
+				throw new InvalidArgumentException('Method is not supported: ' . $method);
 
 		endswitch;
 
-		if (! filter_var($url, FILTER_VALIDATE_URL)) {
-			throw new \InvalidArgumentException('Incorrect url passed: ' . $url);
+		if (false === filter_var($url, FILTER_VALIDATE_URL)) {
+			throw new InvalidArgumentException('Incorrect url passed: ' . $url);
 		}
 
 		// type
@@ -265,7 +267,7 @@ class Net
 		}
 
 		// build
-		$handler = $this->curl->buildNew($url, $data, $options);
+		$handler = $this->curl->createNew($url, $data, $options);
 
 		// execute
 		$content = curl_exec($handler);

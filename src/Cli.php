@@ -12,6 +12,10 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 class Cli
 {
 	/**
+	 * @var Env
+	 */
+	protected $env;
+	/**
 	 * @var Php
 	 */
 	protected $php;
@@ -20,10 +24,12 @@ class Cli
 	/**
 	 * Constructor
 	 *
+	 * @param Env $env
 	 * @param Php $php
 	 */
-	public function __construct(Php $php)
+	public function __construct(Env $env, Php $php)
 	{
+		$this->env = $env;
 		$this->php = $php;
 	}
 
@@ -36,7 +42,7 @@ class Cli
 	public function stop(...$arguments) : void
 	{
 		if (PHP_SAPI !== 'cli') {
-			throw new \BadFunctionCallException('Should be called in CLI mode');
+			throw new BadFunctionCallException('Should be called in CLI mode');
 		}
 
 		$this->pause(...$arguments);
@@ -54,7 +60,7 @@ class Cli
 	public function pause(...$arguments) : array
 	{
 		if (PHP_SAPI !== 'cli') {
-			throw new \BadFunctionCallException('Should be called in CLI mode');
+			throw new BadFunctionCallException('Should be called in CLI mode');
 		}
 
 		if ($arguments) var_dump(...$arguments);
@@ -148,7 +154,7 @@ class Cli
 	) : array
 	{
 		$cwd = $cwd ?? getcwd();
-		$env = $env ?? $this->php->getenv();
+		$env = $env ?? $this->env->getenv();
 
 		if ('' === $cwd) {
 			throw new InvalidArgumentException('Cwd should be not empty', func_get_args());
@@ -160,7 +166,7 @@ class Cli
 		[ $env ] = $this->php->kwargs($env);
 		[ $other_options ] = $this->php->kwargs($other_options);
 
-		$env[ 'PATH' ] = $this->php->getenv('PATH');
+		$env[ 'PATH' ] = $this->env->getenv('PATH');
 
 		$h = proc_open($cmd, [
 			0 => [ 'pipe', 'r' ],

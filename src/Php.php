@@ -2,6 +2,7 @@
 
 namespace Gzhegow\Support;
 
+use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 /**
@@ -21,114 +22,27 @@ class Php
 
 
 	/**
-	 * @param mixed  $item
-	 * @param string $method
+	 * @param string $name
+	 * @param null   $value
 	 *
-	 * @return bool
+	 * @return null|string
 	 */
-	public function isPropertyDeclared($item, string $method) : bool
+	public function const(string $name, $value = null) : ?string
 	{
-		try {
-			$array = $this->propertyInfo($item, $method);
-		}
-		catch ( \Exception $e ) {
-			return false;
+		if (! $name) {
+			throw new InvalidArgumentException('Argument 1 should be defined');
 		}
 
-		return $array[ 'default' ] && $array[ 'declared' ];
-	}
+		if (! defined($name)) {
+			define($name, $value);
 
-	/**
-	 * @param mixed           $item
-	 * @param string          $property
-	 * @param string[]|bool[] ...$tags
-	 *
-	 * @return bool
-	 */
-	public function isPropertyExists($item, string $property, ...$tags) : bool
-	{
-		try {
-			$array = $this->propertyInfo($item, $property);
-		}
-		catch ( \Exception $e ) {
-			return false;
+		} else {
+			if (isset($value)) {
+				throw new RuntimeException('Constant is already defined: ' . $name);
+			}
 		}
 
-		if (! $tags) {
-			return true;
-		}
-
-		[ $kwargs, $args ] = $this->kwargs(...$tags);
-
-		$index = [];
-		foreach ( $kwargs as $arg => $bool ) {
-			$index[ $arg ] = $bool;
-		}
-
-		foreach ( $args as $arg ) {
-			$index[ $arg ] = true;
-		}
-
-		if (array_diff_key($index, $array)) return false;
-		if ($index !== array_intersect_assoc($index, $array)) return false;
-
-		return true;
-	}
-
-
-	/**
-	 * @param mixed  $item
-	 * @param string $method
-	 *
-	 * @return bool
-	 */
-	public function isMethodDeclared($item, string $method) : bool
-	{
-		try {
-			$array = $this->methodInfo($item, $method);
-		}
-		catch ( \Exception $e ) {
-			return false;
-		}
-
-		return (bool) $array[ 'declared' ];
-	}
-
-	/**
-	 * @param mixed           $item
-	 * @param string          $method
-	 * @param string[]|bool[] ...$tags
-	 *
-	 * @return bool
-	 */
-	public function isMethodExists($item, string $method, ...$tags) : bool
-	{
-		try {
-			$array = $this->methodInfo($item, $method);
-		}
-		catch ( \Exception $e ) {
-			return false;
-		}
-
-		if (! $tags) {
-			return true;
-		}
-
-		[ $kwargs, $args ] = $this->kwargs(...$tags);
-
-		$index = [];
-		foreach ( $kwargs as $arg => $bool ) {
-			$index[ $arg ] = $bool;
-		}
-
-		foreach ( $args as $arg ) {
-			$index[ $arg ] = true;
-		}
-
-		if (array_diff_key($index, $array)) return false;
-		if ($index !== array_intersect_assoc($index, $array)) return false;
-
-		return true;
+		return constant($name);
 	}
 
 
@@ -184,119 +98,12 @@ class Php
 
 
 	/**
-	 * @param string $name
-	 * @param string $value
-	 *
-	 * @return bool
-	 */
-	public function putenv(string $name, string $value) : bool
-	{
-		$status = putenv($name . '=' . $value);
-
-		if ($status) static::$env[ $name ] = $value;
-
-		return $status;
-	}
-
-	/**
-	 * @param null      $option
-	 * @param bool|null $runtime
-	 *
-	 * @return null|array|false|string
-	 */
-	public function getenv($option = null, bool $runtime = null) // : string|array
-	{
-		$varname = is_string($option)
-			? $option
-			: null;
-
-		$varname_lower = is_string($option)
-			? mb_strtolower($option)
-			: null;
-
-		$runtime = null
-			?? ( is_bool($runtime)
-				? $runtime
-				: null )
-			?? ( is_bool($option)
-				? $option
-				: null )
-			?? true;
-
-		$env = getenv();
-		if ($runtime) {
-			$env = array_merge($env, static::$env ?? []);
-		}
-
-		// one value
-		if ($varname) {
-			$result = null
-				?? ( isset($env[ $varname ])
-					? getenv($varname, $runtime)
-					: null )
-				?? ( isset($env[ $varname_lower ])
-					? getenv($varname_lower, $runtime)
-					: null );
-
-			return $result;
-		}
-
-		// all values
-		$result = [];
-		$registry = [];
-		foreach ( $env as $key => $item ) {
-			$prev = $registry[ $key_lower = mb_strtolower($key) ] ?? null;
-
-			if (isset($prev)) unset($result[ $prev ]);
-
-			$registry[ $key_lower ] = $key;
-			$result[ $key ] = getenv($key, $runtime);
-		}
-
-		return $result;
-	}
-
-
-	/**
-	 * @param string $name
-	 * @param null   $value
-	 *
-	 * @return null|string
-	 */
-	public function const(string $name, $value = null) : ?string
-	{
-		if (! $name) {
-			throw new InvalidArgumentException('Argument 1 should be defined');
-		}
-
-		if (! defined($name)) {
-			define($name, $value);
-
-		} else {
-			if (isset($value)) {
-				throw new \RuntimeException('Constant is already defined: ' . $name);
-			}
-		}
-
-		return constant($name);
-	}
-
-
-	/**
-	 * @param        $item
-	 * @param string $property
+	 * @param string|object $item
 	 *
 	 * @return array
-	 * @throws \ReflectionException
 	 */
-	public function propertyInfo($item, string $property) : array
+	public function splitclass($item) : array
 	{
-		static $cache;
-
-		if ('' === $property) {
-			throw new InvalidArgumentException('Argument 2 should be not empty', func_get_args());
-		}
-
 		switch ( true ):
 			case is_string($item) && class_exists($item):
 				$class = $item;
@@ -311,78 +118,62 @@ class Php
 
 		endswitch;
 
-		$cache = $cache ?? [];
-
-		$rp = $cache[ $class . '.' . $property ] = $cache[ $class . '.' . $property ]
-			?? new \ReflectionProperty($item, $property);
-
-		$result = [];
-
-		$result[ 'declared' ] = $rp->getDeclaringClass()->getName() === $class;
-		$result[ 'default' ] = $rp->isDefault();
-		$result[ 'private' ] = $rp->isPrivate();
-		$result[ 'protected' ] = $rp->isProtected();
-		$result[ 'public' ] = $rp->isPublic();
-		$result[ 'static' ] = $rp->isStatic();
+		$result = explode('\\', $class);
 
 		return $result;
 	}
 
+
 	/**
-	 * @param        $item
-	 * @param string $method
+	 * @param mixed $item
 	 *
 	 * @return array
-	 * @throws \ReflectionException
 	 */
-	public function methodInfo($item, string $method) : array
+	public function nsclass($item) : array
 	{
-		static $cache;
+		$array = $this->splitclass($item);
 
-		if ('' === $method) {
-			throw new InvalidArgumentException('Argument 2 should be not empty', func_get_args());
-		}
+		$class = array_pop($array);
+		$namespace = implode($separator = '\\', $array)
+			?: null;
 
-		switch ( true ):
-			case is_string($item) && class_exists($item):
-				$class = $item;
-				break;
+		return [ $namespace, $class ];
+	}
 
-			case is_object($item):
-				$class = get_class($item);
-				break;
+	/**
+	 * @param mixed $item
+	 *
+	 * @return string
+	 */
+	public function class($item) : string
+	{
+		$array = $this->splitclass($item);
 
-			default:
-				throw new InvalidArgumentException('Argument 1 should be object or class');
+		return array_pop($array);
+	}
 
-		endswitch;
+	/**
+	 * @param             $item
+	 *
+	 * @return null|string
+	 */
+	public function namespace($item) : ?string
+	{
+		$array = $this->splitclass($item);
 
-		$cache = $cache ?? [];
+		array_pop($array);
 
-		$rm = $cache[ $class . '::' . $method ] = $cache[ $class . '::' . $method ]
-			?? new \ReflectionMethod($item, $method);
-
-		$result = [];
-
-		$result[ 'declared' ] = $rm->getDeclaringClass()->getName() === $class;
-		$result[ 'abstract' ] = $rm->isAbstract();
-		$result[ 'final' ] = $rm->isFinal();
-		$result[ 'private' ] = $rm->isPrivate();
-		$result[ 'protected' ] = $rm->isProtected();
-		$result[ 'public' ] = $rm->isPublic();
-		$result[ 'static' ] = $rm->isStatic();
-
-		return $result;
+		return implode('\\', $array);
 	}
 
 
 	/**
-	 * @param string|object $item
-	 * @param string|null   $base
+	 * @param mixed       $item
+	 * @param string|null $base
 	 *
-	 * @return array
+	 * @return string
 	 */
-	public function splitclass($item, string $base = null) : array
+	public function baseclass($item, string $base = null) : string
 	{
 		switch ( true ):
 			case is_string($item) && class_exists($item):
@@ -399,99 +190,11 @@ class Php
 		endswitch;
 
 		$relative = $class;
-		if ($base && 0 === stripos($class, $base)) {
+
+		if ($base && 0 === stripos($class, rtrim($base, '\\'))) {
 			$relative = str_ireplace($base . '\\', '', $class);
 		}
 
-		$result = explode('\\', $relative);
-
-		return $result;
+		return $relative;
 	}
-
-	/**
-	 * @param             $item
-	 * @param string|null $base
-	 *
-	 * @return array
-	 */
-	public function nsclass($item, string $base = null) : array
-	{
-		$array = $this->splitclass($item, $base);
-
-		$class = array_pop($array);
-		$namespace = implode($separator = '\\', $array)
-			?: null;
-
-		return [ $namespace, $class ];
-	}
-
-	/**
-	 * @param             $item
-	 * @param string|null $base
-	 *
-	 * @return string
-	 */
-	public function baseclass($item, string $base = null) : string
-	{
-		$array = $this->splitclass($item, $base);
-
-		return implode('\\', $array);
-	}
-
-	/**
-	 * @param             $item
-	 * @param string|null $base
-	 *
-	 * @return string
-	 */
-	public function class($item, string $base = null) : string
-	{
-		$array = $this->splitclass($item, $base);
-
-		return array_pop($array);
-	}
-
-	/**
-	 * @param             $item
-	 * @param string|null $base
-	 *
-	 * @return null|string
-	 */
-	public function namespace($item, string $base = null) : ?string
-	{
-		$array = $this->splitclass($item, $base);
-
-		array_pop($array);
-
-		return implode('\\', $array);
-	}
-
-
-	/**
-	 * @param array $args
-	 *
-	 * @return mixed
-	 */
-	public function traceArgs(array $args)
-	{
-		array_walk_recursive($args, function (&$v) {
-			if (! is_scalar($v)) {
-				if (is_null($v)) {
-					$v = '{ NULL }';
-				} elseif (is_resource($v)) {
-					$v = '{ Resource #' . intval($v) . ' }';
-				} else {
-					$v = '{ #' . spl_object_id($v) . ' ' . get_class($v) . ' }';
-				}
-			}
-		});
-
-		return $args;
-	}
-
-
-	/**
-	 * @var
-	 */
-	protected static $env;
 }

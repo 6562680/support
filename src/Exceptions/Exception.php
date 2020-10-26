@@ -4,12 +4,22 @@ namespace Gzhegow\Support\Exceptions;
 
 use Throwable;
 use Gzhegow\Support\Php;
+use Gzhegow\Support\Debug;
 
 /**
  * Class Exception
  */
 class Exception extends \Exception
 {
+	/**
+	 * @var Debug
+	 */
+	protected $debug;
+	/**
+	 * @var Php
+	 */
+	protected $php;
+
 	/**
 	 * @var string
 	 */
@@ -27,21 +37,22 @@ class Exception extends \Exception
 	/**
 	 * Constructor
 	 *
-	 * @param                $messages
-	 * @param                $payload
+	 * @param mixed          $messages
+	 * @param mixed          $payload
 	 * @param Throwable|null $previous
 	 */
 	public function __construct($messages, $payload = null, Throwable $previous = null)
 	{
+		$debug = $this->getDebug();
+		$php = $this->getPhp();
+
 		$messages = (array) $messages;
 
 		array_walk_recursive($messages, function ($message) {
-			if (! is_scalar($message)) {
-				throw new \InvalidArgumentException('Messages should be scalars', null, $this);
+			if (! ( is_string($message) || is_int($message) )) {
+				throw new \InvalidArgumentException('Messages should be strings or integers', null, $this);
 			}
 		});
-
-		$php = $this->getPhp();
 
 		[ $errors, $messages ] = $php->kwargs($messages);
 
@@ -52,15 +63,11 @@ class Exception extends \Exception
 		$report[ 'msg' ] = $this->msg;
 		$report[ 'err' ] = $errors;
 		$report[ 'payload' ] = $payload;
-		$report[ 'trace' ] = array_map(function ($trace) use ($php) {
-			unset($trace[ 'type' ]);
+		$report[ 'trace' ] = array_map([ $debug, 'trace' ], $this->getTrace());
 
-			$trace[ 'args' ] = $php->traceArgs($trace[ 'args' ]);
-
-			return $trace;
-		}, $this->getTrace());
-
-		$message = $this->msg . PHP_EOL . json_encode($report, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+		$message = $this->msg
+			. PHP_EOL
+			. $debug->printR($report, 1);
 
 		parent::__construct($message, $code = -1, $previous);
 	}
@@ -92,10 +99,18 @@ class Exception extends \Exception
 
 
 	/**
+	 * @return Debug
+	 */
+	protected function getDebug() : Debug
+	{
+		return $this->debug = $this->debug ?? new Debug();
+	}
+
+	/**
 	 * @return Php
 	 */
 	protected function getPhp() : Php
 	{
-		return new Php();
+		return $this->php = $this->php ?? new Php();
 	}
 }
