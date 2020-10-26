@@ -33,6 +33,11 @@ class LogicException extends \LogicException
 	 */
 	protected $payload;
 
+	/**
+	 * @var array
+	 */
+	protected $report;
+
 
 	/**
 	 * Constructor
@@ -59,17 +64,14 @@ class LogicException extends \LogicException
 		$this->err = $errors;
 		$this->msg = implode(PHP_EOL, $messages);
 		$this->payload = $payload;
+		$this->report = [
+			'msg'     => $this->msg,
+			'err'     => $errors,
+			'payload' => $payload,
+			'trace'   => array_map([ $debug, 'trace' ], $this->getTrace()),
+		];
 
-		$report[ 'msg' ] = $this->msg;
-		$report[ 'err' ] = $errors;
-		$report[ 'payload' ] = $payload;
-		$report[ 'trace' ] = array_map([ $debug, 'trace' ], $this->getTrace());
-
-		$message = $this->msg
-			. PHP_EOL
-			. $debug->printR($report, 1);
-
-		parent::__construct($message, $code = -1, $previous);
+		parent::__construct($this->msg, $code = -1, $previous);
 	}
 
 
@@ -95,6 +97,14 @@ class LogicException extends \LogicException
 	public function getPayload()
 	{
 		return $this->payload;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getReport() : array
+	{
+		return $this->report;
 	}
 
 
