@@ -203,16 +203,16 @@ class Reflection
 			throw new InvalidArgumentException('Property should be not empty', func_get_args());
 		}
 
-		if (! isset($this->cache[ $class . '::' . $method ])) {
+		if (! isset($this->cache[ $key = $class . '::' . $method ])) {
 			try {
-				$this->cache[ $class . '::' . $method ] = new \ReflectionMethod($item, $method);
+				$this->cache[ $key ] = new \ReflectionMethod($item, $method);
 			}
 			catch ( \ReflectionException $e ) {
 				throw new RuntimeException('Unable to reflect', func_get_args(), $e);
 			}
 		}
 
-		return $this->cache[ $class . '::' . $method ];
+		return $this->cache[ $key ];
 	}
 
 	/**
@@ -238,9 +238,9 @@ class Reflection
 			throw new InvalidArgumentException('Property should be not empty', func_get_args());
 		}
 
-		if (! isset($this->cache[ $class . '.' . $property ])) {
+		if (! isset($this->cache[ $key = $class . '.' . $property ])) {
 			try {
-				$this->cache[ $class . '.' . $property ] = new \ReflectionProperty($item, $property);
+				$this->cache[ $key ] = new \ReflectionProperty($item, $property);
 
 			}
 			catch ( \ReflectionException $e ) {
@@ -248,7 +248,70 @@ class Reflection
 			}
 		}
 
-		return $this->cache[ $class . '.' . $property ];
+		return $this->cache[ $key ];
+	}
+
+
+	/**
+	 * @param string $func
+	 *
+	 * @return \ReflectionFunction
+	 */
+	public function reflectFunction(string $func) : \ReflectionFunction
+	{
+		if (! isset($this->cache[ $key = $func ])) {
+			try {
+				$this->cache[ $key ] = new \ReflectionFunction($func);
+
+			}
+			catch ( \ReflectionException $e ) {
+				throw new RuntimeException('Unable to reflect', func_get_args(), $e);
+			}
+		}
+
+		return $this->cache[ $key ];
+	}
+
+	/**
+	 * @param \Closure $func
+	 *
+	 * @return \ReflectionFunction
+	 */
+	public function reflectClosure(\Closure $func) : \ReflectionFunction
+	{
+		if (! isset($this->cache[ $key = \Closure::class . ' ' . spl_object_id($func) ])) {
+			try {
+				$this->cache[ $key ] = new \ReflectionFunction($func);
+
+			}
+			catch ( \ReflectionException $e ) {
+				throw new RuntimeException('Unable to reflect', func_get_args(), $e);
+			}
+		}
+
+		return $this->cache[ $key ];
+	}
+
+
+	/**
+	 * @param callable $callable
+	 *
+	 * @return \ReflectionFunction|\ReflectionMethod
+	 */
+	public function reflectCallable($callable)
+	{
+		if ($this->type->isClosure($callable)) {
+			$rf = $this->reflectClosure($callable);
+
+		} elseif ($this->type->isCallableArray($callable)) {
+			$rf = $this->reflectMethod($callable[ 0 ], $callable[ 1 ]);
+
+		} else {
+			$rf = $this->reflectFunction($callable);
+
+		}
+
+		return $rf;
 	}
 
 

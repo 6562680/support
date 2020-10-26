@@ -313,8 +313,8 @@ class Type
 
 
 	/**
-	 * @param \ReflectionClass $reflectionClass
-	 * @param string|null &    $class
+	 * @param \ReflectionClass  $reflectionClass
+	 * @param string|null      &$class
 	 *
 	 * @return bool
 	 */
