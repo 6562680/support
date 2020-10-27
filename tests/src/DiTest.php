@@ -205,15 +205,17 @@ class DiTest extends AbstractTestCase
 		/** @var MyServiceAInterface $myAService */
 
 		// drop old copy
-		$it = new \RecursiveDirectoryIterator($dir = __DIR__ . '/../config/dest', \RecursiveDirectoryIterator::SKIP_DOTS);
-		$iit = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::CHILD_FIRST);
-		foreach ( $iit as $file ) {
-			$todo = ( $file->isDir()
-				? 'rmdir'
-				: 'unlink' );
-			$todo($file->getRealPath());
+		if (is_dir($dir = __DIR__ . '/../config/dest')) {
+			$it = new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS);
+			$iit = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::CHILD_FIRST);
+			foreach ( $iit as $file ) {
+				$todo = ( $file->isDir()
+					? 'rmdir'
+					: 'unlink' );
+				$todo($file->getRealPath());
+			}
+			rmdir($dir);
 		}
-		rmdir($dir);
 
 		$di = new Di();
 		$di->registerProvider(MyBootableProvider::class);

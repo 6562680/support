@@ -1,32 +1,16 @@
 <?php
 
-namespace Gzhegow\Di;
+namespace Gzhegow\Di\Traits;
 
 /**
- * Class Provider
+ * Trait CanRegisterTrait
  */
-class Provider implements ProviderInterface
+trait CanRegisterTrait
 {
-	/**
-	 * @var Di
-	 */
-	protected $di;
-
 	/**
 	 * @var bool
 	 */
 	protected $isRegistered = false;
-
-
-	/**
-	 * Constructor
-	 *
-	 * @param Di $di
-	 */
-	public function __construct(Di $di)
-	{
-		$this->di = $di;
-	}
 
 
 	/**
@@ -37,6 +21,7 @@ class Provider implements ProviderInterface
 		return $this->isRegistered;
 	}
 
+
 	/**
 	 * @param bool|null $registered
 	 *
@@ -46,6 +31,7 @@ class Provider implements ProviderInterface
 	{
 		$this->isRegistered = $registered ?? true;
 	}
+
 
 	/**
 	 * @return void

@@ -18,7 +18,7 @@ interface CanRegisterInterface
 	 *
 	 * @return void
 	 */
-	public function setRegistered(bool $registered = null) : void;
+	public function markAsRegistered(bool $registered = null) : void;
 
 	/**
 	 * @return void

@@ -18,7 +18,7 @@ interface CanBootInterface
 	 *
 	 * @return void
 	 */
-	public function setBooted(bool $booted = null) : void;
+	public function markAsBooted(bool $booted = null) : void;
 
 	/**
 	 * @return void

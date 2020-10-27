@@ -880,49 +880,50 @@ class Di implements
 	protected function providerSyncing(CanSyncInterface $provider)
 	{
 		if (! $provider->isSynced()) {
-			foreach ( $provider->sync() as $from => $to ) {
-				if (is_int($from)) {
-					if ('php' !== pathinfo($to, PATHINFO_EXTENSION)) {
-						throw new RuntimeException('Bootstrap file should be `.php` file: ' . $to . ' in ' . get_class($provider));
-					}
+			$defines = [];
 
-					// exec php file
-					require $to;
+			foreach ( $provider->getDefine() as $name => $from ) {
+				if (! file_exists($from)) {
+					throw new RuntimeException('Source file not found: ' . $from, func_get_args());
+				}
+
+				$defines[ $name ] = $from;
+			}
+
+			foreach ( $provider->getSync() as $name => $to ) {
+				if (! isset($defines[ $name ])) {
+					throw new RuntimeException('Define not found: ' . $name, func_get_args());
+				}
+
+				$from = $defines[ $name ];
+
+				if (file_exists($to)) {
+					continue;
+				}
+
+				if (! is_dir($dest = pathinfo($to, PATHINFO_DIRNAME))) {
+					mkdir($dest, 0755, true);
+				}
+
+				if (! is_dir($from)) {
+					copy($from, $to);
 
 				} else {
-					// copy source to destination
-					if (file_exists($to)) {
-						continue;
-					}
+					$it = new \RecursiveDirectoryIterator($from, \RecursiveDirectoryIterator::SKIP_DOTS);
+					$iit = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::SELF_FIRST);
 
-					if (! file_exists($from)) {
-						throw new RuntimeException('Source file not found: ' . $from . ' in ' . get_class($provider));
-					}
+					foreach ( $iit as $file ) {
+						/** @var \RecursiveDirectoryIterator $iit */
 
-					if (! is_dir($dest = pathinfo($to, PATHINFO_DIRNAME))) {
-						mkdir($dest, 0755, true);
-					}
-
-					if (! is_dir($from)) {
-						copy($from, $to);
-
-					} else {
-						$it = new \RecursiveDirectoryIterator($from, \RecursiveDirectoryIterator::SKIP_DOTS);
-						$iit = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::SELF_FIRST);
-
-						foreach ( $iit as $file ) {
-							/** @var \RecursiveDirectoryIterator $iit */
-
-							$dest = $to . DIRECTORY_SEPARATOR . $iit->getSubPathName();
-							$file->isDir()
-								? mkdir($dest, 755, true)
-								: copy($file->getRealpath(), $dest);
-						}
+						$dest = $to . DIRECTORY_SEPARATOR . $iit->getSubPathName();
+						$file->isDir()
+							? mkdir($dest, 755, true)
+							: copy($file->getRealpath(), $dest);
 					}
 				}
 			}
 
-			$provider->setSynced(true);
+			$provider->markAsSynced(true);
 		}
 
 		return $this;
@@ -938,7 +939,7 @@ class Di implements
 		if (! $provider->isBooted()) {
 			$provider->boot();
 
-			$provider->setBooted(true);
+			$provider->markAsBooted(true);
 		}
 
 		return $this;

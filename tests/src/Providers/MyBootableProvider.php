@@ -29,30 +29,40 @@ class MyBootableProvider extends BootableProvider
 	}
 
 	/**
-	 * @return array
-	 */
-	public function sync() : array
-	{
-		return [
-			// copy
-			__DIR__ . '/../../config/src/file.conf' => __DIR__ . '/../../config/dest/file.conf',
-			__DIR__ . '/../../config/src/dir'       => __DIR__ . '/../../config/dest/dir',
-
-			// require
-			__DIR__ . '/../../config/src/bootstrap.php',
-		];
-	}
-
-	/**
 	 * @return void
 	 */
 	public function boot() : void
 	{
-		// will be done on $di->boot() method was called
+		require $this->syncRealpath('bootstrap');
 
 		$myAService = $this->getMyAService();
 
 		$myAService::setStaticOption(1);
 		$myAService->setDynamicOption(2);
+	}
+
+
+	/**
+	 * @return array
+	 */
+	protected function define() : array
+	{
+		return [
+			'bootstrap' => __DIR__ . '/../../config/src/bootstrap.php',
+			'config'    => __DIR__ . '/../../config/src/file.conf',
+			'resources' => __DIR__ . '/../../config/src/dir',
+		];
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function sync() : array
+	{
+		return [
+			'bootstrap' => __DIR__ . '/../../config/dest/bootstrap.php',
+			'config'    => __DIR__ . '/../../config/dest/file.conf',
+			'resources' => __DIR__ . '/../../config/dest/dir',
+		];
 	}
 }

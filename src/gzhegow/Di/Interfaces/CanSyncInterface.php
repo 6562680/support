@@ -4,24 +4,46 @@ namespace Gzhegow\Di\Interfaces;
 
 
 /**
- * Interface CanBootInterface
+ * Interface CanSyncInterface
  */
 interface CanSyncInterface
 {
 	/**
+	 * @return string[]
+	 */
+	public function getDefine() : array;
+
+	/**
+	 * @return string[]
+	 */
+	public function getSync() : array;
+
+
+	/**
 	 * @return bool
 	 */
 	public function isSynced() : bool;
+
 
 	/**
 	 * @param bool|null $synced
 	 *
 	 * @return void
 	 */
-	public function setSynced(bool $synced = null) : void;
+	public function markAsSynced(bool $synced = null) : void;
+
 
 	/**
-	 * @return array
+	 * @param string $defineKey
+	 *
+	 * @return mixed
 	 */
-	public function sync() : array;
+	public function defineRealpath(string $defineKey) : string;
+
+	/**
+	 * @param string $syncKey
+	 *
+	 * @return mixed
+	 */
+	public function syncRealpath(string $syncKey) : string;
 }
