@@ -329,8 +329,10 @@ class Arr
 	 *
 	 * @return mixed
 	 */
-	protected function &traverse(array &$ref, $path, int &$error = self::ERROR_NO_ERROR) // : mixed
+	protected function &traverse(array &$ref, $path, int &$error = null) // : mixed
 	{
+		$error = static::ERROR_NO_ERROR;
+
 		$p = $this->pathsafe($path);
 
 		while ( null !== key($p) ) {
