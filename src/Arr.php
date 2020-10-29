@@ -369,7 +369,7 @@ class Arr
 		$list = [];
 		foreach ( $args as $step ) {
 			if (is_string($step) || is_numeric($step)) {
-				$list = array_merge($result, explode('.', $step));
+				$list = array_merge($list, explode('.', $step));
 			} else {
 				$list[] = $step;
 			}
