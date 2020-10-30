@@ -267,73 +267,118 @@ class Str
 
 
 	/**
-	 * @param string $str
+	 * @param string $value
 	 *
 	 * @return string
 	 */
-	public function camel(string $str) : string
+	public function snake(string $value) : string
 	{
-		if (! $str) return '';
+		if ('' === $value) {
+			return $value;
+		}
 
-		return lcfirst($this->ucamel($str));
+		$value = preg_replace('/\s+/', '', ucwords($value));
+		$value = str_replace('-', '_', $value);
+
+		$test = str_replace([ '_', '-' ], '', $value);
+
+		if (ctype_upper($test)) {
+			$value = mb_strtolower($value);
+		}
+
+		$value = mb_strtolower(preg_replace('~(?<=\\w)(\p{Ll})~', '_$1', $value));
+
+		return $value;
 	}
 
 	/**
-	 * @param string $str
+	 * @param string $value
 	 *
 	 * @return string
 	 */
-	public function ucamel(string $str) : string
+	public function usnake(string $value) : string
 	{
-		if (! $str) return '';
-
-		$array = preg_split(
-			'/[^\p{Ll}0-9]+/um',
-			$str,
-			null,
-			PREG_SPLIT_NO_EMPTY
-		);
-
-		$result = implode('', array_map(function ($val) {
-			return ucfirst($val);
-		}, $array));
-
-		return $result;
+		return ucfirst($this->snake($value));
 	}
 
 
 	/**
-	 * @param string $str
-	 * @param string $delimiter
+	 * @param string $value
 	 *
 	 * @return string
 	 */
-	public function usnake(string $str, string $delimiter = '_') : string
+	public function kebab(string $value) : string
 	{
-		if (! $str) return '';
+		if ('' === $value) {
+			return $value;
+		}
 
-		return implode($delimiter, array_map('ucfirst',
-			explode($delimiter, $this->snake($str, $delimiter))
-		));
+		$value = preg_replace('/\s+/', '', ucwords($value));
+		$value = str_replace('_', '-', $value);
+
+		$test = str_replace([ '_', '-' ], '', $value);
+
+		if (ctype_upper($test)) {
+			$value = mb_strtolower($value);
+		}
+
+		$value = mb_strtolower(preg_replace('~(?<=\\w)(\p{Ll})~', '-$1', $value));
+
+		return $value;
 	}
 
 	/**
-	 * @param string $str
-	 * @param string $delimiter
+	 * @param string $value
 	 *
 	 * @return string
 	 */
-	public function snake(string $str, string $delimiter = '_') : string
+	public function ukebab(string $value) : string
 	{
-		if (! $str) return '';
-
-		$result = strtolower(
-			preg_replace_callback('/(^|[\p{Ll}[:digit:]])([^\p{Ll}[:digit:]]+)/um', function ($m) use ($delimiter) {
-				return ltrim($m[ 1 ] . $delimiter, $delimiter) . ltrim(preg_replace('/[^[:alnum:]]/um', $delimiter, $m[ 2 ]), $delimiter);
-			},
-				$str
-			));
-
-		return Str::crop($result, $delimiter);
+		return ucfirst($this->kebab($value));
 	}
+
+
+	/**
+	 * @param string $value
+	 *
+	 * @return string
+	 */
+	public function pascal(string $value) : string
+	{
+		if ('' === $value) {
+			return $value;
+		}
+
+		$test = str_replace([ '_', '-' ], '', $value);
+
+		if (ctype_upper($test)) {
+			$value = mb_strtolower($value);
+		}
+
+		$value = str_replace(' ', '', ucwords(str_replace([ '-', '_' ], ' ', $value)));
+
+		return $value;
+	}
+
+
+	/**
+	 * @param string $value
+	 *
+	 * @return string
+	 */
+	public function camel(string $value) : string
+	{
+		return lcfirst($this->pascal($value));
+	}
+
+	/**
+	 * @param string $value
+	 *
+	 * @return string
+	 */
+	public function ucamel(string $value) : string
+	{
+		return $this->pascal($value);
+	}
+
 }
