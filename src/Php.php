@@ -135,19 +135,18 @@ class Php
 	 */
 	public function splitclass($item) : array
 	{
-		switch ( true ):
-			case is_string($item) && class_exists($item):
-				$class = $item;
-				break;
+		$class = $item;
 
+		switch ( true ):
 			case is_object($item):
 				$class = get_class($item);
 				break;
 
-			default:
-				throw new InvalidArgumentException('Argument 1 should be object or class', func_get_args());
-
 		endswitch;
+
+		if (! is_string($class)) {
+			throw new InvalidArgumentException('Class should be string or object');
+		}
 
 		$result = explode('\\', $class);
 
