@@ -22,13 +22,34 @@ class Php
 
 
 	/**
-	 * @param $className
+	 * @param mixed $class
+	 *
+	 * @return bool
+	 */
+	public function isValidClass($class) : bool
+	{
+		if (! is_string($class)) return false;
+		if ('' === $class) return false;
+
+		foreach ( explode('\\', $class) as $part ) {
+			if (! $result = $this->isValidClassName($part)) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * @param mixed $className
 	 *
 	 * @return bool
 	 */
 	public function isValidClassName($className) : bool
 	{
-		return is_string($className) && false !== preg_match('~^[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*$~', $className);
+		return is_string($className)
+			&& ( '' !== $className )
+			&& false !== preg_match('~^[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*$~', $className);
 	}
 
 
