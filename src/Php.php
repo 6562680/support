@@ -22,6 +22,17 @@ class Php
 
 
 	/**
+	 * @param $className
+	 *
+	 * @return bool
+	 */
+	public function isValidClassName($className) : bool
+	{
+		return is_string($className) && false !== preg_match('~^[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*$~', $className);
+	}
+
+
+	/**
 	 * @param string $name
 	 * @param null   $value
 	 *
@@ -44,7 +55,6 @@ class Php
 
 		return constant($name);
 	}
-
 
 	/**
 	 * @param mixed ...$arguments
