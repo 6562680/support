@@ -2,14 +2,13 @@
     "name": "gzhegow/support",
     "description": "Support libraries",
     "type": "library",
+    "license": "MIT",
     "authors": [
         {
             "name": "gzhegow",
             "email": "6562680@gmail.com"
         }
     ],
-    "minimum-stability": "dev",
-    "prefer-stable": true,
     "require": {
         "php": "^7.3",
         
