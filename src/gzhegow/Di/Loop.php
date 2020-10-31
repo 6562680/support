@@ -400,13 +400,19 @@ class Loop
 				throw new AutowireLoopError('Autowire Loop detected: ' . $bind, implode(' <- ', array_keys($registry)));
 			}
 
-			$registry[ $bind ] = true;
-
 			if ($this->di->hasDeferableBind($bind)) {
 				$this->di->bootDeferable($bind);
 			}
 
-			$bind = $this->di->getBind($bind);
+			$next = $this->di->getBind($bind);
+
+			if ($bind === $next) {
+				break;
+			}
+
+			$registry[ $bind ] = true;
+
+			$bind = $next;
 		}
 
 		$result = null

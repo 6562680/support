@@ -101,6 +101,29 @@ class DiTest extends AbstractTestCase
 	/**
 	 * @return void
 	 */
+	public function testPassNoArguments()
+	{
+		/** @var MyServiceAInterface $testService */
+
+		$case = $this;
+
+		$di = new Di();
+		$di->bind(MyServiceAInterface::class, MyAService::class);
+
+		$service = $di->getOrFail(MyServiceAInterface::class);
+
+		$data = [
+			MyServiceAInterface::class => $service, // will be ignored - no arguments match
+		];
+
+		$di->handle(function () use ($case, $service) {
+			$case->assertEquals([], func_get_args());
+		}, $data);
+	}
+
+	/**
+	 * @return void
+	 */
 	public function testPassVariadic()
 	{
 		/** @var MyServiceAInterface $testService */
@@ -123,29 +146,6 @@ class DiTest extends AbstractTestCase
 				1 => 'world1', // passed by name
 				// 2 => [], // variadic parameters becomes [] by default, even if null or empty array is passed
 			], func_get_args());
-		}, $data);
-	}
-
-	/**
-	 * @return void
-	 */
-	public function testPassNoArguments()
-	{
-		/** @var MyServiceAInterface $testService */
-
-		$case = $this;
-
-		$di = new Di();
-		$di->bind(MyServiceAInterface::class, MyAService::class);
-
-		$service = $di->getOrFail(MyServiceAInterface::class);
-
-		$data = [
-			MyServiceAInterface::class => $service, // will be ignored - no arguments match
-		];
-
-		$di->handle(function () use ($case, $service) {
-			$case->assertEquals([], func_get_args());
 		}, $data);
 	}
 
@@ -305,6 +305,24 @@ class DiTest extends AbstractTestCase
 		$instance = $di->getOrFail(MyCService::class);
 
 		$this->assertInstanceOf(MyCService::class, $instance);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testBindSelf()
+	{
+		// service bounded as self, its normal behavior (usually for singletons)
+
+		$di = new Di();
+		$di->bindShared(MyBService::class, MyBService::class);
+		$di->bind(MyCService::class, MyCService::class);
+
+		$b = $di->getOrFail(MyBService::class);
+		$c = $di->getOrFail(MyCService::class);
+
+		$this->assertInstanceOf(MyBService::class, $b);
+		$this->assertInstanceOf(MyCService::class, $c);
 	}
 
 
