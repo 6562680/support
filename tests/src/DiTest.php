@@ -11,6 +11,7 @@ use Gzhegow\Di\Tests\Services\MyDelegate;
 use Gzhegow\Di\Tests\Providers\MyProvider;
 use Gzhegow\Di\Tests\Services\MyLoopService;
 use Gzhegow\Di\Tests\Services\MyLoopAService;
+use Gzhegow\Di\Tests\Services\MyLoopBService;
 use Gzhegow\Di\Tests\Services\MyServiceAInterface;
 use Gzhegow\Di\Tests\Providers\MyBootableProvider;
 use Gzhegow\Di\Tests\Services\MyServiceBInterface;
@@ -349,6 +350,22 @@ class DiTest extends AbstractTestCase
 		$this->expectException(AutowireLoopError::class);
 
 		$di = new Di();
+		$di->getOrFail(MyLoopAService::class);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testBadLoopReference()
+	{
+		// service A requires B, and service B requires service A
+
+		$this->expectException(AutowireLoopError::class);
+
+		$di = new Di();
+		$di->bind(MyLoopAService::class, MyLoopBService::class);
+		$di->bind(MyLoopBService::class, MyLoopAService::class);
+
 		$di->getOrFail(MyLoopAService::class);
 	}
 }
