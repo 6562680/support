@@ -153,7 +153,7 @@ class Di implements
 			$result = $this->create($id, ...$arguments);
 		}
 		catch ( NotFoundError $e ) {
-			throw new RuntimeException(null, null, $e);
+			throw new RuntimeException('Unable to ' . __METHOD__, func_get_args(), $e);
 		}
 
 		return $result;
@@ -533,7 +533,7 @@ class Di implements
 			$result = $this->get($id);
 		}
 		catch ( NotFoundError $e ) {
-			throw new RuntimeException(null, null, $e);
+			throw new RuntimeException('Unable to ' . __METHOD__, func_get_args(), $e);
 		}
 
 		return $result;
@@ -587,7 +587,7 @@ class Di implements
 			$result = $this->set($id, $item);
 		}
 		catch ( OverflowException $e ) {
-			throw new RuntimeException(null, null, $e);
+			throw new RuntimeException('Unable to ' . __METHOD__, func_get_args(), $e);
 		}
 
 		return $result;

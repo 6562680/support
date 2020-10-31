@@ -218,7 +218,7 @@ class Loop
 			$instance = $this->di->newLoop($this)->get($id);
 		}
 		catch ( NotFoundError $exception ) {
-			throw new RuntimeException(null, null, $exception);
+			throw new RuntimeException('Unable to ' . __METHOD__, func_get_args(), $exception);
 		}
 
 		return $instance;
