@@ -2,24 +2,13 @@
     "name": "gzhegow/di",
     "description": "Dependency-Injection Container",
     "type": "library",
+    "license": "MIT",
     "authors": [
         {
             "name": "gzhegow",
             "email": "6562680@gmail.com"
         }
     ],
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/6562680/support"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/6562680/reflection"
-        }
-    ],
-    "minimum-stability": "dev",
-    "prefer-stable": true,
     "require": {
         "php": "^7.3",
         
