@@ -28,11 +28,14 @@ class MyBootableProvider extends BootableProvider
 		$this->di->bind(MyServiceAInterface::class, MyAService::class);
 	}
 
+
 	/**
 	 * @return void
 	 */
 	public function boot() : void
 	{
+		// will done once you call method ->boot() on $di instance, immediately otherwise
+
 		require $this->syncRealpath('bootstrap');
 
 		$myAService = $this->getMyAService();

@@ -12,6 +12,7 @@ use Gzhegow\Reflection\CachedReflection;
 use Gzhegow\Di\Exceptions\RuntimeException;
 use Gzhegow\Di\Interfaces\CanBootInterface;
 use Gzhegow\Di\Interfaces\CanSyncInterface;
+use Gzhegow\Reflection\ReflectionInterface;
 use Gzhegow\Di\Exceptions\Error\NotFoundError;
 use Gzhegow\Di\Exceptions\Runtime\OverflowException;
 use Gzhegow\Di\Exceptions\Logic\InvalidArgumentException;
@@ -27,6 +28,10 @@ class Di implements
 	 * @var CacheInterface
 	 */
 	protected $cache;
+	/**
+	 * @var ReflectionInterface
+	 */
+	protected $reflection;
 
 	/**
 	 * @var Arr
@@ -40,10 +45,6 @@ class Di implements
 	 * @var Type
 	 */
 	protected $type;
-	/**
-	 * @var Reflection
-	 */
-	protected $reflection;
 
 	/**
 	 * @var array
@@ -85,12 +86,7 @@ class Di implements
 	/**
 	 * @var array
 	 */
-	protected $providerSnapshots = [
-		'items'   => [],
-		'bind'    => [],
-		'shared'  => [],
-		'extends' => [],
-	];
+	protected $providerSnapshots = [];
 
 	/**
 	 * @var bool
@@ -117,6 +113,7 @@ class Di implements
 		$keys = [
 			ContainerInterface::class,
 			DiInterface::class,
+
 			static::class,
 		];
 
@@ -125,19 +122,76 @@ class Di implements
 				$this->set($key, $this);
 			}
 		}
+
+		$this->php = $this->newPhp();
+		$this->type = $this->newType();
+
+		$this->arr = $this->newArr();
+		$this->reflection = $this->newReflection();
 	}
 
 
 	/**
-	 * @param Loop $parent
-	 *
 	 * @return Loop
 	 */
-	public function newLoop(Loop $parent = null)
+	public function newLoop() : Loop
 	{
-		$instance = new Loop($this, $parent);
+		$instance = new Loop(
+			$this->reflection,
+
+			$this->arr,
+			$this->php,
+			$this->type,
+
+			$this
+		);
 
 		return $instance;
+	}
+
+
+	/**
+	 * @return Arr
+	 */
+	public function newArr() : Arr
+	{
+		return new Arr(
+			$this->php,
+			$this->type
+		);
+	}
+
+	/**
+	 * @return Php
+	 */
+	public function newPhp() : Php
+	{
+		return new Php();
+	}
+
+	/**
+	 * @return Type
+	 */
+	public function newType() : Type
+	{
+		return new Type();
+	}
+
+	/**
+	 * @return ReflectionInterface
+	 */
+	public function newReflection() : ReflectionInterface
+	{
+		return $this->cache
+			? new CachedReflection(
+				$this->php,
+				$this->type,
+				$this->cache
+			)
+			: new Reflection(
+				$this->php,
+				$this->type
+			);
 	}
 
 
@@ -149,14 +203,7 @@ class Di implements
 	 */
 	public function createOrFail(string $id, ...$arguments)
 	{
-		try {
-			$result = $this->create($id, ...$arguments);
-		}
-		catch ( NotFoundError $e ) {
-			throw new RuntimeException('Unable to ' . __METHOD__, func_get_args(), $e);
-		}
-
-		return $result;
+		return $this->newLoop()->createOrFail($id, ...$arguments);
 	}
 
 	/**
@@ -168,83 +215,14 @@ class Di implements
 	 */
 	public function create(string $id, ...$arguments)
 	{
-		if ('' === $id) {
-			throw new InvalidArgumentException('Id should be not empty');
-		}
-
-		$result = $this->newLoop()->create($id, ...$arguments);
-
-		return $result;
-	}
-
-
-	/**
-	 * @param Arr|null $arr
-	 *
-	 * @return Arr
-	 */
-	public function requireArr(Arr $arr = null) : Arr
-	{
-		return $this->arr = $arr
-			?? $this->arr
-			?? new Arr(
-				$this->requirePhp(),
-				$this->requireType()
-			);
-	}
-
-	/**
-	 * @param Php|null $php
-	 *
-	 * @return Php
-	 */
-	public function requirePhp(Php $php = null) : Php
-	{
-		return $this->php = $php
-			?? $this->php
-			?? new Php();
-	}
-
-	/**
-	 * @param Type|null $type
-	 *
-	 * @return Type
-	 */
-	public function requireType(Type $type = null) : Type
-	{
-		return $this->type = $type
-			?? $this->type
-			?? new Type();
-	}
-
-	/**
-	 * @param Reflection|null $reflection
-	 *
-	 * @return Reflection
-	 */
-	public function requireReflection(Reflection $reflection = null) : Reflection
-	{
-		return $this->reflection = $reflection
-			?? $this->reflection
-			?? ( $this->cache
-				? new CachedReflection(
-					$this->requirePhp(),
-					$this->requireType(),
-					$this->cache
-				)
-				: null
-			)
-			?? new Reflection(
-				$this->requirePhp(),
-				$this->requireType()
-			);
+		return $this->newLoop()->create($id, ...$arguments);
 	}
 
 
 	/**
 	 * @param string $id
 	 *
-	 * @return mixed
+	 * @return string|\Closure
 	 * @throws NotFoundError
 	 */
 	public function getBind(string $id)
@@ -258,10 +236,6 @@ class Di implements
 		}
 
 		$bind = $this->bind[ $id ];
-
-		if ($this->hasDeferableBind($bind)) {
-			$this->bootDeferable($bind);
-		}
 
 		return $bind;
 	}
@@ -283,10 +257,6 @@ class Di implements
 		}
 
 		$item = $this->items[ $id ];
-
-		if ($this->hasDeferableBind($id)) {
-			$this->bootDeferable($id);
-		}
 
 		return $item;
 	}
@@ -509,17 +479,7 @@ class Di implements
 	 */
 	public function get($id)
 	{
-		if (! is_string($id)) {
-			throw new InvalidArgumentException('Id should be string');
-		}
-
-		if ('' === $id) {
-			throw new InvalidArgumentException('Id should be not empty');
-		}
-
-		$result = $this->newLoop()->get($id);
-
-		return $result;
+		return $this->newLoop()->get($id);
 	}
 
 	/**
@@ -529,14 +489,7 @@ class Di implements
 	 */
 	public function getOrFail(string $id)
 	{
-		try {
-			$result = $this->get($id);
-		}
-		catch ( NotFoundError $e ) {
-			throw new RuntimeException('Unable to ' . __METHOD__, func_get_args(), $e);
-		}
-
-		return $result;
+		return $this->newLoop()->getOrFail($id);
 	}
 
 
@@ -550,7 +503,7 @@ class Di implements
 		return 0
 			|| $this->hasItem($id)
 			|| $this->hasBind($id)
-			|| $this->requireType()->isClass($id);
+			|| $this->type->isClass($id);
 	}
 
 
@@ -675,8 +628,8 @@ class Di implements
 		}
 
 		$isBind = ( 0
-			|| ( $isClosure = $this->requireType()->isClosure($bind) )
-			|| ( $isClass = $this->requireType()->isClass($bind) )
+			|| ( $isClosure = $this->type->isClosure($bind) )
+			|| ( $isClass = $this->type->isClass($bind) )
 		);
 
 		if (! $isBind) {
@@ -719,8 +672,8 @@ class Di implements
 		}
 
 		if (! ( 0
-			|| $this->requireType()->isClosure($func)
-			|| $this->requireType()->isCallable($func)
+			|| $this->type->isClosure($func)
+			|| $this->type->isCallable($func)
 		)) {
 			throw new InvalidArgumentException('Func should be closure or callable');
 		}
@@ -805,9 +758,9 @@ class Di implements
 	public function handle($func, ...$arguments)
 	{
 		if (! ( 0
-			|| ( $this->requireType()->isHandler($func) )
-			|| ( $this->requireType()->isClosure($func) )
-			|| ( $this->requireType()->isCallable($func) )
+			|| ( $this->type->isHandler($func) )
+			|| ( $this->type->isClosure($func) )
+			|| ( $this->type->isCallable($func) )
 		)) {
 			throw new InvalidArgumentException('Func should be handler, closure or callable');
 		}
@@ -828,8 +781,8 @@ class Di implements
 	public function call($newthis, $func, ...$arguments)
 	{
 		if (! ( 0
-			|| ( $this->requireType()->isCallable($func) )
-			|| ( $this->requireType()->isClosure($func) )
+			|| ( $this->type->isCallable($func) )
+			|| ( $this->type->isClosure($func) )
 		)) {
 			throw new InvalidArgumentException('Func should be closure, handler or callable');
 		}
@@ -851,6 +804,8 @@ class Di implements
 		if ($provider->isRegistered()) {
 			return $this;
 		}
+
+		$provider->markAsRegistered(true);
 
 		$class = get_class($provider);
 
@@ -879,51 +834,53 @@ class Di implements
 	 */
 	protected function providerSyncing(CanSyncInterface $provider)
 	{
-		if (! $provider->isSynced()) {
-			$defines = [];
+		if ($provider->isSynced()) {
+			return $this;
+		}
 
-			foreach ( $provider->getDefine() as $name => $from ) {
-				if (! file_exists($from)) {
-					throw new RuntimeException('Source file not found: ' . $from, func_get_args());
-				}
+		$provider->markAsSynced(true);
 
-				$defines[ $name ] = $from;
+		$defines = [];
+
+		foreach ( $provider->getDefine() as $name => $from ) {
+			if (! file_exists($from)) {
+				throw new RuntimeException('Source file not found: ' . $from, func_get_args());
 			}
 
-			foreach ( $provider->getSync() as $name => $to ) {
-				if (! isset($defines[ $name ])) {
-					throw new RuntimeException('Define not found: ' . $name, func_get_args());
-				}
+			$defines[ $name ] = $from;
+		}
 
-				$from = $defines[ $name ];
-
-				if (file_exists($to)) {
-					continue;
-				}
-
-				if (! is_dir($dest = pathinfo($to, PATHINFO_DIRNAME))) {
-					mkdir($dest, 0755, true);
-				}
-
-				if (! is_dir($from)) {
-					copy($from, $to);
-
-				} else {
-					$it = new \RecursiveDirectoryIterator($from, \RecursiveDirectoryIterator::SKIP_DOTS);
-					$iit = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::SELF_FIRST);
-
-					foreach ( $iit as $file ) {
-						/** @var \RecursiveDirectoryIterator $iit */
-
-						$dest = $to . DIRECTORY_SEPARATOR . $iit->getSubPathName();
-						$file->isDir()
-							? mkdir($dest, 755, true)
-							: copy($file->getRealpath(), $dest);
-					}
-				}
+		foreach ( $provider->getSync() as $name => $to ) {
+			if (! isset($defines[ $name ])) {
+				throw new RuntimeException('Define not found: ' . $name, func_get_args());
 			}
 
-			$provider->markAsSynced(true);
+			$from = $defines[ $name ];
+
+			if (file_exists($to)) {
+				continue;
+			}
+
+			if (! is_dir($dest = pathinfo($to, PATHINFO_DIRNAME))) {
+				mkdir($dest, 0755, true);
+			}
+
+			if (! is_dir($from)) {
+				copy($from, $to);
+
+			} else {
+				$it = new \RecursiveDirectoryIterator($from, \RecursiveDirectoryIterator::SKIP_DOTS);
+				$iit = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::SELF_FIRST);
+
+				foreach ( $iit as $file ) {
+					/** @var \RecursiveDirectoryIterator $iit */
+
+					$dest = $to . DIRECTORY_SEPARATOR . $iit->getSubPathName();
+					$file->isDir()
+						? mkdir($dest, 755, true)
+						: copy($file->getRealpath(), $dest);
+				}
+			}
 		}
 
 		return $this;
@@ -936,11 +893,13 @@ class Di implements
 	 */
 	protected function providerBooting(CanBootInterface $provider)
 	{
-		if (! $provider->isBooted()) {
-			$provider->boot();
-
-			$provider->markAsBooted(true);
+		if ($provider->isBooted()) {
+			return $this;
 		}
+
+		$provider->markAsBooted(true);
+
+		$provider->boot();
 
 		return $this;
 	}
