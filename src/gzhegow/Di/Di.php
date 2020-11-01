@@ -134,19 +134,21 @@ class Di implements
 	/**
 	 * @return Loop
 	 */
-	public function newLoop() : Loop
+	public function newLoop($id) : Loop
 	{
-		$instance = new Loop(
+		$loop = new Loop(
 			$this->reflection,
 
 			$this->arr,
 			$this->php,
 			$this->type,
 
-			$this
+			$this,
+
+			$id
 		);
 
-		return $instance;
+		return $loop;
 	}
 
 
@@ -203,7 +205,7 @@ class Di implements
 	 */
 	public function createOrFail(string $id, ...$arguments)
 	{
-		return $this->newLoop()->createOrFail($id, ...$arguments);
+		return $this->newLoop($id)->createOrFail($id, ...$arguments);
 	}
 
 	/**
@@ -215,7 +217,7 @@ class Di implements
 	 */
 	public function create(string $id, ...$arguments)
 	{
-		return $this->newLoop()->create($id, ...$arguments);
+		return $this->newLoop($id)->create($id, ...$arguments);
 	}
 
 
@@ -337,6 +339,7 @@ class Di implements
 		return is_string($id) && isset($this->items[ $id ]);
 	}
 
+
 	/**
 	 * @param mixed $id
 	 *
@@ -357,6 +360,7 @@ class Di implements
 		return is_string($id) && isset($this->bindDeferable[ $id ]);
 	}
 
+
 	/**
 	 * @param mixed $id
 	 *
@@ -366,6 +370,7 @@ class Di implements
 	{
 		return is_string($id) && isset($this->shared[ $id ]);
 	}
+
 
 	/**
 	 * @param mixed $id
@@ -479,7 +484,7 @@ class Di implements
 	 */
 	public function get($id)
 	{
-		return $this->newLoop()->get($id);
+		return $this->newLoop($id)->get($id);
 	}
 
 	/**
@@ -489,7 +494,7 @@ class Di implements
 	 */
 	public function getOrFail(string $id)
 	{
-		return $this->newLoop()->getOrFail($id);
+		return $this->newLoop($id)->getOrFail($id);
 	}
 
 
@@ -520,7 +525,7 @@ class Di implements
 		}
 
 		if ($this->hasItem($id)) {
-			throw new OverflowException('Bind is already defined: ' . $id);
+			throw new OverflowException('Item is already defined: ' . $id);
 		}
 
 		$this->replace($id, $item);
@@ -627,18 +632,22 @@ class Di implements
 			throw new InvalidArgumentException('Id should be not empty');
 		}
 
-		$isBind = ( 0
+		if (! ( 0
 			|| ( $isClosure = $this->type->isClosure($bind) )
 			|| ( $isClass = $this->type->isClass($bind) )
-		);
-
-		if (! $isBind) {
+		)) {
 			throw new InvalidArgumentException('Bind should be closure or class name');
 		}
 
-		$this->bind[ $id ] = $bind;
+		if ($id !== $bind) {
+			$this->bind[ $id ] = $bind;
+		}
 
-		if ($shared) {
+		if (! $shared && $this->hasShared($id)) {
+			unset($this->shared[ $id ]);
+		}
+
+		if ($shared && ! $this->hasShared($id)) {
 			$this->shared[ $id ] = true;
 		}
 
@@ -765,7 +774,7 @@ class Di implements
 			throw new InvalidArgumentException('Func should be handler, closure or callable');
 		}
 
-		$result = $this->newLoop()
+		$result = $this->newLoop($func)
 			->handle($func, ...$arguments);
 
 		return $result;
@@ -787,7 +796,7 @@ class Di implements
 			throw new InvalidArgumentException('Func should be closure, handler or callable');
 		}
 
-		$result = $this->newLoop()
+		$result = $this->newLoop($func)
 			->call($newthis, $func, ...$arguments);
 
 		return $result;

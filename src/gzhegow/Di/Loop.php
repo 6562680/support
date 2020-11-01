@@ -43,14 +43,14 @@ class Loop
 	protected $di;
 
 	/**
-	 * @var array
+	 * @var mixed
 	 */
-	protected $parent = null;
+	protected $id;
 
 	/**
-	 * @var string
+	 * @var null|Loop
 	 */
-	protected $id = null;
+	protected $parent;
 
 
 	/**
@@ -74,6 +74,8 @@ class Loop
 
 		Di $di,
 
+		$id,
+
 		Loop $parent = null
 	)
 	{
@@ -86,13 +88,15 @@ class Loop
 		$this->di = $di;
 
 		$this->parent = $parent;
+
+		$this->setId($id);
 	}
 
 
 	/**
 	 * @return Loop
 	 */
-	public function newChild() : Loop
+	public function newChild($id) : Loop
 	{
 		return new Loop(
 			$this->reflection,
@@ -102,6 +106,8 @@ class Loop
 			$this->type,
 
 			$this->di,
+
+			$id,
 
 			$this
 		);
@@ -165,54 +171,34 @@ class Loop
 			throw new InvalidArgumentException('Id should be not empty');
 		}
 
-		if (! ( 0
-			|| ( $hasBind = $this->di->hasBind($id) )
-			|| ( $isClass = $this->type->isClass($id) )
-		)) {
-			throw new NotFoundError('Bind not found: ' . $id);
+		$binds[] = $last = $id;
+		if ($resolved = $this->resolveBind($last)) {
+			[ $last ] = $resolved;
+
+			$binds[] = $last;
 		}
 
-		$bind = $id;
-		$result = null;
+		$result = $this->pipeResolveClosure($last, ...$arguments)
+			?: $this->pipeResolveClass($last, ...$arguments)
+				?: [];
 
-		if (null === ( $result = $this->executeBind($id, $bind, $registry) )) {
-			$parent = $this;
-
-			while ( $parent = $parent->parent ) {
-				$stack[] = $parent->id;
-
-				if ($parent->id === $bind) {
-					throw new AutowireLoopError(sprintf(
-						'Autowire loop detected: %s is required in [ %s ]', $id, implode(' <- ', array_reverse($stack))
-					));
-				}
-			}
-			$this->id = $bind;
-
-			$result = $this->newClass($bind, ...$arguments);
+		if (! $result) {
+			throw new AutowireError('Unable to resolve id: ' . $id, func_get_args());
 		}
 
-		if ($this->di->hasExtends($bind)) {
-			foreach ( $this->di->getExtends($bind) as $func ) {
-				$result = null
-					?? $this->handle($func, [
-						$bind => $result,
-					])
-					?? $result;
+		$result = reset($result);
+
+		if ($this->di->hasExtends($last)) {
+			foreach ( $this->di->getExtends($last) as $func ) {
+				$result = $this->handle($func, [
+					$last => $result,
+				]);
 			}
 		}
 
-		if (! $this->di->hasItem($bind)) {
+		foreach ( $binds as $bind ) {
 			if ($this->di->hasShared($bind)) {
-				$this->di->set($bind, $result);
-			}
-		}
-
-		foreach ( array_keys($registry) as $registryBind ) {
-			if (! $this->di->hasItem($registryBind)) {
-				if ($this->di->hasShared($registryBind)) {
-					$this->di->set($registryBind, $result);
-				}
+				$this->di->replace($bind, $result);
 			}
 		}
 
@@ -223,18 +209,71 @@ class Loop
 	/**
 	 * @param string $id
 	 *
+	 * @return $this
+	 */
+	protected function setId($id)
+	{
+		$registry = [];
+		$current = $this;
+		while ( $current = $current->parent ) {
+			$registry[] = $current->id;
+
+			if ($current->id === $id) {
+				throw new AutowireLoopError('Autowire loop detected', $registry);
+			}
+		}
+
+		$this->id = $id;
+
+		return $this;
+	}
+
+
+	/**
+	 * @param string $id
+	 *
 	 * @return mixed
 	 * @throws NotFoundError
 	 */
-	public function get(string $id)
+	public function get(string $id, ...$arguments)
 	{
 		if ('' === $id) {
 			throw new InvalidArgumentException('Id should be not empty');
 		}
 
-		$result = $this->executeBind($id, $bind);
+		$binds[] = $last = $id;
+		if ($resolved = $this->resolveBind($last)) {
+			[ $last ] = $resolved;
 
-		return $result ?? $this->create($bind);
+			$binds[] = $last;
+		}
+
+		$result = $this->pipeResolveItem($last)
+			?: $this->pipeResolveClosure($last, ...$arguments)
+				?: $this->pipeResolveClass($last, ...$arguments)
+					?: [];
+
+		if (! $result) {
+			throw new AutowireError('Unable to resolve id: ' . $id, func_get_args());
+		}
+
+		$result = reset($result);
+
+		if ($this->di->hasExtends($last)) {
+			foreach ( $this->di->getExtends($last) as $func ) {
+				$result = $this->handle($func, [
+					$last => $result,
+				]);
+			}
+		}
+
+		foreach ( $binds as $bind ) {
+			if ($this->di->hasShared($bind)) {
+				$this->di->replace($bind, $result);
+			}
+		}
+
+		return $result;
 	}
 
 	/**
@@ -242,10 +281,10 @@ class Loop
 	 *
 	 * @return mixed
 	 */
-	public function getOrFail(string $id)
+	public function getOrFail(string $id, ...$arguments)
 	{
 		try {
-			$result = $this->get($id);
+			$result = $this->get($id, ...$arguments);
 		}
 		catch ( NotFoundError $e ) {
 			throw new RuntimeException('Unable to ' . __METHOD__, func_get_args(), $e);
@@ -287,7 +326,7 @@ class Loop
 			case $isHandler:
 				[ $id, $method ] = explode('@', $func) + [ null, null ];
 
-				$object = $this->newChild()->getOrFail($id);
+				$object = $this->newChild($id)->getOrFail($id);
 
 				$func = [ $object, $method ];
 				$arguments = $this->autowireMethod($object, $method, $params);
@@ -373,57 +412,40 @@ class Loop
 
 		ksort($arguments);
 
-		$result = $closure->bindTo($newthis, $newthis)(...$arguments);
+		$closure = $closure->bindTo($newthis, $newthis);
+
+		$result = call_user_func_array($closure, $arguments);
 
 		return $result;
 	}
 
 
 	/**
-	 * @param string       $id
+	 * @param string $bind
 	 *
-	 * @param string|null &$bind
-	 * @param array|null  &$registry
-	 *
-	 * @return string|\Closure
+	 * @return array
 	 * @throws NotFoundError
 	 */
-	protected function executeBind(string $id, string &$bind = null, array &$registry = null)
+	protected function resolveBind(string $bind) : array
 	{
-		$result = null;
-
-		$bind = $id;
-
-		$registry = [];
-		while ( $this->di->hasBind($bind) ) {
-			if (isset($registry[ $bind ])) {
-				throw new AutowireLoopError('Autowire Loop detected: ' . $bind, implode(' <- ', array_keys($registry)));
-			}
-
-			if ($this->di->hasDeferableBind($bind)) {
-				$this->di->bootDeferable($bind);
-			}
-
-			$next = $this->di->getBind($bind);
-
-			if ($bind === $next) {
-				break;
-			}
-
-			$registry[ $bind ] = true;
-
-			$bind = $next;
+		if ($this->di->hasDeferableBind($bind)) {
+			$this->di->bootDeferable($bind);
 		}
 
-		$result = null
-			?? $result
-			?? ( $this->di->hasItem($bind)
-				? $this->di->getItem($bind)
-				: null )
-			?? ( $this->type->isClosure($bind)
-				? $this->handle($bind)
-				: null )
-			?? null;
+		if ($this->di->hasItem($bind)) {
+			$result = [ $bind ];
+
+		} elseif ($this->di->hasBind($bind)) {
+			$result = [ $bound = $this->di->getBind($bind) ];
+
+			if ($this->di->hasDeferableBind($bound)) {
+				$this->di->bootDeferable($bound);
+			}
+
+		} else {
+			$result = [];
+
+		}
 
 		return $result;
 	}
@@ -541,6 +563,46 @@ class Loop
 		}
 
 		return $result;
+	}
+
+
+	/**
+	 * @param mixed $item
+	 *
+	 * @return array
+	 * @throws NotFoundError
+	 */
+	protected function pipeResolveItem($item) : array
+	{
+		if (! $this->di->hasItem($item)) return [];
+
+		return [ $this->di->getItem($item) ];
+	}
+
+	/**
+	 * @param mixed $item
+	 * @param array ...$arguments
+	 *
+	 * @return array
+	 */
+	protected function pipeResolveClosure($item, ...$arguments) : array
+	{
+		if (! $this->type->isClosure($item)) return [];
+
+		return [ $this->handle($item, ...$arguments) ];
+	}
+
+	/**
+	 * @param mixed $item
+	 * @param array ...$arguments
+	 *
+	 * @return array
+	 */
+	protected function pipeResolveClass($item, ...$arguments) : array
+	{
+		if (! $this->type->isClass($item)) return [];
+
+		return [ $this->newClass($item, ...$arguments) ];
 	}
 
 
@@ -751,7 +813,7 @@ class Loop
 			}
 
 			if (! $isNull) {
-				$value = $this->newChild()->getOrFail($rpTypeName);
+				$value = $this->newChild($rpTypeName)->getOrFail($rpTypeName);
 
 			} else {
 				if (! is_a($rpTypeName, DelegateInterface::class, true)) {
