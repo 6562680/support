@@ -2,11 +2,34 @@
 
 namespace Gzhegow\Support;
 
+use Gzhegow\Support\Exceptions\RuntimeException;
+use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+
 /**
  * Class Fs
  */
 class Fs
 {
+	/**
+	 * @param string $pathname
+	 * @param int    $mode
+	 * @param bool   $recursive
+	 * @param null   $context
+	 *
+	 * @return string
+	 */
+	public function mkdir(string $pathname, int $mode = 0755, bool $recursive = true, $context = null) : string
+	{
+		if (! is_dir($pathname)) {
+			$context
+				? mkdir($pathname, $mode, $recursive, $context)
+				: mkdir($pathname, $mode, $recursive);
+		}
+
+		return realpath($pathname);
+	}
+
+
 	/**
 	 * @param string        $dir
 	 * @param bool          $self
@@ -69,5 +92,60 @@ class Fs
 		}
 
 		return true;
+	}
+
+
+	/**
+	 * @noinspection PhpComposerExtensionStubsInspection
+	 *
+	 * @param string $file
+	 *
+	 * @return array
+	 */
+	public function fileowner(string $file) : array
+	{
+		if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+			throw new \RuntimeException('Only allowed to run on Linux');
+		}
+
+		if ('' === $file) {
+			throw new InvalidArgumentException('File should be not empty');
+		}
+
+		if (! file_exists($file)) {
+			throw new RuntimeException('File not found: ' . $file);
+		}
+
+		$result = false;
+
+		$stat = stat($file);
+		if ($stat) {
+			$group = posix_getgrgid($stat[ 5 ]);
+			$user = posix_getpwuid($stat[ 4 ]);
+
+			$result = compact('user', 'group');
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param string $file
+	 *
+	 * @return string
+	 */
+	public function fileperms(string $file) : string
+	{
+		if ('' === $file) {
+			throw new InvalidArgumentException('File should be not empty');
+		}
+
+		if (! file_exists($file)) {
+			throw new RuntimeException('File not found: ' . $file);
+		}
+
+		$result = substr(sprintf('%o', fileperms($file)), -4);
+
+		return $result;
 	}
 }

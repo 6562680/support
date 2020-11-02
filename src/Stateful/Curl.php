@@ -1,7 +1,8 @@
 <?php
 
-namespace Gzhegow\Support;
+namespace Gzhegow\Support\Stateful;
 
+use Gzhegow\Support\Type;
 use Gzhegow\Support\Exceptions\Runtime\OverflowException;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
@@ -9,7 +10,7 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 /**
  * Class Curl
  */
-Class Curl
+Class Curl implements CurlInterface
 {
 	/**
 	 * @var Type

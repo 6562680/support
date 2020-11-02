@@ -2,6 +2,8 @@
 
 namespace Gzhegow\Support;
 
+use Gzhegow\Support\Stateful\Curl;
+use Gzhegow\Support\Stateful\CurlInterface;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 /**
@@ -25,7 +27,7 @@ class Net
 	 * @param Curl $curl
 	 * @param Str  $str
 	 */
-	public function __construct(Curl $curl, Str $str)
+	public function __construct(CurlInterface $curl, Str $str)
 	{
 		$this->curl = $curl;
 		$this->str = $str;
