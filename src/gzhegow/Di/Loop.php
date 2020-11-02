@@ -5,7 +5,6 @@ namespace Gzhegow\Di;
 use Gzhegow\Support\Arr;
 use Gzhegow\Support\Php;
 use Gzhegow\Support\Type;
-use Gzhegow\Reflection\Reflection;
 use Gzhegow\Di\Exceptions\RuntimeException;
 use Gzhegow\Reflection\ReflectionInterface;
 use Gzhegow\Di\Exceptions\Error\NotFoundError;
@@ -56,14 +55,16 @@ class Loop
 	/**
 	 * Constructor
 	 *
-	 * @param Arr        $arr
-	 * @param Php        $php
-	 * @param Type       $type
-	 * @param Reflection $reflection
+	 * @param ReflectionInterface $reflection
 	 *
-	 * @param Di         $di
+	 * @param Arr                 $arr
+	 * @param Php                 $php
+	 * @param Type                $type
+	 * @param Di                  $di
 	 *
-	 * @param Loop|null  $parent
+	 * @param mixed               $id
+	 *
+	 * @param Loop|null           $parent
 	 */
 	public function __construct(
 		ReflectionInterface $reflection,
@@ -94,6 +95,8 @@ class Loop
 
 
 	/**
+	 * @param mixed $id
+	 *
 	 * @return Loop
 	 */
 	public function newChild($id) : Loop
@@ -160,49 +163,14 @@ class Loop
 
 	/**
 	 * @param string $id
-	 * @param array  $arguments
+	 * @param mixed  ...$arguments
 	 *
-	 * @return null|mixed
+	 * @return mixed
 	 * @throws NotFoundError
 	 */
 	public function create(string $id, ...$arguments)
 	{
-		if ('' === $id) {
-			throw new InvalidArgumentException('Id should be not empty');
-		}
-
-		$binds[] = $last = $id;
-		if ($resolved = $this->resolveBind($last)) {
-			[ $last ] = $resolved;
-
-			$binds[] = $last;
-		}
-
-		$result = $this->pipeResolveClosure($last, ...$arguments)
-			?: $this->pipeResolveClass($last, ...$arguments)
-				?: [];
-
-		if (! $result) {
-			throw new AutowireError('Unable to resolve id: ' . $id, func_get_args());
-		}
-
-		$result = reset($result);
-
-		if ($this->di->hasExtends($last)) {
-			foreach ( $this->di->getExtends($last) as $func ) {
-				$result = $this->handle($func, [
-					$last => $result,
-				]);
-			}
-		}
-
-		foreach ( $binds as $bind ) {
-			if ($this->di->hasShared($bind)) {
-				$this->di->replace($bind, $result);
-			}
-		}
-
-		return $result;
+		return $this->newChild($id)->resolveCreate($id, ...$arguments);
 	}
 
 
@@ -231,53 +199,20 @@ class Loop
 
 	/**
 	 * @param string $id
+	 * @param mixed  ...$arguments
 	 *
 	 * @return mixed
 	 * @throws NotFoundError
 	 */
 	public function get(string $id, ...$arguments)
 	{
-		if ('' === $id) {
-			throw new InvalidArgumentException('Id should be not empty');
-		}
-
-		$binds[] = $last = $id;
-		if ($resolved = $this->resolveBind($last)) {
-			[ $last ] = $resolved;
-
-			$binds[] = $last;
-		}
-
-		$result = $this->pipeResolveItem($last)
-			?: $this->pipeResolveClosure($last, ...$arguments)
-				?: $this->pipeResolveClass($last, ...$arguments)
-					?: [];
-
-		if (! $result) {
-			throw new AutowireError('Unable to resolve id: ' . $id, func_get_args());
-		}
-
-		$result = reset($result);
-
-		if ($this->di->hasExtends($last)) {
-			foreach ( $this->di->getExtends($last) as $func ) {
-				$result = $this->handle($func, [
-					$last => $result,
-				]);
-			}
-		}
-
-		foreach ( $binds as $bind ) {
-			if ($this->di->hasShared($bind)) {
-				$this->di->replace($bind, $result);
-			}
-		}
-
-		return $result;
+		return $this->newChild($id)->resolveGet($id, ...$arguments);
 	}
 
 	/**
 	 * @param string $id
+	 *
+	 * @param array  $arguments
 	 *
 	 * @return mixed
 	 */
@@ -326,7 +261,7 @@ class Loop
 			case $isHandler:
 				[ $id, $method ] = explode('@', $func) + [ null, null ];
 
-				$object = $this->newChild($id)->getOrFail($id);
+				$object = $this->getOrFail($id);
 
 				$func = [ $object, $method ];
 				$arguments = $this->autowireMethod($object, $method, $params);
@@ -345,6 +280,7 @@ class Loop
 
 		return $result;
 	}
+
 
 	/**
 	 * @param string|object|\ReflectionClass $newthis
@@ -391,7 +327,7 @@ class Loop
 				break;
 
 			case $isCallableString:
-				$arguments = $this->autowireCallable($func, $params);
+				$arguments = $this->autowireCallableString($func, $params);
 				break;
 
 			case $isCallableArray:
@@ -445,6 +381,100 @@ class Loop
 		} else {
 			$result = [];
 
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param string $id
+	 *
+	 * @return mixed
+	 * @throws NotFoundError
+	 */
+	protected function resolveGet(string $id, ...$arguments)
+	{
+		if ('' === $id) {
+			throw new InvalidArgumentException('Id should be not empty');
+		}
+
+		$binds[] = $last = $id;
+		if ($resolved = $this->resolveBind($last)) {
+			[ $last ] = $resolved;
+
+			$binds[] = $last;
+		}
+
+		$result = $this->pipeResolveItem($last)
+			?: $this->pipeResolveClosure($last, ...$arguments)
+				?: $this->pipeResolveClass($last, ...$arguments)
+					?: [];
+
+		if (! $result) {
+			throw new AutowireError('Unable to resolve id: ' . $id, func_get_args());
+		}
+
+		$result = reset($result);
+
+		if ($this->di->hasExtends($last)) {
+			foreach ( $this->di->getExtends($last) as $func ) {
+				$result = $this->handle($func, [
+					$last => $result,
+				]);
+			}
+		}
+
+		foreach ( $binds as $bind ) {
+			if ($this->di->hasShared($bind)) {
+				$this->di->replace($bind, $result);
+			}
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param string $id
+	 * @param array  $arguments
+	 *
+	 * @return null|mixed
+	 * @throws NotFoundError
+	 */
+	protected function resolveCreate(string $id, ...$arguments)
+	{
+		if ('' === $id) {
+			throw new InvalidArgumentException('Id should be not empty');
+		}
+
+		$binds[] = $last = $id;
+		if ($resolved = $this->resolveBind($last)) {
+			[ $last ] = $resolved;
+
+			$binds[] = $last;
+		}
+
+		$result = $this->pipeResolveClosure($last, ...$arguments)
+			?: $this->pipeResolveClass($last, ...$arguments)
+				?: [];
+
+		if (! $result) {
+			throw new AutowireError('Unable to resolve id: ' . $id, func_get_args());
+		}
+
+		$result = reset($result);
+
+		if ($this->di->hasExtends($last)) {
+			foreach ( $this->di->getExtends($last) as $func ) {
+				$result = $this->handle($func, [
+					$last => $result,
+				]);
+			}
+		}
+
+		foreach ( $binds as $bind ) {
+			if ($this->di->hasShared($bind)) {
+				$this->di->replace($bind, $result);
+			}
 		}
 
 		return $result;
@@ -580,29 +610,29 @@ class Loop
 	}
 
 	/**
-	 * @param mixed $item
+	 * @param mixed $closure
 	 * @param array ...$arguments
 	 *
 	 * @return array
 	 */
-	protected function pipeResolveClosure($item, ...$arguments) : array
+	protected function pipeResolveClosure($closure, ...$arguments) : array
 	{
-		if (! $this->type->isClosure($item)) return [];
+		if (! $this->type->isClosure($closure)) return [];
 
-		return [ $this->handle($item, ...$arguments) ];
+		return [ $this->handle($closure, $this, ...$arguments) ];
 	}
 
 	/**
-	 * @param mixed $item
+	 * @param mixed $class
 	 * @param array ...$arguments
 	 *
 	 * @return array
 	 */
-	protected function pipeResolveClass($item, ...$arguments) : array
+	protected function pipeResolveClass($class, ...$arguments) : array
 	{
-		if (! $this->type->isClass($item)) return [];
+		if (! $this->type->isClass($class)) return [];
 
-		return [ $this->newClass($item, ...$arguments) ];
+		return [ $this->newClass($class, ...$arguments) ];
 	}
 
 
@@ -813,7 +843,7 @@ class Loop
 			}
 
 			if (! $isNull) {
-				$value = $this->newChild($rpTypeName)->getOrFail($rpTypeName);
+				$value = $this->getOrFail($rpTypeName);
 
 			} else {
 				if (! is_a($rpTypeName, DelegateInterface::class, true)) {

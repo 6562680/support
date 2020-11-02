@@ -98,6 +98,11 @@ class Di implements
 	 */
 	protected $delegateClass;
 
+	/**
+	 * @var Loop
+	 */
+	protected $loopRoot;
+
 
 	/**
 	 * Constructor
@@ -128,10 +133,14 @@ class Di implements
 
 		$this->arr = $this->newArr();
 		$this->reflection = $this->newReflection();
+
+		$this->loopRoot = $this->newLoop(null);
 	}
 
 
 	/**
+	 * @param mixed $id
+	 *
 	 * @return Loop
 	 */
 	public function newLoop($id) : Loop
@@ -205,7 +214,7 @@ class Di implements
 	 */
 	public function createOrFail(string $id, ...$arguments)
 	{
-		return $this->newLoop($id)->createOrFail($id, ...$arguments);
+		return $this->loopRoot->createOrFail($id, ...$arguments);
 	}
 
 	/**
@@ -217,7 +226,7 @@ class Di implements
 	 */
 	public function create(string $id, ...$arguments)
 	{
-		return $this->newLoop($id)->create($id, ...$arguments);
+		return $this->loopRoot->create($id, ...$arguments);
 	}
 
 
@@ -484,7 +493,7 @@ class Di implements
 	 */
 	public function get($id)
 	{
-		return $this->newLoop($id)->get($id);
+		return $this->loopRoot->get($id);
 	}
 
 	/**
@@ -494,7 +503,7 @@ class Di implements
 	 */
 	public function getOrFail(string $id)
 	{
-		return $this->newLoop($id)->getOrFail($id);
+		return $this->loopRoot->getOrFail($id);
 	}
 
 
