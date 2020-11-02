@@ -3,29 +3,29 @@
 namespace Gzhegow\Di\Tests\Services;
 
 /**
- * Class MyCService
+ * Class MyCDependsOnABService
  */
-class MyCService
+class MyCDependsOnABService
 {
 	/**
 	 * @var MyAService
 	 */
-	protected $myAService;
+	public $myAService;
 	/**
-	 * @var MyBService
+	 * @var MyBDependsOnAService
 	 */
-	protected $myBService;
+	public $myBService;
 
 
 	/**
 	 * Constructor
 	 *
-	 * @param MyAService $myAService
-	 * @param MyBService $myBService
+	 * @param MyAService           $myAService
+	 * @param MyBDependsOnAService $myBService
 	 */
 	public function __construct(
 		MyAService $myAService,
-		MyBService $myBService
+		MyBDependsOnAService $myBService
 	)
 	{
 		$this->myAService = $myAService;

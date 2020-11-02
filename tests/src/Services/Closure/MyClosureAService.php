@@ -1,11 +1,11 @@
 <?php
 
-namespace Gzhegow\Di\Tests\Services;
+namespace Gzhegow\Di\Tests\Services\Closure;
 
 /**
- * Class MyDelegateAService
+ * Class MyClosureAService
  */
-class MyAService implements MyServiceAInterface
+class MyClosureAService implements MyClosureServiceAInterface
 {
 	/**
 	 * @var mixed
@@ -24,7 +24,7 @@ class MyAService implements MyServiceAInterface
 	/**
 	 * @param mixed $value
 	 *
-	 * @return MyAService
+	 * @return MyClosureAService
 	 */
 	public function setDynamicOption($value)
 	{

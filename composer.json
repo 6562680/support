@@ -13,8 +13,6 @@
         "php": "^7.3",
         
         "psr/container": "^1.0",
-        
-        "gzhegow/support": "^1.0",
         "gzhegow/reflection": "^1.0"
     },
     "require-dev": {

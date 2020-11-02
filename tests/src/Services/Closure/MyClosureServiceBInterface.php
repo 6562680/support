@@ -1,11 +1,11 @@
 <?php
 
-namespace Gzhegow\Di\Tests\Services;
+namespace Gzhegow\Di\Tests\Services\Closure;
 
 /**
- * Interface MyServiceBClosureInterface
+ * Interface MyClosureServiceBInterface
  */
-interface MyServiceBClosureInterface
+interface MyClosureServiceBInterface
 {
 	/**
 	 * @return mixed

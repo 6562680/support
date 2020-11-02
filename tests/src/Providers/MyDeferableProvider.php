@@ -28,6 +28,7 @@ class MyDeferableProvider extends DeferableProvider
 		$this->di->bind(MyServiceAInterface::class, MyAService::class);
 	}
 
+
 	/**
 	 * @return void
 	 */

@@ -3,14 +3,14 @@
 namespace Gzhegow\Di\Tests\Services;
 
 /**
- * Class MyBService
+ * Class MyBDependsOnAService
  */
-class MyBService
+class MyBDependsOnAService
 {
 	/**
 	 * @var MyAService
 	 */
-	protected $myAService;
+	public $myAService;
 
 
 	/**

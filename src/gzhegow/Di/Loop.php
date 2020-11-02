@@ -738,8 +738,6 @@ class Loop
 	 */
 	protected function autowireParams(array $reflectionParameters, array $params = []) : array
 	{
-		$used = [];
-
 		$int = [];
 		$str = [];
 		foreach ( $params as $key => $val ) {
@@ -754,7 +752,7 @@ class Loop
 
 		if ($reflectionParameters) {
 			foreach ( $reflectionParameters as $rp ) {
-				$result = $this->autowireParam($rp, $int, $str, $used);
+				$result = $this->autowireParam($rp, $int, $str);
 
 				if (count($result)) {
 					$args[ $rp->getPosition() ] = reset($result);
@@ -793,17 +791,16 @@ class Loop
 	 * @param \ReflectionParameter $rp
 	 * @param array                $int
 	 * @param array                $str
-	 * @param array                $used
 	 *
 	 * @return array
 	 */
-	protected function autowireParam(\ReflectionParameter $rp, array &$int = [], array &$str = [], array &$used = []) : array
+	protected function autowireParam(\ReflectionParameter $rp, array &$int = [], array &$str = []) : array
 	{
 		$autowireResult = null
-			?: $this->pipeAutowireParamType($rp, $int, $str, $used)
-				?: $this->pipeAutowireParamName($rp, $int, $str, $used)
-					?: $this->pipeAutowireParamPosition($rp, $int, $str, $used)
-						?: $this->pipeAutowireParamDefault($rp, $int, $str, $used);
+			?: $this->pipeAutowireParamNamedType($rp, $int, $str)
+				?: $this->pipeAutowireParamName($rp, $int, $str)
+					?: $this->pipeAutowireParamPosition($rp, $int, $str)
+						?: $this->pipeAutowireParamDefault($rp, $int, $str);
 
 		return $autowireResult;
 	}
@@ -812,28 +809,55 @@ class Loop
 	 * @param \ReflectionParameter $rp
 	 * @param array                $int
 	 * @param array                $str
-	 * @param array                $used
 	 *
 	 * @return array
 	 */
-	protected function pipeAutowireParamType(\ReflectionParameter $rp, array &$int = [], array &$str = [], array &$used = []) : array
+	protected function pipeAutowireParamNamedType(\ReflectionParameter $rp, array &$int = [], array &$str = []) : array
 	{
 		if (! $rpType = $rp->getType()) return [];
-		if (! $rpTypeName = $rpType->getName()) return [];
+		if (! is_a($rpType, \ReflectionNamedType::class)) return [];
 
-		if (array_key_exists($rpTypeName, $str)
+		$rpTypeName = $rpType->getName();
+
+		$rpKey = '$' . $rp->getName();
+
+		if (array_key_exists($pos = $rp->getPosition(), $int)
+			&& is_object($int[ $pos ])
+			&& is_a($int[ $pos ], $rpTypeName)
+		) {
+			// check key [ 0 => Object ]
+
+			$value = $int[ $pos ];
+
+			return [ $value ];
+
+		} elseif (array_key_exists($rpTypeName, $str)
 			&& is_object($str[ $rpTypeName ])
 			&& is_a($str[ $rpTypeName ], $rpTypeName)
 		) {
+			// check key [ static::class => Object ]
+
 			$value = $str[ $rpTypeName ];
 
-			$used[ $rpTypeName ] = true;
+			$int = $this->arr->expand($int, $rp->getPosition(), $value);
+
+			return [ $value ];
+
+		} elseif (array_key_exists($rpKey, $str)
+			&& is_object($str[ $rpKey ])
+			&& is_a($str[ $rpKey ], $rpTypeName)
+		) {
+			// check key [ '$var' => Object ]
+
+			$value = $str[ $rpKey ];
 
 			$int = $this->arr->expand($int, $rp->getPosition(), $value);
 
 			return [ $value ];
 
 		} elseif (interface_exists($rpTypeName) || class_exists($rpTypeName)) {
+			// autowire class or interface
+
 			$isNull = false;
 			try {
 				$value = $rp->getDefaultValue();
@@ -870,24 +894,22 @@ class Loop
 	 * @param \ReflectionParameter $rp
 	 * @param array                $int
 	 * @param array                $str
-	 * @param array                $used
 	 *
 	 * @return array
 	 */
-	protected function pipeAutowireParamName(\ReflectionParameter $rp, array &$int = [], array &$str = [], array &$used = [])
+	protected function pipeAutowireParamName(\ReflectionParameter $rp, array &$int = [], array &$str = [])
 	{
-		if (! $rpName = $rp->getName()) return [];
-		if (! array_key_exists($key = '$' . $rpName, $str)) return [];
+		$rpKey = '$' . $rp->getName();
 
-		$used[ $key ] = true;
+		if (! array_key_exists($rpKey, $str)) return [];
 
 		if ($rp->isVariadic()) {
-			if (is_null($str[ $key ]) || ( [] === $str[ $key ] )) {
+			if (is_null($str[ $rpKey ]) || ( [] === $str[ $rpKey ] )) {
 				return [];
 			}
 		}
 
-		$value = $str[ $key ];
+		$value = $str[ $rpKey ];
 
 		$int = $this->arr->expand($int, $rp->getPosition(), $value);
 
@@ -898,13 +920,14 @@ class Loop
 	 * @param \ReflectionParameter $rp
 	 * @param array                $int
 	 * @param array                $str
-	 * @param array                $used
 	 *
 	 * @return array
 	 */
-	protected function pipeAutowireParamPosition(\ReflectionParameter $rp, array &$int = [], array &$str = [], array &$used = []) : array
+	protected function pipeAutowireParamPosition(\ReflectionParameter $rp, array &$int = [], array &$str = []) : array
 	{
-		if (! array_key_exists($rpPos = $rp->getPosition(), $int)) return [];
+		$rpPos = $rp->getPosition();
+
+		if (! array_key_exists($rpPos, $int)) return [];
 
 		if ($rp->isVariadic()) {
 			if (is_null($int[ $rpPos ]) || ( [] === $int[ $rpPos ] )) {
@@ -921,11 +944,10 @@ class Loop
 	 * @param \ReflectionParameter $rp
 	 * @param array                $int
 	 * @param array                $str
-	 * @param array                $used
 	 *
 	 * @return array
 	 */
-	protected function pipeAutowireParamDefault(\ReflectionParameter $rp, array &$int = [], array &$str = [], array &$used = []) : array
+	protected function pipeAutowireParamDefault(\ReflectionParameter $rp, array &$int = [], array &$str = []) : array
 	{
 		try {
 			$value = $rp->getDefaultValue();

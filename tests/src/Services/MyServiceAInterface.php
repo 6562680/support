@@ -3,7 +3,7 @@
 namespace Gzhegow\Di\Tests\Services;
 
 /**
- * Interface MyServiceAInterface
+ * Interface MyClosureServiceAInterface
  */
 interface MyServiceAInterface
 {

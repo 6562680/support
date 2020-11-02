@@ -36,8 +36,6 @@ class MyBootableProvider extends BootableProvider
 	{
 		// will done once you call method ->boot() on $di instance, immediately otherwise
 
-		require $this->syncRealpath('bootstrap');
-
 		$myAService = $this->getMyAService();
 
 		$myAService::setStaticOption(1);
@@ -51,7 +49,6 @@ class MyBootableProvider extends BootableProvider
 	protected function define() : array
 	{
 		return [
-			'bootstrap' => __DIR__ . '/../../config/src/bootstrap.php',
 			'config'    => __DIR__ . '/../../config/src/file.conf',
 			'resources' => __DIR__ . '/../../config/src/dir',
 		];
@@ -63,7 +60,6 @@ class MyBootableProvider extends BootableProvider
 	protected function sync() : array
 	{
 		return [
-			'bootstrap' => __DIR__ . '/../../config/dest/bootstrap.php',
 			'config'    => __DIR__ . '/../../config/dest/file.conf',
 			'resources' => __DIR__ . '/../../config/dest/dir',
 		];

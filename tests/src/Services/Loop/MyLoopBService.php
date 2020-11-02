@@ -1,6 +1,6 @@
 <?php
 
-namespace Gzhegow\Di\Tests\Services;
+namespace Gzhegow\Di\Tests\Services\Loop;
 
 /**
  * Class MyLoopBService
@@ -10,7 +10,7 @@ class MyLoopBService
 	/**
 	 * @var MyLoopAService
 	 */
-	protected $myLoopAService;
+	public $myLoopAService;
 
 
 	/**
