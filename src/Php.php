@@ -77,6 +77,7 @@ class Php
 		return constant($name);
 	}
 
+
 	/**
 	 * @param mixed ...$arguments
 	 *
@@ -86,13 +87,20 @@ class Php
 	{
 		$kwargs = [];
 		$args = [];
+
 		foreach ( $arguments as $argument ) {
-			foreach ( (array) $argument as $key => $val ) {
-				if (! is_int($key)) {
-					$kwargs[ $key ] = $val;
-				} else {
-					$args[] = $val;
+			if (is_array($argument)) {
+				foreach ( $argument as $key => $val ) {
+					if (is_string($key)) {
+						$kwargs[ $key ] = $val;
+
+					} else {
+						$args[] = $val;
+
+					}
 				}
+			} else {
+				$args[] = $argument;
 			}
 		}
 
@@ -103,23 +111,63 @@ class Php
 	 * @param mixed ...$arguments
 	 *
 	 * @return array
+	 */
+	public function kwargsFlatten(...$arguments) : array
+	{
+		$kwargs = [];
+		$args = [];
+
+		array_walk_recursive($arguments, function ($val, $key) use (&$kwargs, &$args) {
+			if (is_string($key)) {
+				$kwargs[ $key ] = $val;
+
+			} else {
+				$args[] = $val;
+
+			}
+		});
+
+		return [ $kwargs, $args ];
+	}
+
+
+	/**
+	 * @param mixed ...$arguments
+	 *
+	 * @return array
 	 * @throws InvalidArgumentException
 	 */
 	public function kwparams(...$arguments) : array
 	{
+		$registry = [];
+
 		$kwargs = [];
 		$args = [];
-		foreach ( $arguments as $argument ) {
-			foreach ( (array) $argument as $key => $val ) {
-				if (! is_int($key) && ! isset($kwargs[ $key ])) {
-					$kwargs[ $key ] = $val;
+		foreach ( $arguments as $idx => $argument ) {
+			if (is_array($argument)) {
+				foreach ( $argument as $key => $val ) {
+					if (! isset($registry[ $key ])) {
+						$registry[ $key ] = true;
 
-				} elseif (! isset($args[ $key ])) {
-					$args[ $key ] = $val;
+						if (is_string($key)) {
+							$kwargs[ $key ] = $val;
+
+						} else {
+							$args[ $key ] = $val;
+
+						}
+					} else {
+						throw new InvalidArgumentException('Duplicate key found: ' . $key, $arguments);
+					}
+				}
+			} else {
+				if (! isset($registry[ $idx ])) {
+					$registry[ $idx ] = true;
+
+					$args[ $idx ] = $argument;
 
 				} else {
-					throw new InvalidArgumentException('Duplicate key found: ' . $key, func_get_args());
-
+					throw new InvalidArgumentException('Duplicate key found: ' . $idx, $arguments);
 				}
 			}
 		}

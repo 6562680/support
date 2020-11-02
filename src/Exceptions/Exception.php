@@ -4,6 +4,7 @@ namespace Gzhegow\Support\Exceptions;
 
 use Throwable;
 use Gzhegow\Support\Php;
+use Gzhegow\Support\Val;
 use Gzhegow\Support\Debug;
 
 /**
@@ -20,6 +21,10 @@ class Exception extends \Exception
 	 */
 	protected $php;
 
+	/**
+	 * @var string
+	 */
+	protected $name;
 	/**
 	 * @var string
 	 */
@@ -48,10 +53,9 @@ class Exception extends \Exception
 	 */
 	public function __construct($messages, $payload = null, Throwable $previous = null)
 	{
-		$debug = $this->getDebug();
-		$php = $this->getPhp();
+		$this->loadDependencies();
 
-		$messages = (array) $messages;
+		$messages = $this->php->listval($messages);
 
 		array_walk_recursive($messages, function ($message) {
 			if (! ( is_string($message) || is_int($message) )) {
@@ -59,19 +63,21 @@ class Exception extends \Exception
 			}
 		});
 
-		[ $errors, $messages ] = $php->kwargs($messages);
+		[ $errors, $messages ] = $this->php->kwargs($messages);
 
+		$this->name = str_replace('\\', '.', get_class($this));
 		$this->err = $errors;
 		$this->msg = implode(PHP_EOL, $messages);
 		$this->payload = $payload;
-		$this->report = [
-			'msg'     => $this->msg,
-			'err'     => $errors,
-			'payload' => $payload,
-			'trace'   => array_map([ $debug, 'trace' ], $this->getTrace()),
-		];
 
-		parent::__construct($this->msg, $code = -1, $previous);
+		parent::__construct($this->msg, -1, $previous);
+	}
+
+
+	protected function loadDependencies() : void
+	{
+		$this->debug = new Debug();
+		$this->php = new Php();
 	}
 
 
@@ -99,28 +105,18 @@ class Exception extends \Exception
 		return $this->payload;
 	}
 
+
 	/**
 	 * @return array
 	 */
 	public function getReport() : array
 	{
-		return $this->report;
-	}
-
-
-	/**
-	 * @return Debug
-	 */
-	protected function getDebug() : Debug
-	{
-		return $this->debug = $this->debug ?? new Debug();
-	}
-
-	/**
-	 * @return Php
-	 */
-	protected function getPhp() : Php
-	{
-		return $this->php = $this->php ?? new Php();
+		return [
+			'name'    => $this->name,
+			'msg'     => $this->msg,
+			'err'     => $this->err,
+			'payload' => $this->payload,
+			'trace'   => array_map([ $this->debug, 'trace' ], $this->getTrace()),
+		];
 	}
 }

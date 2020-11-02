@@ -2,6 +2,9 @@
 
 namespace Gzhegow\Support;
 
+use Gzhegow\Support\Interfaces\CanToArrayInterface;
+use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+
 /**
  * Class Type
  */
@@ -23,6 +26,19 @@ class Type
 		}
 
 		return empty($value);
+	}
+
+
+	/**
+	 * @param $value
+	 *
+	 * @return bool
+	 */
+	public function isKey($value) : bool
+	{
+		// generator can pass any object as foreach key, so this check is recommended
+
+		return is_int($value) || is_string($value);
 	}
 
 
@@ -125,44 +141,27 @@ class Type
 	 */
 	public function isArrayable($arrayable) : bool
 	{
-		return is_array($arrayable)
-			|| ( is_object($arrayable) && method_exists($arrayable, 'toArray') );
-	}
+		if (is_null($arrayable)) {
+			return true;
 
+		} elseif (is_scalar($arrayable)) {
+			return true;
 
-	/**
-	 * @param mixed $array
-	 *
-	 * @return bool
-	 */
-	public function isArray($array) : bool
-	{
-		if (! is_array($array)) return false;
-		if (! $array) return true; // empty array is array too
+		} elseif (is_iterable($arrayable)) {
+			return true;
 
-		// contains ordered int keys? is an array
-		return range(0, count($array) - 1) === array_keys($array);
-	}
+		} elseif (is_object($arrayable)) {
+			if (is_a($arrayable, CanToArrayInterface::class)) {
+				return true;
 
-	/**
-	 * @param mixed $list
-	 *
-	 * @return bool
-	 */
-	public function isList($list) : bool
-	{
-		if (! is_array($list)) return false;
-		if (! $list) return true; // empty list is array too
-
-		// contains string key? not a list
-		foreach ( array_keys($list) as $key ) {
-			if (is_string($key)) {
-				return false;
+			} elseif (method_exists($arrayable, 'toArray')) {
+				return true;
 			}
 		}
 
-		return true;
+		return false;
 	}
+
 
 	/**
 	 * @param mixed $assoc
@@ -172,7 +171,7 @@ class Type
 	public function isAssoc($assoc) : bool
 	{
 		if (! is_array($assoc)) return false;
-		if (! $assoc) return false; // empty assoc is not an assoc
+		if (! $assoc) return false; // empty array is not an assoc
 
 		// contains simulateonsly string/int key? is an assoc
 		$hasStr = false;
@@ -189,24 +188,6 @@ class Type
 		return false;
 	}
 
-	/**
-	 * @param mixed $dict
-	 *
-	 * @return bool
-	 */
-	public function isDict($dict) : bool
-	{
-		if (! is_array($dict)) return false;
-		if (! $dict) return false; // empty dict is not an dict
-
-		// contains
-		foreach ( array_keys($dict) as $key ) {
-			if (is_int($key)) return false;  // 0,1,2
-			if ('' === $key) return false;   // ''
-		}
-
-		return true;
-	}
 
 	/**
 	 * @param mixed $cortage
@@ -216,13 +197,74 @@ class Type
 	public function isCortage($cortage) : bool
 	{
 		if (! is_array($cortage)) return false;
-		if (! $cortage) return true; // empty dict is not an cortage
+		if (! $cortage) return true; // empty array is cortage
 
 		// contains
 		foreach ( array_keys($cortage) as $key ) {
 			if (is_int($key)) return false;  // 0,1,2
 			if ('' === $key) return false;   // ''
 		}
+
+		return true;
+	}
+
+	/**
+	 * @param mixed $dict
+	 *
+	 * @return bool
+	 */
+	public function isDict($dict) : bool
+	{
+		if (! is_array($dict)) return false;
+		if (! $dict) return false; // empty array is not a dict
+
+		return $this->isCortage($dict);
+	}
+
+
+	/**
+	 * @param mixed $list
+	 *
+	 * @return bool
+	 */
+	public function isList($list) : bool
+	{
+		if (! is_iterable($list)) return false;
+		if (! $list) return true; // empty array is list too
+
+		// contains string key? not a list
+		foreach ( $list as $key => &$val ) {
+			if (! is_int($key)) {
+				return false;
+			}
+		}
+		unset($val);
+
+		return true;
+	}
+
+	/**
+	 * @param mixed $orderedArray
+	 *
+	 * @return bool
+	 */
+	public function isOrderedList($orderedArray) : bool
+	{
+		if (! is_iterable($orderedArray)) return false;
+		if (! $orderedArray) return true; // empty array is array too
+
+		// contains ordered int keys? is an array
+		$i = 0;
+		foreach ( $orderedArray as $key => &$val ) {
+			if (! is_int($key)) {
+				return false;
+			}
+
+			if ($i++ !== $key) {
+				return false;
+			}
+		}
+		unset($val);
 
 		return true;
 	}
@@ -345,5 +387,106 @@ class Type
 	public function isResource($h) : bool
 	{
 		return is_resource($h) || 'resource (closed)' === gettype($h);
+	}
+
+
+	/**
+	 * @param null $data
+	 *
+	 * @return array
+	 */
+	public function arrval($data = null) : array
+	{
+		$result = [];
+
+		if (is_null($data)) {
+			$result = [];
+
+		} elseif (is_scalar($data)) {
+			$result = [ $data ];
+
+		} elseif (is_array($data)) {
+			$result = $data;
+
+		} elseif (is_object($data)) {
+			if (is_a($data, CanToArrayInterface::class)) {
+				/** @var CanToArrayInterface $data */
+
+				$result = $data->toArray();
+
+			} elseif (is_iterable($data)) {
+				foreach ( $data as $idx => $item ) {
+					if ($this->isKey($idx)) {
+						$result[ $idx ] = $item;
+
+					} else {
+						$result[] = $item;
+
+					}
+				}
+
+			} elseif (method_exists($data, 'toArray')) {
+				$result = $data->toArray();
+
+			}
+
+		} else {
+			throw new InvalidArgumentException('Unable to convert variable to array', $data);
+		}
+
+		return $result;
+	}
+
+
+	/**
+	 * @param mixed ...$items
+	 *
+	 * @return array
+	 */
+	public function listval(...$items) : array
+	{
+		$result = [];
+
+		foreach ( $items as $idx => $item ) {
+			if (is_iterable($item)) {
+				$list = $this->isList($item)
+					? $item
+					: [ $item ];
+
+				foreach ( $list as $int => $val ) {
+					$result[] = $val;
+				}
+			} else {
+				$result[] = $item;
+			}
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param mixed ...$items
+	 *
+	 * @return array
+	 */
+	public function listvalFlatten(...$items) : array
+	{
+		$result = [];
+
+		array_walk_recursive($items, function ($item, $key) use (&$result) {
+			if (is_iterable($item)) {
+				$list = $this->isList($item)
+					? $item
+					: [ $item ];
+
+				foreach ( $list as $int => $val ) {
+					$result[] = $val;
+				}
+			} else {
+				$result[] = $item;
+			}
+		});
+
+		return $result;
 	}
 }

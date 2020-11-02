@@ -7,6 +7,9 @@ namespace Gzhegow\Support;
  */
 class Str
 {
+	const SAFE_REPLACER = "\0";
+
+
 	/**
 	 * @param string      $str
 	 * @param string|null $needle
@@ -268,37 +271,79 @@ class Str
 
 	/**
 	 * @param string $value
+	 * @param string $delimiter
 	 *
 	 * @return string
 	 */
-	public function snake(string $value) : string
+	public function snake(string $value, string $delimiter = '_') : string
 	{
 		if ('' === $value) {
 			return $value;
 		}
 
-		$value = preg_replace('/\s+/', '', ucwords($value));
-		$value = str_replace('-', '_', $value);
-
-		$test = str_replace([ '_', '-' ], '', $value);
-
-		if (ctype_upper($test)) {
-			$value = mb_strtolower($value);
+		$replacements = [];
+		foreach ( array_merge([ $delimiter ], [ '_', '-' ]) as $str ) {
+			$replacements[ $str ] = true;
 		}
 
-		$value = mb_strtolower(preg_replace('~(?<=\\w)(\p{Ll})~', '_$1', $value));
+		$result = $value;
 
-		return $value;
+		$left = mb_substr($result, 0, 1);
+		$right = mb_substr($result, 1);
+
+		$regexDelimiters = preg_quote(implode('', array_keys($replacements)));
+
+		$right = preg_replace('/[\s' . $regexDelimiters . ']*(\p{Lu})/', $delimiter . '$1', $right);
+		$right = preg_replace_callback('/[\s' . $regexDelimiters . ']+(\p{L})/', function ($m) {
+			return static::SAFE_REPLACER . $m[ 1 ];
+		}, $right);
+
+		$result = $left . $right;
+
+		$result = str_replace(array_keys($replacements), '', $result);
+		$result = str_replace(static::SAFE_REPLACER, $delimiter, $result);
+
+		$result = mb_strtolower($result);
+
+		return $result;
 	}
 
 	/**
 	 * @param string $value
 	 *
+	 * @param string $delimiter
+	 *
 	 * @return string
 	 */
-	public function usnake(string $value) : string
+	public function usnake(string $value, string $delimiter = '_') : string
 	{
-		return ucfirst($this->snake($value));
+		if ('' === $value) {
+			return $value;
+		}
+
+		$replacements = [];
+		foreach ( array_merge([ $delimiter ], [ '_', '-' ]) as $str ) {
+			$replacements[ $str ] = true;
+		}
+
+		$result = $value;
+
+		$left = mb_substr($result, 0, 1);
+		$right = mb_substr($result, 1);
+
+		$regexDelimiters = preg_quote(implode('', array_keys($replacements)));
+
+		$right = preg_replace('/[\s' . $regexDelimiters . ']*(\p{Lu})/', $delimiter . '$1', $right);
+		$right = preg_replace_callback('/[\s' . $regexDelimiters . ']+(\p{L})/', function ($m) {
+			return static::SAFE_REPLACER . mb_convert_case($m[ 1 ], MB_CASE_TITLE, 'UTF-8');
+		}, $right);
+
+		$result = mb_convert_case($left, MB_CASE_TITLE, 'UTF-8') . $right;
+
+		$result = str_replace(array_keys($replacements), '', $result);
+		$result = str_replace(static::SAFE_REPLACER, $delimiter, $result);
+
+		return $result;
 	}
 
 
@@ -309,22 +354,9 @@ class Str
 	 */
 	public function kebab(string $value) : string
 	{
-		if ('' === $value) {
-			return $value;
-		}
+		$result = $this->snake($value, '-');
 
-		$value = preg_replace('/\s+/', '', ucwords($value));
-		$value = str_replace('_', '-', $value);
-
-		$test = str_replace([ '_', '-' ], '', $value);
-
-		if (ctype_upper($test)) {
-			$value = mb_strtolower($value);
-		}
-
-		$value = mb_strtolower(preg_replace('~(?<=\\w)(\p{Ll})~', '-$1', $value));
-
-		return $value;
+		return $result;
 	}
 
 	/**
@@ -334,7 +366,9 @@ class Str
 	 */
 	public function ukebab(string $value) : string
 	{
-		return ucfirst($this->kebab($value));
+		$result = $this->usnake($value, '-');
+
+		return $result;
 	}
 
 
@@ -345,19 +379,9 @@ class Str
 	 */
 	public function pascal(string $value) : string
 	{
-		if ('' === $value) {
-			return $value;
-		}
+		$result = $this->usnake($value, '');
 
-		$test = str_replace([ '_', '-' ], '', $value);
-
-		if (ctype_upper($test)) {
-			$value = mb_strtolower($value);
-		}
-
-		$value = str_replace(' ', '', ucwords(str_replace([ '-', '_' ], ' ', $value)));
-
-		return $value;
+		return $result;
 	}
 
 
@@ -368,17 +392,10 @@ class Str
 	 */
 	public function camel(string $value) : string
 	{
-		return lcfirst($this->pascal($value));
-	}
+		$result = $this->pascal($value);
 
-	/**
-	 * @param string $value
-	 *
-	 * @return string
-	 */
-	public function ucamel(string $value) : string
-	{
-		return $this->pascal($value);
-	}
+		$result = mb_convert_case($value[ 0 ], MB_CASE_LOWER, 'UTF-8') . mb_substr($result, 1);
 
+		return $result;
+	}
 }
