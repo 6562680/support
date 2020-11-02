@@ -4,6 +4,7 @@ namespace Gzhegow\Support\Exceptions;
 
 use Throwable;
 use Gzhegow\Support\Php;
+use Gzhegow\Support\Type;
 use Gzhegow\Support\Debug;
 
 /**
@@ -19,6 +20,10 @@ class RuntimeException extends \RuntimeException
 	 * @var Php
 	 */
 	protected $php;
+	/**
+	 * @var Type
+	 */
+	protected $type;
 
 	/**
 	 * @var string
@@ -54,7 +59,7 @@ class RuntimeException extends \RuntimeException
 	{
 		$this->loadDependencies();
 
-		$messages = $this->php->listval($messages);
+		$messages = $this->type->listval($messages);
 
 		array_walk_recursive($messages, function ($message) {
 			if (! ( is_string($message) || is_int($message) )) {
@@ -73,12 +78,24 @@ class RuntimeException extends \RuntimeException
 	}
 
 
+	/**
+	 * @return void
+	 */
 	protected function loadDependencies() : void
 	{
 		$this->debug = new Debug();
 		$this->php = new Php();
+		$this->type = new Type();
 	}
 
+
+	/**
+	 * @return string
+	 */
+	public function getName() : string
+	{
+		return $this->name;
+	}
 
 	/**
 	 * @return string

@@ -4,7 +4,7 @@ namespace Gzhegow\Support\Exceptions;
 
 use Throwable;
 use Gzhegow\Support\Php;
-use Gzhegow\Support\Val;
+use Gzhegow\Support\Type;
 use Gzhegow\Support\Debug;
 
 /**
@@ -20,6 +20,10 @@ class Exception extends \Exception
 	 * @var Php
 	 */
 	protected $php;
+	/**
+	 * @var Type
+	 */
+	protected $type;
 
 	/**
 	 * @var string
@@ -55,7 +59,7 @@ class Exception extends \Exception
 	{
 		$this->loadDependencies();
 
-		$messages = $this->php->listval($messages);
+		$messages = $this->type->listval($messages);
 
 		array_walk_recursive($messages, function ($message) {
 			if (! ( is_string($message) || is_int($message) )) {
@@ -74,12 +78,24 @@ class Exception extends \Exception
 	}
 
 
+	/**
+	 * @return void
+	 */
 	protected function loadDependencies() : void
 	{
 		$this->debug = new Debug();
 		$this->php = new Php();
+		$this->type = new Type();
 	}
 
+
+	/**
+	 * @return string
+	 */
+	public function getName() : string
+	{
+		return $this->name;
+	}
 
 	/**
 	 * @return string
