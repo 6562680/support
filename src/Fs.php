@@ -2,68 +2,72 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
-
 /**
  * Class Fs
  */
 class Fs
 {
-	protected function glob(string $pattern, int $flags = null, string $dir = null, bool $multibyte = false) : ?array
+	/**
+	 * @param string        $dir
+	 * @param bool          $self
+	 * @param \Closure|null $ignoreFunc
+	 *
+	 * @return bool
+	 */
+	public function rmdir(string $dir, bool $self = false, \Closure $ignoreFunc = null) : bool
 	{
-		if ('' === $pattern) {
-			throw new InvalidArgumentException('Pattern should be not empty', func_get_args());
+		/**
+		 * @var \SplFileInfo $file
+		 */
+
+		if (! is_dir($dir)) {
+			return true;
 		}
 
-		if ($dir && ( '' === $dir )) {
-			throw new InvalidArgumentException('Dir should be not empty', func_get_args());
-		}
+		$dir = realpath($dir);
 
-		$len = $multibyte
-			? mb_strlen($pattern)
-			: strlen($pattern);
+		$dirs = [];
 
-		$p = '';
-		for ( $i = 0; $i < $len; $i++ ) {
-			if ($multibyte) {
-				$u = mb_strtoupper($pattern[ $i ]);
-				$l = mb_strtolower($pattern[ $i ]);
+		$it = new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS);
+		$iit = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::CHILD_FIRST);
 
-			} else {
-				$u = strtoupper($pattern[ $i ]);
-				$l = strtolower($pattern[ $i ]);
+		foreach ( $iit as $file ) {
+			$fileDir = dirname($file->getRealPath());
 
+			$shouldIgnore = $ignoreFunc
+				? $ignoreFunc($file, $fileDir)
+				: false;
+
+			$dirs[ $fileDir ] = $dirs[ $fileDir ]
+				?: $shouldIgnore;
+
+			if ($file->isDir()) {
+				$dirs[ $file->getRealPath() ] =
+					$dirs[ $file->getRealPath() ]
+						?: $shouldIgnore;
 			}
 
-			if ($u === $l) {
-				$p .= $pattern[ $i ];
-
-			} else {
-				$p .= "[{$l}{$u}]";
-
+			if (! $shouldIgnore) {
+				if ($file->isFile()) {
+					unlink($file->getRealPath());
+				}
 			}
 		}
 
-		if ($dir) {
-			$p = $dir . DIRECTORY_SEPARATOR . $p;
+
+		$hasIgnoredSelf = $dirs[ $dir ] ?? false;
+		unset($dirs[ $dir ]);
+
+		foreach ( $dirs as $dirPath => $hasIgnored ) {
+			if (! $hasIgnored) {
+				rmdir($dirPath);
+			}
 		}
 
-		$files = glob($p, $flags);
-
-		if (( $flags & GLOB_NOCHECK )
-			&& ( ! is_array($files) )
-		) {
-			return $files;
+		if ($self && ! $hasIgnoredSelf) {
+			rmdir($dir);
 		}
 
-		if (( ! ( $flags & GLOB_NOSORT ) )
-			&& is_array($files)
-		) {
-			usort($files, function ($a, $b) {
-				return is_dir($a) - is_dir($b);
-			});
-		}
-
-		return $files;
+		return true;
 	}
 }
