@@ -1,47 +1,12 @@
 <?php
 
-namespace Gzhegow\Support\Stateful;
-
-use Gzhegow\Support\Exceptions\RuntimeException;
-use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+namespace Gzhegow\Support;
 
 /**
  * Class Uri
  */
-class Uri implements UriInterface
+class Uri
 {
-	/**
-	 * @var string
-	 */
-	protected $assetPath;
-
-
-	/**
-	 * @param string $assetPath
-	 *
-	 * @return Uri
-	 */
-	public function setAssetPath(string $assetPath)
-	{
-		if ('' === $assetPath) {
-			throw new InvalidArgumentException('AssetPath should be not empty');
-		}
-
-
-		if (false === ( $realpath = realpath($assetPath) )) {
-			throw new RuntimeException('Asset directory not found: ' . $assetPath);
-		}
-
-		if (! is_dir($assetPath)) {
-			throw new RuntimeException('Asset path should be directory path: ' . $assetPath);
-		}
-
-		$this->assetPath = $realpath;
-
-		return $this;
-	}
-
-
 	/**
 	 * @param string $url
 	 *
@@ -179,26 +144,5 @@ class Uri implements UriInterface
 	public function ref(string $url = null, string $ref = null, array $q = []) : string
 	{
 		return $this->link($url, $q, $ref);
-	}
-
-
-	/**
-	 * @param string|null $path
-	 * @param array       $q
-	 *
-	 * @return string
-	 */
-	public function asset(string $path = null, array $q = []) : string
-	{
-		if (! $this->assetPath) {
-			throw new RuntimeException('You should define AssetPath to use this feature', func_get_args());
-		}
-
-		if (false === ( $realpath = realpath($filePath = $this->assetPath . '/' . ltrim($path, '/')) )) {
-			throw new RuntimeException('Asset not found: ' . $filePath);
-		}
-
-		return $this->link($path, $q) . '?v='
-			. md5(filesize($realpath) . filemtime($realpath));
 	}
 }

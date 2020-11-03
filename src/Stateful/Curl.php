@@ -3,7 +3,6 @@
 namespace Gzhegow\Support\Stateful;
 
 use Gzhegow\Support\Type;
-use Gzhegow\Support\Exceptions\Runtime\OverflowException;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
@@ -25,6 +24,7 @@ Class Curl implements CurlInterface
 	 * @var array
 	 */
 	protected $matrix;
+
 
 	/**
 	 * @var array
@@ -53,6 +53,38 @@ Class Curl implements CurlInterface
 		static::$curloptCodes = static::$curloptCodes ?? array_flip(static::$curlopt);
 	}
 
+
+	/**
+	 * готовит инструкцию для curl запоса и сохраняет матрицу для создания на основе
+	 * если передать готовый curl запрос заменит существующие опции
+	 * если создавали через эту же функцию, опции будут соединены с предыдущим экземпляром, иначе переписаны
+	 *
+	 * @param mixed $curl
+	 * @param null  $data
+	 * @param array $curl_options
+	 *
+	 * @return resource
+	 */
+	public function createNew($curl, $data = null, array $curl_options = []) // : resource
+	{
+		return $this->create('new', $curl, $data, $curl_options);
+	}
+
+	/**
+	 * копирует или создает curl запрос и сохраняет матрицу для создания на основе
+	 * если передать готовый curl запрос заменит существующие опции и вернет новый curl
+	 * если создавали через эту же функцию, опции будут соединены с предыдущим экземпляром, иначе переписаны
+	 *
+	 * @param mixed $curl
+	 * @param mixed $data
+	 * @param array $curl_options
+	 *
+	 * @return resource
+	 */
+	public function createCopy($curl, $data = null, array $curl_options = []) // : resource
+	{
+		return $this->create('copy', $curl, $data, $curl_options);
+	}
 
 
 	/**
@@ -91,7 +123,7 @@ Class Curl implements CurlInterface
 			$id = intval($h);
 
 			// add curl to registry
-			$this->addCurlById($id, $h);
+			$this->setCurlById($id, $h);
 
 		} elseif ($isCurl) {
 			if ($this->hasMatrixById($id = (int) $curl)) {
@@ -162,39 +194,6 @@ Class Curl implements CurlInterface
 
 		// result
 		return $h;
-	}
-
-
-	/**
-	 * готовит инструкцию для curl запоса и сохраняет матрицу для создания на основе
-	 * если передать готовый curl запрос заменит существующие опции
-	 * если создавали через эту же функцию, опции будут соединены с предыдущим экземпляром, иначе переписаны
-	 *
-	 * @param mixed $curl
-	 * @param null  $data
-	 * @param array $curl_options
-	 *
-	 * @return resource
-	 */
-	public function createNew($curl, $data = null, array $curl_options = []) // : resource
-	{
-		return $this->create('new', $curl, $data, $curl_options);
-	}
-
-	/**
-	 * копирует или создает curl запрос и сохраняет матрицу для создания на основе
-	 * если передать готовый curl запрос заменит существующие опции и вернет новый curl
-	 * если создавали через эту же функцию, опции будут соединены с предыдущим экземпляром, иначе переписаны
-	 *
-	 * @param mixed $curl
-	 * @param mixed $data
-	 * @param array $curl_options
-	 *
-	 * @return resource
-	 */
-	public function createCopy($curl, $data = null, array $curl_options = []) // : resource
-	{
-		return $this->create('copy', $curl, $data, $curl_options);
 	}
 
 
@@ -400,41 +399,6 @@ Class Curl implements CurlInterface
 		}
 
 		$this->matrix[ $id ] = $matrix;
-
-		return $this;
-	}
-
-
-	/**
-	 * @param int   $id
-	 * @param mixed $curl
-	 *
-	 * @return Curl
-	 */
-	protected function addCurlById(int $id, $curl)
-	{
-		if ($this->hasCurlById($id)) {
-			throw new OverflowException('Curl already exists by given id: ' . $id, func_get_args());
-		}
-
-		$this->setCurlById($id, $curl);
-
-		return $this;
-	}
-
-	/**
-	 * @param int   $id
-	 * @param array $matrix
-	 *
-	 * @return Curl
-	 */
-	protected function addMatrixById(int $id, array $matrix)
-	{
-		if ($this->hasMatrixById($id)) {
-			throw new OverflowException('Curl already exists by given id: ' . $id, func_get_args());
-		}
-
-		$this->setMatrixById($id, $matrix);
 
 		return $this;
 	}

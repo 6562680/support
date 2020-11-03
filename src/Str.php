@@ -291,7 +291,7 @@ class Str
 		$left = mb_substr($result, 0, 1);
 		$right = mb_substr($result, 1);
 
-		$regexDelimiters = preg_quote(implode('', array_keys($replacements)));
+		$regexDelimiters = preg_quote(implode('', array_keys($replacements)), '/');
 
 		$right = preg_replace('/[\s' . $regexDelimiters . ']*(\p{Lu})/', $delimiter . '$1', $right);
 		$right = preg_replace_callback('/[\s' . $regexDelimiters . ']+(\p{L})/', function ($m) {
@@ -331,7 +331,7 @@ class Str
 		$left = mb_substr($result, 0, 1);
 		$right = mb_substr($result, 1);
 
-		$regexDelimiters = preg_quote(implode('', array_keys($replacements)));
+		$regexDelimiters = preg_quote(implode('', array_keys($replacements)), '/');
 
 		$right = preg_replace('/[\s' . $regexDelimiters . ']*(\p{Lu})/', $delimiter . '$1', $right);
 		$right = preg_replace_callback('/[\s' . $regexDelimiters . ']+(\p{L})/', function ($m) {
