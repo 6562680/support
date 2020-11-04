@@ -181,23 +181,26 @@ class Di implements
 
 	/**
 	 * @param string $id
+	 * @param array  $arguments
 	 *
 	 * @return mixed
 	 */
-	public function newOrFail(string $id)
+	public function newOrFail(string $id, ...$arguments)
 	{
-		return $this->loopRoot->getOrFail($id);
+		return $this->loopRoot->newOrFail($id, ...$arguments);
 	}
 
 	/**
 	 * @param string $id
 	 *
+	 * @param array  $arguments
+	 *
 	 * @return mixed
 	 * @throws NotFoundError
 	 */
-	public function new($id)
+	public function new($id, ...$arguments)
 	{
-		return $this->loopRoot->get($id);
+		return $this->loopRoot->new($id, ...$arguments);
 	}
 
 

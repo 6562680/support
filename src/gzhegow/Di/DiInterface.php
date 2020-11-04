@@ -2,6 +2,7 @@
 
 namespace Gzhegow\Di;
 
+
 use Gzhegow\Di\Exceptions\Error\NotFoundError;
 
 /**
@@ -10,14 +11,121 @@ use Gzhegow\Di\Exceptions\Error\NotFoundError;
 interface DiInterface
 {
 	/**
-	 * @return Di
+	 * @param string $id
+	 *
+	 * @return string|\Closure
+	 * @throws NotFoundError
 	 */
-	public function boot();
+	public function getBind(string $id);
+
+	/**
+	 * @param string $id
+	 *
+	 * @return mixed
+	 * @throws NotFoundError
+	 */
+	public function getItem(string $id);
+
+	/**
+	 * @param string $id
+	 *
+	 * @return array
+	 * @throws NotFoundError
+	 */
+	public function getExtends(string $id) : array;
+
+	/**
+	 * @return ProviderInterface[]
+	 */
+	public function getProviders() : array;
+
+	/**
+	 * @return BootableProviderInterface[]
+	 */
+	public function getProvidersBootable() : array;
+
+	/**
+	 * @return DeferableProviderInterface[][]
+	 */
+	public function getProvidersDeferable() : array;
+
+	/**
+	 * @return string
+	 */
+	public function getDelegateClass() : string;
+
 	/**
 	 * @return bool
 	 */
 	public function isBooted() : bool;
 
+	/**
+	 * @param mixed $id
+	 *
+	 * @return bool
+	 */
+	public function hasItem($id) : bool;
+
+	/**
+	 * @param mixed $id
+	 *
+	 * @return bool
+	 */
+	public function hasBind($id) : bool;
+
+	/**
+	 * @param mixed $id
+	 *
+	 * @return bool
+	 */
+	public function hasDeferableBind($id) : bool;
+
+	/**
+	 * @param mixed $id
+	 *
+	 * @return bool
+	 */
+	public function hasShared($id) : bool;
+
+	/**
+	 * @param mixed $id
+	 *
+	 * @return bool
+	 */
+	public function hasExtends($id) : bool;
+
+	/**
+	 * @return bool
+	 */
+	public function hasDelegateClass() : bool;
+
+	/**
+	 * @param array $providers
+	 *
+	 * @return Di
+	 */
+	public function setProviders(array $providers);
+
+	/**
+	 * @param string $delegateClass
+	 *
+	 * @return Di
+	 */
+	public function setDelegateClass(string $delegateClass);
+
+	/**
+	 * @param array $providers
+	 *
+	 * @return $this
+	 */
+	public function addProviders(array $providers);
+
+	/**
+	 * @param ProviderInterface $provider
+	 *
+	 * @return Di
+	 */
+	public function addProvider(ProviderInterface $provider);
 
 	/**
 	 * @param string $id
@@ -34,14 +142,12 @@ interface DiInterface
 	 */
 	public function getOrFail(string $id);
 
-
 	/**
 	 * @param string $id
 	 *
 	 * @return bool
 	 */
 	public function has($id);
-
 
 	/**
 	 * @param string $id
@@ -59,6 +165,47 @@ interface DiInterface
 	 */
 	public function setOrFail(string $id, $item);
 
+	/**
+	 * @param mixed $id
+	 *
+	 * @return Loop
+	 */
+	public function newLoop($id) : Loop;
+
+	/**
+	 * @param string $id
+	 * @param array  $arguments
+	 *
+	 * @return mixed
+	 */
+	public function newOrFail(string $id, ...$arguments);
+
+	/**
+	 * @param string $id
+	 *
+	 * @param array  $arguments
+	 *
+	 * @return mixed
+	 * @throws NotFoundError
+	 */
+	public function new($id, ...$arguments);
+
+	/**
+	 * @param string $id
+	 * @param array  $arguments
+	 *
+	 * @return mixed
+	 */
+	public function createOrFail(string $id, ...$arguments);
+
+	/**
+	 * @param string $id
+	 * @param array  $arguments
+	 *
+	 * @return mixed
+	 * @throws NotFoundError
+	 */
+	public function create(string $id, ...$arguments);
 
 	/**
 	 * @param string          $id
@@ -138,20 +285,17 @@ interface DiInterface
 
 
 	/**
-	 * @param string $id
-	 * @param array  $arguments
-	 *
-	 * @return mixed
+	 * @return Di
 	 */
-	public function create(string $id, ...$arguments);
+	public function boot();
 
 	/**
 	 * @param string $id
-	 * @param array  $arguments
 	 *
-	 * @return mixed
+	 * @return Di
+	 * @throws NotFoundError
 	 */
-	public function createOrFail(string $id, ...$arguments);
+	public function bootDeferable(string $id);
 
 
 	/**
