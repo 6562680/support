@@ -25,15 +25,6 @@ class Di implements
 	DiInterface
 {
 	/**
-	 * @var CacheInterface
-	 */
-	protected $cache;
-	/**
-	 * @var ReflectionInterface
-	 */
-	protected $reflection;
-
-	/**
 	 * @var Arr
 	 */
 	protected $arr;
@@ -45,6 +36,15 @@ class Di implements
 	 * @var Type
 	 */
 	protected $type;
+
+	/**
+	 * @var CacheInterface
+	 */
+	protected $cache;
+	/**
+	 * @var ReflectionInterface
+	 */
+	protected $reflection;
 
 	/**
 	 * @var array
@@ -128,13 +128,32 @@ class Di implements
 			}
 		}
 
-		$this->php = $this->newPhp();
-		$this->type = $this->newType();
-
-		$this->arr = $this->newArr();
-		$this->reflection = $this->newReflection();
+		$this->initializeDependencies();
 
 		$this->loopRoot = $this->newLoop(null);
+	}
+
+
+	/**
+	 * @return void
+	 */
+	protected function initializeDependencies() : void
+	{
+		$this->php = new Php();
+		$this->type = new Type();
+
+		$this->arr = new Arr($this->php, $this->type);
+
+		$this->reflection = $this->cache
+			? new CachedReflection(
+				$this->php,
+				$this->type,
+				$this->cache
+			)
+			: new Reflection(
+				$this->php,
+				$this->type
+			);
 	}
 
 
@@ -146,13 +165,12 @@ class Di implements
 	public function newLoop($id) : Loop
 	{
 		$loop = new Loop(
-			$this->reflection,
-
 			$this->arr,
 			$this->php,
 			$this->type,
 
 			$this,
+			$this->reflection,
 
 			$id
 		);
@@ -162,47 +180,24 @@ class Di implements
 
 
 	/**
-	 * @return Arr
+	 * @param string $id
+	 *
+	 * @return mixed
 	 */
-	public function newArr() : Arr
+	public function newOrFail(string $id)
 	{
-		return new Arr(
-			$this->php,
-			$this->type
-		);
+		return $this->loopRoot->getOrFail($id);
 	}
 
 	/**
-	 * @return Php
+	 * @param string $id
+	 *
+	 * @return mixed
+	 * @throws NotFoundError
 	 */
-	public function newPhp() : Php
+	public function new($id)
 	{
-		return new Php();
-	}
-
-	/**
-	 * @return Type
-	 */
-	public function newType() : Type
-	{
-		return new Type();
-	}
-
-	/**
-	 * @return ReflectionInterface
-	 */
-	public function newReflection() : ReflectionInterface
-	{
-		return $this->cache
-			? new CachedReflection(
-				$this->php,
-				$this->type,
-				$this->cache
-			)
-			: new Reflection(
-				$this->php,
-				$this->type
-			);
+		return $this->loopRoot->get($id);
 	}
 
 
@@ -416,6 +411,7 @@ class Di implements
 
 		return $this;
 	}
+
 
 	/**
 	 * @param string $delegateClass
@@ -676,7 +672,6 @@ class Di implements
 		return $this;
 	}
 
-
 	/**
 	 * @param string                   $id
 	 * @param string|callable|\Closure $func
@@ -701,7 +696,6 @@ class Di implements
 		return $this;
 	}
 
-
 	/**
 	 * @param mixed $provider
 	 *
@@ -725,7 +719,6 @@ class Di implements
 
 		return $this;
 	}
-
 
 	/**
 	 * @return Di
@@ -765,7 +758,6 @@ class Di implements
 
 		return $this;
 	}
-
 
 	/**
 	 * @param callable $func

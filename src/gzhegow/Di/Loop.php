@@ -19,11 +19,6 @@ use Gzhegow\Di\Exceptions\Runtime\Error\NoDelegateClassError;
 class Loop
 {
 	/**
-	 * @var ReflectionInterface
-	 */
-	protected $reflection;
-
-	/**
 	 * @var Arr
 	 */
 	protected $arr;
@@ -37,9 +32,15 @@ class Loop
 	protected $type;
 
 	/**
-	 * @var Di
+	 * @var DiInterface
 	 */
 	protected $di;
+	/**
+	 * @var ReflectionInterface
+	 */
+	protected $reflection;
+
+
 
 	/**
 	 * @var mixed
@@ -67,26 +68,24 @@ class Loop
 	 * @param Loop|null           $parent
 	 */
 	public function __construct(
-		ReflectionInterface $reflection,
-
 		Arr $arr,
 		Php $php,
 		Type $type,
 
-		Di $di,
+		DiInterface $di,
+		ReflectionInterface $reflection,
 
 		$id,
 
 		Loop $parent = null
 	)
 	{
-		$this->reflection = $reflection;
-
 		$this->arr = $arr;
 		$this->php = $php;
 		$this->type = $type;
 
 		$this->di = $di;
+		$this->reflection = $reflection;
 
 		$this->parent = $parent;
 
@@ -102,13 +101,12 @@ class Loop
 	public function newChild($id) : Loop
 	{
 		return new Loop(
-			$this->reflection,
-
 			$this->arr,
 			$this->php,
 			$this->type,
 
 			$this->di,
+			$this->reflection,
 
 			$id,
 
@@ -118,28 +116,33 @@ class Loop
 
 
 	/**
-	 * @param string $class
+	 * @param string $id
+	 * @param array  $arguments
+	 *
+	 * @return mixed
+	 */
+	public function newOrFail(string $id, ...$arguments)
+	{
+		try {
+			$result = $this->new($id, ...$arguments);
+		}
+		catch ( NotFoundError $e ) {
+			throw new RuntimeException('Unable to ' . __METHOD__, func_get_args(), $e);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param string $id
 	 * @param mixed  ...$arguments
 	 *
-	 * @return object
+	 * @return mixed
+	 * @throws NotFoundError
 	 */
-	protected function newClass(string $class, ...$arguments)
+	public function new(string $id, ...$arguments)
 	{
-		if ('' === $class) {
-			throw new InvalidArgumentException('Class should be not empty');
-		}
-
-		if (! $this->type->isClass($class)) {
-			throw new InvalidArgumentException('Class should be existing class: ' . $class);
-		}
-
-		[ $kwargs, $args ] = $this->php->kwparams(...$arguments);
-
-		$arguments = $this->autowireConstructor($class, array_merge($args, $kwargs));
-
-		ksort($arguments);
-
-		return new $class(...$arguments);
+		return $this->newChild($id)->resolveNew($id, ...$arguments);
 	}
 
 
@@ -369,7 +372,7 @@ class Loop
 		}
 
 		if ($this->di->hasItem($bind)) {
-			$result = [ $bind ];
+			$result = [ $bound = $bind ];
 
 		} elseif ($this->di->hasBind($bind)) {
 			$result = [ $bound = $this->di->getBind($bind) ];
@@ -386,8 +389,36 @@ class Loop
 		return $result;
 	}
 
+
+	/**
+	 * @param string $class
+	 * @param mixed  ...$arguments
+	 *
+	 * @return object
+	 */
+	protected function resolveClass(string $class, ...$arguments)
+	{
+		if ('' === $class) {
+			throw new InvalidArgumentException('Class should be not empty');
+		}
+
+		if (! $this->type->isClass($class)) {
+			throw new InvalidArgumentException('Class should be existing class: ' . $class);
+		}
+
+		[ $kwargs, $args ] = $this->php->kwparams(...$arguments);
+
+		$arguments = $this->autowireConstructor($class, array_merge($args, $kwargs));
+
+		ksort($arguments);
+
+		return new $class(...$arguments);
+	}
+
+
 	/**
 	 * @param string $id
+	 * @param array  $arguments
 	 *
 	 * @return mixed
 	 * @throws NotFoundError
@@ -400,9 +431,14 @@ class Loop
 
 		$binds[] = $last = $id;
 		if ($resolved = $this->resolveBind($last)) {
-			[ $last ] = $resolved;
+			$last = $resolved[ 0 ];
 
-			$binds[] = $last;
+			if (0
+				|| ( $this->di->hasItem($last) )
+				|| ( $this->type->isClosure($last) )
+			) {
+				$binds[] = $last;
+			}
 		}
 
 		$result = $this->pipeResolveItem($last)
@@ -448,14 +484,59 @@ class Loop
 
 		$binds[] = $last = $id;
 		if ($resolved = $this->resolveBind($last)) {
-			[ $last ] = $resolved;
+			$last = $resolved[ 0 ];
 
-			$binds[] = $last;
+			if (0
+				|| ( $this->type->isClosure($last) )
+			) {
+				$binds[] = $last;
+			}
 		}
 
 		$result = $this->pipeResolveClosure($last, ...$arguments)
 			?: $this->pipeResolveClass($last, ...$arguments)
 				?: [];
+
+		if (! $result) {
+			throw new AutowireError('Unable to resolve id: ' . $id, func_get_args());
+		}
+
+		$result = reset($result);
+
+		if ($this->di->hasExtends($last)) {
+			foreach ( $this->di->getExtends($last) as $func ) {
+				$result = $this->handle($func, [
+					$last => $result,
+				]);
+			}
+		}
+
+		foreach ( $binds as $bind ) {
+			if ($this->di->hasShared($bind)) {
+				$this->di->replace($bind, $result);
+			}
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param string $id
+	 * @param array  $arguments
+	 *
+	 * @return null|mixed
+	 * @throws NotFoundError
+	 */
+	protected function resolveNew(string $id, ...$arguments)
+	{
+		if ('' === $id) {
+			throw new InvalidArgumentException('Id should be not empty');
+		}
+
+		$binds[] = $last = $id;
+
+		$result = $this->pipeResolveClass($last, ...$arguments)
+			?: [];
 
 		if (! $result) {
 			throw new AutowireError('Unable to resolve id: ' . $id, func_get_args());
@@ -632,7 +713,7 @@ class Loop
 	{
 		if (! $this->type->isClass($class)) return [];
 
-		return [ $this->newClass($class, ...$arguments) ];
+		return [ $this->resolveClass($class, ...$arguments) ];
 	}
 
 
@@ -804,6 +885,7 @@ class Loop
 
 		return $autowireResult;
 	}
+
 
 	/**
 	 * @param \ReflectionParameter $rp

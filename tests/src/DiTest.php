@@ -171,7 +171,7 @@ class DiTest extends AbstractTestCase
 		$this->assertInstanceOf(MyDelegateBService::class, $delegateB->getDelegate());
 		$this->assertInstanceOf(MyDelegateCService::class, $delegateC->getDelegate());
 		$this->assertInstanceOf(MyDelegateDService::class, $delegateD->getDelegate());
-		
+
 		$this->assertEquals($invokedDelegate, $delegateD->getDelegate());
 	}
 
