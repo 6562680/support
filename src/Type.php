@@ -345,15 +345,21 @@ class Type
 
 
 	/**
-	 * @param mixed $handler
+	 * @param mixed        $handler
+	 * @param string|null &$class
+	 * @param string|null &$method
 	 *
 	 * @return bool
 	 */
-	public function isHandler($handler) : bool
+	public function isHandler($handler, string &$class = null, string &$method = null) : bool
 	{
-		return $this->isTheString($handler)
+		$isHandler = $this->isTheString($handler)
 			&& ( $handler[ 0 ] !== '@' )
 			&& ( 1 === substr_count($handler, '@') );
+
+		[ $class, $method ] = explode('@', $handler);
+
+		return $isHandler;
 	}
 
 
