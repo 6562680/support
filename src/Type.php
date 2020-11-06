@@ -276,37 +276,49 @@ class Type
 	}
 
 	/**
-	 * @param mixed $func
+	 * @param mixed        $func
+	 * @param null|string &$class
+	 * @param null|string &$method
+	 * @param null|object &$object
 	 *
 	 * @return bool
 	 */
-	public function isCallableArray($func) : bool
+	public function isCallableArray($func, string &$class = null, string &$method = null, &$object = null) : bool
 	{
 		return is_array($func)
+			&& ( $this->isCallableArrayString($func, $class, $method)
+				|| $this->isCallableArrayObject($func, $object, $method, $class) );
+	}
+
+	/**
+	 * @param mixed        $func
+	 *
+	 * @param null|object &$object
+	 * @param null|string &$method
+	 * @param null|string &$class
+	 *
+	 * @return bool
+	 */
+	public function isCallableArrayObject($func, &$object = null, string &$method = null, string &$class = null) : bool
+	{
+		return is_array($func)
+			&& isset($func[ 0 ]) && is_object($object = $func[ 0 ]) && is_string($class = get_class($object))
+			&& isset($func[ 1 ]) && $this->isTheString($method = $func[ 1 ])
 			&& is_callable($func);
 	}
 
 	/**
-	 * @param mixed $func
+	 * @param mixed        $func
+	 * @param null|string &$class
+	 * @param null|string &$method
 	 *
 	 * @return bool
 	 */
-	public function isCallableArrayObject($func) : bool
+	public function isCallableArrayString($func, &$class = null, &$method = null) : bool
 	{
 		return is_array($func)
-			&& isset($func[ 0 ]) && is_object($func[ 0 ])
-			&& is_callable($func);
-	}
-
-	/**
-	 * @param mixed $func
-	 *
-	 * @return bool
-	 */
-	public function isCallableArrayString($func) : bool
-	{
-		return is_array($func)
-			&& isset($func[ 0 ]) && $this->isTheString($func[ 0 ])
+			&& isset($func[ 0 ]) && $this->isTheString($class = $func[ 0 ])
+			&& isset($func[ 1 ]) && $this->isTheString($method = $func[ 1 ])
 			&& is_callable($func);
 	}
 
