@@ -47,25 +47,7 @@ class Type
 	 *
 	 * @return bool
 	 */
-	public function isBool($value) : bool
-	{
-		return ( is_bool($value) && ( $value === true ) )
-			|| ( is_bool($value) && ( $value === false ) )
-			|| ( is_int($value) && ( $value === 1 ) )
-			|| ( is_int($value) && ( $value === 0 ) )
-			|| ( is_float($value) && ( $value === 1.0 ) )
-			|| ( is_float($value) && ( $value === 0.0 ) )
-			|| ( is_string($value) && ( $value === "1" ) )
-			|| ( is_string($value) && ( $value === "0" ) );
-	}
-
-
-	/**
-	 * @param mixed $value
-	 *
-	 * @return bool
-	 */
-	public function isInt($value) : bool
+	public function isTheInt($value) : bool
 	{
 		return is_int($value)
 			|| ( false !== filter_var($value, FILTER_VALIDATE_INT) );
@@ -76,7 +58,7 @@ class Type
 	 *
 	 * @return bool
 	 */
-	public function isFloat($value) : bool
+	public function isTheFloat($value) : bool
 	{
 		return ! is_nan($value)
 			&& ( is_float($value)
@@ -93,20 +75,30 @@ class Type
 	public function isNumber($value) : bool
 	{
 		return ( is_int($value)
-			|| ( ( is_float($value) || is_numeric($value) ) && ! is_nan($value) )
+			|| ( ! is_nan($value) && ( is_float($value) || is_numeric($value) ) )
 		);
 	}
 
+	/**
+	 * @param mixed $value
+	 *
+	 * @return bool
+	 */
+	public function isStringOrNumber($value) : bool
+	{
+		return is_string($value) || $this->isNumber($value);
+	}
+
 
 	/**
 	 * @param mixed $value
 	 *
 	 * @return bool
 	 */
-	public function isLine($value) : bool
+	public function isTheString($value) : bool
 	{
 		return is_string($value)
-			|| $this->isNumber($value);
+			&& ( '' !== $value );
 	}
 
 	/**
@@ -114,10 +106,10 @@ class Type
 	 *
 	 * @return bool
 	 */
-	public function isWord($value) : bool
+	public function isTheStringOrNumber($value) : bool
 	{
-		return $this->isLine($value)
-			&& ( '' !== $value );
+		return ( '' !== $value )
+			&& $this->isStringOrNumber($value);
 	}
 
 
@@ -128,7 +120,7 @@ class Type
 	 */
 	public function isStringable($value) : bool
 	{
-		return $this->isLine($value)
+		return $this->isStringOrNumber($value)
 			&& ( ! is_array($value)
 				&& ( settype($value, 'string') !== false )
 			);
@@ -290,7 +282,32 @@ class Type
 	 */
 	public function isCallableArray($func) : bool
 	{
-		return is_array($func) && is_callable($func);
+		return is_array($func)
+			&& is_callable($func);
+	}
+
+	/**
+	 * @param mixed $func
+	 *
+	 * @return bool
+	 */
+	public function isCallableArrayObject($func) : bool
+	{
+		return is_array($func)
+			&& isset($func[ 0 ]) && is_object($func[ 0 ])
+			&& is_callable($func);
+	}
+
+	/**
+	 * @param mixed $func
+	 *
+	 * @return bool
+	 */
+	public function isCallableArrayString($func) : bool
+	{
+		return is_array($func)
+			&& isset($func[ 0 ]) && $this->isTheString($func[ 0 ])
+			&& is_callable($func);
 	}
 
 	/**
@@ -300,7 +317,7 @@ class Type
 	 */
 	public function isCallableString($func) : bool
 	{
-		return is_string($func) && is_callable($func);
+		return $this->isTheString($func) && is_callable($func);
 	}
 
 
@@ -322,10 +339,9 @@ class Type
 	 */
 	public function isHandler($handler) : bool
 	{
-		return is_string($handler)
-			&& ( '' !== $handler )
+		return $this->isTheString($handler)
 			&& ( $handler[ 0 ] !== '@' )
-			&& ( 1 !== substr_count($handler, '@') );
+			&& ( 1 === substr_count($handler, '@') );
 	}
 
 
@@ -473,7 +489,7 @@ class Type
 	{
 		$result = [];
 
-		array_walk_recursive($items, function ($item, $key) use (&$result) {
+		array_walk_recursive($items, function ($item) use (&$result) {
 			if (is_iterable($item)) {
 				$list = $this->isList($item)
 					? $item
