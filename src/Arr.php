@@ -378,7 +378,7 @@ class Arr
 		}
 
 		foreach ( $list as $step ) {
-			if (! $this->type->isWord($step)) {
+			if (! $this->type->isTheString($step)) {
 				continue;
 			}
 
@@ -409,7 +409,7 @@ class Arr
 		}
 
 		foreach ( $list as $step ) {
-			if (! $this->type->isWord($step)) {
+			if (! $this->type->isTheString($step)) {
 				throw new InvalidArgumentException('Step should be number or string', func_get_args());
 			}
 

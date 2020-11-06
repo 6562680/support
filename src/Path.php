@@ -132,7 +132,7 @@ class Path
 		[ 1 => $args ] = $this->php->kwargs(...$parts);
 
 		$result = array_reduce($args, static function (array $carry, $part) {
-			if (! $this->type->isWord($part)) {
+			if (! $this->type->isTheString($part)) {
 				throw new InvalidArgumentException('Each part should be non-empty stringable', $part);
 			}
 

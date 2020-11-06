@@ -45,13 +45,13 @@ class Preg
 		foreach ( $regex as $part ) {
 			if (is_array($part)) {
 				foreach ( $part as $p ) {
-					if (! $this->type->isWord($p)) {
+					if (! $this->type->isTheString($p)) {
 						throw new InvalidArgumentException('Each sub-part should be non-empty string', $p);
 					}
 
 					$result[] = preg_quote($p, $delimiter);
 				}
-			} elseif ($this->type->isWord($part)) {
+			} elseif ($this->type->isTheString($part)) {
 				$result[] = $part;
 
 			} else {
