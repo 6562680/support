@@ -2,7 +2,6 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 /**
@@ -62,7 +61,7 @@ class Preg
 		$result = $delimiter . implode('', $result) . $delimiter . $flags;
 
 		if (! $this->isValid($result)) {
-			throw new RuntimeException('Unable to create regex. ' . $this->lastError(), $result);
+			throw new InvalidArgumentException('Unable to create regex, try to omit separators and flags. ' . $this->lastError(), $result);
 		}
 
 		return $result;
@@ -95,7 +94,7 @@ class Preg
 	 */
 	public function lastError()
 	{
-		return static::$errorCodes[ preg_last_error() ];
+		return $this->error(preg_last_error());
 	}
 
 
