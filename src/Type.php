@@ -60,10 +60,9 @@ class Type
 	 */
 	public function isTheFloat($value) : bool
 	{
-		return ! is_nan($value)
-			&& ( is_float($value)
-				|| ( false !== filter_var($value, FILTER_VALIDATE_FLOAT) )
-			);
+		return ( ( is_float($value) && ! is_nan($value) )
+			|| ( false !== filter_var($value, FILTER_VALIDATE_FLOAT) )
+		);
 	}
 
 
@@ -75,7 +74,8 @@ class Type
 	public function isNumber($value) : bool
 	{
 		return ( is_int($value)
-			|| ( ! is_nan($value) && ( is_float($value) || is_numeric($value) ) )
+			|| ( is_float($value) && ! is_nan($value) )
+			|| is_numeric($value)
 		);
 	}
 
