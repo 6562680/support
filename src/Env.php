@@ -2,90 +2,90 @@
 
 namespace Gzhegow\Support;
 
+
 /**
- * Class Env
+ * Env
  */
 class Env
 {
-	/**
-	 * @param string $name
-	 * @param string $value
-	 *
-	 * @return bool
-	 */
-	public function putenv(string $name, string $value) : bool
-	{
-		$status = putenv($name . '=' . $value);
+    /**
+     * @param null      $option
+     * @param bool|null $runtime
+     *
+     * @return null|array|false|string
+     */
+    public function getenv($option = null, bool $runtime = null) // : string|array
+    {
+        $varname = is_string($option)
+            ? $option
+            : null;
 
-		if ($status) {
-			static::$env[ $name ] = $value;
-		}
+        $varname_lower = is_string($option)
+            ? mb_strtolower($option)
+            : null;
 
-		return $status;
-	}
+        $runtime = null
+            ?? ( is_bool($runtime)
+                ? $runtime
+                : null )
+            ?? ( is_bool($option)
+                ? $option
+                : null )
+            ?? true;
 
+        $env = getenv();
+        if ($runtime) {
+            $env = array_merge($env, static::$env ?? []);
+        }
 
-	/**
-	 * @param null      $option
-	 * @param bool|null $runtime
-	 *
-	 * @return null|array|false|string
-	 */
-	public function getenv($option = null, bool $runtime = null) // : string|array
-	{
-		$varname = is_string($option)
-			? $option
-			: null;
+        // one value
+        if ($varname) {
+            $result = null
+                ?? ( isset($env[ $varname ])
+                    ? getenv($varname, $runtime)
+                    : null )
+                ?? ( isset($env[ $varname_lower ])
+                    ? getenv($varname_lower, $runtime)
+                    : null );
 
-		$varname_lower = is_string($option)
-			? mb_strtolower($option)
-			: null;
+            return $result;
+        }
 
-		$runtime = null
-			?? ( is_bool($runtime)
-				? $runtime
-				: null )
-			?? ( is_bool($option)
-				? $option
-				: null )
-			?? true;
+        // all values
+        $result = [];
+        $registry = [];
+        foreach ( $env as $key => $item ) {
+            $prev = $registry[ $keyLower = mb_strtolower($key) ] ?? null;
 
-		$env = getenv();
-		if ($runtime) {
-			$env = array_merge($env, static::$env ?? []);
-		}
+            if (isset($prev)) unset($result[ $prev ]);
 
-		// one value
-		if ($varname) {
-			$result = null
-				?? ( isset($env[ $varname ])
-					? getenv($varname, $runtime)
-					: null )
-				?? ( isset($env[ $varname_lower ])
-					? getenv($varname_lower, $runtime)
-					: null );
+            $registry[ $keyLower ] = $key;
+            $result[ $key ] = getenv($key, $runtime);
+        }
 
-			return $result;
-		}
+        return $result;
+    }
 
-		// all values
-		$result = [];
-		$registry = [];
-		foreach ( $env as $key => $item ) {
-			$prev = $registry[ $keyLower = mb_strtolower($key) ] ?? null;
+    /**
+     * @param string $name
+     * @param string $value
+     *
+     * @return bool
+     */
+    public function putenv(string $name, string $value) : bool
+    {
+        $status = putenv($name . '=' . $value);
 
-			if (isset($prev)) unset($result[ $prev ]);
+        if ($status) {
+            static::$env[ $name ] = $value;
+        }
 
-			$registry[ $keyLower ] = $key;
-			$result[ $key ] = getenv($key, $runtime);
-		}
-
-		return $result;
-	}
+        return $status;
+    }
 
 
-	/**
-	 * @var
-	 */
-	protected static $env;
+    /**
+     * @var
+     */
+    protected static $env;
 }

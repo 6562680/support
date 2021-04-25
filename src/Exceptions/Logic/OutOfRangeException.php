@@ -4,8 +4,9 @@ namespace Gzhegow\Support\Exceptions\Logic;
 
 use Gzhegow\Support\Exceptions\LogicException;
 
+
 /**
- * Class InvalidArgumentException
+ * InvalidArgumentException
  */
 class OutOfRangeException extends LogicException
 {

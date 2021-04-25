@@ -4,8 +4,9 @@ namespace Gzhegow\Support\Exceptions\Runtime;
 
 use Gzhegow\Support\Exceptions\RuntimeException;
 
+
 /**
- * Class UnexpectedValueException
+ * UnexpectedValueException
  */
 class UnexpectedValueException extends RuntimeException
 {

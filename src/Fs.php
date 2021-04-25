@@ -5,147 +5,286 @@ namespace Gzhegow\Support;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
+
 /**
- * Class Fs
+ * Fs
  */
 class Fs
 {
-	/**
-	 * @param string $pathname
-	 * @param int    $mode
-	 * @param bool   $recursive
-	 * @param null   $context
-	 *
-	 * @return string
-	 */
-	public function mkdir(string $pathname, int $mode = 0755, bool $recursive = true, $context = null) : string
-	{
-		if (! is_dir($pathname)) {
-			$context
-				? mkdir($pathname, $mode, $recursive, $context)
-				: mkdir($pathname, $mode, $recursive);
-		}
+    /**
+     * @param      $filepathA
+     * @param      $filepathB
+     * @param bool $unsafe
+     *
+     * @return bool
+     */
+    public function isDiffFiles($filepathA, $filepathB, bool $unsafe = false) : bool
+    {
+        if ($unsafe) {
+            $result = is_file($filepathA) - is_file($filepathB);
 
-		return realpath($pathname);
-	}
+        } else {
+            if (! is_file($filepathA)) {
+                throw new RuntimeException('File not found: ' . $filepathA);
+            }
 
+            if (! is_file($filepathB)) {
+                throw new RuntimeException('File not found: ' . $filepathB);
+            }
 
-	/**
-	 * @param string        $dir
-	 * @param bool          $self
-	 * @param \Closure|null $ignoreFunc
-	 *
-	 * @return bool
-	 */
-	public function rmdir(string $dir, bool $self = false, \Closure $ignoreFunc = null) : bool
-	{
-		/**
-		 * @var \SplFileInfo $file
-		 */
+            $result = true;
+        }
 
-		if (! is_dir($dir)) {
-			return true;
-		}
+        if ($result) {
+            if (filesize($filepathA) != filesize($filepathB)) {
+                $result = false;
 
-		$dir = realpath($dir);
+            } else {
+                $result = $this->isDiffResources(
+                    fopen($filepathA, 'r'),
+                    fopen($filepathB, 'r')
+                );
+            }
+        }
 
-		$dirs = [];
+        return $result;
+    }
 
-		$it = new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS);
-		$iit = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::CHILD_FIRST);
+    /**
+     * @param resource $resourceA
+     * @param resource $resourceB
+     * @param bool     $close
+     *
+     * @return bool
+     */
+    public function isDiffResources($resourceA, $resourceB, bool $close = true) : bool
+    {
+        $result = true;
 
-		foreach ( $iit as $file ) {
-			$fileDir = dirname($file->getRealPath());
+        if (! ( 1
+            && is_resource($resourceA)
+            && ( 'resource (closed)' !== gettype($resourceA) )
+            && ( ! feof($resourceA) )
+        )) {
+            throw new RuntimeException('ResourceA should be opened readable resource', $resourceA);
+        }
 
-			$shouldIgnore = $ignoreFunc
-				? $ignoreFunc($file, $fileDir)
-				: false;
+        if (! ( 1
+            && is_resource($resourceB)
+            && ( 'resource (closed)' !== gettype($resourceB) )
+            && ( ! feof($resourceB) )
+        )) {
+            throw new RuntimeException('ResourceB should be opened readable resource', $resourceB);
+        }
 
-			$dirs[ $fileDir ] = $dirs[ $fileDir ]
-				?: $shouldIgnore;
+        while ( ( $bytesA = fread($resourceA, 4096) ) !== false ) {
+            $bytesB = fread($resourceB, 4096);
+            if ($bytesA !== $bytesB) {
+                $result = false;
+                break;
+            }
+        }
 
-			if ($file->isDir()) {
-				$dirs[ $file->getRealPath() ] =
-					$dirs[ $file->getRealPath() ]
-						?: $shouldIgnore;
-			}
+        if ($close) {
+            fclose($resourceA);
+            fclose($resourceB);
+        }
 
-			if (! $shouldIgnore) {
-				if ($file->isFile()) {
-					unlink($file->getRealPath());
-				}
-			}
-		}
-
-
-		$hasIgnoredSelf = $dirs[ $dir ] ?? false;
-		unset($dirs[ $dir ]);
-
-		foreach ( $dirs as $dirPath => $hasIgnored ) {
-			if (! $hasIgnored) {
-				rmdir($dirPath);
-			}
-		}
-
-		if ($self && ! $hasIgnoredSelf) {
-			rmdir($dir);
-		}
-
-		return true;
-	}
+        return $result;
+    }
 
 
-	/**
-	 * @noinspection PhpComposerExtensionStubsInspection
-	 *
-	 * @param string $file
-	 *
-	 * @return array
-	 */
-	public function fileowner(string $file) : array
-	{
-		if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-			throw new \RuntimeException('Only allowed to run on Linux');
-		}
+    /**
+     * @param string $pathname
+     * @param int    $mode
+     * @param bool   $recursive
+     * @param null   $context
+     *
+     * @return string
+     */
+    public function mkdir(string $pathname, int $mode = 0755, bool $recursive = true, $context = null) : string
+    {
+        if (! is_dir($pathname)) {
+            $context
+                ? mkdir($pathname, $mode, $recursive, $context)
+                : mkdir($pathname, $mode, $recursive);
+        }
 
-		if ('' === $file) {
-			throw new InvalidArgumentException('File should be not empty');
-		}
+        return realpath($pathname);
+    }
 
-		if (! file_exists($file)) {
-			throw new RuntimeException('File not found: ' . $file);
-		}
 
-		$result = false;
+    /**
+     * @param string        $dir
+     * @param bool          $self
+     * @param null|\Closure $keepFunc
+     *
+     * @return bool
+     */
+    public function rmdir(
+        string $dir,
+        bool $self = false,
+        \Closure $keepFunc = null
+    ) : bool
+    {
+        /**
+         * @var \SplFileInfo $splFileInfo
+         */
 
-		$stat = stat($file);
-		if ($stat) {
-			$group = posix_getgrgid($stat[ 5 ]);
-			$user = posix_getpwuid($stat[ 4 ]);
+        if (! is_dir($dir)) {
+            return true;
+        }
 
-			$result = compact('user', 'group');
-		}
+        $dir = realpath($dir);
 
-		return $result;
-	}
+        $dirs = [];
 
-	/**
-	 * @param string $file
-	 *
-	 * @return string
-	 */
-	public function fileperms(string $file) : string
-	{
-		if ('' === $file) {
-			throw new InvalidArgumentException('File should be not empty');
-		}
+        $it = new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS);
+        $iit = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::CHILD_FIRST);
 
-		if (! file_exists($file)) {
-			throw new RuntimeException('File not found: ' . $file);
-		}
+        foreach ( $iit as $splFileInfo ) {
+            $shouldKeep = $keepFunc ? $keepFunc($splFileInfo) : false;
 
-		$result = substr(sprintf('%o', fileperms($file)), -4);
+            $dirname = dirname($splFileInfo->getRealPath());
 
-		return $result;
-	}
+            $dirs[ $dirname ] = $dirs[ $dirname ]
+                ?: $shouldKeep;
+
+            if ($splFileInfo->isDir()) {
+                $dirs[ $splFileInfo->getRealPath() ] =
+                    $dirs[ $splFileInfo->getRealPath() ]
+                        ?: $shouldKeep;
+            }
+
+            if (! $shouldKeep) {
+                if ($splFileInfo->isFile()) {
+                    unlink($splFileInfo->getRealPath());
+                }
+            }
+        }
+
+        $keepSelf = $dirs[ $dir ] ?? false;
+
+        unset($dirs[ $dir ]);
+        foreach ( $dirs as $dirPath => $shouldKeep ) {
+            if (! $shouldKeep) {
+                rmdir($dirPath);
+            }
+        }
+
+        if ($self && ! $keepSelf) {
+            rmdir($dir);
+        }
+
+        return true;
+    }
+
+
+    /**
+     * @param string $filename
+     * @param bool   $use_include_path
+     * @param null   $context
+     * @param int    $offset
+     * @param null   $length
+     *
+     * @return null|string
+     */
+    public function fileGet(string $filename, bool $use_include_path = false, $context = null, $offset = 0,
+        $length = null
+    ) : ?string
+    {
+        if (! is_file($filename)) {
+            throw new RuntimeException('File not found: ' . $filename);
+        }
+
+        if (! is_readable($filename)) {
+            throw new RuntimeException('File is not readable: ' . $filename);
+        }
+
+        $result = file_get_contents($filename, $use_include_path, $context, $offset, $length);
+
+        return ( false !== $result )
+            ? $result
+            : null;
+    }
+
+    /**
+     * @param string $filename
+     * @param        $data
+     * @param int    $flags
+     * @param null   $context
+     *
+     * @return null|string
+     */
+    public function filePut(string $filename, $data, int $flags = 0, $context = null) : ?string
+    {
+        if (! is_writable($filename)) {
+            throw new RuntimeException('File is not writable: ' . $filename);
+        }
+
+        isset($context)
+            ? file_put_contents($filename, $data, $flags, $context)
+            : file_put_contents($filename, $data, $flags);
+
+        $result = realpath($filename);
+
+        return ( false !== $result )
+            ? $result
+            : null;
+    }
+
+
+    /**
+     * @noinspection PhpComposerExtensionStubsInspection
+     *
+     * @param string $file
+     *
+     * @return array
+     */
+    public function fileOwner(string $file) : array
+    {
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            throw new \RuntimeException('Only allowed to run on Linux');
+        }
+
+        if ('' === $file) {
+            throw new InvalidArgumentException('File should be not empty');
+        }
+
+        if (! file_exists($file)) {
+            throw new RuntimeException('File not found: ' . $file);
+        }
+
+        $result = false;
+
+        $stat = stat($file);
+        if ($stat) {
+            $group = posix_getgrgid($stat[ 5 ]);
+            $user = posix_getpwuid($stat[ 4 ]);
+
+            $result = compact('user', 'group');
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string $file
+     *
+     * @return string
+     */
+    public function filePerms(string $file) : string
+    {
+        if ('' === $file) {
+            throw new InvalidArgumentException('File should be not empty');
+        }
+
+        if (! file_exists($file)) {
+            throw new RuntimeException('File not found: ' . $file);
+        }
+
+        $result = substr(sprintf('%o', fileperms($file)), -4);
+
+        return $result;
+    }
 }

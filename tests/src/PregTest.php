@@ -6,23 +6,23 @@ use Gzhegow\Support\Preg;
 use Gzhegow\Support\Type;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
-Class PregTest extends AbstractTestCase
+class PregTest extends AbstractTestCase
 {
-	public function testNew()
-	{
-		$preg = new Preg(new Type());
+    public function testNew()
+    {
+        $preg = new Preg(new Type());
 
-		$this->assertEquals('/\//', $preg->new([ [ '/' ] ]));
-		$this->assertEquals('/hello(world)+/', $preg->new([ 'hello', '(', [ 'world' ], ')+' ]));
-	}
+        $this->assertEquals('/\//', $preg->new([ [ '/' ] ]));
+        $this->assertEquals('/hello(world)+/', $preg->new([ 'hello', '(', [ 'world' ], ')+' ]));
+    }
 
 
-	public function testNewBad()
-	{
-		$this->expectException(InvalidArgumentException::class);
+    public function testNewBad()
+    {
+        $this->expectException(InvalidArgumentException::class);
 
-		$preg = new Preg(new Type());
+        $preg = new Preg(new Type());
 
-		$preg->new([ '/hello/iu' ]);
-	}
+        $preg->new([ '/hello/iu' ]);
+    }
 }

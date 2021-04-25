@@ -9,29 +9,29 @@ use PHPUnit\Framework\TestCase;
  */
 abstract class AbstractTestCase extends TestCase
 {
-	/**
-	 * @return void
-	 */
-	protected function setUp() : void
-	{
-		if (! static::$boot) {
-			static::boot();
+    /**
+     * @return void
+     */
+    protected function setUp() : void
+    {
+        if (! static::$boot) {
+            static::boot();
 
-			static::$boot = true;
-		}
-	}
-
-
-	/**
-	 * @return void
-	 */
-	protected static function boot() : void
-	{
-	}
+            static::$boot = true;
+        }
+    }
 
 
-	/**
-	 * @var bool
-	 */
-	protected static $boot = false;
+    /**
+     * @return void
+     */
+    protected static function boot() : void
+    {
+    }
+
+
+    /**
+     * @var bool
+     */
+    protected static $boot = false;
 }

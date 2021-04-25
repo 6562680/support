@@ -2,8 +2,9 @@
 
 namespace Gzhegow\Support\Exceptions\Logic;
 
+
 /**
- * Class BadMethodCallException
+ * BadMethodCallException
  */
 class BadMethodCallException extends BadFunctionCallException
 {

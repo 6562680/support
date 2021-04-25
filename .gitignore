@@ -1,6 +1,6 @@
-/.data
 /.idea
 /vendor
-composer.lock
 
-!.gitkeep
+.phpunit.*
+
+composer.lock

@@ -5,274 +5,243 @@ namespace Gzhegow\Support;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
+
 /**
- * Class Php
+ * Php
  */
 class Php
 {
-	/**
-	 * @param object $object
-	 *
-	 * @return array
-	 */
-	public function getPublicVars(object $object) : array
-	{
-		return get_object_vars($object);
-	}
+    /**
+     * @param object $object
+     *
+     * @return array
+     */
+    public function getPublicVars(object $object) : array
+    {
+        return get_object_vars($object);
+    }
 
 
-	/**
-	 * @param mixed $class
-	 *
-	 * @return bool
-	 */
-	public function isValidClass($class) : bool
-	{
-		if (! is_string($class)) return false;
-		if ('' === $class) return false;
+    /**
+     * @param string $name
+     * @param null   $value
+     *
+     * @return null|string
+     */
+    public function const(string $name, $value = null) : ?string
+    {
+        if (! $name) {
+            throw new InvalidArgumentException('Argument 1 should be defined');
+        }
 
-		foreach ( explode('\\', $class) as $part ) {
-			if (! $result = $this->isValidClassName($part)) {
-				return false;
-			}
-		}
+        if (! defined($name)) {
+            define($name, $value);
 
-		return true;
-	}
+        } else {
+            if (isset($value)) {
+                throw new RuntimeException('Constant is already defined: ' . $name);
+            }
+        }
 
-	/**
-	 * @param mixed $className
-	 *
-	 * @return bool
-	 */
-	public function isValidClassName($className) : bool
-	{
-		return is_string($className)
-			&& ( '' !== $className )
-			&& false !== preg_match('~^[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*$~', $className);
-	}
+        return constant($name);
+    }
 
 
-	/**
-	 * @param string $name
-	 * @param null   $value
-	 *
-	 * @return null|string
-	 */
-	public function const(string $name, $value = null) : ?string
-	{
-		if (! $name) {
-			throw new InvalidArgumentException('Argument 1 should be defined');
-		}
+    /**
+     * @param mixed ...$arguments
+     *
+     * @return array
+     */
+    public function kwargs(...$arguments) : array
+    {
+        $kwargs = [];
+        $args = [];
 
-		if (! defined($name)) {
-			define($name, $value);
+        foreach ( $arguments as $argument ) {
+            if (is_array($argument)) {
+                foreach ( $argument as $key => $val ) {
+                    if (is_string($key)) {
+                        $kwargs[ $key ] = $val;
 
-		} else {
-			if (isset($value)) {
-				throw new RuntimeException('Constant is already defined: ' . $name);
-			}
-		}
+                    } else {
+                        $args[] = $val;
 
-		return constant($name);
-	}
+                    }
+                }
+            } else {
+                $args[] = $argument;
+            }
+        }
 
+        return [ $kwargs, $args ];
+    }
 
-	/**
-	 * @param mixed ...$arguments
-	 *
-	 * @return array
-	 */
-	public function kwargs(...$arguments) : array
-	{
-		$kwargs = [];
-		$args = [];
+    /**
+     * @param mixed ...$arguments
+     *
+     * @return array
+     */
+    public function kwargsFlatten(...$arguments) : array
+    {
+        $kwargs = [];
+        $args = [];
 
-		foreach ( $arguments as $argument ) {
-			if (is_array($argument)) {
-				foreach ( $argument as $key => $val ) {
-					if (is_string($key)) {
-						$kwargs[ $key ] = $val;
+        array_walk_recursive($arguments, function ($val, $key) use (&$kwargs, &$args) {
+            if (is_string($key)) {
+                $kwargs[ $key ] = $val;
 
-					} else {
-						$args[] = $val;
+            } else {
+                $args[] = $val;
 
-					}
-				}
-			} else {
-				$args[] = $argument;
-			}
-		}
+            }
+        });
 
-		return [ $kwargs, $args ];
-	}
-
-	/**
-	 * @param mixed ...$arguments
-	 *
-	 * @return array
-	 */
-	public function kwargsFlatten(...$arguments) : array
-	{
-		$kwargs = [];
-		$args = [];
-
-		array_walk_recursive($arguments, function ($val, $key) use (&$kwargs, &$args) {
-			if (is_string($key)) {
-				$kwargs[ $key ] = $val;
-
-			} else {
-				$args[] = $val;
-
-			}
-		});
-
-		return [ $kwargs, $args ];
-	}
+        return [ $kwargs, $args ];
+    }
 
 
-	/**
-	 * @param mixed ...$arguments
-	 *
-	 * @return array
-	 * @throws InvalidArgumentException
-	 */
-	public function kwparams(...$arguments) : array
-	{
-		$registry = [];
+    /**
+     * @param mixed ...$arguments
+     *
+     * @return array
+     * @throws InvalidArgumentException
+     */
+    public function kwparams(...$arguments) : array
+    {
+        $registry = [];
 
-		$kwargs = [];
-		$args = [];
-		foreach ( $arguments as $idx => $argument ) {
-			if (is_array($argument)) {
-				foreach ( $argument as $key => $val ) {
-					if (! isset($registry[ $key ])) {
-						$registry[ $key ] = true;
+        $kwargs = [];
+        $args = [];
+        foreach ( $arguments as $idx => $argument ) {
+            if (is_array($argument)) {
+                foreach ( $argument as $key => $val ) {
+                    if (! isset($registry[ $key ])) {
+                        $registry[ $key ] = true;
 
-						if (is_string($key)) {
-							$kwargs[ $key ] = $val;
+                        if (is_string($key)) {
+                            $kwargs[ $key ] = $val;
 
-						} else {
-							$args[ $key ] = $val;
+                        } else {
+                            $args[ $key ] = $val;
 
-						}
-					} else {
-						throw new InvalidArgumentException('Duplicate key found: ' . $key, $arguments);
-					}
-				}
-			} else {
-				if (! isset($registry[ $idx ])) {
-					$registry[ $idx ] = true;
+                        }
+                    } else {
+                        throw new InvalidArgumentException('Duplicate key found: ' . $key, $arguments);
+                    }
+                }
+            } else {
+                if (! isset($registry[ $idx ])) {
+                    $registry[ $idx ] = true;
 
-					$args[ $idx ] = $argument;
+                    $args[ $idx ] = $argument;
 
-				} else {
-					throw new InvalidArgumentException('Duplicate key found: ' . $idx, $arguments);
-				}
-			}
-		}
+                } else {
+                    throw new InvalidArgumentException('Duplicate key found: ' . $idx, $arguments);
+                }
+            }
+        }
 
-		return [ $kwargs, $args ];
-	}
-
-
-	/**
-	 * @param string|object $item
-	 *
-	 * @return array
-	 */
-	public function splitclass($item) : array
-	{
-		$class = $item;
-
-		switch ( true ):
-			case is_object($item):
-				$class = get_class($item);
-				break;
-
-		endswitch;
-
-		if (! is_string($class)) {
-			throw new InvalidArgumentException('Class should be string or object');
-		}
-
-		$result = explode('\\', $class);
-
-		return $result;
-	}
+        return [ $kwargs, $args ];
+    }
 
 
-	/**
-	 * @param mixed $item
-	 *
-	 * @return array
-	 */
-	public function nsclass($item) : array
-	{
-		$array = $this->splitclass($item);
+    /**
+     * @param string|object $item
+     *
+     * @return array
+     */
+    public function splitclass($item) : array
+    {
+        $class = $item;
 
-		$class = array_pop($array);
-		$namespace = implode($separator = '\\', $array)
-			?: null;
+        switch ( true ):
+            case is_object($item):
+                $class = get_class($item);
+                break;
 
-		return [ $namespace, $class ];
-	}
+        endswitch;
 
-	/**
-	 * @param mixed $item
-	 *
-	 * @return string
-	 */
-	public function class($item) : string
-	{
-		$array = $this->splitclass($item);
+        if (! is_string($class)) {
+            throw new InvalidArgumentException('Class should be string or object');
+        }
 
-		return array_pop($array);
-	}
+        $result = explode('\\', $class);
 
-	/**
-	 * @param             $item
-	 *
-	 * @return null|string
-	 */
-	public function namespace($item) : ?string
-	{
-		$array = $this->splitclass($item);
-
-		array_pop($array);
-
-		return implode('\\', $array);
-	}
+        return $result;
+    }
 
 
-	/**
-	 * @param mixed       $item
-	 * @param string|null $base
-	 *
-	 * @return string
-	 */
-	public function baseclass($item, string $base = null) : string
-	{
-		switch ( true ):
-			case is_string($item) && class_exists($item):
-				$class = $item;
-				break;
+    /**
+     * @param mixed $item
+     *
+     * @return array
+     */
+    public function nsclass($item) : array
+    {
+        $array = $this->splitclass($item);
 
-			case is_object($item):
-				$class = get_class($item);
-				break;
+        $class = array_pop($array);
+        $namespace = implode($separator = '\\', $array)
+            ?: null;
 
-			default:
-				throw new InvalidArgumentException('Argument 1 should be object or class', func_get_args());
+        return [ $namespace, $class ];
+    }
 
-		endswitch;
+    /**
+     * @param mixed $item
+     *
+     * @return string
+     */
+    public function class($item) : string
+    {
+        $array = $this->splitclass($item);
 
-		$relative = $class;
+        return array_pop($array);
+    }
 
-		if ($base && 0 === stripos($class, rtrim($base, '\\'))) {
-			$relative = str_ireplace($base . '\\', '', $class);
-		}
+    /**
+     * @param             $item
+     *
+     * @return null|string
+     */
+    public function namespace($item) : ?string
+    {
+        $array = $this->splitclass($item);
 
-		return $relative;
-	}
+        array_pop($array);
+
+        return implode('\\', $array);
+    }
+
+
+    /**
+     * @param mixed       $item
+     * @param string|null $base
+     *
+     * @return string
+     */
+    public function baseclass($item, string $base = null) : string
+    {
+        switch ( true ):
+            case is_string($item) && class_exists($item):
+                $class = $item;
+                break;
+
+            case is_object($item):
+                $class = get_class($item);
+                break;
+
+            default:
+                throw new InvalidArgumentException('Argument 1 should be object or class', func_get_args());
+
+        endswitch;
+
+        $relative = $class;
+
+        if ($base && 0 === stripos($class, rtrim($base, '\\'))) {
+            $relative = str_ireplace($base . '\\', '', $class);
+        }
+
+        return $relative;
+    }
 }

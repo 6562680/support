@@ -2,108 +2,152 @@
 
 namespace Gzhegow\Support;
 
+
 /**
- * Class Debug
+ * Debug
  */
 class Debug
 {
-	/**
-	 * @param mixed $arg
-	 *
-	 * @return mixed
-	 */
-	public function arg($arg)
-	{
-		if (is_null($arg)) {
-			$arg = '{ NULL }';
+    /**
+     * @param mixed $arg
+     *
+     * @return string
+     */
+    public function arg($arg) : string
+    {
+        if (is_null($arg)) {
+            $result = '{ NULL }';
 
-		} elseif (is_bool($arg)) {
-			$arg = $arg
-				? 'TRUE'
-				: 'FALSE';
+        } elseif (is_bool($arg)) {
+            $result = $arg
+                ? 'TRUE'
+                : 'FALSE';
 
-		} elseif (is_object($arg)) {
-			$arg = '{ #' . spl_object_id($arg) . ' ' . get_class($arg) . ' }';
+        } elseif (is_object($arg)) {
+            $result = '{ #' . spl_object_id($arg) . ' ' . get_class($arg) . ' }';
 
-		} elseif (is_resource($arg)) {
-			$arg = '{ Resource #' . intval($arg) . ' }';
+        } elseif (is_resource($arg)) {
+            $result = '{ Resource #' . intval($arg) . ' }';
 
-		}
+        } else {
+            $result = $arg;
 
-		return $arg;
-	}
+        }
 
-	/**
-	 * @param array $args
-	 *
-	 * @return mixed
-	 */
-	public function args(array $args)
-	{
-		array_walk_recursive($args, function (&$v) {
-			$v = $this->arg($v);
-		});
+        return $result;
+    }
 
-		return $args;
-	}
+    /**
+     * @param array $args
+     *
+     * @return string[]
+     */
+    public function args(array $args) : array
+    {
+        array_walk_recursive($args, function (&$v) {
+            $v = $this->arg($v);
+        });
 
-
-	/**
-	 * @param string $content
-	 *
-	 * @return string
-	 */
-	public function doc(string $content) : string
-	{
-		return preg_replace("/\s+/m", ' ', $content);
-	}
+        return $args;
+    }
 
 
-	/**
-	 * @param array $trace
-	 *
-	 * @return array
-	 */
-	public function trace(array $trace) : array
-	{
-		$trace[ 'args' ] = $this->printR($this->args($trace[ 'args' ]), 1);
-
-		return $trace;
-	}
+    /**
+     * @param string $content
+     *
+     * @return string
+     */
+    public function doc(string $content) : string
+    {
+        return preg_replace("/\s+/m", ' ', $content);
+    }
 
 
-	/**
-	 * @param array $arguments
-	 *
-	 * @return string
-	 */
-	public function varDump(...$arguments) : string
-	{
-		ob_start();
+    /**
+     * @param array       $trace
+     * @param array       $columns
+     * @param null|string $implode
+     *
+     * @return array
+     */
+    public function trace(array $trace, array $columns = [], string $implode = null) : array
+    {
+        $result = [];
 
-		var_dump(...$arguments);
+        $shouldBreak = false;
+        foreach ( $trace as $idx => $line ) {
+            if (! is_int($idx)) {
+                $line = $trace;
+                $shouldBreak = true;
+            }
 
-		return ob_get_clean();
-	}
+            $data = [];
+            if (! $columns) {
+                $data = $line;
+
+            } else {
+                if (count($columns) === 1) {
+                    $data = $line[ reset($columns) ];
+                } else {
+                    foreach ( $columns as $column ) {
+                        $data[ $column ] = $line[ $column ] ?? '<' . $column . '>';
+                    }
+                }
+            }
+
+            if (is_array($data)) {
+                if ($implode) {
+                    $result[ $idx ] = implode($implode, $data);
+
+                } else {
+                    $result[ $idx ] = $data;
+                    $result[ $idx ][ 'args' ] = $this->printR($this->args($line[ 'args' ]), 1);
+                }
+            } else {
+                $result[ $idx ] = $data;
+            }
+
+            if ($shouldBreak) {
+                break;
+            }
+        }
+
+        return null
+            ?? ( count($result) > 1 ? $result : null )
+            ?? ( count($result) > 0 ? reset($result) : null )
+            ?? [];
+    }
 
 
-	/**
-	 * @param mixed     $arg
-	 * @param bool|null $return
-	 *
-	 * @return string
-	 */
-	public function printR($arg, bool $return = null) : ?string
-	{
-		if (! $return) {
-			ob_start();
-			print_r($arg);
-			ob_end_clean();
+    /**
+     * @param array $arguments
+     *
+     * @return string
+     */
+    public function varDump(...$arguments) : string
+    {
+        ob_start();
 
-			return null;
+        var_dump(...$arguments);
 
-		}
+        return ob_get_clean();
+    }
 
-		return $this->doc(print_r($arg, $return));
-	}
+
+    /**
+     * @param mixed     $arg
+     * @param bool|null $return
+     *
+     * @return string
+     */
+    public function printR($arg, bool $return = null) : ?string
+    {
+        if (! $return) {
+            print_r($arg);
+
+            return null;
+        }
+
+        return $this->doc(print_r($arg, $return));
+    }
 }
