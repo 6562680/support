@@ -277,35 +277,31 @@ class Type
     }
 
     /**
-     * @param mixed        $func
-     * @param null|string &$class
-     * @param null|string &$method
-     * @param null|object &$object
+     * @param mixed $func
      *
      * @return bool
      */
-    public function isCallableArray($func, string &$class = null, string &$method = null, &$object = null) : bool
+    public function isCallableString($func) : bool
     {
-        return is_array($func)
-            && ( $this->isCallableArrayString($func, $class, $method)
-                || $this->isCallableArrayObject($func, $object, $method, $class) );
+        return $this->isTheString($func) && is_callable($func);
     }
+
 
     /**
      * @param mixed        $func
-     *
-     * @param null|object &$object
-     * @param null|string &$method
      * @param null|string &$class
+     * @param null|string &$method
+     * @param null|object &$object
      *
      * @return bool
      */
-    public function isCallableArrayObject($func, &$object = null, string &$method = null, string &$class = null) : bool
+    public function isCallableArray($func, &$class = null, &$method = null, &$object = null) : bool
     {
         return is_array($func)
-            && isset($func[ 0 ]) && is_object($object = $func[ 0 ]) && is_string($class = get_class($object))
-            && isset($func[ 1 ]) && $this->isTheString($method = $func[ 1 ])
-            && is_callable($func);
+            && ( 0
+                || $this->isCallableArrayString($func, $class, $method)
+                || $this->isCallableArrayObject($func, $object, $class, $method)
+            );
     }
 
     /**
@@ -324,13 +320,20 @@ class Type
     }
 
     /**
-     * @param mixed $func
+     * @param mixed        $func
+     *
+     * @param null|object &$object
+     * @param null|string &$method
+     * @param null|string &$class
      *
      * @return bool
      */
-    public function isCallableString($func) : bool
+    public function isCallableArrayObject($func, &$object = null, &$class = null, &$method = null) : bool
     {
-        return $this->isTheString($func) && is_callable($func);
+        return is_array($func)
+            && isset($func[ 0 ]) && is_object($object = $func[ 0 ]) && ( $class = get_class($object) )
+            && isset($func[ 1 ]) && $this->isTheString($method = $func[ 1 ])
+            && is_callable($func);
     }
 
 
