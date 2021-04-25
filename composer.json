@@ -1,33 +1,34 @@
 {
-    "name": "gzhegow/di",
-    "description": "Dependency-Injection Container",
-    "type": "library",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "gzhegow",
-            "email": "6562680@gmail.com"
-        }
-    ],
-    "require": {
-        "php": "^7.3",
-        
-        "psr/container": "^1.0",
-        "gzhegow/reflection": "^1.0"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "^9.0",
-        
-        "symfony/var-dumper": "^4.0"
-    },
-    "autoload": {
-        "psr-4": {
-            "Gzhegow\\Di\\": "src/gzhegow/Di"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "Gzhegow\\Di\\Tests\\": "tests/src"
-        }
+  "name": "gzhegow/di",
+  "description": "Dependency-Injection Container",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "gzhegow",
+      "email": "6562680@gmail.com"
     }
+  ],
+  "require": {
+    "php": "^7.3",
+    
+    "psr/container": "^1.0",
+    
+    "gzhegow/reflection": "^1.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.0",
+    
+    "symfony/var-dumper": "^4.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Gzhegow\\Di\\": "src/gzhegow/Di"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Gzhegow\\Di\\Tests\\": "tests/src"
+    }
+  }
 }

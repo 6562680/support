@@ -532,27 +532,27 @@ class DiTest extends AbstractTestCase
         $di->get(MyLoopAServiceInterface::class);
     }
 
+
     /**
      * @return void
      */
     public function testBadLoopABClosure()
     {
-        // we recommend await Node in closures (we pass it directly to first argument when creating via closure)
-        // usually you can use $di->get() inside closure, but it is incorrect, because loop detection will be broken
+        // use $parent->get($id) instead of $di->get($id) to prevent breaking autowire-loop detection
 
         $this->expectException(AutowireLoopException::class);
 
         $di = ( new DiFactory() )->newDi();
 
-        $di->bind(MyLoopAService::class, function (Node $loop) {
+        $di->bind(MyLoopAService::class, function (Node $parent) {
             return new MyLoopAService(
-                $loop->create(MyLoopBService::class)
+                $parent->create(MyLoopBService::class)
             );
         });
 
-        $di->bind(MyLoopBService::class, function (Node $loop) {
+        $di->bind(MyLoopBService::class, function (Node $parent) {
             return new MyLoopBService(
-                $loop->create(MyLoopAService::class)
+                $parent->create(MyLoopAService::class)
             );
         });
 
@@ -564,22 +564,21 @@ class DiTest extends AbstractTestCase
      */
     public function testBadLoopABClosureInterfaces()
     {
-        // we recommend await Node in closures (we pass it directly to first argument when creating via closure)
-        // usually you can use $di->get() inside closure, but it is incorrect, because loop detection will be broken
+        // use $parent->get($id) instead of $di->get($id) to prevent breaking autowire-loop detection
 
         $this->expectException(AutowireLoopException::class);
 
         $di = ( new DiFactory() )->newDi();
 
-        $di->bind(MyLoopAServiceInterface::class, function (Node $loop) {
+        $di->bind(MyLoopAServiceInterface::class, function (Node $parent) {
             return new MyLoopAService(
-                $loop->create(MyLoopBServiceInterface::class)
+                $parent->create(MyLoopBServiceInterface::class)
             );
         });
 
-        $di->bind(MyLoopBServiceInterface::class, function (Node $loop) {
+        $di->bind(MyLoopBServiceInterface::class, function (Node $parent) {
             return new MyLoopBService(
-                $loop->create(MyLoopAServiceInterface::class)
+                $parent->create(MyLoopAServiceInterface::class)
             );
         });
 
