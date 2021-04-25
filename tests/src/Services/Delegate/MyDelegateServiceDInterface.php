@@ -2,7 +2,7 @@
 
 namespace Gzhegow\Di\Tests\Services\Delegate;
 
-use Gzhegow\Di\DelegateInterface;
+use Gzhegow\Di\Domain\Delegate\DelegateInterface;
 
 /**
  * Interface MyDelegateServiceDInterface

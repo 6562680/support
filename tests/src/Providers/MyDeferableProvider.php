@@ -2,8 +2,8 @@
 
 namespace Gzhegow\Di\Tests\Providers;
 
-use Gzhegow\Di\DeferableProvider;
 use Gzhegow\Di\Tests\Services\MyAService;
+use Gzhegow\Di\Domain\Provider\DeferableProvider;
 use Gzhegow\Di\Tests\Services\MyServiceAInterface;
 
 /**
@@ -16,7 +16,7 @@ class MyDeferableProvider extends DeferableProvider
 	 */
 	protected function getMyAService() : MyServiceAInterface
 	{
-		return $this->di->getOrFail(MyServiceAInterface::class);
+		return $this->di->get(MyServiceAInterface::class);
 	}
 
 

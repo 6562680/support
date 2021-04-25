@@ -9,29 +9,42 @@ use PHPUnit\Framework\TestCase;
  */
 abstract class AbstractTestCase extends TestCase
 {
-	/**
-	 * @return void
-	 */
-	protected function setUp() : void
-	{
-		if (! static::$boot) {
-			static::boot();
+    /**
+     * @return void
+     * @throws \ErrorException
+     */
+    protected function setUp() : void
+    {
+        if (! static::$boot) {
+            static::boot();
 
-			static::$boot = true;
-		}
-	}
-
-
-	/**
-	 * @return void
-	 */
-	protected static function boot() : void
-	{
-	}
+            static::$boot = true;
+        }
+    }
 
 
-	/**
-	 * @var bool
-	 */
-	protected static $boot = false;
+    /**
+     * @return void
+     * @throws \ErrorException
+     */
+    protected static function boot() : void
+    {
+        $trace = [];
+
+        set_error_handler(function ($code, $string, $file, $line) use (&$trace) {
+            $trace = debug_backtrace();
+
+            throw new \ErrorException($string, null, $code, $file, $line);
+        });
+
+        register_shutdown_function(function () use (&$trace) {
+            print_r($trace);
+        });
+    }
+
+
+    /**
+     * @var bool
+     */
+    protected static $boot = false;
 }

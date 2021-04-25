@@ -7,19 +7,19 @@ namespace Gzhegow\Di\Tests\Services\Loop;
  */
 class MyLoopService
 {
-	/**
-	 * @var MyLoopService
-	 */
-	public $myLoopService;
+    /**
+     * @var MyLoopService
+     */
+    public $myLoopService;
 
 
-	/**
-	 * Constructor
-	 *
-	 * @param MyLoopService $myLoopService
-	 */
-	public function __construct(MyLoopService $myLoopService)
-	{
-		$this->myLoopService = $myLoopService;
-	}
+    /**
+     * Constructor
+     *
+     * @param MyLoopService $myLoopService
+     */
+    public function __construct(MyLoopService $myLoopService)
+    {
+        $this->myLoopService = $myLoopService;
+    }
 }

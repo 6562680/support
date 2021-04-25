@@ -2,7 +2,7 @@
 
 namespace Gzhegow\Di\Tests\Providers;
 
-use Gzhegow\Di\Provider;
+use Gzhegow\Di\Domain\Provider\Provider;
 use Gzhegow\Di\Tests\Services\MyAService;
 use Gzhegow\Di\Tests\Services\MyServiceAInterface;
 
