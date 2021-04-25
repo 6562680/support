@@ -4,13 +4,17 @@ namespace Gzhegow\Di;
 
 
 use Gzhegow\Di\Domain\Delegate\DelegateManager;
+use Gzhegow\Di\Domain\Injector\InjectorInterface;
 use Gzhegow\Di\Domain\Provider\ProviderManager;
 use Gzhegow\Di\App\Exceptions\Runtime\Domain\NotFoundException;
+use Psr\Container\ContainerInterface;
 
 /**
  * Di
  */
-interface DiInterface
+interface DiInterface extends
+    ContainerInterface,
+    InjectorInterface
 {
     /**
      * @return DiManager
