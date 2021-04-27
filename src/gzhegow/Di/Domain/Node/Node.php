@@ -634,10 +634,8 @@ class Node implements
 
         if ($this->extendRegistry->hasExtend($last)) {
             foreach ( $this->extendRegistry->getExtends($last) as $func ) {
-                $result = $this->handle($func, [
+                $result = $this->handle($func, $result, [
                     Node::class => $this,
-
-                    $last => $result,
                 ]);
             }
         }
