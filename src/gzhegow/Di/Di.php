@@ -104,6 +104,7 @@ class Di implements DiInterface
             ContainerInterface::class,
             InjectorInterface::class,
             DiInterface::class,
+
             static::class,
         ];
         foreach ( $binds as $key ) {

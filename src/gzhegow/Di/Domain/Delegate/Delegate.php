@@ -68,7 +68,9 @@ class Delegate implements DelegateInterface
             $this->loadDelegate();
         }
 
-        return $this->delegate->{$name};
+        $result = $this->delegate->{$name};
+
+        return $result;
     }
 
     /**

@@ -516,8 +516,9 @@ class Node implements
 
         $binds[] = $last = $id;
 
-        $result = $this->tryResolveClass($last, ...$arguments)
-            ?: [];
+        $result = null
+            ?? ( $this->tryResolveClass($last, ...$arguments) ?: null )
+            ?? [];
 
         if (! $result) {
             throw new AutowireException('Unable to resolve id: ' . $id, func_get_args());
@@ -527,8 +528,8 @@ class Node implements
 
         if ($this->extendRegistry->hasExtend($last)) {
             foreach ( $this->extendRegistry->getExtends($last) as $func ) {
-                $result = $this->handle($func, [
-                    $last => $result,
+                $result = $this->handle($func, $result, [
+                    Node::class => $this,
                 ]);
             }
         }
@@ -566,9 +567,10 @@ class Node implements
             }
         }
 
-        $result = $this->tryResolveClosure($last, ...$arguments)
-            ?: $this->tryResolveClass($last, ...$arguments)
-                ?: [];
+        $result = null
+            ?? ( $this->tryResolveClosure($last, ...$arguments) ?: null )
+            ?? ( $this->tryResolveClass($last, ...$arguments) ?: null )
+            ?? [];
 
         if (! $result) {
             throw new AutowireException('Unable to resolve id: ' . $id, func_get_args());
@@ -578,8 +580,8 @@ class Node implements
 
         if ($this->extendRegistry->hasExtend($last)) {
             foreach ( $this->extendRegistry->getExtends($last) as $func ) {
-                $result = $this->handle($func, [
-                    $last => $result,
+                $result = $this->handle($func, $result, [
+                    Node::class => $this,
                 ]);
             }
         }
@@ -618,10 +620,11 @@ class Node implements
             }
         }
 
-        $result = $this->tryResolveItem($last)
-            ?: $this->tryResolveClosure($last, ...$arguments)
-                ?: $this->tryResolveClass($last, ...$arguments)
-                    ?: [];
+        $result = null
+            ?? ( $this->tryResolveItem($last) ?: null )
+            ?? ( $this->tryResolveClosure($last, ...$arguments) ?: null )
+            ?? ( $this->tryResolveClass($last, ...$arguments) ?: null )
+            ?? [];
 
         if (! $result) {
             throw new AutowireException('Unable to resolve id: ' . $id, func_get_args());
@@ -632,6 +635,8 @@ class Node implements
         if ($this->extendRegistry->hasExtend($last)) {
             foreach ( $this->extendRegistry->getExtends($last) as $func ) {
                 $result = $this->handle($func, [
+                    Node::class => $this,
+
                     $last => $result,
                 ]);
             }
@@ -857,9 +862,13 @@ class Node implements
      */
     protected function tryResolveItem($item) : array
     {
-        if (! $this->itemRegistry->hasItem($item)) return [];
+        if (! $this->itemRegistry->hasItem($item)) {
+            return [];
+        }
 
-        return [ $this->itemRegistry->getItem($item) ];
+        $result = $this->itemRegistry->getItem($item);
+
+        return [ $result ];
     }
 
     /**
@@ -871,11 +880,13 @@ class Node implements
      */
     protected function tryResolveClosure($closure, ...$arguments) : array
     {
-        if (! $this->type->isClosure($closure)) return [];
+        if (! $this->type->isClosure($closure)) {
+            return [];
+        }
 
-        return [
-            $this->handle($closure, $this, ...$arguments),
-        ];
+        $result = $this->handle($closure, $this, ...$arguments);
+
+        return [ $result ];
     }
 
     /**
@@ -887,9 +898,13 @@ class Node implements
      */
     protected function tryResolveClass($class, ...$arguments) : array
     {
-        if (! $this->type->isClass($class)) return [];
+        if (! $this->type->isClass($class)) {
+            return [];
+        }
 
-        return [ $this->resolveClass($class, ...$arguments) ];
+        $result = $this->resolveClass($class, ...$arguments);
+
+        return [ $result ];
     }
 
 
@@ -902,7 +917,9 @@ class Node implements
      */
     protected function tryAutowireCallableString($callable, array $params = []) : ?array
     {
-        if (! $this->type->isCallableString($callable)) return null;
+        if (! $this->type->isCallableString($callable)) {
+            return null;
+        }
 
         $rf = $this->reflection->reflectCallable($callable);
 
@@ -920,7 +937,9 @@ class Node implements
      */
     protected function tryAutowireCallableArray($callable, array $params = []) : ?array
     {
-        if (! $this->type->isCallableArray($callable)) return null;
+        if (! $this->type->isCallableArray($callable)) {
+            return null;
+        }
 
         $rm = $this->reflection->reflectMethod($callable[ 0 ], $callable[ 1 ]);
 
@@ -944,11 +963,15 @@ class Node implements
      */
     protected function tryAutowireCallableArrayMethodNonStatic($callable, array $params = []) : ?array
     {
-        if (! $this->type->isCallableArray($callable)) return null;
+        if (! $this->type->isCallableArray($callable)) {
+            return null;
+        }
 
         $rm = $this->reflection->reflectMethod($callable[ 0 ], $callable[ 1 ]);
 
-        if ($rm->isStatic() || ! is_object($callable[ 0 ])) return null;
+        if ($rm->isStatic() || ! is_object($callable[ 0 ])) {
+            return null;
+        }
 
         $result = $this->autowireParams($rm->getParameters(), $params);
 
@@ -964,11 +987,15 @@ class Node implements
      */
     protected function tryAutowireCallableArrayMethodStatic($callable, array $params = []) : ?array
     {
-        if (! $this->type->isCallableArray($callable)) return null;
+        if (! $this->type->isCallableArray($callable)) {
+            return null;
+        }
 
         $rm = $this->reflection->reflectMethod($callable[ 0 ], $callable[ 1 ]);
 
-        if (! $rm->isStatic()) return null;
+        if (! $rm->isStatic()) {
+            return null;
+        }
 
         $result = $this->autowireParams($rm->getParameters(), $params);
 
@@ -984,7 +1011,9 @@ class Node implements
      */
     protected function tryAutowireCallableClosure($closure, array $params = []) : ?array
     {
-        if (! $this->type->isClosure($closure)) return null;
+        if (! $this->type->isClosure($closure)) {
+            return null;
+        }
 
         $result = $this->autowireClosure($closure, $params);
 
@@ -1002,8 +1031,12 @@ class Node implements
      */
     protected function tryAutowireParamNamedType(\ReflectionParameter $rp, array &$int = [], array &$str = []) : array
     {
-        if (! $rpType = $rp->getType()) return [];
-        if (! is_a($rpType, \ReflectionNamedType::class)) return [];
+        if (! $rpType = $rp->getType()) {
+            return [];
+        }
+        if (! is_a($rpType, \ReflectionNamedType::class)) {
+            return [];
+        }
 
         $rpTypeName = $rpType->getName();
 
@@ -1088,8 +1121,9 @@ class Node implements
     protected function tryAutowireParamName(\ReflectionParameter $rp, array &$int = [], array &$str = [])
     {
         $rpKey = '$' . $rp->getName();
-
-        if (! array_key_exists($rpKey, $str)) return [];
+        if (! array_key_exists($rpKey, $str)) {
+            return [];
+        }
 
         if ($rp->isVariadic()) {
             if (is_null($str[ $rpKey ]) || ( [] === $str[ $rpKey ] )) {
@@ -1115,7 +1149,9 @@ class Node implements
     {
         $rpPos = $rp->getPosition();
 
-        if (! array_key_exists($rpPos, $int)) return [];
+        if (! array_key_exists($rpPos, $int)) {
+            return [];
+        }
 
         if ($rp->isVariadic()) {
             if (is_null($int[ $rpPos ]) || ( [] === $int[ $rpPos ] )) {

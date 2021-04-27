@@ -2,11 +2,7 @@
 
 namespace Gzhegow\Di\Domain\Container;
 
-use Gzhegow\Support\Type;
 use Psr\Container\ContainerInterface;
-use Gzhegow\Di\Core\Registry\BindRegistry;
-use Gzhegow\Di\Core\Registry\ItemRegistry;
-use Gzhegow\Di\Domain\Node\NodeFactoryInterface;
 use Gzhegow\Di\App\Exceptions\Exception\Domain\NotFoundException;
 
 /**
@@ -25,7 +21,9 @@ class ProxyContainer implements ContainerInterface
      *
      * @param ContainerInterface $container
      */
-    public function __construct(ContainerInterface $container)
+    public function __construct(
+        ContainerInterface $container
+    )
     {
         $this->container = $container;
     }
