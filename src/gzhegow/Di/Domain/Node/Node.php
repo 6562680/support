@@ -29,6 +29,17 @@ class Node implements
     ContainerInterface,
     InjectorInterface
 {
+    const COMMAND_CREATE = 'create';
+    const COMMAND_GET    = 'get';
+    const COMMAND_NEW    = 'new';
+
+    const THE_COMMAND_LIST = [
+        self::COMMAND_CREATE => true,
+        self::COMMAND_GET    => true,
+        self::COMMAND_NEW    => true,
+    ];
+
+
     /**
      * @var Arr
      */
@@ -160,7 +171,7 @@ class Node implements
      */
     public function newAsRoot($id, ...$arguments)
     {
-        $result = $this->resolveNew($id, ...$arguments);
+        $result = $this->resolveCommand(static::COMMAND_NEW, $id, ...$arguments);
 
         return $result;
     }
@@ -176,7 +187,7 @@ class Node implements
     {
         $result = $this->nodeFactory
             ->newNode($id, $this)
-            ->resolveNew($id, ...$arguments);
+            ->resolveCommand(static::COMMAND_NEW, $id, ...$arguments);
 
         return $result;
     }
@@ -200,7 +211,7 @@ class Node implements
      */
     public function getAsRoot($id, ...$arguments)
     {
-        $result = $this->resolveGet($id, ...$arguments);
+        $result = $this->resolveCommand(static::COMMAND_GET, $id, ...$arguments);
 
         return $result;
     }
@@ -216,7 +227,7 @@ class Node implements
     {
         $result = $this->nodeFactory
             ->newNode($id, $this)
-            ->resolveGet($id, ...$arguments);
+            ->resolveCommand(static::COMMAND_GET, $id, ...$arguments);
 
         return $result;
     }
@@ -256,7 +267,7 @@ class Node implements
      */
     public function createAsRoot($id, ...$arguments)
     {
-        $result = $this->resolveCreate($id, ...$arguments);
+        $result = $this->resolveCommand(static::COMMAND_CREATE, $id, ...$arguments);
 
         return $result;
     }
@@ -272,7 +283,7 @@ class Node implements
     {
         $result = $this->nodeFactory
             ->newNode($id, $this)
-            ->resolveCreate($id, ...$arguments);
+            ->resolveCommand(static::COMMAND_CREATE, $id, ...$arguments);
 
         return $result;
     }
@@ -502,140 +513,43 @@ class Node implements
 
 
     /**
+     * @param string $command
      * @param string $id
-     * @param array  $arguments
-     *
-     * @return null|mixed
-     * @throws NotFoundException
-     */
-    protected function resolveNew(string $id, ...$arguments)
-    {
-        if ('' === $id) {
-            throw new InvalidArgumentException('Id should be not empty');
-        }
-
-        $binds[] = $last = $id;
-
-        $result = null
-            ?? ( $this->tryResolveClass($last, ...$arguments) ?: null )
-            ?? [];
-
-        if (! $result) {
-            throw new AutowireException('Unable to resolve id: ' . $id, func_get_args());
-        }
-
-        $result = reset($result);
-
-        if ($this->extendRegistry->hasExtend($last)) {
-            foreach ( $this->extendRegistry->getExtends($last) as $func ) {
-                $result = $this->handle($func, $result, [
-                    Node::class => $this,
-                ]);
-            }
-        }
-
-        foreach ( $binds as $bind ) {
-            if ($this->sharedRegistry->hasShared($bind)) {
-                $this->itemRegistry->setItem($bind, $result);
-            }
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param string $id
-     * @param array  $arguments
-     *
-     * @return null|mixed
-     * @throws NotFoundException
-     */
-    protected function resolveCreate(string $id, ...$arguments)
-    {
-        if ('' === $id) {
-            throw new InvalidArgumentException('Id should be not empty');
-        }
-
-        $binds[] = $last = $id;
-        if ($resolved = $this->resolveBind($last)) {
-            $last = $resolved[ 0 ];
-
-            if (0
-                || ( $this->type->isClosure($last) )
-            ) {
-                $binds[] = $last;
-            }
-        }
-
-        $result = null
-            ?? ( $this->tryResolveClosure($last, ...$arguments) ?: null )
-            ?? ( $this->tryResolveClass($last, ...$arguments) ?: null )
-            ?? [];
-
-        if (! $result) {
-            throw new AutowireException('Unable to resolve id: ' . $id, func_get_args());
-        }
-
-        $result = reset($result);
-
-        if ($this->extendRegistry->hasExtend($last)) {
-            foreach ( $this->extendRegistry->getExtends($last) as $func ) {
-                $result = $this->handle($func, $result, [
-                    Node::class => $this,
-                ]);
-            }
-        }
-
-        foreach ( $binds as $bind ) {
-            if ($this->sharedRegistry->hasShared($bind)) {
-                $this->itemRegistry->setItem($bind, $result);
-            }
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param string $id
-     * @param array  $arguments
+     * @param mixed  ...$arguments
      *
      * @return mixed
-     * @throws NotFoundException
      */
-    protected function resolveGet(string $id, ...$arguments)
+    protected function resolveCommand(string $command, string $id, ...$arguments)
     {
-        if ('' === $id) {
-            throw new InvalidArgumentException('Id should be not empty');
+        switch ( $command ) {
+            case static::COMMAND_CREATE:
+                $resolved = $this->tryResolveCommandCreate($id, ...$arguments);
+                break;
+
+            case static::COMMAND_GET:
+                $resolved = $this->tryResolveCommandGet($id, ...$arguments);
+                break;
+
+            case static::COMMAND_NEW:
+                $resolved = $this->tryResolveCommandNew($id, ...$arguments);
+                break;
+
+            default:
+                throw new InvalidArgumentException('Unable to resolve command: ' . $command, func_get_args());
         }
 
-        $binds[] = $last = $id;
-        if ($resolved = $this->resolveBind($last)) {
-            $last = $resolved[ 0 ];
-
-            if (0
-                || ( $this->itemRegistry->hasItem($last) )
-                || ( $this->type->isClosure($last) )
-            ) {
-                $binds[] = $last;
-            }
-        }
-
-        $result = null
-            ?? ( $this->tryResolveItem($last) ?: null )
-            ?? ( $this->tryResolveClosure($last, ...$arguments) ?: null )
-            ?? ( $this->tryResolveClass($last, ...$arguments) ?: null )
-            ?? [];
-
-        if (! $result) {
+        if (null === $resolved) {
             throw new AutowireException('Unable to resolve id: ' . $id, func_get_args());
         }
 
-        $result = reset($result);
+        [ $result, $last, $binds ] = $resolved;
 
         if ($this->extendRegistry->hasExtend($last)) {
             foreach ( $this->extendRegistry->getExtends($last) as $func ) {
                 $result = $this->handle($func, $result, [
                     Node::class => $this,
+
+                    $last => $result,
                 ]);
             }
         }
@@ -853,6 +767,101 @@ class Node implements
 
 
     /**
+     * @param string $id
+     * @param array  $arguments
+     *
+     * @return null|mixed
+     * @throws NotFoundException
+     */
+    protected function tryResolveCommandCreate(string $id, ...$arguments) : ?array
+    {
+        if ('' === $id) {
+            throw new InvalidArgumentException('Id should be not empty');
+        }
+
+        $binds[] = $last = $id;
+        if ($resolved = $this->resolveBind($last)) {
+            $last = $resolved[ 0 ];
+
+            if (0
+                || ( $this->type->isClosure($last) )
+            ) {
+                $binds[] = $last;
+            }
+        }
+
+        $result = null
+            ?? ( $this->tryResolveClosure($last, ...$arguments) ?: null )
+            ?? ( $this->tryResolveClass($last, ...$arguments) ?: null )
+            ?? [];
+
+        return null !== key($result)
+            ? [ reset($result), $last, $binds ]
+            : null;
+    }
+
+    /**
+     * @param string $id
+     * @param array  $arguments
+     *
+     * @return mixed
+     * @throws NotFoundException
+     */
+    protected function tryResolveCommandGet(string $id, ...$arguments) : ?array
+    {
+        if ('' === $id) {
+            throw new InvalidArgumentException('Id should be not empty');
+        }
+
+        $binds[] = $last = $id;
+        if ($resolved = $this->resolveBind($last)) {
+            $last = $resolved[ 0 ];
+
+            if (0
+                || ( $this->itemRegistry->hasItem($last) )
+                || ( $this->type->isClosure($last) )
+            ) {
+                $binds[] = $last;
+            }
+        }
+
+        $result = null
+            ?? ( $this->tryResolveItem($last) ?: null )
+            ?? ( $this->tryResolveClosure($last, ...$arguments) ?: null )
+            ?? ( $this->tryResolveClass($last, ...$arguments) ?: null )
+            ?? [];
+
+        return null !== key($result)
+            ? [ reset($result), $last, $binds ]
+            : null;
+    }
+
+    /**
+     * @param string $id
+     * @param array  $arguments
+     *
+     * @return null|mixed
+     * @throws NotFoundException
+     */
+    protected function tryResolveCommandNew(string $id, ...$arguments) : ?array
+    {
+        if ('' === $id) {
+            throw new InvalidArgumentException('Id should be not empty');
+        }
+
+        $binds[] = $last = $id;
+
+        $result = null
+            ?? ( $this->tryResolveClass($last, ...$arguments) ?: null )
+            ?? [];
+
+        return null !== key($result)
+            ? [ reset($result), $last, $binds ]
+            : null;
+    }
+
+
+    /**
      * @param mixed $item
      *
      * @return array
@@ -882,7 +891,9 @@ class Node implements
             return [];
         }
 
-        $result = $this->handle($closure, $this, ...$arguments);
+        $result = $this->handle($closure, $this, [
+            Node::class => $this,
+        ], ...$arguments);
 
         return [ $result ];
     }

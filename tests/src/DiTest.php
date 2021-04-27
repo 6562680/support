@@ -2,9 +2,9 @@
 
 namespace Gzhegow\Di\Tests;
 
-use Gzhegow\Di\Domain\Node\Node;
 use Gzhegow\Support\Fs;
 use Gzhegow\Di\DiFactory;
+use Gzhegow\Di\Domain\Node\Node;
 use Gzhegow\Di\Tests\Services\MyAService;
 use Gzhegow\Di\Tests\Providers\MyProvider;
 use Gzhegow\Di\Tests\Services\Loop\MyLoopService;
@@ -22,13 +22,13 @@ use Gzhegow\Di\Tests\Services\Delegate\MyDelegateCService;
 use Gzhegow\Di\Tests\Services\Loop\MyLoopServiceInterface;
 use Gzhegow\Di\Tests\Services\Delegate\MyDelegateAService;
 use Gzhegow\Di\Tests\Services\Delegate\MyDelegateDService;
-use Gzhegow\Di\App\Exceptions\Runtime\Domain\AutowireLoopException;
 use Gzhegow\Di\Tests\Services\Loop\MyLoopAServiceInterface;
 use Gzhegow\Di\Tests\Services\Loop\MyLoopBServiceInterface;
 use Gzhegow\Di\Tests\Services\Loop\MyLoopWithInterfaceService;
 use Gzhegow\Di\Tests\Services\Loop\MyLoopBWithInterfaceService;
 use Gzhegow\Di\Tests\Services\Loop\MyLoopAWithInterfaceService;
 use Gzhegow\Di\Tests\Services\Closure\MyClosureServiceBInterface;
+use Gzhegow\Di\App\Exceptions\Runtime\Domain\AutowireLoopException;
 use Gzhegow\Di\Tests\Services\Delegate\MyDelegateServiceBInterface;
 use Gzhegow\Di\Tests\Services\Delegate\MyDelegateServiceCInterface;
 use Gzhegow\Di\Tests\Services\Delegate\MyDelegateServiceDInterface;
