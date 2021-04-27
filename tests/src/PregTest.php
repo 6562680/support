@@ -16,7 +16,17 @@ class PregTest extends AbstractTestCase
         $this->assertEquals('//', $preg->new([ '' ]));
         $this->assertEquals('//', $preg->new([ [ '' ] ]));
         $this->assertEquals('/\//', $preg->new([ [ '/' ] ]));
-        $this->assertEquals('/hello(world)+/', $preg->new([ 'hello', '(', [ 'world' ], ')+' ]));
+        $this->assertEquals('/hello(world)+/', $preg->new([ 'hello(', [ 'world' ], ')+' ]));
+    }
+
+    public function testCurry()
+    {
+        $preg = new Preg(new Type());
+
+        $this->assertEquals('//', $preg->curry()('')());
+        $this->assertEquals('//', $preg->curry()([ '' ])());
+        $this->assertEquals('/\//', $preg->curry()([ '/' ])());
+        $this->assertEquals('/hello(world)+/', $preg->curry()([ 'hello' ])('(')([ 'world' ])(')+')());
     }
 
 
@@ -26,6 +36,7 @@ class PregTest extends AbstractTestCase
 
         $preg = new Preg(new Type());
 
+        /** @noinspection PhpParamsInspection */
         $preg->new([ [ [ '' ] ] ]); // max input level depth is only 2, 1st means nothing, 2st means "escape me"
     }
 

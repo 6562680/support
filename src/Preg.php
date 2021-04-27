@@ -51,18 +51,17 @@ class Preg
 
         $parts = [];
         foreach ( $regex as $part ) {
-            if (is_array($part)) {
+            if (! is_array($part)) {
+                $parts[] = $part ?: '';
+
+            } else {
                 foreach ( $part as $p ) {
                     if (is_array($p)) {
                         throw new InvalidArgumentException('Max input array depth is 2', $p);
                     }
 
-                    $parts[] = $p
-                        ? preg_quote($p, $delimiter)
-                        : '';
+                    $parts[] = $p ? preg_quote($p, $delimiter) : '';
                 }
-            } else {
-                $parts[] = $part ?: '';
             }
         }
 
@@ -87,6 +86,37 @@ class Preg
     public function isValid(string $regex) : bool
     {
         return false !== @preg_match($regex, null);
+    }
+
+
+    /**
+     * @param string $flags
+     * @param string $delimiter
+     *
+     * @return string|\Closure
+     */
+    public function curry(string $delimiter = '/', string $flags = '')
+    {
+        $result = '';
+
+        $fn = function ($regex = null) use (&$fn, &$result, $delimiter, $flags) {
+            if (null === $regex) {
+                return $delimiter . $result . $delimiter . $flags;
+            }
+
+            if (! is_array($regex)) {
+                $result .= $regex;
+
+            } else {
+                $result .= ( null !== key($regex) )
+                    ? preg_quote(reset($regex), $delimiter)
+                    : '';
+            }
+
+            return $fn;
+        };
+
+        return $fn;
     }
 
 
