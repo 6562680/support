@@ -35,34 +35,44 @@ class Preg
      */
     public function new($regex, string $flags = '', string $delimiter = '/') : string
     {
-        if (! is_iterable($regex)) {
+        if (! is_array($regex)) {
             $regex = [ $regex ];
         }
 
-        $result = [];
+        array_walk_recursive($regex, function ($v) {
+            if (null === $v) {
+                return;
+            }
 
+            if (! $this->type->isStringOrNumber($v)) {
+                throw new InvalidArgumentException('Each part should be string', $v);
+            }
+        });
+
+        $parts = [];
         foreach ( $regex as $part ) {
             if (is_array($part)) {
                 foreach ( $part as $p ) {
-                    if (! $this->type->isTheString($p)) {
-                        throw new InvalidArgumentException('Each sub-part should be non-empty string', $p);
+                    if (is_array($p)) {
+                        throw new InvalidArgumentException('Max input array depth is 2', $p);
                     }
 
-                    $result[] = preg_quote($p, $delimiter);
+                    $parts[] = $p
+                        ? preg_quote($p, $delimiter)
+                        : '';
                 }
-            } elseif ($this->type->isTheString($part)) {
-                $result[] = $part;
-
             } else {
-                throw new InvalidArgumentException('Each part should be non-empty string', $part);
+                $parts[] = $part ?: '';
             }
         }
 
-        $result = $delimiter . implode('', $result) . $delimiter . $flags;
+        $result = $delimiter . implode('', $parts) . $delimiter . $flags;
 
         if (! $this->isValid($result)) {
-            throw new InvalidArgumentException('Unable to create regex, try to omit separators and flags. ' . $this->lastError(),
-                $result);
+            throw new InvalidArgumentException(
+                'Unable to create regex, try to omit separators and flags. ' . $this->lastError(),
+                $result
+            );
         }
 
         return $result;
