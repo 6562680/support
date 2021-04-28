@@ -2,7 +2,7 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Iterators\TreeIterator;
+use Gzhegow\Support\Domain\Arr\TreeIterator;
 use Gzhegow\Support\Exceptions\Logic\OutOfRangeException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
@@ -74,15 +74,15 @@ class Arr
 
 
     /**
-     * @param array        $src
+     * @param array        $dst
      * @param string|array $path
      * @param mixed        $value
      *
      * @return Arr
      */
-    public function set(array &$src, $path, $value) : self
+    public function set(array &$dst, $path, $value) : self
     {
-        $this->put($src, $path, $value);
+        $this->put($dst, $path, $value);
 
         return $this;
     }
@@ -154,18 +154,18 @@ class Arr
     }
 
     /**
-     * @param array        $src
+     * @param array        $dst
      * @param string|array $path
      * @param mixed        $value
      *
      * @return mixed
      */
-    public function &put(array &$src, $path, $value) // : mixed
+    public function &put(array &$dst, $path, $value) // : mixed
     {
         $fullpath = $this->path($path);
         $last = array_pop($fullpath);
 
-        $valueRef =& $src;
+        $valueRef =& $dst;
 
         if ($fullpath) {
             while ( null !== key($fullpath) ) {

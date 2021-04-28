@@ -18,6 +18,25 @@ class Str
 
 
     /**
+     * @var Type
+     */
+    protected $type;
+
+
+    /**
+     * Constructor
+     *
+     * @param Type $type
+     */
+    public function __construct(Type $type)
+    {
+        $this->type = $type;
+    }
+
+
+    /**
+     * Determine if string starts with, returns string without needle or null if nothing found
+     *
      * @param string      $str
      * @param string|null $needle
      * @param bool|null   $ignoreCase
@@ -41,6 +60,8 @@ class Str
     }
 
     /**
+     * Determine if string ends with, returns string without needle or null if nothing found
+     *
      * @param string      $str
      * @param string|null $needle
      * @param bool|null   $ignoreCase
@@ -63,8 +84,40 @@ class Str
             : null;
     }
 
+    /**
+     * Determine if string contains needle, returns array of parts without needle or empty array if nothing found
+     *
+     * @param string      $str
+     * @param string|null $needle
+     * @param null|int    $limit
+     * @param bool|null   $ignoreCase
+     *
+     * @return array
+     */
+    public function contains(string $str, string $needle = null, int $limit = null, bool $ignoreCase = true) : array
+    {
+        $needle = $needle ?? '';
+
+        if ('' === $str) return [];
+        if ('' === $needle) return [ $needle ];
+
+        $pos = $ignoreCase
+            ? stripos($str, $needle)
+            : strpos($str, $needle);
+
+        $str = $ignoreCase
+            ? str_ireplace($needle, $needle, $str)
+            : $str;
+
+        return is_int($pos)
+            ? explode($needle, $str, $limit)
+            : [];
+    }
+
 
     /**
+     * Adds some string(-s) to start
+     *
      * @param string      $str
      * @param string|null $sym
      * @param int         $len
@@ -83,6 +136,8 @@ class Str
     }
 
     /**
+     * Adds some strings(-s) to end
+     *
      * @param string      $str
      * @param string|null $sym
      * @param int         $len
@@ -101,6 +156,8 @@ class Str
     }
 
     /**
+     * Wraps string into another(-s), for example - quotes
+     *
      * @param string      $str
      * @param string|null $sym
      * @param int         $len
@@ -120,6 +177,8 @@ class Str
 
 
     /**
+     * Prepend string if string don't starts with
+     *
      * @param string      $str
      * @param string|null $needle
      * @param bool        $ignoreCase
@@ -142,6 +201,8 @@ class Str
     }
 
     /**
+     * Append string if string don't ends with
+     *
      * @param string      $str
      * @param string|null $needle
      * @param bool        $ignoreCase
@@ -164,6 +225,8 @@ class Str
     }
 
     /**
+     * Wrap string if
+     *
      * @param string      $str
      * @param null|string $needle
      * @param bool        $ignoreCase
@@ -297,33 +360,53 @@ class Str
      */
     public function join(string $delimiter, ...$parts) : string
     {
-        $array = array_reduce($parts, function ($carry, $part) use ($delimiter) {
-            $part = is_array($part)
-                ? $part
-                : [ $part ];
+        $result = [];
 
-            foreach ( $part as $p ) {
-                if (null === $p) {
-                    throw new InvalidArgumentException('Each Part should be not null');
-                }
-
-                if ($p != ( $str = strval($p) )) {
-                    throw new InvalidArgumentException('Each Part should be stringable');
-                }
-
-                $carry[] = trim($str, $delimiter);
+        array_walk_recursive($parts, function ($part) use (&$result, $delimiter) {
+            if (null === $part) {
+                throw new InvalidArgumentException('Each Part should be not null');
             }
 
-            return $carry;
-        }, []);
+            if (null === ( $strval = $this->type->isStringable($part) )) {
+                throw new InvalidArgumentException('Each Part should be not null');
+            }
 
-        $result = implode($delimiter, $array);
+            $result[] = trim($strval, $delimiter);
+        });
+
+        $result = implode($delimiter, $result);
 
         return $result;
     }
 
     /**
-     * Creates string like "1, 2 or 3"
+     * Creates string like '1, 2, 3'
+     *
+     * @param string $delimiter
+     * @param mixed  ...$parts
+     *
+     * @return string
+     */
+    public function joinUnsafe(string $delimiter, ...$parts) : string
+    {
+        $result = [];
+
+        array_walk_recursive($parts, function ($part) use (&$result, $delimiter) {
+            if (null === ( $strval = $this->type->isStringable($part) )) {
+                $strval = '';
+            }
+
+            $result[] = trim($strval, $delimiter);
+        });
+
+        $result = implode($delimiter, $result);
+
+        return $result;
+    }
+
+
+    /**
+     * Creates string like "`1`, `2` or `3`"
      *
      * @param array       $parts
      * @param null|string $delimiter
@@ -332,7 +415,11 @@ class Str
      *
      * @return string
      */
-    public function concat(array $parts, string $delimiter = null, string $lastDelimiter = null, string $wrapper = ''
+    public function concat(
+        array $parts,
+        string $delimiter = null,
+        string $lastDelimiter = null,
+        string $wrapper = ''
     ) : string
     {
         $delimiter = $delimiter ?? '';
@@ -373,6 +460,8 @@ class Str
 
 
     /**
+     * snake_case
+     *
      * @param string $value
      * @param string $delimiter
      *
@@ -386,6 +475,8 @@ class Str
     }
 
     /**
+     * Usnake_Case
+     *
      * @param string $value
      *
      * @param string $delimiter
@@ -401,6 +492,8 @@ class Str
 
 
     /**
+     * kebab-case
+     *
      * @param string $value
      *
      * @return string
@@ -413,6 +506,8 @@ class Str
     }
 
     /**
+     * Ukebab-Case
+     *
      * @param string $value
      *
      * @return string
@@ -426,19 +521,8 @@ class Str
 
 
     /**
-     * @param string $value
+     * camelCase
      *
-     * @return string
-     */
-    public function pascal(string $value) : string
-    {
-        $result = $this->usnake($value, '');
-
-        return $result;
-    }
-
-
-    /**
      * @param string $value
      *
      * @return string
@@ -448,6 +532,20 @@ class Str
         $result = $this->pascal($value);
 
         $result = mb_convert_case($value[ 0 ], MB_CASE_LOWER, 'UTF-8') . mb_substr($result, 1);
+
+        return $result;
+    }
+
+    /**
+     * PascalCase
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    public function pascal(string $value) : string
+    {
+        $result = $this->usnake($value, '');
 
         return $result;
     }

@@ -2,7 +2,7 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Interfaces\CanToArrayInterface;
+use Gzhegow\Support\Domain\Type\CanToArrayInterface;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
@@ -48,7 +48,7 @@ class Type
      *
      * @return bool
      */
-    public function isTheInt($value) : bool
+    public function isInt($value) : bool
     {
         return is_int($value)
             || ( false !== filter_var($value, FILTER_VALIDATE_INT) );
@@ -59,7 +59,7 @@ class Type
      *
      * @return bool
      */
-    public function isTheFloat($value) : bool
+    public function isFloat($value) : bool
     {
         return ( ( is_float($value) && ! is_nan($value) )
             || ( false !== filter_var($value, FILTER_VALIDATE_FLOAT) )
@@ -117,42 +117,64 @@ class Type
     /**
      * @param mixed $value
      *
-     * @return bool
+     * @return null|string
      */
-    public function isStringable($value) : bool
+    public function isStringable($value) : ?string
     {
-        return $this->isStringOrNumber($value)
-            && ( ! is_array($value)
-                && ( settype($value, 'string') !== false )
-            );
+        if (is_array($value)) {
+            return null;
+        }
+
+        if ($this->isStringOrNumber($value)) {
+            return strval($value);
+        }
+
+        if (false === settype($value, 'string')) {
+            return null;
+        }
+
+        $result = strval($value);
+
+        return $result;
     }
 
     /**
      * @param mixed $arrayable
      *
-     * @return bool
+     * @return null|array
      */
-    public function isArrayable($arrayable) : bool
+    public function isArrayable($arrayable) : ?array
     {
         if (is_null($arrayable)) {
-            return true;
+            return [];
 
         } elseif (is_scalar($arrayable)) {
-            return true;
+            return [ $arrayable ];
 
         } elseif (is_iterable($arrayable)) {
-            return true;
+            $result = [];
+
+            foreach ( $arrayable as $item ) {
+                $key = $this->isStringable($item);
+
+                ( null === $key )
+                    ? ( $result[ $key ] = $item )
+                    : ( $result[] = $item );
+            }
+
+            return $result;
 
         } elseif (is_object($arrayable)) {
             if (is_a($arrayable, CanToArrayInterface::class)) {
-                return true;
+                return $arrayable->toArray();
 
             } elseif (method_exists($arrayable, 'toArray')) {
-                return true;
+                return $arrayable->toArray();
+
             }
         }
 
-        return false;
+        return null;
     }
 
 
@@ -445,7 +467,7 @@ class Type
      *
      * @return bool
      */
-    public function isFile($value) : bool
+    public function isFileInfo($value) : bool
     {
         return is_object($value) && is_a($value, \SplFileInfo::class);
     }
@@ -458,7 +480,30 @@ class Type
      */
     public function isResource($h) : bool
     {
-        return is_resource($h) || 'resource (closed)' === gettype($h);
+        return is_resource($h)
+            || 'resource (closed)' === gettype($h);
+    }
+
+    /**
+     * @param mixed $h
+     *
+     * @return bool
+     */
+    public function isOpenedResource($h) : bool
+    {
+        return is_resource($h)
+            && 'resource (closed)' !== gettype($h);
+    }
+
+    /**
+     * @param mixed $h
+     *
+     * @return bool
+     */
+    public function isClosedResource($h) : bool
+    {
+        return is_resource($h)
+            && 'resource (closed)' === gettype($h);
     }
 
 
@@ -532,8 +577,6 @@ class Type
 
         } elseif (is_object($data)) {
             if (is_a($data, CanToArrayInterface::class)) {
-                /** @var CanToArrayInterface $data */
-
                 $result = $data->toArray();
 
             } elseif (is_iterable($data)) {

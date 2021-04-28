@@ -2,7 +2,8 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+use Gzhegow\Support\Domain\Preg\RegExp;
+
 
 /**
  * Preg
@@ -27,54 +28,27 @@ class Preg
 
 
     /**
-     * @param string|string[]|string[][] $regex
-     * @param string                     $delimiter
-     * @param string                     $flags
+     * @param string|string[] $regex
+     * @param null|string     $delimiter
+     * @param null|string     $flags
      *
-     * @return string
+     * @return RegExp
      */
-    public function new($regex, string $flags = '', string $delimiter = '/') : string
+    public function newRegExp($regex, string $delimiter = null, string $flags = null) : RegExp
     {
-        if (! is_array($regex)) {
-            $regex = [ $regex ];
-        }
+        return new RegExp($this, $regex, $delimiter, $flags);
+    }
 
-        array_walk_recursive($regex, function ($v) {
-            if (null === $v) {
-                return;
-            }
-
-            if (! $this->type->isStringOrNumber($v)) {
-                throw new InvalidArgumentException('Each part should be string', $v);
-            }
-        });
-
-        $parts = [];
-        foreach ( $regex as $part ) {
-            if (! is_array($part)) {
-                $parts[] = $part ?: '';
-
-            } else {
-                foreach ( $part as $p ) {
-                    if (is_array($p)) {
-                        throw new InvalidArgumentException('Max input array depth is 2', $p);
-                    }
-
-                    $parts[] = $p ? preg_quote($p, $delimiter) : '';
-                }
-            }
-        }
-
-        $result = $delimiter . implode('', $parts) . $delimiter . $flags;
-
-        if (! $this->isValid($result)) {
-            throw new InvalidArgumentException(
-                'Unable to create regex, try to omit separators and flags. ' . $this->lastError(),
-                $result
-            );
-        }
-
-        return $result;
+    /**
+     * @param string|string[] $regex
+     * @param null|string     $delimiter
+     * @param null|string     $flags
+     *
+     * @return RegExp
+     */
+    public function new($regex, string $delimiter = null, string $flags = null) : string
+    {
+        return $this->newRegExp($regex, $delimiter, $flags)->compile();
     }
 
 
@@ -90,64 +64,13 @@ class Preg
 
 
     /**
-     * @param string $flags
-     * @param string $delimiter
+     * @param string|string[] $regex
+     * @param string|string[] ...$parts
      *
-     * @return string|\Closure
+     * @return RegExp
      */
-    public function curry(string $delimiter = '/', string $flags = '')
+    public function concat($regex, ...$parts) : string
     {
-        $result = '';
-
-        $fn = function ($regex = null) use (&$fn, &$result, $delimiter, $flags) {
-            if (null === $regex) {
-                return $delimiter . $result . $delimiter . $flags;
-            }
-
-            if (! is_array($regex)) {
-                $result .= $regex;
-
-            } else {
-                $result .= ( null !== key($regex) )
-                    ? preg_quote(reset($regex), $delimiter)
-                    : '';
-            }
-
-            return $fn;
-        };
-
-        return $fn;
+        return $this->newRegExp($regex)->concat(...$parts)->compile();
     }
-
-
-    /**
-     * @param int $code
-     *
-     * @return string
-     */
-    public function error(int $code) : string
-    {
-        return static::$errorCodes[ $code ];
-    }
-
-    /**
-     * @return mixed
-     */
-    public function lastError()
-    {
-        return $this->error(preg_last_error());
-    }
-
-
-    /**
-     * @var array
-     */
-    protected static $errorCodes = [
-        PREG_NO_ERROR              => 'No errors',
-        PREG_INTERNAL_ERROR        => 'There was an internal PCRE error',
-        PREG_BACKTRACK_LIMIT_ERROR => 'Backtrack limit was exhausted',
-        PREG_RECURSION_LIMIT_ERROR => 'Recursion limit was exhausted',
-        PREG_BAD_UTF8_ERROR        => 'The offset didn\'t correspond to the begin of a valid UTF-8 code point',
-        PREG_BAD_UTF8_OFFSET_ERROR => 'Malformed UTF-8 data',
-    ];
 }

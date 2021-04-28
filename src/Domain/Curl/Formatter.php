@@ -1,691 +1,193 @@
 <?php
 
-namespace Gzhegow\Support\Stateful;
+namespace Gzhegow\Support\Domain\Curl;
 
+
+use Gzhegow\Support\Php;
 use Gzhegow\Support\Type;
-use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
-
 /**
- * Curl
+ * Formatter
  */
-class Curl implements CurlInterface
+class Formatter
 {
+    const METHOD_CONNECT = 'CONNECT';
+    const METHOD_DELETE  = 'DELETE';
+    const METHOD_GET     = 'GET';
+    const METHOD_HEAD    = 'HEAD';
+    const METHOD_OPTIONS = 'OPTIONS';
+    const METHOD_PATCH   = 'PATCH';
+    const METHOD_POST    = 'POST';
+    const METHOD_PURGE   = 'PURGE';
+    const METHOD_PUT     = 'PUT';
+    const METHOD_TRACE   = 'TRACE';
+
+    const THE_METHOD_LIST = [
+        self::METHOD_HEAD    => true,
+        self::METHOD_OPTIONS => true,
+        self::METHOD_GET     => true,
+        self::METHOD_POST    => true,
+        self::METHOD_PATCH   => true,
+        self::METHOD_PUT     => true,
+        self::METHOD_DELETE  => true,
+        self::METHOD_PURGE   => true,
+        self::METHOD_CONNECT => true,
+        self::METHOD_TRACE   => true,
+    ];
+
+
+    /**
+     * @var Php
+     */
+    protected $php;
     /**
      * @var Type
      */
     protected $type;
 
-    /**
-     * @var array
-     */
-    protected $curls;
-    /**
-     * @var array
-     */
-    protected $matrix;
-
-
-    /**
-     * @var array
-     */
-    protected $optionsDefault = [
-        CURLOPT_HEADER         => 0,
-        CURLOPT_RETURNTRANSFER => 1,
-        CURLOPT_FOLLOWLOCATION => 1,
-        CURLOPT_SSL_VERIFYHOST => 0,
-        CURLOPT_SSL_VERIFYPEER => 0,
-    ];
-
 
     /**
      * Constructor
      *
+     * @param Php  $php
      * @param Type $type
      */
     public function __construct(
+        Php $php,
         Type $type
     )
     {
+        $this->php = $php;
         $this->type = $type;
 
         static::$infoCodes = static::$infoCodes ?? array_flip(static::$info);
         static::$curloptCodes = static::$curloptCodes ?? array_flip(static::$curlopt);
     }
 
-    /**
-     * @return array
-     */
-    public function getOptionsDefault() : array
-    {
-        return $this->optionsDefault ?? [];
-    }
 
     /**
-     * @return array
-     */
-    protected function getCurls() : array
-    {
-        return $this->curls ?? [];
-    }
-
-    /**
-     * @return array
-     */
-    protected function getMatrix() : array
-    {
-        return $this->matrix ?? [];
-    }
-
-    /**
-     * @param int $id
+     * @param array $curlOptArray
      *
      * @return array
      */
-    protected function getMatrixById(int $id) : array
+    public function formatOptions(array $curlOptArray) : array
     {
-        return $this->matrix[ $id ];
-    }
+        $keys = array_intersect_key(static::$curloptCodes, $curlOptArray);
 
-    /**
-     * @param int $id
-     *
-     * @return mixed
-     */
-    protected function getCurlById(int $id) // : resource
-    {
-        return $this->curls[ $id ];
-    }
+        $result = [];
 
-    /**
-     * @param mixed $h
-     *
-     * @return boolean
-     */
-    public function isCurl($h) : bool
-    {
-        $isResource = is_resource($h);
-        $isClosedResource = ! $isResource && $this->type->isResource($h);
-
-        $isCurl = $isResource && @curl_getinfo($h);
-
-        if ($isCurl) {
-            return true;
-        }
-
-        if ($isClosedResource && $this->hasMatrixById((int) $h)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * @param resource $h
-     * @param int|null $opt
-     * @param null     $getinfo
-     *
-     * @return boolean
-     */
-    public function isOpenedCurl($h, $opt = null, &$getinfo = null) : bool
-    {
-        if (! is_resource($h)) return false;
-
-        if (isset(static::$infoCodes[ $opt ])) {
-            $getinfo = @curl_getinfo($h, $opt);
-
-        } else {
-            $getinfo = @curl_getinfo($h);
-
-            if ($opt) {
-                $getinfo = $getinfo[ $opt ] ?? null;
-            }
-        }
-
-        return (bool) $getinfo
-            ?: false;
-    }
-
-    /**
-     * @param mixed $matrix
-     *
-     * @return bool
-     */
-    protected function isMatrix($matrix) : bool
-    {
-        return is_array($matrix) && ! array_diff_key($matrix, static::$curloptCodes);
-    }
-
-    /**
-     * @param int $id
-     *
-     * @return bool
-     */
-    protected function hasCurlById(int $id) : bool
-    {
-        return isset($this->curls[ $id ]);
-    }
-
-    /**
-     * @param int $id
-     *
-     * @return bool
-     */
-    protected function hasMatrixById(int $id) : bool
-    {
-        return isset($this->matrix[ $id ]);
-    }
-
-    /**
-     * готовит инструкцию для curl запоса и сохраняет матрицу для создания на основе
-     * если передать готовый curl запрос заменит существующие опции
-     * если создавали через эту же функцию, опции будут соединены с предыдущим экземпляром, иначе переписаны
-     *
-     * @param mixed $curl
-     * @param null  $data
-     * @param array $curl_options
-     *
-     * @return resource
-     */
-    public function createNew($curl, $data = null, array $curl_options = []) // : resource
-    {
-        return $this->create('new', $curl, $data, $curl_options);
-    }
-
-    /**
-     * копирует или создает curl запрос и сохраняет матрицу для создания на основе
-     * если передать готовый curl запрос заменит существующие опции и вернет новый curl
-     * если создавали через эту же функцию, опции будут соединены с предыдущим экземпляром, иначе переписаны
-     *
-     * @param mixed $curl
-     * @param mixed $data
-     * @param array $curl_options
-     *
-     * @return resource
-     */
-    public function createCopy($curl, $data = null, array $curl_options = []) // : resource
-    {
-        return $this->create('copy', $curl, $data, $curl_options);
-    }
-
-    /**
-     * @param string|int $option
-     * @param mixed      $value
-     *
-     * @return Curl
-     */
-    public function setOptionDefault($option, $value)
-    {
-        $code = null;
-        if (is_int($option)) {
-            $code = isset(static::$curloptCodes[ $option ])
-                ? $option
-                : null;
-
-        } elseif (is_string($option)) {
-            $code = static::$curlopt[ $option ] ?? null;
-
-        }
-
-        if (! isset($code)) {
-            throw new InvalidArgumentException('Unknown option: ' . $option, func_get_args());
-        }
-
-        $this->optionsDefault[ $code ] = $value;
-
-        return $this;
-    }
-
-    /**
-     * @param array $options
-     *
-     * @return Curl
-     */
-    public function setOptionsDefault(array $options)
-    {
-        $this->optionsDefault = [];
-
-        $this->mergeOptionsDefault($options);
-
-        return $this;
-    }
-
-    /**
-     * @param array $options
-     *
-     * @return Curl
-     */
-    public function mergeOptionsDefault(array $options)
-    {
-        foreach ( $options as $int => $value ) {
-            $this->setOptionDefault($int, $value);
-        }
-
-        return $this;
-    }
-
-    /**
-     * возвращает результат curl_getinfo
-     *
-     * @param mixed $curl
-     * @param mixed $opt
-     *
-     * @return mixed
-     */
-    public function info($curl, $opt = null) // : mixed
-    {
-        if (! $this->isOpenedCurl($curl, $opt, $result)) {
-            throw new BadMethodCallException('Curl should opened curl resource', func_get_args());
+        foreach ( $keys as $id => $name ) {
+            $result[ $name ] = $curlOptArray[ $id ];
         }
 
         return $result;
     }
 
+
     /**
-     * возвращает результат curl_getinfo. работает с массивом ресурсов
-     *
-     * @param array $curls
-     * @param null  $opt
+     * @param array ...$curlOptArrays
      *
      * @return array
      */
-    public function infos(array $curls, $opt = null) : array
+    public function mergeOptions(array ...$curlOptArrays) : array
     {
         $result = [];
+        $resultHeaders = [];
 
-        foreach ( $curls as $idx => $curl ) {
-            if (! $this->isOpenedCurl($curl, $opt, $res)) {
-                throw new BadMethodCallException('Curls should be array of opened curl resources', func_get_args());
+        [ $kwargs, $args ] = $this->php->kwargs(...$curlOptArrays);
+
+        foreach ( $kwargs as $opt => $val ) {
+            if (null === ( $optCode = $this->detectOptCode($opt) )) {
+                throw new InvalidArgumentException('Invalid CURL option: ' . $opt, func_get_args());
             }
 
-            $result[ $idx ] = $res;
+            ( $optCode === CURLOPT_HTTPHEADER )
+                ? ( $resultHeaders = array_merge($resultHeaders, $val) )
+                : ( $result[ $opt ] = $val );
         }
 
-        return $result;
-    }
-
-    /**
-     * выводит список сохраненных опций, по которым будет создаваться новый ресурс при копировании или обновлении
-     *
-     * @param mixed $curl
-     * @param bool  $verbose
-     *
-     * @return array
-     */
-    public function opt($curl, bool $verbose = false) : array
-    {
-        if (! $this->isCurl($curl)) {
-            throw new InvalidArgumentException('Curl should be curl resource or closed one (created using this library)',
-                func_get_args());
-        }
-
-        $result = $this->opts([ $curl ], $verbose);
-
-        return $result[ 0 ];
-    }
-
-    /**
-     * выводит список сохраненных опций, по которым будет создаваться новый ресурс при копировании или обновлении. работает с массивом ресурсов
-     *
-     * @param array $curls
-     * @param bool  $verbose
-     *
-     * @return array
-     */
-    public function opts(array $curls, bool $verbose = false) : array
-    {
-        if (! $curls) return $this->getMatrix();
-
-        $result = [];
-
-        foreach ( $curls as $idx => $curl ) {
-            if (! $this->isCurl($curl)) {
-                throw new InvalidArgumentException('Curls should be array of curl resources or closed ones (created using this library)',
-                    func_get_args());
+        foreach ( $args as $opt => $val ) {
+            if (null === ( $optCode = $this->detectOptCode($opt) )) {
+                throw new InvalidArgumentException('Invalid CURL option: ' . $opt, func_get_args());
             }
 
-            $result[ $idx ] = $this->getMatrixById((int) $curl);
+            ( $optCode === CURLOPT_HTTPHEADER )
+                ? ( $resultHeaders = array_merge($resultHeaders, $val) )
+                : ( $result[ $opt ] = $val );
         }
 
-        if ($verbose) {
-            foreach ( $result as $idx => $array ) {
-                $keys = array_intersect_key(static::$curlopt, $array);
-
-                foreach ( $keys as $id => $name ) {
-                    $result[ $idx ][ $name ] = $result[ $idx ][ $id ];
-
-                    unset($result[ $idx ][ $id ]);
-                }
-            }
-        }
-
-        return $result ?? [];
-    }
-
-    /**
-     * делает запросы группами по $limit, с задержкой между группами в $sleep секунд
-     * если параметр $urls передан как обьект, то обработка результатов должна быть генератором
-     *
-     * @param mixed $limit
-     * @param mixed $sleep
-     * @param mixed $curls
-     * @param null  $post
-     * @param array $options
-     *
-     * @return array
-     */
-    public function batch($limit, $sleep, $curls, $post = null, array $options = []) : array
-    {
-        $results = [];
-        $urls = [];
-        $hh = [];
-
-        $limit = $limit
-            ?: 1;
-
-        foreach ( $this->walk($limit, $sleep, $curls, $post, $options) as $result ) {
-            [ $resultsCurrent, $urlsCurrent, $hhCurrent ] = $result;
-
-            $results += $resultsCurrent;
-            $urls += $urlsCurrent;
-            $hh += $hhCurrent;
-        }
-
-        return [ $results, $urls, $hh ];
-    }
-
-    /**
-     * @param mixed $limit
-     * @param mixed $sleep
-     * @param mixed $curls
-     * @param null  $post
-     * @param array $options
-     *
-     * @return \Generator
-     */
-    public function walk($limit, $sleep, $curls, $post = null, array $options = []) : \Generator
-    {
-        [ $minLimit, $maxLimit ] = (array) $limit + [ 1, null ];
-        [ $minSleep, $maxSleep ] = (array) $sleep + [ 0, null ];
-
-        $curls = (array) $curls;
-
-        if (! is_int($minLimit)) {
-            throw new InvalidArgumentException('MinLimit should be numeric', func_get_args());
-        }
-
-        if (! is_numeric($minSleep)) {
-            throw new InvalidArgumentException('MinLimit should be numeric', func_get_args());
-        }
-
-        if (0 > $minLimit) {
-            throw new InvalidArgumentException('MinLimit should be positive');
-        }
-
-        if (0 > $minSleep) {
-            throw new InvalidArgumentException('MinLimit should be positive');
-        }
-
-        $maxLimit = $maxLimit ?? $minLimit;
-        $maxSleep = $maxSleep ?? $minSleep;
-
-        if (! is_int($maxLimit)) {
-            throw new InvalidArgumentException('MinLimit should be numeric', func_get_args());
-        }
-
-        if (! is_numeric($maxSleep)) {
-            throw new InvalidArgumentException('MinLimit should be numeric', func_get_args());
-        }
-
-        if (0 > $maxLimit) {
-            throw new InvalidArgumentException('MinLimit should be positive');
-        }
-
-        if (0 > $maxSleep) {
-            throw new InvalidArgumentException('MinLimit should be positive');
-        }
-
-        do {
-            $limitCurrent = rand($minLimit, $maxLimit) ?? null;
-
-            // splice
-            $i = 0;
-            $curlsCurrent = [];
-            while ( null !== ( $key = key($curls) ) ) {
-                $curlsCurrent[ $key ] = $curls[ $key ];
-                unset($curls[ $key ]);
-
-                if (++$i === $limitCurrent) {
-                    break;
-                }
-            }
-
-            // multicurl
-            [ $responsesCurrent, $urlsCurrent, $hhCurrent ] = $this->multi($curlsCurrent, $post, $options);
-
-            // return generator to reduce memory usage
-            yield [ $responsesCurrent, $urlsCurrent, $hhCurrent ];
-
-            // await before next batch
-            if ($curls) {
-                $sleepCurrent = $minSleep;
-
-                if ($sleepCurrent !== $maxSleep) {
-                    $sleepCurrent = ( $minSleep + lcg_value() * ( abs($maxSleep - $minSleep) ) );
-
-                    // wait microseconds
-                    usleep($sleepCurrent * 1000 * 1000);
-
-                } elseif (is_float($sleepCurrent)) {
-                    // wait microseconds
-                    usleep($sleepCurrent * 1000 * 1000);
-
-                } else {
-                    // wait seconds
-                    sleep($sleepCurrent);
-
-                }
-            }
-        } while ( $curls );
-    }
-
-    /**
-     * делает параллельный (одновременный) запрос через curl
-     *
-     * @param mixed $curls
-     * @param null  $post
-     * @param array $options
-     *
-     * @return array
-     */
-    public function multi($curls, $post = null, array $options = []) : array
-    {
-        $curls = (array) $curls;
-
-        $master = curl_multi_init();
-
-        $hh = [];
-        $urls = [];
-        foreach ( $curls as $index => $url ) {
-            $hh[ $index ] = $h = $this->createNew($url, $post, $options);
-            $urls[ $index ] = $this->info($h, 'url');
-
-            // add handler to multi
-            curl_multi_add_handle($master, $h);
-
-            // echo URL
-            if (PHP_SAPI === 'cli') {
-                $this->info($h, 'url');
-            }
-        }
-
-        // start requests
-        do {
-            $mrc = curl_multi_exec($master, $running);
-
-            if ($running) {
-                curl_multi_select($master);
-            }
-        } while ( $running && $mrc == CURLM_OK );
-
-        // parse responses
-        $results = [];
-        foreach ( $hh as $index => $h ) {
-            $results[ $index ] = curl_multi_getcontent($h);
-
-            curl_multi_remove_handle($master, $h);
-        }
-
-        // close loop
-        curl_multi_close($master);
-
-        // result
-        return [ $results, $urls, $hh ];
-    }
-
-    /**
-     * @param string     $type
-     * @param mixed      $curl
-     * @param null       $data
-     * @param array|null $curl_options
-     *
-     * @return resource
-     */
-    protected function create(string $type, $curl, $data = null, array $curl_options = []) // : resource
-    {
-        $isUrl = is_string($curl) && (bool) filter_var($curl, FILTER_VALIDATE_URL);
-        $isCurl = $this->isCurl($curl);
-
-        if (! ( $isUrl || $isCurl )) {
-            throw new InvalidArgumentException('Curl should be URL address or CURL resource', func_get_args());
-        }
-
-        if (isset($data)
-            && ! is_string($data)
-            && ! is_array($data)
-        ) {
-            throw new InvalidArgumentException('Data should be null, string or array');
-        }
-
-        // create resource
-        $h = null;
-        $id = null;
-        $options = [];
-        $optionsMatrix = [];
-        if ($isUrl) {
-            $h = curl_init();
-            $options[ CURLOPT_URL ] = $curl;
-
-            $id = intval($h);
-
-            // add curl to registry
-            $this->setCurlById($id, $h);
-
-        } elseif ($isCurl) {
-            if ($this->hasMatrixById($id = (int) $curl)) {
-                $optionsMatrix = $this->getMatrixById($id);
-            }
-
-            if ('copy' === $type) {
-                $h = curl_init();
-            } elseif ('new' === $type) {
-                $h = $curl;
-            }
-
-            $id = intval($h);
-        }
-
-        // default options
-        $optionsDefault = $this->getOptionsDefault();
-
-        // merge options
         $headers = [];
-        foreach ( [ $optionsDefault, $optionsMatrix, $curl_options ] as $array ) {
-            foreach ( $array as $key => $val ) {
-                if ($key === CURLOPT_HTTPHEADER) {
-                    $headers = array_merge($headers, $val);
-                } else {
-                    $options[ $key ] = $val;
-                }
-            }
-        }
+        foreach ( $resultHeaders as $name => $header ) {
+            $parts = explode(':', $header, 2) + [ null, null ];
+            $val = reset($parts);
 
-        // merge headers
-        $array = $headers;
-        $headers = [];
-        foreach ( $array as $header ) {
-            [ $key, $val ] = explode(':', $header);
+            $contentName = ( null !== $parts[ 1 ] ) ? $parts[ 0 ] : null;
+            $arrayName = is_string($name) ? $name : null;
+
+            $key = $contentName ?? $arrayName;
             $key = trim(strtolower($key));
-            $headers[ $key ] = trim($val);
+
+            if ($key) {
+                $headers[ $key ] = trim($val);
+            }
         }
         foreach ( $headers as $key => $val ) {
-            $options[ CURLOPT_HTTPHEADER ][] = $key . ': ' . $val;
+            $result[ CURLOPT_HTTPHEADER ][] = $key . ': ' . $val;
         }
 
-        // set data
-        if (isset($data)) {
-            if (! isset($options[ CURLOPT_CUSTOMREQUEST ])) {
-                $options[ CURLOPT_POST ] = 1;
-            }
+        return $result;
+    }
 
-            // set content
-            if (is_array($data)) {
-                $options[ CURLOPT_POSTFIELDS ] = http_build_query($data);
-            } else {
-                $options[ CURLOPT_POSTFIELDS ] = $data;
-            }
+
+    /**
+     * @param $method
+     *
+     * @return null|string
+     */
+    public function detectHttpMethod($method) : ?string
+    {
+        if (! is_string($method)) {
+            return null;
         }
 
-        // assign settings to curl
-        if (isset($data) || isset($curl_options)) {
-            curl_setopt_array($h, $options);
-
-        } elseif ($isUrl) {
-            curl_setopt_array($h, $options);
-
-        }
-
-        // update matrix
-        $this->setMatrixById($id, $options);
-
-        // result
-        return $h;
+        return isset(static::THE_METHOD_LIST[ $httpMethod = strtoupper($method) ])
+            ? $httpMethod
+            : null;
     }
 
     /**
-     * @param int   $id
-     * @param mixed $curl
+     * @param mixed $info
      *
-     * @return Curl
+     * @return null|int
      */
-    protected function setCurlById(int $id, $curl)
+    public function detectInfoCode($info) : ?int
     {
-        if (! $this->isCurl($curl)) {
-            throw new InvalidArgumentException('Curl should be curl resource', func_get_args());
-        }
+        $infoCode = null
+            ?? ( ( $this->type->isInt($info) && isset(static::$infoCodes[ $info ]) ) ? $info : false )
+            ?? ( is_string($info) ? static::$info[ $info ] : false );
 
-        $this->curls[ $id ] = $curl;
-
-        return $this;
+        return false !== $infoCode
+            ? $infoCode
+            : null;
     }
 
     /**
-     * @param int   $id
-     * @param array $matrix
+     * @param mixed $opt
      *
-     * @return Curl
+     * @return null|int
      */
-    protected function setMatrixById(int $id, array $matrix)
+    public function detectOptCode($opt) : ?int
     {
-        if (! $this->isMatrix($matrix)) {
-            throw new InvalidArgumentException('Matrix should be valid curl matrix', func_get_args());
-        }
+        $optCode = null
+            ?? ( ( $this->type->isInt($opt) && isset(static::$curloptCodes[ $opt ]) ) ? $opt : false )
+            ?? ( is_string($opt) ? static::$curlopt[ $opt ] : false );
 
-        $this->matrix[ $id ] = $matrix;
-
-        return $this;
+        return false !== $optCode
+            ? $optCode
+            : null;
     }
+
 
     /**
      * @var array
@@ -904,6 +406,7 @@ class Curl implements CurlInterface
      * @var array
      */
     protected static $curloptCodes;
+
     /**
      * @var array
      */
@@ -952,5 +455,8 @@ class Curl implements CurlInterface
         'CURLINFO_HTTP_CODE'               => CURLINFO_HTTP_CODE,
         'CURLINFO_RESPONSE_CODE'           => CURLINFO_RESPONSE_CODE,
     ];
+    /**
+     * @var array
+     */
     protected static $infoCodes;
 }

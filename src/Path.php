@@ -4,6 +4,7 @@ namespace Gzhegow\Support;
 
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
+
 /**
  * Path
  */
@@ -38,7 +39,7 @@ class Path
      *
      * @return string
      */
-    function optimize(string $pathname, string $separator = '/') : string
+    public function optimize(string $pathname, string $separator = '/') : string
     {
         if ('' === $pathname) {
             return '';
@@ -66,7 +67,7 @@ class Path
      *
      * @return string
      */
-    function normalize(string $pathname) : string
+    public function normalize(string $pathname) : string
     {
         return $this->optimize($pathname, DIRECTORY_SEPARATOR);
     }
@@ -77,7 +78,7 @@ class Path
      *
      * @return string
      */
-    function realpath(string $path) : string
+    public function realpath(string $path) : string
     {
         if (false === ( $result = realpath($path) )) {
             throw new InvalidArgumentException('Path not exists: ' . $path);
@@ -92,7 +93,7 @@ class Path
      *
      * @return string
      */
-    function basepath(string $path, string $base = null) : string
+    public function basepath(string $path, string $base = null) : string
     {
         $basePath = str_replace($this->normalize($base . '/'), '', $this->normalize($path));
 
@@ -105,11 +106,11 @@ class Path
      *
      * @return string
      */
-    function joinUnsafe(...$parts) : string
+    public function joinUnsafe(...$parts) : string
     {
         [ 1 => $args ] = $this->php->kwargs(...$parts);
 
-        $result = array_reduce($args, static function (array $carry, string $part) {
+        $result = array_reduce($args, function (array $carry, string $part) {
             if ('' === $part) {
                 return $carry;
             }
@@ -129,13 +130,13 @@ class Path
      *
      * @return string
      */
-    function join(...$parts) : string
+    public function join(...$parts) : string
     {
         [ 1 => $args ] = $this->php->kwargs(...$parts);
 
-        $result = array_reduce($args, static function (array $carry, $part) {
-            if (! $this->type->isTheString($part)) {
-                throw new InvalidArgumentException('Each part should be non-empty stringable', $part);
+        $result = array_reduce($args, function (array $carry, $part) {
+            if (! $this->type->isStringOrNumber($part)) {
+                throw new InvalidArgumentException('Each part should be non-empty string', $part);
             }
 
             $carry[] = $part;

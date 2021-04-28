@@ -1,6 +1,6 @@
 <?php
 
-namespace Gzhegow\Support\Interfaces;
+namespace Gzhegow\Support\Domain\Type;
 
 /**
  * CanToArrayInterface

@@ -1,6 +1,6 @@
 <?php
 
-namespace Gzhegow\Support\Iterators;
+namespace Gzhegow\Support\Domain\Arr;
 
 use Gzhegow\Support\Exceptions\RuntimeException;
 

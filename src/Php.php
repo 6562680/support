@@ -12,6 +12,23 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 class Php
 {
     /**
+     * @var Type
+     */
+    protected $type;
+
+
+    /**
+     * Constructor
+     *
+     * @param Type $type
+     */
+    public function __construct(Type $type)
+    {
+        $this->type = $type;
+    }
+
+
+    /**
      * @param object $object
      *
      * @return array
@@ -60,11 +77,11 @@ class Php
         foreach ( $arguments as $argument ) {
             if (is_array($argument)) {
                 foreach ( $argument as $key => $val ) {
-                    if (is_string($key)) {
-                        $kwargs[ $key ] = $val;
+                    if ($this->type->isInt($key)) {
+                        $args[ $key ] = $val;
 
                     } else {
-                        $args[] = $val;
+                        $kwargs[ $key ] = $val;
 
                     }
                 }
@@ -87,11 +104,11 @@ class Php
         $args = [];
 
         array_walk_recursive($arguments, function ($val, $key) use (&$kwargs, &$args) {
-            if (is_string($key)) {
-                $kwargs[ $key ] = $val;
+            if ($this->type->isInt($key)) {
+                $args[ $key ] = $val;
 
             } else {
-                $args[] = $val;
+                $kwargs[ $key ] = $val;
 
             }
         });
@@ -115,18 +132,19 @@ class Php
         foreach ( $arguments as $idx => $argument ) {
             if (is_array($argument)) {
                 foreach ( $argument as $key => $val ) {
-                    if (! isset($registry[ $key ])) {
+                    if (isset($registry[ $key ])) {
+                        throw new InvalidArgumentException('Duplicate key found: ' . $key, $arguments);
+
+                    } else {
                         $registry[ $key ] = true;
 
-                        if (is_string($key)) {
-                            $kwargs[ $key ] = $val;
-
-                        } else {
+                        if ($this->type->isInt($key)) {
                             $args[ $key ] = $val;
 
+                        } else {
+                            $kwargs[ $key ] = $val;
+
                         }
-                    } else {
-                        throw new InvalidArgumentException('Duplicate key found: ' . $key, $arguments);
                     }
                 }
             } else {

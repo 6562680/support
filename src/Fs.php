@@ -189,7 +189,8 @@ class Fs
      *
      * @return null|string
      */
-    public function fileGet(string $filename, bool $use_include_path = false, $context = null, $offset = 0,
+    public function fileGet(string $filename, bool $use_include_path = false, $context = null,
+        $offset = 0,
         $length = null
     ) : ?string
     {

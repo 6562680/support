@@ -122,7 +122,7 @@ class Uri
         $ref = $ref ?? $fragment;
 
         return ''
-            . ( ( $info[ 'scheme' ] && $info[ 'scheme' ] )
+            . ( ( $info[ 'scheme' ] && $info[ 'host' ] )
                 ? ( $info[ 'scheme' ] . '://' . $info[ 'host' ] . '/' )
                 : '/'
             )

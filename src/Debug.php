@@ -57,7 +57,7 @@ class Debug
      *
      * @return string
      */
-    public function doc(string $content) : string
+    public function dom(string $content) : string
     {
         return preg_replace("/\s+/m", ' ', $content);
     }
@@ -130,7 +130,9 @@ class Debug
 
         var_dump(...$arguments);
 
-        return ob_get_clean();
+        $result = ob_get_clean();
+
+        return $result;
     }
 
 
@@ -148,6 +150,8 @@ class Debug
             return null;
         }
 
-        return $this->doc(print_r($arg, $return));
+        $result = $this->dom(print_r($arg, $return));
+
+        return $result;
     }
 }

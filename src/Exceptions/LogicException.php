@@ -85,7 +85,7 @@ class LogicException extends \LogicException
     protected function loadDependencies() : void
     {
         $this->debug = new Debug();
-        $this->php = new Php();
+        $this->php = new Php(new Type());
         $this->type = new Type();
     }
 

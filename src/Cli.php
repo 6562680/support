@@ -36,8 +36,6 @@ class Cli
 
 
     /**
-     * выводит переданные переменные и ставит программу на паузу. После нажатия ENTER программу завершает
-     *
      * @param mixed ...$arguments
      */
     public function stop(...$arguments) : void
@@ -52,8 +50,6 @@ class Cli
     }
 
     /**
-     * ожидает ввода клавиши ENTER от пользователя
-     *
      * @param mixed ...$arguments
      *
      * @return array
@@ -76,8 +72,6 @@ class Cli
 
 
     /**
-     * ожидает ввода строки текста от пользователя
-     *
      * @return string
      */
     public function readln() : string
@@ -94,17 +88,16 @@ class Cli
     }
 
     /**
-     * ожидает текст на несколько строк в консоли
+     * @param string $search
      *
      * @return string
      */
-    public function cin() : string
+    public function cin(string $search = '```') : string
     {
         if (PHP_SAPI !== 'cli') {
             throw new BadFunctionCallException('Should be called in CLI mode');
         }
 
-        $search = '```';
         echo '> Enter text separating lines by pressing ENTER' . PHP_EOL;
         echo '> Type ' . $search . ' when you\'re done...' . PHP_EOL;
 
@@ -112,6 +105,7 @@ class Cli
         $h = fopen('php://stdin', 'r');
         while ( false !== ( $line = fgets($h) ) ) {
             $line = trim($line);
+
             if (! $line) {
                 echo '> Write `' . $search . '` when done...' . PHP_EOL;
                 continue;
