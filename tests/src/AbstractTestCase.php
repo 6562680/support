@@ -29,17 +29,6 @@ abstract class AbstractTestCase extends TestCase
      */
     protected static function boot() : void
     {
-        $trace = [];
-
-        set_error_handler(function ($code, $string, $file, $line) use (&$trace) {
-            $trace = debug_backtrace();
-
-            throw new \ErrorException($string, null, $code, $file, $line);
-        });
-
-        register_shutdown_function(function () use (&$trace) {
-            print_r($trace);
-        });
     }
 
 

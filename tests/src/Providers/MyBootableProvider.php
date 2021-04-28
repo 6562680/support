@@ -49,8 +49,9 @@ class MyBootableProvider extends BootableProvider
     protected function define() : array
     {
         return [
-            'config'    => __DIR__ . '/../../config/src/file.conf',
-            'resources' => __DIR__ . '/../../config/src/dir',
+            'config'     => __DIR__ . '/../../config/src/file.conf',
+            'resources'  => __DIR__ . '/../../config/src/dir',
+            'resources2' => __DIR__ . '/../../config/src/dir/', // ends with slash
         ];
     }
 
@@ -60,8 +61,9 @@ class MyBootableProvider extends BootableProvider
     protected function sync() : array
     {
         return [
-            'config'    => __DIR__ . '/../../config/dest/file.conf',
-            'resources' => __DIR__ . '/../../config/dest/dir',
+            'config'     => __DIR__ . '/../../config/dest/file.conf',
+            'resources'  => __DIR__ . '/../../config/dest/dir',
+            'resources2' => __DIR__ . '/../../config/dest/dir/', // ends with slash
         ];
     }
 }

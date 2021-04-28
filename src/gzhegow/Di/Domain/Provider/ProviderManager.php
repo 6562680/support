@@ -302,8 +302,6 @@ class ProviderManager
                 throw new RuntimeException('Define not found: ' . $name, func_get_args());
             }
 
-            $from = $defines[ $name ];
-
             if (file_exists($to)) {
                 continue;
             }
@@ -312,17 +310,22 @@ class ProviderManager
                 mkdir($dest, 0755, true);
             }
 
+            $from = $defines[ $name ];
+
             if (! is_dir($from)) {
                 copy($from, $to);
 
             } else {
+                /** @var \RecursiveDirectoryIterator $iit */
+
                 $it = new \RecursiveDirectoryIterator($from, \RecursiveDirectoryIterator::SKIP_DOTS);
                 $iit = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::SELF_FIRST);
 
                 foreach ( $iit as $file ) {
-                    /** @var \RecursiveDirectoryIterator $iit */
+                    $dest = rtrim($to, '\\/' . DIRECTORY_SEPARATOR)
+                        . DIRECTORY_SEPARATOR
+                        . $iit->getSubPathName();
 
-                    $dest = $to . DIRECTORY_SEPARATOR . $iit->getSubPathName();
                     $file->isDir()
                         ? mkdir($dest, 755, true)
                         : copy($file->getRealpath(), $dest);
