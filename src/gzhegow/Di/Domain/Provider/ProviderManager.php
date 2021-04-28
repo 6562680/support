@@ -307,7 +307,7 @@ class ProviderManager
             }
 
             if (! is_dir($dest = pathinfo($to, PATHINFO_DIRNAME))) {
-                mkdir($dest, 0755, true);
+                mkdir($dest, 0775, true);
             }
 
             $from = $defines[ $name ];
@@ -318,6 +318,10 @@ class ProviderManager
             } else {
                 /** @var \RecursiveDirectoryIterator $iit */
 
+                if (! is_dir($to)) {
+                    mkdir($to, 0775, true);
+                }
+
                 $it = new \RecursiveDirectoryIterator($from, \RecursiveDirectoryIterator::SKIP_DOTS);
                 $iit = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::SELF_FIRST);
 
@@ -327,7 +331,7 @@ class ProviderManager
                         . $iit->getSubPathName();
 
                     $file->isDir()
-                        ? mkdir($dest, 755, true)
+                        ? mkdir($dest, 0775, true)
                         : copy($file->getRealpath(), $dest);
                 }
             }

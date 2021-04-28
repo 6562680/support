@@ -35,13 +35,19 @@ use Gzhegow\Di\Tests\Services\Delegate\MyDelegateServiceDInterface;
 use Gzhegow\Di\Tests\Services\Delegate\MyDelegateServiceDependsOnDelegates;
 
 /**
- * Class DiTest
+ * DiTest
  */
 class DiTest extends AbstractTestCase
 {
     /**
-     * @return void
+     * @return Fs
      */
+    public function getFs() : Fs
+    {
+        return new Fs();
+    }
+
+
     public function testNormal()
     {
         $di = ( new DiFactory() )->newDi();
@@ -53,9 +59,7 @@ class DiTest extends AbstractTestCase
     }
 
 
-    /**
-     * @return void
-     */
+
     public function testNobind()
     {
         $di = ( new DiFactory() )->newDi();
@@ -66,9 +70,7 @@ class DiTest extends AbstractTestCase
     }
 
 
-    /**
-     * @return void
-     */
+
     public function testInterface()
     {
         /** @var MyServiceAInterface $myAService */
@@ -82,9 +84,7 @@ class DiTest extends AbstractTestCase
     }
 
 
-    /**
-     * @return void
-     */
+
     public function testNullDependency()
     {
         /** @var MyServiceAInterface $myAService */
@@ -100,9 +100,7 @@ class DiTest extends AbstractTestCase
     }
 
 
-    /**
-     * @return void
-     */
+
     public function testShared()
     {
         $di = ( new DiFactory() )->newDi();
@@ -116,9 +114,7 @@ class DiTest extends AbstractTestCase
         $this->assertEquals($myAService1, $myAService2);
     }
 
-    /**
-     * @return void
-     */
+
     public function testSharedClosure()
     {
         $di = ( new DiFactory() )->newDi();
@@ -135,9 +131,7 @@ class DiTest extends AbstractTestCase
     }
 
 
-    /**
-     * @return void
-     */
+
     public function testDelegate()
     {
         /**
@@ -178,9 +172,7 @@ class DiTest extends AbstractTestCase
     }
 
 
-    /**
-     * @return void
-     */
+
     public function testProvider()
     {
         /** @var MyServiceAInterface $myAService */
@@ -195,9 +187,7 @@ class DiTest extends AbstractTestCase
         $this->assertEquals(null, $myAService->getStaticOption());
     }
 
-    /**
-     * @return void
-     */
+
     public function testProviderBootable()
     {
         /** @var MyServiceAInterface $myAService */
@@ -206,7 +196,8 @@ class DiTest extends AbstractTestCase
         $di->registerProvider(MyBootableProvider::class);
 
         // remove old sync before test
-        ( new Fs() )->rmdir(__DIR__ . '/../config/dest', true);
+        $fs = $this->getFs();
+        $fs->rmdir(__DIR__ . '/../config/dest', true);
 
         $myAService = $di->get(MyServiceAInterface::class);
 
@@ -229,9 +220,7 @@ class DiTest extends AbstractTestCase
         $this->assertFileExists(__DIR__ . '/../config/dest/dir/dir/file.conf');
     }
 
-    /**
-     * @return void
-     */
+
     public function testProviderDeferable()
     {
         /** @var MyServiceAInterface $myAService */
@@ -254,9 +243,6 @@ class DiTest extends AbstractTestCase
     }
 
 
-    /**
-     * @return void
-     */
     public function testCall()
     {
         /** @var MyServiceAInterface $myAService */
@@ -281,9 +267,7 @@ class DiTest extends AbstractTestCase
     }
 
 
-    /**
-     * @return void
-     */
+
     public function testHandle()
     {
         /** @var MyServiceAInterface $testService */
@@ -322,9 +306,6 @@ class DiTest extends AbstractTestCase
         }, $data);
     }
 
-    /**
-     * @return void
-     */
     public function testHandleNoArguments()
     {
         /** @var MyServiceAInterface $testService */
@@ -343,9 +324,7 @@ class DiTest extends AbstractTestCase
         }, $data);
     }
 
-    /**
-     * @return void
-     */
+
     public function testHandleVariadic()
     {
         /** @var MyServiceAInterface $testService */
@@ -370,9 +349,6 @@ class DiTest extends AbstractTestCase
         }, $data);
     }
 
-    /**
-     * @return void
-     */
     public function testHandleUnexpectedOrder()
     {
         /** @var MyServiceAInterface $testService */
@@ -397,9 +373,6 @@ class DiTest extends AbstractTestCase
     }
 
 
-    /**
-     * @return void
-     */
     public function testSame()
     {
         // both of dependent services required same service, its normal behavior
@@ -411,9 +384,6 @@ class DiTest extends AbstractTestCase
     }
 
 
-    /**
-     * @return void
-     */
     public function testBindSelf()
     {
         // service bounded as self, its normal behavior (usually for singletons)
@@ -430,9 +400,7 @@ class DiTest extends AbstractTestCase
     }
 
 
-    /**
-     * @return void
-     */
+
     public function testBadLoopSelf()
     {
         // service requires itself
@@ -443,9 +411,6 @@ class DiTest extends AbstractTestCase
         $di->get(MyLoopService::class);
     }
 
-    /**
-     * @return void
-     */
     public function testBadLoopSelfInterface()
     {
         // service requires itself via interface
@@ -458,9 +423,6 @@ class DiTest extends AbstractTestCase
         $di->get(MyLoopWithInterfaceService::class);
     }
 
-    /**
-     * @return void
-     */
     public function testBadLoopSelfClosure()
     {
         // service requires itself inside closure factory
@@ -475,9 +437,7 @@ class DiTest extends AbstractTestCase
         $di->get(MyLoopService::class);
     }
 
-    /**
-     * @return void
-     */
+
     public function testBadLoopAB()
     {
         // service A requires B, and service B requires service A
@@ -488,9 +448,6 @@ class DiTest extends AbstractTestCase
         $di->get(MyLoopAService::class);
     }
 
-    /**
-     * @return void
-     */
     public function testBadLoopABInterface()
     {
         // service A requires B, and service B requires service A via interfaces
@@ -504,9 +461,6 @@ class DiTest extends AbstractTestCase
         $di->get(MyLoopAServiceInterface::class);
     }
 
-    /**
-     * @return void
-     */
     public function testBadLoopCrossReference()
     {
         $this->expectException(AutowireLoopException::class);
@@ -518,9 +472,6 @@ class DiTest extends AbstractTestCase
         $di->get(MyLoopAService::class);
     }
 
-    /**
-     * @return void
-     */
     public function testBadLoopCrossReferenceInterfaces()
     {
         $this->expectException(AutowireLoopException::class);
@@ -533,9 +484,7 @@ class DiTest extends AbstractTestCase
     }
 
 
-    /**
-     * @return void
-     */
+
     public function testBadLoopABClosure()
     {
         // use $parent->get($id) instead of $di->get($id) to prevent breaking autowire-loop detection
@@ -559,9 +508,6 @@ class DiTest extends AbstractTestCase
         $di->get(MyLoopAService::class);
     }
 
-    /**
-     * @return void
-     */
     public function testBadLoopABClosureInterfaces()
     {
         // use $parent->get($id) instead of $di->get($id) to prevent breaking autowire-loop detection
