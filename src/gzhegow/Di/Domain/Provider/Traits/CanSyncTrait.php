@@ -2,7 +2,7 @@
 
 namespace Gzhegow\Di\Domain\Provider\Traits;
 
-use Gzhegow\Di\App\Exceptions\Logic\InvalidArgumentException;
+use Gzhegow\Di\Exceptions\Logic\InvalidArgumentException;
 
 /**
  * Trait CanSyncTrait

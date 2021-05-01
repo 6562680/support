@@ -1,9 +1,9 @@
 <?php
 
-namespace Gzhegow\Di\Core\Registry;
+namespace Gzhegow\Di\Domain\Registry;
 
 use Gzhegow\Di\Core\AssertInterface;
-use Gzhegow\Di\App\Exceptions\Logic\OutOfRangeException;
+use Gzhegow\Di\Exceptions\Logic\OutOfRangeException;
 
 /**
  * ExtendRegistry

@@ -1,6 +1,6 @@
 <?php
 
-namespace Gzhegow\Di\App\Exceptions\Runtime\Domain;
+namespace Gzhegow\Di\Exceptions\Runtime\Domain;
 
 /**
  * AutowireLoopException

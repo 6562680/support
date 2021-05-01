@@ -2,15 +2,15 @@
 
 namespace Gzhegow\Di;
 
-
+use Psr\Container\ContainerInterface;
+use Gzhegow\Di\Domain\Provider\ProviderManager;
 use Gzhegow\Di\Domain\Delegate\DelegateManager;
 use Gzhegow\Di\Domain\Injector\InjectorInterface;
-use Gzhegow\Di\Domain\Provider\ProviderManager;
-use Gzhegow\Di\App\Exceptions\Runtime\Domain\NotFoundException;
-use Psr\Container\ContainerInterface;
+use Gzhegow\Di\Exceptions\Runtime\Domain\NotFoundException;
+
 
 /**
- * Di
+ * DiInterface
  */
 interface DiInterface extends
     ContainerInterface,

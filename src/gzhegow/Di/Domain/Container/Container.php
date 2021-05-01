@@ -4,10 +4,10 @@ namespace Gzhegow\Di\Domain\Container;
 
 use Gzhegow\Support\Type;
 use Psr\Container\ContainerInterface;
-use Gzhegow\Di\Core\Registry\BindRegistry;
-use Gzhegow\Di\Core\Registry\ItemRegistry;
+use Gzhegow\Di\Domain\Registry\BindRegistry;
+use Gzhegow\Di\Domain\Registry\ItemRegistry;
 use Gzhegow\Di\Domain\Node\NodeFactoryInterface;
-use Gzhegow\Di\App\Exceptions\Exception\Domain\NotFoundException;
+use Gzhegow\Di\Exceptions\Exception\Domain\NotFoundException;
 
 /**
  * Container

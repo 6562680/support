@@ -6,20 +6,20 @@ use Gzhegow\Support\Arr;
 use Gzhegow\Support\Php;
 use Gzhegow\Support\Type;
 use Psr\Container\ContainerInterface;
-use Gzhegow\Di\Core\Registry\BindRegistry;
-use Gzhegow\Di\Core\Registry\ItemRegistry;
+use Gzhegow\Di\Domain\Registry\BindRegistry;
+use Gzhegow\Di\Domain\Registry\ItemRegistry;
 use Gzhegow\Reflection\ReflectionInterface;
-use Gzhegow\Di\Core\Registry\SharedRegistry;
-use Gzhegow\Di\Core\Registry\ExtendRegistry;
+use Gzhegow\Di\Domain\Registry\SharedRegistry;
+use Gzhegow\Di\Domain\Registry\ExtendRegistry;
 use Gzhegow\Di\Domain\Provider\ProviderManager;
 use Gzhegow\Di\Domain\Delegate\DelegateManager;
 use Gzhegow\Di\Domain\Delegate\DelegateInterface;
 use Gzhegow\Di\Domain\Injector\InjectorInterface;
-use Gzhegow\Di\App\Exceptions\Logic\InvalidArgumentException;
-use Gzhegow\Di\App\Exceptions\Runtime\Domain\AutowireException;
-use Gzhegow\Di\App\Exceptions\Exception\Domain\NotFoundException;
-use Gzhegow\Di\App\Exceptions\Runtime\Domain\AutowireLoopException;
-use Gzhegow\Di\App\Exceptions\Runtime\Domain\MissingDelegateClassException;
+use Gzhegow\Di\Exceptions\Logic\InvalidArgumentException;
+use Gzhegow\Di\Exceptions\Runtime\Domain\AutowireException;
+use Gzhegow\Di\Exceptions\Exception\Domain\NotFoundException;
+use Gzhegow\Di\Exceptions\Runtime\Domain\AutowireLoopException;
+use Gzhegow\Di\Exceptions\Runtime\Domain\MissingDelegateClassException;
 
 
 /**
@@ -41,6 +41,11 @@ class Node implements
 
 
     /**
+     * @var ReflectionInterface
+     */
+    protected $reflection;
+
+    /**
      * @var Arr
      */
     protected $arr;
@@ -52,10 +57,6 @@ class Node implements
      * @var Type
      */
     protected $type;
-    /**
-     * @var ReflectionInterface
-     */
-    protected $reflection;
 
     /**
      * @var NodeFactoryInterface
@@ -305,7 +306,7 @@ class Node implements
         $isCallable = false;
         if (! ( 0
             || ( $isClosure = $this->type->isClosure($func) )
-            || ( $isHandler = $this->type->isHandler($func) )
+            || ( $isHandler = $this->type->isCallableHandler($func) )
             || ( $isCallable = $this->type->isCallableArray($func) )
         )) {
             throw new InvalidArgumentException('Func should be closure, callable or handler', func_get_args());
@@ -573,13 +574,14 @@ class Node implements
      */
     protected function autowireConstructor($object, array $params = []) : array
     {
-        if (! $this->type->isReflectableClass($object, $class)) {
-            throw new InvalidArgumentException('Class is not reflectable: ' . $class, func_get_args());
+        if (null === ( $reflection = $this->reflection->filterReflectableClass($object, $reflectionInfo) )) {
+            throw new InvalidArgumentException(
+                'Class is not reflectable: ' . get_class($object),
+                func_get_args()
+            );
         }
 
-        $rm = $this->reflection
-            ->reflectClass($class)
-            ->getConstructor();
+        $rm = $reflection->getConstructor();
 
         $result = isset($rm)
             ? $this->autowireParams($rm->getParameters(), $params)
@@ -598,12 +600,15 @@ class Node implements
      */
     protected function autowireMethod($object, string $method, array $params = []) : array
     {
-        if (! $this->type->isReflectableClass($object, $class)) {
-            throw new InvalidArgumentException('Class is not reflectable: ' . $class, func_get_args());
+        if (null === ( $reflection = $this->reflection->filterReflectableClass($object, $reflectionInfo) )) {
+            throw new InvalidArgumentException(
+                'Class is not reflectable: ' . get_class($object),
+                func_get_args()
+            );
         }
 
         $rm = $this->reflection
-            ->reflectMethod($this->reflection->reflectClass($object), $method);
+            ->reflectMethod($reflection, $method);
 
         $result = $this->autowireParams($rm->getParameters(), $params);
 

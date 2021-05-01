@@ -3,7 +3,7 @@
 namespace Gzhegow\Di\Domain\Delegate;
 
 use Psr\Container\ContainerInterface;
-use Gzhegow\Di\App\Exceptions\Runtime\UnexpectedValueException;
+use Gzhegow\Di\Exceptions\Runtime\UnexpectedValueException;
 
 /**
  * Delegate

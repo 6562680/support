@@ -1,15 +1,15 @@
 <?php
 
-namespace Gzhegow\Di\Core\Registry;
+namespace Gzhegow\Di\Domain\Registry;
 
 use Gzhegow\Di\Core\AssertInterface;
-use Gzhegow\Di\App\Exceptions\Logic\OutOfRangeException;
-use Gzhegow\Di\App\Exceptions\Runtime\OverflowException;
+use Gzhegow\Di\Exceptions\Logic\OutOfRangeException;
+use Gzhegow\Di\Exceptions\Runtime\OverflowException;
 
 /**
- * BindRegistry
+ * ItemRegistry
  */
-class BindRegistry
+class ItemRegistry
 {
     /**
      * @var AssertInterface
@@ -18,7 +18,7 @@ class BindRegistry
 
 
     /**
-     * @var string[]|\Closure[]
+     * @var mixed
      */
     protected $items = [];
 
@@ -37,11 +37,11 @@ class BindRegistry
     /**
      * @param string $bindName
      *
-     * @return \Closure|string
+     * @return mixed
      */
-    public function getBind(string $bindName)
+    public function getItem(string $bindName)
     {
-        if (! $this->hasBind($bindName)) {
+        if (! $this->hasItem($bindName)) {
             throw new OutOfRangeException('No bind found by key: ' . $bindName, func_get_args());
         }
 
@@ -56,7 +56,7 @@ class BindRegistry
      *
      * @return bool
      */
-    public function hasBind($bindName) : bool
+    public function hasItem($bindName) : bool
     {
         return $this->assert->isBindName($bindName)
             && isset($this->items[ $bindName ]);
@@ -65,34 +65,33 @@ class BindRegistry
 
     /**
      * @param string          $bindName
-     * @param \Closure|string $bind
+     * @param \Closure|string $item
      *
-     * @return BindRegistry
+     * @return ItemRegistry
      */
-    public function addBind(string $bindName, $bind)
+    public function addItem(string $bindName, $item)
     {
-        if ($this->hasBind($bindName)) {
-            throw new OverflowException('Bind is already registered: ' . $bindName, func_get_args());
+        if ($this->hasItem($bindName)) {
+            throw new OverflowException('Item is already registered: ' . $bindName, func_get_args());
         }
 
-        $this->setBind($bindName, $bind);
+        $this->setItem($bindName, $item);
 
         return $this;
     }
 
 
     /**
-     * @param string          $bindName
-     * @param \Closure|string $bind
+     * @param string $bindName
+     * @param mixed  $item
      *
-     * @return BindRegistry
+     * @return ItemRegistry
      */
-    public function setBind(string $bindName, $bind)
+    public function setItem(string $bindName, $item)
     {
         $this->assert->isBindNameOrFail($bindName);
-        $this->assert->isBindOrFail($bind);
 
-        $this->items[ $bindName ] = $bind;
+        $this->items[ $bindName ] = $item;
 
         return $this;
     }

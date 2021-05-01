@@ -2,14 +2,13 @@
 
 namespace Gzhegow\Di;
 
-use Gzhegow\Support\Type;
 use Psr\Container\ContainerInterface;
 use Gzhegow\Reflection\ReflectionInterface;
 use Gzhegow\Di\Domain\Delegate\DelegateManager;
 use Gzhegow\Di\Domain\Provider\ProviderManager;
 use Gzhegow\Di\Domain\Node\NodeFactoryInterface;
 use Gzhegow\Di\Domain\Injector\InjectorInterface;
-use Gzhegow\Di\App\Exceptions\Runtime\Domain\NotFoundException;
+use Gzhegow\Di\Exceptions\Runtime\Domain\NotFoundException;
 
 /**
  * Di
@@ -20,11 +19,6 @@ class Di implements DiInterface
      * @var ContainerInterface
      */
     protected $container;
-
-    /**
-     * @var Type
-     */
-    protected $type;
 
     /**
      * @var ReflectionInterface
@@ -60,8 +54,6 @@ class Di implements DiInterface
      *
      * @param ContainerInterface   $container
      *
-     * @param Type                 $type
-     *
      * @param ReflectionInterface  $reflection
      *
      * @param NodeFactoryInterface $nodeFactory
@@ -73,8 +65,6 @@ class Di implements DiInterface
      * @param InjectorInterface    $injector
      */
     public function __construct(
-        Type $type,
-
         ReflectionInterface $reflection,
 
         NodeFactoryInterface $nodeFactory,
@@ -87,8 +77,6 @@ class Di implements DiInterface
         DelegateManager $delegateManager
     )
     {
-        $this->type = $type;
-
         $this->reflection = $reflection;
 
         $this->nodeFactory = $nodeFactory;
@@ -184,16 +172,6 @@ class Di implements DiInterface
      *
      * @return bool
      */
-    public function has($id)
-    {
-        return $this->container->has($id);
-    }
-
-    /**
-     * @param string $id
-     *
-     * @return bool
-     */
     public function hasBind($id)
     {
         return $this->diManager->hasBind($id);
@@ -207,6 +185,16 @@ class Di implements DiInterface
     public function hasItem($id)
     {
         return $this->diManager->hasItem($id);
+    }
+
+    /**
+     * @param string $id
+     *
+     * @return bool
+     */
+    public function has($id)
+    {
+        return $this->container->has($id);
     }
 
 

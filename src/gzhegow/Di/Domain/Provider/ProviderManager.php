@@ -3,11 +3,11 @@
 namespace Gzhegow\Di\Domain\Provider;
 
 use Gzhegow\Di\Core\AssertInterface;
-use Gzhegow\Di\Core\Registry\DeferableRegistry;
-use Gzhegow\Di\App\Exceptions\RuntimeException;
+use Gzhegow\Di\Domain\Registry\DeferableRegistry;
+use Gzhegow\Di\Exceptions\RuntimeException;
 use Gzhegow\Di\Domain\Provider\Traits\CanBootInterface;
 use Gzhegow\Di\Domain\Provider\Traits\CanSyncInterface;
-use Gzhegow\Di\App\Exceptions\Logic\InvalidArgumentException;
+use Gzhegow\Di\Exceptions\Logic\InvalidArgumentException;
 
 /**
  * Class ProviderManager

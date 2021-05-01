@@ -4,6 +4,9 @@ namespace Gzhegow\Di\Tests;
 
 use Gzhegow\Support\Fs;
 use Gzhegow\Di\DiFactory;
+use Gzhegow\Support\Type;
+use Gzhegow\Support\Filter;
+use Gzhegow\Support\Assert;
 use Gzhegow\Di\Domain\Node\Node;
 use Gzhegow\Di\Tests\Services\MyAService;
 use Gzhegow\Di\Tests\Providers\MyProvider;
@@ -27,8 +30,8 @@ use Gzhegow\Di\Tests\Services\Loop\MyLoopBServiceInterface;
 use Gzhegow\Di\Tests\Services\Loop\MyLoopWithInterfaceService;
 use Gzhegow\Di\Tests\Services\Loop\MyLoopBWithInterfaceService;
 use Gzhegow\Di\Tests\Services\Loop\MyLoopAWithInterfaceService;
+use Gzhegow\Di\Exceptions\Runtime\Domain\AutowireLoopException;
 use Gzhegow\Di\Tests\Services\Closure\MyClosureServiceBInterface;
-use Gzhegow\Di\App\Exceptions\Runtime\Domain\AutowireLoopException;
 use Gzhegow\Di\Tests\Services\Delegate\MyDelegateServiceBInterface;
 use Gzhegow\Di\Tests\Services\Delegate\MyDelegateServiceCInterface;
 use Gzhegow\Di\Tests\Services\Delegate\MyDelegateServiceDInterface;
@@ -39,12 +42,31 @@ use Gzhegow\Di\Tests\Services\Delegate\MyDelegateServiceDependsOnDelegates;
  */
 class DiTest extends AbstractTestCase
 {
-    /**
-     * @return Fs
-     */
+    public function getAssert() : Assert
+    {
+        return new Assert();
+    }
+
+    public function getFilter() : Filter
+    {
+        return new Filter(
+            $this->getAssert()
+        );
+    }
+
+    public function getType() : Type
+    {
+        return new Type(
+            $this->getAssert()
+        );
+    }
+
     public function getFs() : Fs
     {
-        return new Fs();
+        return new Fs(
+            $this->getFilter(),
+            $this->getType()
+        );
     }
 
 

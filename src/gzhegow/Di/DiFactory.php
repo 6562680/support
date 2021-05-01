@@ -2,26 +2,28 @@
 
 namespace Gzhegow\Di;
 
-use Gzhegow\Support\Php;
-use Gzhegow\Support\Arr;
-use Gzhegow\Support\Type;
 use Gzhegow\Di\Core\Assert;
 use Gzhegow\Di\Domain\Node\Node;
 use Gzhegow\Reflection\Reflection;
 use Gzhegow\Di\Core\AssertInterface;
+use Gzhegow\Support\Php as SupportPhp;
+use Gzhegow\Support\Arr as SupportArr;
 use Psr\Container\ContainerInterface;
+use Gzhegow\Support\Type as SupportType;
 use Gzhegow\Di\Domain\Injector\Injector;
 use Gzhegow\Di\Domain\Provider\Provider;
-use Gzhegow\Di\Core\Registry\BindRegistry;
-use Gzhegow\Di\Core\Registry\ItemRegistry;
 use Gzhegow\Di\Domain\Container\Container;
+use Gzhegow\Support\Filter as SupportFilter;
 use Gzhegow\Reflection\ReflectionInterface;
-use Gzhegow\Di\Core\Registry\SharedRegistry;
-use Gzhegow\Di\Core\Registry\ExtendRegistry;
+use Gzhegow\Support\Assert as SupportAssert;
+use Gzhegow\Di\Domain\Registry\BindRegistry;
+use Gzhegow\Di\Domain\Registry\ItemRegistry;
+use Gzhegow\Di\Domain\Registry\SharedRegistry;
+use Gzhegow\Di\Domain\Registry\ExtendRegistry;
 use Gzhegow\Di\Domain\Provider\ProviderManager;
 use Gzhegow\Di\Domain\Delegate\DelegateManager;
-use Gzhegow\Di\Core\Registry\DeferableRegistry;
 use Gzhegow\Di\Domain\Node\NodeFactoryInterface;
+use Gzhegow\Di\Domain\Registry\DeferableRegistry;
 use Gzhegow\Di\Domain\Injector\InjectorInterface;
 use Gzhegow\Di\Domain\Provider\ProviderInterface;
 use Gzhegow\Di\Domain\Provider\ProviderFactoryInterface;
@@ -40,23 +42,35 @@ class DiFactory implements
     protected $proxy;
 
     /**
-     * @var null|Php
+     * @var null|SupportArr
      */
-    protected $php;
+    protected $supportArr;
     /**
-     * @var null|Type
+     * @var null|SupportAssert
      */
-    protected $type;
-
+    protected $supportAssert;
     /**
-     * @var null|Assert
+     * @var null|SupportFilter
      */
-    protected $assert;
+    protected $supportFilter;
+    /**
+     * @var null|SupportPhp
+     */
+    protected $supportPhp;
+    /**
+     * @var null|SupportType
+     */
+    protected $supportType;
 
     /**
      * @var null|ReflectionInterface
      */
     protected $reflection;
+
+    /**
+     * @var null|AssertInterface
+     */
+    protected $assert;
 
     /**
      * @var null|NodeFactoryInterface
@@ -118,10 +132,13 @@ class DiFactory implements
      *
      * @param null|ReflectionInterface      $reflection
      *
-     * @param null|Php                      $php
-     * @param null|Type                     $type
+     * @param null|SupportAssert            $supportAssert
+     * @param null|SupportArr               $supportArr
+     * @param null|SupportFilter            $supportFilter
+     * @param null|SupportPhp               $supportPhp
+     * @param null|SupportType              $supportType
      *
-     * @param null|Assert                   $assert
+     * @param null|AssertInterface          $assert
      *
      * @param null|NodeFactoryInterface     $nodeFactory
      * @param null|ProviderFactoryInterface $providerFactory
@@ -137,17 +154,19 @@ class DiFactory implements
      * @param null|DiManager                $diManager
      * @param null|DelegateManager          $delegateManager
      * @param null|ProviderManager          $providerManager
-     *
      */
     public function __construct(
         ContainerInterface $proxy = null,
 
         ReflectionInterface $reflection = null,
 
-        Php $php = null,
-        Type $type = null,
+        SupportArr $supportArr = null,
+        SupportAssert $supportAssert = null,
+        SupportFilter $supportFilter = null,
+        SupportPhp $supportPhp = null,
+        SupportType $supportType = null,
 
-        Assert $assert = null,
+        AssertInterface $assert = null,
 
         NodeFactoryInterface $nodeFactory = null,
         ProviderFactoryInterface $providerFactory = null,
@@ -169,8 +188,11 @@ class DiFactory implements
 
         $this->reflection = $reflection ?? $this->loadReflection();
 
-        $this->php = $php ?? $this->loadPhp();
-        $this->type = $type ?? $this->loadType();
+        $this->supportArr = $supportArr ?? $this->loadSupportArr();
+        $this->supportAssert = $supportAssert ?? $this->loadSupportAssert();
+        $this->supportFilter = $supportFilter ?? $this->loadSupportFilter();
+        $this->supportPhp = $supportPhp ?? $this->loadSupportPhp();
+        $this->supportType = $supportType ?? $this->loadSupportType();
 
         $this->assert = $assert ?? $this->loadAssert();
 
@@ -198,8 +220,6 @@ class DiFactory implements
     public function newDi() : Di
     {
         $di = new Di(
-            $this->loadType(),
-
             $this->loadReflection(),
 
             $this->loadNodeFactory(),
@@ -228,9 +248,9 @@ class DiFactory implements
         $node = new Node(
             $this->loadReflection(),
 
-            $this->loadArr(),
-            $this->loadPhp(),
-            $this->loadType(),
+            $this->loadSupportArr(),
+            $this->loadSupportPhp(),
+            $this->loadSupportType(),
 
             $this->loadNodeFactory(),
 
@@ -279,49 +299,65 @@ class DiFactory implements
 
 
     /**
-     * @return Php
+     * @return SupportArr
      */
-    protected function loadPhp() : Php
-    {
-        return $this->php
-            ?? $this->getProxy(Php::class)
-            ?? new Php();
-    }
-
-    /**
-     * @return Type
-     */
-    protected function loadType() : Type
-    {
-        return $this->type
-            ?? $this->getProxy(Type::class)
-            ?? new Type();
-    }
-
-    /**
-     * @return Arr
-     */
-    protected function loadArr() : Arr
+    protected function loadSupportArr() : SupportArr
     {
         return $this->arr
-            ?? $this->getProxy(Arr::class)
-            ?? new Arr(
-                $this->loadPhp(),
-                $this->loadType()
+            ?? $this->getProxy(SupportArr::class)
+            ?? new SupportArr(
+                $this->loadSupportPhp(),
+                $this->loadSupportType()
             );
     }
 
     /**
-     * @return AssertInterface
+     * @return SupportAssert
      */
-    protected function loadAssert() : AssertInterface
+    protected function loadSupportAssert() : SupportAssert
     {
-        return $this->assert
-            ?? $this->getProxy(AssertInterface::class)
-            ?? new Assert(
-                $this->loadType()
+        return $this->supportAssert
+            ?? $this->getProxy(SupportAssert::class)
+            ?? new SupportAssert();
+    }
+
+    /**
+     * @return SupportFilter
+     */
+    protected function loadSupportFilter() : SupportFilter
+    {
+        return $this->supportFilter
+            ?? $this->getProxy(SupportFilter::class)
+            ?? new SupportFilter(
+                $this->loadSupportAssert()
             );
     }
+
+    /**
+     * @return SupportPhp
+     */
+    protected function loadSupportPhp() : SupportPhp
+    {
+        return $this->supportPhp
+            ?? $this->getProxy(SupportPhp::class)
+            ?? new SupportPhp(
+                $this->loadSupportFilter(),
+                $this->loadSupportType(),
+            );
+    }
+
+    /**
+     * @return SupportType
+     */
+    protected function loadSupportType() : SupportType
+    {
+        return $this->supportType
+            ?? $this->getProxy(SupportType::class)
+            ?? new SupportType(
+                $this->loadSupportAssert()
+            );
+    }
+
 
     /**
      * @return ReflectionInterface
@@ -331,8 +367,21 @@ class DiFactory implements
         return $this->reflection
             ?? $this->getProxy(ReflectionInterface::class)
             ?? new Reflection(
-                $this->loadPhp(),
-                $this->loadType()
+                $this->loadSupportPhp(),
+                $this->loadSupportType()
+            );
+    }
+
+
+    /**
+     * @return AssertInterface
+     */
+    protected function loadAssert() : AssertInterface
+    {
+        return $this->assert
+            ?? $this->getProxy(AssertInterface::class)
+            ?? new Assert(
+                $this->loadSupportType()
             );
     }
 
@@ -427,7 +476,7 @@ class DiFactory implements
         return $this->container
             ?? $this->getProxy(ContainerInterface::class)
             ?? new Container(
-                $this->loadType(),
+                $this->loadSupportType(),
 
                 $this->loadNodeFactory(),
 

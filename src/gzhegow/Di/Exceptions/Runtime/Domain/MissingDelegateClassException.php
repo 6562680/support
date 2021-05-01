@@ -1,8 +1,8 @@
 <?php
 
-namespace Gzhegow\Di\App\Exceptions\Runtime\Domain;
+namespace Gzhegow\Di\Exceptions\Runtime\Domain;
 
-use Gzhegow\Di\App\Exceptions\RuntimeException;
+use Gzhegow\Di\Exceptions\RuntimeException;
 
 /**
  * MissingDelegateClassException

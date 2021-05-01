@@ -1,9 +1,9 @@
 <?php
 
-namespace Gzhegow\Di\Core\Registry;
+namespace Gzhegow\Di\Domain\Registry;
 
 use Gzhegow\Di\Core\AssertInterface;
-use Gzhegow\Di\App\Exceptions\Runtime\OverflowException;
+use Gzhegow\Di\Exceptions\Runtime\OverflowException;
 
 /**
  * SharedRegistry

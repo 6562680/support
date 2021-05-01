@@ -5,7 +5,7 @@ namespace Gzhegow\Di\Core;
 use Gzhegow\Support\Type;
 use Gzhegow\Di\Domain\Provider\ProviderInterface;
 use Gzhegow\Di\Domain\Delegate\DelegateInterface;
-use Gzhegow\Di\App\Exceptions\Logic\InvalidArgumentException;
+use Gzhegow\Di\Exceptions\Logic\InvalidArgumentException;
 
 /**
  * Assert

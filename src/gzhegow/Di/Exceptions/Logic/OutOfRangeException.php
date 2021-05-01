@@ -1,8 +1,8 @@
 <?php
 
-namespace Gzhegow\Di\App\Exceptions\Logic;
+namespace Gzhegow\Di\Exceptions\Logic;
 
-use Gzhegow\Di\App\Exceptions\LogicException;
+use Gzhegow\Di\Exceptions\LogicException;
 
 /**
  * OutOfRangeException

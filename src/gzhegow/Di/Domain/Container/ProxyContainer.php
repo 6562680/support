@@ -3,7 +3,7 @@
 namespace Gzhegow\Di\Domain\Container;
 
 use Psr\Container\ContainerInterface;
-use Gzhegow\Di\App\Exceptions\Exception\Domain\NotFoundException;
+use Gzhegow\Di\Exceptions\Exception\Domain\NotFoundException;
 
 /**
  * ProxyContainer

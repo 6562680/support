@@ -1,9 +1,9 @@
 <?php
 
-namespace Gzhegow\Di\App\Exceptions\Runtime\Domain;
+namespace Gzhegow\Di\Exceptions\Exception\Domain;
 
-use Gzhegow\Di\App\Exceptions\RuntimeException;
 use Psr\Container\NotFoundExceptionInterface;
+use Gzhegow\Di\Exceptions\RuntimeException;
 
 /**
  * NotFoundException

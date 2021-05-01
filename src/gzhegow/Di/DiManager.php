@@ -4,16 +4,16 @@ namespace Gzhegow\Di;
 
 use Gzhegow\Support\Type;
 use Psr\Container\ContainerInterface;
-use Gzhegow\Di\Core\Registry\BindRegistry;
-use Gzhegow\Di\Core\Registry\ItemRegistry;
+use Gzhegow\Di\Domain\Registry\BindRegistry;
+use Gzhegow\Di\Domain\Registry\ItemRegistry;
 use Gzhegow\Reflection\ReflectionInterface;
-use Gzhegow\Di\Core\Registry\SharedRegistry;
-use Gzhegow\Di\Core\Registry\ExtendRegistry;
+use Gzhegow\Di\Domain\Registry\SharedRegistry;
+use Gzhegow\Di\Domain\Registry\ExtendRegistry;
 use Gzhegow\Di\Domain\Delegate\DelegateManager;
 use Gzhegow\Di\Domain\Provider\ProviderManager;
 use Gzhegow\Di\Domain\Node\NodeFactoryInterface;
 use Gzhegow\Di\Domain\Injector\InjectorInterface;
-use Gzhegow\Di\App\Exceptions\Runtime\OverflowException;
+use Gzhegow\Di\Exceptions\Runtime\OverflowException;
 
 /**
  * DiManager

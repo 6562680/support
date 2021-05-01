@@ -1,8 +1,8 @@
 <?php
 
-namespace Gzhegow\Di\App\Exceptions\Runtime;
+namespace Gzhegow\Di\Exceptions\Runtime;
 
-use Gzhegow\Di\App\Exceptions\RuntimeException;
+use Gzhegow\Di\Exceptions\RuntimeException;
 
 /**
  * UnexpectedValueException

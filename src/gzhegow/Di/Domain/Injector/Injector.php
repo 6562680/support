@@ -3,7 +3,7 @@
 namespace Gzhegow\Di\Domain\Injector;
 
 use Gzhegow\Di\Domain\Node\NodeFactoryInterface;
-use Gzhegow\Di\App\Exceptions\Exception\Domain\NotFoundException;
+use Gzhegow\Di\Exceptions\Exception\Domain\NotFoundException;
 
 /**
  * Injector

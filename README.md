@@ -21,10 +21,10 @@
 
 ### Исключения
 
-* Если бинд не был зарегистрирован, но вы попытались его получить, будет выброшено `Gzhegow\Di\App\Exceptions\Runtime\Domain\NotFoundException`
-* Если при указании зависимостей была допущена рекурсия, будет выброшено `Gzhegow\Di\App\Exceptions\Runtime\Domain\AutowireLoopException`
-* Если при автоматическом инжектировании параметр невозможно предсказать, будет выброшено `Gzhegow\Di\App\Exceptions\Runtime\Domain\AutowireException`
-* При попытке зарегистрировать бинд повторно без использования replace()/rebind() будет выброшено `Gzhegow\Di\App\Exceptions\Runtime\OverflowException`
+* Если бинд не был зарегистрирован, но вы попытались его получить, будет выброшено `Gzhegow\Di\Exceptions\Runtime\Domain\NotFoundException`
+* Если при указании зависимостей была допущена рекурсия, будет выброшено `Gzhegow\Di\Exceptions\Runtime\Domain\AutowireLoopException`
+* Если при автоматическом инжектировании параметр невозможно предсказать, будет выброшено `Gzhegow\Di\Exceptions\Runtime\Domain\AutowireException`
+* При попытке зарегистрировать бинд повторно без использования replace()/rebind() будет выброшено `Gzhegow\Di\Exceptions\Runtime\OverflowException`
 
 ### Основные возможности:
 
