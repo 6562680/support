@@ -57,6 +57,10 @@ public function bind(string $id, $bind, bool $shared = false);
 public function rebind(string $id, $bind, bool $shared = false);
 public function bindShared(string $id, $bind);
 public function rebindShared(string $id, $bind);
+// пример:
+public function bind(HelloInterface::class, function (\Gzhegow\Di\Node\Node $parent) {
+  return $parent->get(Hello::class);
+});
 
 // вызвать функцию, заполнив её аргументы из контейнера
 public function handle($func, ...$arguments);
@@ -70,4 +74,50 @@ public function registerProvider($provider);
 
 // запустить код инициализации провайдеров
 public function boot();
+```
+
+### Примеры
+
+```
+<?php
+
+$di = (new DiFactory())->getDi();
+
+$di->registerProvider(HelloProvider::class);
+```
+
+```
+<?php
+
+$di = (new DiFactory())->getDi();
+
+$di->bind(HelloInterface::class, function (\Gzhegow\Di\Node\Node $parent) {
+  return $parent->get(Hello::class);
+});
+```
+
+```
+<?php
+
+$di = (new DiFactory())->getDi();
+
+$di->bind(HelloInterface::class, Hello::class);
+$hello1 = $di->get(HelloInterface::class);
+$hello2 = $di->get(HelloInterface::class);
+
+$di->bindShared(HelloSharedInterface::class, Hello::class);
+$hello31 = $di->get(HelloSharedInterface::class);
+$hello32 = $di->get(HelloSharedInterface::class);
+```
+
+```
+<?php
+
+$di = (new DiFactory())->getDi();
+
+$di->bind(HelloInterface::class, Hello::class);
+
+$di->extend(HelloInterface::class, function (HelloInterface $hello, \Gzhegow\Di\Node\Node $parent) {
+  return $parent->create(HelloDecorator::class, $hello);
+});
 ```
