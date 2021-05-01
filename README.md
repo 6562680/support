@@ -83,7 +83,14 @@ public function boot();
 
 $di = (new DiFactory())->getDi();
 
-$di->registerProvider(HelloProvider::class);
+$di->bind(HelloInterface::class, Hello::class);
+$hello1 = $di->get(HelloInterface::class);
+$hello2 = $di->get(HelloInterface::class);
+
+$di->bindShared(HelloSharedInterface::class, Hello::class);
+$hello31 = $di->get(HelloSharedInterface::class);
+$hello32 = $di->get(HelloSharedInterface::class);
+// $hello31 === $hello32 // true
 ```
 
 ```
@@ -101,14 +108,9 @@ $di->bind(HelloInterface::class, function (\Gzhegow\Di\Node\Node $parent) {
 
 $di = (new DiFactory())->getDi();
 
-$di->bind(HelloInterface::class, Hello::class);
-$hello1 = $di->get(HelloInterface::class);
-$hello2 = $di->get(HelloInterface::class);
+$di->registerProvider(HelloProvider::class);
 
-$di->bindShared(HelloSharedInterface::class, Hello::class);
-$hello31 = $di->get(HelloSharedInterface::class);
-$hello32 = $di->get(HelloSharedInterface::class);
-// $hello31 === $hello32 // true
+$hello = $di->get(HelloInterface::class);
 ```
 
 ```
