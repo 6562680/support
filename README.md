@@ -108,6 +108,18 @@ $di->bind(HelloInterface::class, function (\Gzhegow\Di\Node\Node $parent) {
 
 $di = (new DiFactory())->getDi();
 
+$di->set('any', 123);
+$di->set(HelloInterface::class, 123);
+
+print_r($di->get('any')); // 123
+print_r($di->get(HelloInterface::class)); // 123
+```
+
+```
+<?php
+
+$di = (new DiFactory())->getDi();
+
 $di->registerProvider(HelloProvider::class);
 
 $hello = $di->get(HelloInterface::class);
