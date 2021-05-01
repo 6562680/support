@@ -11,6 +11,104 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
  */
 class Fs
 {
+    const RWX = 0775;
+
+
+    /**
+     * @var Filter
+     */
+    protected $filter;
+    /**
+     * @var Type
+     */
+    protected $type;
+
+
+    /**
+     * Constructor
+     *
+     * @param Filter $filter
+     * @param Type   $type
+     */
+    public function __construct(
+        Filter $filter,
+        Type $type
+    )
+    {
+        $this->filter = $filter;
+        $this->type = $type;
+    }
+
+
+    /**
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    public function isSplFile($value) : bool
+    {
+        return $this->isSplFilePath($value)
+            || ( null !== $this->filter->filterFileInfo($value) );
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    public function isFile($value) : bool
+    {
+        return $this->isFilePath($value)
+            || ( ( null !== ( $spl = $this->filter->filterFileInfo($value) ) )
+                && ! $spl->isDir()
+            );
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    public function isDir($value) : bool
+    {
+        return $this->isDirPath($value)
+            || ( ( null !== ( $spl = $this->filter->filterFileInfo($value) ) )
+                && $spl->isDir()
+            );
+    }
+
+
+    /**
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    public function isSplFilePath($value) : bool
+    {
+        return $this->type->isTheString($value) && file_exists($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    public function isFilePath($value) : bool
+    {
+        return $this->type->isTheString($value) && is_file($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    public function isDirPath($value) : bool
+    {
+        return $this->type->isTheString($value) && is_dir($value);
+    }
+
+
     /**
      * @param      $filepathA
      * @param      $filepathB
@@ -95,16 +193,115 @@ class Fs
 
 
     /**
-     * @param string $pathname
-     * @param int    $mode
-     * @param bool   $recursive
-     * @param null   $context
+     * @param mixed $value
+     *
+     * @return null|\SplFileInfo
+     */
+    public function filterSplFile($value) : ?\SplFileInfo
+    {
+        $spl = null;
+
+        if (0
+            || ( null !== ( $spl = $this->filterSplFile($value) ) )
+            || ( null !== ( $spl = $this->filter->filterFileInfo($value) ) )
+        ) {
+            return $spl;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|\SplFileInfo
+     */
+    public function filterFile($value) : ?\SplFileInfo
+    {
+        $spl = null;
+
+        if (0
+            || ( null !== ( $spl = $this->filterFile($value) ) )
+            || ( ( null !== ( $spl = $this->filter->filterFileInfo($value) ) )
+                && ! $spl->isDir()
+            )
+        ) {
+            return $spl;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|\SplFileInfo
+     */
+    public function filterDir($value) : ?\SplFileInfo
+    {
+        $spl = null;
+
+        if (0
+            || ( null !== ( $spl = $this->filterDir($value) ) )
+            || ( ( null !== ( $spl = $this->filter->filterFileInfo($value) ) )
+                && $spl->isDir()
+            )
+        ) {
+            return $spl;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|\SplFileInfo
+     */
+    public function filterSplFilePath($value) : ?\SplFileInfo
+    {
+        return ( $this->isSplFilePath($value) && ( $spl = new \SplFileInfo($value) ) )
+            ? $spl
+            : null;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|\SplFileInfo
+     */
+    public function filterFilePath($value) : ?\SplFileInfo
+    {
+        return ( $this->isFilePath($value) && ( $spl = new \SplFileInfo($value) ) )
+            ? $spl
+            : null;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|\SplFileInfo
+     */
+    public function filterDirPath($value) : ?\SplFileInfo
+    {
+        return ( $this->isDirPath($value) && ( $spl = new \SplFileInfo($value) ) )
+            ? $spl
+            : null;
+    }
+
+    /**
+     * @param string   $pathname
+     * @param null|int $mode
+     * @param bool     $recursive
+     * @param null     $context
      *
      * @return string
      */
-    public function mkdir(string $pathname, int $mode = 0755, bool $recursive = true, $context = null) : string
+    public function mkdir(string $pathname, int $mode = null, bool $recursive = true, $context = null) : string
     {
         if (! is_dir($pathname)) {
+            $mode = $mode ?? static::RWX;
+
             $context
                 ? mkdir($pathname, $mode, $recursive, $context)
                 : mkdir($pathname, $mode, $recursive);

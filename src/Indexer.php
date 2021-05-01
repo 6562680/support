@@ -11,29 +11,103 @@ use Gzhegow\Support\Exceptions\Runtime\UnexpectedValueException;
  */
 class Indexer
 {
-    const INDEX_SEPARATOR = "\0";
-
-
     /**
      * @var Php
      */
     protected $php;
-
+    /**
+     * @var Type
+     */
+    protected $type;
 
     /**
-     * @var array
+     * @var string
      */
-    protected $values = [];
+    protected $separator = "\0";
 
 
     /**
      * Constructor
      *
-     * @param Php $php
+     * @param Php  $php
+     * @param Type $type
      */
-    public function __construct(Php $php)
+    public function __construct(
+        Php $php,
+        Type $type
+    )
     {
         $this->php = $php;
+        $this->type = $type;
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getSeparator() : string
+    {
+        return $this->separator;
+    }
+
+
+    /**
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    protected function isIndexValue($value) : bool
+    {
+        if (! ( 0
+            || is_array($value)
+            || $this->isIndexValueItem($value)
+        )) {
+            return false;
+        }
+
+        $result = true;
+
+        $queue = [ $value ];
+        while ( null !== key($queue) ) {
+            $current = array_shift($queue);
+
+            if (is_array($current)) {
+                foreach ( $current as $v ) {
+                    $queue[] = $v;
+                }
+
+            } elseif (! $this->isIndexValueItem($current)) {
+                $result = false;
+
+                break;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    protected function isIndexValueItem($value) : bool
+    {
+        return is_null($value)
+            || is_scalar($value);
+    }
+
+
+    /**
+     * @param string $separator
+     *
+     * @return static
+     */
+    public function setSeparator(string $separator)
+    {
+        $this->separator = $separator;
+
+        return $this;
     }
 
 
@@ -48,14 +122,16 @@ class Indexer
 
         $path = [];
         foreach ( $args as $part ) {
-            if (empty($part)) {
-                throw new UnexpectedValueException('Empty index detected while parsing keys', $keys);
+            if (! $this->type->isTheStringOrNumber($part)) {
+                throw new UnexpectedValueException('Invalid index while parsing keys', $keys);
             }
 
             $path[] = $part;
         }
 
-        return implode(static::INDEX_SEPARATOR, $path);
+        $result = implode($this->separator, $path);
+
+        return $result;
     }
 
     /**
@@ -67,7 +143,16 @@ class Indexer
     {
         [ , $args ] = $this->php->kwargsFlatten($keys);
 
-        return implode(static::INDEX_SEPARATOR, $args);
+        $path = [];
+        foreach ( $args as $part ) {
+            if ($this->type->isTheStringOrNumber($part)) {
+                $path[] = $part;
+            }
+        }
+
+        $result = implode($this->separator, $path);
+
+        return $result;
     }
 
 
@@ -78,10 +163,16 @@ class Indexer
      */
     public function path(...$indexes) : array
     {
+        [ , $args ] = $this->php->kwargsFlatten($indexes);
+
         $path = [];
-        foreach ( $this->pathUnsafe($indexes) as $part ) {
-            if (empty($part)) {
-                throw new UnexpectedValueException('Empty part detected while parsing sequence', $indexes);
+        foreach ( $args as $arg ) {
+            foreach ( explode($this->separator, $arg) as $part ) {
+                if (! $this->type->isTheStringOrNumber($part)) {
+                    throw new UnexpectedValueException('Invalid part while parsing sequence', $indexes);
+                }
+
+                $path[] = $part;
             }
         }
 
@@ -99,8 +190,10 @@ class Indexer
 
         $path = [];
         foreach ( $args as $arg ) {
-            foreach ( explode(static::INDEX_SEPARATOR, $arg) as $part ) {
-                $path[] = $part;
+            foreach ( explode($this->separator, $arg) as $part ) {
+                if ($this->type->isTheStringOrNumber($part)) {
+                    $path[] = $part;
+                }
             }
         }
 
@@ -115,58 +208,13 @@ class Indexer
      */
     public function indexValue($value) : string
     {
-        if (! $this->assertIndexValue($value)) {
+        if (! $this->isIndexValue($value)) {
             throw new InvalidArgumentException('Value cannot be an index, allowed only: nulls, scalars, arrays with scalars',
                 $value);
         }
 
-        return json_encode($value);
-    }
-
-
-    /**
-     * @param mixed $value
-     *
-     * @return bool
-     */
-    protected function assertIndexValue($value) : bool
-    {
-        if (! ( 0
-            || is_array($value)
-            || $this->assertIndexValueItem($value)
-        )) {
-            return false;
-        }
-
-        $result = true;
-
-        $queue = [ $value ];
-        while ( null !== key($queue) ) {
-            $current = array_shift($queue);
-
-            if (is_array($current)) {
-                foreach ( $current as $v ) {
-                    $queue[] = $v;
-                }
-
-            } elseif (! $this->assertIndexValueItem($current)) {
-                $result = false;
-
-                break;
-            }
-        }
+        $result = json_encode($value);
 
         return $result;
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return bool
-     */
-    protected function assertIndexValueItem($value) : bool
-    {
-        return is_null($value)
-            || is_scalar($value);
     }
 }

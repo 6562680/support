@@ -26,17 +26,43 @@ class Arr
      */
     protected $type;
 
+    /**
+     * @var Indexer
+     */
+    protected $indexer;
+
 
     /**
      * Constructor
      *
-     * @param Php  $php
-     * @param Type $type
+     * @param Php          $php
+     * @param Type         $type
+     *
+     * @param null|Indexer $indexer
      */
-    public function __construct(Php $php, Type $type)
+    public function __construct(
+        Php $php,
+        Type $type,
+
+        Indexer $indexer = null
+    )
     {
         $this->php = $php;
         $this->type = $type;
+
+        $this->indexer = $indexer ?? $this->newIndexer();
+    }
+
+
+    /**
+     * @return Indexer
+     */
+    protected function newIndexer() : Indexer
+    {
+        $indexer = new Indexer($this->php, $this->type);
+        $indexer->setSeparator('.');
+
+        return $indexer;
     }
 
 
@@ -80,7 +106,7 @@ class Arr
      *
      * @return Arr
      */
-    public function set(array &$dst, $path, $value) : self
+    public function set(array &$dst, $path, $value)
     {
         $this->put($dst, $path, $value);
 
@@ -94,7 +120,7 @@ class Arr
      *
      * @return Arr
      */
-    public function del(array &$src, ...$path) : self
+    public function del(array &$src, ...$path)
     {
         $fullpath = $this->path($path);
 
@@ -122,8 +148,8 @@ class Arr
         ) {
             unset($prev[ $node ]);
         }
-        unset($prev);
         unset($node);
+        unset($prev);
 
         unset($ref);
 
@@ -195,7 +221,7 @@ class Arr
         foreach ( $generator as $fullpath => $value ) {
             if (is_iterable($value)) continue;
 
-            $result[ $this->keyUnsafe($fullpath) ] = $value;
+            $result[ $this->dotkeyUnsafe($fullpath) ] = $value;
         }
 
         return $result;
@@ -233,11 +259,9 @@ class Arr
      *
      * @return string
      */
-    public function keyUnsafe(...$path) : string
+    public function dotkey(...$path) : string
     {
-        $result = $this->concatUnsafe(...$path);
-
-        $result = implode('.', $result);
+        $result = $this->indexer->index(...$path);
 
         return $result;
     }
@@ -247,27 +271,13 @@ class Arr
      *
      * @return string
      */
-    public function key(...$path) : string
+    public function dotkeyUnsafe(...$path) : string
     {
-        $result = $this->concat(...$path);
-
-        $result = implode('.', $result);
+        $result = $this->indexer->indexUnsafe(...$path);
 
         return $result;
     }
 
-
-    /**
-     * @param mixed ...$path
-     *
-     * @return array
-     */
-    public function pathUnsafe(...$path) : array
-    {
-        $result = $this->concatUnsafe(...$path);
-
-        return $result;
-    }
 
     /**
      * @param mixed ...$path
@@ -276,7 +286,19 @@ class Arr
      */
     public function path(...$path) : array
     {
-        $result = $this->concat(...$path);
+        $result = $this->indexer->pathUnsafe(...$path);
+
+        return $result;
+    }
+
+    /**
+     * @param mixed ...$path
+     *
+     * @return array
+     */
+    public function pathUnsafe(...$path) : array
+    {
+        $result = $this->indexer->path(...$path);
 
         return $result;
     }
@@ -361,69 +383,6 @@ class Arr
             }
 
             $result =& $result[ $key ];
-        }
-
-        return $result;
-    }
-
-
-    /**
-     * @param mixed ...$path
-     *
-     * @return array
-     */
-    protected function concatUnsafe(...$path) : array
-    {
-        $result = [];
-
-        [ 1 => $args ] = $this->php->kwargs(...$path);
-
-        $list = [];
-        foreach ( $args as $step ) {
-            if (is_string($step) || is_numeric($step)) {
-                $list = array_merge($list, explode('.', $step));
-            } else {
-                $list[] = $step;
-            }
-        }
-
-        foreach ( $list as $step ) {
-            if (! $this->type->isTheString($step)) {
-                continue;
-            }
-
-            $result[] = $step;
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param mixed ...$path
-     *
-     * @return array
-     */
-    protected function concat(...$path) : array
-    {
-        $result = [];
-
-        [ 1 => $args ] = $this->php->kwargs(...$path);
-
-        $list = [];
-        foreach ( $args as $step ) {
-            if (is_string($step) || is_numeric($step)) {
-                $list = array_merge($result, explode('.', $step));
-            } else {
-                $list[] = $step;
-            }
-        }
-
-        foreach ( $list as $step ) {
-            if (! $this->type->isTheString($step)) {
-                throw new InvalidArgumentException('Step should be number or string', func_get_args());
-            }
-
-            $result[] = $step;
         }
 
         return $result;

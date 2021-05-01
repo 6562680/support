@@ -106,21 +106,20 @@ class Path
      *
      * @return string
      */
-    public function joinUnsafe(...$parts) : string
+    public function join(...$parts) : string
     {
         [ 1 => $args ] = $this->php->kwargs(...$parts);
 
-        $result = array_reduce($args, function (array $carry, string $part) {
-            if ('' === $part) {
-                return $carry;
+        $items = [];
+        foreach ( $args as $a ) {
+            if (! $this->type->isStringOrNumber($a)) {
+                throw new InvalidArgumentException('Each part should be non-empty string', $a);
             }
 
-            $carry[] = $part;
+            $items[] = $a;
+        }
 
-            return $carry;
-        }, []);
-
-        $result = $this->normalize(implode('/', $result));
+        $result = $this->normalize(implode('/', $items));
 
         return $result;
     }
@@ -130,21 +129,18 @@ class Path
      *
      * @return string
      */
-    public function join(...$parts) : string
+    public function joinUnsafe(...$parts) : string
     {
         [ 1 => $args ] = $this->php->kwargs(...$parts);
 
-        $result = array_reduce($args, function (array $carry, $part) {
-            if (! $this->type->isStringOrNumber($part)) {
-                throw new InvalidArgumentException('Each part should be non-empty string', $part);
+        $items = [];
+        foreach ( $args as $a ) {
+            if ($this->type->isStringOrNumber($a)) {
+                $items[] = $a;
             }
+        }
 
-            $carry[] = $part;
-
-            return $carry;
-        }, []);
-
-        $result = $this->normalize(implode('/', $result));
+        $result = $this->normalize(implode('/', $items));
 
         return $result;
     }

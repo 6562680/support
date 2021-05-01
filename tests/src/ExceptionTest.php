@@ -6,6 +6,7 @@ use Gzhegow\Support\Exceptions\Exception;
 use Gzhegow\Support\Exceptions\LogicException;
 use Gzhegow\Support\Exceptions\RuntimeException;
 
+
 Class ExceptionTest extends AbstractTestCase
 {
 	public function testException()

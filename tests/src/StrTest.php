@@ -3,22 +3,32 @@
 namespace Gzhegow\Support\Tests;
 
 use Gzhegow\Support\Str;
-use Gzhegow\Support\Type;
+use Gzhegow\Support\Filter;
+use Gzhegow\Support\Domain\Type\Assert;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+
 
 class StrTest extends AbstractTestCase
 {
-    protected function getType() : Type
+    protected function getAssert() : Assert
     {
-        return new Type();
+        return new Assert();
+    }
+
+    protected function getFilter() : Filter
+    {
+        return new Filter(
+            $this->getAssert()
+        );
     }
 
     protected function getStr() : Str
     {
         return new Str(
-            $this->getType()
+            $this->getFilter()
         );
     }
+
 
     public function testStarts()
     {
@@ -49,6 +59,35 @@ class StrTest extends AbstractTestCase
         $this->assertEquals('', $str->ends('World', 'World', false));
         $this->assertEquals('Hello ', $str->ends('Hello World', 'World', false));
     }
+
+    public function testContains()
+    {
+        $str = $this->getStr();
+
+        $this->assertEquals([], $str->contains('word', 'world'));
+        $this->assertEquals([ '', '' ], $str->contains('world', 'world'));
+        $this->assertEquals([ 'hello ', '' ], $str->contains('hello world', 'world'));
+
+        $this->assertEquals([], $str->contains('Hello', 'hello', null, false));
+
+        $this->assertEquals([], $str->contains('Word', 'World', null, false));
+        $this->assertEquals([ '', '' ], $str->contains('World', 'World', null, false));
+        $this->assertEquals([ 'Hello ', '' ], $str->contains('Hello World', 'World', null, false));
+    }
+
+
+    public function testMatch()
+    {
+        $str = $this->getStr();
+
+        $this->assertEquals([ 'world', 'foo' ], $str->match('{', '}', 'Hello {world} {foo} bar'));
+
+        $this->assertEquals([ 'World', 'Foo' ], $str->match('a', 'a', 'Hello AWorldA AFooA bar'));
+
+        $this->assertEquals([], $str->match('a', 'a', 'Hello AWorldA AFooA bar', null, false));
+        $this->assertEquals([ 'World', 'Foo' ], $str->match('A', 'A', 'Hello AWorldA AFooA bar', null, false));
+    }
+
 
     public function testLwrap()
     {
@@ -109,6 +148,7 @@ class StrTest extends AbstractTestCase
         $this->assertEquals('$$$', $str->wrap('$', '$'));
         $this->assertEquals('$$$$$', $str->wrap('$', '$', 2));
     }
+
 
     public function testPrepend()
     {
@@ -601,7 +641,6 @@ class StrTest extends AbstractTestCase
         static::assertEquals('HelloWorld.foo', $str->pascal('Hello World.foo'));
         static::assertEquals('HelloWorld.foo', $str->pascal('Hello_World.foo'));
     }
-
 
     public function testCamel()
     {

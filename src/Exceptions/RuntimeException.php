@@ -6,6 +6,8 @@ use Throwable;
 use Gzhegow\Support\Php;
 use Gzhegow\Support\Type;
 use Gzhegow\Support\Debug;
+use Gzhegow\Support\Filter;
+use Gzhegow\Support\Domain\Type\Assert;
 
 
 /**
@@ -21,10 +23,6 @@ class RuntimeException extends \RuntimeException
      * @var Php
      */
     protected $php;
-    /**
-     * @var Type
-     */
-    protected $type;
 
     /**
      * @var string
@@ -58,9 +56,9 @@ class RuntimeException extends \RuntimeException
      */
     public function __construct($messages, $payload = null, Throwable $previous = null)
     {
-        $this->loadDependencies();
+        $this->load();
 
-        $messages = $this->type->listval($messages);
+        $messages = $this->php->listval($messages);
 
         array_walk_recursive($messages, function ($message) {
             if (! ( is_string($message) || is_int($message) )) {
@@ -82,11 +80,57 @@ class RuntimeException extends \RuntimeException
     /**
      * @return void
      */
-    protected function loadDependencies() : void
+    protected function load() : void
     {
-        $this->debug = new Debug();
-        $this->php = new Php(new Type());
-        $this->type = new Type();
+        $this->debug = $this->loadDebug();
+        $this->php = $this->loadPhp();
+    }
+
+    /**
+     * @return Debug
+     */
+    protected function loadDebug() : Debug
+    {
+        return new Debug();
+    }
+
+    /**
+     * @return Php
+     */
+    protected function loadPhp() : Php
+    {
+        return new Php(
+            $this->loadFilter(),
+            $this->loadType()
+        );
+    }
+
+    /**
+     * @return Filter
+     */
+    protected function loadFilter() : Filter
+    {
+        return new Filter(
+            $this->loadAssert()
+        );
+    }
+
+    /**
+     * @return Type
+     */
+    protected function loadType() : Type
+    {
+        return new Type(
+            $this->loadAssert()
+        );
+    }
+
+    /**
+     * @return Assert
+     */
+    protected function loadAssert() : Assert
+    {
+        return new Assert();
     }
 
 

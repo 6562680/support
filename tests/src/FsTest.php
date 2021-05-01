@@ -3,52 +3,84 @@
 namespace Gzhegow\Support\Tests;
 
 use Gzhegow\Support\Fs;
+use Gzhegow\Support\Type;
+use Gzhegow\Support\Filter;
+use Gzhegow\Support\Domain\Type\Assert;
 
-Class FsTest extends AbstractTestCase
+
+class FsTest extends AbstractTestCase
 {
-	public function testRmdir()
-	{
-		$fs = new Fs();
+    protected function getAssert() : Assert
+    {
+        return new Assert();
+    }
 
-		$protected[] = $filesDir = __DIR__ . '/../storage/fs/rmdir';
+    protected function getFilter() : Filter
+    {
+        return new Filter(
+            $this->getAssert()
+        );
+    }
 
-		$protected[] = $filesDir . '/app';
-		$removed[] = $filesDir . '/logs';
+    protected function getType() : Type
+    {
+        return new Type(
+            $this->getAssert()
+        );
+    }
 
-		$files = [
-			$protected[] = $filesDir . '/app/logs/log.txt',
-			$protected[] = $filesDir . '/app/logs/file.html',
-			$removed[] = $filesDir . '/logs/log.txt',
+    protected function getFs() : Fs
+    {
+        return new Fs(
+            $this->getFilter(),
+            $this->getType()
+        );
+    }
 
-			$protected[] = $filesDir . '/file.html',
-			$removed[] = $filesDir . '/log.txt',
-		];
 
-		foreach ( $files as $file ) {
-			if (! is_dir($dir = dirname($file))) {
-				mkdir($dir, 0755, true);
-			}
+    public function testRmdir()
+    {
+        $fs = $this->getFs();
 
-			touch($file);
-		}
+        $protected[] = $filesDir = __DIR__ . '/../storage/fs/rmdir';
 
-		$fs->rmdir($filesDir, true, function (\SplFileInfo $file) use ($filesDir) {
-			$shouldIgnore = ( 0
-				|| ( 0 === mb_stripos($file->getRealPath(), realpath($filesDir . DIRECTORY_SEPARATOR . 'app')) )
-				|| ( $file->getBasename() === 'file.html' )
-			);
+        $protected[] = $filesDir . '/app';
+        $removed[] = $filesDir . '/logs';
 
-			return $shouldIgnore;
-		});
+        $files = [
+            $protected[] = $filesDir . '/app/logs/log.txt',
+            $protected[] = $filesDir . '/app/logs/file.html',
+            $removed[] = $filesDir . '/logs/log.txt',
 
-		foreach ( $protected as $file ) {
-			static::assertFileExists($file);
-		}
+            $protected[] = $filesDir . '/file.html',
+            $removed[] = $filesDir . '/log.txt',
+        ];
 
-		foreach ( $removed as $file ) {
-			static::assertFileDoesNotExist($file);
-		}
+        foreach ( $files as $file ) {
+            if (! is_dir($dir = dirname($file))) {
+                mkdir($dir, 0755, true);
+            }
 
-		$fs->rmdir($filesDir, true);
-	}
+            touch($file);
+        }
+
+        $fs->rmdir($filesDir, true, function (\SplFileInfo $file) use ($filesDir) {
+            $shouldIgnore = ( 0
+                || ( 0 === mb_stripos($file->getRealPath(), realpath($filesDir . DIRECTORY_SEPARATOR . 'app')) )
+                || ( $file->getBasename() === 'file.html' )
+            );
+
+            return $shouldIgnore;
+        });
+
+        foreach ( $protected as $file ) {
+            static::assertFileExists($file);
+        }
+
+        foreach ( $removed as $file ) {
+            static::assertFileDoesNotExist($file);
+        }
+
+        $fs->rmdir($filesDir, true);
+    }
 }

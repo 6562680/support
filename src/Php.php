@@ -4,6 +4,7 @@ namespace Gzhegow\Support;
 
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+use Gzhegow\Support\Domain\Type\Interfaces\CanToArrayInterface;
 
 
 /**
@@ -11,6 +12,10 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
  */
 class Php
 {
+    /**
+     * @var Filter
+     */
+    protected $filter;
     /**
      * @var Type
      */
@@ -20,10 +25,15 @@ class Php
     /**
      * Constructor
      *
-     * @param Type $type
+     * @param Filter $filter
+     * @param Type   $type
      */
-    public function __construct(Type $type)
+    public function __construct(
+        Filter $filter,
+        Type $type
+    )
     {
+        $this->filter = $filter;
         $this->type = $type;
     }
 
@@ -65,6 +75,113 @@ class Php
 
 
     /**
+     * @param null $data
+     *
+     * @return array
+     */
+    public function arrval($data = null) : array
+    {
+        $result = [];
+
+        if (is_null($data)) {
+            $result = [];
+
+        } elseif (is_scalar($data)) {
+            $result = [ $data ];
+
+        } elseif (is_array($data)) {
+            $result = $data;
+
+        } elseif (is_object($data)) {
+            if (is_a($data, CanToArrayInterface::class)) {
+                $result = $data->toArray();
+
+            } elseif (is_iterable($data)) {
+                foreach ( $data as $idx => $item ) {
+                    if ($this->type->isKey($idx)) {
+                        $result[ $idx ] = $item;
+
+                    } else {
+                        $result[] = $item;
+
+                    }
+                }
+
+            } else {
+                $result = null;
+
+                try {
+                    $result = $data->toArray();
+                }
+                catch ( \Throwable $e ) {
+                    throw new InvalidArgumentException('Unable to convert variable to array', $data);
+                }
+
+                return $result;
+            }
+
+        } else {
+            throw new InvalidArgumentException('Unable to convert variable to array', $data);
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * @param mixed ...$items
+     *
+     * @return array
+     */
+    public function listval(...$items) : array
+    {
+        $result = [];
+
+        foreach ( $items as $idx => $item ) {
+            if (is_iterable($item)) {
+                $list = $this->type->isList($item)
+                    ? $item
+                    : [ $item ];
+
+                foreach ( $list as $int => $val ) {
+                    $result[] = $val;
+                }
+            } else {
+                $result[] = $item;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param mixed ...$items
+     *
+     * @return array
+     */
+    public function listvalFlatten(...$items) : array
+    {
+        $result = [];
+
+        array_walk_recursive($items, function ($item) use (&$result) {
+            if (is_iterable($item)) {
+                $list = $this->type->isList($item)
+                    ? $item
+                    : [ $item ];
+
+                foreach ( $list as $int => $val ) {
+                    $result[] = $val;
+                }
+            } else {
+                $result[] = $item;
+            }
+        });
+
+        return $result;
+    }
+
+
+    /**
      * @param mixed ...$arguments
      *
      * @return array
@@ -77,13 +194,9 @@ class Php
         foreach ( $arguments as $argument ) {
             if (is_array($argument)) {
                 foreach ( $argument as $key => $val ) {
-                    if ($this->type->isInt($key)) {
-                        $args[ $key ] = $val;
-
-                    } else {
-                        $kwargs[ $key ] = $val;
-
-                    }
+                    ( null !== ( $int = $this->filter->filterInt($key) ) )
+                        ? ( $args[ $int ] = $val )
+                        : ( $kwargs[ $key ] = $val );
                 }
             } else {
                 $args[] = $argument;
@@ -104,13 +217,9 @@ class Php
         $args = [];
 
         array_walk_recursive($arguments, function ($val, $key) use (&$kwargs, &$args) {
-            if ($this->type->isInt($key)) {
-                $args[ $key ] = $val;
-
-            } else {
-                $kwargs[ $key ] = $val;
-
-            }
+            ( null !== ( $int = $this->filter->filterInt($key) ) )
+                ? ( $args[ $int ] = $val )
+                : ( $kwargs[ $key ] = $val );
         });
 
         return [ $kwargs, $args ];
@@ -125,10 +234,10 @@ class Php
      */
     public function kwparams(...$arguments) : array
     {
-        $registry = [];
-
         $kwargs = [];
         $args = [];
+
+        $registry = [];
         foreach ( $arguments as $idx => $argument ) {
             if (is_array($argument)) {
                 foreach ( $argument as $key => $val ) {
@@ -138,23 +247,19 @@ class Php
                     } else {
                         $registry[ $key ] = true;
 
-                        if ($this->type->isInt($key)) {
-                            $args[ $key ] = $val;
-
-                        } else {
-                            $kwargs[ $key ] = $val;
-
-                        }
+                        ( null !== ( $int = $this->filter->filterInt($key) ) )
+                            ? ( $args[ $int ] = $val )
+                            : ( $kwargs[ $key ] = $val );
                     }
                 }
             } else {
-                if (! isset($registry[ $idx ])) {
+                if (isset($registry[ $idx ])) {
+                    throw new InvalidArgumentException('Duplicate key found: ' . $idx, $arguments);
+
+                } else {
                     $registry[ $idx ] = true;
 
                     $args[ $idx ] = $argument;
-
-                } else {
-                    throw new InvalidArgumentException('Duplicate key found: ' . $idx, $arguments);
                 }
             }
         }
@@ -192,7 +297,7 @@ class Php
     /**
      * @param mixed $item
      *
-     * @return array
+     * @return string[]
      */
     public function nsclass($item) : array
     {

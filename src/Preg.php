@@ -11,19 +11,19 @@ use Gzhegow\Support\Domain\Preg\RegExp;
 class Preg
 {
     /**
-     * @var Type
+     * @var Str
      */
-    protected $type;
+    protected $str;
 
 
     /**
      * Constructor
      *
-     * @param Type $type
+     * @param Str $str
      */
-    public function __construct(Type $type)
+    public function __construct(Str $str)
     {
-        $this->type = $type;
+        $this->str = $str;
     }
 
 
@@ -36,7 +36,9 @@ class Preg
      */
     public function newRegExp($regex, string $delimiter = null, string $flags = null) : RegExp
     {
-        return new RegExp($this, $regex, $delimiter, $flags);
+        return new RegExp($this, $this->str,
+            $regex, $delimiter, $flags
+        );
     }
 
     /**
@@ -53,24 +55,25 @@ class Preg
 
 
     /**
-     * @param string $regex
+     * @param mixed $regex
      *
      * @return bool
      */
-    public function isValid(string $regex) : bool
+    public function isValid($regex) : bool
     {
-        return false !== @preg_match($regex, null);
+        return is_string($regex)
+            && ( false !== @preg_match($regex, null) );
     }
 
 
     /**
      * @param string|string[] $regex
-     * @param string|string[] ...$parts
+     * @param string|string[] ...$regexes
      *
      * @return RegExp
      */
-    public function concat($regex, ...$parts) : string
+    public function concat($regex, ...$regexes) : string
     {
-        return $this->newRegExp($regex)->concat(...$parts)->compile();
+        return $this->newRegExp($regex)->concat(...$regexes)->compile();
     }
 }

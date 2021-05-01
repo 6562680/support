@@ -17,6 +17,10 @@ class Curl
      */
     protected $arr;
     /**
+     * @var Filter
+     */
+    protected $filter;
+    /**
      * @var Php
      */
     protected $php;
@@ -40,17 +44,20 @@ class Curl
     /**
      * Constructor
      *
-     * @param Arr  $arr
-     * @param Php  $php
-     * @param Type $type
+     * @param Arr    $arr
+     * @param Php    $php
+     * @param Filter $filter
+     * @param Type   $type
      */
     public function __construct(
         Arr $arr,
+        Filter $filter,
         Php $php,
         Type $type
     )
     {
         $this->arr = $arr;
+        $this->filter = $filter;
         $this->php = $php;
         $this->type = $type;
 
@@ -75,6 +82,7 @@ class Curl
     {
         return new Blueprint(
             $this->arr,
+            $this->filter,
             $this->type,
 
             $this->formatter,

@@ -2,10 +2,10 @@
 
 namespace Gzhegow\Support\Domain\Curl;
 
-
 use Gzhegow\Support\Php;
 use Gzhegow\Support\Type;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+
 
 /**
  * Formatter
@@ -67,6 +67,55 @@ class Formatter
 
 
     /**
+     * @param $method
+     *
+     * @return null|string
+     */
+    public function detectHttpMethod($method) : ?string
+    {
+        if (! is_string($method)) {
+            return null;
+        }
+
+        return isset(static::THE_METHOD_LIST[ $httpMethod = strtoupper($method) ])
+            ? $httpMethod
+            : null;
+    }
+
+    /**
+     * @param mixed $info
+     *
+     * @return null|int
+     */
+    public function detectInfoCode($info) : ?int
+    {
+        $infoCode = null
+            ?? ( ( $this->type->isInt($info) && isset(static::$infoCodes[ $info ]) ) ? $info : false )
+            ?? ( is_string($info) ? static::$info[ $info ] : false );
+
+        return false !== $infoCode
+            ? $infoCode
+            : null;
+    }
+
+    /**
+     * @param mixed $opt
+     *
+     * @return null|int
+     */
+    public function detectOptCode($opt) : ?int
+    {
+        $optCode = null
+            ?? ( ( $this->type->isInt($opt) && isset(static::$curloptCodes[ $opt ]) ) ? $opt : false )
+            ?? ( is_string($opt) ? static::$curlopt[ $opt ] : false );
+
+        return false !== $optCode
+            ? $optCode
+            : null;
+    }
+
+
+    /**
      * @param array $curlOptArray
      *
      * @return array
@@ -83,7 +132,6 @@ class Formatter
 
         return $result;
     }
-
 
     /**
      * @param array ...$curlOptArrays
@@ -137,55 +185,6 @@ class Formatter
         }
 
         return $result;
-    }
-
-
-    /**
-     * @param $method
-     *
-     * @return null|string
-     */
-    public function detectHttpMethod($method) : ?string
-    {
-        if (! is_string($method)) {
-            return null;
-        }
-
-        return isset(static::THE_METHOD_LIST[ $httpMethod = strtoupper($method) ])
-            ? $httpMethod
-            : null;
-    }
-
-    /**
-     * @param mixed $info
-     *
-     * @return null|int
-     */
-    public function detectInfoCode($info) : ?int
-    {
-        $infoCode = null
-            ?? ( ( $this->type->isInt($info) && isset(static::$infoCodes[ $info ]) ) ? $info : false )
-            ?? ( is_string($info) ? static::$info[ $info ] : false );
-
-        return false !== $infoCode
-            ? $infoCode
-            : null;
-    }
-
-    /**
-     * @param mixed $opt
-     *
-     * @return null|int
-     */
-    public function detectOptCode($opt) : ?int
-    {
-        $optCode = null
-            ?? ( ( $this->type->isInt($opt) && isset(static::$curloptCodes[ $opt ]) ) ? $opt : false )
-            ?? ( is_string($opt) ? static::$curlopt[ $opt ] : false );
-
-        return false !== $optCode
-            ? $optCode
-            : null;
     }
 
 

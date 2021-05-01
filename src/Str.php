@@ -18,19 +18,19 @@ class Str
 
 
     /**
-     * @var Type
+     * @var Filter
      */
-    protected $type;
+    protected $filter;
 
 
     /**
      * Constructor
      *
-     * @param Type $type
+     * @param Filter $filter
      */
-    public function __construct(Type $type)
+    public function __construct(Filter $filter)
     {
-        $this->type = $type;
+        $this->filter = $filter;
     }
 
 
@@ -109,9 +109,60 @@ class Str
             ? str_ireplace($needle, $needle, $str)
             : $str;
 
-        return is_int($pos)
-            ? explode($needle, $str, $limit)
-            : [];
+        $result = [];
+
+        if (is_int($pos)) {
+            $result = null
+                ?? ( is_int($limit) ? explode($needle, $str, $limit) : null )
+                ?? ( explode($needle, $str) );
+        }
+
+        return $result;
+    }
+
+    /**
+     * Search all sequences starts & ends from given substr
+     * and return array that contains all of them without enclosures
+     *
+     * @param string $start
+     * @param string $end
+     * @param string $haystack
+     * @param int    $offset
+     * @param bool   $ignoreCase
+     *
+     * @return array
+     */
+    public function match(string $start, string $end, string $haystack,
+        int $offset = null,
+        bool $ignoreCase = true
+    ) : array
+    {
+        $offset = $offset ?? 0;
+
+        $flags = 'u';
+        $flags .= $ignoreCase ? 'i' : '';
+
+        $isMatch = preg_match_all('/'
+            . preg_quote($start, '/')
+            . '(.*?)'
+            . preg_quote($end, '/')
+            . '/' . $flags,
+            $haystack,
+            $result
+        );
+
+        if (false === $isMatch) {
+            $result = [];
+
+        } else {
+            $result = $result[ 1 ] ?? [];
+
+            if ($offset) {
+                array_splice($result, $offset);
+            }
+        }
+
+        return $result;
     }
 
 
@@ -354,21 +405,21 @@ class Str
      * Creates string like '1, 2, 3'
      *
      * @param string $delimiter
-     * @param mixed  ...$parts
+     * @param mixed  ...$values
      *
      * @return string
      */
-    public function join(string $delimiter, ...$parts) : string
+    public function join(string $delimiter, ...$values) : string
     {
         $result = [];
 
-        array_walk_recursive($parts, function ($part) use (&$result, $delimiter) {
-            if (null === $part) {
-                throw new InvalidArgumentException('Each Part should be not null');
+        array_walk_recursive($values, function ($value) use (&$result, $delimiter) {
+            if (null === $value) {
+                throw new InvalidArgumentException('Each value should be not null');
             }
 
-            if (null === ( $strval = $this->type->isStringable($part) )) {
-                throw new InvalidArgumentException('Each Part should be not null');
+            if (null === ( $strval = $this->filter->filterStringable($value) )) {
+                throw new InvalidArgumentException('Each value should be stringable');
             }
 
             $result[] = trim($strval, $delimiter);
@@ -383,20 +434,18 @@ class Str
      * Creates string like '1, 2, 3'
      *
      * @param string $delimiter
-     * @param mixed  ...$parts
+     * @param mixed  ...$values
      *
      * @return string
      */
-    public function joinUnsafe(string $delimiter, ...$parts) : string
+    public function joinUnsafe(string $delimiter, ...$values) : string
     {
         $result = [];
 
-        array_walk_recursive($parts, function ($part) use (&$result, $delimiter) {
-            if (null === ( $strval = $this->type->isStringable($part) )) {
-                $strval = '';
+        array_walk_recursive($values, function ($value) use (&$result, $delimiter) {
+            if (null !== ( $strval = $this->filter->filterStringable($value) )) {
+                $result[] = trim($strval, $delimiter);
             }
-
-            $result[] = trim($strval, $delimiter);
         });
 
         $result = implode($delimiter, $result);

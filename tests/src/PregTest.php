@@ -2,21 +2,38 @@
 
 namespace Gzhegow\Support\Tests;
 
+use Gzhegow\Support\Str;
 use Gzhegow\Support\Preg;
-use Gzhegow\Support\Type;
+use Gzhegow\Support\Filter;
+use Gzhegow\Support\Domain\Type\Assert;
 use Gzhegow\Support\Exceptions\RuntimeException;
+
 
 class PregTest extends AbstractTestCase
 {
-    protected function getType() : Type
+    protected function getAssert() : Assert
     {
-        return new Type();
+        return new Assert();
+    }
+
+    protected function getFilter() : Filter
+    {
+        return new Filter(
+            $this->getAssert()
+        );
+    }
+
+    protected function getStr() : Str
+    {
+        return new Str(
+            $this->getFilter()
+        );
     }
 
     protected function getPreg() : Preg
     {
         return new Preg(
-            $this->getType()
+            $this->getStr()
         );
     }
 
@@ -29,6 +46,7 @@ class PregTest extends AbstractTestCase
         $this->assertEquals('//', $preg->concat([ '' ]));
         $this->assertEquals('/\//', $preg->concat([ '/' ]));
         $this->assertEquals('/hello(world)+/', $preg->concat('hello(', [ 'world' ], ')+'));
+        $this->assertEquals('/foohelloworld/iu', $preg->concat('foo', '/hello/iu', 'world'));
     }
 
 
@@ -38,7 +56,7 @@ class PregTest extends AbstractTestCase
 
         $preg = $this->getPreg();
 
-        $preg->concat('/'); // without escaping this collides with enclosure
+        $preg->concat('/'); // without escaping this collides with delimiter
     }
 
     public function testBadNew2_()
@@ -48,16 +66,5 @@ class PregTest extends AbstractTestCase
         $preg = $this->getPreg();
 
         $preg->concat('/'); // each input first of all will be mapped to array, so it becomes "/"
-    }
-
-    public function testBadNew3_()
-    {
-        $this->expectException(RuntimeException::class);
-
-        $preg = $this->getPreg();
-
-        // currently we don't support formatted regex passed to regex builder
-        // you should pass ->new('hello', 'iu')
-        $preg->concat('/hello/iu');
     }
 }

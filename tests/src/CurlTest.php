@@ -6,17 +6,35 @@ use Gzhegow\Support\Arr;
 use Gzhegow\Support\Php;
 use Gzhegow\Support\Curl;
 use Gzhegow\Support\Type;
+use Gzhegow\Support\Filter;
+use Gzhegow\Support\Domain\Type\Assert;
+
 
 class CurlTest extends AbstractTestCase
 {
+    protected function getAssert() : Assert
+    {
+        return new Assert();
+    }
+
+    protected function getFilter() : Filter
+    {
+        return new Filter(
+            $this->getAssert()
+        );
+    }
+
     protected function getType() : Type
     {
-        return new Type();
+        return new Type(
+            $this->getAssert()
+        );
     }
 
     protected function getPhp() : Php
     {
         return new Php(
+            $this->getFilter(),
             $this->getType()
         );
     }
@@ -33,6 +51,7 @@ class CurlTest extends AbstractTestCase
     {
         return new Curl(
             $this->getArr(),
+            $this->getFilter(),
             $this->getPhp(),
             $this->getType(),
         );

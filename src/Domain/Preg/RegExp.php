@@ -2,9 +2,11 @@
 
 namespace Gzhegow\Support\Domain\Preg;
 
+use Gzhegow\Support\Str;
 use Gzhegow\Support\Preg;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+
 
 /**
  * RegExp
@@ -15,7 +17,10 @@ class RegExp
      * @var Preg
      */
     protected $preg;
-
+    /**
+     * @var Str
+     */
+    protected $str;
 
     /**
      * @var string[]
@@ -25,28 +30,43 @@ class RegExp
     /**
      * @var string[]
      */
-    protected $delimiters = [ '/', '/' ];
+    protected $delimiters;
+    /**
+     * @var string[]
+     */
+    protected $delimitersDefault = [ '/', '/' ];
+
     /**
      * @var string
      */
-    protected $flags = '';
+    protected $flags;
+    /**
+     * @var string
+     */
+    protected $flagsDefault = '';
 
 
     /**
      * Constructor
      *
      * @param Preg            $preg
+     * @param Str             $str
+     *
      * @param string|string[] $regex
-     * @param string          $delimiter
-     * @param string          $flags
+     * @param null|string     $delimiter
+     * @param null|string     $flags
      */
     public function __construct(
         Preg $preg,
+        Str $str,
 
-        $regex, string $delimiter = null, string $flags = null
+        $regex,
+        string $delimiter = null,
+        string $flags = null
     )
     {
         $this->preg = $preg;
+        $this->str = $str;
 
         if (null !== $delimiter) $this->setDelimiter($delimiter);
         if (null !== $flags) $this->setFlags($flags);
@@ -78,6 +98,7 @@ class RegExp
         return $this;
     }
 
+
     /**
      * @param string ...$regex
      *
@@ -97,13 +118,62 @@ class RegExp
      *
      * @return static
      */
-    protected function add(...$regex)
+    protected function addRegex(...$regex)
     {
         array_walk_recursive($regex, function (string $r) {
-            $this->regex[] = $r;
+            $delimiters = $this->fetchDelimiters($r[ 0 ]);
+            if (! $this->delimiters) {
+                $this->setDelimiter($delimiters[ 0 ]);
+            }
+
+            $parts = explode($delimiters[ 1 ], $r);
+            $flags = array_pop($parts);
+            if (! $this->flags) {
+                $this->setFlags($flags);
+            }
+
+            [ $rr ] = $this->str->match($delimiters[ 0 ], $delimiters[ 1 ], $r);
+
+            $this->regex[] = $rr;
         });
 
         return $this;
+    }
+
+    /**
+     * @param mixed ...$regex
+     *
+     * @return static
+     */
+    protected function add(...$regex)
+    {
+        array_walk_recursive($regex, function (string $r) {
+            $this->preg->isValid($r)
+                ? ( $this->addRegex($r) )
+                : ( $this->regex[] = $r );
+        });
+
+        return $this;
+    }
+
+
+    /**
+     * @param string $delimiter
+     *
+     * @return null|array
+     */
+    public function fetchDelimiters(string $delimiter) : ?array
+    {
+        if (false === ( $pos = strpos(static::$_delimiters[ 0 ], $delimiter) )) {
+            return null;
+        }
+
+        $delimiters = [
+            static::$_delimiters[ 0 ][ $pos ],
+            static::$_delimiters[ 1 ][ $pos ],
+        ];
+
+        return $delimiters;
     }
 
 
@@ -123,6 +193,7 @@ class RegExp
         return $this;
     }
 
+
     /**
      * @param null|string $delimiter
      * @param null|string $flags
@@ -134,6 +205,12 @@ class RegExp
         if (null !== $delimiter) $this->setDelimiter($delimiter);
         if (null !== $flags) $this->setFlags($flags);
 
+        $delimiters = $this->delimiters
+            ?? $this->delimitersDefault;
+
+        $flags = $this->flags
+            ?? $this->flagsDefault;
+
         $regex = '';
         foreach ( $this->regex as $part ) {
             $regex .= is_array($part)
@@ -142,10 +219,11 @@ class RegExp
         }
 
         $result = ''
-            . $this->delimiters[ 0 ]
+            . $delimiters[ 0 ]
             . $regex
-            . $this->delimiters[ 1 ]
-            . $this->flags;
+            . $delimiters[ 1 ]
+            . $flags;
+
 
         if (! $this->preg->isValid($result)) {
             throw new RuntimeException('Unable to compile regex: ' . $regex, $this);
@@ -187,14 +265,11 @@ class RegExp
             throw new InvalidArgumentException('Delimiter should be non-empty string');
         }
 
-        if (false === ( $idx = strpos(static::$_delimiters[ 0 ], $delimiter) )) {
+        if (null === ( $delimiters = $this->fetchDelimiters($delimiter) )) {
             throw new InvalidArgumentException('Invalid delimiter passed: ' . $delimiter);
         }
 
-        $this->delimiters = [
-            static::$_delimiters[ 0 ][ $idx ],
-            static::$_delimiters[ 1 ][ $idx ],
-        ];
+        $this->delimiters = $delimiters;
 
         return $this;
     }

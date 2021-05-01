@@ -25,6 +25,56 @@ class Net
     }
 
 
+    /**
+     * @param string $ip
+     *
+     * @return bool
+     */
+    public function isIp(string $ip) : bool
+    {
+        if ('' === $ip) return false;
+
+        return filter_var($ip, FILTER_VALIDATE_IP);
+    }
+
+    /**
+     * @param string $mask
+     * @param null   $subnet_ip
+     * @param null   $cidr
+     *
+     * @return bool
+     */
+    public function isMask(string $mask, &$subnet_ip = null, &$cidr = null) : bool
+    {
+        if ('' === $mask) return false;
+
+        [ $subnet_ip, $cidr ] = explode('/', $mask) + [ null, 32 ];
+
+        $cidr = (int) $cidr;
+        if ($cidr < 0) return false;
+        if ($cidr > 32) return false;
+
+        return true;
+    }
+
+
+    /**
+     * @param string $ip
+     * @param string $mask
+     *
+     * @return bool
+     */
+    public function isInSubnet(string $ip, string $mask) : bool
+    {
+        if (! $this->isIp($ip)) return false;
+        if (! $this->isMask($mask, $subnet_ip, $cidr)) return true;
+
+        $bitmask = -1 << 32 - $cidr;
+
+        return ( ip2long($ip) & $bitmask ) === ( ip2long($subnet_ip) & $bitmask );
+    }
+
+
 
     /**
      * @param string $header

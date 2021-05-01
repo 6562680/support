@@ -2,11 +2,12 @@
 
 namespace Gzhegow\Support\Domain\Curl;
 
-
 use Gzhegow\Support\Arr;
 use Gzhegow\Support\Type;
+use Gzhegow\Support\Filter;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+
 
 /**
  * Blueprint
@@ -17,6 +18,10 @@ class Blueprint
      * @var Arr
      */
     protected $arr;
+    /**
+     * @var Filter
+     */
+    protected $filter;
     /**
      * @var Type
      */
@@ -42,6 +47,7 @@ class Blueprint
      * Constructor
      *
      * @param Arr       $arr
+     * @param Filter    $filter
      * @param Type      $type
      *
      * @param Formatter $formatter
@@ -50,6 +56,7 @@ class Blueprint
      */
     public function __construct(
         Arr $arr,
+        Filter $filter,
         Type $type,
 
         Formatter $formatter,
@@ -64,6 +71,7 @@ class Blueprint
 
         $this->curlOptArrayInit = $curlOptArray;
         $this->curlOptArray = $this->curlOptArrayInit;
+        $this->filter = $filter;
     }
 
 
@@ -290,7 +298,7 @@ class Blueprint
                         continue;
                     }
 
-                    if (null !== ( $strval = $this->type->isStringable($value) )) {
+                    if (null !== ( $strval = $this->filter->filterStringable($value) )) {
                         $this->arr->set($fields, $fullpath, $strval);
 
                         continue;
@@ -302,7 +310,7 @@ class Blueprint
                     mime_content_type($fileInfo->getRealPath())
                 );
 
-            } elseif (null !== ( $strval = $this->type->isStringable($data) )) {
+            } elseif (null !== ( $strval = $this->filter->filterStringable($data) )) {
                 $body = $strval;
 
             }
