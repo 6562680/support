@@ -8,6 +8,7 @@ class SupportTest extends AbstractTestCase
     {
         $list = [
             'Arr',
+            'Assert',
             'Bcmath',
             'Calendar',
             'Cli',

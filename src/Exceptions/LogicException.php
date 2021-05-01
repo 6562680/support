@@ -7,7 +7,7 @@ use Gzhegow\Support\Php;
 use Gzhegow\Support\Type;
 use Gzhegow\Support\Debug;
 use Gzhegow\Support\Filter;
-use Gzhegow\Support\Domain\Type\Assert;
+use Gzhegow\Support\Assert;
 
 
 /**

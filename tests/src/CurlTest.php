@@ -7,7 +7,7 @@ use Gzhegow\Support\Php;
 use Gzhegow\Support\Curl;
 use Gzhegow\Support\Type;
 use Gzhegow\Support\Filter;
-use Gzhegow\Support\Domain\Type\Assert;
+use Gzhegow\Support\Assert;
 
 
 class CurlTest extends AbstractTestCase

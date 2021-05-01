@@ -5,7 +5,7 @@ namespace Gzhegow\Support\Tests;
 use Gzhegow\Support\Fs;
 use Gzhegow\Support\Type;
 use Gzhegow\Support\Filter;
-use Gzhegow\Support\Domain\Type\Assert;
+use Gzhegow\Support\Assert;
 
 
 class FsTest extends AbstractTestCase

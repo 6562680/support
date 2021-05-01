@@ -1,7 +1,8 @@
 <?php
 
-namespace Gzhegow\Support\Domain\Type;
+namespace Gzhegow\Support;
 
+use Gzhegow\Support\Domain\Type\CallableInfo;
 use Gzhegow\Support\Domain\Type\Interfaces\CanToArrayInterface;
 
 
@@ -388,7 +389,7 @@ class Assert
      *
      * @return null|callable
      */
-    public function isCallable($callable, CallableInfo $callableInfo = null) // : ?callable
+    public function isCallable($callable, CallableInfo &$callableInfo = null) // : ?callable
     {
         if (0
             || ( $this->isClosure($callable, $callableInfo) )
@@ -407,8 +408,10 @@ class Assert
      *
      * @return null|callable
      */
-    public function isCallableString($callable, CallableInfo $callableInfo = null) // : ?callable
+    public function isCallableString($callable, CallableInfo &$callableInfo = null) // : ?callable
     {
+        $callableInfo = $callableInfo ?? new CallableInfo();
+
         if ($this->isTheString($callable) && is_callable($callable)) {
             $callableInfo->function = $callable;
             $callableInfo->callable = $callable;
@@ -426,7 +429,7 @@ class Assert
      *
      * @return null|callable
      */
-    public function isCallableArray($callable, CallableInfo $callableInfo = null) // : ?callable
+    public function isCallableArray($callable, CallableInfo &$callableInfo = null) // : ?callable
     {
         if (is_array($callable)
             && ( 0
@@ -446,8 +449,10 @@ class Assert
      *
      * @return null|callable
      */
-    public function isCallableArrayStatic($callable, CallableInfo $callableInfo = null) // : ?callable
+    public function isCallableArrayStatic($callable, CallableInfo &$callableInfo = null) // : ?callable
     {
+        $callableInfo = $callableInfo ?? new CallableInfo();
+
         if (is_array($callable)
             && isset($callable[ 0 ]) && $this->isTheString($callable[ 0 ])
             && isset($callable[ 1 ]) && $this->isTheString($callable[ 1 ])
@@ -469,8 +474,10 @@ class Assert
      *
      * @return null|callable
      */
-    public function isCallableArrayPublic($callable, CallableInfo $callableInfo = null) // : ?callable
+    public function isCallableArrayPublic($callable, CallableInfo &$callableInfo = null) // : ?callable
     {
+        $callableInfo = $callableInfo ?? new CallableInfo();
+
         if (is_array($callable)
             && isset($callable[ 0 ]) && is_object($callable[ 0 ])
             && isset($callable[ 1 ]) && $this->isTheString($callable[ 1 ])
@@ -494,8 +501,10 @@ class Assert
      *
      * @return null|\Closure
      */
-    public function isClosure($closure, CallableInfo $callableInfo = null) : ?\Closure
+    public function isClosure($closure, CallableInfo &$callableInfo = null) : ?\Closure
     {
+        $callableInfo = $callableInfo ?? new CallableInfo();
+
         if (is_object($closure) && ( get_class($closure) === \Closure::class )) {
             $callableInfo->closure = $closure;
             $callableInfo->class = \Closure::class;
@@ -513,7 +522,7 @@ class Assert
      *
      * @return null|callable
      */
-    public function isCallableHandler($handler, CallableInfo $callableInfo = null) // : ?callable
+    public function isCallableHandler($handler, CallableInfo &$callableInfo = null) // : ?callable
     {
         $isHandler = $this->isTheString($handler)
             && ( $handler[ 0 ] !== '@' )

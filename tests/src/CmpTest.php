@@ -5,8 +5,8 @@ namespace Gzhegow\Support\Tests;
 use Gzhegow\Support\Cmp;
 use Gzhegow\Support\Type;
 use Gzhegow\Support\Filter;
+use Gzhegow\Support\Assert;
 use Gzhegow\Support\Calendar;
-use Gzhegow\Support\Domain\Type\Assert;
 
 
 class CmpTest extends AbstractTestCase

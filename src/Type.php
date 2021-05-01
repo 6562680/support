@@ -2,7 +2,8 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Domain\Type\Assert;
+use Gzhegow\Support\Assert;
+use Gzhegow\Support\Domain\Type\CallableInfo;
 
 
 /**
@@ -202,76 +203,83 @@ class Type
 
 
     /**
-     * @param mixed $callable
+     * @param mixed             $callable
+     * @param null|CallableInfo $callableInfo
      *
      * @return bool
      */
-    public function isCallable($callable) : bool
+    public function isCallable($callable, CallableInfo &$callableInfo = null) : bool
     {
-        return null !== $this->assert->isCallable($callable);
+        return null !== $this->assert->isCallable($callable, $callableInfo);
     }
 
     /**
-     * @param $callable
+     * @param                   $callable
+     * @param null|CallableInfo $callableInfo
      *
      * @return bool
      */
-    public function isCallableString($callable) : bool
+    public function isCallableString($callable, CallableInfo &$callableInfo = null) : bool
     {
-        return null !== $this->assert->isCallableString($callable);
-    }
-
-
-    /**
-     * @param mixed $value
-     *
-     * @return bool
-     */
-    public function isClosure($value) : bool
-    {
-        return null !== $this->assert->isClosure($value);
+        return null !== $this->assert->isCallableString($callable, $callableInfo);
     }
 
 
     /**
-     * @param mixed $callable
+     * @param mixed             $value
+     * @param null|CallableInfo $callableInfo
      *
      * @return bool
      */
-    public function isCallableArray($callable) : bool
+    public function isClosure($value, CallableInfo &$callableInfo = null) : bool
     {
-        return null !== $this->assert->isCallableArray($callable);
-    }
-
-    /**
-     * @param mixed $callable
-     *
-     * @return bool
-     */
-    public function isCallableArrayStatic($callable) : bool
-    {
-        return null !== $this->assert->isCallableArrayStatic($callable);
-    }
-
-    /**
-     * @param mixed $callable
-     *
-     * @return bool
-     */
-    public function isCallableArrayPublic($callable) : bool
-    {
-        return null !== $this->assert->isCallableArrayStatic($callable);
+        return null !== $this->assert->isClosure($value, $callableInfo);
     }
 
 
     /**
-     * @param mixed $handler
+     * @param mixed             $callable
+     * @param null|CallableInfo $callableInfo
      *
      * @return bool
      */
-    public function isCallableHandler($handler) : bool
+    public function isCallableArray($callable, CallableInfo &$callableInfo = null) : bool
     {
-        return null !== $this->assert->isCallableHandler($handler);
+        return null !== $this->assert->isCallableArray($callable, $callableInfo);
+    }
+
+    /**
+     * @param mixed             $callable
+     * @param null|CallableInfo $callableInfo
+     *
+     * @return bool
+     */
+    public function isCallableArrayStatic($callable, CallableInfo &$callableInfo = null) : bool
+    {
+        return null !== $this->assert->isCallableArrayStatic($callable, $callableInfo);
+    }
+
+    /**
+     * @param mixed             $callable
+     * @param null|CallableInfo $callableInfo
+     *
+     * @return bool
+     */
+    public function isCallableArrayPublic($callable, CallableInfo &$callableInfo = null) : bool
+    {
+        return null !== $this->assert->isCallableArrayStatic($callable, $callableInfo);
+    }
+
+
+    /**
+     * @param mixed             $handler
+     * @param null|CallableInfo $callableInfo
+     *
+     * @return bool
+     */
+    public function isCallableHandler($handler, CallableInfo &$callableInfo = null) : bool
+    {
+        return null !== $this->assert->isCallableHandler($handler, $callableInfo);
     }
 
 

@@ -9,19 +9,18 @@
 
 namespace Gzhegow\Support\Facades;
 
-use Gzhegow\Support\Type as _Type;
+use ReflectionClass;
+use Gzhegow\Support\Assert as _Assert;
 use Gzhegow\Support\Domain\Type\CallableInfo;
 
-class Type
+class Assert
 {
     /**
-     * @return _Type
+     * @return _Assert
      */
-    public static function getInstance() : _Type
+    public static function getInstance() : _Assert
     {
-        return new _Type(
-            Assert::getInstance()
-        );
+        return new _Assert();
     }
 
 
@@ -38,9 +37,9 @@ class Type
     /**
      * @param mixed $value
      *
-     * @return bool
+     * @return null|int|string
      */
-    public static function isKey($value) : bool
+    public static function isKey($value)
     {
         return static::getInstance()->isKey($value);
     }
@@ -48,9 +47,9 @@ class Type
     /**
      * @param mixed $value
      *
-     * @return bool
+     * @return null|int
      */
-    public static function isInt($value) : bool
+    public static function isInt($value) : ?int
     {
         return static::getInstance()->isInt($value);
     }
@@ -58,9 +57,9 @@ class Type
     /**
      * @param mixed $value
      *
-     * @return bool
+     * @return null|float
      */
-    public static function isFloat($value) : bool
+    public static function isFloat($value) : ?float
     {
         return static::getInstance()->isFloat($value);
     }
@@ -68,9 +67,9 @@ class Type
     /**
      * @param mixed $value
      *
-     * @return bool
+     * @return null|float
      */
-    public static function isNan($value) : bool
+    public static function isNan($value) : ?float
     {
         return static::getInstance()->isNan($value);
     }
@@ -78,9 +77,9 @@ class Type
     /**
      * @param mixed $value
      *
-     * @return bool
+     * @return null|int|string
      */
-    public static function isNumber($value) : bool
+    public static function isNumber($value)
     {
         return static::getInstance()->isNumber($value);
     }
@@ -88,9 +87,9 @@ class Type
     /**
      * @param mixed $value
      *
-     * @return bool
+     * @return null|string
      */
-    public static function isTheString($value) : bool
+    public static function isTheString($value) : ?string
     {
         return static::getInstance()->isTheString($value);
     }
@@ -98,9 +97,9 @@ class Type
     /**
      * @param mixed $value
      *
-     * @return bool
+     * @return null|int|float|string
      */
-    public static function isStringOrNumber($value) : bool
+    public static function isStringOrNumber($value)
     {
         return static::getInstance()->isStringOrNumber($value);
     }
@@ -108,9 +107,9 @@ class Type
     /**
      * @param mixed $value
      *
-     * @return bool
+     * @return null|int|float|string
      */
-    public static function isTheStringOrNumber($value) : bool
+    public static function isTheStringOrNumber($value)
     {
         return static::getInstance()->isTheStringOrNumber($value);
     }
@@ -118,9 +117,29 @@ class Type
     /**
      * @param mixed $value
      *
-     * @return bool
+     * @return null|int
      */
-    public static function isNumerable($value) : bool
+    public static function isIntable($value) : ?int
+    {
+        return static::getInstance()->isIntable($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|float
+     */
+    public static function isFloatable($value) : ?float
+    {
+        return static::getInstance()->isFloatable($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|int|float
+     */
+    public static function isNumerable($value)
     {
         return static::getInstance()->isNumerable($value);
     }
@@ -128,9 +147,9 @@ class Type
     /**
      * @param mixed $value
      *
-     * @return bool
+     * @return null|string
      */
-    public static function isStringable($value) : bool
+    public static function isStringable($value) : ?string
     {
         return static::getInstance()->isStringable($value);
     }
@@ -138,9 +157,9 @@ class Type
     /**
      * @param mixed $value
      *
-     * @return bool
+     * @return null|array
      */
-    public static function isArrayable($value) : bool
+    public static function isArrayable($value) : ?array
     {
         return static::getInstance()->isArrayable($value);
     }
@@ -149,9 +168,9 @@ class Type
      * @param mixed         $array
      * @param null|callable $of
      *
-     * @return bool
+     * @return null|array
      */
-    public static function isArray($array, callable $of = null) : bool
+    public static function isArray($array, callable $of = null) : ?array
     {
         return static::getInstance()->isArray($array, $of);
     }
@@ -160,9 +179,9 @@ class Type
      * @param mixed         $list
      * @param null|callable $of
      *
-     * @return bool
+     * @return null|array
      */
-    public static function isList($list, callable $of = null) : bool
+    public static function isList($list, callable $of = null) : ?array
     {
         return static::getInstance()->isList($list, $of);
     }
@@ -171,9 +190,9 @@ class Type
      * @param mixed         $dict
      * @param null|callable $of
      *
-     * @return bool
+     * @return null|array
      */
-    public static function isDict($dict, callable $of = null) : bool
+    public static function isDict($dict, callable $of = null) : ?array
     {
         return static::getInstance()->isDict($dict, $of);
     }
@@ -182,9 +201,9 @@ class Type
      * @param mixed         $assoc
      * @param null|callable $of
      *
-     * @return bool
+     * @return null|array
      */
-    public static function isAssoc($assoc, callable $of = null) : bool
+    public static function isAssoc($assoc, callable $of = null) : ?array
     {
         return static::getInstance()->isAssoc($assoc, $of);
     }
@@ -193,42 +212,31 @@ class Type
      * @param mixed             $callable
      * @param null|CallableInfo $callableInfo
      *
-     * @return bool
+     * @return null|callable
      */
-    public static function isCallable($callable, CallableInfo &$callableInfo = null) : bool
+    public static function isCallable($callable, CallableInfo &$callableInfo = null)
     {
         return static::getInstance()->isCallable($callable, $callableInfo);
-    }
-
-    /**
-     * @param                   $callable
-     * @param null|CallableInfo $callableInfo
-     *
-     * @return bool
-     */
-    public static function isCallableString($callable, CallableInfo &$callableInfo = null) : bool
-    {
-        return static::getInstance()->isCallableString($callable, $callableInfo);
-    }
-
-    /**
-     * @param mixed             $value
-     * @param null|CallableInfo $callableInfo
-     *
-     * @return bool
-     */
-    public static function isClosure($value, CallableInfo &$callableInfo = null) : bool
-    {
-        return static::getInstance()->isClosure($value, $callableInfo);
     }
 
     /**
      * @param mixed             $callable
      * @param null|CallableInfo $callableInfo
      *
-     * @return bool
+     * @return null|callable
      */
-    public static function isCallableArray($callable, CallableInfo &$callableInfo = null) : bool
+    public static function isCallableString($callable, CallableInfo &$callableInfo = null)
+    {
+        return static::getInstance()->isCallableString($callable, $callableInfo);
+    }
+
+    /**
+     * @param mixed             $callable
+     * @param null|CallableInfo $callableInfo
+     *
+     * @return null|callable
+     */
+    public static function isCallableArray($callable, CallableInfo &$callableInfo = null)
     {
         return static::getInstance()->isCallableArray($callable, $callableInfo);
     }
@@ -237,9 +245,9 @@ class Type
      * @param mixed             $callable
      * @param null|CallableInfo $callableInfo
      *
-     * @return bool
+     * @return null|callable
      */
-    public static function isCallableArrayStatic($callable, CallableInfo &$callableInfo = null) : bool
+    public static function isCallableArrayStatic($callable, CallableInfo &$callableInfo = null)
     {
         return static::getInstance()->isCallableArrayStatic($callable, $callableInfo);
     }
@@ -248,20 +256,31 @@ class Type
      * @param mixed             $callable
      * @param null|CallableInfo $callableInfo
      *
-     * @return bool
+     * @return null|callable
      */
-    public static function isCallableArrayPublic($callable, CallableInfo &$callableInfo = null) : bool
+    public static function isCallableArrayPublic($callable, CallableInfo &$callableInfo = null)
     {
         return static::getInstance()->isCallableArrayPublic($callable, $callableInfo);
+    }
+
+    /**
+     * @param mixed             $closure
+     * @param null|CallableInfo $callableInfo
+     *
+     * @return null|\Closure
+     */
+    public static function isClosure($closure, CallableInfo &$callableInfo = null) : ?\Closure
+    {
+        return static::getInstance()->isClosure($closure, $callableInfo);
     }
 
     /**
      * @param mixed             $handler
      * @param null|CallableInfo $callableInfo
      *
-     * @return bool
+     * @return null|callable
      */
-    public static function isCallableHandler($handler, CallableInfo &$callableInfo = null) : bool
+    public static function isCallableHandler($handler, CallableInfo &$callableInfo = null)
     {
         return static::getInstance()->isCallableHandler($handler, $callableInfo);
     }
@@ -269,49 +288,50 @@ class Type
     /**
      * @param mixed $class
      *
-     * @return bool
+     * @return null|string
      */
-    public static function isClass($class) : bool
+    public static function isClass($class) : ?string
     {
         return static::getInstance()->isClass($class);
     }
 
     /**
-     * @param mixed $namespacedClass
+     * @param mixed $class
      *
-     * @return bool
+     * @return null|string
      */
-    public static function isValidClass($namespacedClass) : bool
+    public static function isValidClass($class) : ?string
     {
-        return static::getInstance()->isValidClass($namespacedClass);
+        return static::getInstance()->isValidClass($class);
     }
 
     /**
      * @param mixed $className
      *
-     * @return bool
+     * @return null|string
      */
-    public static function isValidClassName($className) : bool
+    public static function isValidClassName($className) : ?string
     {
         return static::getInstance()->isValidClassName($className);
     }
 
     /**
-     * @param mixed $obj
+     * @param \ReflectionClass  $reflectionClass
+     * @param string|null      &$class
      *
-     * @return bool
+     * @return null|\ReflectionClass
      */
-    public static function isReflectionClass($obj) : bool
+    public static function isReflectionClass($reflectionClass, string &$class = null) : ?ReflectionClass
     {
-        return static::getInstance()->isReflectionClass($obj);
+        return static::getInstance()->isReflectionClass($reflectionClass, $class);
     }
 
     /**
      * @param mixed $value
      *
-     * @return bool
+     * @return null|\SplFileInfo
      */
-    public static function isFileInfo($value) : bool
+    public static function isFileInfo($value) : ?\SplFileInfo
     {
         return static::getInstance()->isFileInfo($value);
     }
@@ -319,9 +339,9 @@ class Type
     /**
      * @param mixed $h
      *
-     * @return bool
+     * @return null|resource
      */
-    public static function isOpenedResource($h) : bool
+    public static function isOpenedResource($h)
     {
         return static::getInstance()->isOpenedResource($h);
     }
@@ -329,9 +349,9 @@ class Type
     /**
      * @param mixed $h
      *
-     * @return bool
+     * @return null|resource
      */
-    public static function isClosedResource($h) : bool
+    public static function isClosedResource($h)
     {
         return static::getInstance()->isClosedResource($h);
     }

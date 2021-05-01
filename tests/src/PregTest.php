@@ -5,7 +5,7 @@ namespace Gzhegow\Support\Tests;
 use Gzhegow\Support\Str;
 use Gzhegow\Support\Preg;
 use Gzhegow\Support\Filter;
-use Gzhegow\Support\Domain\Type\Assert;
+use Gzhegow\Support\Assert;
 use Gzhegow\Support\Exceptions\RuntimeException;
 
 

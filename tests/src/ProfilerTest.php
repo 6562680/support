@@ -3,9 +3,9 @@
 namespace Gzhegow\Support\Tests;
 
 use Gzhegow\Support\Filter;
-use Gzhegow\Support\Calendar;
+use Gzhegow\Support\Assert;
 use Gzhegow\Support\Profiler;
-use Gzhegow\Support\Domain\Type\Assert;
+use Gzhegow\Support\Calendar;
 
 
 class ProfilerTest extends AbstractTestCase

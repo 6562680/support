@@ -2,8 +2,8 @@
 
 namespace Gzhegow\Support;
 
+use Gzhegow\Support\Domain\Type\CallableInfo;
 
-use Gzhegow\Support\Domain\Type\Assert;
 
 /**
  * Filter
@@ -202,76 +202,83 @@ class Filter
 
 
     /**
-     * @param mixed $callable
+     * @param mixed             $callable
+     * @param null|CallableInfo $callableInfo
      *
      * @return null|callable
      */
-    public function filterCallable($callable) // : ?callable
+    public function filterCallable($callable, CallableInfo &$callableInfo = null) // : ?callable
     {
-        return $this->assert->isCallable($callable);
+        return $this->assert->isCallable($callable, $callableInfo);
     }
 
     /**
-     * @param $callable
+     * @param                   $callable
+     * @param null|CallableInfo $callableInfo
      *
      * @return null|callable
      */
-    public function filterCallableString($callable) // : ?callable
+    public function filterCallableString($callable, CallableInfo &$callableInfo = null) // : ?callable
     {
-        return $this->assert->isCallableString($callable);
+        return $this->assert->isCallableString($callable, $callableInfo);
     }
 
 
     /**
-     * @param mixed $value
+     * @param mixed             $value
+     * @param null|CallableInfo $callableInfo
      *
      * @return null|\Closure
      */
-    public function filterClosure($value) : ?\Closure
+    public function filterClosure($value, CallableInfo &$callableInfo = null) : ?\Closure
     {
-        return $this->assert->isClosure($value);
+        return $this->assert->isClosure($value, $callableInfo);
     }
 
 
     /**
-     * @param mixed $callable
+     * @param mixed             $callable
+     * @param null|CallableInfo $callableInfo
      *
      * @return null|callable
      */
-    public function filterCallableArray($callable) // : ?callable
+    public function filterCallableArray($callable, CallableInfo &$callableInfo = null) // : ?callable
     {
-        return $this->assert->isCallableArray($callable);
+        return $this->assert->isCallableArray($callable, $callableInfo);
     }
 
     /**
-     * @param mixed $callable
+     * @param mixed             $callable
+     * @param null|CallableInfo $callableInfo
      *
      * @return null|callable
      */
-    public function filterCallableArrayStatic($callable) // : ?callable
+    public function filterCallableArrayStatic($callable, CallableInfo &$callableInfo = null) // : ?callable
     {
-        return $this->assert->isCallableArrayStatic($callable);
+        return $this->assert->isCallableArrayStatic($callable, $callableInfo);
     }
 
     /**
-     * @param mixed $callable
+     * @param mixed             $callable
+     * @param null|CallableInfo $callableInfo
      *
      * @return null|callable
      */
-    public function filterCallableArrayPublic($callable) // : ?callable
+    public function filterCallableArrayPublic($callable, CallableInfo &$callableInfo = null) // : ?callable
     {
-        return $this->assert->isCallableArrayStatic($callable);
+        return $this->assert->isCallableArrayStatic($callable, $callableInfo);
     }
 
 
     /**
-     * @param mixed $handler
+     * @param mixed             $handler
+     * @param null|CallableInfo $callableInfo
      *
      * @return null|callable
      */
-    public function filterCallableHandler($handler) // : ?callable
+    public function filterCallableHandler($handler, CallableInfo &$callableInfo = null) // : ?callable
     {
-        return $this->assert->isCallableHandler($handler);
+        return $this->assert->isCallableHandler($handler, $callableInfo);
     }
 
 

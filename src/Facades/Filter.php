@@ -10,7 +10,7 @@
 namespace Gzhegow\Support\Facades;
 
 use Gzhegow\Support\Filter as _Filter;
-use Gzhegow\Support\Domain\Type\Assert;
+use Gzhegow\Support\Domain\Type\CallableInfo;
 
 class Filter
 {
@@ -20,7 +20,7 @@ class Filter
     public static function getInstance() : _Filter
     {
         return new _Filter(
-            new Assert()
+            Assert::getInstance()
         );
     }
 
@@ -190,73 +190,80 @@ class Filter
     }
 
     /**
-     * @param mixed $callable
+     * @param mixed             $callable
+     * @param null|CallableInfo $callableInfo
      *
      * @return null|callable
      */
-    public static function filterCallable($callable)
+    public static function filterCallable($callable, CallableInfo &$callableInfo = null)
     {
-        return static::getInstance()->filterCallable($callable);
+        return static::getInstance()->filterCallable($callable, $callableInfo);
     }
 
     /**
-     * @param $callable
+     * @param                   $callable
+     * @param null|CallableInfo $callableInfo
      *
      * @return null|callable
      */
-    public static function filterCallableString($callable)
+    public static function filterCallableString($callable, CallableInfo &$callableInfo = null)
     {
-        return static::getInstance()->filterCallableString($callable);
+        return static::getInstance()->filterCallableString($callable, $callableInfo);
     }
 
     /**
-     * @param mixed $value
+     * @param mixed             $value
+     * @param null|CallableInfo $callableInfo
      *
      * @return null|\Closure
      */
-    public static function filterClosure($value) : ?\Closure
+    public static function filterClosure($value, CallableInfo &$callableInfo = null) : ?\Closure
     {
-        return static::getInstance()->filterClosure($value);
+        return static::getInstance()->filterClosure($value, $callableInfo);
     }
 
     /**
-     * @param mixed $callable
+     * @param mixed             $callable
+     * @param null|CallableInfo $callableInfo
      *
      * @return null|callable
      */
-    public static function filterCallableArray($callable)
+    public static function filterCallableArray($callable, CallableInfo &$callableInfo = null)
     {
-        return static::getInstance()->filterCallableArray($callable);
+        return static::getInstance()->filterCallableArray($callable, $callableInfo);
     }
 
     /**
-     * @param mixed $callable
+     * @param mixed             $callable
+     * @param null|CallableInfo $callableInfo
      *
      * @return null|callable
      */
-    public static function filterCallableArrayStatic($callable)
+    public static function filterCallableArrayStatic($callable, CallableInfo &$callableInfo = null)
     {
-        return static::getInstance()->filterCallableArrayStatic($callable);
+        return static::getInstance()->filterCallableArrayStatic($callable, $callableInfo);
     }
 
     /**
-     * @param mixed $callable
+     * @param mixed             $callable
+     * @param null|CallableInfo $callableInfo
      *
      * @return null|callable
      */
-    public static function filterCallableArrayPublic($callable)
+    public static function filterCallableArrayPublic($callable, CallableInfo &$callableInfo = null)
     {
-        return static::getInstance()->filterCallableArrayPublic($callable);
+        return static::getInstance()->filterCallableArrayPublic($callable, $callableInfo);
     }
 
     /**
-     * @param mixed $handler
+     * @param mixed             $handler
+     * @param null|CallableInfo $callableInfo
      *
      * @return null|callable
      */
-    public static function filterCallableHandler($handler)
+    public static function filterCallableHandler($handler, CallableInfo &$callableInfo = null)
     {
-        return static::getInstance()->filterCallableHandler($handler);
+        return static::getInstance()->filterCallableHandler($handler, $callableInfo);
     }
 
     /**
