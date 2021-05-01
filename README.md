@@ -76,7 +76,7 @@ public function registerProvider($provider);
 public function boot();
 ```
 
-### Примеры
+### Примеры:
 
 ```
 <?php
