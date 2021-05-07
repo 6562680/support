@@ -18,10 +18,13 @@ class Arr
      */
     public static function getInstance() : _Arr
     {
+        $indexer = Indexer::getInstance()->setSeparator('.');
+
         return new _Arr(
             Php::getInstance(),
             Type::getInstance(),
-            Indexer::getInstance()
+
+            $indexer
         );
     }
 
