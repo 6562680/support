@@ -460,18 +460,28 @@ class StrTest extends AbstractTestCase
     {
         $str = $this->getStr();
 
-        $parts = [ [ 'a', 'b' ], 'c', [ 'd' ] ];
-
         $this->assertEquals('', $str->join(''));
         $this->assertEquals('', $str->join('', []));
+
+        $parts = [ [ 'a', 'b' ], 'c', [ 'd' ] ];
+
         $this->assertEquals('abcd', $str->join('', ...$parts));
         $this->assertEquals('a,b,c,d', $str->join(',', ...$parts));
-
-        $this->expectException(InvalidArgumentException::class);
-
-        $this->assertEquals('', $str->join('', null));
-        $this->assertEquals('', $str->join('', [ null ]));
     }
+
+    public function testBadJoin()
+    {
+        $str = $this->getStr();
+
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $this->assertEquals('', $str->join('', null));
+        });
+
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $this->assertEquals('', $str->join('', [ null ]));
+        });
+    }
+
 
     public function testConcat()
     {

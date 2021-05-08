@@ -3,7 +3,6 @@
 namespace Gzhegow\Support;
 
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
-use Gzhegow\Support\Exceptions\Runtime\UnexpectedValueException;
 
 
 /**
@@ -118,16 +117,7 @@ class Indexer
      */
     public function index(...$keys) : string
     {
-        [ , $args ] = $this->php->kwargsFlatten($keys);
-
-        $path = [];
-        foreach ( $args as $part ) {
-            if (! $this->type->isTheStringOrNumber($part)) {
-                throw new UnexpectedValueException('Invalid index while parsing keys', $keys);
-            }
-
-            $path[] = $part;
-        }
+        $path = $this->path(...$keys);
 
         $result = implode($this->separator, $path);
 
@@ -141,14 +131,7 @@ class Indexer
      */
     public function indexUnsafe(...$keys) : string
     {
-        [ , $args ] = $this->php->kwargsFlatten($keys);
-
-        $path = [];
-        foreach ( $args as $part ) {
-            if ($this->type->isTheStringOrNumber($part)) {
-                $path[] = $part;
-            }
-        }
+        $path = $this->pathUnsafe(...$keys);
 
         $result = implode($this->separator, $path);
 
@@ -163,15 +146,19 @@ class Indexer
      */
     public function path(...$indexes) : array
     {
-        [ , $args ] = $this->php->kwargsFlatten($indexes);
+        $args = $this->php->listvalFlatten(...$indexes);
 
         $path = [];
         foreach ( $args as $arg ) {
-            foreach ( explode($this->separator, $arg) as $part ) {
-                if (! $this->type->isTheStringOrNumber($part)) {
-                    throw new UnexpectedValueException('Invalid part while parsing sequence', $indexes);
-                }
+            if (! $this->type->isStringOrNumber($arg)) {
+                throw new InvalidArgumentException('Each part should be string or number', $indexes);
+            }
 
+            $list = is_string($arg)
+                ? explode($this->separator, $arg)
+                : [ $arg ];
+
+            foreach ( $list as $part ) {
                 $path[] = $part;
             }
         }
@@ -186,12 +173,16 @@ class Indexer
      */
     public function pathUnsafe(...$indexes) : array
     {
-        [ , $args ] = $this->php->kwargsFlatten($indexes);
+        $args = $this->php->listvalFlatten(...$indexes);
 
         $path = [];
         foreach ( $args as $arg ) {
-            foreach ( explode($this->separator, $arg) as $part ) {
-                if ($this->type->isTheStringOrNumber($part)) {
+            if ($this->type->isStringOrNumber($arg)) {
+                $list = is_string($arg)
+                    ? explode($this->separator, $arg)
+                    : [ $arg ];
+
+                foreach ( $list as $part ) {
                     $path[] = $part;
                 }
             }

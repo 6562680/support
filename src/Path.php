@@ -108,7 +108,7 @@ class Path
      */
     public function join(...$parts) : string
     {
-        [ 1 => $args ] = $this->php->kwargs(...$parts);
+        $args = $this->php->listvalFlatten(...$parts);
 
         $items = [];
         foreach ( $args as $a ) {
@@ -116,6 +116,7 @@ class Path
                 throw new InvalidArgumentException('Each part should be non-empty string', $a);
             }
 
+            // double slash will be normalized later
             $items[] = $a;
         }
 
@@ -131,11 +132,12 @@ class Path
      */
     public function joinUnsafe(...$parts) : string
     {
-        [ 1 => $args ] = $this->php->kwargs(...$parts);
+        $args = $this->php->listvalFlatten(...$parts);
 
         $items = [];
         foreach ( $args as $a ) {
             if ($this->type->isStringOrNumber($a)) {
+                // double slash will be normalized later
                 $items[] = $a;
             }
         }

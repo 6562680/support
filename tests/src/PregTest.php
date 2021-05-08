@@ -49,22 +49,12 @@ class PregTest extends AbstractTestCase
         $this->assertEquals('/foohelloworld/iu', $preg->concat('foo', '/hello/iu', 'world'));
     }
 
-
-    public function testBadNew1_()
+    public function testBadNew()
     {
-        $this->expectException(RuntimeException::class);
-
         $preg = $this->getPreg();
 
-        $preg->concat('/'); // without escaping this collides with delimiter
-    }
-
-    public function testBadNew2_()
-    {
-        $this->expectException(RuntimeException::class);
-
-        $preg = $this->getPreg();
-
-        $preg->concat('/'); // each input first of all will be mapped to array, so it becomes "/"
+        $this->assertException(RuntimeException::class, function () use ($preg) {
+            $preg->concat('/'); // without escaping this collides with delimiter
+        });
     }
 }

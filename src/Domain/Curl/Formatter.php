@@ -143,7 +143,7 @@ class Formatter
         $result = [];
         $resultHeaders = [];
 
-        [ $kwargs, $args ] = $this->php->kwargs(...$curlOptArrays);
+        [ $kwargs, $args ] = $this->php->kwargsDistinct(...$curlOptArrays);
 
         foreach ( $kwargs as $opt => $val ) {
             if (null === ( $optCode = $this->detectOptCode($opt) )) {

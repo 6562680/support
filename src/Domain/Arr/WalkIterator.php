@@ -6,9 +6,9 @@ use Gzhegow\Support\Exceptions\RuntimeException;
 
 
 /**
- * TreeIterator
+ * WalkIterator
  */
-class TreeIterator implements \Iterator
+class WalkIterator implements \Iterator
 {
     /**
      * @var iterable
@@ -20,7 +20,7 @@ class TreeIterator implements \Iterator
     protected $flags;
 
     /**
-     * @var \Traversable
+     * @var \Iterator
      */
     protected $iterator;
     /**
@@ -61,22 +61,29 @@ class TreeIterator implements \Iterator
      */
     public function newIterator(iterable $iterable = [], $flags = 0) : \Traversable
     {
+        // dump($iterable);
         $iterator = null;
 
-        if (is_object($iterable)) {
+        if (! is_object($iterable)) {
+            $iterator = new \ArrayIterator($iterable, $flags);
+
+        } else {
             if (is_a($iterable, \IteratorAggregate::class)) {
                 try {
                     $iterator = $iterable->getIterator();
                 }
                 catch ( \Exception $e ) {
-                    throw new RuntimeException('Unable to retrieve iterator from ' . \IteratorAggregate::class,
-                        $iterable);
+                    throw new RuntimeException(
+                        'Unable to retrieve iterator from ' . \IteratorAggregate::class,
+                        $iterable,
+                        $e
+                    );
                 }
-            } elseif (is_a($iterable, \Traversable::class)) {
+
+            } elseif (is_a($iterable, \Iterator::class)) {
                 $iterator = $iterable;
+
             }
-        } else {
-            $iterator = new \ArrayIterator($iterable, $flags);
         }
 
         return $iterator;
@@ -146,18 +153,11 @@ class TreeIterator implements \Iterator
         $key = $this->key();
 
         if (is_iterable($val)) {
-            $this->stack[] = $this->newIterator($val, $this->getFlags());
+            $this->stack[] = $this->newIterator($val, $this->flags);
             $this->pathes[] = $key;
         }
 
         $this->iterator->next();
-
-        if (! $this->valid()) {
-            if (null !== key($this->stack)) {
-                $this->iterator = array_shift($this->stack);
-                $this->path = array_shift($this->pathes);
-            }
-        }
     }
 
 
@@ -166,7 +166,17 @@ class TreeIterator implements \Iterator
      */
     public function valid() : bool
     {
-        return isset($this->iterator)
-            && ( null !== $this->iterator->key() );
+        $isValid = $this->iterator && ( null !== $this->iterator->key() );
+
+        while ( ! $isValid && ( null !== key($this->stack) ) ) {
+            $this->iterator = array_shift($this->stack);
+            $this->path = array_shift($this->pathes);
+
+            if ($isValid = $this->iterator && ( null !== $this->iterator->key() )) {
+                break;
+            }
+        }
+
+        return $isValid;
     }
 }

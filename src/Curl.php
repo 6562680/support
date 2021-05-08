@@ -380,7 +380,7 @@ class Curl
      */
     public function batch($limit, $sleep, ...$curls) : array
     {
-        [ 1 => $curls ] = $this->php->kwargsFlatten(...$curls);
+        [ 1 => $curls ] = $this->php->kwargsFlattenDistinct(...$curls);
 
         foreach ( $curls as $ch ) {
             if (! $this->isOpenedCurl($ch)) {
@@ -415,7 +415,7 @@ class Curl
      */
     public function batchwalk($limit, $sleep, ...$curls) : \Generator
     {
-        [ 1 => $curls ] = $this->php->kwargsFlatten(...$curls);
+        [ 1 => $curls ] = $this->php->kwargsFlattenDistinct(...$curls);
 
         foreach ( $curls as $ch ) {
             if (! $this->isOpenedCurl($ch)) {
@@ -512,7 +512,7 @@ class Curl
      */
     public function multi(...$curls) : array
     {
-        [ 1 => $curls ] = $this->php->kwargsFlatten(...$curls);
+        [ 1 => $curls ] = $this->php->kwargsFlattenDistinct(...$curls);
 
         foreach ( $curls as $ch ) {
             if (! $this->isOpenedCurl($ch)) {

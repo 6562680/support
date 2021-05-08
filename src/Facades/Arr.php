@@ -18,13 +18,9 @@ class Arr
      */
     public static function getInstance() : _Arr
     {
-        $indexer = Indexer::getInstance()->setSeparator('.');
-
         return new _Arr(
             Php::getInstance(),
             Type::getInstance(),
-
-            $indexer
         );
     }
 
@@ -39,6 +35,18 @@ class Arr
     public static function get($path, array &$src, $default = null)
     {
         return static::getInstance()->get($path, $src, $default);
+    }
+
+    /**
+     * @param string|array $path
+     * @param array        $src
+     * @param null         $default
+     *
+     * @return mixed
+     */
+    public static function &getRef($path, array &$src, $default = null)
+    {
+        return static::getInstance()->getRef($path, $src, $default);
     }
 
     /**
@@ -68,23 +76,22 @@ class Arr
      * @param array        $src
      * @param string|array $path
      *
-     * @return _Arr
+     * @return array
      */
-    public static function del(array &$src, ...$path)
+    public static function del(array $src, ...$path) : array
     {
         return static::getInstance()->del($src, ...$path);
     }
 
     /**
-     * @param string|array $path
      * @param array        $src
-     * @param null         $default
+     * @param string|array $path
      *
-     * @return mixed
+     * @return bool
      */
-    public static function &ref($path, array &$src, $default = null)
+    public static function delete(array &$src, ...$path) : bool
     {
-        return static::getInstance()->ref($path, $src, $default);
+        return static::getInstance()->delete($src, ...$path);
     }
 
     /**
@@ -171,16 +178,30 @@ class Arr
     }
 
     /**
-     * Inserts element into certain pos between existing elements
+     * Вставляет элементы в указанные позиции по индексам, изменяя числовые индексы существующих элементов
      *
-     * @param array $array
-     * @param int   $pos
-     * @param null  $value
+     * Механизм применяется в dran-n-drop элементов списка при пользовательской сортировке
+     * и в инжекторе зависимостей, чтобы между переданными параметрами воткнуть свой
+     *
+     * @param array   $dst
+     * @param mixed[] ...$expands
      *
      * @return array
      */
-    public static function expand(array $array, int $pos, $value = null) : array
+    public static function expandMany(array $dst, array ...$expands) : array
     {
-        return static::getInstance()->expand($array, $pos, $value);
+        return static::getInstance()->expandMany($dst, ...$expands);
+    }
+
+    /**
+     * @param array $dst
+     * @param int   $expandIdx
+     * @param mixed $expandValue
+     *
+     * @return array
+     */
+    public static function expand(array $dst, int $expandIdx, $expandValue) : array
+    {
+        return static::getInstance()->expand($dst, $expandIdx, $expandValue);
     }
 }

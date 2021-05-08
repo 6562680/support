@@ -139,11 +139,7 @@ class Php
 
         foreach ( $items as $idx => $item ) {
             if (is_iterable($item)) {
-                $list = $this->type->isList($item)
-                    ? $item
-                    : [ $item ];
-
-                foreach ( $list as $int => $val ) {
+                foreach ( $item as $val ) {
                     $result[] = $val;
                 }
             } else {
@@ -165,11 +161,7 @@ class Php
 
         array_walk_recursive($items, function ($item) use (&$result) {
             if (is_iterable($item)) {
-                $list = $this->type->isList($item)
-                    ? $item
-                    : [ $item ];
-
-                foreach ( $list as $int => $val ) {
+                foreach ( $item as $int => $val ) {
                     $result[] = $val;
                 }
             } else {
@@ -194,8 +186,8 @@ class Php
         foreach ( $arguments as $argument ) {
             if (is_array($argument)) {
                 foreach ( $argument as $key => $val ) {
-                    ( null !== ( $int = $this->filter->filterInt($key) ) )
-                        ? ( $args[ $int ] = $val )
+                    ( null !== $this->filter->filterInt($key) )
+                        ? ( $args[] = $val )
                         : ( $kwargs[ $key ] = $val );
                 }
             } else {
@@ -211,7 +203,52 @@ class Php
      *
      * @return array
      */
+    public function kwargsDistinct(...$arguments) : array
+    {
+        $kwargs = [];
+        $args = [];
+
+        foreach ( $arguments as $argument ) {
+            if (is_array($argument)) {
+                foreach ( $argument as $key => $val ) {
+                    ( null !== ( $int = $this->filter->filterInt($key) ) )
+                        ? ( $args[ $int ] = $val )
+                        : ( $kwargs[ $key ] = $val );
+                }
+            } else {
+                $args[] = $argument;
+            }
+        }
+
+        return [ $kwargs, $args ];
+    }
+
+
+    /**
+     * @param mixed ...$arguments
+     *
+     * @return array
+     */
     public function kwargsFlatten(...$arguments) : array
+    {
+        $kwargs = [];
+        $args = [];
+
+        array_walk_recursive($arguments, function ($val, $key) use (&$kwargs, &$args) {
+            ( null !== $this->filter->filterInt($key) )
+                ? ( $args[] = $val )
+                : ( $kwargs[ $key ] = $val );
+        });
+
+        return [ $kwargs, $args ];
+    }
+
+    /**
+     * @param mixed ...$arguments
+     *
+     * @return array
+     */
+    public function kwargsFlattenDistinct(...$arguments) : array
     {
         $kwargs = [];
         $args = [];

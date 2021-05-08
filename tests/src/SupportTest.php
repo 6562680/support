@@ -32,11 +32,18 @@ class SupportTest extends AbstractTestCase
         ];
 
         foreach ( $list as $className ) {
-            $obj = new \ReflectionClass('Gzhegow\\Support\\' . $className);
-            $facade = new \ReflectionClass('Gzhegow\\Support\\Facades\\' . $className);
+            $objReflection = null;
+            $facadeReflection = null;
+            try {
+                $objReflection = new \ReflectionClass('Gzhegow\\Support\\' . $className);
+                $facadeReflection = new \ReflectionClass('Gzhegow\\Support\\Facades\\' . $className);
+            }
+            catch ( \ReflectionException $e ) {
+                // never thrown
+            }
 
             $objMethods = [];
-            foreach ( $obj->getMethods() as $m ) {
+            foreach ( $objReflection->getMethods() as $m ) {
                 if (! $m->isPublic()) {
                     continue;
                 }
@@ -46,7 +53,7 @@ class SupportTest extends AbstractTestCase
             unset($objMethods[ '__construct' ]);
 
             $facadeMethods = [];
-            foreach ( $facade->getMethods() as $m ) {
+            foreach ( $facadeReflection->getMethods() as $m ) {
                 if (! $m->isPublic()) {
                     continue;
                 }

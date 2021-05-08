@@ -205,6 +205,7 @@ class CurlTest extends AbstractTestCase
         $responses = array_map(function ($response) {
             return json_decode($response, true);
         }, $responses);
+
         $responseCodes = array_map(function ($ch) {
             return curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
         }, $hh);

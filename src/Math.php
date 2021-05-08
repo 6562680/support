@@ -244,13 +244,13 @@ class Math
      */
     public function sum(...$values)
     {
-        [ 1 => $args ] = $this->php->kwargsFlatten(...$values);
+        $list = $this->php->listvalFlatten(...$values);
 
-        if (! $this->type->isList($args, [ $this->type, 'isNumber' ])) {
+        if (! $this->type->isList($list, [ $this->type, 'isNumber' ])) {
             throw new InvalidArgumentException('Each rate should be number');
         }
 
-        $result = array_sum($args);
+        $result = array_sum($list);
 
         return $result;
     }
@@ -262,14 +262,14 @@ class Math
      */
     public function avg(...$values) : float
     {
-        [ 1 => $args ] = $this->php->kwargsFlatten(...$values);
+        $list = $this->php->listvalFlatten(...$values);
 
-        if (! $this->type->isList($args, [ $this->type, 'isNumber' ])) {
+        if (! $this->type->isList($list, [ $this->type, 'isNumber' ])) {
             throw new InvalidArgumentException('Each rate should be number');
         }
 
-        $sum = $this->sum(...$args);
-        $len = count($args);
+        $sum = $this->sum(...$list);
+        $len = count($list);
 
         $avg = $len
             ? ( $sum / $len )

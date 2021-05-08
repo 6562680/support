@@ -95,7 +95,12 @@ class Assert
      */
     public function isNumber($value) // : ?null|int|float
     {
-        return ( $this->isInt($value) || $this->isFloat($value) )
+        $result = ( 0
+            || ( null !== $this->isInt($value) )
+            || ( null !== $this->isFloat($value) )
+        );
+
+        return $result
             ? $value
             : null;
     }
@@ -121,7 +126,9 @@ class Assert
      */
     public function isStringOrNumber($value) // : ?null|int|float|string
     {
-        return ( is_string($value) || $this->isNumber($value) )
+        return ( is_string($value)
+            || ( null !== $this->isNumber($value) )
+        )
             ? $value
             : null;
     }
@@ -133,7 +140,12 @@ class Assert
      */
     public function isTheStringOrNumber($value) // : ?null|int|float|string
     {
-        return ( $this->isTheString($value) || $this->isNumber($value) )
+        $result = ( 0
+            || ( null !== $this->isTheString($value) )
+            || ( null !== $this->isNumber($value) )
+        );
+
+        return $result
             ? $value
             : null;
     }
@@ -146,7 +158,7 @@ class Assert
      */
     public function isIntable($value) : ?int
     {
-        if ($this->isInt($value)) {
+        if (null !== $this->isInt($value)) {
             return $value;
         }
 
@@ -164,7 +176,7 @@ class Assert
      */
     public function isFloatable($value) : ?float
     {
-        if ($this->isFloat($value)) {
+        if (null !== $this->isFloat($value)) {
             return $value;
         }
 
@@ -182,7 +194,7 @@ class Assert
      */
     public function isNumerable($value) // : ?int|float
     {
-        if ($this->isNumber($value)) {
+        if (null !== $this->isNumber($value)) {
             return $value;
         }
 
@@ -206,7 +218,7 @@ class Assert
             return null;
         }
 
-        if ($this->isStringOrNumber($value)) {
+        if (null !== $this->isStringOrNumber($value)) {
             return strval($value);
         }
 
@@ -236,9 +248,7 @@ class Assert
             $result = [];
 
             foreach ( $value as $item ) {
-                $key = $this->isStringable($item);
-
-                ( null === $key )
+                ( null === ( $key = $this->isStringable($item) ) )
                     ? ( $result[ $key ] = $item )
                     : ( $result[] = $item );
             }
@@ -329,7 +339,7 @@ class Assert
         if (! $dict) return null; // empty array is a dict
 
         foreach ( $dict as $key => &$val ) {
-            if (! $this->isTheString($key)) {
+            if (null === $this->isTheString($key)) {
                 return null;
             }
 
@@ -358,7 +368,7 @@ class Assert
         $hasInt = false;
         foreach ( $assoc as $key => &$val ) {
             $hasInt = $hasInt || is_int($key);
-            $hasStr = $hasStr || $this->isTheString($key);
+            $hasStr = $hasStr || ( null !== $this->isTheString($key) );
 
             if ($hasInt && $hasStr) {
                 break;
@@ -392,9 +402,9 @@ class Assert
     public function isCallable($callable, CallableInfo &$callableInfo = null) // : ?callable
     {
         if (0
-            || ( $this->isClosure($callable, $callableInfo) )
-            || ( $this->isCallableString($callable, $callableInfo) )
-            || ( $this->isCallableArray($callable, $callableInfo) )
+            || ( null !== $this->isClosure($callable, $callableInfo) )
+            || ( null !== $this->isCallableString($callable, $callableInfo) )
+            || ( null !== $this->isCallableArray($callable, $callableInfo) )
         ) {
             return $callable;
         }
@@ -412,7 +422,9 @@ class Assert
     {
         $callableInfo = $callableInfo ?? new CallableInfo();
 
-        if ($this->isTheString($callable) && is_callable($callable)) {
+        if (( null !== $this->isTheString($callable) )
+            && is_callable($callable)
+        ) {
             $callableInfo->function = $callable;
             $callableInfo->callable = $callable;
 
@@ -454,8 +466,8 @@ class Assert
         $callableInfo = $callableInfo ?? new CallableInfo();
 
         if (is_array($callable)
-            && isset($callable[ 0 ]) && $this->isTheString($callable[ 0 ])
-            && isset($callable[ 1 ]) && $this->isTheString($callable[ 1 ])
+            && isset($callable[ 0 ]) && ( null !== $this->isTheString($callable[ 0 ]) )
+            && isset($callable[ 1 ]) && ( null !== $this->isTheString($callable[ 1 ]) )
             && is_callable($callable)
         ) {
             $callableInfo->class = $callable[ 0 ];
@@ -480,7 +492,7 @@ class Assert
 
         if (is_array($callable)
             && isset($callable[ 0 ]) && is_object($callable[ 0 ])
-            && isset($callable[ 1 ]) && $this->isTheString($callable[ 1 ])
+            && isset($callable[ 1 ]) && ( null !== $this->isTheString($callable[ 1 ]) )
             && is_callable($callable)
         ) {
             $callableInfo->object = $callable[ 0 ];
@@ -524,7 +536,7 @@ class Assert
      */
     public function isCallableHandler($handler, CallableInfo &$callableInfo = null) // : ?callable
     {
-        $isHandler = $this->isTheString($handler)
+        $isHandler = ( null !== $this->isTheString($handler) )
             && ( $handler[ 0 ] !== '@' )
             && ( 1 === substr_count($handler, '@') );
 
@@ -534,7 +546,7 @@ class Assert
 
         $callable = explode('@', $handler, 2);
 
-        if ($this->isCallableArrayStatic($callable, $callableInfo)) {
+        if (null !== $this->isCallableArrayStatic($callable, $callableInfo)) {
             return $callable;
         }
 
@@ -549,7 +561,9 @@ class Assert
      */
     public function isClass($class) : ?string
     {
-        return ( is_string($class) && class_exists($class) )
+        return ( ( null !== $this->isTheString($class) )
+            && class_exists($class)
+        )
             ? $class
             : null;
     }
@@ -562,8 +576,9 @@ class Assert
      */
     public function isValidClass($class) : ?string
     {
-        if (! is_string($class)) return null;
-        if ('' === $class) return null;
+        if (null === $this->isTheString($class)) {
+            return null;
+        }
 
         foreach ( explode('\\', $class) as $part ) {
             if (! $result = $this->isValidClassName($part)) {
@@ -581,8 +596,7 @@ class Assert
      */
     public function isValidClassName($className) : ?string
     {
-        if (is_string($className)
-            && ( '' !== $className )
+        if (( null !== $this->isTheString($className) )
             && ( false !== preg_match('~^[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*$~', $className) )
         ) {
             return $className;

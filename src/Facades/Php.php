@@ -92,9 +92,29 @@ class Php
      *
      * @return array
      */
+    public static function kwargsDistinct(...$arguments) : array
+    {
+        return static::getInstance()->kwargsDistinct(...$arguments);
+    }
+
+    /**
+     * @param mixed ...$arguments
+     *
+     * @return array
+     */
     public static function kwargsFlatten(...$arguments) : array
     {
         return static::getInstance()->kwargsFlatten(...$arguments);
+    }
+
+    /**
+     * @param mixed ...$arguments
+     *
+     * @return array
+     */
+    public static function kwargsFlattenDistinct(...$arguments) : array
+    {
+        return static::getInstance()->kwargsFlattenDistinct(...$arguments);
     }
 
     /**
