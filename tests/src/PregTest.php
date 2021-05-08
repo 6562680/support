@@ -5,22 +5,14 @@ namespace Gzhegow\Support\Tests;
 use Gzhegow\Support\Str;
 use Gzhegow\Support\Preg;
 use Gzhegow\Support\Filter;
-use Gzhegow\Support\Assert;
 use Gzhegow\Support\Exceptions\RuntimeException;
 
 
 class PregTest extends AbstractTestCase
 {
-    protected function getAssert() : Assert
-    {
-        return new Assert();
-    }
-
     protected function getFilter() : Filter
     {
-        return new Filter(
-            $this->getAssert()
-        );
+        return new Filter();
     }
 
     protected function getStr() : Str

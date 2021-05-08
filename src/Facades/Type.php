@@ -20,7 +20,7 @@ class Type
     public static function getInstance() : _Type
     {
         return new _Type(
-            Assert::getInstance()
+            Filter::getInstance()
         );
     }
 
@@ -113,6 +113,26 @@ class Type
     public static function isTheStringOrNumber($value) : bool
     {
         return static::getInstance()->isTheStringOrNumber($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    public static function isIntable($value) : bool
+    {
+        return static::getInstance()->isIntable($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    public static function isFloatable($value) : bool
+    {
+        return static::getInstance()->isFloatable($value);
     }
 
     /**

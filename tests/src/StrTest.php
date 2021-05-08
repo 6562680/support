@@ -4,22 +4,14 @@ namespace Gzhegow\Support\Tests;
 
 use Gzhegow\Support\Str;
 use Gzhegow\Support\Filter;
-use Gzhegow\Support\Assert;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 class StrTest extends AbstractTestCase
 {
-    protected function getAssert() : Assert
-    {
-        return new Assert();
-    }
-
     protected function getFilter() : Filter
     {
-        return new Filter(
-            $this->getAssert()
-        );
+        return new Filter();
     }
 
     protected function getStr() : Str

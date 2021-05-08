@@ -7,7 +7,6 @@ use Gzhegow\Support\Php;
 use Gzhegow\Support\Type;
 use Gzhegow\Support\Debug;
 use Gzhegow\Support\Filter;
-use Gzhegow\Support\Assert;
 
 
 /**
@@ -110,9 +109,7 @@ class RuntimeException extends \RuntimeException
      */
     protected function loadFilter() : Filter
     {
-        return new Filter(
-            $this->loadAssert()
-        );
+        return new Filter();
     }
 
     /**
@@ -121,16 +118,8 @@ class RuntimeException extends \RuntimeException
     protected function loadType() : Type
     {
         return new Type(
-            $this->loadAssert()
+            $this->loadFilter()
         );
-    }
-
-    /**
-     * @return \Gzhegow\Support\Assert
-     */
-    protected function loadAssert() : Assert
-    {
-        return new Assert();
     }
 
 

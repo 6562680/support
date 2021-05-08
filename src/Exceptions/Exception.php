@@ -7,7 +7,6 @@ use Gzhegow\Support\Php;
 use Gzhegow\Support\Type;
 use Gzhegow\Support\Debug;
 use Gzhegow\Support\Filter;
-use Gzhegow\Support\Assert;
 
 
 /**
@@ -86,6 +85,7 @@ class Exception extends \Exception
         $this->php = $this->loadPhp();
     }
 
+
     /**
      * @return Debug
      */
@@ -110,9 +110,7 @@ class Exception extends \Exception
      */
     protected function loadFilter() : Filter
     {
-        return new Filter(
-            $this->loadAssert()
-        );
+        return new Filter();
     }
 
     /**
@@ -121,16 +119,8 @@ class Exception extends \Exception
     protected function loadType() : Type
     {
         return new Type(
-            $this->loadAssert()
+            $this->loadFilter()
         );
-    }
-
-    /**
-     * @return Assert
-     */
-    protected function loadAssert() : Assert
-    {
-        return new Assert();
     }
 
 

@@ -3,6 +3,7 @@
 namespace Gzhegow\Support;
 
 use Gzhegow\Support\Domain\Type\CallableInfo;
+use Gzhegow\Support\Domain\Type\Interfaces\CanToArrayInterface;
 
 
 /**
@@ -11,43 +12,17 @@ use Gzhegow\Support\Domain\Type\CallableInfo;
 class Filter
 {
     /**
-     * @var Assert
-     */
-    protected $assert;
-
-
-    /**
-     * Constructor
-     *
-     * @param Assert $assert
-     */
-    public function __construct(Assert $assert)
-    {
-        $this->assert = $assert;
-    }
-
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|int|float|string|array
-     */
-    public function filterEmpty($value) // :?null|int|float|string|array
-    {
-        return ( false !== $this->assert->isEmpty($value) )
-            ? $value
-            : null;
-    }
-
-
-    /**
      * @param mixed $value
      *
      * @return null|int|string
      */
     public function filterKey($value) // : ?int|string
     {
-        return $this->assert->isKey($value);
+        // \Generator can pass any object as foreach key, so this check is recommended
+
+        return ( is_int($value) || is_string($value) )
+            ? $value
+            : null;
     }
 
 
@@ -58,7 +33,11 @@ class Filter
      */
     public function filterInt($value) : ?int
     {
-        return $this->assert->isInt($value);
+        if (is_int($value)) {
+            return $value;
+        }
+
+        return null;
     }
 
     /**
@@ -68,7 +47,11 @@ class Filter
      */
     public function filterFloat($value) : ?float
     {
-        return $this->assert->isFloat($value);
+        if (( is_float($value) && ! is_nan($value) )) {
+            return $value;
+        }
+
+        return null;
     }
 
     /**
@@ -78,7 +61,11 @@ class Filter
      */
     public function filterNan($value) : ?float
     {
-        return $this->assert->isNan($value);
+        if (( is_float($value) && is_nan($value) )) {
+            return $value;
+        }
+
+        return null;
     }
 
 
@@ -89,7 +76,14 @@ class Filter
      */
     public function filterNumber($value) // : ?null|int|float
     {
-        return $this->assert->isNumber($value);
+        $result = ( 0
+            || ( null !== $this->filterInt($value) )
+            || ( null !== $this->filterFloat($value) )
+        );
+
+        return $result
+            ? $value
+            : null;
     }
 
 
@@ -100,7 +94,9 @@ class Filter
      */
     public function filterTheString($value) : ?string
     {
-        return $this->assert->isTheString($value);
+        return ( is_string($value) && ( '' !== $value ) )
+            ? $value
+            : null;
     }
 
 
@@ -111,7 +107,11 @@ class Filter
      */
     public function filterStringOrNumber($value) // : ?null|int|float|string
     {
-        return $this->assert->isStringOrNumber($value);
+        return ( is_string($value)
+            || ( null !== $this->filterNumber($value) )
+        )
+            ? $value
+            : null;
     }
 
     /**
@@ -121,9 +121,52 @@ class Filter
      */
     public function filterTheStringOrNumber($value) // : ?null|int|float|string
     {
-        return $this->assert->isTheStringOrNumber($value);
+        $result = ( 0
+            || ( null !== $this->filterTheString($value) )
+            || ( null !== $this->filterNumber($value) )
+        );
+
+        return $result
+            ? $value
+            : null;
     }
 
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|int
+     */
+    public function filterIntable($value) : ?int
+    {
+        if (null !== $this->filterInt($value)) {
+            return $value;
+        }
+
+        if (false !== ( $result = filter_var($value, FILTER_VALIDATE_INT) )) {
+            return $result;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|float
+     */
+    public function filterFloatable($value) : ?float
+    {
+        if (null !== $this->filterFloat($value)) {
+            return $value;
+        }
+
+        if (false !== ( $result = filter_var($value, FILTER_VALIDATE_FLOAT) )) {
+            return $result;
+        }
+
+        return null;
+    }
 
     /**
      * @param mixed $value
@@ -132,7 +175,17 @@ class Filter
      */
     public function filterNumerable($value) // : ?int|float
     {
-        return $this->assert->isNumerable($value);
+        if (null !== $this->filterNumber($value)) {
+            return $value;
+        }
+
+        if (is_numeric($value)) {
+            return null
+                ?? $this->filterInt($value)
+                ?? $this->filterFloat($value);
+        }
+
+        return null;
     }
 
     /**
@@ -142,7 +195,21 @@ class Filter
      */
     public function filterStringable($value) : ?string
     {
-        return $this->assert->isStringable($value);
+        if (is_array($value)) {
+            return null;
+        }
+
+        if (null !== $this->filterStringOrNumber($value)) {
+            return strval($value);
+        }
+
+        if (false === settype($value, 'string')) {
+            return null;
+        }
+
+        $result = strval($value);
+
+        return $result;
     }
 
     /**
@@ -152,7 +219,45 @@ class Filter
      */
     public function filterArrayable($value) : ?array
     {
-        return $this->assert->isArrayable($value);
+        if (is_null($value)) {
+            return [];
+
+        } elseif (is_scalar($value)) {
+            return [ $value ];
+
+        } elseif (is_iterable($value)) {
+            $result = [];
+
+            foreach ( $value as $item ) {
+                ( null === ( $key = $this->filterStringable($item) ) )
+                    ? ( $result[ $key ] = $item )
+                    : ( $result[] = $item );
+            }
+
+            return $result;
+
+        } elseif (is_object($value)) {
+            if (is_a($value, CanToArrayInterface::class)) {
+                return $value->toArray();
+
+            } else {
+                // too slow
+                // } elseif (method_exists($value, 'toArray')) {
+
+                $result = null;
+
+                try {
+                    $result = $value->toArray();
+                }
+                catch ( \Throwable $e ) {
+                }
+
+                /** @noinspection PhpExpressionAlwaysNullInspection */
+                return $result;
+            }
+        }
+
+        return null;
     }
 
 
@@ -164,7 +269,17 @@ class Filter
      */
     public function filterArray($array, callable $of = null) : ?array
     {
-        return $this->assert->isArray($array, $of);
+        if (! is_array($array)) return null;
+        if (! $array) return null;
+
+        foreach ( $array as $key => &$val ) {
+            if ($of && ! $of($val)) {
+                return null;
+            }
+        }
+        unset($val);
+
+        return $array;
     }
 
     /**
@@ -175,7 +290,22 @@ class Filter
      */
     public function filterList($list, callable $of = null) : ?array
     {
-        return $this->assert->isList($list, $of);
+        if (! is_iterable($list)) return null;
+        if (! $list) return null; // empty array is a list
+
+        // contains string key? not a list
+        foreach ( $list as $key => &$val ) {
+            if (! is_int($key)) {
+                return null;
+            }
+
+            if ($of && ! $of($val)) {
+                return null;
+            }
+        }
+        unset($val);
+
+        return $list;
     }
 
     /**
@@ -186,7 +316,21 @@ class Filter
      */
     public function filterDict($dict, callable $of = null) : ?array
     {
-        return $this->assert->isDict($dict, $of);
+        if (! is_array($dict)) return null;
+        if (! $dict) return null; // empty array is a dict
+
+        foreach ( $dict as $key => &$val ) {
+            if (null === $this->filterTheString($key)) {
+                return null;
+            }
+
+            if ($of && ! $of($val)) {
+                return null;
+            }
+        }
+        unset($val);
+
+        return $dict;
     }
 
     /**
@@ -197,7 +341,36 @@ class Filter
      */
     public function filterAssoc($assoc, callable $of = null) : ?array
     {
-        return $this->assert->isAssoc($assoc, $of);
+        if (! is_array($assoc)) return null;
+        if (! $assoc) return null; // empty array is an assoc
+
+        // contains simulateonsly string/int key? is an assoc
+        $hasStr = false;
+        $hasInt = false;
+        foreach ( $assoc as $key => &$val ) {
+            $hasInt = $hasInt || is_int($key);
+            $hasStr = $hasStr || ( null !== $this->filterTheString($key) );
+
+            if ($hasInt && $hasStr) {
+                break;
+            }
+        }
+        unset($val);
+
+        if (! ( $hasInt && $hasStr )) {
+            return null;
+        }
+
+        if ($of) {
+            foreach ( $assoc as $key => &$val ) {
+                if (! $of($val)) {
+                    return null;
+                }
+            }
+            unset($val);
+        }
+
+        return $assoc;
     }
 
 
@@ -209,30 +382,37 @@ class Filter
      */
     public function filterCallable($callable, CallableInfo &$callableInfo = null) // : ?callable
     {
-        return $this->assert->isCallable($callable, $callableInfo);
+        if (0
+            || ( null !== $this->filterClosure($callable, $callableInfo) )
+            || ( null !== $this->filterCallableString($callable, $callableInfo) )
+            || ( null !== $this->filterCallableArray($callable, $callableInfo) )
+        ) {
+            return $callable;
+        }
+
+        return null;
     }
 
     /**
-     * @param                   $callable
+     * @param mixed             $callable
      * @param null|CallableInfo $callableInfo
      *
      * @return null|callable
      */
     public function filterCallableString($callable, CallableInfo &$callableInfo = null) // : ?callable
     {
-        return $this->assert->isCallableString($callable, $callableInfo);
-    }
+        $callableInfo = $callableInfo ?? new CallableInfo();
 
+        if (( null !== $this->filterTheString($callable) )
+            && is_callable($callable)
+        ) {
+            $callableInfo->function = $callable;
+            $callableInfo->callable = $callable;
 
-    /**
-     * @param mixed             $value
-     * @param null|CallableInfo $callableInfo
-     *
-     * @return null|\Closure
-     */
-    public function filterClosure($value, CallableInfo &$callableInfo = null) : ?\Closure
-    {
-        return $this->assert->isClosure($value, $callableInfo);
+            return $callable;
+        }
+
+        return null;
     }
 
 
@@ -244,7 +424,16 @@ class Filter
      */
     public function filterCallableArray($callable, CallableInfo &$callableInfo = null) // : ?callable
     {
-        return $this->assert->isCallableArray($callable, $callableInfo);
+        if (is_array($callable)
+            && ( 0
+                || $this->filterCallableArrayStatic($callable, $callableInfo)
+                || $this->filterCallableArrayPublic($callable, $callableInfo)
+            )
+        ) {
+            return $callable;
+        }
+
+        return null;
     }
 
     /**
@@ -255,7 +444,21 @@ class Filter
      */
     public function filterCallableArrayStatic($callable, CallableInfo &$callableInfo = null) // : ?callable
     {
-        return $this->assert->isCallableArrayStatic($callable, $callableInfo);
+        $callableInfo = $callableInfo ?? new CallableInfo();
+
+        if (is_array($callable)
+            && isset($callable[ 0 ]) && ( null !== $this->filterTheString($callable[ 0 ]) )
+            && isset($callable[ 1 ]) && ( null !== $this->filterTheString($callable[ 1 ]) )
+            && is_callable($callable)
+        ) {
+            $callableInfo->class = $callable[ 0 ];
+            $callableInfo->method = $callable[ 1 ];
+            $callableInfo->callable = $callable;
+
+            return $callable;
+        }
+
+        return null;
     }
 
     /**
@@ -266,7 +469,43 @@ class Filter
      */
     public function filterCallableArrayPublic($callable, CallableInfo &$callableInfo = null) // : ?callable
     {
-        return $this->assert->isCallableArrayStatic($callable, $callableInfo);
+        $callableInfo = $callableInfo ?? new CallableInfo();
+
+        if (is_array($callable)
+            && isset($callable[ 0 ]) && is_object($callable[ 0 ])
+            && isset($callable[ 1 ]) && ( null !== $this->filterTheString($callable[ 1 ]) )
+            && is_callable($callable)
+        ) {
+            $callableInfo->object = $callable[ 0 ];
+            $callableInfo->class = get_class($callable[ 0 ]);
+            $callableInfo->method = $callable[ 1 ];
+            $callableInfo->callable = $callable;
+
+            return $callable;
+        }
+
+        return null;
+    }
+
+
+    /**
+     * @param mixed             $closure
+     * @param null|CallableInfo $callableInfo
+     *
+     * @return null|\Closure
+     */
+    public function filterClosure($closure, CallableInfo &$callableInfo = null) : ?\Closure
+    {
+        $callableInfo = $callableInfo ?? new CallableInfo();
+
+        if (is_object($closure) && ( get_class($closure) === \Closure::class )) {
+            $callableInfo->closure = $closure;
+            $callableInfo->class = \Closure::class;
+
+            return $closure;
+        }
+
+        return null;
     }
 
 
@@ -278,7 +517,21 @@ class Filter
      */
     public function filterCallableHandler($handler, CallableInfo &$callableInfo = null) // : ?callable
     {
-        return $this->assert->isCallableHandler($handler, $callableInfo);
+        $isHandler = ( null !== $this->filterTheString($handler) )
+            && ( $handler[ 0 ] !== '@' )
+            && ( 1 === substr_count($handler, '@') );
+
+        if (! $isHandler) {
+            return null;
+        }
+
+        $callable = explode('@', $handler, 2);
+
+        if (null !== $this->filterCallableArrayStatic($callable, $callableInfo)) {
+            return $callable;
+        }
+
+        return null;
     }
 
 
@@ -289,18 +542,32 @@ class Filter
      */
     public function filterClass($class) : ?string
     {
-        return $this->assert->isClass($class);
+        return ( ( null !== $this->filterTheString($class) )
+            && class_exists($class)
+        )
+            ? $class
+            : null;
     }
 
 
     /**
-     * @param mixed $namespacedClass
+     * @param mixed $class
      *
      * @return null|string
      */
-    public function filterValidClass($namespacedClass) : ?string
+    public function filterValidClass($class) : ?string
     {
-        return $this->assert->isValidClass($namespacedClass);
+        if (null === $this->filterTheString($class)) {
+            return null;
+        }
+
+        foreach ( explode('\\', $class) as $part ) {
+            if (! $result = $this->filterValidClassName($part)) {
+                return null;
+            }
+        }
+
+        return $class;
     }
 
     /**
@@ -310,18 +577,31 @@ class Filter
      */
     public function filterValidClassName($className) : ?string
     {
-        return $this->assert->isValidClassName($className);
+        if (( null !== $this->filterTheString($className) )
+            && ( false !== preg_match('~^[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*$~', $className) )
+        ) {
+            return $className;
+        }
+
+        return null;
     }
 
 
     /**
-     * @param mixed $obj
+     * @param \ReflectionClass  $reflectionClass
+     * @param string|null      &$class
      *
      * @return null|\ReflectionClass
      */
-    public function filterReflectionClass($obj) : ?\ReflectionClass
+    public function filterReflectionClass($reflectionClass, string &$class = null) : ?\ReflectionClass
     {
-        return $this->assert->isReflectionClass($obj);
+        if (is_object($reflectionClass) && is_a($reflectionClass, \ReflectionClass::class)) {
+            $class = $reflectionClass->getName();
+
+            return $reflectionClass;
+        }
+
+        return null;
     }
 
 
@@ -332,7 +612,9 @@ class Filter
      */
     public function filterFileInfo($value) : ?\SplFileInfo
     {
-        return $this->assert->isFileInfo($value);
+        return ( is_object($value) && is_a($value, \SplFileInfo::class) )
+            ? $value
+            : null;
     }
 
 
@@ -343,7 +625,9 @@ class Filter
      */
     public function filterOpenedResource($h) // : ?resource
     {
-        return $this->assert->isOpenedResource($h);
+        return ( is_resource($h) && 'resource (closed)' !== gettype($h) )
+            ? $h
+            : null;
     }
 
     /**
@@ -353,6 +637,8 @@ class Filter
      */
     public function filterClosedResource($h) // : ?resource
     {
-        return $this->assert->isClosedResource($h);
+        return ( is_resource($h) && 'resource (closed)' === gettype($h) )
+            ? $h
+            : null;
     }
 }

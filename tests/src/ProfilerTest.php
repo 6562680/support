@@ -3,23 +3,15 @@
 namespace Gzhegow\Support\Tests;
 
 use Gzhegow\Support\Filter;
-use Gzhegow\Support\Assert;
 use Gzhegow\Support\Profiler;
 use Gzhegow\Support\Calendar;
 
 
 class ProfilerTest extends AbstractTestCase
 {
-    protected function getAssert() : Assert
-    {
-        return new Assert();
-    }
-
     protected function getFilter() : Filter
     {
-        return new Filter(
-            $this->getAssert()
-        );
+        return new Filter();
     }
 
     protected function getCalendar() : Calendar

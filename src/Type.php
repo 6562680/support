@@ -2,7 +2,6 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Assert;
 use Gzhegow\Support\Domain\Type\CallableInfo;
 
 
@@ -12,19 +11,19 @@ use Gzhegow\Support\Domain\Type\CallableInfo;
 class Type
 {
     /**
-     * @var Assert
+     * @var Filter
      */
-    protected $assert;
+    protected $filter;
 
 
     /**
      * Constructor
      *
-     * @param Assert $assert
+     * @param Filter $filter
      */
-    public function __construct(Assert $assert)
+    public function __construct(Filter $filter)
     {
-        $this->assert = $assert;
+        $this->filter = $filter;
     }
 
 
@@ -35,9 +34,15 @@ class Type
      */
     public function isEmpty($value) : bool
     {
-        return false !== $this->assert->isEmpty($value)
-            ? $value
-            : false;
+        if (empty($value)) {
+            return true;
+        }
+
+        if (is_object($value) && is_countable($value)) {
+            return ! count($value);
+        }
+
+        return false;
     }
 
 
@@ -48,7 +53,7 @@ class Type
      */
     public function isKey($value) : bool
     {
-        return null !== $this->assert->isKey($value);
+        return null !== $this->filter->filterKey($value);
     }
 
 
@@ -59,7 +64,7 @@ class Type
      */
     public function isInt($value) : bool
     {
-        return null !== $this->assert->isInt($value);
+        return null !== $this->filter->filterInt($value);
     }
 
     /**
@@ -69,7 +74,7 @@ class Type
      */
     public function isFloat($value) : bool
     {
-        return null !== $this->assert->isFloat($value);
+        return null !== $this->filter->filterFloat($value);
     }
 
     /**
@@ -79,7 +84,7 @@ class Type
      */
     public function isNan($value) : bool
     {
-        return null !== $this->assert->isNan($value);
+        return null !== $this->filter->filterNan($value);
     }
 
 
@@ -90,7 +95,7 @@ class Type
      */
     public function isNumber($value) : bool
     {
-        return null !== $this->assert->isNumber($value);
+        return null !== $this->filter->filterNumber($value);
     }
 
 
@@ -101,7 +106,7 @@ class Type
      */
     public function isTheString($value) : bool
     {
-        return null !== $this->assert->isTheString($value);
+        return null !== $this->filter->filterTheString($value);
     }
 
 
@@ -112,7 +117,7 @@ class Type
      */
     public function isStringOrNumber($value) : bool
     {
-        return null !== $this->assert->isStringOrNumber($value);
+        return null !== $this->filter->filterStringOrNumber($value);
     }
 
     /**
@@ -122,7 +127,7 @@ class Type
      */
     public function isTheStringOrNumber($value) : bool
     {
-        return null !== $this->assert->isTheStringOrNumber($value);
+        return null !== $this->filter->filterTheStringOrNumber($value);
     }
 
 
@@ -131,9 +136,29 @@ class Type
      *
      * @return bool
      */
+    public function isIntable($value) : bool
+    {
+        return null !== $this->filter->filterIntable($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    public function isFloatable($value) : bool
+    {
+        return null !== $this->filter->filterFloatable($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return bool
+     */
     public function isNumerable($value) : bool
     {
-        return null !== $this->assert->isNumerable($value);
+        return null !== $this->filter->filterNumerable($value);
     }
 
     /**
@@ -143,7 +168,7 @@ class Type
      */
     public function isStringable($value) : bool
     {
-        return null !== $this->assert->isStringable($value);
+        return null !== $this->filter->filterStringable($value);
     }
 
     /**
@@ -153,7 +178,7 @@ class Type
      */
     public function isArrayable($value) : bool
     {
-        return null !== $this->assert->isArrayable($value);
+        return null !== $this->filter->filterArrayable($value);
     }
 
 
@@ -165,7 +190,7 @@ class Type
      */
     public function isArray($array, callable $of = null) : bool
     {
-        return null !== $this->assert->isArray($array, $of);
+        return null !== $this->filter->filterArray($array, $of);
     }
 
     /**
@@ -176,7 +201,7 @@ class Type
      */
     public function isList($list, callable $of = null) : bool
     {
-        return null !== $this->assert->isList($list, $of);
+        return null !== $this->filter->filterList($list, $of);
     }
 
     /**
@@ -187,7 +212,7 @@ class Type
      */
     public function isDict($dict, callable $of = null) : bool
     {
-        return null !== $this->assert->isDict($dict, $of);
+        return null !== $this->filter->filterDict($dict, $of);
     }
 
     /**
@@ -198,7 +223,7 @@ class Type
      */
     public function isAssoc($assoc, callable $of = null) : bool
     {
-        return null !== $this->assert->isAssoc($assoc, $of);
+        return null !== $this->filter->filterAssoc($assoc, $of);
     }
 
 
@@ -210,7 +235,7 @@ class Type
      */
     public function isCallable($callable, CallableInfo &$callableInfo = null) : bool
     {
-        return null !== $this->assert->isCallable($callable, $callableInfo);
+        return null !== $this->filter->filterCallable($callable, $callableInfo);
     }
 
     /**
@@ -221,7 +246,7 @@ class Type
      */
     public function isCallableString($callable, CallableInfo &$callableInfo = null) : bool
     {
-        return null !== $this->assert->isCallableString($callable, $callableInfo);
+        return null !== $this->filter->filterCallableString($callable, $callableInfo);
     }
 
 
@@ -233,7 +258,7 @@ class Type
      */
     public function isClosure($value, CallableInfo &$callableInfo = null) : bool
     {
-        return null !== $this->assert->isClosure($value, $callableInfo);
+        return null !== $this->filter->filterClosure($value, $callableInfo);
     }
 
 
@@ -245,7 +270,7 @@ class Type
      */
     public function isCallableArray($callable, CallableInfo &$callableInfo = null) : bool
     {
-        return null !== $this->assert->isCallableArray($callable, $callableInfo);
+        return null !== $this->filter->filterCallableArray($callable, $callableInfo);
     }
 
     /**
@@ -256,7 +281,7 @@ class Type
      */
     public function isCallableArrayStatic($callable, CallableInfo &$callableInfo = null) : bool
     {
-        return null !== $this->assert->isCallableArrayStatic($callable, $callableInfo);
+        return null !== $this->filter->filterCallableArrayStatic($callable, $callableInfo);
     }
 
     /**
@@ -267,7 +292,7 @@ class Type
      */
     public function isCallableArrayPublic($callable, CallableInfo &$callableInfo = null) : bool
     {
-        return null !== $this->assert->isCallableArrayStatic($callable, $callableInfo);
+        return null !== $this->filter->filterCallableArrayStatic($callable, $callableInfo);
     }
 
 
@@ -279,7 +304,7 @@ class Type
      */
     public function isCallableHandler($handler, CallableInfo &$callableInfo = null) : bool
     {
-        return null !== $this->assert->isCallableHandler($handler, $callableInfo);
+        return null !== $this->filter->filterCallableHandler($handler, $callableInfo);
     }
 
 
@@ -290,7 +315,7 @@ class Type
      */
     public function isClass($class) : bool
     {
-        return null !== $this->assert->isClass($class);
+        return null !== $this->filter->filterClass($class);
     }
 
 
@@ -301,7 +326,7 @@ class Type
      */
     public function isValidClass($namespacedClass) : bool
     {
-        return null !== $this->assert->isValidClass($namespacedClass);
+        return null !== $this->filter->filterValidClass($namespacedClass);
     }
 
     /**
@@ -311,7 +336,7 @@ class Type
      */
     public function isValidClassName($className) : bool
     {
-        return null !== $this->assert->isValidClassName($className);
+        return null !== $this->filter->filterValidClassName($className);
     }
 
 
@@ -322,7 +347,7 @@ class Type
      */
     public function isReflectionClass($obj) : bool
     {
-        return null !== $this->assert->isReflectionClass($obj);
+        return null !== $this->filter->filterReflectionClass($obj);
     }
 
 
@@ -333,7 +358,7 @@ class Type
      */
     public function isFileInfo($value) : bool
     {
-        return null !== $this->assert->isFileInfo($value);
+        return null !== $this->filter->filterFileInfo($value);
     }
 
 
@@ -344,7 +369,7 @@ class Type
      */
     public function isOpenedResource($h) : bool
     {
-        return null !== $this->assert->isOpenedResource($h);
+        return null !== $this->filter->filterOpenedResource($h);
     }
 
     /**
@@ -354,6 +379,6 @@ class Type
      */
     public function isClosedResource($h) : bool
     {
-        return null !== $this->assert->isClosedResource($h);
+        return null !== $this->filter->filterClosedResource($h);
     }
 }

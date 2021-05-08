@@ -6,7 +6,6 @@ use Gzhegow\Support\Arr;
 use Gzhegow\Support\Php;
 use Gzhegow\Support\Type;
 use Gzhegow\Support\Filter;
-use Gzhegow\Support\Assert;
 use Gzhegow\Support\Exceptions\Logic\OutOfRangeException;
 use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
@@ -14,16 +13,9 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 class ArrTest extends AbstractTestCase
 {
-    protected function getAssert() : Assert
-    {
-        return new Assert();
-    }
-
     protected function getFilter() : Filter
     {
-        return new Filter(
-            $this->getAssert()
-        );
+        return new Filter();
     }
 
     protected function getPhp() : Php
@@ -37,7 +29,7 @@ class ArrTest extends AbstractTestCase
     protected function getType() : Type
     {
         return new Type(
-            $this->getAssert()
+            $this->getFilter()
         );
     }
 

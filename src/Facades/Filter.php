@@ -19,21 +19,9 @@ class Filter
      */
     public static function getInstance() : _Filter
     {
-        return new _Filter(
-            Assert::getInstance()
-        );
+        return new _Filter();
     }
 
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|int|float|string|array
-     */
-    public static function filterEmpty($value)
-    {
-        return static::getInstance()->filterEmpty($value);
-    }
 
     /**
      * @param mixed $value
@@ -113,6 +101,26 @@ class Filter
     public static function filterTheStringOrNumber($value)
     {
         return static::getInstance()->filterTheStringOrNumber($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|int
+     */
+    public function filterIntable($value) : ?int
+    {
+        return static::getInstance()->filterIntable($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|float
+     */
+    public function filterFloatable($value) : ?float
+    {
+        return static::getInstance()->filterFloatable($value);
     }
 
     /**

@@ -7,27 +7,19 @@ use Gzhegow\Support\Php;
 use Gzhegow\Support\Curl;
 use Gzhegow\Support\Type;
 use Gzhegow\Support\Filter;
-use Gzhegow\Support\Assert;
 
 
 class CurlTest extends AbstractTestCase
 {
-    protected function getAssert() : Assert
-    {
-        return new Assert();
-    }
-
     protected function getFilter() : Filter
     {
-        return new Filter(
-            $this->getAssert()
-        );
+        return new Filter();
     }
 
     protected function getType() : Type
     {
         return new Type(
-            $this->getAssert()
+            $this->getFilter()
         );
     }
 

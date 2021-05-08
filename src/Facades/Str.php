@@ -76,11 +76,11 @@ class Str
      * Search all sequences starts & ends from given substr
      * and return array that contains all of them without enclosures
      *
-     * @param string $start
-     * @param string $end
-     * @param string $haystack
-     * @param int    $offset
-     * @param bool   $ignoreCase
+     * @param string   $start
+     * @param string   $end
+     * @param string   $haystack
+     * @param null|int $offset
+     * @param bool     $ignoreCase
      *
      * @return array
      */

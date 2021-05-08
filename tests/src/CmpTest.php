@@ -5,28 +5,20 @@ namespace Gzhegow\Support\Tests;
 use Gzhegow\Support\Cmp;
 use Gzhegow\Support\Type;
 use Gzhegow\Support\Filter;
-use Gzhegow\Support\Assert;
 use Gzhegow\Support\Calendar;
 
 
 class CmpTest extends AbstractTestCase
 {
-    protected function getAssert() : Assert
-    {
-        return new Assert();
-    }
-
     protected function getFilter() : Filter
     {
-        return new Filter(
-            $this->getAssert()
-        );
+        return new Filter();
     }
 
     protected function getType() : Type
     {
         return new Type(
-            $this->getAssert()
+            $this->getFilter()
         );
     }
 
