@@ -11,6 +11,10 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 class Uri
 {
     /**
+     * @var Arr
+     */
+    protected $arr;
+    /**
      * @var Filter
      */
     protected $filter;
@@ -18,21 +22,191 @@ class Uri
      * @var Php
      */
     protected $php;
+    /**
+     * @var Str
+     */
+    protected $str;
 
 
     /**
      * Constructor
      *
+     * @param Arr    $arr
      * @param Filter $filter
+     * @param Str    $str
      * @param Php    $php
      */
     public function __construct(
+        Arr $arr,
         Filter $filter,
-        Php $php
+        Php $php,
+        Str $str
     )
     {
+        $this->arr = $arr;
         $this->filter = $filter;
         $this->php = $php;
+        $this->str = $str;
+    }
+
+
+    /**
+     * Compares links, allows to create `active` buttons if urls match
+     *
+     * @param null|string $link
+     *
+     * @param null|string $needle
+     * @param null|array  $needleQuery
+     * @param null|string $needleRef
+     *
+     * @param null|bool   $strictPath
+     * @param null|bool   $strictQuery
+     * @param null|bool   $strictRef
+     *
+     * @return bool
+     */
+    public function isLinkMatch(string $link,
+        string $needle = null,
+        array $needleQuery = null,
+        string $needleRef = null,
+
+        bool $strictPath = null,
+        bool $strictQuery = null,
+        bool $strictRef = null
+    ) : bool
+    {
+        $strictPath = $strictPath ?? true;
+        $strictQuery = $strictQuery ?? true;
+        $strictRef = $strictRef ?? true;
+
+        if ($link === ( $link2 = $this->link($needle, $needleQuery, $needleRef) )) {
+            return true;
+        }
+
+        $info = $this->linkinfo($link);
+        $info2 = $this->linkinfo($link2);
+
+        if ($strictPath) {
+            $matchPath = ( $info[ 'path' ] === $info2[ 'path' ] );
+
+        } else {
+            $parts = explode('/', trim($info[ 'path' ], '/'));
+            $parts2 = explode('/', trim($info2[ 'path' ], '/'));
+
+            $match = true;
+            foreach ( $parts as $key => $part ) {
+                if (! isset($parts2[ $key ])) {
+                    continue;
+                }
+
+                if ($part !== $parts2[ $key ]) {
+                    $match = false;
+                    break;
+                }
+            }
+
+            $matchPath = $match;
+        }
+
+        if ($strictQuery) {
+            $matchQuery = ( $info[ 'query' ] === $info2[ 'query' ] );
+
+        } else {
+            $query = $this->query($info[ 'query' ]);
+            $query2 = $this->query($info2[ 'query' ]);
+
+            $match = true;
+            foreach ( $this->arr->walk($query) as $fullpath => $value ) {
+                $value2 = $this->arr->get($fullpath, $query2, null);
+
+                if (! $value2) {
+                    continue;
+                }
+
+                if ($value !== $value2) {
+                    $match = false;
+                    break;
+                }
+            }
+
+            $matchQuery = $match;
+        }
+
+        if (! $strictRef) {
+            $matchRef = true;
+
+        } else {
+            $matchRef = ( $info[ 'fragment' ] === $info2[ 'fragment' ] );
+        }
+
+        $result = 1
+            && $matchPath
+            && $matchQuery
+            && $matchRef;
+
+        return $result;
+    }
+
+    /**
+     * Compares urls, allows to create `active` buttons if urls match
+     *
+     * @param null|string $url
+     *
+     * @param null|string $needle
+     * @param null|array  $needleQuery
+     * @param null|string $needleRef
+     *
+     * @param null|bool   $strictPath
+     * @param null|bool   $strictQuery
+     * @param null|bool   $strictRef
+     *
+     * @return bool
+     */
+    public function isUrlMatch(string $url,
+        string $needle = null,
+        array $needleQuery = null,
+        string $needleRef = null,
+
+        bool $strictPath = null,
+        bool $strictQuery = null,
+        bool $strictRef = null
+    ) : bool
+    {
+        $strictPath = $strictPath ?? true;
+        $strictQuery = $strictQuery ?? true;
+        $strictRef = $strictRef ?? true;
+
+        if ($url === ( $url2 = $this->url($needle, $needleQuery, $needleRef) )) {
+            return true;
+        }
+
+        $info = $this->linkinfo($url);
+        $info2 = $this->linkinfo($url2);
+
+        $keys = [
+            'scheme',
+            'host',
+            'port',
+            'user',
+            'pass',
+        ];
+        foreach ( $keys as $key ) {
+            if ($info[ $key ] !== $info2[ $key ]) {
+                return false;
+            }
+        }
+
+        $result = $this->isLinkMatch($url,
+            $needle,
+            $needleQuery,
+            $needleRef,
+
+            $strictPath,
+            $strictQuery,
+            $strictRef,
+        );
+
+        return $result;
     }
 
 
@@ -105,13 +279,15 @@ class Uri
 
     /**
      * @param string|null $link
-     * @param array       $q
+     * @param null|array  $q
      * @param string|null $ref
      *
      * @return string
      */
-    public function url(string $link = null, array $q = [], string $ref = null) : string
+    public function url(string $link = null, array $q = null, string $ref = null) : string
     {
+        $q = $q ?? [];
+
         $query = [];
         $fragment = null;
 
@@ -174,12 +350,12 @@ class Uri
 
     /**
      * @param string|null $link
-     * @param array       $q
+     * @param null|array  $q
      * @param string|null $ref
      *
      * @return string
      */
-    public function link(string $link = null, array $q = [], string $ref = null) : string
+    public function link(string $link = null, array $q = null, string $ref = null) : string
     {
         $result = $this->url($link, $q, $ref);
 

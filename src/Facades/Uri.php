@@ -19,11 +19,85 @@ class Uri
     public static function getInstance() : _Uri
     {
         return new _Uri(
+            Arr::getInstance(),
             Filter::getInstance(),
             Php::getInstance(),
+            Str::getInstance()
         );
     }
 
+
+    /**
+     * Compares links, allows to create `active` buttons if urls match
+     *
+     * @param null|string $link
+     *
+     * @param null|string $needle
+     * @param null|array  $needleQuery
+     * @param null|string $needleRef
+     *
+     * @param null|bool   $strictPath
+     * @param null|bool   $strictQuery
+     * @param null|bool   $strictRef
+     *
+     * @return bool
+     */
+    public static function isLinkMatch(string $link,
+        string $needle = null,
+        array $needleQuery = null,
+        string $needleRef = null,
+
+        bool $strictPath = null,
+        bool $strictQuery = null,
+        bool $strictRef = null
+    ) : bool
+    {
+        return static::getInstance()->isLinkMatch($link,
+            $needle,
+            $needleQuery,
+            $needleRef,
+
+            $strictPath,
+            $strictQuery,
+            $strictRef
+        );
+    }
+
+    /**
+     * Compares urls, allows to create `active` buttons if urls match
+     *
+     * @param null|string $url
+     *
+     * @param null|string $needle
+     * @param null|array  $needleQuery
+     * @param null|string $needleRef
+     *
+     * @param null|bool   $strictPath
+     * @param null|bool   $strictQuery
+     * @param null|bool   $strictRef
+     *
+     * @return bool
+     */
+    public static function isUrlMatch(string $url,
+        string $needle = null,
+        array $needleQuery = null,
+        string $needleRef = null,
+
+        bool $strictPath = null,
+        bool $strictQuery = null,
+        bool $strictRef = null
+    ) : bool
+    {
+        return static::getInstance()->isUrlMatch($url,
+            $needle,
+            $needleQuery,
+            $needleRef,
+
+            $strictPath,
+            $strictQuery,
+            $strictRef
+        );
+    }
 
     /**
      * @param string|null $query

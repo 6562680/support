@@ -4,8 +4,9 @@ namespace Gzhegow\Support\Tests;
 
 use Gzhegow\Support\Uri;
 use Gzhegow\Support\Php;
+use Gzhegow\Support\Arr;
+use Gzhegow\Support\Str;
 use Gzhegow\Support\Filter;
-use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 class UriTest extends AbstractTestCase
@@ -22,12 +23,121 @@ class UriTest extends AbstractTestCase
         );
     }
 
+    protected function getArr() : Arr
+    {
+        return new Arr(
+            $this->getFilter(),
+            $this->getPhp()
+        );
+    }
+
+    protected function getStr() : Str
+    {
+        return new Str(
+            $this->getFilter()
+        );
+    }
+
     protected function getUri() : Uri
     {
         return new Uri(
+            $this->getArr(),
             $this->getFilter(),
             $this->getPhp(),
+            $this->getStr()
         );
+    }
+
+
+    public function testIsLinkMatch()
+    {
+        $uri = $this->getUri();
+
+        $this->assertEquals(true, $uri->isLinkMatch(
+            'http://login:password@hostname:9090/path?arg=value#anchor',
+            'http://login:password@hostname:9090/path?arg=value#anchor'
+        ));
+
+        $this->assertEquals(true, $uri->isLinkMatch(
+            '/path?arg=value#anchor',
+            'http://login:password@hostname:9090/path?arg=value#anchor'
+        ));
+
+        $this->assertEquals(true, $uri->isLinkMatch(
+            '/path/subpath?arg=value#anchor',
+            'http://login:password@hostname:9090/path/?arg=value#anchor', null, null,
+            false
+        ));
+
+        $this->assertEquals(true, $uri->isLinkMatch(
+            '/path/subpath?arg=value#anchor',
+            'http://login:password@hostname:9090/path/subpath?arg=#anchor', null, null,
+            null, false
+        ));
+
+        $this->assertEquals(true, $uri->isLinkMatch(
+            '/path/subpath?arg=value#anchor',
+            'http://login:password@hostname:9090/path/subpath?arg=value', null, null,
+            null, null, false
+        ));
+    }
+
+    public function testIsUrlMatch()
+    {
+        $uri = $this->getUri();
+
+        $this->assertEquals(true, $uri->isUrlMatch(
+            'http://login:password@hostname:9090/path?arg=value#anchor',
+            'http://login:password@hostname:9090/path?arg=value#anchor'
+        ));
+
+
+        $this->assertEquals(false, $uri->isUrlMatch(
+            '/path?arg=value#anchor',
+            'http://login:password@hostname:9090/path?arg=value#anchor'
+        ));
+
+        $this->assertEquals(false, $uri->isUrlMatch(
+            '/path/subpath?arg=value#anchor',
+            'http://login:password@hostname:9090/path/?arg=value#anchor', null, null,
+            false
+        ));
+
+        $this->assertEquals(false, $uri->isUrlMatch(
+            '/path/subpath?arg=value#anchor',
+            'http://login:password@hostname:9090/path/subpath?arg=#anchor', null, null,
+            null, false
+        ));
+
+        $this->assertEquals(false, $uri->isUrlMatch(
+            '/path/subpath?arg=value#anchor',
+            'http://login:password@hostname:9090/path/subpath?arg=value', null, null,
+            null, null, false
+        ));
+
+
+        $this->assertEquals(true, $uri->isUrlMatch(
+            'http://login:password@hostname:9090/path?arg=value#anchor',
+            'http://login:password@hostname:9090/path?arg=value#anchor'
+        ));
+
+        $this->assertEquals(true, $uri->isUrlMatch(
+            'http://login:password@hostname:9090/path/subpath?arg=value#anchor',
+            'http://login:password@hostname:9090/path/?arg=value#anchor', null, null,
+            false
+        ));
+
+        $this->assertEquals(true, $uri->isUrlMatch(
+            'http://login:password@hostname:9090/path/subpath?arg=value#anchor',
+            'http://login:password@hostname:9090/path/subpath?arg=#anchor', null, null,
+            null, false
+        ));
+
+        $this->assertEquals(true, $uri->isUrlMatch(
+            'http://login:password@hostname:9090/path/subpath?arg=value#anchor',
+            'http://login:password@hostname:9090/path/subpath?arg=value', null, null,
+            null, null, false
+        ));
     }
 
 

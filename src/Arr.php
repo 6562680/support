@@ -98,7 +98,7 @@ class Arr
     /**
      * @param string|array $path
      * @param array        $src
-     * @param null         $default
+     * @param null|mixed   $default
      *
      * @return mixed
      */
@@ -114,7 +114,7 @@ class Arr
     /**
      * @param string|array $path
      * @param array        $src
-     * @param null         $default
+     * @param null|mixed   $default
      *
      * @return mixed
      */
