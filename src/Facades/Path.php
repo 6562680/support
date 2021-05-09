@@ -19,8 +19,8 @@ class Path
     public static function getInstance() : _Path
     {
         return new _Path(
-            Php::getInstance(),
-            Type::getInstance()
+            Filter::getInstance(),
+            Php::getInstance()
         );
     }
 

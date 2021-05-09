@@ -24,10 +24,6 @@ class Curl
      * @var Php
      */
     protected $php;
-    /**
-     * @var Type
-     */
-    protected $type;
 
 
     /**
@@ -47,19 +43,16 @@ class Curl
      * @param Arr    $arr
      * @param Php    $php
      * @param Filter $filter
-     * @param Type   $type
      */
     public function __construct(
         Arr $arr,
         Filter $filter,
-        Php $php,
-        Type $type
+        Php $php
     )
     {
         $this->arr = $arr;
         $this->filter = $filter;
         $this->php = $php;
-        $this->type = $type;
 
         $this->formatter = $this->newFormatter();
 
@@ -83,7 +76,6 @@ class Curl
         return new Blueprint(
             $this->arr,
             $this->filter,
-            $this->type,
 
             $this->formatter,
 
@@ -97,8 +89,8 @@ class Curl
     protected function newFormatter() : Formatter
     {
         return new Formatter(
+            $this->filter,
             $this->php,
-            $this->type
         );
     }
 
@@ -146,7 +138,7 @@ class Curl
     public function isOpenedCurl($ch) : bool
     {
         return $this->isCurl($ch)
-            && ! $this->type->isClosedResource($ch);
+            && null === $this->filter->filterClosedResource($ch);
     }
 
     /**
@@ -157,7 +149,7 @@ class Curl
     public function isClosedCurl($ch) : bool
     {
         return $this->isCurl($ch)
-            && $this->type->isClosedResource($ch);
+            && null !== $this->filter->filterClosedResource($ch);
     }
 
 

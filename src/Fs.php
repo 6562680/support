@@ -11,6 +11,7 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
  */
 class Fs
 {
+    // nginx/fpm on linux expects correct user/group rights
     const RWX = 0775;
 
 
@@ -18,25 +19,18 @@ class Fs
      * @var Filter
      */
     protected $filter;
-    /**
-     * @var Type
-     */
-    protected $type;
 
 
     /**
      * Constructor
      *
      * @param Filter $filter
-     * @param Type   $type
      */
     public function __construct(
-        Filter $filter,
-        Type $type
+        Filter $filter
     )
     {
         $this->filter = $filter;
-        $this->type = $type;
     }
 
 
@@ -85,7 +79,8 @@ class Fs
      */
     public function isSplFilePath($value) : bool
     {
-        return $this->type->isTheString($value) && file_exists($value);
+        return ( null !== $this->filter->filterTheString($value) )
+            && file_exists($value);
     }
 
     /**
@@ -95,7 +90,8 @@ class Fs
      */
     public function isFilePath($value) : bool
     {
-        return $this->type->isTheString($value) && is_file($value);
+        return ( null !== $this->filter->filterTheString($value) )
+            && is_file($value);
     }
 
     /**
@@ -105,7 +101,8 @@ class Fs
      */
     public function isDirPath($value) : bool
     {
-        return $this->type->isTheString($value) && is_dir($value);
+        return ( null !== $this->filter->filterTheString($value) )
+            && is_dir($value);
     }
 
 

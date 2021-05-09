@@ -4,7 +4,6 @@ namespace Gzhegow\Support\Tests;
 
 use Gzhegow\Support\Arr;
 use Gzhegow\Support\Php;
-use Gzhegow\Support\Type;
 use Gzhegow\Support\Filter;
 use Gzhegow\Support\Exceptions\Logic\OutOfRangeException;
 use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
@@ -21,14 +20,6 @@ class ArrTest extends AbstractTestCase
     protected function getPhp() : Php
     {
         return new Php(
-            $this->getFilter(),
-            $this->getType()
-        );
-    }
-
-    protected function getType() : Type
-    {
-        return new Type(
             $this->getFilter()
         );
     }
@@ -36,8 +27,8 @@ class ArrTest extends AbstractTestCase
     protected function getArr() : Arr
     {
         return new Arr(
+            $this->getFilter(),
             $this->getPhp(),
-            $this->getType(),
         );
     }
 

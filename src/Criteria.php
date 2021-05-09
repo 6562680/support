@@ -52,13 +52,13 @@ class Criteria
      */
     protected $cmp;
     /**
+     * @var Filter
+     */
+    protected $filter;
+    /**
      * @var Str
      */
     protected $str;
-    /**
-     * @var Type
-     */
-    protected $type;
 
 
     /**
@@ -66,20 +66,20 @@ class Criteria
      *
      * @param Calendar $calendar
      * @param Cmp      $cmp
+     * @param Filter   $filter
      * @param Str      $str
-     * @param Type     $type
      */
     public function __construct(
         Calendar $calendar,
         Cmp $cmp,
-        Str $str,
-        Type $type
+        Filter $filter,
+        Str $str
     )
     {
         $this->calendar = $calendar;
         $this->cmp = $cmp;
+        $this->filter = $filter;
         $this->str = $str;
-        $this->type = $type;
     }
 
 
@@ -92,20 +92,19 @@ class Criteria
      */
     public function isInNumber($needle, array $src, bool $coalesce = null) : bool
     {
-        if (! $this->type->isNumber($needle)) {
+        if (null === $this->filter->filterNumber($needle)) {
             throw new InvalidArgumentException('Needle should be number');
         }
 
         $coalesce = $coalesce ?? false;
 
         $res = false;
-        foreach ( $src as $i => &$val ) {
+        foreach ( $src as $i => $val ) {
             $res = ( 0 === $this->cmp->cmpnum($needle, $val, $coalesce) );
             if (! $res) {
                 break;
             }
         }
-        unset($val);
 
         return $res;
     }
@@ -128,13 +127,12 @@ class Criteria
         $coalesce = $coalesce ?? false;
 
         $res = false;
-        foreach ( $src as $i => &$val ) {
+        foreach ( $src as $i => $val ) {
             $res = ( 0 === $this->cmp->cmpstr($needle, $val, $natural, $coalesce) );
             if (! $res) {
                 break;
             }
         }
-        unset($val);
 
         return $res;
     }
@@ -156,13 +154,12 @@ class Criteria
         $coalesce = $coalesce ?? false;
 
         $res = false;
-        foreach ( $src as $i => &$val ) {
+        foreach ( $src as $i => $val ) {
             $res = ( 0 === $this->cmp->cmpstrCase($needle, $val, $natural, $coalesce) );
             if (! $res) {
                 break;
             }
         }
-        unset($val);
 
         return $res;
     }
@@ -180,7 +177,7 @@ class Criteria
         $coalesce = $coalesce ?? false;
 
         $res = false;
-        foreach ( $src as $i => &$val ) {
+        foreach ( $src as $i => $val ) {
             $res = $val
                 ? ( 0 === $this->cmp->cmpdate($needle, $val, $coalesce) )
                 : false;
@@ -189,7 +186,6 @@ class Criteria
                 break;
             }
         }
-        unset($val);
 
         return $res;
     }
@@ -204,16 +200,16 @@ class Criteria
      */
     public function isBetweenNumber($needle, array $src, bool $coalesce = null) : bool
     {
-        if (! $this->type->isNumber($needle)) {
+        if (null === $this->filter->filterNumber($needle)) {
             throw new InvalidArgumentException('Needle should be number');
         }
 
         $coalesce = $coalesce ?? false;
 
         $srcNumbers = [];
-        foreach ( $src as $i => &$val ) {
+        foreach ( $src as $i => $val ) {
             $num = null
-                ?? ( $this->type->isNumber($src[ $i ]) ? $src[ $i ] : null )
+                ?? ( ( null !== $this->filter->filterNumber($src[ $i ]) ) ? $src[ $i ] : null )
                 ?? ( $coalesce ? floatval($src[ $i ]) : null )
                 ?? null;
 
@@ -221,7 +217,6 @@ class Criteria
                 $srcNumbers[ $i ] = $num;
             }
         }
-        unset($val);
 
         if (! $srcNumbers) {
             throw new InvalidArgumentException('Src should contain at least one number');
@@ -247,7 +242,7 @@ class Criteria
         $coalesce = $coalesce ?? false;
 
         $srcDates = [];
-        foreach ( $src as $i => &$val ) {
+        foreach ( $src as $i => $val ) {
             $date = null
                 ?? ( $this->calendar->isDate($src[ $i ]) ? $src[ $i ] : null )
                 ?? ( $coalesce ? $this->calendar->date($src[ $i ]) : null )
@@ -257,7 +252,6 @@ class Criteria
                 $srcDates[ $i ] = $date;
             }
         }
-        unset($val);
 
         if (! $srcDates) {
             throw new InvalidArgumentException('Src should contain at least one number');
@@ -288,7 +282,7 @@ class Criteria
         if (is_array($needle)) {
             return $this->satisfyArray($src, $needle, $operator);
 
-        } elseif ($this->type->isNumber($needle)) {
+        } elseif (null !== $this->filter->filterNumber($needle)) {
             if ($operator === static::OPERATOR_GT) return 1 === $this->cmp->cmpnum($needle, $src, $coalesce);
             if ($operator === static::OPERATOR_LT) return -1 === $this->cmp->cmpnum($needle, $src, $coalesce);
             if ($operator === static::OPERATOR_GTE) return -1 !== $this->cmp->cmpnum($needle, $src, $coalesce);
@@ -348,7 +342,7 @@ class Criteria
 
         $coalesce = $coalesce ?? false;
 
-        if ($this->type->isNumber($needle)) {
+        if (null !== $this->filter->filterNumber($needle)) {
             if ($operator === static::OPERATOR_IN) return $this->isInNumber($needle, $arr, $coalesce);
             if ($operator === static::OPERATOR_DOES_NOT_IN) return ! $this->isInNumber($needle, $arr, $coalesce);
 

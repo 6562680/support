@@ -331,6 +331,26 @@ class Type
      *
      * @return bool
      */
+    public static function isLink($value) : bool
+    {
+        return static::getInstance()->isLink($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    public static function isUrl($value) : bool
+    {
+        return static::getInstance()->isUrl($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return bool
+     */
     public static function isFileInfo($value) : bool
     {
         return static::getInstance()->isFileInfo($value);

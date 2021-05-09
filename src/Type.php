@@ -7,6 +7,12 @@ use Gzhegow\Support\Domain\Type\CallableInfo;
 
 /**
  * Type
+ *
+ * Module just wraps Filter
+ * Module is required to work with array_filter function (that prefers correct boolean to filter values)
+ * Also module makes easier to use filters by way of ommiting null-coalesce check everywhere
+ *
+ * It contains only one different method - `isEmpty`, because 'null' is empty too
  */
 class Type
 {
@@ -348,6 +354,27 @@ class Type
     public function isReflectionClass($obj) : bool
     {
         return null !== $this->filter->filterReflectionClass($obj);
+    }
+
+
+    /**
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    public function isLink($value) : bool
+    {
+        return null !== $this->filter->filterLink($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    public function isUrl($value) : bool
+    {
+        return null !== $this->filter->filterUrl($value);
     }
 
 

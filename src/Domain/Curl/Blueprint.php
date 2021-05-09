@@ -3,7 +3,6 @@
 namespace Gzhegow\Support\Domain\Curl;
 
 use Gzhegow\Support\Arr;
-use Gzhegow\Support\Type;
 use Gzhegow\Support\Filter;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
@@ -22,10 +21,6 @@ class Blueprint
      * @var Filter
      */
     protected $filter;
-    /**
-     * @var Type
-     */
-    protected $type;
 
     /**
      * @var Formatter
@@ -48,7 +43,6 @@ class Blueprint
      *
      * @param Arr       $arr
      * @param Filter    $filter
-     * @param Type      $type
      *
      * @param Formatter $formatter
      *
@@ -57,7 +51,6 @@ class Blueprint
     public function __construct(
         Arr $arr,
         Filter $filter,
-        Type $type,
 
         Formatter $formatter,
 
@@ -65,13 +58,12 @@ class Blueprint
     )
     {
         $this->arr = $arr;
-        $this->type = $type;
+        $this->filter = $filter;
 
         $this->formatter = $formatter;
 
         $this->curlOptArrayInit = $curlOptArray;
         $this->curlOptArray = $this->curlOptArrayInit;
-        $this->filter = $filter;
     }
 
 
@@ -288,7 +280,7 @@ class Blueprint
 
             if (is_array($data)) {
                 foreach ( $this->arr->walk($data) as $fullpath => $value ) {
-                    if ($this->type->isFileInfo($fileInfo)) {
+                    if (null !== $this->filter->filterFileInfo($fileInfo)) {
                         $this->arr->set($files, $fullpath,
                             $file = curl_file_create($fileInfo->getRealPath(),
                                 mime_content_type($fileInfo->getRealPath())
@@ -305,7 +297,7 @@ class Blueprint
                     }
                 }
 
-            } elseif ($this->type->isFileInfo($fileInfo = $data)) {
+            } elseif (null !== $this->filter->filterFileInfo($fileInfo = $data)) {
                 $files[ 'file' ] = curl_file_create($fileInfo->getRealPath(),
                     mime_content_type($fileInfo->getRealPath())
                 );

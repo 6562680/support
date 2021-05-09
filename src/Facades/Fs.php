@@ -19,8 +19,7 @@ class Fs
     public static function getInstance() : _Fs
     {
         return new _Fs(
-            Filter::getInstance(),
-            Type::getInstance()
+            Filter::getInstance()
         );
     }
 

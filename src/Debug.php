@@ -9,6 +9,8 @@ namespace Gzhegow\Support;
 class Debug
 {
     /**
+     * Prints any type for debug, to work with exceptions and debug_backtrace()
+     *
      * @param mixed $arg
      *
      * @return string
@@ -53,6 +55,8 @@ class Debug
 
 
     /**
+     * Replaces any count of spaces to one space like HTML do
+     *
      * @param string $content
      *
      * @return string
@@ -137,6 +141,8 @@ class Debug
 
 
     /**
+     * Executes print_r, replaces all spaces to one when return
+     *
      * @param mixed     $arg
      * @param bool|null $return
      *
@@ -150,7 +156,33 @@ class Debug
             return null;
         }
 
-        $result = $this->dom(print_r($arg, $return));
+        $result = $this->dom(
+            print_r($arg, $return)
+        );
+
+        return $result;
+    }
+
+
+    /**
+     * Executes var_export, replaces all spaces to one when return
+     *
+     * @param mixed     $arg
+     * @param bool|null $return
+     *
+     * @return string
+     */
+    public function varExport($arg, bool $return = null) : ?string
+    {
+        if (! $return) {
+            var_export($arg);
+
+            return null;
+        }
+
+        $result = $this->dom(
+            var_export($arg, $return)
+        );
 
         return $result;
     }

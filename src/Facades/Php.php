@@ -20,8 +20,7 @@ class Php
     public static function getInstance() : _Php
     {
         return new _Php(
-            Filter::getInstance(),
-            Type::getInstance()
+            Filter::getInstance()
         );
     }
 

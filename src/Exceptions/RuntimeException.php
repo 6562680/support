@@ -4,7 +4,6 @@ namespace Gzhegow\Support\Exceptions;
 
 use Throwable;
 use Gzhegow\Support\Php;
-use Gzhegow\Support\Type;
 use Gzhegow\Support\Debug;
 use Gzhegow\Support\Filter;
 
@@ -99,8 +98,7 @@ class RuntimeException extends \RuntimeException
     protected function loadPhp() : Php
     {
         return new Php(
-            $this->loadFilter(),
-            $this->loadType()
+            $this->loadFilter()
         );
     }
 
@@ -110,16 +108,6 @@ class RuntimeException extends \RuntimeException
     protected function loadFilter() : Filter
     {
         return new Filter();
-    }
-
-    /**
-     * @return Type
-     */
-    protected function loadType() : Type
-    {
-        return new Type(
-            $this->loadFilter()
-        );
     }
 
 

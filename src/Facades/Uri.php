@@ -18,19 +18,12 @@ class Uri
      */
     public static function getInstance() : _Uri
     {
-        return new _Uri();
+        return new _Uri(
+            Filter::getInstance(),
+            Php::getInstance(),
+        );
     }
 
-
-    /**
-     * @param string $url
-     *
-     * @return array
-     */
-    public static function linkinfo(string $url) : array
-    {
-        return static::getInstance()->linkinfo($url);
-    }
 
     /**
      * @param string|null $query
@@ -43,15 +36,25 @@ class Uri
     }
 
     /**
+     * @param string $url
+     *
+     * @return array
+     */
+    public static function linkinfo(string $url) : array
+    {
+        return static::getInstance()->linkinfo($url);
+    }
+
+    /**
      * @param string|null $url
      * @param array       $q
      * @param string|null $ref
      *
      * @return string
      */
-    public static function path(string $url = null, array $q = [], string $ref = null) : string
+    public static function url(string $url = null, array $q = [], string $ref = null) : string
     {
-        return static::getInstance()->path($url, $q, $ref);
+        return static::getInstance()->url($url, $q, $ref);
     }
 
     /**
@@ -64,17 +67,5 @@ class Uri
     public static function link(string $url = null, array $q = [], string $ref = null) : string
     {
         return static::getInstance()->link($url, $q, $ref);
-    }
-
-    /**
-     * @param string|null $url
-     * @param string|null $ref
-     * @param array       $q
-     *
-     * @return string
-     */
-    public static function ref(string $url = null, string $ref = null, array $q = []) : string
-    {
-        return static::getInstance()->ref($url, $ref, $q);
     }
 }

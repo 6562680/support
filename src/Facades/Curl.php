@@ -22,8 +22,7 @@ class Curl
         return new _Curl(
             Arr::getInstance(),
             Filter::getInstance(),
-            Php::getInstance(),
-            Type::getInstance()
+            Php::getInstance()
         );
     }
 

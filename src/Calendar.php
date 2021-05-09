@@ -42,7 +42,9 @@ class Calendar
      *
      * @param Filter $filter
      */
-    public function __construct(Filter $filter)
+    public function __construct(
+        Filter $filter
+    )
     {
         $this->filter = $filter;
     }

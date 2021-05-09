@@ -28,7 +28,10 @@ class Cli
      * @param Env $env
      * @param Php $php
      */
-    public function __construct(Env $env, Php $php)
+    public function __construct(
+        Env $env,
+        Php $php
+    )
     {
         $this->env = $env;
         $this->php = $php;

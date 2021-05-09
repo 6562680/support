@@ -19,8 +19,8 @@ class Indexer
     public static function getInstance() : _Indexer
     {
         return new _Indexer(
-            Php::getInstance(),
-            Type::getInstance()
+            Filter::getInstance(),
+            Php::getInstance()
         );
     }
 

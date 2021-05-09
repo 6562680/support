@@ -21,8 +21,8 @@ class Criteria
         return new _Criteria(
             Calendar::getInstance(),
             Cmp::getInstance(),
-            Str::getInstance(),
-            Type::getInstance()
+            Filter::getInstance(),
+            Str::getInstance()
         );
     }
 

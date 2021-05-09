@@ -11,25 +11,28 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 class Path
 {
     /**
+     * @var Filter
+     */
+    protected $filter;
+    /**
      * @var Php
      */
     protected $php;
-    /**
-     * @var Type
-     */
-    protected $type;
 
 
     /**
      * Constructor
      *
-     * @param Php  $php
-     * @param Type $type
+     * @param Filter $filter
+     * @param Php    $php
      */
-    public function __construct(Php $php, Type $type)
+    public function __construct(
+        Filter $filter,
+        Php $php
+    )
     {
+        $this->filter = $filter;
         $this->php = $php;
-        $this->type = $type;
     }
 
 
@@ -112,7 +115,7 @@ class Path
 
         $items = [];
         foreach ( $args as $a ) {
-            if (! $this->type->isStringOrNumber($a)) {
+            if (null === $this->filter->filterStringOrNumber($a)) {
                 throw new InvalidArgumentException('Each part should be non-empty string', $a);
             }
 
@@ -136,7 +139,7 @@ class Path
 
         $items = [];
         foreach ( $args as $a ) {
-            if ($this->type->isStringOrNumber($a)) {
+            if (null !== $this->filter->filterStringOrNumber($a)) {
                 // double slash will be normalized later
                 $items[] = $a;
             }

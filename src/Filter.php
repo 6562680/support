@@ -608,6 +608,36 @@ class Filter
     /**
      * @param mixed $value
      *
+     * @return null|string
+     */
+    public function filterLink($value) : ?string
+    {
+        return ( is_string($value)
+            && ( false !== parse_url($value) )
+        )
+            ? $value
+            : null;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|string
+     */
+    public function filterUrl($value) : ?string
+    {
+        return ( is_string($value)
+            && ( false !== filter_var($value, FILTER_VALIDATE_URL) )
+            && ( false !== parse_url($value) )
+        )
+            ? $value
+            : null;
+    }
+
+
+    /**
+     * @param mixed $value
+     *
      * @return null|\SplFileInfo
      */
     public function filterFileInfo($value) : ?\SplFileInfo

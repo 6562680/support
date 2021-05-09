@@ -19,8 +19,8 @@ class Arr
     public static function getInstance() : _Arr
     {
         return new _Arr(
-            Php::getInstance(),
-            Type::getInstance(),
+            Filter::getInstance(),
+            Php::getInstance()
         );
     }
 

@@ -29,7 +29,6 @@ class ExpandVo
      * @var int
      */
     protected $idxInt;
-
     /**
      * @var string
      */
@@ -39,14 +38,18 @@ class ExpandVo
     /**
      * Constructor
      *
-     * @param mixed      $value
-     * @param int|string $idx
-     * @param int        $ordering
-     * @param int        $priority
+     * @param mixed       $value
+     * @param int|string  $idx
+     * @param int         $ordering
+     * @param int         $priority
      *
-     * @param null|int   $idxInt
+     * @param null|int    $idxInt
+     * @param null|string $idxStr
      */
-    public function __construct($value, $idx, int $ordering, int $priority = 0, int $idxInt = null)
+    public function __construct($value, $idx, int $ordering, int $priority = 0,
+        int $idxInt = null,
+        string $idxStr = null
+    )
     {
         $this->value = $value;
         $this->idx = $idx;
@@ -54,7 +57,7 @@ class ExpandVo
         $this->priority = $priority;
 
         $this->idxInt = $idxInt ?? (int) $idx;
-        $this->idxStr = (string) $idx;
+        $this->idxStr = $idxStr ?? (string) $idx;
     }
 
 

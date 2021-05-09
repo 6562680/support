@@ -3,19 +3,92 @@
 namespace Gzhegow\Support;
 
 
+use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+
 /**
  * Uri
  */
 class Uri
 {
     /**
-     * @param string $url
+     * @var Filter
+     */
+    protected $filter;
+    /**
+     * @var Php
+     */
+    protected $php;
+
+
+    /**
+     * Constructor
+     *
+     * @param Filter $filter
+     * @param Php    $php
+     */
+    public function __construct(
+        Filter $filter,
+        Php $php
+    )
+    {
+        $this->filter = $filter;
+        $this->php = $php;
+    }
+
+
+    /**
+     * @param mixed ...$batches
      *
      * @return array
      */
-    public function linkinfo(string $url) : array
+    public function query(...$batches) : array
     {
-        $info = parse_url($url) + [
+        $query = [];
+
+        foreach ( $batches as $batch ) {
+            [ $kwargs, $args ] = $this->php->kwargs($batch);
+
+            if ($kwargs) {
+                $query = array_merge_recursive($query, $kwargs);
+            }
+
+            foreach ( $args as $arg ) {
+                if (null !== ( $str = $this->filter->filterStringable($arg) )) {
+                    parse_str($str, $current);
+
+                    if ($current) {
+                        $query = array_merge_recursive($query, $current);
+                    }
+                }
+            }
+        }
+
+        array_walk_recursive($query, function (&$value) {
+            if (0
+                || ( [] === $value )
+                || ( null === $this->filter->filterStringable($value) )
+            ) {
+                $value = '';
+            }
+        });
+
+        return $query;
+    }
+
+
+    /**
+     * @param string $uri
+     *
+     * @return array
+     */
+    public function linkinfo(string $uri) : array
+    {
+        if (null === ( $url = $this->filter->filterLink($uri) )) {
+            throw new InvalidArgumentException('Invalid Link passed: ' . $url);
+        }
+
+        $info = parse_url($url)
+            + [
                 'scheme'   => null,
                 'host'     => null,
                 'port'     => null,
@@ -31,73 +104,25 @@ class Uri
 
 
     /**
-     * @param string|null $query
-     *
-     * @return array
-     */
-    public function query(string $query = null) : array
-    {
-        $data = [];
-
-        if (isset($query)) {
-            parse_str($query, $data);
-        }
-
-        return $data
-            ?: [];
-    }
-
-
-    /**
-     * @param string|null $url
+     * @param string|null $link
      * @param array       $q
      * @param string|null $ref
      *
      * @return string
      */
-    public function path(string $url = null, array $q = [], string $ref = null) : string
-    {
-        $info = $this->linkinfo($url);
-
-        $info[ 'path' ] = $info[ 'path' ] ?? null;
-        $info[ 'query' ] = $info[ 'query' ] ?? null;
-        $info[ 'fragment' ] = $info[ 'fragment' ] ?? null;
-
-        $ref = $ref ?? $info[ 'fragment' ];
-
-        parse_str($info[ 'query' ], $data);
-
-        $q += $data;
-
-        return '/'
-            . ltrim($info[ 'path' ], '/')
-            . rtrim('?' . http_build_query($q), '?')
-            . rtrim('#' . $ref, '#');
-    }
-
-
-    /**
-     * @param string|null $url
-     * @param array       $q
-     * @param string|null $ref
-     *
-     * @return string
-     */
-    public function link(string $url = null, array $q = [], string $ref = null) : string
+    public function url(string $link = null, array $q = [], string $ref = null) : string
     {
         $query = [];
         $fragment = null;
 
-        if (is_null($url)) {
-            // supports only hash
+        if (is_null($link)) { // empty url with hash reference for <a href="#hello"></a>
             $info[ 'scheme' ] = null;
             $info[ 'host' ] = null;
             $info[ 'path' ] = null;
             $info[ 'query' ] = null;
             $info[ 'fragment' ] = null;
 
-        } elseif ('' === $url) {
-            // current page
+        } elseif ('' === $link) { // current page
             $info[ 'scheme' ] = $_SERVER[ 'REQUEST_SCHEME' ];
             $info[ 'host' ] = $_SERVER[ 'HTTP_HOST' ];
             $info[ 'path' ] = explode('?', $_SERVER[ 'REQUEST_URI' ])[ 0 ];
@@ -106,9 +131,8 @@ class Uri
 
             parse_str($info[ 'query' ], $query);
 
-        } else {
-            // concrete page
-            $info = $this->linkinfo($url);
+        } else { // concrete page
+            $info = $this->linkinfo($link);
 
             $info[ 'scheme' ] = $info[ 'scheme' ] ?? $_SERVER[ 'REQUEST_SCHEME' ];
             $info[ 'host' ] = $info[ 'host' ] ?? $_SERVER[ 'HTTP_HOST' ];
@@ -118,32 +142,54 @@ class Uri
             $fragment = $info[ 'fragment' ];
         }
 
-        $q += $query;
+        $q = array_replace_recursive($query, $q);
 
         $ref = $ref ?? $fragment;
 
-        return ''
-            . ( ( $info[ 'scheme' ] && $info[ 'host' ] )
-                ? ( $info[ 'scheme' ] . '://' . $info[ 'host' ] . '/' )
-                : '/'
-            )
-            . ( $info[ 'path' ]
-                ? ltrim($info[ 'path' ], '/')
-                : null )
-            . rtrim('?' . http_build_query($q), '?')
-            . rtrim('#' . ltrim($ref, '#'), '#');
+        $result = [];
+
+        if ($info[ 'scheme' ] && $info[ 'host' ]) {
+            $result[] = $info[ 'scheme' ];
+            $result[] = '://';
+
+            if ($info[ 'user' ]) {
+                $result[] = $info[ 'user' ];
+                $result[] = rtrim(':' . $info[ 'pass' ], ':');
+                $result[] = '@';
+            }
+
+            $result[] = $info[ 'host' ];
+            $result[] = rtrim(':' . $info[ 'port' ], ':');
+        }
+
+        $result[] = $info[ 'path' ] ?: '';
+        $result[] = rtrim('?' . http_build_query($q), '?');
+        $result[] = rtrim('#' . ltrim($ref, '#'), '#');
+
+        $result = implode('', $result);
+
+        return $result;
     }
 
 
     /**
-     * @param string|null $url
-     * @param string|null $ref
+     * @param string|null $link
      * @param array       $q
+     * @param string|null $ref
      *
      * @return string
      */
-    public function ref(string $url = null, string $ref = null, array $q = []) : string
+    public function link(string $link = null, array $q = [], string $ref = null) : string
     {
-        return $this->link($url, $q, $ref);
+        $result = $this->url($link, $q, $ref);
+
+        $info = parse_url($result);
+
+        $result = ''
+            . ( $info[ 'path' ] ?: '' )
+            . rtrim('?' . $info[ 'query' ], '?')
+            . rtrim('#' . $info[ 'fragment' ], '#');
+
+        return $result;
     }
 }

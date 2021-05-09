@@ -11,13 +11,13 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 class Indexer
 {
     /**
+     * @var Filter
+     */
+    protected $filter;
+    /**
      * @var Php
      */
     protected $php;
-    /**
-     * @var Type
-     */
-    protected $type;
 
     /**
      * @var string
@@ -25,19 +25,20 @@ class Indexer
     protected $separator = "\0";
 
 
+
     /**
      * Constructor
      *
-     * @param Php  $php
-     * @param Type $type
+     * @param Filter $filter
+     * @param Php    $php
      */
     public function __construct(
-        Php $php,
-        Type $type
+        Filter $filter,
+        Php $php
     )
     {
+        $this->filter = $filter;
         $this->php = $php;
-        $this->type = $type;
     }
 
 
@@ -150,7 +151,7 @@ class Indexer
 
         $path = [];
         foreach ( $args as $arg ) {
-            if (! $this->type->isStringOrNumber($arg)) {
+            if (null === $this->filter->filterStringOrNumber($arg)) {
                 throw new InvalidArgumentException('Each part should be string or number', $indexes);
             }
 
@@ -177,7 +178,7 @@ class Indexer
 
         $path = [];
         foreach ( $args as $arg ) {
-            if ($this->type->isStringOrNumber($arg)) {
+            if (null !== $this->filter->filterStringOrNumber($arg)) {
                 $list = is_string($arg)
                     ? explode($this->separator, $arg)
                     : [ $arg ];

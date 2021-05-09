@@ -3,7 +3,7 @@
 namespace Gzhegow\Support\Domain\Curl;
 
 use Gzhegow\Support\Php;
-use Gzhegow\Support\Type;
+use Gzhegow\Support\Filter;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
@@ -38,28 +38,28 @@ class Formatter
 
 
     /**
+     * @var Filter
+     */
+    protected $filter;
+    /**
      * @var Php
      */
     protected $php;
-    /**
-     * @var Type
-     */
-    protected $type;
 
 
     /**
      * Constructor
      *
-     * @param Php  $php
-     * @param Type $type
+     * @param Php    $php
+     * @param Filter $filter
      */
     public function __construct(
-        Php $php,
-        Type $type
+        Filter $filter,
+        Php $php
     )
     {
+        $this->filter = $filter;
         $this->php = $php;
-        $this->type = $type;
 
         static::$infoCodes = static::$infoCodes ?? array_flip(static::$info);
         static::$curloptCodes = static::$curloptCodes ?? array_flip(static::$curlopt);
@@ -90,7 +90,11 @@ class Formatter
     public function detectInfoCode($info) : ?int
     {
         $infoCode = null
-            ?? ( ( $this->type->isInt($info) && isset(static::$infoCodes[ $info ]) ) ? $info : false )
+            ?? ( ( ( null !== $this->filter->filterInt($info) )
+                && isset(static::$infoCodes[ $info ]) )
+                ? $info
+                : false
+            )
             ?? ( is_string($info) ? static::$info[ $info ] : false );
 
         return false !== $infoCode
@@ -106,7 +110,11 @@ class Formatter
     public function detectOptCode($opt) : ?int
     {
         $optCode = null
-            ?? ( ( $this->type->isInt($opt) && isset(static::$curloptCodes[ $opt ]) ) ? $opt : false )
+            ?? ( ( ( null !== $this->filter->filterInt($opt) )
+                && isset(static::$curloptCodes[ $opt ]) )
+                ? $opt
+                : false
+            )
             ?? ( is_string($opt) ? static::$curlopt[ $opt ] : false );
 
         return false !== $optCode

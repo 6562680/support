@@ -4,7 +4,6 @@ namespace Gzhegow\Support\Exceptions;
 
 use Throwable;
 use Gzhegow\Support\Php;
-use Gzhegow\Support\Type;
 use Gzhegow\Support\Debug;
 use Gzhegow\Support\Filter;
 
@@ -100,8 +99,7 @@ class Exception extends \Exception
     protected function loadPhp() : Php
     {
         return new Php(
-            $this->loadFilter(),
-            $this->loadType()
+            $this->loadFilter()
         );
     }
 
@@ -111,16 +109,6 @@ class Exception extends \Exception
     protected function loadFilter() : Filter
     {
         return new Filter();
-    }
-
-    /**
-     * @return Type
-     */
-    protected function loadType() : Type
-    {
-        return new Type(
-            $this->loadFilter()
-        );
     }
 
 

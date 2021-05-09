@@ -108,7 +108,7 @@ class Filter
      *
      * @return null|int
      */
-    public function filterIntable($value) : ?int
+    public static function filterIntable($value) : ?int
     {
         return static::getInstance()->filterIntable($value);
     }
@@ -118,7 +118,7 @@ class Filter
      *
      * @return null|float
      */
-    public function filterFloatable($value) : ?float
+    public static function filterFloatable($value) : ?float
     {
         return static::getInstance()->filterFloatable($value);
     }
@@ -312,6 +312,26 @@ class Filter
     public static function filterReflectionClass($obj) : ?\ReflectionClass
     {
         return static::getInstance()->filterReflectionClass($obj);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|string
+     */
+    public static function filterLink($value) : ?string
+    {
+        return static::getInstance()->filterLink($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|string
+     */
+    public static function filterUrl($value) : ?string
+    {
+        return static::getInstance()->filterUrl($value);
     }
 
     /**

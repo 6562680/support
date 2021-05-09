@@ -84,4 +84,17 @@ class Debug
     {
         return static::getInstance()->printR($arg, $return);
     }
+
+    /**
+     * Executes var_export, replaces all spaces to one when return
+     *
+     * @param mixed     $arg
+     * @param bool|null $return
+     *
+     * @return string
+     */
+    public static function varExport($arg, bool $return = null) : ?string
+    {
+        return static::getInstance()->varExport($arg, $return);
+    }
 }

@@ -18,7 +18,7 @@ class Bcmath
     {
         $e = bcpow(10, $p + 1);
 
-        return bcdiv(bcadd(bcmul($n, $e, 0), $this->bcnegative($n)
+        return bcdiv(bcadd(bcmul($n, $e), $this->bcnegative($n)
             ? -5
             : 5), $e, $p);
     }

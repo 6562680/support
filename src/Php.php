@@ -16,25 +16,18 @@ class Php
      * @var Filter
      */
     protected $filter;
-    /**
-     * @var Type
-     */
-    protected $type;
 
 
     /**
      * Constructor
      *
      * @param Filter $filter
-     * @param Type   $type
      */
     public function __construct(
-        Filter $filter,
-        Type $type
+        Filter $filter
     )
     {
         $this->filter = $filter;
-        $this->type = $type;
     }
 
 
@@ -98,7 +91,7 @@ class Php
 
             } elseif (is_iterable($data)) {
                 foreach ( $data as $idx => $item ) {
-                    if ($this->type->isKey($idx)) {
+                    if (null !== $this->filter->filterKey($idx)) {
                         $result[ $idx ] = $item;
 
                     } else {

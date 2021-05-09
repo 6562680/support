@@ -21,13 +21,13 @@ class Arr
 
 
     /**
+     * @var Filter
+     */
+    protected $filter;
+    /**
      * @var Php
      */
     protected $php;
-    /**
-     * @var Type
-     */
-    protected $type;
 
     /**
      * @var Indexer
@@ -35,23 +35,23 @@ class Arr
     protected $indexer;
 
 
+
     /**
      * Constructor
      *
+     * @param Filter       $filter
      * @param Php          $php
-     * @param Type         $type
-     *
      * @param null|Indexer $indexer
      */
     public function __construct(
+        Filter $filter,
         Php $php,
-        Type $type,
 
         Indexer $indexer = null
     )
     {
+        $this->filter = $filter;
         $this->php = $php;
-        $this->type = $type;
 
         $this->indexer = $indexer ?? $this->newIndexer();
     }
@@ -62,7 +62,7 @@ class Arr
      */
     protected function newIndexer() : Indexer
     {
-        $indexer = new Indexer($this->php, $this->type);
+        $indexer = new Indexer($this->filter, $this->php);
         $indexer->setSeparator('.');
 
         return $indexer;
