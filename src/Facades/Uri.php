@@ -100,13 +100,13 @@ class Uri
     }
 
     /**
-     * @param string|null $query
+     * @param mixed ...$batches
      *
      * @return array
      */
-    public static function query(string $query = null) : array
+    public static function query(...$batches) : array
     {
-        return static::getInstance()->query($query);
+        return static::getInstance()->query(...$batches);
     }
 
     /**
@@ -126,7 +126,7 @@ class Uri
      *
      * @return string
      */
-    public static function url(string $url = null, array $q = [], string $ref = null) : string
+    public static function url(string $url = null, array $q = null, string $ref = null) : string
     {
         return static::getInstance()->url($url, $q, $ref);
     }
@@ -138,7 +138,7 @@ class Uri
      *
      * @return string
      */
-    public static function link(string $url = null, array $q = [], string $ref = null) : string
+    public static function link(string $url = null, array $q = null, string $ref = null) : string
     {
         return static::getInstance()->link($url, $q, $ref);
     }
