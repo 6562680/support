@@ -2,16 +2,18 @@
 
 namespace Gzhegow\Support\Domain\Arr;
 
+use Gzhegow\Support\Exceptions\RuntimeException;
+
 
 /**
- * WalkIterator
+ * CrawlIterator
  */
-class WalkIterator implements \Iterator
+class CrawlIterator implements \Iterator
 {
     /**
-     * @var array
+     * @var iterable
      */
-    protected $array;
+    protected $iterable;
     /**
      * @var int
      */
@@ -39,12 +41,12 @@ class WalkIterator implements \Iterator
     /**
      * Constructor
      *
-     * @param array $array
-     * @param int   $flags
+     * @param iterable $iterable
+     * @param int      $flags
      */
-    public function __construct(array $array = [], $flags = 0)
+    public function __construct(iterable $iterable = [], $flags = 0)
     {
-        $this->array = $array;
+        $this->iterable = $iterable;
         $this->flags = $flags;
 
         $this->rewind();
@@ -52,25 +54,47 @@ class WalkIterator implements \Iterator
 
 
     /**
-     * @param array $array
-     * @param int   $flags
+     * @param iterable $iterable
+     * @param int      $flags
      *
-     * @return \ArrayIterator
+     * @return \Traversable
      */
-    public function newIterator(array $array = [], $flags = 0) : \ArrayIterator
+    public function newIterator(iterable $iterable = [], $flags = 0) : \Traversable
     {
-        $iterator = new \ArrayIterator($array, $flags);
+        $iterator = null;
+
+        if (! is_object($iterable)) {
+            $iterator = new \ArrayIterator($iterable, $flags);
+
+        } else {
+            if (is_a($iterable, \IteratorAggregate::class)) {
+                try {
+                    $iterator = $iterable->getIterator();
+                }
+                catch ( \Exception $e ) {
+                    throw new RuntimeException(
+                        'Unable to retrieve iterator from ' . \IteratorAggregate::class,
+                        $iterable,
+                        $e
+                    );
+                }
+
+            } elseif (is_a($iterable, \Iterator::class)) {
+                $iterator = $iterable;
+
+            }
+        }
 
         return $iterator;
     }
 
 
     /**
-     * @return array
+     * @return iterable
      */
-    public function getArray() : array
+    public function getIterable()
     {
-        return $this->array;
+        return $this->iterable;
     }
 
     /**
@@ -87,7 +111,7 @@ class WalkIterator implements \Iterator
      */
     public function rewind()
     {
-        $this->iterator = $this->newIterator($this->array, $this->flags);
+        $this->iterator = $this->newIterator($this->iterable, $this->flags);
         $this->path = [];
 
         $this->stack = [];

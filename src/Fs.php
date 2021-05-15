@@ -19,18 +19,34 @@ class Fs
      * @var Filter
      */
     protected $filter;
+    /**
+     * @var Str
+     */
+    protected $str;
 
 
     /**
      * Constructor
      *
      * @param Filter $filter
+     * @param Str    $str
      */
     public function __construct(
-        Filter $filter
+        Filter $filter,
+        Str $str
     )
     {
         $this->filter = $filter;
+        $this->str = $str;
+    }
+
+
+    /**
+     * @return bool
+     */
+    public function isWindows() : bool
+    {
+        return strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
     }
 
 
@@ -286,6 +302,196 @@ class Fs
             : null;
     }
 
+
+    /**
+     * @param string $pathname
+     * @param string $separator
+     * @param string ...$replacements
+     *
+     * @return string
+     */
+    public function optimize(string $pathname, string $separator = '/', string ...$replacements) : string
+    {
+        if ('' === $pathname) {
+            return '';
+        }
+
+        $optimized = str_replace($separator, "\0", $pathname);
+
+        $search = array_merge([ '/', '\\', DIRECTORY_SEPARATOR ], ...$replacements);
+        $optimized = str_replace($search,
+            $separator,
+            $optimized
+        );
+
+        if (false !== strpos($pathname, $separator . $separator)) {
+            $optimized = preg_replace('~' . preg_quote($separator, '/') . '{2,}~', $separator,
+                $optimized
+            );
+        }
+
+        $optimized = str_replace("\0", $separator, $optimized);
+
+        return $optimized;
+    }
+
+    /**
+     * @param string $pathname
+     *
+     * @return string
+     */
+    public function normalize(string $pathname) : string
+    {
+        return $this->optimize($pathname, DIRECTORY_SEPARATOR);
+    }
+
+
+    /**
+     * @param string $path
+     *
+     * @return string
+     */
+    public function realpath(string $path) : string
+    {
+        if (false === ( $result = realpath($path) )) {
+            throw new InvalidArgumentException('Indexer not exists: ' . $path);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string      $path
+     * @param string|null $base
+     *
+     * @return string
+     */
+    public function basepath(string $path, string $base = null) : ?string
+    {
+        $currentPath = $this->normalize($path);
+        $basePath = $this->normalize($base);
+
+        if (null === ( $result = $this->str->starts($currentPath, $basePath) )) {
+            return null;
+        }
+
+        $result = ltrim($result, DIRECTORY_SEPARATOR);
+
+        return $result;
+    }
+
+
+    /**
+     * заменяет все наклонные черты на текущий DS и распознает DRIVE с поддержкой homedir
+     *
+     * @param string ...$path
+     *
+     * @return string
+     */
+    public function resolve(string ...$path) : string
+    {
+        $join = array_shift($path);
+
+        foreach ( $path as $p ) {
+            $join = rtrim($join, DIRECTORY_SEPARATOR)
+                . DIRECTORY_SEPARATOR
+                . ltrim($p, DIRECTORY_SEPARATOR);
+        }
+
+        [ $drive, $relpath ] = $this->ospath($join);
+
+        $parts = [];
+        foreach ( explode(DIRECTORY_SEPARATOR, $relpath) as $part ) {
+            if ('.' == $part) continue;
+            if ('..' == $part) {
+                array_pop($parts);
+
+            } else {
+                $parts[] = $part;
+
+            }
+        }
+
+        $result = $this->mount($drive)
+            . ltrim(implode(DIRECTORY_SEPARATOR, $parts), DIRECTORY_SEPARATOR);
+
+        if (1
+            && function_exists('readlink')
+            && file_exists($result)
+            && is_link($result)
+        ) {
+            $result = readlink($result);
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * ospath
+     * нормализует путь и возвращает массив [ drive, relpath ] где drive это 'C:\', 'C:/', '\\', '/', '' или '~',
+     *
+     * @param string $path
+     *
+     * @return array
+     */
+    public function ospath(string $path = '') : array
+    {
+        $path = $path
+            ?: getcwd();
+
+        if ($isWindows = $this->isWindows()) {
+            $path = mb_convert_encoding($path, 'utf-8', 'cp1251');
+        }
+
+        $pos = false;
+        if ($isWindows
+            && ( 0
+                || ( false !== ( $pos = mb_strpos($path, ':/') ) )
+                || ( false !== ( $pos = mb_strpos($path, ':\\') ) )
+            )
+        ) {
+            $drive = str_replace([ '/', '\\', DIRECTORY_SEPARATOR ],
+                DIRECTORY_SEPARATOR,
+                mb_substr($path, 0, $pos + 2)
+            );
+            $relpath = mb_substr($path, $pos + 2);
+
+        } elseif ('\\\\' === mb_substr($path, 0, 2)) {
+            $drive = '\\\\';
+            $relpath = mb_substr($path, 2);
+
+        } elseif (in_array($path[ 0 ], [ '/', '~' ])) {
+            $drive = $path[ 0 ];
+            $relpath = mb_substr($path, 1);
+
+        } elseif ($path[ 0 ] === '.') {
+            $drive = '.';
+            $relpath = mb_substr($path, 1);
+
+        } else {
+            $drive = '';
+            $relpath = $path;
+
+        }
+
+        $relpath = rtrim(
+            str_replace([ '/', '\\' ], DIRECTORY_SEPARATOR, $relpath),
+            DIRECTORY_SEPARATOR
+        );
+
+        if (mb_substr_count($relpath, DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR)) {
+            throw new InvalidArgumentException('Invalid path passed: ' . $relpath, func_get_args());
+        }
+
+        if (mb_substr_count($relpath, ':')) {
+            throw new InvalidArgumentException('Invalid path passed: ' . $relpath, func_get_args());
+        }
+
+        return [ $drive, $relpath ];
+    }
+
+
     /**
      * @param string   $pathname
      * @param null|int $mode
@@ -430,8 +636,6 @@ class Fs
 
 
     /**
-     * @noinspection PhpComposerExtensionStubsInspection
-     *
      * @param string $file
      *
      * @return array
@@ -454,7 +658,10 @@ class Fs
 
         $stat = stat($file);
         if ($stat) {
+            /** @noinspection PhpComposerExtensionStubsInspection */
             $group = posix_getgrgid($stat[ 5 ]);
+
+            /** @noinspection PhpComposerExtensionStubsInspection */
             $user = posix_getpwuid($stat[ 4 ]);
 
             $result = compact('user', 'group');
@@ -482,4 +689,132 @@ class Fs
 
         return $result;
     }
+
+
+    /**
+     * size_convert
+     * конвертирует текстовое представление размера файла в число
+     *
+     * @param string $string
+     *
+     * @return float
+     */
+    public function size(string $string) : float
+    {
+        if ('' === $string) {
+            throw new InvalidArgumentException('Filesize should be not empty', func_get_args());
+        }
+
+        $number = null;
+        $unit = null;
+        foreach ( array_keys(static::$units) as $unit ) {
+            if ($number = $this->str->ends($string, $unit)) {
+                break;
+            }
+        }
+
+        if (! $number) {
+            throw new RuntimeException('Unable to decode unit', func_get_args());
+        }
+
+        $result = floatval($number) * 1024 * pow(10, 3 * static::$units[ $unit ]);
+
+        return $result;
+    }
+
+    /**
+     * size_format
+     * конвертирует размер файла в читабельный вид (1024 => 1Mb)
+     *
+     * @param string $filesize
+     *
+     * @return string
+     */
+    public function sizeFormat(string $filesize) : string
+    {
+        if (! ( false !== filter_var($filesize, FILTER_VALIDATE_INT) )) {
+            throw new InvalidArgumentException('Filesize should be int or float');
+        }
+
+        $filesize = (float) $filesize;
+
+        $multiplier = 0;
+        while ( $filesize / 1024 > 0.9 ) {
+            $filesize = $filesize / 1024;
+            $multiplier++;
+        }
+
+        $result = round($filesize) . array_search($multiplier, static::$units);
+
+        return $result;
+    }
+
+
+    /**
+     * @param string $drive
+     *
+     * @return string
+     */
+    protected function mount(string $drive) : string
+    {
+        $mount = $drive;
+
+        switch ( $drive ) {
+            case '/':
+                // root
+                break;
+
+            case '\\\\':
+                // lan
+                break;
+
+            case '':
+            case '.':
+                $mount = getcwd();
+                $mount = rtrim($mount, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+
+                break;
+
+            case '~':
+                $mount = $_SERVER[ 'HOME' ]
+                    ?? ( ''
+                        . ( $_SERVER[ 'HOMEDRIVE' ] ?? '' )
+                        . ( $_SERVER[ 'HOMEPATH' ] ?? '' )
+                    );
+                $mount = rtrim($mount, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+
+                break;
+
+            default:
+                // example: 'C:/'
+                break;
+        }
+
+        return $mount;
+    }
+
+
+    /**
+     * @var array
+     */
+    protected static $units = [
+        'B'  => 0,
+        'Kb' => 1,
+        'Mb' => 2,
+        'Gb' => 3,
+        'Tb' => 4,
+        'Pb' => 5,
+        'Eb' => 6,
+        'Zb' => 7,
+        'Yb' => 8,
+
+        'K' => 1,
+        'M' => 2,
+        'G' => 3,
+        'T' => 4,
+        'P' => 5,
+        'E' => 6,
+        'Z' => 7,
+        'Y' => 8,
+    ];
 }

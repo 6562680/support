@@ -23,18 +23,19 @@ class UriTest extends AbstractTestCase
         );
     }
 
-    protected function getArr() : Arr
-    {
-        return new Arr(
-            $this->getFilter(),
-            $this->getPhp()
-        );
-    }
-
     protected function getStr() : Str
     {
         return new Str(
             $this->getFilter()
+        );
+    }
+
+    protected function getArr() : Arr
+    {
+        return new Arr(
+            $this->getFilter(),
+            $this->getPhp(),
+            $this->getStr(),
         );
     }
 

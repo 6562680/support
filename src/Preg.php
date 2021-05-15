@@ -50,7 +50,8 @@ class Preg
      */
     public function new($regex, string $delimiter = null, string $flags = null) : string
     {
-        return $this->newRegExp($regex, $delimiter, $flags)->compile();
+        return $this->newRegExp($regex, $delimiter, $flags)
+            ->compile();
     }
 
 
@@ -74,6 +75,8 @@ class Preg
      */
     public function concat($regex, ...$regexes) : string
     {
-        return $this->newRegExp($regex)->concat(...$regexes)->compile();
+        return $this->newRegExp($regex)
+            ->concat(...$regexes)
+            ->compile();
     }
 }

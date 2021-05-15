@@ -99,7 +99,7 @@ class Str
         $needle = $needle ?? '';
 
         if ('' === $str) return [];
-        if ('' === $needle) return [ $needle ];
+        if ('' === $needle) return [ $str ];
 
         $pos = $ignoreCase
             ? stripos($str, $needle)
@@ -124,11 +124,11 @@ class Str
      * Search all sequences starts & ends from given substr
      * and return array that contains all of them without enclosures
      *
-     * @param string $start
-     * @param string $end
-     * @param string $haystack
-     * @param int    $offset
-     * @param bool   $ignoreCase
+     * @param string   $start
+     * @param string   $end
+     * @param string   $haystack
+     * @param null|int $offset
+     * @param bool     $ignoreCase
      *
      * @return array
      */
@@ -364,66 +364,122 @@ class Str
 
 
     /**
-     * Explodes string recursive by several delimiters, especially for parsing Accept Header
+     * @param mixed         $separators
+     * @param mixed|mixed[] ...$parts
      *
-     * @param mixed    $delimiters
+     * @return array
+     */
+    public function split($separators, ...$parts) : array
+    {
+        $separators = is_array($separators)
+            ? $separators
+            : [ $separators ];
+
+        foreach ( $separators as $separator ) {
+            if (! is_string($separator)) {
+                throw new InvalidArgumentException(
+                    'Each separator should be string',
+                    [ func_get_args(), $separator ]
+                );
+            }
+        }
+
+        $key = key($separators);
+        do {
+            $separator = ( null !== $key )
+                ? array_shift($separators)
+                : null;
+
+            array_walk_recursive($parts, function (&$ref) use ($separator) {
+                if (null === ( $strval = $this->filter->filterStringable($ref) )) {
+                    throw new InvalidArgumentException(
+                        'Each value should be stringable',
+                        [ func_get_args(), $ref ]
+                    );
+                }
+
+                $ref = ( ( null !== $separator ) && ( $split = $this->contains($ref, $separator) ) )
+                    ? $split
+                    : [ $ref ];
+            });
+        } while ( null !== ( $key = key($separators) ) );
+
+        $results = [];
+        array_walk_recursive($parts, function ($v) use (&$results) {
+            $results[] = $v;
+        });
+
+        return $results;
+    }
+
+
+    /**
+     * Explodes string recursive by several delimiters, especially for parsing 'Accept' Header
+     *
+     * @param mixed    $separators
      * @param string   $string
      * @param int|null $limit
      *
      * @return array
      */
-    public function explode($delimiters, string $string, int $limit = null) : array
+    public function explode($separators, string $string, int $limit = null) : array
     {
         $results = [];
         $results[] = $string;
 
-        $delimiters = is_array($delimiters)
-            ? $delimiters
-            : [ $delimiters ];
+        $separators = is_array($separators)
+            ? $separators
+            : [ $separators ];
 
-        foreach ( $delimiters as $delimiter ) {
-            if (! is_string($delimiter)) {
-                throw new InvalidArgumentException('Each delimiter should be string', [ func_get_args(), $delimiter ]);
+        foreach ( $separators as $separator ) {
+            if (null === $this->filter->filterTheString($separator)) {
+                throw new InvalidArgumentException(
+                    'Each delimiter should be string',
+                    [ func_get_args(), $separator ]
+                );
             }
+        }
 
-            array_walk_recursive($results, function (&$ref) use ($delimiter, $limit) {
-                if (false !== mb_strpos($ref, $delimiter)) {
+        foreach ( $separators as $separator ) {
+            array_walk_recursive($results, function (&$ref) use ($separator, $limit) {
+                if (null === ( $strval = $this->filter->filterStringable($ref) )) {
+                    throw new InvalidArgumentException(
+                        'Each value should be stringable',
+                        [ func_get_args(), $ref ]
+                    );
+                }
+
+                if (false !== mb_strpos($strval, $separator)) {
                     $ref = isset($limit)
-                        ? explode($delimiter, $ref, $limit)
-                        : explode($delimiter, $ref);
+                        ? explode($separator, $strval, $limit)
+                        : explode($separator, $strval);
                 }
             });
         }
 
-        return null !== key($results)
+        $result = null !== key($results)
             ? reset($results)
             : [];
+
+        return $result;
     }
 
 
     /**
-     * Creates string like '1, 2, 3'
+     * Creates string like '1, 2, 3', includes empty strings, throws error on non-stringables
      *
-     * @param string $delimiter
-     * @param mixed  ...$values
+     * @param string        $delimiter
+     * @param mixed|mixed[] ...$parts
      *
      * @return string
      */
-    public function join(string $delimiter, ...$values) : string
+    public function implode(string $delimiter, ...$parts) : string
     {
-        $result = [];
+        $result = $this->parts(false, ...$parts);
 
-        array_walk_recursive($values, function ($value) use (&$result, $delimiter) {
-            if (null === $value) {
-                throw new InvalidArgumentException('Each value should be not null');
-            }
-
-            if (null === ( $strval = $this->filter->filterStringable($value) )) {
-                throw new InvalidArgumentException('Each value should be stringable');
-            }
-
-            $result[] = trim($strval, $delimiter);
-        });
+        foreach ( $result as $idx => $val ) {
+            $result[ $idx ] = trim($val, $delimiter);
+        }
 
         $result = implode($delimiter, $result);
 
@@ -431,22 +487,20 @@ class Str
     }
 
     /**
-     * Creates string like '1, 2, 3'
+     * Creates string like '1, 2, 3', includes empty strings, skips non-stringables
      *
-     * @param string $delimiter
-     * @param mixed  ...$values
+     * @param string        $delimiter
+     * @param mixed|mixed[] ...$parts
      *
      * @return string
      */
-    public function joinUnsafe(string $delimiter, ...$values) : string
+    public function implodeForce(string $delimiter, ...$parts) : string
     {
-        $result = [];
+        $result = $this->parts(true, ...$parts);
 
-        array_walk_recursive($values, function ($value) use (&$result, $delimiter) {
-            if (null !== ( $strval = $this->filter->filterStringable($value) )) {
-                $result[] = trim($strval, $delimiter);
-            }
-        });
+        foreach ( $result as $idx => $val ) {
+            $result[ $idx ] = trim($val, $delimiter);
+        }
 
         $result = implode($delimiter, $result);
 
@@ -455,52 +509,126 @@ class Str
 
 
     /**
-     * Creates string like "`1`, `2` or `3`"
+     * Creates string like '1, 2, 3', skips empty strings, throws error on non-stringables
      *
-     * @param array       $parts
-     * @param null|string $delimiter
-     * @param null|string $lastDelimiter
-     * @param string      $wrapper
+     * @param string        $delimiter
+     * @param mixed|mixed[] ...$parts
+     *
+     * @return string
+     */
+    public function join(string $delimiter, ...$parts) : string
+    {
+        $result = $this->parts(false, ...$parts);
+        $result = array_filter($result);
+
+        foreach ( $result as $idx => $val ) {
+            $result[ $idx ] = trim($val, $delimiter);
+        }
+
+        $result = implode($delimiter, $result);
+
+        return $result;
+    }
+
+    /**
+     * Creates string like '1, 2, 3', skips empty strings, skips non-stringables
+     *
+     * @param string        $delimiter
+     * @param mixed|mixed[] ...$parts
+     *
+     * @return string
+     */
+    public function joinForce(string $delimiter, ...$parts) : string
+    {
+        $result = $this->parts(true, ...$parts);
+        $result = array_filter($result);
+
+        foreach ( $result as $idx => $val ) {
+            $result[ $idx ] = trim($val, $delimiter);
+        }
+
+        $result = implode($delimiter, $result);
+
+        return $result;
+    }
+
+
+    /**
+     * Creates string like "`1`, `2` or `3`", skips empty strings, throws error on non-stringables
+     *
+     * @param mixed|mixed[] $parts
+     * @param null|string   $delimiter
+     * @param null|string   $lastDelimiter
+     * @param null|string   $wrapper
      *
      * @return string
      */
     public function concat(
-        array $parts,
+        $parts,
         string $delimiter = null,
         string $lastDelimiter = null,
-        string $wrapper = ''
+        string $wrapper = null
     ) : string
     {
         $delimiter = $delimiter ?? '';
+        $lastDelimiter = $lastDelimiter ?? $delimiter;
+        $wrapper = $wrapper ?? '';
 
-        $array = array_reduce($parts, function ($carry, $part) use ($delimiter, $wrapper) {
-            $part = is_array($part)
-                ? $part
-                : [ $part ];
-
-            foreach ( $part as $p ) {
-                if ($p != ( $str = strval($p) )) {
-                    throw new InvalidArgumentException('Each Part should be stringable');
-                }
-
-                $carry[] = $str;
-            }
-
-            return $carry;
-        }, []);
+        $result = $this->parts(false, $parts);
 
         $last = null;
-        if (isset($lastDelimiter)) {
-            $last = $wrapper . array_pop($array) . $wrapper;
+        if (null !== $lastDelimiter) {
+            $last = $wrapper . array_pop($result) . $wrapper;
         }
 
-        foreach ( $array as $idx => $str ) {
-            $array[ $idx ] = $wrapper . trim($str, $delimiter) . $wrapper;
+        foreach ( $result as $idx => $strval ) {
+            $result[ $idx ] = $wrapper . $strval . $wrapper;
         }
 
-        $result = implode($delimiter, $array);
+        $result = implode($delimiter, $result);
 
-        if (isset($last)) {
+        if (null !== $last) {
+            $result = $result . $lastDelimiter . $last;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Creates string like "`1`, `2` or `3`", skips empty strings, skips non-stringables
+     *
+     * @param mixed|mixed[] $items
+     * @param null|string   $delimiter
+     * @param null|string   $wrapper
+     * @param null|string   $lastDelimiter
+     *
+     * @return string
+     */
+    public function concatForce(
+        array $items,
+        string $delimiter = null,
+        string $lastDelimiter = null,
+        string $wrapper = null
+    ) : string
+    {
+        $delimiter = $delimiter ?? '';
+        $lastDelimiter = $lastDelimiter ?? $delimiter;
+        $wrapper = $wrapper ?? '';
+
+        $result = $this->parts(true, $items);
+
+        $last = null;
+        if (null !== $lastDelimiter) {
+            $last = $wrapper . array_pop($result) . $wrapper;
+        }
+
+        foreach ( $result as $idx => $strval ) {
+            $result[ $idx ] = $wrapper . $strval . $wrapper;
+        }
+
+        $result = implode($delimiter, $result);
+
+        if (null !== $last) {
             $result = $result . $lastDelimiter . $last;
         }
 
@@ -518,7 +646,7 @@ class Str
      */
     public function snake(string $value, string $delimiter = '_') : string
     {
-        $result = $this->_snake($value, $delimiter);
+        $result = $this->case($value, $delimiter);
 
         return $result;
     }
@@ -534,7 +662,7 @@ class Str
      */
     public function usnake(string $value, string $delimiter = '_') : string
     {
-        $result = $this->_snake($value, $delimiter, MB_CASE_UPPER);
+        $result = $this->case($value, $delimiter, MB_CASE_UPPER);
 
         return $result;
     }
@@ -607,7 +735,7 @@ class Str
      *
      * @return string
      */
-    protected function _snake(string $value, string $delimiter = '_', string $case = MB_CASE_LOWER) : string
+    protected function case(string $value, string $delimiter = '_', string $case = MB_CASE_LOWER) : string
     {
         if ('' === $value) {
             return $value;
@@ -638,6 +766,35 @@ class Str
 
         $result = str_replace(array_keys($replacements), '', $result);
         $result = str_replace(static::REPLACER, $delimiter, $result);
+
+        return $result;
+    }
+
+    /**
+     * @param bool          $force
+     * @param mixed|mixed[] ...$parts
+     *
+     * @return array
+     */
+    protected function parts(bool $force = false, ...$parts) : array
+    {
+        $result = [];
+
+        array_walk_recursive($parts, function ($value) use (&$result, $force) {
+            if (null === ( $strval = $this->filter->filterStringable($value) )) {
+                if ($force) {
+                    return;
+
+                } else {
+                    throw new InvalidArgumentException(
+                        'Each value should be stringable',
+                        [ func_get_args(), $value ]
+                    );
+                }
+            }
+
+            $result[] = $strval;
+        });
 
         return $result;
     }

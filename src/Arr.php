@@ -4,9 +4,11 @@ namespace Gzhegow\Support;
 
 use Gzhegow\Support\Domain\Arr\ExpandVo;
 use Gzhegow\Support\Domain\Arr\WalkIterator;
+use Gzhegow\Support\Domain\Arr\CrawlIterator;
 use Gzhegow\Support\Exceptions\Logic\OutOfRangeException;
 use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+use Gzhegow\Support\Exceptions\Runtime\UnexpectedValueException;
 
 
 /**
@@ -28,56 +30,51 @@ class Arr
      * @var Php
      */
     protected $php;
-
     /**
-     * @var Indexer
+     * @var Str
      */
-    protected $indexer;
-
+    protected $str;
 
 
     /**
      * Constructor
      *
-     * @param Filter       $filter
-     * @param Php          $php
-     * @param null|Indexer $indexer
+     * @param Filter $filter
+     * @param Php    $php
+     * @param Str    $str
      */
     public function __construct(
         Filter $filter,
         Php $php,
-
-        Indexer $indexer = null
+        Str $str
     )
     {
         $this->filter = $filter;
         $this->php = $php;
-
-        $this->indexer = $indexer ?? $this->newIndexer();
+        $this->str = $str;
     }
 
 
     /**
-     * @return Indexer
+     * @param array $array
+     * @param int   $flags
+     *
+     * @return WalkIterator
      */
-    protected function newIndexer() : Indexer
+    protected function newWalkIterator(array $array, int $flags = 0)
     {
-        $indexer = new Indexer($this->filter, $this->php);
-        $indexer->setSeparator('.');
-
-        return $indexer;
+        return new WalkIterator($array, $flags);
     }
-
 
     /**
      * @param iterable $iterable
      * @param int      $flags
      *
-     * @return WalkIterator
+     * @return CrawlIterator
      */
-    protected function newWalkIterator(iterable $iterable, int $flags = 0)
+    protected function newCrawlIterator(iterable $iterable, int $flags = 0)
     {
-        return new WalkIterator($iterable, $flags);
+        return new CrawlIterator($iterable, $flags);
     }
 
     /**
@@ -130,7 +127,29 @@ class Arr
             return $this->put($src, $path, $default);
         }
 
-        throw new OutOfRangeException('Path not found', func_get_args());
+        throw new OutOfRangeException('Index not found', func_get_args());
+    }
+
+
+    /**
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    public function isIndexable($value) : bool
+    {
+        $list = $this->php->listval($value);
+
+        foreach ( $this->walk($list) as $value ) {
+            if (! ( is_array($value)
+                || is_null($value)
+                || is_scalar($value)
+            )) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
 
@@ -188,7 +207,7 @@ class Arr
     {
         $result = false;
 
-        $fullpath = $this->path($path);
+        $fullpath = $this->path('.', $path);
 
         $ref =& $src;
 
@@ -238,7 +257,7 @@ class Arr
      */
     public function &put(array &$dst, $path, $value) // : mixed
     {
-        $fullpath = $this->path($path);
+        $fullpath = $this->path('.', $path);
 
         if (null === key($fullpath)) {
             throw new InvalidArgumentException('Empty path passed', func_get_args());
@@ -262,36 +281,390 @@ class Arr
 
 
     /**
-     * @param iterable $iterable
+     * выполняет array_push, но возвращает весь массив, а не количество элементов. Для работы с тернарными операторами
+     *
+     * @param array $array
+     * @param mixed ...$items
      *
      * @return array
      */
-    public function dot(iterable $iterable) : array
+    public function push(array $array, ...$items) : array
+    {
+        array_push($array, ...$items);
+
+        return $array;
+    }
+
+    /**
+     * выполняет array_push, но возвращает ссылку на исходный массив, а не количество элементов. Для работы с тернарными операторами
+     *
+     * @param array $array
+     * @param mixed ...$items
+     *
+     * @return array
+     */
+    public function &rpush(array &$array, ...$items) : array
+    {
+        array_push($array, ...$items);
+
+        return $array;
+    }
+
+
+    /**
+     * в функцию array_intersect_key требуются ключи. можно делать array_flip(), а так будет производительнее
+     *
+     * @param array $array
+     *
+     * @return array
+     */
+    public function clear(array $array) : array
     {
         $result = [];
 
-        $generator = $this->walk($iterable, \RecursiveIteratorIterator::SELF_FIRST);
+        foreach ( array_keys($array) as $key ) {
+            $result[ $key ] = null;
+        }
 
-        foreach ( $generator as $fullpath => $value ) {
-            if (is_iterable($value)) continue;
+        return $result;
+    }
 
-            $result[ $this->dotkeyUnsafe($fullpath) ] = $value;
+
+    /**
+     * @param array $array
+     * @param mixed ...$keys
+     *
+     * @return array
+     */
+    public function only(array $array, ...$keys) : array
+    {
+        $keys = $this->php->listvalFlattenIf(function ($val) {
+            return null !== $this->filter->filterKey($val);
+        }, ...$keys);
+
+        if (null === $keys) {
+            throw new InvalidArgumentException('Each key should be int or string', func_get_args());
+        }
+
+        $result = [];
+
+        foreach ( $keys as $key ) {
+            if (! array_key_exists($key, $array)) {
+                continue;
+            }
+
+            $result[ $key ] = $array[ $key ];
         }
 
         return $result;
     }
 
     /**
-     * @param array $data
+     * @param array $array
+     * @param mixed ...$keys
      *
      * @return array
      */
-    public function undot(array $data) : array
+    public function except(array $array, ...$keys) : array
+    {
+        $keys = $this->php->listvalFlattenIf(function ($val) {
+            return null !== $this->filter->filterKey($val);
+        }, ...$keys);
+
+        if (null === $keys) {
+            throw new InvalidArgumentException('Each key should be int or string', func_get_args());
+        }
+
+        $result = [];
+
+        foreach ( $array as $i => $item ) {
+            if (in_array($i, $keys, false)) {
+                continue;
+            }
+
+            $result[ $i ] = $array[ $i ];
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param array $array
+     * @param mixed ...$keys
+     *
+     * @return array
+     */
+    public function drop(array $array, ...$keys)
+    {
+        $keys = $this->php->listvalFlattenIf(function ($val) {
+            return null !== $this->filter->filterKey($val);
+        }, ...$keys);
+
+        if (null === $keys) {
+            throw new InvalidArgumentException('Each key should be int or string', func_get_args());
+        }
+
+        foreach ( $keys as $key ) {
+            unset($array[ $key ]);
+        }
+
+        $result = $array;
+
+        return $result;
+    }
+
+
+    /**
+     * array_combine позволяющий передать отличный от keys массив значений
+     *
+     * @param string|string[]    $keys
+     * @param null|mixed|mixed[] $values
+     * @param bool               $drop
+     *
+     * @return array
+     */
+    public function combine(array $keys, $values = null, bool $drop = null) : array
+    {
+        $drop = $drop ?? false;
+
+        foreach ( $keys as $key ) {
+            if (null === $this->filter->filterKey($key)) {
+                throw new InvalidArgumentException(
+                    'Invalid key passed',
+                    [ func_get_args(), $key ]
+                );
+            }
+        }
+
+        if (! is_array($values)) {
+            $values = array_fill(0, count($keys), $values);
+        }
+
+        [ $kwargs, $args ] = $this->php->kwargs($values);
+
+        $result = [];
+        foreach ( $keys as $key ) {
+            if (array_key_exists($key, $kwargs)) {
+                $result[ $key ] = $kwargs[ $key ];
+
+            } elseif ($args) {
+                $index = key($args);
+                $result[ $key ] = $args[ $index ];
+
+                array_shift($args);
+                unset($values[ $index ]);
+
+            } else {
+                $result[ $key ] = null;
+            }
+        }
+
+        if (! $drop) {
+            $diff = array_diff_key($values, $result);
+
+            foreach ( $diff as $key => $val ) {
+                $result[ $key ] = $val;
+            }
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * обменивает местами номер элемента массива и номер ключа в массиве
+     * [ [$a1, $a2], [$b1, $b2]... ] => [ [$a1, $b1], [$a2, $b2]... ]
+     *
+     * @param array $array
+     * @param array ...$arrays
+     *
+     * @return array
+     */
+    public function zip(array $array, ...$arrays) : array
+    {
+        return $arrays
+            ? array_map(null, $array, ...$arrays)
+            : array_map(function ($val) {
+                return [ $val ];
+            }, $array);
+    }
+
+    /**
+     * partition
+     * разбивает массив на два по указанному критерию
+     *
+     * @param array         $array
+     * @param callable|null $func
+     *
+     * @return array
+     */
+    public function partition(array $array, callable $func = null) : array
+    {
+        $result = [
+            $array,
+            [],
+        ];
+
+        foreach ( $array as $i => &$item ) {
+            $skip = $func
+                ? ( false === $func($item, $i) )
+                : empty($item);
+
+            if ($skip) {
+                continue;
+            }
+
+            $result[ 1 ][ $i ] = $item;
+
+            unset($result[ 0 ][ $i ]);
+        }
+        unset($item);
+
+        return $result;
+    }
+
+    /**
+     * group
+     * разбивает массив на группированный список и остаток, колбэк возвращает имя группы
+     *
+     * @param array         $array
+     * @param \Closure|null $func
+     *
+     * @return array
+     */
+    public function group(array $array, \Closure $func = null) : array
+    {
+        $result = [
+            [],
+            [],
+        ];
+
+        foreach ( $array as $i => $item ) {
+            $res = $func
+                ? $func($item, $i)
+                : null;
+
+            if (( null !== $res ) && ( null === $this->filter->filterKey($res) )) {
+                throw new UnexpectedValueException('Invalid group name returned', func_get_args());
+            }
+
+            ( null !== $res )
+                ? ( $result[ 0 ][ $res ][ $i ] = $item )
+                : ( $result[ 1 ][ $i ] = $item );
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * @param string|string[] $separators
+     * @param mixed|mixed[]   ...$parts
+     *
+     * @return array
+     */
+    public function path($separators, ...$parts) : array
+    {
+        $result = $this->str->split($separators, ...$parts);
+
+        return $result;
+    }
+
+    /**
+     * @param string|string[] $delimiters
+     * @param mixed|mixed[]   ...$parts
+     *
+     * @return string
+     */
+    public function key($delimiters, ...$parts) : string
+    {
+        $delimiters = is_array($delimiters)
+            ? $delimiters
+            : [ $delimiters ];
+
+        foreach ( $delimiters as $delimiter ) {
+            if (! is_string($delimiter)) {
+                throw new InvalidArgumentException(
+                    'Each delimiter should be string',
+                    [ func_get_args(), $delimiter ]
+                );
+            }
+        }
+
+        $result = $this->str->split($delimiters, ...$parts);
+
+        $result = $this->str->implode($delimiters[ 0 ], $result);
+
+        return $result;
+    }
+
+
+    /**
+     * @param mixed|mixed[]   $parts
+     * @param string|string[] $delimiters
+     *
+     * @return string
+     */
+    public function indexKey($parts, $delimiters = "\0") : string
+    {
+        $result = $this->key($delimiters, $parts);
+
+        return $result;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return string
+     */
+    public function indexVal($value) : string
+    {
+        if (! $this->isIndexable($value)) {
+            throw new InvalidArgumentException(
+                'Value cannot be an index, allowed only: nulls, scalars, arrays with scalars',
+                $value
+            );
+        }
+
+        $result = json_encode($value);
+
+        return $result;
+    }
+
+
+    /**
+     * @param iterable        $iterable
+     * @param string|string[] $separators
+     *
+     * @return array
+     */
+    public function dot(iterable $iterable, $separators = ".") : array
+    {
+        $result = [];
+
+        $generator = $this->crawl($iterable, \RecursiveIteratorIterator::SELF_FIRST);
+
+        foreach ( $generator as $fullpath => $value ) {
+            if (is_iterable($value)) continue;
+
+            $result[ $this->indexKey($fullpath, $separators) ] = $value;
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param array           $data
+     * @param string|string[] $separators
+     *
+     * @return array
+     */
+    public function undot(array $data, $separators = ".") : array
     {
         $result = [];
 
         foreach ( $data as $dot => $value ) {
-            $path = $this->pathUnsafe($dot);
+            $path = $this->path($separators, $dot);
 
             $ref =& $result;
             while ( null !== key($path) ) {
@@ -309,54 +682,21 @@ class Arr
 
 
     /**
-     * @param array $path
+     * @param array $array
+     * @param int   $flags
      *
-     * @return string
+     * @return \Generator
      */
-    public function dotkey(...$path) : string
+    public function walk(array $array, int $flags = 0) : \Generator
     {
-        $result = $this->indexer->index(...$path);
+        $it = $this->newWalkIterator($array, $flags);
 
-        return $result;
+        foreach ( $it as $fullpath => $val ) {
+            yield $fullpath => $val;
+        }
+
+        return $this;
     }
-
-    /**
-     * @param array $path
-     *
-     * @return string
-     */
-    public function dotkeyUnsafe(...$path) : string
-    {
-        $result = $this->indexer->indexUnsafe(...$path);
-
-        return $result;
-    }
-
-
-    /**
-     * @param mixed ...$path
-     *
-     * @return array
-     */
-    public function path(...$path) : array
-    {
-        $result = $this->indexer->path(...$path);
-
-        return $result;
-    }
-
-    /**
-     * @param mixed ...$path
-     *
-     * @return array
-     */
-    public function pathUnsafe(...$path) : array
-    {
-        $result = $this->indexer->pathUnsafe(...$path);
-
-        return $result;
-    }
-
 
     /**
      * @param iterable $iterable
@@ -364,9 +704,9 @@ class Arr
      *
      * @return \Generator
      */
-    public function walk(iterable $iterable, int $flags = 0) : \Generator
+    public function crawl(iterable $iterable, int $flags = 0) : \Generator
     {
-        $it = $this->newWalkIterator($iterable, $flags);
+        $it = $this->newCrawlIterator($iterable, $flags);
 
         foreach ( $it as $fullpath => $val ) {
             yield $fullpath => $val;
@@ -502,7 +842,7 @@ class Arr
     {
         $error = static::ERROR_FETCHREF_EMPTY_KEY;
 
-        $fullpath = $this->path($path);
+        $fullpath = $this->path('.', $path);
 
         $ref =& $source;
         while ( null !== key($fullpath) ) {

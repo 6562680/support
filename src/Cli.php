@@ -134,6 +134,68 @@ class Cli
 
 
     /**
+     * writeFile
+     * сохраняет файл в указанное место, но выводит предупреждение что файл уже есть и предлагает его переписать, сохранив копию
+     *
+     * @param string $outputPath
+     * @param string $content
+     * @param string $answer
+     *
+     * @return static
+     */
+    public function writeFile(string $outputPath, string $content, string &$answer = 'n')
+    {
+        $overwrite = ( 'y' === $answer ) || ( 'yy' === $answer );
+        $all = ( 'nn' === $answer ) || ( 'yy' === $answer );
+
+        if (! file_exists($outputPath)) {
+            if (! is_dir($dir = dirname($outputPath))) {
+                mkdir($dir, 0755, true);
+            }
+
+            file_put_contents($outputPath, $content);
+
+            echo 'Created file: ' . $outputPath . PHP_EOL;
+
+        } else {
+            if (! $all) {
+                $accepted = [ 'yy', 'y', 'n', 'nn' ];
+                $message = 'File exists: ' . basename($outputPath) . PHP_EOL
+                    . $outputPath . PHP_EOL
+                    . 'Overwrite? [' . implode('/', $accepted) . ']';
+
+                echo $message . PHP_EOL;
+
+                while ( ! in_array($var = $this->readln(), $accepted) ) {
+                    echo 'Please enter one of: [' . implode('/', $accepted) . ']';
+                }
+
+                $answer = $var;
+
+                $overwrite = ( 'y' === $answer ) || ( 'yy' === $answer );
+            }
+
+            if (! $overwrite) {
+                echo 'File exists: ' . $outputPath . PHP_EOL;
+
+            } else {
+                if (! is_dir($dir = dirname($outputPath))) {
+                    mkdir($dir, 0755, true);
+                }
+
+                copy($outputPath, $backupPath = $outputPath . '.backup' . date('Ymd_His'));
+                file_put_contents($outputPath, $content);
+
+                echo 'Backup stored at ' . $backupPath . PHP_EOL;
+                echo 'Replaced ' . $outputPath . PHP_EOL;
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
      * выполняет консольную команду через proc_open и возвращает данные или код ошибки
      *
      * @param string      $cmd

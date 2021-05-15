@@ -167,6 +167,7 @@ class Type
         return null !== $this->filter->filterNumerable($value);
     }
 
+
     /**
      * @param mixed $value
      *
@@ -176,6 +177,17 @@ class Type
     {
         return null !== $this->filter->filterStringable($value);
     }
+
+    /**
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    public function isTheStringable($value) : bool
+    {
+        return null !== $this->filter->filterTheStringable($value);
+    }
+
 
     /**
      * @param mixed $value

@@ -3,6 +3,7 @@
 namespace Gzhegow\Support\Tests;
 
 use Gzhegow\Support\Fs;
+use Gzhegow\Support\Str;
 use Gzhegow\Support\Filter;
 
 
@@ -13,10 +14,18 @@ class FsTest extends AbstractTestCase
         return new Filter();
     }
 
+    protected function getStr() : Str
+    {
+        return new Str(
+            $this->getFilter()
+        );
+    }
+
     protected function getFs() : Fs
     {
         return new Fs(
-            $this->getFilter()
+            $this->getFilter(),
+            $this->getStr()
         );
     }
 

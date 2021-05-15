@@ -2,8 +2,24 @@
 
 namespace Gzhegow\Support\Tests;
 
+use Gzhegow\Support\Str;
+use Gzhegow\Support\Filter;
+
 class SupportTest extends AbstractTestCase
 {
+    protected function getFilter() : Filter
+    {
+        return new Filter();
+    }
+
+    protected function getStr() : Str
+    {
+        return new Str(
+            $this->getFilter(),
+        );
+    }
+
+
     public function testFacadesMethods()
     {
         $list = [
@@ -18,10 +34,10 @@ class SupportTest extends AbstractTestCase
             'Env',
             'Filter',
             'Fs',
-            'Indexer',
+            'Func',
+            'Loader',
             'Math',
             'Net',
-            'Path',
             'Php',
             'Preg',
             'Profiler',
@@ -63,5 +79,44 @@ class SupportTest extends AbstractTestCase
 
             $this->assertEquals($objMethods, $facadeMethods);
         }
+    }
+
+    public function testFilterTypeMethods()
+    {
+        $str = $this->getStr();
+
+        $filterReflection = new \ReflectionClass('Gzhegow\\Support\\Filter');
+        $typeReflection = new \ReflectionClass('Gzhegow\\Support\\Type');
+
+        $filterMethods = [];
+        foreach ( $filterReflection->getMethods() as $m ) {
+            if (! $m->isPublic()) {
+                continue;
+            }
+
+            if (null === ( $method = $str->starts($m->getName(), 'filter') )) {
+                continue;
+            }
+
+            $filterMethods[ $method ] = true;
+        }
+        unset($filterMethods[ '__construct' ]);
+
+        $typeMethods = [];
+        foreach ( $typeReflection->getMethods() as $m ) {
+            if (! $m->isPublic()) {
+                continue;
+            }
+
+            if (null === ( $method = $str->starts($m->getName(), 'is') )) {
+                continue;
+            }
+
+            $typeMethods[ $method ] = true;
+        }
+        unset($typeMethods[ '__construct' ]);
+        unset($typeMethods[ 'Empty' ]); // has no filter match, only isEmpty is possible
+
+        $this->assertEquals($filterMethods, $typeMethods);
     }
 }

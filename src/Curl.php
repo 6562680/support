@@ -364,30 +364,19 @@ class Curl
 
 
     /**
-     * @param mixed               $limit
-     * @param mixed               $sleep
-     * @param resource|resource[] $curls
+     * @param int|int[]|string|string[]               $limit
+     * @param int|float|int[]|float[]|string|string[] $sleep
+     * @param resource|resource[]                     $curls
      *
      * @return array
      */
     public function batch($limit, $sleep, ...$curls) : array
     {
-        [ 1 => $curls ] = $this->php->kwargsFlattenDistinct(...$curls);
-
-        foreach ( $curls as $ch ) {
-            if (! $this->isOpenedCurl($ch)) {
-                throw new InvalidArgumentException('Each argument should be opened CURL resource');
-            }
-        }
-
         $results = [];
         $urls = [];
         $hh = [];
 
-        $limit = $limit
-            ?: 1;
-
-        foreach ( $this->batchwalk($limit, $sleep, $curls) as $result ) {
+        foreach ( $this->batchwalk($limit, $sleep, ...$curls) as $result ) {
             [ $resultsCurrent, $urlsCurrent, $hhCurrent ] = $result;
 
             $results += $resultsCurrent;
@@ -399,14 +388,27 @@ class Curl
     }
 
     /**
-     * @param mixed               $limit
-     * @param mixed               $sleep
-     * @param resource|resource[] $curls
+     * @param int|int[]               $limits
+     * @param int|float|int[]|float[] $sleeps
+     * @param resource|resource[]     $curls
      *
      * @return \Generator
      */
-    public function batchwalk($limit, $sleep, ...$curls) : \Generator
+    public function batchwalk($limits, $sleeps, ...$curls) : \Generator
     {
+        $limits = is_array($limits)
+            ? $limits
+            : [ $limits ];
+
+        foreach ( $limits as $limit ) {
+            if (null === $this->filter->filterIntable($limit)) {
+                throw new InvalidArgumentException(
+                    'Each limit should be intable',
+                    [ func_get_args(), $limit ]
+                );
+            }
+        }
+
         [ 1 => $curls ] = $this->php->kwargsFlattenDistinct(...$curls);
 
         foreach ( $curls as $ch ) {
@@ -415,52 +417,17 @@ class Curl
             }
         }
 
-        [ $minLimit, $maxLimit ] = (array) $limit + [ 1, null ];
-        [ $minSleep, $maxSleep ] = (array) $sleep + [ 0, null ];
-
-        if (! is_int($minLimit)) {
-            throw new InvalidArgumentException('MinLimit should be numeric', func_get_args());
-        }
-
-        if (! is_numeric($minSleep)) {
-            throw new InvalidArgumentException('MinLimit should be numeric', func_get_args());
-        }
-
-        if (0 > $minLimit) {
-            throw new InvalidArgumentException('MinLimit should be positive');
-        }
-
-        if (0 > $minSleep) {
-            throw new InvalidArgumentException('MinLimit should be positive');
-        }
-
-        $maxLimit = $maxLimit ?? $minLimit;
-        $maxSleep = $maxSleep ?? $minSleep;
-
-        if (! is_int($maxLimit)) {
-            throw new InvalidArgumentException('MinLimit should be numeric', func_get_args());
-        }
-
-        if (! is_numeric($maxSleep)) {
-            throw new InvalidArgumentException('MinLimit should be numeric', func_get_args());
-        }
-
-        if (0 > $maxLimit) {
-            throw new InvalidArgumentException('MinLimit should be positive');
-        }
-
-        if (0 > $maxSleep) {
-            throw new InvalidArgumentException('MinLimit should be positive');
-        }
+        $limitMin = max(1, min($limits));
+        $limitMax = max(1, max($limits));
 
         do {
-            $limitCurrent = rand($minLimit, $maxLimit) ?? null;
+            $limitCurrent = rand($limitMin, $limitMax);
 
-            // splice
             $i = 0;
             $curlsCurrent = [];
             while ( null !== ( $key = key($curls) ) ) {
                 $curlsCurrent[ $key ] = $curls[ $key ];
+
                 unset($curls[ $key ]);
 
                 if (++$i === $limitCurrent) {
@@ -468,30 +435,12 @@ class Curl
                 }
             }
 
-            // multicurl
             [ $responsesCurrent, $urlsCurrent, $hhCurrent ] = $this->multi($curlsCurrent);
 
-            // return generator to reduce memory usage
             yield [ $responsesCurrent, $urlsCurrent, $hhCurrent ];
 
-            // await before next batch
             if ($curls) {
-                $sleepCurrent = $minSleep;
-
-                if ($sleepCurrent !== $maxSleep) {
-                    $sleepCurrent = ( $minSleep + lcg_value() * ( abs($maxSleep - $minSleep) ) );
-
-                    // wait microseconds
-                    usleep($sleepCurrent * 1000 * 1000);
-
-                } elseif (is_float($sleepCurrent)) {
-                    // wait microseconds
-                    usleep($sleepCurrent * 1000 * 1000);
-
-                } else {
-                    // wait seconds
-                    sleep($sleepCurrent);
-                }
+                $this->php->sleep($sleeps);
             }
         } while ( $curls );
     }

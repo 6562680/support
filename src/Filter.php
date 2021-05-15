@@ -20,7 +20,7 @@ class Filter
     {
         // \Generator can pass any object as foreach key, so this check is recommended
 
-        return ( is_int($value) || is_string($value) )
+        return ( null !== $this->filterStringOrNumber($value) )
             ? $value
             : null;
     }
@@ -188,6 +188,7 @@ class Filter
         return null;
     }
 
+
     /**
      * @param mixed $value
      *
@@ -195,15 +196,28 @@ class Filter
      */
     public function filterStringable($value) : ?string
     {
+        if (is_null($value)) {
+            return null; // becomes '' and causes data lost
+        }
+
+        if (is_bool($value)) {
+            return null; // becomes '' on false and causes data lost
+        }
+
         if (is_array($value)) {
-            return null;
+            return null; // becomes 'Array' and causes data lost
         }
 
         if (null !== $this->filterStringOrNumber($value)) {
             return strval($value);
         }
 
-        if (false === settype($value, 'string')) {
+        try {
+            if (false === settype($value, 'string')) {
+                return null; // __toString()
+            }
+        }
+        catch ( \Throwable $e ) {
             return null;
         }
 
@@ -211,6 +225,42 @@ class Filter
 
         return $result;
     }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|string
+     */
+    public function filterTheStringable($value) : ?string
+    {
+        if (is_null($value)) {
+            return null; // becomes '' and causes data lost
+        }
+
+        if (is_bool($value)) {
+            return null; // becomes '' on false and causes data lost
+        }
+
+        if (is_array($value)) {
+            return null; // becomes 'Array' and causes data lost
+        }
+
+        if (null !== $this->filterTheStringOrNumber($value)) {
+            return strval($value);
+        }
+
+        if (false === settype($value, 'string')) {
+            return null; // __toString()
+        }
+
+        $coalesce = strval($value);
+        $result = '' !== $coalesce
+            ? $coalesce
+            : null;
+
+        return $result;
+    }
+
 
     /**
      * @param mixed $value

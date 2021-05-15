@@ -4,6 +4,7 @@ namespace Gzhegow\Support\Tests;
 
 use Gzhegow\Support\Arr;
 use Gzhegow\Support\Php;
+use Gzhegow\Support\Str;
 use Gzhegow\Support\Filter;
 use Gzhegow\Support\Exceptions\Logic\OutOfRangeException;
 use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
@@ -24,267 +25,20 @@ class ArrTest extends AbstractTestCase
         );
     }
 
+    protected function getStr() : Str
+    {
+        return new Str(
+            $this->getFilter()
+        );
+    }
+
     protected function getArr() : Arr
     {
         return new Arr(
             $this->getFilter(),
             $this->getPhp(),
+            $this->getStr()
         );
-    }
-
-
-    public function testPath()
-    {
-        $arr = $this->getArr();
-
-        $this->assertEquals([ '' ], $arr->path(''));
-        $this->assertEquals([ 'hello' ], $arr->path('hello'));
-        $this->assertEquals([ 'hello', 'world' ], $arr->path('hello.world'));
-        $this->assertEquals([], $arr->path([]));
-        $this->assertEquals([ '' ], $arr->path([ '' ]));
-        $this->assertEquals([ '', '' ], $arr->path([ '', '' ]));
-        $this->assertEquals([ 'hello' ], $arr->path([ 'hello' ]));
-        $this->assertEquals([ 'hello', 'world' ], $arr->path([ 'hello.world' ]));
-        $this->assertEquals([ 'hello', 'world' ], $arr->path([ 'hello', 'world' ]));
-        $this->assertEquals(
-            [ 'hello', 'world', 'hello', 'world' ],
-            $arr->path([ 'hello', 'world', 'hello.world' ])
-        );
-        $this->assertEquals(
-            [ 'hello', 'world', 'hello', 'world' ],
-            $arr->path([ 'hello', 'world', [ 'hello.world' ] ])
-        );
-    }
-
-    public function testBadPath()
-    {
-        $arr = $this->getArr();
-
-        $this->assertException(InvalidArgumentException::class, function () use ($arr) {
-            $arr->path(null);
-        });
-
-        $this->assertException(InvalidArgumentException::class, function () use ($arr) {
-            $arr->path([ null ]);
-        });
-    }
-
-    public function testPathUnsafe()
-    {
-        $arr = $this->getArr();
-
-        $this->assertEquals([], $arr->pathUnsafe(null));
-        $this->assertEquals([ '' ], $arr->pathUnsafe(''));
-        $this->assertEquals([ 'hello' ], $arr->pathUnsafe('hello'));
-        $this->assertEquals([ 'hello', 'world' ], $arr->pathUnsafe('hello.world'));
-        $this->assertEquals([], $arr->pathUnsafe([]));
-        $this->assertEquals([], $arr->pathUnsafe([ null ]));
-        $this->assertEquals([ '' ], $arr->pathUnsafe([ '' ]));
-        $this->assertEquals([ '', '' ], $arr->pathUnsafe([ '', '' ]));
-        $this->assertEquals([ 'hello' ], $arr->pathUnsafe([ 'hello' ]));
-        $this->assertEquals([ 'hello', 'world' ], $arr->pathUnsafe([ 'hello.world' ]));
-        $this->assertEquals([ 'hello', 'world' ], $arr->pathUnsafe([ 'hello', 'world' ]));
-        $this->assertEquals(
-            [ 'hello', 'world', 'hello', 'world' ],
-            $arr->pathUnsafe([ 'hello', 'world', 'hello.world' ])
-        );
-        $this->assertEquals(
-            [ 'hello', 'world', 'hello', 'world' ],
-            $arr->pathUnsafe([ 'hello', 'world', [ 'hello.world' ] ])
-        );
-    }
-
-
-    public function testPut()
-    {
-        $arr = $this->getArr();
-
-        $dst = [];
-        $ref =& $arr->put($dst, '', 1);
-        $ref = 2;
-        $this->assertEquals([ '' => 2 ], $dst);
-        unset($ref);
-
-        $dst = [];
-        $ref =& $arr->put($dst, 'hello', 1);
-        $ref = 2;
-        $this->assertEquals([ 'hello' => 2 ], $dst);
-        unset($ref);
-
-        $dst = [];
-        $ref =& $arr->put($dst, 'hello.world', 1);
-        $ref = 2;
-        $this->assertEquals([ 'hello' => [ 'world' => 2 ] ], $dst);
-        unset($ref);
-
-        $dst = [];
-        $ref =& $arr->put($dst, [ '' ], 1);
-        $ref = 2;
-        $this->assertEquals([ '' => 2 ], $dst);
-        unset($ref);
-
-        $dst = [];
-        $ref =& $arr->put($dst, [ '', '' ], 1);
-        $ref = 2;
-        $this->assertEquals([ '' => [ '' => 2 ] ], $dst);
-        unset($ref);
-
-        $dst = [];
-        $ref =& $arr->put($dst, [ 'hello' ], 1);
-        $ref = 2;
-        $this->assertEquals([ 'hello' => 2 ], $dst);
-        unset($ref);
-
-        $dst = [];
-        $ref =& $arr->put($dst, [ 'hello.world' ], 1);
-        $ref = 2;
-        $this->assertEquals([ 'hello' => [ 'world' => 2 ] ], $dst);
-        unset($ref);
-
-        $dst = [];
-        $ref =& $arr->put($dst, [ 'hello', 'world' ], 1);
-        $ref = 2;
-        $this->assertEquals([ 'hello' => [ 'world' => 2 ] ], $dst);
-        unset($ref);
-
-        $dst = [];
-        $ref =& $arr->put($dst, [ 'hello', 'world', 'hello.world' ], 1);
-        $ref = 2;
-        $this->assertEquals([ 'hello' => [ 'world' => [ 'hello' => [ 'world' => 2 ] ] ] ], $dst);
-        unset($ref);
-
-        $dst = [];
-        $ref =& $arr->put($dst, [ 'hello', 'world', [ 'hello.world' ] ], 1);
-        $ref = 2;
-        $this->assertEquals([ 'hello' => [ 'world' => [ 'hello' => [ 'world' => 2 ] ] ] ], $dst);
-        unset($ref);
-    }
-
-    public function testBadPut()
-    {
-        $arr = $this->getArr();
-
-        $dst = [];
-
-        $this->assertException(InvalidArgumentException::class, function () use ($arr, $dst) {
-            $arr->put($dst, null, 1);
-        });
-
-        $this->assertException(InvalidArgumentException::class, function () use ($arr, $dst) {
-            $arr->put($dst, [], 1);
-        });
-    }
-
-
-    public function testSet()
-    {
-        $arr = $this->getArr();
-
-        $dst = [];
-        $arr->set($dst, '', 1);
-        $this->assertEquals([ '' => 1 ], $dst);
-
-        $dst = [];
-        $arr->set($dst, 'hello', 1);
-        $this->assertEquals([ 'hello' => 1 ], $dst);
-
-        $dst = [];
-        $arr->set($dst, 'hello.world', 1);
-        $this->assertEquals([ 'hello' => [ 'world' => 1 ] ], $dst);
-
-        $dst = [];
-        $arr->set($dst, [ '' ], 1);
-        $this->assertEquals([ '' => 1 ], $dst);
-
-        $dst = [];
-        $arr->set($dst, [ '', '' ], 1);
-        $this->assertEquals([ '' => [ '' => 1 ] ], $dst);
-
-        $dst = [];
-        $arr->set($dst, [ 'hello' ], 1);
-        $this->assertEquals([ 'hello' => 1 ], $dst);
-
-        $dst = [];
-        $arr->set($dst, [ 'hello.world' ], 1);
-        $this->assertEquals([ 'hello' => [ 'world' => 1 ] ], $dst);
-
-        $dst = [];
-        $arr->set($dst, [ 'hello', 'world' ], 1);
-        $this->assertEquals([ 'hello' => [ 'world' => 1 ] ], $dst);
-
-        $dst = [];
-        $arr->set($dst, [ 'hello', 'world', 'hello.world' ], 1);
-        $this->assertEquals([ 'hello' => [ 'world' => [ 'hello' => [ 'world' => 1 ] ] ] ], $dst);
-
-        $dst = [];
-        $arr->set($dst, [ 'hello', 'world', [ 'hello.world' ] ], 1);
-        $this->assertEquals([ 'hello' => [ 'world' => [ 'hello' => [ 'world' => 1 ] ] ] ], $dst);
-    }
-
-    public function testBadSet()
-    {
-        $arr = $this->getArr();
-
-        $dst = [];
-
-        $this->assertException(InvalidArgumentException::class, function () use ($arr, $dst) {
-            $arr->set($dst, null, 1);
-        });
-
-        $this->assertException(InvalidArgumentException::class, function () use ($arr, $dst) {
-            $arr->set($dst, [], 1);
-        });
-    }
-
-
-    public function testWalk()
-    {
-        $arr = $this->getArr();
-
-        $array = [
-            'hello'       => null,
-            'world'       => [],
-            'hello.world' => [
-                'hello'       => null,
-                'world'       => [],
-                'hello.world' => [
-                    null,
-                ],
-            ],
-        ];
-
-        $pathes = [];
-        $values = [];
-        foreach ( $arr->walk($array) as $fullpath => $item ) {
-            $pathes[] = $fullpath;
-            $values[] = $item;
-        }
-
-        $this->assertEquals([
-            [ 'hello' ],
-            [ 'world' ],
-            [ 'hello.world' ],
-            [ 'hello.world', 'hello' ],
-            [ 'hello.world', 'world' ],
-            [ 'hello.world', 'hello.world' ],
-            [ 'hello.world', 'hello.world', 0 ],
-        ], $pathes);
-
-        $this->assertEquals([
-            null,
-            [],
-            [
-                "hello"       => null,
-                "world"       => [],
-                "hello.world" => [
-                    0 => null,
-                ],
-            ],
-            null,
-            [],
-            [ 0 => null ],
-            null,
-        ], $values);
     }
 
 
@@ -334,7 +88,7 @@ class ArrTest extends AbstractTestCase
         $this->assertEquals(1, $arr->get([ 'foo', 'foo', '0' ], $array));
     }
 
-    public function testGetBad()
+    public function testBadGet()
     {
         $arr = $this->getArr();
 
@@ -425,7 +179,7 @@ class ArrTest extends AbstractTestCase
         $this->assertEquals(1, $arr->getRef([ 'foo', 'foo', '0' ], $array));
     }
 
-    public function testGetRefBad()
+    public function testBadGetRef()
     {
         $arr = $this->getArr();
 
@@ -467,6 +221,32 @@ class ArrTest extends AbstractTestCase
         $this->assertException(OutOfRangeException::class, function () use ($arr, $array) {
             $arr->getRef([ 'hello', 'world' ], $array);
         });
+    }
+
+
+    public function testIsIndexable()
+    {
+        $arr = $this->getArr();
+
+        $this->assertEquals(true, $arr->isIndexable(null));
+        $this->assertEquals(true, $arr->isIndexable(true));
+        $this->assertEquals(true, $arr->isIndexable(1));
+        $this->assertEquals(true, $arr->isIndexable('string'));
+        $this->assertEquals(true, $arr->isIndexable([]));
+        $this->assertEquals(true, $arr->isIndexable([ null ]));
+        $this->assertEquals(true, $arr->isIndexable([ true ]));
+        $this->assertEquals(true, $arr->isIndexable([ 1 ]));
+        $this->assertEquals(true, $arr->isIndexable([ 'string' ]));
+        $this->assertEquals(true, $arr->isIndexable([ [] ]));
+        $this->assertEquals(true, $arr->isIndexable([ [ null ] ]));
+        $this->assertEquals(true, $arr->isIndexable([ [ true ] ]));
+        $this->assertEquals(true, $arr->isIndexable([ [ 1 ] ]));
+        $this->assertEquals(true, $arr->isIndexable([ [ 'string' ] ]));
+        $this->assertEquals(true, $arr->isIndexable([ [ [] ] ]));
+
+        $this->assertEquals(false, $arr->isIndexable(new \StdClass()));
+        $this->assertEquals(false, $arr->isIndexable([ new \StdClass() ]));
+        $this->assertEquals(false, $arr->isIndexable([ [ new \StdClass() ] ]));
     }
 
 
@@ -520,6 +300,67 @@ class ArrTest extends AbstractTestCase
         $this->assertEquals(false, $arr->has([ '', '' ], $array));
         $this->assertEquals(false, $arr->has([ 'hello.world' ], $array));
         $this->assertEquals(false, $arr->has([ 'hello', 'world' ], $array));
+    }
+
+
+    public function testSet()
+    {
+        $arr = $this->getArr();
+
+        $dst = [];
+        $arr->set($dst, '', 1);
+        $this->assertEquals([ '' => 1 ], $dst);
+
+        $dst = [];
+        $arr->set($dst, 'hello', 1);
+        $this->assertEquals([ 'hello' => 1 ], $dst);
+
+        $dst = [];
+        $arr->set($dst, 'hello.world', 1);
+        $this->assertEquals([ 'hello' => [ 'world' => 1 ] ], $dst);
+
+        $dst = [];
+        $arr->set($dst, [ '' ], 1);
+        $this->assertEquals([ '' => 1 ], $dst);
+
+        $dst = [];
+        $arr->set($dst, [ '', '' ], 1);
+        $this->assertEquals([ '' => [ '' => 1 ] ], $dst);
+
+        $dst = [];
+        $arr->set($dst, [ 'hello' ], 1);
+        $this->assertEquals([ 'hello' => 1 ], $dst);
+
+        $dst = [];
+        $arr->set($dst, [ 'hello.world' ], 1);
+        $this->assertEquals([ 'hello' => [ 'world' => 1 ] ], $dst);
+
+        $dst = [];
+        $arr->set($dst, [ 'hello', 'world' ], 1);
+        $this->assertEquals([ 'hello' => [ 'world' => 1 ] ], $dst);
+
+        $dst = [];
+        $arr->set($dst, [ 'hello', 'world', 'hello.world' ], 1);
+        $this->assertEquals([ 'hello' => [ 'world' => [ 'hello' => [ 'world' => 1 ] ] ] ], $dst);
+
+        $dst = [];
+        $arr->set($dst, [ 'hello', 'world', [ 'hello.world' ] ], 1);
+        $this->assertEquals([ 'hello' => [ 'world' => [ 'hello' => [ 'world' => 1 ] ] ] ], $dst);
+    }
+
+    public function testBadSet()
+    {
+        $arr = $this->getArr();
+
+        $dst = [];
+
+        $this->assertException(InvalidArgumentException::class, function () use ($arr, $dst) {
+            $arr->set($dst, null, 1);
+        });
+
+        $this->assertException(InvalidArgumentException::class, function () use ($arr, $dst) {
+            $arr->set($dst, [], 1);
+        });
     }
 
 
@@ -692,6 +533,7 @@ class ArrTest extends AbstractTestCase
         });
     }
 
+
     public function testDelete()
     {
         $arr = $this->getArr();
@@ -788,6 +630,454 @@ class ArrTest extends AbstractTestCase
 
         $copy = $array;
         $this->assertEquals(false, $arr->delete($copy, [ 'hello', 'world' ]));
+    }
+
+
+    public function testPut()
+    {
+        $arr = $this->getArr();
+
+        $dst = [];
+        $ref =& $arr->put($dst, '', 1);
+        $ref = 2;
+        $this->assertEquals([ '' => 2 ], $dst);
+        unset($ref);
+
+        $dst = [];
+        $ref =& $arr->put($dst, 'hello', 1);
+        $ref = 2;
+        $this->assertEquals([ 'hello' => 2 ], $dst);
+        unset($ref);
+
+        $dst = [];
+        $ref =& $arr->put($dst, 'hello.world', 1);
+        $ref = 2;
+        $this->assertEquals([ 'hello' => [ 'world' => 2 ] ], $dst);
+        unset($ref);
+
+        $dst = [];
+        $ref =& $arr->put($dst, [ '' ], 1);
+        $ref = 2;
+        $this->assertEquals([ '' => 2 ], $dst);
+        unset($ref);
+
+        $dst = [];
+        $ref =& $arr->put($dst, [ '', '' ], 1);
+        $ref = 2;
+        $this->assertEquals([ '' => [ '' => 2 ] ], $dst);
+        unset($ref);
+
+        $dst = [];
+        $ref =& $arr->put($dst, [ 'hello' ], 1);
+        $ref = 2;
+        $this->assertEquals([ 'hello' => 2 ], $dst);
+        unset($ref);
+
+        $dst = [];
+        $ref =& $arr->put($dst, [ 'hello.world' ], 1);
+        $ref = 2;
+        $this->assertEquals([ 'hello' => [ 'world' => 2 ] ], $dst);
+        unset($ref);
+
+        $dst = [];
+        $ref =& $arr->put($dst, [ 'hello', 'world' ], 1);
+        $ref = 2;
+        $this->assertEquals([ 'hello' => [ 'world' => 2 ] ], $dst);
+        unset($ref);
+
+        $dst = [];
+        $ref =& $arr->put($dst, [ 'hello', 'world', 'hello.world' ], 1);
+        $ref = 2;
+        $this->assertEquals([ 'hello' => [ 'world' => [ 'hello' => [ 'world' => 2 ] ] ] ], $dst);
+        unset($ref);
+
+        $dst = [];
+        $ref =& $arr->put($dst, [ 'hello', 'world', [ 'hello.world' ] ], 1);
+        $ref = 2;
+        $this->assertEquals([ 'hello' => [ 'world' => [ 'hello' => [ 'world' => 2 ] ] ] ], $dst);
+        unset($ref);
+    }
+
+    public function testBadPut()
+    {
+        $arr = $this->getArr();
+
+        $dst = [];
+
+        $this->assertException(InvalidArgumentException::class, function () use ($arr, $dst) {
+            $arr->put($dst, null, 1);
+        });
+
+        $this->assertException(InvalidArgumentException::class, function () use ($arr, $dst) {
+            $arr->put($dst, [], 1);
+        });
+    }
+
+
+    public function testClear()
+    {
+        $arr = $this->getArr();
+
+        $this->assertEquals([ 1 => null ], $arr->clear([ 1 => 1 ]));
+    }
+
+
+    public function testOnly()
+    {
+        $arr = $this->getArr();
+
+        $this->assertEquals([ 1 => 1 ], $arr->only([ 1 => 1, 2 => 1 ], 1));
+        $this->assertEquals([ 1 => 1 ], $arr->only([ 1 => 1, 2 => 1 ], '1'));
+        $this->assertEquals([ 1 => 1 ], $arr->only([ 1 => 1, 2 => 1 ], [ 1 ]));
+    }
+
+    public function testExcept()
+    {
+        $arr = $this->getArr();
+
+        $this->assertEquals([ 2 => 1 ], $arr->except([ 1 => 1, 2 => 1 ], 1));
+        $this->assertEquals([ 2 => 1 ], $arr->except([ 1 => 1, 2 => 1 ], '1'));
+        $this->assertEquals([ 2 => 1 ], $arr->except([ 1 => 1, 2 => 1 ], [ 1 ]));
+    }
+
+    public function testDrop()
+    {
+        $arr = $this->getArr();
+
+        $this->assertEquals([ 2 => 1 ], $arr->drop([ 1 => 1, 2 => 1 ], 1));
+        $this->assertEquals([ 2 => 1 ], $arr->drop([ 1 => 1, 2 => 1 ], '1'));
+        $this->assertEquals([ 2 => 1 ], $arr->drop([ 1 => 1, 2 => 1 ], [ 1 ]));
+    }
+
+
+    public function testCombine()
+    {
+        $arr = $this->getArr();
+
+        $this->assertEquals([ 1 => 1 ], $arr->combine([ 1 ], 1));
+        $this->assertEquals([ 1 => 1 ], $arr->combine([ 1 ], [ 1, 2 ]));
+
+        $this->assertEquals([ 1 => 1, 2 => 1 ], $arr->combine([ 1, 2 ], 1));
+        $this->assertEquals([ 1 => 1, 2 => 2 ], $arr->combine([ 1, 2 ], [ 1, 2 ]));
+
+        $this->assertEquals([ 1 => 1, 2 => 1, 3 => 1 ], $arr->combine([ 1, 2, 3 ], 1));
+        $this->assertEquals([ 1 => 1, 2 => 2, 3 => null ], $arr->combine([ 1, 2, 3 ], [ 1, 2 ]));
+    }
+
+
+    public function testZip()
+    {
+        $arr = $this->getArr();
+
+        $this->assertEquals([
+            [ 'b1', 'b2' ],
+        ], $arr->zip([ 'b1' ], [ 'b2' ]));
+
+        $ids = [ 1, 2, 3, 4 ];
+        $names = [ 'a', 'b', 'c', 'd' ];
+        $this->assertEquals([
+            [ 1, 'a' ],
+            [ 2, 'b' ],
+            [ 3, 'c' ],
+            [ 4, 'd' ],
+        ], $arr->zip($ids, $names));
+    }
+
+    public function testPartition()
+    {
+        $arr = $this->getArr();
+
+        $ids = [ 1, 2, 3, 4 ];
+        $this->assertEquals([
+            [ 1, 2 ],
+            [ 2 => 3, 3 => 4 ],
+        ], $arr->partition($ids, function ($v) { return $v > 2; }));
+
+        $ids = [ 'a' => 1, 'b' => 2, 'c' => 3, 'd' => 4 ];
+        $this->assertEquals([
+            [ 'a' => 1, 'b' => 2 ],
+            [ 'c' => 3, 'd' => 4 ],
+        ], $arr->partition($ids, function ($v) { return $v > 2; }));
+    }
+
+    public function testGroup()
+    {
+        $arr = $this->getArr();
+
+        $ids = [ 1, 2, 3, 4 ];
+        $this->assertEquals([
+            [
+                'lower' => [ 1, 2 ],
+                'upper' => [ 2 => 3, 3 => 4 ],
+            ],
+            [],
+        ], $arr->group($ids, function ($v) { return $v > 2 ? 'upper' : 'lower'; }));
+    }
+
+
+    public function testPath()
+    {
+        $arr = $this->getArr();
+
+        $this->assertEquals([ '' ], $arr->path('.', ''));
+        $this->assertEquals([ 'hello' ], $arr->path('.', 'hello'));
+        $this->assertEquals([ 'hello', 'world' ], $arr->path('.', 'hello.world'));
+        $this->assertEquals([], $arr->path('.', []));
+        $this->assertEquals([ '' ], $arr->path('.', [ '' ]));
+        $this->assertEquals([ '', '' ], $arr->path('.', [ '', '' ]));
+        $this->assertEquals([ 'hello' ], $arr->path('.', [ 'hello' ]));
+        $this->assertEquals([ 'hello', 'world' ], $arr->path('.', [ 'hello.world' ]));
+        $this->assertEquals([ 'hello', 'world' ], $arr->path('.', [ 'hello', 'world' ]));
+        $this->assertEquals(
+            [ 'hello', 'world', 'hello', 'world' ],
+            $arr->path('.', [ 'hello', 'world', 'hello.world' ])
+        );
+        $this->assertEquals(
+            [ 'hello', 'world', 'hello', 'world' ],
+            $arr->path('.', [ 'hello', 'world', [ 'hello.world' ] ])
+        );
+    }
+
+    public function testBadPath()
+    {
+        $arr = $this->getArr();
+
+        $this->assertException(InvalidArgumentException::class, function () use ($arr) {
+            $arr->path('.', null);
+        });
+
+        $this->assertException(InvalidArgumentException::class, function () use ($arr) {
+            $arr->path('.', [ null ]);
+        });
+    }
+
+
+    public function testKey()
+    {
+        $arr = $this->getArr();
+
+        $this->assertEquals('', $arr->key('.', ''));
+        $this->assertEquals('hello', $arr->key('.', 'hello'));
+        $this->assertEquals('hello.world', $arr->key('.', 'hello.world'));
+        $this->assertEquals('', $arr->key('.', []));
+        $this->assertEquals('', $arr->key('.', [ '' ]));
+        $this->assertEquals('', '', $arr->key('.', [ '', '' ]));
+        $this->assertEquals('hello', $arr->key('.', [ 'hello' ]));
+        $this->assertEquals('hello.world', $arr->key('.', [ 'hello.world' ]));
+        $this->assertEquals('hello.world', $arr->key('.', [ 'hello', 'world' ]));
+        $this->assertEquals(
+            'hello.world.hello.world',
+            $arr->key('.', [ 'hello', 'world', 'hello.world' ])
+        );
+        $this->assertEquals(
+            'hello.world.hello.world',
+            $arr->key('.', [ 'hello', 'world', [ 'hello.world' ] ])
+        );
+    }
+
+    public function testBadKey()
+    {
+        $arr = $this->getArr();
+
+        $this->assertException(InvalidArgumentException::class, function () use ($arr) {
+            $arr->key('.', null);
+        });
+
+        $this->assertException(InvalidArgumentException::class, function () use ($arr) {
+            $arr->key('.', [ null ]);
+        });
+    }
+
+
+    public function testIndexKey()
+    {
+        $arr = $this->getArr();
+
+        $this->assertEquals('', $arr->indexKey('', '.'));
+        $this->assertEquals('', $arr->indexKey([ '' ], '.'));
+        $this->assertEquals('hello', $arr->indexKey('hello', '.'));
+        $this->assertEquals('hello.world', $arr->indexKey('hello.world', '.'));
+        $this->assertEquals('', $arr->indexKey([], '.'));
+        $this->assertEquals('.', $arr->indexKey([ '', '' ], '.'));
+        $this->assertEquals('hello', $arr->indexKey([ 'hello' ], '.'));
+        $this->assertEquals('hello.world', $arr->indexKey([ 'hello.world' ], '.'));
+        $this->assertEquals('hello.world', $arr->indexKey([ 'hello', 'world' ], '.'));
+        $this->assertEquals('hello.world.hello.world', $arr->indexKey([ 'hello', 'world', 'hello.world' ], '.'));
+        $this->assertEquals('hello.world.hello.world', $arr->indexKey([ 'hello', 'world', [ 'hello.world' ] ], '.'));
+    }
+
+    public function testBadIndexKey()
+    {
+        $arr = $this->getArr();
+
+        $this->assertException(InvalidArgumentException::class, function () use ($arr) {
+            $arr->indexKey(null, '.');
+        });
+
+        $this->assertException(InvalidArgumentException::class, function () use ($arr) {
+            $arr->indexKey([ null ], '.');
+        });
+    }
+
+
+    public function testIndexVal()
+    {
+        $arr = $this->getArr();
+
+        $this->assertEquals('null', $arr->indexVal(null));
+        $this->assertEquals('true', $arr->indexVal(true));
+        $this->assertEquals('1', $arr->indexVal(1));
+        $this->assertEquals('"string"', $arr->indexVal('string'));
+        $this->assertEquals('[]', $arr->indexVal([]));
+        $this->assertEquals('[null]', $arr->indexVal([ null ]));
+        $this->assertEquals('[true]', $arr->indexVal([ true ]));
+        $this->assertEquals('[1]', $arr->indexVal([ 1 ]));
+        $this->assertEquals('["string"]', $arr->indexVal([ 'string' ]));
+        $this->assertEquals('[[]]', $arr->indexVal([ [] ]));
+        $this->assertEquals('[[null]]', $arr->indexVal([ [ null ] ]));
+        $this->assertEquals('[[true]]', $arr->indexVal([ [ true ] ]));
+        $this->assertEquals('[[1]]', $arr->indexVal([ [ 1 ] ]));
+        $this->assertEquals('[["string"]]', $arr->indexVal([ [ 'string' ] ]));
+        $this->assertEquals('[[[]]]', $arr->indexVal([ [ [] ] ]));
+    }
+
+    public function testBadIndexVal()
+    {
+        $arr = $this->getArr();
+
+        $this->assertException(InvalidArgumentException::class, function () use ($arr) {
+            $this->assertEquals(false, $arr->indexVal(new \StdClass()));
+        });
+        $this->assertException(InvalidArgumentException::class, function () use ($arr) {
+            $this->assertEquals(false, $arr->indexVal([ new \StdClass() ]));
+        });
+        $this->assertException(InvalidArgumentException::class, function () use ($arr) {
+            $this->assertEquals(false, $arr->indexVal([ [ new \StdClass() ] ]));
+        });
+    }
+
+
+    public function testDot()
+    {
+        $arr = $this->getArr();
+
+        $array = [ 1, [ 2, [ 3, [ 4 ] ] ] ];
+
+        $this->assertEquals([
+            '0'       => 1,
+            '1.0'     => 2,
+            '1.1.0'   => 3,
+            '1.1.1.0' => 4,
+        ], $arr->dot($array));
+    }
+
+    public function testUndot()
+    {
+        $arr = $this->getArr();
+
+        $array = [
+            '0'       => 1,
+            '1.0'     => 2,
+            '1.1.0'   => 3,
+            '1.1.1.0' => 4,
+        ];
+
+        $this->assertEquals([ 1, [ 2, [ 3, [ 4 ] ] ] ], $arr->undot($array));
+    }
+
+
+    public function testWalk()
+    {
+        $arr = $this->getArr();
+
+        $array = [
+            'hello'       => null,
+            'world'       => [],
+            'hello.world' => [
+                'hello'       => null,
+                'world'       => [],
+                'hello.world' => [
+                    null,
+                ],
+            ],
+        ];
+
+        $pathes = [];
+        $values = [];
+        foreach ( $arr->walk($array) as $fullpath => $item ) {
+            $pathes[] = $fullpath;
+            $values[] = $item;
+        }
+
+        $this->assertEquals([
+            [ 'hello' ],
+            [ 'world' ],
+            [ 'hello.world' ],
+            [ 'hello.world', 'hello' ],
+            [ 'hello.world', 'world' ],
+            [ 'hello.world', 'hello.world' ],
+            [ 'hello.world', 'hello.world', 0 ],
+        ], $pathes);
+
+        $this->assertEquals([
+            null,
+            [],
+            [
+                "hello"       => null,
+                "world"       => [],
+                "hello.world" => [
+                    0 => null,
+                ],
+            ],
+            null,
+            [],
+            [ 0 => null ],
+            null,
+        ], $values);
+    }
+
+    public function testCrawl()
+    {
+        $arr = $this->getArr();
+
+        $array = [
+            'hello'       => null,
+            'world'       => [],
+            'hello.world' => $it = new \ArrayIterator([
+                'hello'       => null,
+                'world'       => [],
+                'hello.world' => [
+                    null,
+                ],
+            ]),
+        ];
+
+        $pathes = [];
+        $values = [];
+        foreach ( $arr->crawl($array) as $fullpath => $item ) {
+            $pathes[] = $fullpath;
+            $values[] = $item;
+        }
+
+        $this->assertEquals([
+            [ 'hello' ],
+            [ 'world' ],
+            [ 'hello.world' ],
+            [ 'hello.world', 'hello' ],
+            [ 'hello.world', 'world' ],
+            [ 'hello.world', 'hello.world' ],
+            [ 'hello.world', 'hello.world', 0 ],
+        ], $pathes);
+
+        $this->assertEquals([
+            null,
+            [],
+            $it,
+            null,
+            [],
+            [ 0 => null ],
+            null,
+        ], $values);
     }
 
 
@@ -919,7 +1209,7 @@ class ArrTest extends AbstractTestCase
         );
     }
 
-    public function testExpandManyBad()
+    public function testBadExpandMany()
     {
         // similar string keys couldn't be ordered when conflict
 
@@ -937,85 +1227,5 @@ class ArrTest extends AbstractTestCase
         ];
 
         $arr->expandMany($dst, ...$expands);
-    }
-
-
-    public function testDotkey()
-    {
-        $arr = $this->getArr();
-
-        $this->assertEquals('', $arr->dotkey(''));
-        $this->assertEquals('', $arr->dotkey([ '' ]));
-        $this->assertEquals('hello', $arr->dotkey('hello'));
-        $this->assertEquals('hello.world', $arr->dotkey('hello.world'));
-        $this->assertEquals('', $arr->dotkey([]));
-        $this->assertEquals('.', $arr->dotkey([ '', '' ]));
-        $this->assertEquals('hello', $arr->dotkey([ 'hello' ]));
-        $this->assertEquals('hello.world', $arr->dotkey([ 'hello.world' ]));
-        $this->assertEquals('hello.world', $arr->dotkey([ 'hello', 'world' ]));
-        $this->assertEquals('hello.world.hello.world', $arr->dotkey([ 'hello', 'world', 'hello.world' ]));
-        $this->assertEquals('hello.world.hello.world', $arr->dotkey([ 'hello', 'world', [ 'hello.world' ] ]));
-    }
-
-    public function testDotkeyBad()
-    {
-        $arr = $this->getArr();
-
-        $this->assertException(InvalidArgumentException::class, function () use ($arr) {
-            $arr->dotkey(null);
-        });
-
-        $this->assertException(InvalidArgumentException::class, function () use ($arr) {
-            $arr->dotkey([ null ]);
-        });
-    }
-
-    public function testDotkeyUnsafe()
-    {
-        $arr = $this->getArr();
-
-        $this->assertEquals('', $arr->dotkeyUnsafe(null));
-        $this->assertEquals('', $arr->dotkeyUnsafe(''));
-        $this->assertEquals('hello', $arr->dotkeyUnsafe('hello'));
-        $this->assertEquals('hello.world', $arr->dotkeyUnsafe('hello.world'));
-        $this->assertEquals('', $arr->dotkeyUnsafe([]));
-        $this->assertEquals('', $arr->dotkeyUnsafe([ null ]));
-        $this->assertEquals('', $arr->dotkeyUnsafe([ '' ]));
-        $this->assertEquals('', $arr->dotkeyUnsafe([ '', null ]));
-        $this->assertEquals('.', $arr->dotkeyUnsafe([ '', '' ]));
-        $this->assertEquals('hello', $arr->dotkeyUnsafe([ 'hello' ]));
-        $this->assertEquals('hello.world', $arr->dotkeyUnsafe([ 'hello.world' ]));
-        $this->assertEquals('hello.world', $arr->dotkeyUnsafe([ 'hello', 'world' ]));
-        $this->assertEquals('hello.world.hello.world', $arr->dotkeyUnsafe([ 'hello', 'world', 'hello.world' ]));
-        $this->assertEquals('hello.world.hello.world', $arr->dotkeyUnsafe([ 'hello', 'world', [ 'hello.world' ] ]));
-    }
-
-
-    public function testDot()
-    {
-        $arr = $this->getArr();
-
-        $array = [ 1, [ 2, [ 3, [ 4 ] ] ] ];
-
-        $this->assertEquals([
-            '0'       => 1,
-            '1.0'     => 2,
-            '1.1.0'   => 3,
-            '1.1.1.0' => 4,
-        ], $arr->dot($array));
-    }
-
-    public function testUndot()
-    {
-        $arr = $this->getArr();
-
-        $array = [
-            '0'       => 1,
-            '1.0'     => 2,
-            '1.1.0'   => 3,
-            '1.1.1.0' => 4,
-        ];
-
-        $this->assertEquals([ 1, [ 2, [ 3, [ 4 ] ] ] ], $arr->undot($array));
     }
 }

@@ -4,6 +4,7 @@ namespace Gzhegow\Support\Tests;
 
 use Gzhegow\Support\Arr;
 use Gzhegow\Support\Php;
+use Gzhegow\Support\Str;
 use Gzhegow\Support\Curl;
 use Gzhegow\Support\Filter;
 
@@ -22,11 +23,19 @@ class CurlTest extends AbstractTestCase
         );
     }
 
+    protected function getStr() : Str
+    {
+        return new Str(
+            $this->getFilter(),
+        );
+    }
+
     protected function getArr() : Arr
     {
         return new Arr(
             $this->getFilter(),
-            $this->getPhp()
+            $this->getPhp(),
+            $this->getStr()
         );
     }
 
