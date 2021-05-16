@@ -267,16 +267,15 @@ class Type
         return null !== $this->filter->filterCallableString($callable, $callableInfo);
     }
 
-
     /**
-     * @param mixed             $value
+     * @param mixed             $callableString
      * @param null|CallableInfo $callableInfo
      *
      * @return bool
      */
-    public function isClosure($value, CallableInfo &$callableInfo = null) : bool
+    public function isCallableStringStatic($callableString, CallableInfo &$callableInfo = null) : bool
     {
-        return null !== $this->filter->filterClosure($value, $callableInfo);
+        return null !== $this->filter->filterCallableStringStatic($callableString, $callableInfo);
     }
 
 
@@ -315,14 +314,14 @@ class Type
 
 
     /**
-     * @param mixed             $handler
+     * @param mixed             $value
      * @param null|CallableInfo $callableInfo
      *
      * @return bool
      */
-    public function isCallableHandler($handler, CallableInfo &$callableInfo = null) : bool
+    public function isClosure($value, CallableInfo &$callableInfo = null) : bool
     {
-        return null !== $this->filter->filterCallableHandler($handler, $callableInfo);
+        return null !== $this->filter->filterClosure($value, $callableInfo);
     }
 
 
@@ -355,17 +354,6 @@ class Type
     public function isValidClassName($className) : bool
     {
         return null !== $this->filter->filterValidClassName($className);
-    }
-
-
-    /**
-     * @param mixed $obj
-     *
-     * @return bool
-     */
-    public function isReflectionClass($obj) : bool
-    {
-        return null !== $this->filter->filterReflectionClass($obj);
     }
 
 

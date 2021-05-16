@@ -222,6 +222,17 @@ abstract class Filter
     }
 
     /**
+     * @param mixed             $callableString
+     * @param null|CallableInfo $callableInfo
+     *
+     * @return null|callable
+     */
+    public static function filterCallableStringStatic($callableString, CallableInfo &$callableInfo = null)
+    {
+        return static::getInstance()->filterCallableStringStatic($callableString, $callableInfo);
+    }
+
+    /**
      * @param mixed             $callable
      * @param null|CallableInfo $callableInfo
      *
@@ -266,17 +277,6 @@ abstract class Filter
     }
 
     /**
-     * @param mixed             $handler
-     * @param null|CallableInfo $callableInfo
-     *
-     * @return null|callable
-     */
-    public static function filterCallableHandler($handler, CallableInfo &$callableInfo = null)
-    {
-        return static::getInstance()->filterCallableHandler($handler, $callableInfo);
-    }
-
-    /**
      * @param mixed $class
      *
      * @return null|string
@@ -304,17 +304,6 @@ abstract class Filter
     public static function filterValidClassName($className) : ?string
     {
         return static::getInstance()->filterValidClassName($className);
-    }
-
-    /**
-     * @param \ReflectionClass  $reflectionClass
-     * @param string|null      &$class
-     *
-     * @return null|\ReflectionClass
-     */
-    public static function filterReflectionClass($reflectionClass, string &$class = null) : ?ReflectionClass
-    {
-        return static::getInstance()->filterReflectionClass($reflectionClass, $class);
     }
 
     /**

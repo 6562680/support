@@ -231,14 +231,14 @@ abstract class Type
     }
 
     /**
-     * @param mixed             $value
+     * @param mixed             $callableString
      * @param null|CallableInfo $callableInfo
      *
      * @return bool
      */
-    public static function isClosure($value, CallableInfo &$callableInfo = null) : bool
+    public static function isCallableStringStatic($callableString, CallableInfo &$callableInfo = null) : bool
     {
-        return static::getInstance()->isClosure($value, $callableInfo);
+        return static::getInstance()->isCallableStringStatic($callableString, $callableInfo);
     }
 
     /**
@@ -275,14 +275,14 @@ abstract class Type
     }
 
     /**
-     * @param mixed             $handler
+     * @param mixed             $value
      * @param null|CallableInfo $callableInfo
      *
      * @return bool
      */
-    public static function isCallableHandler($handler, CallableInfo &$callableInfo = null) : bool
+    public static function isClosure($value, CallableInfo &$callableInfo = null) : bool
     {
-        return static::getInstance()->isCallableHandler($handler, $callableInfo);
+        return static::getInstance()->isClosure($value, $callableInfo);
     }
 
     /**
@@ -313,16 +313,6 @@ abstract class Type
     public static function isValidClassName($className) : bool
     {
         return static::getInstance()->isValidClassName($className);
-    }
-
-    /**
-     * @param mixed $obj
-     *
-     * @return bool
-     */
-    public static function isReflectionClass($obj) : bool
-    {
-        return static::getInstance()->isReflectionClass($obj);
     }
 
     /**

@@ -465,6 +465,30 @@ class Filter
         return null;
     }
 
+    /**
+     * @param mixed             $callableString
+     * @param null|CallableInfo $callableInfo
+     *
+     * @return null|callable
+     */
+    public function filterCallableStringStatic($callableString, CallableInfo &$callableInfo = null) // : ?callable
+    {
+        $isCallable = ( null !== $this->filterTheString($callableString) )
+            && ( 1 === substr_count($callableString, '::') );
+
+        if (! $isCallable) {
+            return null;
+        }
+
+        $callable = explode('::', $callableString, 2);
+
+        if (null !== $this->filterCallableArrayStatic($callable, $callableInfo)) {
+            return $callable;
+        }
+
+        return null;
+    }
+
 
     /**
      * @param mixed             $callable
@@ -560,32 +584,6 @@ class Filter
 
 
     /**
-     * @param mixed             $handler
-     * @param null|CallableInfo $callableInfo
-     *
-     * @return null|callable
-     */
-    public function filterCallableHandler($handler, CallableInfo &$callableInfo = null) // : ?callable
-    {
-        $isHandler = ( null !== $this->filterTheString($handler) )
-            && ( $handler[ 0 ] !== '@' )
-            && ( 1 === substr_count($handler, '@') );
-
-        if (! $isHandler) {
-            return null;
-        }
-
-        $callable = explode('@', $handler, 2);
-
-        if (null !== $this->filterCallableArrayStatic($callable, $callableInfo)) {
-            return $callable;
-        }
-
-        return null;
-    }
-
-
-    /**
      * @param mixed $class
      *
      * @return null|string
@@ -631,24 +629,6 @@ class Filter
             && ( false !== preg_match('~^[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*$~', $className) )
         ) {
             return $className;
-        }
-
-        return null;
-    }
-
-
-    /**
-     * @param \ReflectionClass  $reflectionClass
-     * @param string|null      &$class
-     *
-     * @return null|\ReflectionClass
-     */
-    public function filterReflectionClass($reflectionClass, string &$class = null) : ?\ReflectionClass
-    {
-        if (is_object($reflectionClass) && is_a($reflectionClass, \ReflectionClass::class)) {
-            $class = $reflectionClass->getName();
-
-            return $reflectionClass;
         }
 
         return null;
