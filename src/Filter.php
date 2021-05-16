@@ -428,9 +428,9 @@ class Filter
      * @param mixed             $callable
      * @param null|CallableInfo $callableInfo
      *
-     * @return null|callable
+     * @return null|string|array|\Closure|callable
      */
-    public function filterCallable($callable, CallableInfo &$callableInfo = null) // : ?callable
+    public function filterCallable($callable, CallableInfo &$callableInfo = null) // : ?string|array|\Closure
     {
         if (0
             || ( null !== $this->filterClosure($callable, $callableInfo) )
@@ -444,22 +444,20 @@ class Filter
     }
 
     /**
-     * @param mixed             $callable
+     * @param mixed             $callableString
      * @param null|CallableInfo $callableInfo
      *
-     * @return null|callable
+     * @return null|string|array|callable
      */
-    public function filterCallableString($callable, CallableInfo &$callableInfo = null) // : ?callable
+    public function filterCallableString($callableString, CallableInfo &$callableInfo = null) // : ?string|array
     {
-        $callableInfo = $callableInfo ?? new CallableInfo();
-
-        if (( null !== $this->filterTheString($callable) )
-            && is_callable($callable)
+        if (! is_array($callableString)
+            && ( 0
+                || ( null !== $this->filterCallableStringFunction($callableString, $callableInfo) )
+                || ( null !== $this->filterCallableStringStatic($callableString, $callableInfo) )
+            )
         ) {
-            $callableInfo->function = $callable;
-            $callableInfo->callable = $callable;
-
-            return $callable;
+            return $callableString;
         }
 
         return null;
@@ -469,14 +467,35 @@ class Filter
      * @param mixed             $callableString
      * @param null|CallableInfo $callableInfo
      *
-     * @return null|callable
+     * @return null|string|callable
      */
-    public function filterCallableStringStatic($callableString, CallableInfo &$callableInfo = null) // : ?callable
+    public function filterCallableStringFunction($callableString, CallableInfo &$callableInfo = null) : ?string
     {
-        $isCallable = ( null !== $this->filterTheString($callableString) )
-            && ( 1 === substr_count($callableString, '::') );
+        $callableInfo = $callableInfo ?? new CallableInfo();
 
-        if (! $isCallable) {
+        if (( null !== $this->filterTheString($callableString) )
+            && function_exists($callableString)
+        ) {
+            $callableInfo->function = $callableString;
+            $callableInfo->callable = $callableString;
+
+            return $callableString;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param mixed             $callableString
+     * @param null|CallableInfo $callableInfo
+     *
+     * @return null|string|callable
+     */
+    public function filterCallableStringStatic($callableString, CallableInfo &$callableInfo = null) : ?string
+    {
+        if (! $isCallable = ( null !== $this->filterTheString($callableString) )
+            && ( 1 === substr_count($callableString, '::') )
+        ) {
             return null;
         }
 
@@ -491,71 +510,71 @@ class Filter
 
 
     /**
-     * @param mixed             $callable
+     * @param mixed             $callableArray
      * @param null|CallableInfo $callableInfo
      *
-     * @return null|callable
+     * @return null|array|callable
      */
-    public function filterCallableArray($callable, CallableInfo &$callableInfo = null) // : ?callable
+    public function filterCallableArray($callableArray, CallableInfo &$callableInfo = null) : ?array
     {
-        if (is_array($callable)
+        if (is_array($callableArray)
             && ( 0
-                || $this->filterCallableArrayStatic($callable, $callableInfo)
-                || $this->filterCallableArrayPublic($callable, $callableInfo)
+                || $this->filterCallableArrayStatic($callableArray, $callableInfo)
+                || $this->filterCallableArrayPublic($callableArray, $callableInfo)
             )
         ) {
-            return $callable;
+            return $callableArray;
         }
 
         return null;
     }
 
     /**
-     * @param mixed             $callable
+     * @param mixed             $callableArray
      * @param null|CallableInfo $callableInfo
      *
-     * @return null|callable
+     * @return null|array|callable
      */
-    public function filterCallableArrayStatic($callable, CallableInfo &$callableInfo = null) // : ?callable
+    public function filterCallableArrayStatic($callableArray, CallableInfo &$callableInfo = null) : ?array
     {
         $callableInfo = $callableInfo ?? new CallableInfo();
 
-        if (is_array($callable)
-            && isset($callable[ 0 ]) && ( null !== $this->filterTheString($callable[ 0 ]) )
-            && isset($callable[ 1 ]) && ( null !== $this->filterTheString($callable[ 1 ]) )
-            && is_callable($callable)
+        if (is_array($callableArray)
+            && isset($callableArray[ 0 ]) && ( null !== $this->filterTheString($callableArray[ 0 ]) )
+            && isset($callableArray[ 1 ]) && ( null !== $this->filterTheString($callableArray[ 1 ]) )
+            && is_callable($callableArray)
         ) {
-            $callableInfo->class = $callable[ 0 ];
-            $callableInfo->method = $callable[ 1 ];
-            $callableInfo->callable = $callable;
+            $callableInfo->class = $callableArray[ 0 ];
+            $callableInfo->method = $callableArray[ 1 ];
+            $callableInfo->callable = $callableArray;
 
-            return $callable;
+            return $callableArray;
         }
 
         return null;
     }
 
     /**
-     * @param mixed             $callable
+     * @param mixed             $callableArray
      * @param null|CallableInfo $callableInfo
      *
-     * @return null|callable
+     * @return null|array|callable
      */
-    public function filterCallableArrayPublic($callable, CallableInfo &$callableInfo = null) // : ?callable
+    public function filterCallableArrayPublic($callableArray, CallableInfo &$callableInfo = null) : ?array
     {
         $callableInfo = $callableInfo ?? new CallableInfo();
 
-        if (is_array($callable)
-            && isset($callable[ 0 ]) && is_object($callable[ 0 ])
-            && isset($callable[ 1 ]) && ( null !== $this->filterTheString($callable[ 1 ]) )
-            && is_callable($callable)
+        if (is_array($callableArray)
+            && isset($callableArray[ 0 ]) && is_object($callableArray[ 0 ])
+            && isset($callableArray[ 1 ]) && ( null !== $this->filterTheString($callableArray[ 1 ]) )
+            && is_callable($callableArray)
         ) {
-            $callableInfo->object = $callable[ 0 ];
-            $callableInfo->class = get_class($callable[ 0 ]);
-            $callableInfo->method = $callable[ 1 ];
-            $callableInfo->callable = $callable;
+            $callableInfo->object = $callableArray[ 0 ];
+            $callableInfo->class = get_class($callableArray[ 0 ]);
+            $callableInfo->method = $callableArray[ 1 ];
+            $callableInfo->callable = $callableArray;
 
-            return $callable;
+            return $callableArray;
         }
 
         return null;

@@ -257,14 +257,25 @@ class Type
     }
 
     /**
-     * @param                   $callable
+     * @param                   $callableString
      * @param null|CallableInfo $callableInfo
      *
      * @return bool
      */
-    public function isCallableString($callable, CallableInfo &$callableInfo = null) : bool
+    public function isCallableString($callableString, CallableInfo &$callableInfo = null) : bool
     {
-        return null !== $this->filter->filterCallableString($callable, $callableInfo);
+        return null !== $this->filter->filterCallableString($callableString, $callableInfo);
+    }
+
+    /**
+     * @param mixed             $callableString
+     * @param null|CallableInfo $callableInfo
+     *
+     * @return null|string|callable
+     */
+    public function isCallableStringFunction($callableString, CallableInfo &$callableInfo = null) : bool
+    {
+        return null !== $this->filter->filterCallableStringFunction($callableString, $callableInfo);
     }
 
     /**
@@ -280,48 +291,48 @@ class Type
 
 
     /**
-     * @param mixed             $callable
+     * @param mixed             $callableArray
      * @param null|CallableInfo $callableInfo
      *
      * @return bool
      */
-    public function isCallableArray($callable, CallableInfo &$callableInfo = null) : bool
+    public function isCallableArray($callableArray, CallableInfo &$callableInfo = null) : bool
     {
-        return null !== $this->filter->filterCallableArray($callable, $callableInfo);
+        return null !== $this->filter->filterCallableArray($callableArray, $callableInfo);
     }
 
     /**
-     * @param mixed             $callable
+     * @param mixed             $callableArray
      * @param null|CallableInfo $callableInfo
      *
      * @return bool
      */
-    public function isCallableArrayStatic($callable, CallableInfo &$callableInfo = null) : bool
+    public function isCallableArrayStatic($callableArray, CallableInfo &$callableInfo = null) : bool
     {
-        return null !== $this->filter->filterCallableArrayStatic($callable, $callableInfo);
+        return null !== $this->filter->filterCallableArrayStatic($callableArray, $callableInfo);
     }
 
     /**
-     * @param mixed             $callable
+     * @param mixed             $callableArray
      * @param null|CallableInfo $callableInfo
      *
      * @return bool
      */
-    public function isCallableArrayPublic($callable, CallableInfo &$callableInfo = null) : bool
+    public function isCallableArrayPublic($callableArray, CallableInfo &$callableInfo = null) : bool
     {
-        return null !== $this->filter->filterCallableArrayStatic($callable, $callableInfo);
+        return null !== $this->filter->filterCallableArrayStatic($callableArray, $callableInfo);
     }
 
 
     /**
-     * @param mixed             $value
+     * @param mixed             $closure
      * @param null|CallableInfo $callableInfo
      *
      * @return bool
      */
-    public function isClosure($value, CallableInfo &$callableInfo = null) : bool
+    public function isClosure($closure, CallableInfo &$callableInfo = null) : bool
     {
-        return null !== $this->filter->filterClosure($value, $callableInfo);
+        return null !== $this->filter->filterClosure($closure, $callableInfo);
     }
 
 

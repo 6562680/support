@@ -203,7 +203,7 @@ abstract class Filter
      * @param mixed             $callable
      * @param null|CallableInfo $callableInfo
      *
-     * @return null|callable
+     * @return null|string|array|\Closure|callable
      */
     public static function filterCallable($callable, CallableInfo &$callableInfo = null)
     {
@@ -211,58 +211,70 @@ abstract class Filter
     }
 
     /**
-     * @param mixed             $callable
+     * @param mixed             $callableString
      * @param null|CallableInfo $callableInfo
      *
-     * @return null|callable
+     * @return null|string|array|callable
      */
-    public static function filterCallableString($callable, CallableInfo &$callableInfo = null)
+    public static function filterCallableString($callableString, CallableInfo &$callableInfo = null)
     {
-        return static::getInstance()->filterCallableString($callable, $callableInfo);
+        return static::getInstance()->filterCallableString($callableString, $callableInfo);
     }
 
     /**
      * @param mixed             $callableString
      * @param null|CallableInfo $callableInfo
      *
-     * @return null|callable
+     * @return null|string|callable
      */
-    public static function filterCallableStringStatic($callableString, CallableInfo &$callableInfo = null)
+    public static function filterCallableStringFunction($callableString, CallableInfo &$callableInfo = null) : ?string
+    {
+        return static::getInstance()->filterCallableStringFunction($callableString, $callableInfo);
+    }
+
+    /**
+     * @param mixed             $callableString
+     * @param null|CallableInfo $callableInfo
+     *
+     * @return null|string|callable
+     */
+    public static function filterCallableStringStatic($callableString, CallableInfo &$callableInfo = null) : ?string
     {
         return static::getInstance()->filterCallableStringStatic($callableString, $callableInfo);
     }
 
+
     /**
-     * @param mixed             $callable
+     * @param mixed             $callableArray
      * @param null|CallableInfo $callableInfo
      *
-     * @return null|callable
+     * @return null|array|callable
      */
-    public static function filterCallableArray($callable, CallableInfo &$callableInfo = null)
+    public static function filterCallableArray($callableArray, CallableInfo &$callableInfo = null) : ?array
     {
-        return static::getInstance()->filterCallableArray($callable, $callableInfo);
+        return static::getInstance()->filterCallableArray($callableArray, $callableInfo);
     }
 
     /**
-     * @param mixed             $callable
+     * @param mixed             $callableArray
      * @param null|CallableInfo $callableInfo
      *
-     * @return null|callable
+     * @return null|array|callable
      */
-    public static function filterCallableArrayStatic($callable, CallableInfo &$callableInfo = null)
+    public static function filterCallableArrayStatic($callableArray, CallableInfo &$callableInfo = null) : ?array
     {
-        return static::getInstance()->filterCallableArrayStatic($callable, $callableInfo);
+        return static::getInstance()->filterCallableArrayStatic($callableArray, $callableInfo);
     }
 
     /**
-     * @param mixed             $callable
+     * @param mixed             $callableArray
      * @param null|CallableInfo $callableInfo
      *
-     * @return null|callable
+     * @return null|array|callable
      */
-    public static function filterCallableArrayPublic($callable, CallableInfo &$callableInfo = null)
+    public static function filterCallableArrayPublic($callableArray, CallableInfo &$callableInfo = null) : ?array
     {
-        return static::getInstance()->filterCallableArrayPublic($callable, $callableInfo);
+        return static::getInstance()->filterCallableArrayPublic($callableArray, $callableInfo);
     }
 
     /**

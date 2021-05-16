@@ -220,14 +220,25 @@ abstract class Type
     }
 
     /**
-     * @param                   $callable
+     * @param                   $callableString
      * @param null|CallableInfo $callableInfo
      *
      * @return bool
      */
-    public static function isCallableString($callable, CallableInfo &$callableInfo = null) : bool
+    public static function isCallableString($callableString, CallableInfo &$callableInfo = null) : bool
     {
-        return static::getInstance()->isCallableString($callable, $callableInfo);
+        return static::getInstance()->isCallableString($callableString, $callableInfo);
+    }
+
+    /**
+     * @param mixed             $callableString
+     * @param null|CallableInfo $callableInfo
+     *
+     * @return null|string|callable
+     */
+    public static function isCallableStringFunction($callableString, CallableInfo &$callableInfo = null) : bool
+    {
+        return static::getInstance()->isCallableStringFunction($callableString, $callableInfo);
     }
 
     /**
@@ -242,47 +253,47 @@ abstract class Type
     }
 
     /**
-     * @param mixed             $callable
+     * @param mixed             $callableArray
      * @param null|CallableInfo $callableInfo
      *
      * @return bool
      */
-    public static function isCallableArray($callable, CallableInfo &$callableInfo = null) : bool
+    public static function isCallableArray($callableArray, CallableInfo &$callableInfo = null) : bool
     {
-        return static::getInstance()->isCallableArray($callable, $callableInfo);
+        return static::getInstance()->isCallableArray($callableArray, $callableInfo);
     }
 
     /**
-     * @param mixed             $callable
+     * @param mixed             $callableArray
      * @param null|CallableInfo $callableInfo
      *
      * @return bool
      */
-    public static function isCallableArrayStatic($callable, CallableInfo &$callableInfo = null) : bool
+    public static function isCallableArrayStatic($callableArray, CallableInfo &$callableInfo = null) : bool
     {
-        return static::getInstance()->isCallableArrayStatic($callable, $callableInfo);
+        return static::getInstance()->isCallableArrayStatic($callableArray, $callableInfo);
     }
 
     /**
-     * @param mixed             $callable
+     * @param mixed             $callableArray
      * @param null|CallableInfo $callableInfo
      *
      * @return bool
      */
-    public static function isCallableArrayPublic($callable, CallableInfo &$callableInfo = null) : bool
+    public static function isCallableArrayPublic($callableArray, CallableInfo &$callableInfo = null) : bool
     {
-        return static::getInstance()->isCallableArrayPublic($callable, $callableInfo);
+        return static::getInstance()->isCallableArrayPublic($callableArray, $callableInfo);
     }
 
     /**
-     * @param mixed             $value
+     * @param mixed             $closure
      * @param null|CallableInfo $callableInfo
      *
      * @return bool
      */
-    public static function isClosure($value, CallableInfo &$callableInfo = null) : bool
+    public static function isClosure($closure, CallableInfo &$callableInfo = null) : bool
     {
-        return static::getInstance()->isClosure($value, $callableInfo);
+        return static::getInstance()->isClosure($closure, $callableInfo);
     }
 
     /**
