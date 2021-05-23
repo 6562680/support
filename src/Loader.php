@@ -2,7 +2,6 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Path;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
@@ -357,6 +356,25 @@ class Loader
 
     /**
      * @param string|object $classOrObject
+     * @param int           $levels
+     *
+     * @return null|string
+     */
+    public function pathDirname($classOrObject, int $levels = 0) : ?string
+    {
+        if (null === ( $class = $this->php->classval($classOrObject) )) {
+            throw new InvalidArgumentException(
+                [ 'Class should be valid class name or object: %s', $classOrObject ]
+            );
+        }
+
+        $result = $this->path->dirname($class, $levels);
+
+        return $result;
+    }
+
+    /**
+     * @param string|object $classOrObject
      * @param null|string   $suffix
      * @param int           $levels
      *
@@ -365,7 +383,9 @@ class Loader
     public function pathBasename($classOrObject, string $suffix = null, int $levels = 0) : ?string
     {
         if (null === ( $class = $this->php->classval($classOrObject) )) {
-            throw new InvalidArgumentException('Class should be classval or object');
+            throw new InvalidArgumentException(
+                [ 'Class should be valid class name or object: %s', $classOrObject ]
+            );
         }
 
         $result = $this->path->basename($class, $suffix, $levels);
@@ -382,7 +402,9 @@ class Loader
     public function pathRelative($classOrObject, string $base = '') : ?string
     {
         if (null === ( $class = $this->php->classval($classOrObject) )) {
-            throw new InvalidArgumentException('Class should be classval or object');
+            throw new InvalidArgumentException(
+                [ 'Class should be valid class name or object: %s', $classOrObject ]
+            );
         }
 
         $result = $this->path->relative($class, $base);

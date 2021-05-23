@@ -112,6 +112,17 @@ abstract class GeneratedPathFacade
     }
 
     /**
+     * @param string   $path
+     * @param null|int $levels
+     *
+     * @return null|string
+     */
+    public static function dirname(string $path, int $levels = null): ?string
+    {
+        return static::getInstance()->dirname($path, $levels);
+    }
+
+    /**
      * @param string      $path
      * @param null|string $suffix
      * @param null|int    $levels

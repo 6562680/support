@@ -206,11 +206,13 @@ class LoaderTest extends AbstractTestCase
         $this->assertEquals("${ds}a", $loader->pathJoin('/a'));
         $this->assertEquals('', $loader->pathJoin('', [ '' ]));
         $this->assertEquals(",${ds},", $loader->pathJoin(',', [ ',' ]));
+
         $this->assertEquals("${ds}/", $loader->pathJoin('/', [ '/' ]));
+
         $this->assertEquals("a${ds}a", $loader->pathJoin('a', [ 'a' ]));
         $this->assertEquals(",a${ds},a", $loader->pathJoin(',a', [ ',a' ]));
-        $this->assertEquals("${ds}a${ds}/a", $loader->pathJoin('/a', [ '/a' ]));
 
+        $this->assertEquals("${ds}a${ds}/a", $loader->pathJoin('/a', [ '/a' ]));
         $this->assertEquals("${ds}/a", $loader->pathJoin('/', [ '/a' ]));
 
         $parts = [ '', ',', "${ds}", 'a', ',a', "${ds}a", [ '', ',', "${ds}", 'a', ',a', "${ds}a" ] ];
@@ -249,48 +251,78 @@ class LoaderTest extends AbstractTestCase
         $ds = '\\';
 
         $this->assertEquals("1${ds}2${ds}3", $loader->pathConcat('1/2/3', ''));
-        $this->assertEquals("1${ds}2${ds}3${ds}/", $loader->pathConcat('1/2/3', '/'));
+        $this->assertEquals("1${ds}2${ds}3", $loader->pathConcat('1/2/3', '/'));
         $this->assertEquals("1${ds}2${ds}3${ds}1", $loader->pathConcat('1/2/3', '1'));
-        $this->assertEquals("1${ds}2${ds}3/4", $loader->pathConcat('1/2/3', '3/4'));
-        $this->assertEquals("1${ds}2/3/4", $loader->pathConcat('1/2/3', '2/3/4'));
-        $this->assertEquals("1/2/3/4", $loader->pathConcat('1/2/3', '1/2/3/4'));
-        $this->assertEquals("1${ds}2${ds}3${ds}0/1/2/3/4", $loader->pathConcat('1/2/3', '0/1/2/3/4'));
+        $this->assertEquals("1${ds}2${ds}3${ds}4", $loader->pathConcat('1/2/3', '3/4'));
+        $this->assertEquals("1${ds}2${ds}3${ds}4", $loader->pathConcat('1/2/3', '2/3/4'));
+        $this->assertEquals("1${ds}2${ds}3${ds}4", $loader->pathConcat('1/2/3', '1/2/3/4'));
+        $this->assertEquals("1${ds}2${ds}3${ds}0${ds}1${ds}2${ds}3${ds}4", $loader->pathConcat('1/2/3', '0/1/2/3/4'));
+
+        $this->assertEquals("1${ds}2${ds}3", $loader->pathConcat('1/2/3/', ''));
+        $this->assertEquals("1${ds}2${ds}3", $loader->pathConcat('1/2/3/', '/'));
+        $this->assertEquals("1${ds}2${ds}3${ds}1", $loader->pathConcat('1/2/3/', '1'));
+        $this->assertEquals("1${ds}2${ds}3${ds}4", $loader->pathConcat('1/2/3/', '3/4'));
+        $this->assertEquals("1${ds}2${ds}3${ds}4", $loader->pathConcat('1/2/3/', '2/3/4'));
+        $this->assertEquals("1${ds}2${ds}3${ds}4", $loader->pathConcat('1/2/3/', '1/2/3/4'));
+        $this->assertEquals("1${ds}2${ds}3${ds}0${ds}1${ds}2${ds}3${ds}4", $loader->pathConcat('1/2/3/', '0/1/2/3/4'));
+
+        $this->assertEquals("1${ds}2${ds}3", $loader->pathConcat('1/2/3', '//'));
+        $this->assertEquals("1${ds}2${ds}3${ds}1", $loader->pathConcat('1/2/3', '/1'));
+        $this->assertEquals("1${ds}2${ds}3${ds}4", $loader->pathConcat('1/2/3', '/3/4'));
+        $this->assertEquals("1${ds}2${ds}3${ds}4", $loader->pathConcat('1/2/3', '/2/3/4'));
+        $this->assertEquals("1${ds}2${ds}3${ds}4", $loader->pathConcat('1/2/3', '/1/2/3/4'));
+        $this->assertEquals("1${ds}2${ds}3${ds}0${ds}1${ds}2${ds}3${ds}4", $loader->pathConcat('1/2/3', '/0/1/2/3/4'));
     }
 
 
-    public function testBasename()
+    public function testPathDirname()
     {
         $loader = $this->getLoader();
+        $ds = '\\';
 
-        $a = LoaderTest::class;
-        $b = $this->getLoader();
-        $c = 'A\\B\\C\\D';
-        $d = '\\A\\B\\C\\D';
+        $a = __CLASS__;
+        $b = 'A\\B\\C\\D';
+        $c = '\\A\\B\\C\\D';
+
+        $this->assertEquals("Gzhegow${ds}Support${ds}Tests", $loader->pathDirname($a));
+
+        $this->assertEquals("A${ds}B${ds}C", $loader->pathDirname($b));
+
+        $this->assertEquals("${ds}A${ds}B", $loader->pathDirname($c, 2));
+    }
+
+    public function testPathBasename()
+    {
+        $loader = $this->getLoader();
+        $ds = '\\';
+
+        $a = __CLASS__;
+        $b = 'A\\B\\C\\D';
+        $c = '\\A\\B\\C\\D';
 
         $this->assertEquals('Loader', $loader->pathBasename($a, 'Test'));
-        $this->assertEquals('Loader', $loader->pathBasename($b));
 
-        $this->assertEquals('D', $loader->pathBasename($c));
-        $this->assertEquals('D', $loader->pathBasename($c, null, 0));
+        $this->assertEquals('D', $loader->pathBasename($b));
 
-        $this->assertEquals('B\\C\\D', $loader->pathBasename($d, null, 2));
+        $this->assertEquals("B${ds}C${ds}D", $loader->pathBasename($c, null, 2));
     }
 
-    public function testRelative()
+    public function testPathRelative()
     {
         $loader = $this->getLoader();
+        $ds = '\\';
 
-        $a = LoaderTest::class;
-        $b = $this->getLoader();
-        $c = 'A\\B\\C\\D';
-        $d = '\\A\\B\\C\\D';
+        $a = __CLASS__;
+        $b = 'A\\B\\C\\D';
+        $c = '\\A\\B\\C\\D';
 
-        $this->assertEquals('Support\\Tests\\LoaderTest', $loader->pathRelative($a, 'Gzhegow'));
-        $this->assertEquals('Support\\Loader', $loader->pathRelative($b, 'Gzhegow'));
+        $this->assertEquals("Support${ds}Tests${ds}LoaderTest", $loader->pathRelative($a, 'Gzhegow'));
 
-        $this->assertEquals('B\\C\\D', $loader->pathRelative($c, 'A'));
+        $this->assertEquals("A${ds}B${ds}C${ds}D", $loader->pathRelative($b));
 
-        $this->assertEquals('C\\D', $loader->pathRelative($d, '\\A\\B'));
-        $this->assertEquals(null, $loader->pathRelative($d, 'D'));
+        $this->assertEquals("B${ds}C${ds}D", $loader->pathRelative($b, 'A'));
+
+        $this->assertEquals("B${ds}C${ds}D", $loader->pathRelative($c, '/A'));
+        $this->assertEquals(null, $loader->pathRelative($c, 'A'));
     }
 }

@@ -123,11 +123,13 @@ class FsTest extends AbstractTestCase
         $this->assertEquals("${ds}a", $fs->pathJoin('/a'));
         $this->assertEquals('', $fs->pathJoin('', [ '' ]));
         $this->assertEquals(",${ds},", $fs->pathJoin(',', [ ',' ]));
+
         $this->assertEquals("${ds}/", $fs->pathJoin('/', [ '/' ]));
+
         $this->assertEquals("a${ds}a", $fs->pathJoin('a', [ 'a' ]));
         $this->assertEquals(",a${ds},a", $fs->pathJoin(',a', [ ',a' ]));
-        $this->assertEquals("${ds}a${ds}/a", $fs->pathJoin('/a', [ '/a' ]));
 
+        $this->assertEquals("${ds}a${ds}/a", $fs->pathJoin('/a', [ '/a' ]));
         $this->assertEquals("${ds}/a", $fs->pathJoin('/', [ '/a' ]));
 
         $parts = [ '', ',', "${ds}", 'a', ',a', "${ds}a", [ '', ',', "${ds}", 'a', ',a', "${ds}a" ] ];
@@ -166,48 +168,79 @@ class FsTest extends AbstractTestCase
         $ds = DIRECTORY_SEPARATOR;
 
         $this->assertEquals("1${ds}2${ds}3", $fs->pathConcat('1/2/3', ''));
-        $this->assertEquals("1${ds}2${ds}3${ds}/", $fs->pathConcat('1/2/3', '/'));
+        $this->assertEquals("1${ds}2${ds}3", $fs->pathConcat('1/2/3', '/'));
         $this->assertEquals("1${ds}2${ds}3${ds}1", $fs->pathConcat('1/2/3', '1'));
-        $this->assertEquals("1${ds}2${ds}3/4", $fs->pathConcat('1/2/3', '3/4'));
-        $this->assertEquals("1${ds}2/3/4", $fs->pathConcat('1/2/3', '2/3/4'));
-        $this->assertEquals("1/2/3/4", $fs->pathConcat('1/2/3', '1/2/3/4'));
-        $this->assertEquals("1${ds}2${ds}3${ds}0/1/2/3/4", $fs->pathConcat('1/2/3', '0/1/2/3/4'));
+        $this->assertEquals("1${ds}2${ds}3${ds}4", $fs->pathConcat('1/2/3', '3/4'));
+        $this->assertEquals("1${ds}2${ds}3${ds}4", $fs->pathConcat('1/2/3', '2/3/4'));
+        $this->assertEquals("1${ds}2${ds}3${ds}4", $fs->pathConcat('1/2/3', '1/2/3/4'));
+        $this->assertEquals("1${ds}2${ds}3${ds}0${ds}1${ds}2${ds}3${ds}4", $fs->pathConcat('1/2/3', '0/1/2/3/4'));
+
+        $this->assertEquals("1${ds}2${ds}3", $fs->pathConcat('1/2/3/', ''));
+        $this->assertEquals("1${ds}2${ds}3", $fs->pathConcat('1/2/3/', '/'));
+        $this->assertEquals("1${ds}2${ds}3${ds}1", $fs->pathConcat('1/2/3/', '1'));
+        $this->assertEquals("1${ds}2${ds}3${ds}4", $fs->pathConcat('1/2/3/', '3/4'));
+        $this->assertEquals("1${ds}2${ds}3${ds}4", $fs->pathConcat('1/2/3/', '2/3/4'));
+        $this->assertEquals("1${ds}2${ds}3${ds}4", $fs->pathConcat('1/2/3/', '1/2/3/4'));
+        $this->assertEquals("1${ds}2${ds}3${ds}0${ds}1${ds}2${ds}3${ds}4", $fs->pathConcat('1/2/3/', '0/1/2/3/4'));
+
+        $this->assertEquals("1${ds}2${ds}3", $fs->pathConcat('1/2/3', '//'));
+        $this->assertEquals("1${ds}2${ds}3${ds}1", $fs->pathConcat('1/2/3', '/1'));
+        $this->assertEquals("1${ds}2${ds}3${ds}4", $fs->pathConcat('1/2/3', '/3/4'));
+        $this->assertEquals("1${ds}2${ds}3${ds}4", $fs->pathConcat('1/2/3', '/2/3/4'));
+        $this->assertEquals("1${ds}2${ds}3${ds}4", $fs->pathConcat('1/2/3', '/1/2/3/4'));
+        $this->assertEquals("1${ds}2${ds}3${ds}0${ds}1${ds}2${ds}3${ds}4", $fs->pathConcat('1/2/3', '/0/1/2/3/4'));
     }
 
 
-    public function testBasename()
+    public function testPathDirname()
     {
         $fs = $this->getFs();
         $ds = DIRECTORY_SEPARATOR;
 
-        $a = FsTest::class;
+        $a = __CLASS__;
+        $b = 'A\\B/C\\D';
+        $c = '\\A\\B/C\\D';
+
+        $this->assertEquals("Gzhegow${ds}Support${ds}Tests", $fs->pathDirname($a));
+
+        $this->assertEquals("A${ds}B${ds}C", $fs->pathDirname($b));
+
+        $this->assertEquals("${ds}A${ds}B", $fs->pathDirname($c, 2));
+    }
+
+    public function testPathBasename()
+    {
+        $fs = $this->getFs();
+        $ds = DIRECTORY_SEPARATOR;
+
+        $a = __CLASS__;
         $b = 'A\\B/C\\D';
         $c = '\\A\\B/C\\D';
 
         $this->assertEquals('Fs', $fs->pathBasename($a, 'Test'));
 
         $this->assertEquals('D', $fs->pathBasename($b));
-        $this->assertEquals('D', $fs->pathBasename($b, null, 0));
 
         $this->assertEquals("B${ds}C${ds}D", $fs->pathBasename($c, null, 2));
     }
 
-    public function testRelative()
+    public function testPathRelative()
     {
         $fs = $this->getFs();
         $ds = DIRECTORY_SEPARATOR;
 
-        $a = FsTest::class;
+        $a = __CLASS__;
         $b = 'A\\B/C\\D';
         $c = '\\A\\B/C\\D';
 
         $this->assertEquals("Support${ds}Tests${ds}FsTest", $fs->pathRelative($a, 'Gzhegow'));
 
         $this->assertEquals("A${ds}B${ds}C${ds}D", $fs->pathRelative($b));
+
         $this->assertEquals("B${ds}C${ds}D", $fs->pathRelative($b, 'A'));
 
-        $this->assertEquals("C${ds}D", $fs->pathRelative($c, '/A\\B'));
-        $this->assertEquals(null, $fs->pathRelative($c, 'D'));
+        $this->assertEquals("B${ds}C${ds}D", $fs->pathRelative($c, '/A'));
+        $this->assertEquals(null, $fs->pathRelative($c, 'A'));
     }
 
 

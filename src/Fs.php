@@ -677,6 +677,20 @@ class Fs
      *
      * @return null|string
      */
+    public function pathDirname(string $path, int $levels = 0) : ?string
+    {
+        $result = $this->path->dirname($path, $levels);
+
+        return $result;
+    }
+
+    /**
+     * @param string      $path
+     * @param null|string $suffix
+     * @param int         $levels
+     *
+     * @return null|string
+     */
     public function pathBasename(string $path, string $suffix = null, int $levels = 0) : ?string
     {
         $result = $this->path->basename($path, $suffix, $levels);

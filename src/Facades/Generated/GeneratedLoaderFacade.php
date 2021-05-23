@@ -12,7 +12,6 @@ namespace Gzhegow\Support\Facades\Generated;
 
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Loader;
-use Gzhegow\Support\Path;
 
 abstract class GeneratedLoaderFacade
 {
@@ -156,7 +155,7 @@ abstract class GeneratedLoaderFacade
     /**
      * @return Path
      */
-    public static function path(): Path
+    public static function path(): \Gzhegow\Support\Path
     {
         return static::getInstance()->path();
     }
@@ -199,6 +198,17 @@ abstract class GeneratedLoaderFacade
     public static function pathConcat(...$parts): string
     {
         return static::getInstance()->pathConcat(...$parts);
+    }
+
+    /**
+     * @param string|object $classOrObject
+     * @param int           $levels
+     *
+     * @return null|string
+     */
+    public static function pathDirname($classOrObject, int $levels = 0): ?string
+    {
+        return static::getInstance()->pathDirname($classOrObject, $levels);
     }
 
     /**

@@ -220,36 +220,62 @@ class Path
         $words = $this->str->stringsskip(...$strvals);
         $words = array_filter($words, 'strlen');
 
-        $concat = array_shift($words);
-        $concat = $this->normalize($concat);
+        $result = array_shift($words);
+
+        $resultSteps = $this->str->explode($this->delimiters, $result);
+        $resultSteps = array_values(array_filter($resultSteps, 'strlen'));
 
         foreach ( $words as $word ) {
-            $split = $this->str->explode($this->delimiters, $word);
-            $split = array_values(array_filter($split, 'strlen'));
+            $wordSteps = $this->str->explode($this->delimiters, $word);
+            $wordSteps = array_values(array_filter($wordSteps, 'strlen'));
 
-            while ( null !== key($split) ) {
-                array_pop($split);
+            $len = count($wordSteps);
 
-                $search = implode($this->separator, $split);
-                $cut = $this->str->ends($concat, $search);
+            while ( $len ) {
+                $resultSplit = array_slice($resultSteps, -1 * $len);
+                $wordSplit = array_slice($wordSteps, 0, $len);
 
-                if (null !== $cut) {
-                    $concat = rtrim($cut, $this->separator);
+                if ($resultSplit === $wordSplit) {
+                    $resultSteps = array_merge($resultSteps,
+                        array_slice($wordSteps, $len)
+                    );
 
-                    continue;
+                    continue( 2 );
                 }
 
-                break;
+                $len--;
             }
 
-            $concat = $this->join($concat, $word);
+            $resultSteps = array_merge($resultSteps, $wordSteps);
         }
 
-        $result = $concat;
+        $result = $this->str->join($this->separator, $resultSteps);
 
         return $result;
     }
 
+
+    /**
+     * @param string   $path
+     * @param null|int $levels
+     *
+     * @return null|string
+     */
+    public function dirname(string $path, int $levels = null) : ?string
+    {
+        $levels = max(1, $levels ?? 1);
+
+        $split = $this->split($path);
+        $len = count($split);
+
+        $levels = min($len, $levels);
+
+        $result = $this->normalize(
+            array_splice($split, 0, $len - $levels)
+        );
+
+        return $result;
+    }
 
     /**
      * @param string      $path
@@ -268,15 +294,10 @@ class Path
         $result = [];
 
         if ($levels) {
-            $result = array_slice($split, -1 * $levels);
+            $result[] = array_slice($split, -1 * $levels);
         }
 
-        $cut = $this->str->ends($last, $suffix);
-        $last = ( null !== $cut )
-            ? $cut
-            : $last;
-
-        $result[] = $last;
+        $result[] = basename($last, $suffix);
 
         $result = $this->normalize($result);
 

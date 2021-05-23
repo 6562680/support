@@ -452,6 +452,18 @@ abstract class GeneratedFsFacade
      *
      * @return null|string
      */
+    public static function pathDirname(string $path, int $levels = 0): ?string
+    {
+        return static::getInstance()->pathDirname($path, $levels);
+    }
+
+    /**
+     * @param string      $path
+     * @param null|string $suffix
+     * @param int         $levels
+     *
+     * @return null|string
+     */
     public static function pathBasename(string $path, string $suffix = null, int $levels = 0): ?string
     {
         return static::getInstance()->pathBasename($path, $suffix, $levels);
