@@ -26,7 +26,8 @@ class UriTest extends AbstractTestCase
     protected function getStr() : Str
     {
         return new Str(
-            $this->getFilter()
+            $this->getFilter(),
+            $this->getPhp()
         );
     }
 
@@ -35,7 +36,7 @@ class UriTest extends AbstractTestCase
         return new Arr(
             $this->getFilter(),
             $this->getPhp(),
-            $this->getStr(),
+            $this->getStr()
         );
     }
 

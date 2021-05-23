@@ -2,8 +2,8 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Domain\Type\CallableInfo;
-use Gzhegow\Support\Domain\Type\Interfaces\CanToArrayInterface;
+use Gzhegow\Support\Domain\Filter\CallableInfo;
+use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
 
 
 /**
@@ -11,6 +11,15 @@ use Gzhegow\Support\Domain\Type\Interfaces\CanToArrayInterface;
  */
 class Filter
 {
+    /**
+     * @return callable[]
+     */
+    public function getCustomFilters() : array
+    {
+        return static::$customFilters;
+    }
+
+
     /**
      * @param mixed $value
      *
@@ -20,9 +29,11 @@ class Filter
     {
         // \Generator can pass any object as foreach key, so this check is recommended
 
-        return ( null !== $this->filterStringOrNumber($value) )
-            ? $value
-            : null;
+        if (null === $this->filterStringOrNumber($value)) {
+            return null;
+        }
+
+        return $value;
     }
 
 
@@ -79,11 +90,11 @@ class Filter
         $result = ( 0
             || ( null !== $this->filterInt($value) )
             || ( null !== $this->filterFloat($value) )
-        );
-
-        return $result
+        )
             ? $value
             : null;
+
+        return $result;
     }
 
 
@@ -94,9 +105,11 @@ class Filter
      */
     public function filterTheString($value) : ?string
     {
-        return ( is_string($value) && ( '' !== $value ) )
+        $result = ( is_string($value) && ( '' !== $value ) )
             ? $value
             : null;
+
+        return $result;
     }
 
 
@@ -107,11 +120,13 @@ class Filter
      */
     public function filterStringOrNumber($value) // : ?null|int|float|string
     {
-        return ( is_string($value)
+        $result = ( is_string($value)
             || ( null !== $this->filterNumber($value) )
         )
             ? $value
             : null;
+
+        return $result;
     }
 
     /**
@@ -129,185 +144,6 @@ class Filter
         return $result
             ? $value
             : null;
-    }
-
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|int
-     */
-    public function filterIntable($value) : ?int
-    {
-        if (null !== $this->filterInt($value)) {
-            return $value;
-        }
-
-        if (false !== ( $result = filter_var($value, FILTER_VALIDATE_INT) )) {
-            return $result;
-        }
-
-        return null;
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|float
-     */
-    public function filterFloatable($value) : ?float
-    {
-        if (null !== $this->filterFloat($value)) {
-            return $value;
-        }
-
-        if (false !== ( $result = filter_var($value, FILTER_VALIDATE_FLOAT) )) {
-            return $result;
-        }
-
-        return null;
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|int|float
-     */
-    public function filterNumerable($value) // : ?int|float
-    {
-        if (null !== $this->filterNumber($value)) {
-            return $value;
-        }
-
-        if (is_numeric($value)) {
-            return null
-                ?? $this->filterInt($value)
-                ?? $this->filterFloat($value);
-        }
-
-        return null;
-    }
-
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|string
-     */
-    public function filterStringable($value) : ?string
-    {
-        if (is_null($value)) {
-            return null; // becomes '' and causes data lost
-        }
-
-        if (is_bool($value)) {
-            return null; // becomes '' on false and causes data lost
-        }
-
-        if (is_array($value)) {
-            return null; // becomes 'Array' and causes data lost
-        }
-
-        if (null !== $this->filterStringOrNumber($value)) {
-            return strval($value);
-        }
-
-        try {
-            if (false === settype($value, 'string')) {
-                return null; // __toString()
-            }
-        }
-        catch ( \Throwable $e ) {
-            return null;
-        }
-
-        $result = strval($value);
-
-        return $result;
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|string
-     */
-    public function filterTheStringable($value) : ?string
-    {
-        if (is_null($value)) {
-            return null; // becomes '' and causes data lost
-        }
-
-        if (is_bool($value)) {
-            return null; // becomes '' on false and causes data lost
-        }
-
-        if (is_array($value)) {
-            return null; // becomes 'Array' and causes data lost
-        }
-
-        if (null !== $this->filterTheStringOrNumber($value)) {
-            return strval($value);
-        }
-
-        if (false === settype($value, 'string')) {
-            return null; // __toString()
-        }
-
-        $coalesce = strval($value);
-        $result = '' !== $coalesce
-            ? $coalesce
-            : null;
-
-        return $result;
-    }
-
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|array
-     */
-    public function filterArrayable($value) : ?array
-    {
-        if (is_null($value)) {
-            return [];
-
-        } elseif (is_scalar($value)) {
-            return [ $value ];
-
-        } elseif (is_iterable($value)) {
-            $result = [];
-
-            foreach ( $value as $item ) {
-                ( null === ( $key = $this->filterStringable($item) ) )
-                    ? ( $result[ $key ] = $item )
-                    : ( $result[] = $item );
-            }
-
-            return $result;
-
-        } elseif (is_object($value)) {
-            if (is_a($value, CanToArrayInterface::class)) {
-                return $value->toArray();
-
-            } else {
-                // too slow
-                // } elseif (method_exists($value, 'toArray')) {
-
-                $result = null;
-
-                try {
-                    $result = $value->toArray();
-                }
-                catch ( \Throwable $e ) {
-                }
-
-                /** @noinspection PhpExpressionAlwaysNullInspection */
-                return $result;
-            }
-        }
-
-        return null;
     }
 
 
@@ -421,6 +257,36 @@ class Filter
         }
 
         return $assoc;
+    }
+
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|string
+     */
+    public function filterLink($value) : ?string
+    {
+        return ( is_string($value)
+            && ( false !== parse_url($value) )
+        )
+            ? $value
+            : null;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|string
+     */
+    public function filterUrl($value) : ?string
+    {
+        return ( is_string($value)
+            && ( false !== filter_var($value, FILTER_VALIDATE_URL) )
+            && ( false !== parse_url($value) )
+        )
+            ? $value
+            : null;
     }
 
 
@@ -609,27 +475,14 @@ class Filter
      */
     public function filterClass($class) : ?string
     {
-        return ( ( null !== $this->filterTheString($class) )
-            && class_exists($class)
-        )
-            ? $class
-            : null;
-    }
-
-
-    /**
-     * @param mixed $class
-     *
-     * @return null|string
-     */
-    public function filterValidClass($class) : ?string
-    {
         if (null === $this->filterTheString($class)) {
             return null;
         }
 
-        foreach ( explode('\\', $class) as $part ) {
-            if (! $result = $this->filterValidClassName($part)) {
+        $validate = preg_replace('~[a-zA-Z0-9_\x80-\xff]*~', '', $class);
+
+        foreach ( str_split($validate) as $letter ) {
+            if ($letter !== '\\') {
                 return null;
             }
         }
@@ -642,11 +495,13 @@ class Filter
      *
      * @return null|string
      */
-    public function filterValidClassName($className) : ?string
+    public function filterClassName($className) : ?string
     {
-        if (( null !== $this->filterTheString($className) )
-            && ( false !== preg_match('~^[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*$~', $className) )
-        ) {
+        if (null === $this->filterTheString($className)) {
+            return null;
+        }
+
+        if (false !== preg_match('~^[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*$~', $className)) {
             return $className;
         }
 
@@ -655,30 +510,13 @@ class Filter
 
 
     /**
-     * @param mixed $value
+     * @param object $value
      *
-     * @return null|string
+     * @return null|object
      */
-    public function filterLink($value) : ?string
+    public function filterStdClass($value) // : ?object
     {
-        return ( is_string($value)
-            && ( false !== parse_url($value) )
-        )
-            ? $value
-            : null;
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|string
-     */
-    public function filterUrl($value) : ?string
-    {
-        return ( is_string($value)
-            && ( false !== filter_var($value, FILTER_VALIDATE_URL) )
-            && ( false !== parse_url($value) )
-        )
+        return ( is_object($value) && $value instanceof \StdClass )
             ? $value
             : null;
     }
@@ -692,6 +530,91 @@ class Filter
     public function filterFileInfo($value) : ?\SplFileInfo
     {
         return ( is_object($value) && is_a($value, \SplFileInfo::class) )
+            ? $value
+            : null;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|\SplFileObject
+     */
+    public function filterFileObject($value) : ?\SplFileObject
+    {
+        return ( is_object($value) && is_a($value, \SplFileObject::class) )
+            ? $value
+            : null;
+    }
+
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|\ReflectionClass
+     */
+    public function filterReflectionClass($value) : ?\ReflectionClass
+    {
+        return ( is_object($value) && is_a($value, \ReflectionClass::class) )
+            ? $value
+            : null;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|\ReflectionFunction
+     */
+    public function filterReflectionFunction($value) : ?\ReflectionFunction
+    {
+        return ( is_object($value) && is_a($value, \ReflectionFunction::class) )
+            ? $value
+            : null;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|\ReflectionMethod
+     */
+    public function filterReflectionMethod($value) : ?\ReflectionMethod
+    {
+        return ( is_object($value) && is_a($value, \ReflectionMethod::class) )
+            ? $value
+            : null;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|\ReflectionProperty
+     */
+    public function filterReflectionProperty($value) : ?\ReflectionProperty
+    {
+        return ( is_object($value) && is_a($value, \ReflectionProperty::class) )
+            ? $value
+            : null;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|\ReflectionParameter
+     */
+    public function filterReflectionParameter($value) : ?\ReflectionParameter
+    {
+        return ( is_object($value) && is_a($value, \ReflectionParameter::class) )
+            ? $value
+            : null;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|\ReflectionType
+     */
+    public function filterReflectionType($value) : ?\ReflectionType
+    {
+        return ( is_object($value) && is_a($value, \ReflectionType::class) )
             ? $value
             : null;
     }
@@ -720,4 +643,260 @@ class Filter
             ? $h
             : null;
     }
+
+    /**
+     * @param mixed $h
+     *
+     * @return null|resource
+     */
+    public function filterReadableResource($h) // : ?resource
+    {
+        if (null === $this->filterOpenedResource($h)) {
+            return null;
+        }
+
+        $meta = stream_get_meta_data($h);
+        if (false === strpos($meta[ 'mode' ], 'r')) {
+            return null;
+        }
+
+        if (feof($h)) {
+            return null;
+        }
+
+        return $h;
+    }
+
+    /**
+     * @param mixed $h
+     *
+     * @return null|resource
+     */
+    public function filterWritableResource($h) // : ?resource
+    {
+        if (null === $this->filterOpenedResource($h)) {
+            return null;
+        }
+
+        $meta = stream_get_meta_data($h);
+        if (false === strpos($meta[ 'mode' ], 'w')) {
+            return null;
+        }
+
+        return $h;
+    }
+
+
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|int
+     */
+    public function filterIntval($value) : ?int
+    {
+        if (null !== $this->filterInt($value)) {
+            return $value;
+        }
+
+        if (false !== ( $result = filter_var($value, FILTER_VALIDATE_INT) )) {
+            return $result;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|float
+     */
+    public function filterFloatval($value) : ?float
+    {
+        if (null !== $this->filterFloat($value)) {
+            return $value;
+        }
+
+        if (false !== ( $result = filter_var($value, FILTER_VALIDATE_FLOAT) )) {
+            return $result;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|int|float
+     */
+    public function filterNumval($value) // : ?int|float
+    {
+        if (null !== $this->filterNumber($value)) {
+            return $value;
+        }
+
+        if (is_numeric($value)) {
+            return null
+                ?? $this->filterIntval($value)
+                ?? $this->filterFloatval($value);
+        }
+
+        return null;
+    }
+
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|string
+     */
+    public function filterStrval($value) : ?string
+    {
+        if (is_null($value)) {
+            return null; // becomes '' and causes data lost
+        }
+
+        if (is_bool($value)) {
+            return null; // becomes '' on false and causes data lost
+        }
+
+        if (is_array($value)) {
+            return null; // becomes 'Array' and causes data lost
+        }
+
+        if (null !== $this->filterStringOrNumber($value)) {
+            return $value;
+        }
+
+        try {
+            if (false === settype($value, 'string')) {
+                return null; // __toString()
+            }
+        }
+        catch ( \Throwable $e ) {
+            return null;
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|string
+     */
+    public function filterTheStrval($value) : ?string
+    {
+        if ('' === $value) {
+            return null;
+        }
+
+        if (null === $this->filterStrval($value)) {
+            return null;
+        }
+
+        return $value;
+    }
+
+
+    /**
+     * @param string $filter
+     * @param mixed  ...$arguments
+     *
+     * @return null|mixed
+     */
+    public function filter(string $filter, ...$arguments) // : ?mixed
+    {
+        if (null === ( $filterCallable = $this->findCustomFilter($filter) )) {
+            throw new UnderflowException('FilterService is not defined: ' . $filter, func_get_args());
+        }
+
+        $filtered = call_user_func_array($filterCallable, $arguments);
+
+        return $filtered;
+    }
+
+    /**
+     * @param string $filter
+     * @param mixed  ...$arguments
+     *
+     * @return \Closure
+     */
+    public function bindFilter(string $filter, ...$arguments) : \Closure
+    {
+        if (null === ( $filterCallable = $this->findCustomFilter($filter) )) {
+            throw new UnderflowException('FilterService is not defined: ' . $filter, func_get_args());
+        }
+
+        $closure = function (...$args) use ($filterCallable, $arguments) {
+            $bind = array_replace(
+                $arguments,
+                array_slice($args, 0, count($arguments))
+            );
+
+            return call_user_func_array($arguments, $bind);
+        };
+
+        return $closure;
+    }
+
+
+    /**
+     * @param string   $filter
+     * @param \Closure $callable
+     *
+     * @return static
+     */
+    public function addCustomFilter(string $filter, \Closure $callable)
+    {
+        if (null !== $this->findCustomFilter($filter)) {
+            throw new UnderflowException('FilterService is already defined: ' . $filter, func_get_args());
+        }
+
+        $filterLower = strtolower($filter);
+
+        static::$customFilters[ $filterLower ] = $callable;
+
+        return $this;
+    }
+
+    /**
+     * @param string   $filter
+     * @param \Closure $callable
+     *
+     * @return static
+     */
+    public function replaceCustomFilter(string $filter, \Closure $callable)
+    {
+        if (null === $this->findCustomFilter($filter)) {
+            throw new UnderflowException('FilterService is not defined: ' . $filter, func_get_args());
+        }
+
+        $filterLower = strtolower($filter);
+
+        static::$customFilters[ $filterLower ] = $callable;
+
+        return $this;
+    }
+
+
+    /**
+     * @param string $filter
+     *
+     * @return null|\Closure
+     */
+    public function findCustomFilter(string $filter) : ?\Closure
+    {
+        $filterLower = strtolower($filter);
+
+        return isset(static::$customFilters[ $filterLower ])
+            ? static::$customFilters[ $filterLower ]
+            : null;
+    }
+
+
+    /**
+     * @var callable[]
+     */
+    protected static $customFilters = [];
 }

@@ -3,23 +3,25 @@
 /**
  * This file is auto-generated.
  *
- * * @noinspection PhpUnhandledExceptionInspection
- * * @noinspection PhpDocMissingThrowsInspection
+ * @noinspection PhpUnhandledExceptionInspection
+ * @noinspection PhpDocMissingThrowsInspection
  */
 
 namespace Gzhegow\Support\Facades\Generated;
 
-use Gzhegow\Support\Curl as _Curl;
+use Gzhegow\Support\Curl;
 use Gzhegow\Support\Domain\Curl\Blueprint;
+use Gzhegow\Support\Domain\Curl\Formatter;
+use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
-abstract class Curl
+abstract class GeneratedCurlFacade
 {
     /**
      * @param bool $verbose
      *
      * @return array
      */
-    public static function getOptArray(bool $verbose = false) : array
+    public static function getOptArray(bool $verbose = false): array
     {
         return static::getInstance()->getOptArray($verbose);
     }
@@ -41,7 +43,7 @@ abstract class Curl
      *
      * @return boolean
      */
-    public static function isCurl($ch) : bool
+    public static function isCurl($ch): bool
     {
         return static::getInstance()->isCurl($ch);
     }
@@ -51,7 +53,7 @@ abstract class Curl
      *
      * @return boolean
      */
-    public static function isOpenedCurl($ch) : bool
+    public static function isOpenedCurl($ch): bool
     {
         return static::getInstance()->isOpenedCurl($ch);
     }
@@ -61,7 +63,7 @@ abstract class Curl
      *
      * @return boolean
      */
-    public static function isClosedCurl($ch) : bool
+    public static function isClosedCurl($ch): bool
     {
         return static::getInstance()->isClosedCurl($ch);
     }
@@ -165,7 +167,7 @@ abstract class Curl
      *
      * @return Blueprint
      */
-    public static function blueprint(array $curlOptArray = []) : Blueprint
+    public static function blueprint(array $curlOptArray = []): Blueprint
     {
         return static::getInstance()->blueprint($curlOptArray);
     }
@@ -175,7 +177,7 @@ abstract class Curl
      *
      * @return null|mixed[]|mixed[][]
      */
-    public static function curlInfo($ch) : ?array
+    public static function curlInfo($ch): ?array
     {
         return static::getInstance()->curlInfo($ch);
     }
@@ -195,7 +197,7 @@ abstract class Curl
      * @param       $opt
      * @param mixed $value
      *
-     * @return _Curl
+     * @return static
      */
     public static function setOpt(string $opt, $value)
     {
@@ -205,7 +207,7 @@ abstract class Curl
     /**
      * @param array $opts
      *
-     * @return _Curl
+     * @return static
      */
     public static function setOptArray(array $opts)
     {
@@ -213,7 +215,7 @@ abstract class Curl
     }
 
     /**
-     * @return _Curl
+     * @return static
      */
     public static function clearOptArray()
     {
@@ -221,7 +223,7 @@ abstract class Curl
     }
 
     /**
-     * @return _Curl
+     * @return static
      */
     public static function resetOptArray()
     {
@@ -246,7 +248,7 @@ abstract class Curl
      *
      * @return array
      */
-    public static function batch($limit, $sleep, ...$curls) : array
+    public static function batch($limit, $sleep, ...$curls): array
     {
         return static::getInstance()->batch($limit, $sleep, ...$curls);
     }
@@ -258,9 +260,9 @@ abstract class Curl
      *
      * @return \Generator
      */
-    public static function batchwalk($limits, $sleeps, ...$curls) : \Generator
+    public static function batchwalk($limits, $sleeps, ...$curls): \Generator
     {
-        yield static::getInstance()->batchwalk($limits, $sleeps, ...$curls);
+        yield from static::getInstance()->batchwalk($limits, $sleeps, ...$curls);
     }
 
     /**
@@ -268,14 +270,13 @@ abstract class Curl
      *
      * @return array
      */
-    public static function multi(...$curls) : array
+    public static function multi(...$curls): array
     {
         return static::getInstance()->multi(...$curls);
     }
 
-
     /**
-     * @return _Curl
+     * @return Curl
      */
-    abstract public static function getInstance() : _Curl;
+    abstract public static function getInstance(): Curl;
 }

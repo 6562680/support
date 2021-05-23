@@ -18,7 +18,7 @@ Class ExceptionTest extends AbstractTestCase
 		}
 		catch ( Exception $e ) {
 			static::assertEquals(str_replace('\\', '.', get_class($e)), $e->getName());
-			static::assertEquals('hello', $e->getMsg());
+			static::assertEquals('hello', $e->getMessage());
 			static::assertEquals([ 'world' ], $e->getPayload());
 
 			throw $e;
@@ -34,7 +34,7 @@ Class ExceptionTest extends AbstractTestCase
 		}
 		catch ( LogicException $e ) {
 			static::assertEquals(str_replace('\\', '.', get_class($e)), $e->getName());
-			static::assertEquals('hello', $e->getMsg());
+			static::assertEquals('hello', $e->getMessage());
 			static::assertEquals([ 'world' ], $e->getPayload());
 
 			throw $e;
@@ -50,7 +50,7 @@ Class ExceptionTest extends AbstractTestCase
 		}
 		catch ( RuntimeException $e ) {
 			static::assertEquals(str_replace('\\', '.', get_class($e)), $e->getName());
-			static::assertEquals('hello', $e->getMsg());
+			static::assertEquals('hello', $e->getMessage());
 			static::assertEquals([ 'world' ], $e->getPayload());
 
 			throw $e;

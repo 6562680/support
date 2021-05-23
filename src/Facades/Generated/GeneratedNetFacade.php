@@ -3,22 +3,22 @@
 /**
  * This file is auto-generated.
  *
- * * @noinspection PhpUnhandledExceptionInspection
- * * @noinspection PhpDocMissingThrowsInspection
+ * @noinspection PhpUnhandledExceptionInspection
+ * @noinspection PhpDocMissingThrowsInspection
  */
 
 namespace Gzhegow\Support\Facades\Generated;
 
-use Gzhegow\Support\Net as _Net;
+use Gzhegow\Support\Net;
 
-abstract class Net
+abstract class GeneratedNetFacade
 {
     /**
      * @param string $ip
      *
      * @return bool
      */
-    public static function isIp(string $ip) : bool
+    public static function isIp(string $ip): bool
     {
         return static::getInstance()->isIp($ip);
     }
@@ -30,7 +30,7 @@ abstract class Net
      *
      * @return bool
      */
-    public static function isMask(string $mask, &$subnet_ip = null, &$cidr = null) : bool
+    public static function isMask(string $mask, &$subnet_ip = null, &$cidr = null): bool
     {
         return static::getInstance()->isMask($mask, $subnet_ip, $cidr);
     }
@@ -41,7 +41,7 @@ abstract class Net
      *
      * @return bool
      */
-    public static function isInSubnet(string $ip, string $mask) : bool
+    public static function isInSubnet(string $ip, string $mask): bool
     {
         return static::getInstance()->isInSubnet($ip, $mask);
     }
@@ -51,7 +51,7 @@ abstract class Net
      *
      * @return null|string
      */
-    public static function header(string $header) : ?string
+    public static function header(string $header): ?string
     {
         return static::getInstance()->header($header);
     }
@@ -59,7 +59,7 @@ abstract class Net
     /**
      * @return array
      */
-    public static function headers() : array
+    public static function headers(): array
     {
         return static::getInstance()->headers();
     }
@@ -67,7 +67,7 @@ abstract class Net
     /**
      * @return string
      */
-    public static function ip() : string
+    public static function ip(): string
     {
         return static::getInstance()->ip();
     }
@@ -75,14 +75,13 @@ abstract class Net
     /**
      * @return null|string
      */
-    public static function useragent() : ?string
+    public static function useragent(): ?string
     {
         return static::getInstance()->useragent();
     }
 
-
     /**
-     * @return _Net
+     * @return Net
      */
-    abstract public static function getInstance() : _Net;
+    abstract public static function getInstance(): Net;
 }

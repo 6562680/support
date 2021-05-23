@@ -26,7 +26,7 @@ class CurlTest extends AbstractTestCase
     protected function getStr() : Str
     {
         return new Str(
-            $this->getFilter(),
+            $this->getFilter()
         );
     }
 
@@ -75,7 +75,7 @@ class CurlTest extends AbstractTestCase
 
         $json = '{"id":4,"title":"Post 4"}';
         $ch = $curl->post('https://my-json-server.typicode.com/typicode/demo/posts', $json, [
-            'Content-Type' => 'application/json',
+            'Content-TypeService' => 'application/json',
         ]);
 
         $responseJson = json_decode(
@@ -98,7 +98,7 @@ class CurlTest extends AbstractTestCase
 
         $json = '{"title":"Post 4"}';
         $ch = $curl->put('https://my-json-server.typicode.com/typicode/demo/posts/1', $json, [
-            'Content-Type' => 'application/json',
+            'Content-TypeService' => 'application/json',
         ]);
 
         $responseJson = json_decode('{"id":1}', true);
@@ -118,7 +118,7 @@ class CurlTest extends AbstractTestCase
 
         $json = '{"title":"Post 1"}';
         $ch = $curl->patch('https://my-json-server.typicode.com/typicode/demo/posts/1', $json, [
-            'Content-Type' => 'application/json',
+            'Content-TypeService' => 'application/json',
         ]);
 
         $responseJson = json_decode('{"id":1,"title":"Post 1"}', true);
@@ -137,7 +137,7 @@ class CurlTest extends AbstractTestCase
         $curl = $this->getCurl();
 
         $ch = $curl->delete('https://my-json-server.typicode.com/typicode/demo/posts/1', [
-            'Content-Type' => 'application/json',
+            'Content-TypeService' => 'application/json',
         ]);
 
         $responseJson = json_decode('{}', true);

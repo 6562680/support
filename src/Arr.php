@@ -117,7 +117,7 @@ class Arr
      */
     public function &getRef($path, array &$src, $default = null) // : mixed
     {
-        $result = $this->fetchRef($src, $path, $error);
+        $result = $this->reference($src, $path, $error);
 
         if ($error === static::ERROR_FETCHREF_NO_ERROR) {
             return $result;
@@ -132,28 +132,6 @@ class Arr
 
 
     /**
-     * @param mixed $value
-     *
-     * @return bool
-     */
-    public function isIndexable($value) : bool
-    {
-        $list = $this->php->listval($value);
-
-        foreach ( $this->walk($list) as $value ) {
-            if (! ( is_array($value)
-                || is_null($value)
-                || is_scalar($value)
-            )) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-
-    /**
      * @param string|array $path
      * @param array        $src
      *
@@ -161,7 +139,7 @@ class Arr
      */
     public function has($path, array &$src) : bool
     {
-        $this->fetchRef($src, $path, $error);
+        $this->reference($src, $path, $error);
 
         return $error === static::ERROR_FETCHREF_NO_ERROR;
     }
@@ -207,7 +185,7 @@ class Arr
     {
         $result = false;
 
-        $fullpath = $this->path('.', $path);
+        $fullpath = $this->str->split('.', $path);
 
         $ref =& $src;
 
@@ -257,7 +235,7 @@ class Arr
      */
     public function &put(array &$dst, $path, $value) // : mixed
     {
-        $fullpath = $this->path('.', $path);
+        $fullpath = $this->str->split('.', $path);
 
         if (null === key($fullpath)) {
             throw new InvalidArgumentException('Empty path passed', func_get_args());
@@ -281,33 +259,79 @@ class Arr
 
 
     /**
-     * выполняет array_push, но возвращает весь массив, а не количество элементов. Для работы с тернарными операторами
-     *
-     * @param array $array
-     * @param mixed ...$items
+     * @param string|string[] $separators
+     * @param string|string[] ...$keys
      *
      * @return array
      */
-    public function push(array $array, ...$items) : array
+    public function path($separators = "\0", ...$keys) : array
     {
-        array_push($array, ...$items);
+        $result = $this->str->explode($separators, ...$keys);
 
-        return $array;
+        return $result;
     }
 
     /**
-     * выполняет array_push, но возвращает ссылку на исходный массив, а не количество элементов. Для работы с тернарными операторами
+     * @param string|string[] $separators
+     * @param string|string[] ...$keys
      *
-     * @param array $array
-     * @param mixed ...$items
-     *
-     * @return array
+     * @return string
      */
-    public function &rpush(array &$array, ...$items) : array
+    public function key($separators = "\0", ...$keys) : string
     {
-        array_push($array, ...$items);
+        $result = $this->str->split($separators, ...$keys);
 
-        return $array;
+        $result = $this->str->join($separators[ 0 ], $result);
+
+        return $result;
+    }
+
+
+    /**
+     * @param string|string[]|array $keys
+     * @param string                $separator
+     *
+     * @return string
+     */
+    public function indexkey($keys, string $separator = "\0") : string
+    {
+        $keys = $this->keys($keys);
+
+        $result = $this->str->implode($separator, $keys);
+
+        return $result;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return string
+     */
+    public function indexval($value) : string
+    {
+        $list = is_array($value)
+            ? $value
+            : [ $value ];
+
+        $invalid = false;
+        array_walk_recursive($list, function ($value) use (&$invalid) {
+            if (! ( ( [] === $value )
+                || is_null($value)
+                || is_scalar($value)
+            )) {
+                $invalid = true;
+
+                return;
+            }
+        });
+
+        if ($invalid) {
+            throw new InvalidArgumentException('Unable to create index from given value', func_get_args());
+        }
+
+        $result = json_encode($value);
+
+        return $result;
     }
 
 
@@ -338,13 +362,7 @@ class Arr
      */
     public function only(array $array, ...$keys) : array
     {
-        $keys = $this->php->listvalFlattenIf(function ($val) {
-            return null !== $this->filter->filterKey($val);
-        }, ...$keys);
-
-        if (null === $keys) {
-            throw new InvalidArgumentException('Each key should be int or string', func_get_args());
-        }
+        $keys = $this->str->theWords(...$keys);
 
         $result = [];
 
@@ -367,13 +385,7 @@ class Arr
      */
     public function except(array $array, ...$keys) : array
     {
-        $keys = $this->php->listvalFlattenIf(function ($val) {
-            return null !== $this->filter->filterKey($val);
-        }, ...$keys);
-
-        if (null === $keys) {
-            throw new InvalidArgumentException('Each key should be int or string', func_get_args());
-        }
+        $keys = $this->str->theWords(...$keys);
 
         $result = [];
 
@@ -396,13 +408,7 @@ class Arr
      */
     public function drop(array $array, ...$keys)
     {
-        $keys = $this->php->listvalFlattenIf(function ($val) {
-            return null !== $this->filter->filterKey($val);
-        }, ...$keys);
-
-        if (null === $keys) {
-            throw new InvalidArgumentException('Each key should be int or string', func_get_args());
-        }
+        $keys = $this->str->theWords(...$keys);
 
         foreach ( $keys as $key ) {
             unset($array[ $key ]);
@@ -425,16 +431,8 @@ class Arr
      */
     public function combine(array $keys, $values = null, bool $drop = null) : array
     {
+        $keys = $this->theKeys($keys);
         $drop = $drop ?? false;
-
-        foreach ( $keys as $key ) {
-            if (null === $this->filter->filterKey($key)) {
-                throw new InvalidArgumentException(
-                    'Invalid key passed',
-                    [ func_get_args(), $key ]
-                );
-            }
-        }
 
         if (! is_array($values)) {
             $values = array_fill(0, count($keys), $values);
@@ -558,104 +556,55 @@ class Arr
 
 
     /**
-     * @param string|string[] $separators
-     * @param mixed|mixed[]   ...$parts
+     * @param iterable $iterable
+     * @param string   $separator
      *
      * @return array
      */
-    public function path($separators, ...$parts) : array
-    {
-        $result = $this->str->split($separators, ...$parts);
-
-        return $result;
-    }
-
-    /**
-     * @param string|string[] $delimiters
-     * @param mixed|mixed[]   ...$parts
-     *
-     * @return string
-     */
-    public function key($delimiters, ...$parts) : string
-    {
-        $delimiters = is_array($delimiters)
-            ? $delimiters
-            : [ $delimiters ];
-
-        foreach ( $delimiters as $delimiter ) {
-            if (! is_string($delimiter)) {
-                throw new InvalidArgumentException(
-                    'Each delimiter should be string',
-                    [ func_get_args(), $delimiter ]
-                );
-            }
-        }
-
-        $result = $this->str->split($delimiters, ...$parts);
-
-        $result = $this->str->implode($delimiters[ 0 ], $result);
-
-        return $result;
-    }
-
-
-    /**
-     * @param mixed|mixed[]   $parts
-     * @param string|string[] $delimiters
-     *
-     * @return string
-     */
-    public function indexKey($parts, $delimiters = "\0") : string
-    {
-        $result = $this->key($delimiters, $parts);
-
-        return $result;
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return string
-     */
-    public function indexVal($value) : string
-    {
-        if (! $this->isIndexable($value)) {
-            throw new InvalidArgumentException(
-                'Value cannot be an index, allowed only: nulls, scalars, arrays with scalars',
-                $value
-            );
-        }
-
-        $result = json_encode($value);
-
-        return $result;
-    }
-
-
-    /**
-     * @param iterable        $iterable
-     * @param string|string[] $separators
-     *
-     * @return array
-     */
-    public function dot(iterable $iterable, $separators = ".") : array
+    public function dot(iterable $iterable, string $separator = ".") : array
     {
         $result = [];
 
         $generator = $this->crawl($iterable, \RecursiveIteratorIterator::SELF_FIRST);
 
         foreach ( $generator as $fullpath => $value ) {
-            if (is_iterable($value)) continue;
+            if (is_iterable($value)) {
+                continue;
+            }
 
-            $result[ $this->indexKey($fullpath, $separators) ] = $value;
+            $result[ $this->indexkey($fullpath, $separator) ] = $value;
         }
 
         return $result;
     }
 
     /**
-     * @param array           $data
-     * @param string|string[] $separators
+     * @param iterable $iterable
+     * @param string   $separator
+     *
+     * @return array
+     */
+    public function dotarr(iterable $iterable, string $separator = ".") : array
+    {
+        $result = $this->dot($iterable, $separator);
+
+        foreach ( $result as $dotkey => $value ) {
+            $path = explode($separator, $dotkey);
+            $last = array_pop($path);
+
+            if (null !== $this->filter->filterInt($last)) {
+                $result[ implode($separator, $path) ][] = $value;
+
+                unset($result[ $dotkey ]);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param array                 $data
+     * @param string|string[]|array $separators
      *
      * @return array
      */
@@ -663,8 +612,8 @@ class Arr
     {
         $result = [];
 
-        foreach ( $data as $dot => $value ) {
-            $path = $this->path($separators, $dot);
+        foreach ( $data as $key => $value ) {
+            $path = $this->path($separators, $key);
 
             $ref =& $result;
             while ( null !== key($path) ) {
@@ -832,13 +781,98 @@ class Arr
 
 
     /**
-     * @param array           $source
-     * @param string|string[] $path
-     * @param null|int        $error
+     * @param string|string[]|array ...$keys
+     *
+     * @return string[]
+     */
+    public function keys(...$keys) : array
+    {
+        $result = [];
+
+        array_walk_recursive($keys, function ($word) use (&$result) {
+            $word = $this->filter->filterKey($word);
+
+            if (null === $word) {
+                throw new InvalidArgumentException(
+                    'Each key should be string or number',
+                    [ func_get_args(), $word ]
+                );
+            }
+
+            $result[] = strval($word);
+        });
+
+        return $result;
+    }
+
+    /**
+     * @param string|string[]|array ...$keys
+     *
+     * @return array
+     */
+    public function theKeys(...$keys) : array
+    {
+        $result = $this->keys(...$keys);
+
+        if (! count($result)) {
+            throw new InvalidArgumentException(
+                'At least one word should be provided',
+                func_get_args()
+            );
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * @param string|string[]|array ...$keys
+     *
+     * @return array
+     */
+    public function keysskip(...$keys) : array
+    {
+        $result = [];
+
+        array_walk_recursive($keys, function ($word) use (&$result) {
+            $word = $this->filter->filterKey($word);
+
+            if (null !== $word) {
+                $result[] = $word;
+            }
+        });
+
+        return $result;
+    }
+
+    /**
+     * @param string|string[]|array ...$keys
+     *
+     * @return array
+     */
+    public function theKeysskip(...$keys) : array
+    {
+        $result = $this->keysskip(...$keys);
+
+        if (! count($result)) {
+            throw new InvalidArgumentException(
+                'At least one word should be provided',
+                func_get_args()
+            );
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * @param array                 $source
+     * @param string|string[]|array $path
+     * @param null|int              $error
      *
      * @return mixed
      */
-    protected function &fetchRef(array &$source, $path, int &$error = null) // : mixed
+    protected function &reference(array &$source, $path, int &$error = null) // : mixed
     {
         $error = static::ERROR_FETCHREF_EMPTY_KEY;
 

@@ -11,6 +11,24 @@ use Gzhegow\Support\Exceptions\RuntimeException;
 class Func
 {
     /**
+     * @param callable $callable
+     *
+     * @return \ReflectionFunction
+     */
+    protected function newReflectionFunction($callable) : \ReflectionFunction
+    {
+        try {
+            $rf = new \ReflectionFunction($callable);
+        }
+        catch ( \ReflectionException $e ) {
+            throw new RuntimeException('Unable to reflect function', func_get_args(), $e);
+        }
+
+        return $rf;
+    }
+
+
+    /**
      * filter
      * выполняет функцию как array_filter. Если передать null, преобразует все аргументы к булеву типу
      * отталкивается от аргумента arg, работает над ним если null
@@ -37,7 +55,6 @@ class Func
 
         return $result;
     }
-
 
     /**
      * map
@@ -80,16 +97,11 @@ class Func
         if (is_string($func)) {
             $bind = [];
 
-            try {
-                $rf = new \ReflectionFunction($func);
-            }
-            catch ( \ReflectionException $e ) {
-                throw new RuntimeException('Unable to reflect function', func_get_args());
-            }
+            $rf = $this->newReflectionFunction($func);
 
-            $cnt = $rf->getNumberOfRequiredParameters();
+            $requiredCnt = $rf->getNumberOfRequiredParameters();
 
-            while ( $cnt-- ) {
+            while ( $requiredCnt-- ) {
                 $bind[] = null !== key($arguments)
                     ? current($arguments)
                     : null;

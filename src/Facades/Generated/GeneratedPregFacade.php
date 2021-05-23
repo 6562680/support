@@ -3,16 +3,16 @@
 /**
  * This file is auto-generated.
  *
- * * @noinspection PhpUnhandledExceptionInspection
- * * @noinspection PhpDocMissingThrowsInspection
+ * @noinspection PhpUnhandledExceptionInspection
+ * @noinspection PhpDocMissingThrowsInspection
  */
 
 namespace Gzhegow\Support\Facades\Generated;
 
-use Gzhegow\Support\Preg as _Preg;
 use Gzhegow\Support\Domain\Preg\RegExp;
+use Gzhegow\Support\Preg;
 
-abstract class Preg
+abstract class GeneratedPregFacade
 {
     /**
      * @param string|string[] $regex
@@ -21,7 +21,7 @@ abstract class Preg
      *
      * @return RegExp
      */
-    public static function newRegExp($regex, string $delimiter = null, string $flags = null) : RegExp
+    public static function newRegExp($regex, string $delimiter = null, string $flags = null): RegExp
     {
         return static::getInstance()->newRegExp($regex, $delimiter, $flags);
     }
@@ -33,7 +33,7 @@ abstract class Preg
      *
      * @return RegExp
      */
-    public static function new($regex, string $delimiter = null, string $flags = null) : string
+    public static function new($regex, string $delimiter = null, string $flags = null): string
     {
         return static::getInstance()->new($regex, $delimiter, $flags);
     }
@@ -43,7 +43,7 @@ abstract class Preg
      *
      * @return bool
      */
-    public static function isValid($regex) : bool
+    public static function isValid($regex): bool
     {
         return static::getInstance()->isValid($regex);
     }
@@ -54,14 +54,13 @@ abstract class Preg
      *
      * @return RegExp
      */
-    public static function concat($regex, ...$regexes) : string
+    public static function concat($regex, ...$regexes): string
     {
         return static::getInstance()->concat($regex, ...$regexes);
     }
 
-
     /**
-     * @return _Preg
+     * @return Preg
      */
-    abstract public static function getInstance() : _Preg;
+    abstract public static function getInstance(): Preg;
 }

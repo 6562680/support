@@ -43,7 +43,6 @@ class Blueprint
      *
      * @param Arr       $arr
      * @param Filter    $filter
-     *
      * @param Formatter $formatter
      *
      * @param array     $curlOptArray
@@ -290,8 +289,8 @@ class Blueprint
                         continue;
                     }
 
-                    if (null !== ( $strval = $this->filter->filterStringable($value) )) {
-                        $this->arr->set($fields, $fullpath, $strval);
+                    if (null !== ( $strval = $this->filter->filterStrval($value) )) {
+                        $this->arr->set($fields, $fullpath, strval($strval));
 
                         continue;
                     }
@@ -302,8 +301,8 @@ class Blueprint
                     mime_content_type($fileInfo->getRealPath())
                 );
 
-            } elseif (null !== ( $strval = $this->filter->filterStringable($data) )) {
-                $body = $strval;
+            } elseif (null !== ( $strval = $this->filter->filterStrval($data) )) {
+                $body = strval($strval);
 
             }
 
@@ -317,11 +316,11 @@ class Blueprint
                 }
 
                 if ($fields) {
-                    $headers[] = 'Content-Type: multipart/form-data';
+                    $headers[] = 'Content-TypeService: multipart/form-data';
 
                     $key = implode(";\n", [
                         'raw',
-                        'Content-Type: text/plain',
+                        'Content-TypeService: text/plain',
                         'Content-Disposition: form-data',
                     ]);
 

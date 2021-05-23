@@ -3,15 +3,22 @@
 /**
  * This file is auto-generated.
  *
- * * @noinspection PhpUnhandledExceptionInspection
- * * @noinspection PhpDocMissingThrowsInspection
+ * @noinspection PhpUnhandledExceptionInspection
+ * @noinspection PhpDocMissingThrowsInspection
  */
 
 namespace Gzhegow\Support\Facades\Generated;
 
-use Gzhegow\Support\Arr as _Arr;
+use Gzhegow\Support\Arr;
+use Gzhegow\Support\Domain\Arr\CrawlIterator;
+use Gzhegow\Support\Domain\Arr\ExpandVo;
+use Gzhegow\Support\Domain\Arr\WalkIterator;
+use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+use Gzhegow\Support\Exceptions\Logic\OutOfRangeException;
+use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
+use Gzhegow\Support\Exceptions\Runtime\UnexpectedValueException;
 
-abstract class Arr
+abstract class GeneratedArrFacade
 {
     /**
      * @param string|array $path
@@ -32,19 +39,9 @@ abstract class Arr
      *
      * @return mixed
      */
-    public static function &getRef($path, array &$src, $default = null)
+    public static function getRef($path, array &$src, $default = null)
     {
         return static::getInstance()->getRef($path, $src, $default);
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return bool
-     */
-    public static function isIndexable($value) : bool
-    {
-        return static::getInstance()->isIndexable($value);
     }
 
     /**
@@ -53,7 +50,7 @@ abstract class Arr
      *
      * @return bool
      */
-    public static function has($path, array &$src) : bool
+    public static function has($path, array &$src): bool
     {
         return static::getInstance()->has($path, $src);
     }
@@ -63,7 +60,7 @@ abstract class Arr
      * @param string|array $path
      * @param mixed        $value
      *
-     * @return _Arr
+     * @return Arr
      */
     public static function set(array &$dst, $path, $value)
     {
@@ -76,7 +73,7 @@ abstract class Arr
      *
      * @return array
      */
-    public static function del(array $src, ...$path) : ?array
+    public static function del(array $src, ...$path): ?array
     {
         return static::getInstance()->del($src, ...$path);
     }
@@ -87,7 +84,7 @@ abstract class Arr
      *
      * @return bool
      */
-    public static function delete(array &$src, ...$path) : bool
+    public static function delete(array &$src, ...$path): bool
     {
         return static::getInstance()->delete($src, ...$path);
     }
@@ -99,35 +96,52 @@ abstract class Arr
      *
      * @return mixed
      */
-    public static function &put(array &$dst, $path, $value)
+    public static function put(array &$dst, $path, $value)
     {
         return static::getInstance()->put($dst, $path, $value);
     }
 
     /**
-     * выполняет array_push, но возвращает весь массив, а не количество элементов. Для работы с тернарными операторами
-     *
-     * @param array $array
-     * @param mixed ...$items
+     * @param string|string[] $separators
+     * @param string|string[] ...$keys
      *
      * @return array
      */
-    public static function push(array $array, ...$items) : array
+    public static function path($separators = "\x00", ...$keys): array
     {
-        return static::getInstance()->push($array, ...$items);
+        return static::getInstance()->path($separators, ...$keys);
     }
 
     /**
-     * выполняет array_push, но возвращает ссылку на исходный массив, а не количество элементов. Для работы с тернарными операторами
+     * @param string|string[] $separators
+     * @param string|string[] ...$keys
      *
-     * @param array $array
-     * @param mixed ...$items
-     *
-     * @return array
+     * @return string
      */
-    public static function &rpush(array &$array, ...$items) : array
+    public static function key($separators = "\x00", ...$keys): string
     {
-        return static::getInstance()->rpush($array, ...$items);
+        return static::getInstance()->key($separators, ...$keys);
+    }
+
+    /**
+     * @param string|string[]|array $keys
+     * @param string                $separator
+     *
+     * @return string
+     */
+    public static function indexkey($keys, string $separator = "\x00"): string
+    {
+        return static::getInstance()->indexkey($keys, $separator);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return string
+     */
+    public static function indexval($value): string
+    {
+        return static::getInstance()->indexval($value);
     }
 
     /**
@@ -137,7 +151,7 @@ abstract class Arr
      *
      * @return array
      */
-    public static function clear(array $array) : array
+    public static function clear(array $array): array
     {
         return static::getInstance()->clear($array);
     }
@@ -148,7 +162,7 @@ abstract class Arr
      *
      * @return array
      */
-    public static function only(array $array, ...$keys) : array
+    public static function only(array $array, ...$keys): array
     {
         return static::getInstance()->only($array, ...$keys);
     }
@@ -159,7 +173,7 @@ abstract class Arr
      *
      * @return array
      */
-    public static function except(array $array, ...$keys) : array
+    public static function except(array $array, ...$keys): array
     {
         return static::getInstance()->except($array, ...$keys);
     }
@@ -184,7 +198,7 @@ abstract class Arr
      *
      * @return array
      */
-    public static function combine(array $keys, $values = null, bool $drop = null) : array
+    public static function combine(array $keys, $values = null, bool $drop = null): array
     {
         return static::getInstance()->combine($keys, $values, $drop);
     }
@@ -198,7 +212,7 @@ abstract class Arr
      *
      * @return array
      */
-    public static function zip(array $array, ...$arrays) : array
+    public static function zip(array $array, ...$arrays): array
     {
         return static::getInstance()->zip($array, ...$arrays);
     }
@@ -212,7 +226,7 @@ abstract class Arr
      *
      * @return array
      */
-    public static function partition(array $array, callable $func = null) : array
+    public static function partition(array $array, callable $func = null): array
     {
         return static::getInstance()->partition($array, $func);
     }
@@ -226,72 +240,40 @@ abstract class Arr
      *
      * @return array
      */
-    public static function group(array $array, \Closure $func = null) : array
+    public static function group(array $array, \Closure $func = null): array
     {
         return static::getInstance()->group($array, $func);
     }
 
     /**
-     * @param string|string[] $separators
-     * @param mixed|mixed[]   ...$parts
+     * @param iterable $iterable
+     * @param string   $separator
      *
      * @return array
      */
-    public static function path($separators, ...$parts) : array
+    public static function dot(iterable $iterable, string $separator = '.'): array
     {
-        return static::getInstance()->path($separators, ...$parts);
+        return static::getInstance()->dot($iterable, $separator);
     }
 
     /**
-     * @param string|string[] $delimiters
-     * @param mixed|mixed[]   ...$parts
-     *
-     * @return string
-     */
-    public static function key($delimiters, ...$parts) : string
-    {
-        return static::getInstance()->key($delimiters, ...$parts);
-    }
-
-    /**
-     * @param mixed|mixed[]   $parts
-     * @param string|string[] $delimiters
-     *
-     * @return string
-     */
-    public static function indexKey($parts, $delimiters = "\x00") : string
-    {
-        return static::getInstance()->indexKey($parts, $delimiters);
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return string
-     */
-    public static function indexVal($value) : string
-    {
-        return static::getInstance()->indexVal($value);
-    }
-
-    /**
-     * @param iterable        $iterable
-     * @param string|string[] $separators
+     * @param iterable $iterable
+     * @param string   $separator
      *
      * @return array
      */
-    public static function dot(iterable $iterable, $separators = '.') : array
+    public static function dotarr(iterable $iterable, string $separator = '.'): array
     {
-        return static::getInstance()->dot($iterable, $separators);
+        return static::getInstance()->dotarr($iterable, $separator);
     }
 
     /**
-     * @param array           $data
-     * @param string|string[] $separators
+     * @param array                 $data
+     * @param string|string[]|array $separators
      *
      * @return array
      */
-    public static function undot(array $data, $separators = '.') : array
+    public static function undot(array $data, $separators = '.'): array
     {
         return static::getInstance()->undot($data, $separators);
     }
@@ -302,9 +284,9 @@ abstract class Arr
      *
      * @return \Generator
      */
-    public static function walk(array $array, int $flags = 0) : \Generator
+    public static function walk(array $array, int $flags = 0): \Generator
     {
-        yield static::getInstance()->walk($array, $flags);
+        yield from static::getInstance()->walk($array, $flags);
     }
 
     /**
@@ -313,9 +295,9 @@ abstract class Arr
      *
      * @return \Generator
      */
-    public static function crawl(iterable $iterable, int $flags = 0) : \Generator
+    public static function crawl(iterable $iterable, int $flags = 0): \Generator
     {
-        yield static::getInstance()->crawl($iterable, $flags);
+        yield from static::getInstance()->crawl($iterable, $flags);
     }
 
     /**
@@ -329,7 +311,7 @@ abstract class Arr
      *
      * @return array
      */
-    public static function expandMany(array $dst, array ...$expands) : array
+    public static function expandMany(array $dst, array ...$expands): array
     {
         return static::getInstance()->expandMany($dst, ...$expands);
     }
@@ -341,14 +323,53 @@ abstract class Arr
      *
      * @return array
      */
-    public static function expand(array $dst, int $expandIdx, $expandValue) : array
+    public static function expand(array $dst, int $expandIdx, $expandValue): array
     {
         return static::getInstance()->expand($dst, $expandIdx, $expandValue);
     }
 
+    /**
+     * @param string|string[]|array ...$keys
+     *
+     * @return string[]
+     */
+    public static function keys(...$keys): array
+    {
+        return static::getInstance()->keys(...$keys);
+    }
 
     /**
-     * @return _Arr
+     * @param string|string[]|array ...$keys
+     *
+     * @return array
      */
-    abstract public static function getInstance() : _Arr;
+    public static function theKeys(...$keys): array
+    {
+        return static::getInstance()->theKeys(...$keys);
+    }
+
+    /**
+     * @param string|string[]|array ...$keys
+     *
+     * @return array
+     */
+    public static function keysskip(...$keys): array
+    {
+        return static::getInstance()->keysskip(...$keys);
+    }
+
+    /**
+     * @param string|string[]|array ...$keys
+     *
+     * @return array
+     */
+    public static function theKeysskip(...$keys): array
+    {
+        return static::getInstance()->theKeysskip(...$keys);
+    }
+
+    /**
+     * @return Arr
+     */
+    abstract public static function getInstance(): Arr;
 }

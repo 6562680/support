@@ -3,6 +3,7 @@
 namespace Gzhegow\Support\Tests;
 
 use Gzhegow\Support\Str;
+use Gzhegow\Support\Php;
 use Gzhegow\Support\Filter;
 
 class SupportTest extends AbstractTestCase
@@ -12,10 +13,17 @@ class SupportTest extends AbstractTestCase
         return new Filter();
     }
 
+    protected function getPhp() : Php
+    {
+        return new Php(
+            $this->getFilter()
+        );
+    }
+
     protected function getStr() : Str
     {
         return new Str(
-            $this->getFilter(),
+            $this->getFilter()
         );
     }
 
@@ -24,6 +32,7 @@ class SupportTest extends AbstractTestCase
     {
         $list = [
             'Arr',
+            'Assert',
             'Bcmath',
             'Calendar',
             'Cli',
@@ -38,6 +47,7 @@ class SupportTest extends AbstractTestCase
             'Loader',
             'Math',
             'Net',
+            'Path',
             'Php',
             'Preg',
             'Profiler',
@@ -66,6 +76,7 @@ class SupportTest extends AbstractTestCase
                 $objMethods[ $m->getName() ] = true;
             }
             unset($objMethods[ '__construct' ]);
+            unset($objMethods[ '__call' ]);
 
             $facadeMethods = [];
             foreach ( $facadeReflection->getMethods() as $m ) {
@@ -76,17 +87,35 @@ class SupportTest extends AbstractTestCase
                 $facadeMethods[ $m->getName() ] = true;
             }
             unset($facadeMethods[ 'getInstance' ]);
+            unset($facadeMethods[ '__callStatic' ]);
 
             $this->assertEquals($objMethods, $facadeMethods);
         }
     }
 
-    public function testFilterTypeMethods()
+    public function testFilterMethods()
     {
         $str = $this->getStr();
 
+        $assertReflection = new \ReflectionClass('Gzhegow\\Support\\Assert');
         $filterReflection = new \ReflectionClass('Gzhegow\\Support\\Filter');
         $typeReflection = new \ReflectionClass('Gzhegow\\Support\\Type');
+
+
+        $assertMethods = [];
+        foreach ( $assertReflection->getMethods() as $m ) {
+            if (! $m->isPublic()) {
+                continue;
+            }
+
+            if (null === ( $method = $str->starts($m->getName(), 'assert') )) {
+                continue;
+            }
+
+            $assertMethods[ $method ] = true;
+        }
+        unset($assertMethods[ '__construct' ]);
+
 
         $filterMethods = [];
         foreach ( $filterReflection->getMethods() as $m ) {
@@ -102,6 +131,7 @@ class SupportTest extends AbstractTestCase
         }
         unset($filterMethods[ '__construct' ]);
 
+
         $typeMethods = [];
         foreach ( $typeReflection->getMethods() as $m ) {
             if (! $m->isPublic()) {
@@ -115,8 +145,9 @@ class SupportTest extends AbstractTestCase
             $typeMethods[ $method ] = true;
         }
         unset($typeMethods[ '__construct' ]);
-        unset($typeMethods[ 'Empty' ]); // has no filter match, only isEmpty is possible
 
+
+        $this->assertEquals($filterMethods, $assertMethods);
         $this->assertEquals($filterMethods, $typeMethods);
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Gzhegow\Support\Domain\Type;
+namespace Gzhegow\Support\Domain\Filter;
 
 
 /**

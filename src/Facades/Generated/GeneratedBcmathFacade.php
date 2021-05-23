@@ -3,15 +3,16 @@
 /**
  * This file is auto-generated.
  *
- * * @noinspection PhpUnhandledExceptionInspection
- * * @noinspection PhpDocMissingThrowsInspection
+ * @noinspection PhpUnhandledExceptionInspection
+ * @noinspection PhpDocMissingThrowsInspection
  */
 
 namespace Gzhegow\Support\Facades\Generated;
 
-use Gzhegow\Support\Bcmath as _Bcmath;
+use Gzhegow\Support\Bcmath;
+use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
-abstract class Bcmath
+abstract class GeneratedBcmathFacade
 {
     /**
      * bcfrac
@@ -23,7 +24,7 @@ abstract class Bcmath
      *
      * @return string
      */
-    public static function bcfrac($number, int $decimals = 0, &$int = null) : string
+    public static function bcfrac($number, int $decimals = 0, &$int = null): string
     {
         return static::getInstance()->bcfrac($number, $decimals, $int);
     }
@@ -64,7 +65,7 @@ abstract class Bcmath
      *
      * @return bool
      */
-    public static function bcnegative($number) : bool
+    public static function bcnegative($number): bool
     {
         return static::getInstance()->bcnegative($number);
     }
@@ -86,7 +87,7 @@ abstract class Bcmath
      *
      * @return int
      */
-    public static function bcdecimals($number) : int
+    public static function bcdecimals($number): int
     {
         return static::getInstance()->bcdecimals($number);
     }
@@ -99,14 +100,13 @@ abstract class Bcmath
      *
      * @return string
      */
-    public static function bcnum($number) : string
+    public static function bcnum($number): string
     {
         return static::getInstance()->bcnum($number);
     }
 
-
     /**
-     * @return _Bcmath
+     * @return Bcmath
      */
-    abstract public static function getInstance() : _Bcmath;
+    abstract public static function getInstance(): Bcmath;
 }

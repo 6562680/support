@@ -3,15 +3,17 @@
 /**
  * This file is auto-generated.
  *
- * * @noinspection PhpUnhandledExceptionInspection
- * * @noinspection PhpDocMissingThrowsInspection
+ * @noinspection PhpUnhandledExceptionInspection
+ * @noinspection PhpDocMissingThrowsInspection
  */
 
 namespace Gzhegow\Support\Facades\Generated;
 
-use Gzhegow\Support\Math as _Math;
+use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+use Gzhegow\Support\Exceptions\Runtime\OutOfBoundsException;
+use Gzhegow\Support\Math;
 
-abstract class Math
+abstract class GeneratedMathFacade
 {
     /**
      * @param           $src
@@ -19,7 +21,7 @@ abstract class Math
      *
      * @return bool
      */
-    public static function isPositive($src, bool $coalesce = null) : bool
+    public static function isPositive($src, bool $coalesce = null): bool
     {
         return static::getInstance()->isPositive($src, $coalesce);
     }
@@ -30,7 +32,7 @@ abstract class Math
      *
      * @return bool
      */
-    public static function isNegative($src, bool $coalesce = null) : bool
+    public static function isNegative($src, bool $coalesce = null): bool
     {
         return static::getInstance()->isNegative($src, $coalesce);
     }
@@ -41,7 +43,7 @@ abstract class Math
      *
      * @return bool
      */
-    public static function isNonPositive($src, bool $coalesce = null) : bool
+    public static function isNonPositive($src, bool $coalesce = null): bool
     {
         return static::getInstance()->isNonPositive($src, $coalesce);
     }
@@ -52,7 +54,7 @@ abstract class Math
      *
      * @return bool
      */
-    public static function isNonNegative($src, bool $coalesce = null) : bool
+    public static function isNonNegative($src, bool $coalesce = null): bool
     {
         return static::getInstance()->isNonNegative($src, $coalesce);
     }
@@ -63,7 +65,7 @@ abstract class Math
      *
      * @return float
      */
-    public static function ratio($value, $sum = null) : float
+    public static function ratio($value, $sum = null): float
     {
         return static::getInstance()->ratio($value, $sum);
     }
@@ -74,7 +76,7 @@ abstract class Math
      *
      * @return int
      */
-    public static function percent($value, $sum = null) : int
+    public static function percent($value, $sum = null): int
     {
         return static::getInstance()->percent($value, $sum);
     }
@@ -125,7 +127,7 @@ abstract class Math
      *
      * @return int|float
      */
-    public static function avg(...$values) : float
+    public static function avg(...$values): float
     {
         return static::getInstance()->avg(...$values);
     }
@@ -137,7 +139,7 @@ abstract class Math
      *
      * @return int[]|float[]
      */
-    public static function share($sum, array $rates, int $decimals = null) : array
+    public static function share($sum, array $rates, int $decimals = null): array
     {
         return static::getInstance()->share($sum, $rates, $decimals);
     }
@@ -159,7 +161,7 @@ abstract class Math
      *
      * @return array
      */
-    public static function balance($sum, array $rates, array $freezes = [], int $decimals = null) : array
+    public static function balance($sum, array $rates, array $freezes = [], int $decimals = null): array
     {
         return static::getInstance()->balance($sum, $rates, $freezes, $decimals);
     }
@@ -169,14 +171,13 @@ abstract class Math
      *
      * @return array
      */
-    public static function balanceRatios(array $rates) : array
+    public static function balanceRatios(array $rates): array
     {
         return static::getInstance()->balanceRatios($rates);
     }
 
-
     /**
-     * @return _Math
+     * @return Math
      */
-    abstract public static function getInstance() : _Math;
+    abstract public static function getInstance(): Math;
 }

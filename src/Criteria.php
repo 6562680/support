@@ -10,36 +10,36 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
  */
 class Criteria
 {
-    const OPERATOR_BETWEEN          = 'btw';
-    const OPERATOR_DOES_NOT_BETWEEN = '!btw';
-    const OPERATOR_DOES_NOT_END     = '!ends';
-    const OPERATOR_DOES_NOT_EQUAL   = '!eq';
-    const OPERATOR_DOES_NOT_IN      = '!in';
-    const OPERATOR_DOES_NOT_START   = '!starts';
-    const OPERATOR_ENDS             = 'ends';
-    const OPERATOR_EQUAL            = 'eq';
-    const OPERATOR_GT               = 'gt';
-    const OPERATOR_GTE              = 'gte';
-    const OPERATOR_IN               = 'in';
-    const OPERATOR_LT               = 'lt';
-    const OPERATOR_LTE              = 'lte';
-    const OPERATOR_STARTS           = 'starts';
+    const OPERATOR_BTW     = 'btw';
+    const OPERATOR_ENDS    = 'ends';
+    const OPERATOR_EQ      = 'eq';
+    const OPERATOR_GT      = 'gt';
+    const OPERATOR_GTE     = 'gte';
+    const OPERATOR_IN      = 'in';
+    const OPERATOR_LT      = 'lt';
+    const OPERATOR_LTE     = 'lte';
+    const OPERATOR_NBTW    = '!btw';
+    const OPERATOR_NENDS   = '!ends';
+    const OPERATOR_NEQ     = '!eq';
+    const OPERATOR_NIN     = '!in';
+    const OPERATOR_NSTARTS = '!starts';
+    const OPERATOR_STARTS  = 'starts';
 
     const THE_OPERATOR_LIST = [
-        self::OPERATOR_BETWEEN          => true,
-        self::OPERATOR_DOES_NOT_BETWEEN => true,
-        self::OPERATOR_DOES_NOT_END     => true,
-        self::OPERATOR_DOES_NOT_EQUAL   => true,
-        self::OPERATOR_DOES_NOT_IN      => true,
-        self::OPERATOR_DOES_NOT_START   => true,
-        self::OPERATOR_ENDS             => true,
-        self::OPERATOR_EQUAL            => true,
-        self::OPERATOR_GT               => true,
-        self::OPERATOR_GTE              => true,
-        self::OPERATOR_IN               => true,
-        self::OPERATOR_LT               => true,
-        self::OPERATOR_LTE              => true,
-        self::OPERATOR_STARTS           => true,
+        self::OPERATOR_BTW     => true,
+        self::OPERATOR_NBTW    => true,
+        self::OPERATOR_NENDS   => true,
+        self::OPERATOR_NEQ     => true,
+        self::OPERATOR_NIN     => true,
+        self::OPERATOR_NSTARTS => true,
+        self::OPERATOR_ENDS    => true,
+        self::OPERATOR_EQ      => true,
+        self::OPERATOR_GT      => true,
+        self::OPERATOR_GTE     => true,
+        self::OPERATOR_IN      => true,
+        self::OPERATOR_LT      => true,
+        self::OPERATOR_LTE     => true,
+        self::OPERATOR_STARTS  => true,
     ];
 
 
@@ -295,19 +295,19 @@ class Criteria
                 if ($operator === static::OPERATOR_GTE) return -1 !== $this->cmp->cmpstr($needle, $src, $coalesce);
                 if ($operator === static::OPERATOR_LTE) return 1 !== $this->cmp->cmpstr($needle, $src, $coalesce);
 
-                if ($operator === static::OPERATOR_BETWEEN) {
+                if ($operator === static::OPERATOR_BTW) {
                     return ! ! $this->str->contains($needle, $src, $coalesce);
                 }
-                if ($operator === static::OPERATOR_DOES_NOT_BETWEEN) {
+                if ($operator === static::OPERATOR_NBTW) {
                     return ! $this->str->contains($needle, $src, $coalesce);
                 }
 
                 if ($operator === static::OPERATOR_STARTS) return null !== $this->str->starts($needle, $src, $coalesce);
                 if ($operator === static::OPERATOR_ENDS) return null !== $this->str->ends($needle, $src, $coalesce);
-                if ($operator === static::OPERATOR_DOES_NOT_START) {
+                if ($operator === static::OPERATOR_NSTARTS) {
                     return null === $this->str->starts($needle, $src, $coalesce);
                 }
-                if ($operator === static::OPERATOR_DOES_NOT_END) {
+                if ($operator === static::OPERATOR_NENDS) {
                     return null === $this->str->ends($needle, $src, $coalesce);
                 }
 
@@ -320,8 +320,8 @@ class Criteria
             }
         }
 
-        if ($operator === static::OPERATOR_EQUAL) return $src === $needle;
-        if ($operator === static::OPERATOR_DOES_NOT_EQUAL) return $src !== $needle;
+        if ($operator === static::OPERATOR_EQ) return $src === $needle;
+        if ($operator === static::OPERATOR_NEQ) return $src !== $needle;
 
         return false;
     }
@@ -344,27 +344,27 @@ class Criteria
 
         if (null !== $this->filter->filterNumber($needle)) {
             if ($operator === static::OPERATOR_IN) return $this->isInNumber($needle, $arr, $coalesce);
-            if ($operator === static::OPERATOR_DOES_NOT_IN) return ! $this->isInNumber($needle, $arr, $coalesce);
+            if ($operator === static::OPERATOR_NIN) return ! $this->isInNumber($needle, $arr, $coalesce);
 
-            if ($operator === static::OPERATOR_BETWEEN) return $this->isBetweenNumber($needle, $arr, $coalesce);
-            if ($operator === static::OPERATOR_DOES_NOT_BETWEEN) {
+            if ($operator === static::OPERATOR_BTW) return $this->isBetweenNumber($needle, $arr, $coalesce);
+            if ($operator === static::OPERATOR_NBTW) {
                 return ! $this->isBetweenNumber($needle, $arr, $coalesce);
             }
 
         } elseif (is_string($needle)) {
             if ($operator === static::OPERATOR_IN) return $this->isInString($needle, $arr, $coalesce);
-            if ($operator === static::OPERATOR_DOES_NOT_IN) {
+            if ($operator === static::OPERATOR_NIN) {
                 return ! $this->isInString($needle, $arr, $coalesce);
             }
 
         } elseif ($this->calendar->isDate($needle)) {
             if ($operator === static::OPERATOR_IN) return $this->isInDate($needle, $arr, $coalesce);
-            if ($operator === static::OPERATOR_DOES_NOT_IN) {
+            if ($operator === static::OPERATOR_NIN) {
                 return ! $this->isInDate($needle, $arr, $coalesce);
             }
 
-            if ($operator === static::OPERATOR_BETWEEN) return $this->isBetweenDate($needle, $arr, $coalesce);
-            if ($operator === static::OPERATOR_DOES_NOT_BETWEEN) {
+            if ($operator === static::OPERATOR_BTW) return $this->isBetweenDate($needle, $arr, $coalesce);
+            if ($operator === static::OPERATOR_NBTW) {
                 return ! $this->isBetweenDate($needle, $arr, $coalesce);
             }
         }

@@ -4,7 +4,6 @@ namespace Gzhegow\Support;
 
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
-use Gzhegow\Support\Domain\Type\Interfaces\CanToArrayInterface;
 use Gzhegow\Support\Exceptions\Runtime\UnexpectedValueException;
 
 
@@ -44,7 +43,35 @@ class Php
 
 
     /**
-     * hash
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    public function isEmpty($value) : bool
+    {
+        if (empty($value)) {
+            return true;
+        }
+
+        if (is_object($value)) {
+            if (is_countable($value)) {
+                return ! count($value);
+
+            } elseif (is_iterable($value)) {
+                $i = 0;
+                foreach ( $value as $v ) {
+                    $i++;
+                }
+
+                return $i === 0;
+            }
+        }
+
+        return false;
+    }
+
+
+    /**
      * возвращает строчный идентификатор значения любой переменной на текущий момент в виде строки для дальнейшего сравнения
      * идентификаторы могут быть позже использованы другими обьектами, поэтому его актуальность до тех пор, пока конкретный обьект существует
      *
@@ -112,49 +139,150 @@ class Php
 
 
     /**
-     * @param mixed $data
+     * @param mixed $value
      *
-     * @return array
+     * @return null|int
      */
-    public function arrval($data) : array
+    public function intval($value) : ?int
     {
-        $result = [];
+        if (null === $this->filter->filterIntval($value)) {
+            return null;
+        }
 
-        if (is_null($data)) {
+        $result = intval($value);
+
+        return $result;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|float
+     */
+    public function floatval($value) : ?float
+    {
+        if (null === $this->filter->filterFloatval($value)) {
+            return null;
+        }
+
+        $result = floatval($value);
+
+        return $result;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|int|float
+     */
+    public function numval($value) // : ?int|float
+    {
+        if (null === $this->filter->filterNumval($value)) {
+            return null;
+        }
+
+        return null
+            ?? $this->intval($value)
+            ?? $this->floatval($value);
+    }
+
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|string
+     */
+    public function strval($value) : ?string
+    {
+        if (null === $this->filter->filterStrval($value)) {
+            return null;
+        }
+
+        $result = strval($value);
+
+        return $result;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|string
+     */
+    public function theStrval($value) : ?string
+    {
+        if (null === $this->filter->filterTheStrval($value)) {
+            return null;
+        }
+
+        $result = strval($value);
+
+        return $result;
+    }
+
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|array
+     */
+    public function arrval($value) : ?array
+    {
+        if (is_array($value)) {
+            return $value;
+
+        } elseif (is_null($value)) {
+            return [];
+
+        } elseif (is_scalar($value)) {
+            return [ $value ];
+
+        } elseif (is_iterable($value)) {
             $result = [];
 
-        } elseif (is_scalar($data)) {
-            $result = [ $data ];
-
-        } elseif (is_array($data)) {
-            $result = $data;
-
-        } elseif (is_object($data)) {
-            if (is_a($data, CanToArrayInterface::class)) {
-                $result = $data->toArray();
-
-            } elseif (is_iterable($data)) {
-                foreach ( $data as $idx => $item ) {
-                    ( null !== $this->filter->filterKey($idx) )
-                        ? ( $result[ $idx ] = $item )
-                        : ( $result[] = $item );
-                }
-
-            } else {
-                $result = null;
-
-                try {
-                    $result = $data->toArray();
-                }
-                catch ( \Throwable $e ) {
-                    throw new InvalidArgumentException('Unable to convert variable to array', $data);
-                }
-
-                return $result;
+            foreach ( $value as $key => $item ) {
+                ( null === ( $strval = $this->filter->filterKey($key) ) )
+                    ? ( $result[ $strval ] = $item )
+                    : ( $result[] = $item );
             }
 
-        } else {
-            throw new InvalidArgumentException('Unable to convert variable to array', $data);
+            return $result;
+
+        } elseif (is_object($value)) {
+            // if (method_exists($value, 'toArray')) // too slow
+
+            $result = null;
+            try {
+                $result = $value->toArray();
+            }
+            catch ( \Throwable $e ) {
+            }
+
+            /** @noinspection PhpExpressionAlwaysNullInspection */
+            return $result;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param mixed $classOrObject
+     *
+     * @return null|string
+     */
+    public function classval($classOrObject) : ?string
+    {
+        $result = null;
+
+        if (null !== ( $class = $this->filter->filterClass($classOrObject) )) {
+            $result = $class;
+
+        } elseif (is_object($classOrObject)) {
+            if (null !== ( $reflectionClass = $this->filter->filterReflectionClass($classOrObject) )) {
+                $result = $reflectionClass->getName();
+
+            } else {
+                $result = get_class($classOrObject);
+            }
         }
 
         return $result;
@@ -201,37 +329,6 @@ class Php
                 $result[] = $item;
             }
         });
-
-        return $result;
-    }
-
-
-    /**
-     * @param callable $if
-     * @param mixed    ...$items
-     *
-     * @return null|array
-     */
-    public function listvalIf(callable $if, ...$items) : ?array
-    {
-        $list = $this->listval(...$items);
-
-        $result = $this->filter->filterList($list, $if);
-
-        return $result;
-    }
-
-    /**
-     * @param callable $if
-     * @param mixed    ...$items
-     *
-     * @return null|array
-     */
-    public function listvalFlattenIf(callable $if, ...$items) : ?array
-    {
-        $list = $this->listvalFlatten(...$items);
-
-        $result = $this->filter->filterList($list, $if);
 
         return $result;
     }
@@ -380,7 +477,7 @@ class Php
             : [ $sleeps ];
 
         foreach ( $sleeps as $sleep ) {
-            if (null === $this->filter->filterNumerable($sleep)) {
+            if (null === $this->numval($sleep)) {
                 throw new InvalidArgumentException(
                     'Each sleep should be numerable',
                     [ func_get_args(), $sleep ]
@@ -417,11 +514,11 @@ class Php
      *
      * @param array         $args
      * @param int|int[]     $num
-     * @param null|callable $filter
+     * @param null|callable $coalesce
      *
      * @return null|mixed
      */
-    protected function overload(array &$args, $num, callable $filter = null) // : ?mixed
+    protected function overload(array &$args, $num, callable $coalesce = null) // : ?mixed
     {
         $arr = $this->listvalFlatten($num);
         $arr = array_map('intval', $arr);
@@ -432,11 +529,11 @@ class Php
         $result = null;
         for ( $i = $max; $i >= $min; $i-- ) {
             if (array_key_exists($i, $args)) {
-                if (! $filter) {
+                if (! $coalesce) {
                     $result = $args[ $i ];
                     $args[ $i ] = null;
 
-                } elseif (null !== ( $result = $filter($args[ $i ], $num, $args) )) {
+                } elseif (null !== ( $result = $coalesce($args[ $i ], $num, $args) )) {
                     $args[ $i ] = null;
 
                     break;

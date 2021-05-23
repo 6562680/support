@@ -22,8 +22,8 @@ class Debug
 
         } elseif (is_bool($arg)) {
             $result = $arg
-                ? 'TRUE'
-                : 'FALSE';
+                ? '{ TRUE }'
+                : '{ FALSE }';
 
         } elseif (is_object($arg)) {
             $result = '{ #' . spl_object_id($arg) . ' ' . get_class($arg) . ' }';
@@ -86,12 +86,14 @@ class Debug
             }
 
             $data = [];
+
             if (! $columns) {
                 $data = $line;
 
             } else {
                 if (count($columns) === 1) {
                     $data = $line[ reset($columns) ];
+
                 } else {
                     foreach ( $columns as $column ) {
                         $data[ $column ] = $line[ $column ] ?? '<' . $column . '>';
@@ -104,8 +106,10 @@ class Debug
                     $result[ $idx ] = implode($implode, $data);
 
                 } else {
+                    $args = $this->args($line[ 'args' ]);
+
                     $result[ $idx ] = $data;
-                    $result[ $idx ][ 'args' ] = $this->printR($this->args($line[ 'args' ]), 1);
+                    $result[ $idx ][ 'args' ] = $this->printR($args, 1);
                 }
             } else {
                 $result[ $idx ] = $data;

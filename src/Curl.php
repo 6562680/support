@@ -401,7 +401,7 @@ class Curl
             : [ $limits ];
 
         foreach ( $limits as $limit ) {
-            if (null === $this->filter->filterIntable($limit)) {
+            if (null === $this->php->intval($limit)) {
                 throw new InvalidArgumentException(
                     'Each limit should be intable',
                     [ func_get_args(), $limit ]

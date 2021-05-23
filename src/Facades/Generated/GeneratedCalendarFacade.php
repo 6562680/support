@@ -3,20 +3,21 @@
 /**
  * This file is auto-generated.
  *
- * * @noinspection PhpUnhandledExceptionInspection
- * * @noinspection PhpDocMissingThrowsInspection
+ * @noinspection PhpUnhandledExceptionInspection
+ * @noinspection PhpDocMissingThrowsInspection
  */
 
 namespace Gzhegow\Support\Facades\Generated;
 
-use Gzhegow\Support\Calendar as _Calendar;
+use Gzhegow\Support\Calendar;
+use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
-abstract class Calendar
+abstract class GeneratedCalendarFacade
 {
     /**
      * @return string
      */
-    public static function getTimezoneName() : string
+    public static function getTimezoneName(): string
     {
         return static::getInstance()->getTimezoneName();
     }
@@ -24,7 +25,7 @@ abstract class Calendar
     /**
      * @return \DateTimeZone
      */
-    public static function getTimezone() : \DateTimeZone
+    public static function getTimezone(): \DateTimeZone
     {
         return static::getInstance()->getTimezone();
     }
@@ -34,7 +35,7 @@ abstract class Calendar
      *
      * @return bool
      */
-    public static function isDate($date) : bool
+    public static function isDate($date): bool
     {
         return static::getInstance()->isDate($date);
     }
@@ -45,7 +46,7 @@ abstract class Calendar
      *
      * @return bool
      */
-    public static function isDateable($date, \DateTimeZone $tz = null) : bool
+    public static function isDateable($date, \DateTimeZone $tz = null): bool
     {
         return static::getInstance()->isDateable($date, $tz);
     }
@@ -56,7 +57,7 @@ abstract class Calendar
      *
      * @return bool
      */
-    public static function isSame($a, $b) : bool
+    public static function isSame($a, $b): bool
     {
         return static::getInstance()->isSame($a, $b);
     }
@@ -67,7 +68,7 @@ abstract class Calendar
      *
      * @return bool
      */
-    public static function isBefore($a, $b) : bool
+    public static function isBefore($a, $b): bool
     {
         return static::getInstance()->isBefore($a, $b);
     }
@@ -78,7 +79,7 @@ abstract class Calendar
      *
      * @return bool
      */
-    public static function isBeforeOrSame($a, $b) : bool
+    public static function isBeforeOrSame($a, $b): bool
     {
         return static::getInstance()->isBeforeOrSame($a, $b);
     }
@@ -89,7 +90,7 @@ abstract class Calendar
      *
      * @return bool
      */
-    public static function isAfter($a, $b) : bool
+    public static function isAfter($a, $b): bool
     {
         return static::getInstance()->isAfter($a, $b);
     }
@@ -100,7 +101,7 @@ abstract class Calendar
      *
      * @return bool
      */
-    public static function isAfterOrSame($a, $b) : bool
+    public static function isAfterOrSame($a, $b): bool
     {
         return static::getInstance()->isAfterOrSame($a, $b);
     }
@@ -111,7 +112,7 @@ abstract class Calendar
      *
      * @return bool
      */
-    public static function isBetween($dt, array $dates = []) : bool
+    public static function isBetween($dt, array $dates = []): bool
     {
         return static::getInstance()->isBetween($dt, $dates);
     }
@@ -122,7 +123,7 @@ abstract class Calendar
      *
      * @return bool
      */
-    public static function isIntersect(array $dates = [], array $datesWith = []) : bool
+    public static function isIntersect(array $dates = [], array $datesWith = []): bool
     {
         return static::getInstance()->isIntersect($dates, $datesWith);
     }
@@ -133,7 +134,7 @@ abstract class Calendar
      *
      * @return null|\DateTime
      */
-    public static function detectDate($date, \DateTimeZone $tz = null) : ?\DateTime
+    public static function detectDate($date, \DateTimeZone $tz = null): ?\DateTime
     {
         return static::getInstance()->detectDate($date, $tz);
     }
@@ -141,7 +142,7 @@ abstract class Calendar
     /**
      * @param mixed $timezone
      *
-     * @return _Calendar
+     * @return static
      */
     public static function setTimezone($timezone)
     {
@@ -155,7 +156,7 @@ abstract class Calendar
      *
      * @return \DateTime
      */
-    public static function date($date, string $format = null, \DateTimeZone $tz = null) : \DateTime
+    public static function date($date, string $format = null, \DateTimeZone $tz = null): \DateTime
     {
         return static::getInstance()->date($date, $format, $tz);
     }
@@ -165,7 +166,7 @@ abstract class Calendar
      *
      * @return \DateTime
      */
-    public static function now(\DateTimeZone $tz = null) : \DateTime
+    public static function now(\DateTimeZone $tz = null): \DateTime
     {
         return static::getInstance()->now($tz);
     }
@@ -175,7 +176,7 @@ abstract class Calendar
      *
      * @return \DateTime
      */
-    public static function today(\DateTimeZone $tz = null) : \DateTime
+    public static function today(\DateTimeZone $tz = null): \DateTime
     {
         return static::getInstance()->today($tz);
     }
@@ -186,7 +187,7 @@ abstract class Calendar
      *
      * @return float
      */
-    public static function diff(\DateTime $a, \DateTime $b) : float
+    public static function diff(\DateTime $a, \DateTime $b): float
     {
         return static::getInstance()->diff($a, $b);
     }
@@ -198,14 +199,13 @@ abstract class Calendar
      *
      * @return \DateTime
      */
-    public static function parse($date, string $format = null, \DateTimeZone $tz = null) : ?\DateTime
+    public static function parse($date, string $format = null, \DateTimeZone $tz = null): ?\DateTime
     {
         return static::getInstance()->parse($date, $format, $tz);
     }
 
-
     /**
-     * @return _Calendar
+     * @return Calendar
      */
-    abstract public static function getInstance() : _Calendar;
+    abstract public static function getInstance(): Calendar;
 }

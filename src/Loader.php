@@ -11,34 +11,51 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 class Loader
 {
     /**
-     * @var Str
+     * @var Filter
      */
-    protected $str;
+    protected $filter;
+    /**
+     * @var Path
+     */
+    protected $path;
+    /**
+     * @var Php
+     */
+    protected $php;
 
 
     /**
      * @var array
      */
-    protected $classMap;
+    protected $declaredClasses;
+
 
 
     /**
      * Constructor
      *
-     * @param Str $str
+     * @param Filter $filter
+     * @param Path   $path
+     * @param Php    $php
      */
     public function __construct(
-        Str $str
+        Filter $filter,
+        Path $path,
+        Php $php
     )
     {
-        $this->str = $str;
+        $this->filter = $filter;
+        $this->php = $php;
+        $this->path = $path;
+
+        $path->using('\\');
     }
 
 
     /**
      * @return array
      */
-    public function loadClassMap() : array
+    protected function loadDeclaredClasses() : array
     {
         $map = [];
 
@@ -51,23 +68,114 @@ class Loader
 
 
     /**
-     * @param string|object $classOrObject
-     *
      * @return array
      */
-    public function split($classOrObject) : array
+    public function getDeclaredClasses() : array
     {
-        $class = is_object($classOrObject)
-            ? get_class($classOrObject)
-            : $classOrObject;
+        return $this->declaredClasses = $this->declaredClasses
+            ?? $this->loadDeclaredClasses();
+    }
 
-        if (! is_string($class)) {
-            throw new InvalidArgumentException('Class should be string or object');
+
+    /**
+     * @param object          $value
+     * @param string|string[] ...$classes
+     *
+     * @return bool
+     */
+    public function isInstanceOf($value, ...$classes) : bool
+    {
+        return null !== $this->filterInstanceOf($value, ...$classes);
+    }
+
+    /**
+     * @param string|object   $value
+     * @param string|string[] ...$classes
+     *
+     * @return bool
+     */
+    public function isClassOf($value, ...$classes) : bool
+    {
+        return null !== $this->filterClassOf($value, ...$classes);
+    }
+
+    /**
+     * @param string|object   $value
+     * @param string|string[] ...$classes
+     *
+     * @return bool
+     */
+    public function isSubclassOf($value, ...$classes) : bool
+    {
+        return null !== $this->filterSubclassOf($value, ...$classes);
+    }
+
+
+    /**
+     * @param object          $value
+     * @param string|string[] ...$classes
+     *
+     * @return null|object
+     */
+    public function filterInstanceOf($value, ...$classes) // : ?object
+    {
+        $list = $this->php->listvalFlatten(...$classes);
+
+        foreach ( $list as $class ) {
+            if ($value instanceof $class) {
+                return $value;
+            }
         }
 
-        $result = explode('\\', $class);
+        return null;
+    }
 
-        return $result;
+    /**
+     * @param string|object   $value
+     * @param string|string[] ...$classes
+     *
+     * @return null|string|object
+     */
+    public function filterClassOf($value, ...$classes) // : ?string|object
+    {
+        $list = $this->php->listvalFlatten(...$classes);
+
+        $allowString = ( null !== ( $strval = $this->php->strval($value) ) );
+
+        foreach ( $list as $class ) {
+            if ($allowString && is_a($strval, $class, true)) {
+                return $value;
+
+            } elseif (is_a($value, $class)) {
+                return $value;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param string|object   $value
+     * @param string|string[] ...$classes
+     *
+     * @return null|string|object
+     */
+    public function filterSubclassOf($value, ...$classes) // : ?string|object
+    {
+        $list = $this->php->listvalFlatten(...$classes);
+
+        $allowString = ( null !== ( $strval = $this->php->strval($value) ) );
+
+        foreach ( $list as $class ) {
+            if ($allowString && is_subclass_of($strval, $class, true)) {
+                return $value;
+
+            } elseif (is_subclass_of($value, $class)) {
+                return $value;
+            }
+        }
+
+        return null;
     }
 
 
@@ -76,29 +184,18 @@ class Loader
      *
      * @return string[]
      */
-    public function nsclass($classOrObject) : array
+    public function nsClass($classOrObject) : array
     {
-        $array = $this->split($classOrObject);
+        if (null === ( $class = $this->php->classval($classOrObject) )) {
+            throw new InvalidArgumentException('Class should be classval or object');
+        }
 
-        $class = array_pop($array);
-        $namespace = implode($separator = '\\', $array) ?: null;
+        $namespace = substr($class, 0, strrpos($class, '\\'));
+        $class = substr($class, strrpos($class, '\\') + 1);
 
         return [ $namespace, $class ];
     }
 
-    /**
-     * @param string|object $classOrObject
-     *
-     * @return string
-     */
-    public function class($classOrObject) : string
-    {
-        $array = $this->split($classOrObject);
-
-        $result = array_pop($array);
-
-        return $result;
-    }
 
     /**
      * @param string|object $classOrObject
@@ -107,33 +204,63 @@ class Loader
      */
     public function namespace($classOrObject) : ?string
     {
-        $array = $this->split($classOrObject);
+        if (null === ( $class = $this->php->classval($classOrObject) )) {
+            throw new InvalidArgumentException('Class should be classval or object');
+        }
 
-        array_pop($array);
+        $result = substr($class, 0, strrpos($class, '\\'));
 
-        $result = implode('\\', $array);
+        return $result;
+    }
+
+    /**
+     * @param string|object $classOrObject
+     *
+     * @return string
+     */
+    public function className($classOrObject) : string
+    {
+        if (null === ( $class = $this->php->classval($classOrObject) )) {
+            throw new InvalidArgumentException('Class should be classval or object');
+        }
+
+        $result = substr($class, strrpos($class, '\\') + 1);
 
         return $result;
     }
 
 
     /**
-     * @param mixed       $classOrObject
-     * @param string|null $base
+     * @param string|object $classOrObject
+     * @param null|string   $suffix
+     * @param null|int      $limit
      *
      * @return string
      */
-    public function baseclass($classOrObject, string $base = null) : ?string
+    public function basename($classOrObject, string $suffix = null, int $limit = null) : ?string
     {
-        $class = is_object($classOrObject)
-            ? get_class($classOrObject)
-            : $classOrObject;
-
-        if (! is_string($class)) {
-            throw new InvalidArgumentException('Class should be string or object');
+        if (null === ( $class = $this->php->classval($classOrObject) )) {
+            throw new InvalidArgumentException('Class should be classval or object');
         }
 
-        $result = $this->str->starts($class, $base);
+        $result = $this->path->basename($class, $suffix, $limit);
+
+        return $result;
+    }
+
+    /**
+     * @param string|object $classOrObject
+     * @param string|null   $base
+     *
+     * @return string
+     */
+    public function basepath($classOrObject, string $base = null) : ?string
+    {
+        if (null === ( $class = $this->php->classval($classOrObject) )) {
+            throw new InvalidArgumentException('Class should be classval or object');
+        }
+
+        $result = $this->path->basepath($class, $base);
 
         return $result;
     }
@@ -146,13 +273,11 @@ class Loader
      *
      * @return array
      */
-    public function search(callable $filter, int $limit = null, int $offset = 0) : array
+    public function searchDeclaredClass(callable $filter, int $limit = null, int $offset = 0) : array
     {
-        $this->classMap = $this->classMap ?? $this->loadClassMap();
-
         $result = [];
 
-        foreach ( $this->classMap as $class => $bool ) {
+        foreach ( $this->getDeclaredClasses() as $class => $bool ) {
             if (! $filter($class)) {
                 continue;
             }

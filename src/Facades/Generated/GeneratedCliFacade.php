@@ -3,20 +3,23 @@
 /**
  * This file is auto-generated.
  *
- * * @noinspection PhpUnhandledExceptionInspection
- * * @noinspection PhpDocMissingThrowsInspection
+ * @noinspection PhpUnhandledExceptionInspection
+ * @noinspection PhpDocMissingThrowsInspection
  */
 
 namespace Gzhegow\Support\Facades\Generated;
 
-use Gzhegow\Support\Cli as _Cli;
+use Gzhegow\Support\Cli;
+use Gzhegow\Support\Exceptions\Logic\BadFunctionCallException;
+use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+use Gzhegow\Support\Exceptions\RuntimeException;
 
-abstract class Cli
+abstract class GeneratedCliFacade
 {
     /**
      * @param mixed ...$arguments
      */
-    public static function stop(...$arguments) : void
+    public static function stop(...$arguments): void
     {
         static::getInstance()->stop(...$arguments);
     }
@@ -26,7 +29,7 @@ abstract class Cli
      *
      * @return array
      */
-    public static function pause(...$arguments) : array
+    public static function pause(...$arguments): array
     {
         return static::getInstance()->pause(...$arguments);
     }
@@ -34,7 +37,7 @@ abstract class Cli
     /**
      * @return string
      */
-    public static function readln() : string
+    public static function readln(): string
     {
         return static::getInstance()->readln();
     }
@@ -44,7 +47,7 @@ abstract class Cli
      *
      * @return string
      */
-    public static function cin(string $search = '```') : string
+    public static function cin(string $search = '```'): string
     {
         return static::getInstance()->cin($search);
     }
@@ -57,7 +60,7 @@ abstract class Cli
      * @param string $content
      * @param string $answer
      *
-     * @return _Cli
+     * @return static
      */
     public static function writeFile(string $outputPath, string $content, string &$answer = 'n')
     {
@@ -81,14 +84,12 @@ abstract class Cli
         string $cwd = null,
         array $env = null,
         array $other_options = null
-    ) : array
-    {
+    ): array {
         return static::getInstance()->run($cmd, $stdin, $cwd, $env, $other_options);
     }
 
-
     /**
-     * @return _Cli
+     * @return Cli
      */
-    abstract public static function getInstance() : _Cli;
+    abstract public static function getInstance(): Cli;
 }

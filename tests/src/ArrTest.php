@@ -224,32 +224,6 @@ class ArrTest extends AbstractTestCase
     }
 
 
-    public function testIsIndexable()
-    {
-        $arr = $this->getArr();
-
-        $this->assertEquals(true, $arr->isIndexable(null));
-        $this->assertEquals(true, $arr->isIndexable(true));
-        $this->assertEquals(true, $arr->isIndexable(1));
-        $this->assertEquals(true, $arr->isIndexable('string'));
-        $this->assertEquals(true, $arr->isIndexable([]));
-        $this->assertEquals(true, $arr->isIndexable([ null ]));
-        $this->assertEquals(true, $arr->isIndexable([ true ]));
-        $this->assertEquals(true, $arr->isIndexable([ 1 ]));
-        $this->assertEquals(true, $arr->isIndexable([ 'string' ]));
-        $this->assertEquals(true, $arr->isIndexable([ [] ]));
-        $this->assertEquals(true, $arr->isIndexable([ [ null ] ]));
-        $this->assertEquals(true, $arr->isIndexable([ [ true ] ]));
-        $this->assertEquals(true, $arr->isIndexable([ [ 1 ] ]));
-        $this->assertEquals(true, $arr->isIndexable([ [ 'string' ] ]));
-        $this->assertEquals(true, $arr->isIndexable([ [ [] ] ]));
-
-        $this->assertEquals(false, $arr->isIndexable(new \StdClass()));
-        $this->assertEquals(false, $arr->isIndexable([ new \StdClass() ]));
-        $this->assertEquals(false, $arr->isIndexable([ [ new \StdClass() ] ]));
-    }
-
-
     public function testHas()
     {
         $arr = $this->getArr();
@@ -893,17 +867,17 @@ class ArrTest extends AbstractTestCase
     {
         $arr = $this->getArr();
 
-        $this->assertEquals('', $arr->indexKey('', '.'));
-        $this->assertEquals('', $arr->indexKey([ '' ], '.'));
-        $this->assertEquals('hello', $arr->indexKey('hello', '.'));
-        $this->assertEquals('hello.world', $arr->indexKey('hello.world', '.'));
-        $this->assertEquals('', $arr->indexKey([], '.'));
-        $this->assertEquals('.', $arr->indexKey([ '', '' ], '.'));
-        $this->assertEquals('hello', $arr->indexKey([ 'hello' ], '.'));
-        $this->assertEquals('hello.world', $arr->indexKey([ 'hello.world' ], '.'));
-        $this->assertEquals('hello.world', $arr->indexKey([ 'hello', 'world' ], '.'));
-        $this->assertEquals('hello.world.hello.world', $arr->indexKey([ 'hello', 'world', 'hello.world' ], '.'));
-        $this->assertEquals('hello.world.hello.world', $arr->indexKey([ 'hello', 'world', [ 'hello.world' ] ], '.'));
+        $this->assertEquals('', $arr->indexkey('', '.'));
+        $this->assertEquals('', $arr->indexkey([ '' ], '.'));
+        $this->assertEquals('hello', $arr->indexkey('hello', '.'));
+        $this->assertEquals('hello.world', $arr->indexkey('hello.world', '.'));
+        $this->assertEquals('', $arr->indexkey([], '.'));
+        $this->assertEquals('.', $arr->indexkey([ '', '' ], '.'));
+        $this->assertEquals('hello', $arr->indexkey([ 'hello' ], '.'));
+        $this->assertEquals('hello.world', $arr->indexkey([ 'hello.world' ], '.'));
+        $this->assertEquals('hello.world', $arr->indexkey([ 'hello', 'world' ], '.'));
+        $this->assertEquals('hello.world.hello.world', $arr->indexkey([ 'hello', 'world', 'hello.world' ], '.'));
+        $this->assertEquals('hello.world.hello.world', $arr->indexkey([ 'hello', 'world', [ 'hello.world' ] ], '.'));
     }
 
     public function testBadIndexKey()
@@ -911,11 +885,11 @@ class ArrTest extends AbstractTestCase
         $arr = $this->getArr();
 
         $this->assertException(InvalidArgumentException::class, function () use ($arr) {
-            $arr->indexKey(null, '.');
+            $arr->indexkey(null, '.');
         });
 
         $this->assertException(InvalidArgumentException::class, function () use ($arr) {
-            $arr->indexKey([ null ], '.');
+            $arr->indexkey([ null ], '.');
         });
     }
 

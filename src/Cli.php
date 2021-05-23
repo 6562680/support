@@ -102,7 +102,7 @@ class Cli
         }
 
         echo '> Enter text separating lines by pressing ENTER' . PHP_EOL;
-        echo '> Type ' . $search . ' when you\'re done...' . PHP_EOL;
+        echo '> TypeService ' . $search . ' when you\'re done...' . PHP_EOL;
 
         $lines = [];
         $h = fopen('php://stdin', 'r');

@@ -11,8 +11,11 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
  */
 class Fs
 {
+    const FREAD_SIZE = 4096;
+
     // nginx/fpm on linux expects correct user/group rights
-    const RWX = 0775;
+    const RWX_DIR  = 0775;
+    const RWX_FILE = 0664;
 
 
     /**
@@ -20,24 +23,33 @@ class Fs
      */
     protected $filter;
     /**
-     * @var Str
+     * @var Path
      */
-    protected $str;
+    protected $path;
+    /**
+     * @var Php
+     */
+    protected $php;
 
 
     /**
      * Constructor
      *
      * @param Filter $filter
-     * @param Str    $str
+     * @param Path   $path
+     * @param Php    $php
      */
     public function __construct(
         Filter $filter,
-        Str $str
+        Path $path,
+        Php $php
     )
     {
         $this->filter = $filter;
-        $this->str = $str;
+        $this->path = $path;
+        $this->php = $php;
+
+        $path->using(DIRECTORY_SEPARATOR, '/', '\\');
     }
 
 
@@ -49,6 +61,65 @@ class Fs
         return strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
     }
 
+    /**
+     * @return bool
+     */
+    public function isNonWindows() : bool
+    {
+        return false === $this->isWindows();
+    }
+
+
+    /**
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    public function isPathFileExists($value) : bool
+    {
+        return null !== $this->filterPathFileExists($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    public function isPathFile($value) : bool
+    {
+        return null !== $this->filterPathFile($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    public function isPathDir($value) : bool
+    {
+        return null !== $this->filterPathDir($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    public function isPathLink($value) : bool
+    {
+        return null !== $this->filterPathLink($value);
+    }
+
+
+    /**
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    public function isSplFileExists($value) : bool
+    {
+        return null !== $this->filterSplFileExists($value);
+    }
 
     /**
      * @param mixed $value
@@ -57,8 +128,7 @@ class Fs
      */
     public function isSplFile($value) : bool
     {
-        return $this->isSplFilePath($value)
-            || ( null !== $this->filter->filterFileInfo($value) );
+        return null !== $this->filterSplFile($value);
     }
 
     /**
@@ -66,12 +136,9 @@ class Fs
      *
      * @return bool
      */
-    public function isFile($value) : bool
+    public function isSplDir($value) : bool
     {
-        return $this->isFilePath($value)
-            || ( ( null !== ( $spl = $this->filter->filterFileInfo($value) ) )
-                && ! $spl->isDir()
-            );
+        return null !== $this->filterSplDir($value);
     }
 
     /**
@@ -79,131 +146,82 @@ class Fs
      *
      * @return bool
      */
-    public function isDir($value) : bool
+    public function isSplLink($value) : bool
     {
-        return $this->isDirPath($value)
-            || ( ( null !== ( $spl = $this->filter->filterFileInfo($value) ) )
-                && $spl->isDir()
-            );
+        return null !== $this->filterSplLink($value);
     }
 
 
     /**
      * @param mixed $value
      *
-     * @return bool
+     * @return null|string
      */
-    public function isSplFilePath($value) : bool
+    public function filterPathFileExists($value) : ?string
     {
-        return ( null !== $this->filter->filterTheString($value) )
-            && file_exists($value);
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return bool
-     */
-    public function isFilePath($value) : bool
-    {
-        return ( null !== $this->filter->filterTheString($value) )
-            && is_file($value);
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return bool
-     */
-    public function isDirPath($value) : bool
-    {
-        return ( null !== $this->filter->filterTheString($value) )
-            && is_dir($value);
-    }
-
-
-    /**
-     * @param      $filepathA
-     * @param      $filepathB
-     * @param bool $unsafe
-     *
-     * @return bool
-     */
-    public function isDiffFiles($filepathA, $filepathB, bool $unsafe = false) : bool
-    {
-        if ($unsafe) {
-            $result = is_file($filepathA) - is_file($filepathB);
-
-        } else {
-            if (! is_file($filepathA)) {
-                throw new RuntimeException('File not found: ' . $filepathA);
-            }
-
-            if (! is_file($filepathB)) {
-                throw new RuntimeException('File not found: ' . $filepathB);
-            }
-
-            $result = true;
-        }
-
-        if ($result) {
-            if (filesize($filepathA) != filesize($filepathB)) {
-                $result = false;
-
-            } else {
-                $result = $this->isDiffResources(
-                    fopen($filepathA, 'r'),
-                    fopen($filepathB, 'r')
-                );
-            }
-        }
+        $result = ( ( null !== $this->filter->filterTheString($value) ) && file_exists($value) )
+            ? $value
+            : null;
 
         return $result;
     }
 
     /**
-     * @param resource $resourceA
-     * @param resource $resourceB
-     * @param bool     $close
+     * @param mixed $value
      *
-     * @return bool
+     * @return null|string
      */
-    public function isDiffResources($resourceA, $resourceB, bool $close = true) : bool
+    public function filterPathFile($value) : ?string
     {
-        $result = true;
-
-        if (! ( 1
-            && is_resource($resourceA)
-            && ( 'resource (closed)' !== gettype($resourceA) )
-            && ( ! feof($resourceA) )
-        )) {
-            throw new RuntimeException('ResourceA should be opened readable resource', $resourceA);
-        }
-
-        if (! ( 1
-            && is_resource($resourceB)
-            && ( 'resource (closed)' !== gettype($resourceB) )
-            && ( ! feof($resourceB) )
-        )) {
-            throw new RuntimeException('ResourceB should be opened readable resource', $resourceB);
-        }
-
-        while ( ( $bytesA = fread($resourceA, 4096) ) !== false ) {
-            $bytesB = fread($resourceB, 4096);
-            if ($bytesA !== $bytesB) {
-                $result = false;
-                break;
-            }
-        }
-
-        if ($close) {
-            fclose($resourceA);
-            fclose($resourceB);
-        }
+        $result = ( ( null !== $this->filter->filterTheString($value) ) && is_file($value) )
+            ? $value
+            : null;
 
         return $result;
     }
 
+    /**
+     * @param mixed $value
+     *
+     * @return null|string
+     */
+    public function filterPathDir($value) : ?string
+    {
+        $result = ( ( null !== $this->filter->filterTheString($value) ) && is_dir($value) )
+            ? $value
+            : null;
+
+        return $result;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|string
+     */
+    public function filterPathLink($value) : ?string
+    {
+        $result = ( ( null !== $this->filter->filterTheString($value) ) && is_link($value) )
+            ? $value
+            : null;
+
+        return $result;
+    }
+
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|\SplFileInfo
+     */
+    public function filterSplFileExists($value) : ?\SplFileInfo
+    {
+        $result = ( null !== ( $spl = $this->filter->filterFileInfo($value) ) )
+            ? $value
+            : null;
+
+        return $result;
+    }
 
     /**
      * @param mixed $value
@@ -212,137 +230,440 @@ class Fs
      */
     public function filterSplFile($value) : ?\SplFileInfo
     {
-        $spl = null;
+        $result = ( ( null !== ( $spl = $this->filter->filterFileInfo($value) ) ) && $spl->isFile() )
+            ? $value
+            : null;
 
-        if (0
-            || ( null !== ( $spl = $this->filterSplFile($value) ) )
-            || ( null !== ( $spl = $this->filter->filterFileInfo($value) ) )
-        ) {
-            return $spl;
+        return $result;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|\SplFileInfo
+     */
+    public function filterSplDir($value) : ?\SplFileInfo
+    {
+        $result = ( ( null !== ( $spl = $this->filter->filterFileInfo($value) ) ) && $spl->isDir() )
+            ? $value
+            : null;
+
+        return $result;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|\SplFileInfo
+     */
+    public function filterSplLink($value) : ?\SplFileInfo
+    {
+        $result = ( ( null !== ( $spl = $this->filter->filterFileInfo($value) ) ) && $spl->isLink() )
+            ? $value
+            : null;
+
+        return $result;
+    }
+
+
+    /**
+     * @return bool
+     */
+    public function assertWindows() : bool
+    {
+        if ($this->isWindows()) {
+            throw new RuntimeException('Only Windows is allowed');
+        }
+
+        return true;
+    }
+
+    /**
+     * @return bool
+     */
+    public function assertNonWindows() : bool
+    {
+        if ($this->isNonWindows()) {
+            throw new RuntimeException('Windows is not support this feature');
+        }
+
+        return true;
+    }
+
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|string
+     */
+    public function assertPathFileExists($value) : ?string
+    {
+        if (null === ( $result = $this->filterPathFileExists($value) )) {
+            throw new InvalidArgumentException('Invalid path or file/dir/link not found', func_get_args());
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|string
+     */
+    public function assertPathFile($value) : ?string
+    {
+        if (null === ( $result = $this->filterPathFile($value) )) {
+            throw new InvalidArgumentException('Invalid path or file not found', func_get_args());
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|string
+     */
+    public function assertPathDir($value) : ?string
+    {
+        if (null === ( $result = $this->filterPathDir($value) )) {
+            throw new InvalidArgumentException('Invalid path or dir not found', func_get_args());
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|string
+     */
+    public function assertPathLink($value) : ?string
+    {
+        if (null === ( $result = $this->filterPathLink($value) )) {
+            throw new InvalidArgumentException('Invalid path or link not found', func_get_args());
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|\SplFileInfo
+     */
+    public function assertSplFileExists($value) : ?\SplFileInfo
+    {
+        if (null === ( $result = $this->filterSplFileExists($value) )) {
+            throw new InvalidArgumentException('Invalid spl or spl is not a file/dir/link', func_get_args());
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|\SplFileInfo
+     */
+    public function assertSplFile($value) : ?\SplFileInfo
+    {
+        if (null === ( $result = $this->filterSplFile($value) )) {
+            throw new InvalidArgumentException('Invalid spl or spl is not a file', func_get_args());
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|\SplFileInfo
+     */
+    public function assertSplDir($value) : ?\SplFileInfo
+    {
+        if (null === ( $result = $this->filterSplDir($value) )) {
+            throw new InvalidArgumentException('Invalid spl or spl is not a dir', func_get_args());
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|\SplFileInfo
+     */
+    public function assertSplLink($value) : ?\SplFileInfo
+    {
+        if (null === ( $result = $this->filterSplLink($value) )) {
+            throw new InvalidArgumentException('Invalid spl or spl is not a link', func_get_args());
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return null|string
+     */
+    public function pathvalFileExists($pathOrSpl) : ?string
+    {
+        if (null !== ( $spl = $this->filterSplFileExists($pathOrSpl) )) {
+            return $spl->getRealPath();
+        }
+
+        if (null !== ( $spl = $this->filterPathFileExists($pathOrSpl) )) {
+            return realpath($pathOrSpl);
         }
 
         return null;
     }
 
     /**
-     * @param mixed $value
+     * @param string|\SplFileInfo $pathOrSpl
      *
-     * @return null|\SplFileInfo
+     * @return null|string
      */
-    public function filterFile($value) : ?\SplFileInfo
+    public function pathvalFile($pathOrSpl) : ?string
     {
-        $spl = null;
+        if (null !== ( $spl = $this->filterSplFile($pathOrSpl) )) {
+            return $spl->getRealPath();
+        }
 
-        if (0
-            || ( null !== ( $spl = $this->filterFile($value) ) )
-            || ( ( null !== ( $spl = $this->filter->filterFileInfo($value) ) )
-                && ! $spl->isDir()
-            )
-        ) {
-            return $spl;
+        if (null !== ( $spl = $this->filterPathFile($pathOrSpl) )) {
+            return realpath($pathOrSpl);
         }
 
         return null;
     }
 
     /**
-     * @param mixed $value
+     * @param string|\SplFileInfo $pathOrSpl
      *
-     * @return null|\SplFileInfo
+     * @return null|string
      */
-    public function filterDir($value) : ?\SplFileInfo
+    public function pathvalDir($pathOrSpl) : ?string
     {
-        $spl = null;
+        if (null !== ( $spl = $this->filterSplDir($pathOrSpl) )) {
+            return $spl->getRealPath();
+        }
 
-        if (0
-            || ( null !== ( $spl = $this->filterDir($value) ) )
-            || ( ( null !== ( $spl = $this->filter->filterFileInfo($value) ) )
-                && $spl->isDir()
-            )
-        ) {
-            return $spl;
+        if (null !== ( $spl = $this->filterPathDir($pathOrSpl) )) {
+            return realpath($pathOrSpl);
         }
 
         return null;
     }
 
     /**
-     * @param mixed $value
+     * @param string|\SplFileInfo $pathOrSpl
      *
-     * @return null|\SplFileInfo
+     * @return null|string
      */
-    public function filterSplFilePath($value) : ?\SplFileInfo
+    public function pathvalLink($pathOrSpl) : ?string
     {
-        return ( $this->isSplFilePath($value) && ( $spl = new \SplFileInfo($value) ) )
-            ? $spl
-            : null;
-    }
+        if (null !== ( $spl = $this->filterSplLink($pathOrSpl) )) {
+            return $spl->getRealPath();
+        }
 
-    /**
-     * @param mixed $value
-     *
-     * @return null|\SplFileInfo
-     */
-    public function filterFilePath($value) : ?\SplFileInfo
-    {
-        return ( $this->isFilePath($value) && ( $spl = new \SplFileInfo($value) ) )
-            ? $spl
-            : null;
-    }
+        if (null !== ( $spl = $this->filterPathLink($pathOrSpl) )) {
+            return realpath($pathOrSpl);
+        }
 
-    /**
-     * @param mixed $value
-     *
-     * @return null|\SplFileInfo
-     */
-    public function filterDirPath($value) : ?\SplFileInfo
-    {
-        return ( $this->isDirPath($value) && ( $spl = new \SplFileInfo($value) ) )
-            ? $spl
-            : null;
+        return null;
     }
 
 
     /**
-     * @param string $pathname
-     * @param string $separator
-     * @param string ...$replacements
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return null|\SplFileInfo
+     */
+    public function splvalFileExists($pathOrSpl) : ?\SplFileInfo
+    {
+        if (null !== ( $spl = $this->filterSplFileExists($pathOrSpl) )) {
+            return $spl;
+        }
+
+        if (null !== ( $path = $this->filterPathFileExists($pathOrSpl) )) {
+            return new \SplFileInfo($path);
+        }
+
+        return null;
+    }
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return null|\SplFileInfo
+     */
+    public function splvalFile($pathOrSpl) : ?\SplFileInfo
+    {
+        if (null !== ( $spl = $this->filterSplFile($pathOrSpl) )) {
+            return $spl;
+        }
+
+        if (null !== ( $path = $this->filterPathFile($pathOrSpl) )) {
+            return new \SplFileInfo($path);
+        }
+
+        return null;
+    }
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return null|\SplFileInfo
+     */
+    public function splvalDir($pathOrSpl) : ?\SplFileInfo
+    {
+        if (null !== ( $spl = $this->filterSplDir($pathOrSpl) )) {
+            return $spl;
+        }
+
+        if (null !== ( $path = $this->filterPathDir($pathOrSpl) )) {
+            return new \SplFileInfo($path);
+        }
+
+        return null;
+    }
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return null|\SplFileInfo
+     */
+    public function splvalLink($pathOrSpl) : ?\SplFileInfo
+    {
+        if (null !== ( $spl = $this->filterSplLink($pathOrSpl) )) {
+            return $spl;
+        }
+
+        if (null !== ( $path = $this->filterPathLink($pathOrSpl) )) {
+            return new \SplFileInfo($path);
+        }
+
+        return null;
+    }
+
+
+    /**
+     * распознает DRIVE/HOME и возвращает realpath
+     *
+     * @param string|string[]|array ...$parts
      *
      * @return string
      */
-    public function optimize(string $pathname, string $separator = '/', string ...$replacements) : string
+    public function pathResolve(...$parts) : string
     {
-        if ('' === $pathname) {
-            return '';
+        $normalized = $this->pathNormalize(...$parts);
+
+        [ $drive, $relpath ] = $this->mountpath($normalized);
+
+        $items = [];
+        foreach ( explode(DIRECTORY_SEPARATOR, $relpath) as $part ) {
+            if ('.' == $part) continue;
+            if ('..' == $part) {
+                array_pop($items);
+
+            } else {
+                $items[] = $part;
+            }
         }
 
-        $optimized = str_replace($separator, "\0", $pathname);
+        $join = implode(DIRECTORY_SEPARATOR, $items);
 
-        $search = array_merge([ '/', '\\', DIRECTORY_SEPARATOR ], ...$replacements);
-        $optimized = str_replace($search,
-            $separator,
-            $optimized
-        );
+        $result = $this->mount($drive) . ltrim($join, DIRECTORY_SEPARATOR);
 
-        if (false !== strpos($pathname, $separator . $separator)) {
-            $optimized = preg_replace('~' . preg_quote($separator, '/') . '{2,}~', $separator,
-                $optimized
-            );
+        if (file_exists($result)
+            && is_link($result)
+            && function_exists('readlink')
+        ) {
+            $result = readlink($result);
         }
 
-        $optimized = str_replace("\0", $separator, $optimized);
+        return $result;
+    }
 
-        return $optimized;
+
+    /**
+     * @param string|string[]|array ...$parts
+     *
+     * @return array
+     */
+    public function pathSplit(...$parts) : array
+    {
+        $result = $this->path->split(...$parts);
+
+        return $result;
     }
 
     /**
-     * @param string $pathname
+     * @param string|string[]|array ...$parts
      *
      * @return string
      */
-    public function normalize(string $pathname) : string
+    public function pathJoin(...$parts) : string
     {
-        return $this->optimize($pathname, DIRECTORY_SEPARATOR);
+        $result = $this->path->join(...$parts);
+
+        return $result;
+    }
+
+    /**
+     * @param mixed ...$parts
+     *
+     * @return string
+     */
+    public function pathNormalize(...$parts) : string
+    {
+        $result = $this->path->normalize(...$parts);
+
+        return $result;
+    }
+
+    /**
+     * @param string|string[]|array ...$parts
+     *
+     * @return string
+     */
+    public function pathConcat(...$parts) : string
+    {
+        $result = $this->path->concat(...$parts);
+
+        return $result;
+    }
+
+
+    /**
+     * @param string      $path
+     * @param null|string $suffix
+     * @param int         $levels
+     *
+     * @return null|string
+     */
+    public function basename(string $path, string $suffix = null, int $levels = 0) : ?string
+    {
+        $result = $this->path->basename($path, $suffix, $levels);
+
+        return $result;
+    }
+
+    /**
+     * @param string      $path
+     * @param string|null $base
+     *
+     * @return string
+     */
+    public function basepath(string $path, string $base = '') : ?string
+    {
+        $result = $this->path->basepath($path, $base);
+
+        return $result;
     }
 
 
@@ -354,107 +675,38 @@ class Fs
     public function realpath(string $path) : string
     {
         if (false === ( $result = realpath($path) )) {
-            throw new InvalidArgumentException('Indexer not exists: ' . $path);
+            throw new InvalidArgumentException('Path not exists: ' . $path);
         }
 
         return $result;
     }
 
     /**
-     * @param string      $path
-     * @param string|null $base
-     *
-     * @return string
-     */
-    public function basepath(string $path, string $base = null) : ?string
-    {
-        $currentPath = $this->normalize($path);
-        $basePath = $this->normalize($base);
-
-        if (null === ( $result = $this->str->starts($currentPath, $basePath) )) {
-            return null;
-        }
-
-        $result = ltrim($result, DIRECTORY_SEPARATOR);
-
-        return $result;
-    }
-
-
-    /**
-     * заменяет все наклонные черты на текущий DS и распознает DRIVE с поддержкой homedir
-     *
-     * @param string ...$path
-     *
-     * @return string
-     */
-    public function resolve(string ...$path) : string
-    {
-        $join = array_shift($path);
-
-        foreach ( $path as $p ) {
-            $join = rtrim($join, DIRECTORY_SEPARATOR)
-                . DIRECTORY_SEPARATOR
-                . ltrim($p, DIRECTORY_SEPARATOR);
-        }
-
-        [ $drive, $relpath ] = $this->ospath($join);
-
-        $parts = [];
-        foreach ( explode(DIRECTORY_SEPARATOR, $relpath) as $part ) {
-            if ('.' == $part) continue;
-            if ('..' == $part) {
-                array_pop($parts);
-
-            } else {
-                $parts[] = $part;
-
-            }
-        }
-
-        $result = $this->mount($drive)
-            . ltrim(implode(DIRECTORY_SEPARATOR, $parts), DIRECTORY_SEPARATOR);
-
-        if (1
-            && function_exists('readlink')
-            && file_exists($result)
-            && is_link($result)
-        ) {
-            $result = readlink($result);
-        }
-
-        return $result;
-    }
-
-
-    /**
-     * ospath
-     * нормализует путь и возвращает массив [ drive, relpath ] где drive это 'C:\', 'C:/', '\\', '/', '' или '~',
+     * возвращает массив [ drive, relpath ] где drive это 'C:\', 'C:/', '\\', '/', '' или '~',
      *
      * @param string $path
      *
      * @return array
      */
-    public function ospath(string $path = '') : array
+    public function mountpath(string $path) : array
     {
-        $path = $path
-            ?: getcwd();
+        $path = ( '' === $path )
+            ? getcwd()
+            : $path;
 
         if ($isWindows = $this->isWindows()) {
             $path = mb_convert_encoding($path, 'utf-8', 'cp1251');
         }
 
         $pos = false;
+
         if ($isWindows
             && ( 0
                 || ( false !== ( $pos = mb_strpos($path, ':/') ) )
                 || ( false !== ( $pos = mb_strpos($path, ':\\') ) )
             )
         ) {
-            $drive = str_replace([ '/', '\\', DIRECTORY_SEPARATOR ],
-                DIRECTORY_SEPARATOR,
-                mb_substr($path, 0, $pos + 2)
-            );
+            $drive = mb_substr($path, 0, $pos + 2);
             $relpath = mb_substr($path, $pos + 2);
 
         } elseif ('\\\\' === mb_substr($path, 0, 2)) {
@@ -472,166 +724,101 @@ class Fs
         } else {
             $drive = '';
             $relpath = $path;
-
-        }
-
-        $relpath = rtrim(
-            str_replace([ '/', '\\' ], DIRECTORY_SEPARATOR, $relpath),
-            DIRECTORY_SEPARATOR
-        );
-
-        if (mb_substr_count($relpath, DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR)) {
-            throw new InvalidArgumentException('Invalid path passed: ' . $relpath, func_get_args());
         }
 
         if (mb_substr_count($relpath, ':')) {
             throw new InvalidArgumentException('Invalid path passed: ' . $relpath, func_get_args());
         }
 
+        $drive = $this->normalize($drive);
+        $relpath = $this->normalize($relpath);
+
         return [ $drive, $relpath ];
     }
 
 
     /**
-     * @param string   $pathname
-     * @param null|int $mode
-     * @param bool     $recursive
-     * @param null     $context
+     * конвертирует цифру размера в читабельный формат (1024 => 1Mb)
+     *
+     * @param int|float|string $size
      *
      * @return string
      */
-    public function mkdir(string $pathname, int $mode = null, bool $recursive = true, $context = null) : string
+    public function sizeFormat($size) : string
     {
-        if (! is_dir($pathname)) {
-            $mode = $mode ?? static::RWX;
-
-            $context
-                ? mkdir($pathname, $mode, $recursive, $context)
-                : mkdir($pathname, $mode, $recursive);
+        if (null === ( $numval = $this->php->numval($size) )) {
+            throw new InvalidArgumentException('Filesize should be int or float');
         }
 
-        return realpath($pathname);
+        $multiplier = 0;
+        while ( $numval / 1024 > 0.9 ) {
+            $numval = $numval / 1024;
+
+            $multiplier++;
+        }
+
+        $result = round($numval) . array_search($multiplier, static::$units);
+
+        return $result;
     }
 
 
     /**
-     * @param string        $dir
-     * @param bool          $self
-     * @param null|\Closure $keepFunc
-     *
-     * @return bool
-     */
-    public function rmdir(
-        string $dir,
-        bool $self = false,
-        \Closure $keepFunc = null
-    ) : bool
-    {
-        /**
-         * @var \SplFileInfo $splFileInfo
-         */
-
-        if (! is_dir($dir)) {
-            return true;
-        }
-
-        $dir = realpath($dir);
-
-        $dirs = [];
-
-        $it = new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS);
-        $iit = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::CHILD_FIRST);
-
-        foreach ( $iit as $splFileInfo ) {
-            $shouldKeep = $keepFunc ? $keepFunc($splFileInfo) : false;
-
-            $dirname = dirname($splFileInfo->getRealPath());
-
-            $dirs[ $dirname ] = $dirs[ $dirname ]
-                ?: $shouldKeep;
-
-            if ($splFileInfo->isDir()) {
-                $dirs[ $splFileInfo->getRealPath() ] =
-                    $dirs[ $splFileInfo->getRealPath() ]
-                        ?: $shouldKeep;
-            }
-
-            if (! $shouldKeep) {
-                if ($splFileInfo->isFile()) {
-                    unlink($splFileInfo->getRealPath());
-                }
-            }
-        }
-
-        $keepSelf = $dirs[ $dir ] ?? false;
-
-        unset($dirs[ $dir ]);
-        foreach ( $dirs as $dirPath => $shouldKeep ) {
-            if (! $shouldKeep) {
-                rmdir($dirPath);
-            }
-        }
-
-        if ($self && ! $keepSelf) {
-            rmdir($dir);
-        }
-
-        return true;
-    }
-
-
-    /**
-     * @param string $filename
-     * @param bool   $use_include_path
-     * @param null   $context
-     * @param int    $offset
-     * @param null   $length
+     * @param string|\SplFileInfo $file
+     * @param bool                $use_include_path
+     * @param null                $context
+     * @param int                 $offset
+     * @param null                $length
      *
      * @return null|string
      */
-    public function fileGet(string $filename, bool $use_include_path = false, $context = null,
+    public function fileGet($file, bool $use_include_path = false, $context = null,
         $offset = 0,
         $length = null
     ) : ?string
     {
-        if (! is_file($filename)) {
-            throw new RuntimeException('File not found: ' . $filename);
+        if (null !== ( $realpath = $this->pathvalFile($file) )) {
+            throw new InvalidArgumentException('Invalid file', func_get_args());
         }
 
-        if (! is_readable($filename)) {
-            throw new RuntimeException('File is not readable: ' . $filename);
+        if (! is_readable($realpath)) {
+            throw new InvalidArgumentException('File is not readable: ' . $realpath);
         }
 
-        $result = file_get_contents($filename, $use_include_path, $context, $offset, $length);
+        $content = file_get_contents($realpath, $use_include_path, $context, $offset, $length);
 
-        return ( false !== $result )
-            ? $result
-            : null;
+        if (false !== $content) {
+            throw new RuntimeException('Unable to read file: ' . $realpath);
+        }
+
+        return $content;
     }
 
     /**
-     * @param string $filename
-     * @param        $data
+     * @param string $filepath
+     * @param mixed  $data
      * @param int    $flags
      * @param null   $context
      *
      * @return null|string
      */
-    public function filePut(string $filename, $data, int $flags = 0, $context = null) : ?string
+    public function filePut(string $filepath, $data, int $flags = 0, $context = null) : ?string
     {
-        if (! is_writable($filename)) {
-            throw new RuntimeException('File is not writable: ' . $filename);
+        if (! is_writable($filepath)) {
+            throw new InvalidArgumentException('File is not writable: ' . $filepath);
         }
 
         isset($context)
-            ? file_put_contents($filename, $data, $flags, $context)
-            : file_put_contents($filename, $data, $flags);
+            ? file_put_contents($filepath, $data, $flags, $context)
+            : file_put_contents($filepath, $data, $flags);
 
-        $result = realpath($filename);
+        if (false === ( $realpath = realpath($filepath) )) {
+            throw new RuntimeException('Unable to write file: ' . $filepath);
+        };
 
-        return ( false !== $result )
-            ? $result
-            : null;
+        chmod($realpath, static::RWX_FILE);
+
+        return $realpath;
     }
 
 
@@ -640,18 +827,12 @@ class Fs
      *
      * @return array
      */
-    public function fileOwner(string $file) : array
+    public function fileOwner($file) : array
     {
-        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-            throw new \RuntimeException('Only allowed to run on Linux');
-        }
+        $this->assertNonWindows();
 
-        if ('' === $file) {
-            throw new InvalidArgumentException('File should be not empty');
-        }
-
-        if (! file_exists($file)) {
-            throw new RuntimeException('File not found: ' . $file);
+        if (null !== ( $realpath = $this->pathvalFileExists($file) )) {
+            throw new RuntimeException([ 'Invalid filepath/spl or file not found: %s', $file ], func_get_args());
         }
 
         $result = false;
@@ -671,82 +852,304 @@ class Fs
     }
 
     /**
-     * @param string $file
+     * @param string|\SplFileInfo $file
      *
      * @return string
      */
-    public function filePerms(string $file) : string
+    public function filePerms($file) : string
     {
-        if ('' === $file) {
-            throw new InvalidArgumentException('File should be not empty');
+        if (null !== ( $realpath = $this->pathvalFileExists($file) )) {
+            throw new RuntimeException([ 'Invalid filepath/spl or file not found: %s', $file ], func_get_args());
         }
 
-        if (! file_exists($file)) {
-            throw new RuntimeException('File not found: ' . $file);
-        }
-
-        $result = substr(sprintf('%o', fileperms($file)), -4);
+        $result = substr(sprintf('%o', fileperms($realpath)), -4);
 
         return $result;
     }
 
 
     /**
-     * size_convert
-     * конвертирует текстовое представление размера файла в число
+     * @param string   $dirname
+     * @param null|int $mode
+     * @param bool     $recursive
+     * @param null     $context
      *
-     * @param string $string
-     *
-     * @return float
+     * @return string
      */
-    public function size(string $string) : float
+    public function mkdir(string $dirname, int $mode = null, bool $recursive = true, $context = null) : string
     {
-        if ('' === $string) {
-            throw new InvalidArgumentException('Filesize should be not empty', func_get_args());
+        if (! is_dir($dirname)) {
+            $mode = $mode ?? static::RWX_DIR;
+
+            $context
+                ? mkdir($dirname, $mode, $recursive, $context)
+                : mkdir($dirname, $mode, $recursive);
         }
 
-        $number = null;
-        $unit = null;
-        foreach ( array_keys(static::$units) as $unit ) {
-            if ($number = $this->str->ends($string, $unit)) {
-                break;
+        $result = realpath($dirname);
+
+        return $result;
+    }
+
+    /**
+     * @param string|\SplFileInfo $dir
+     * @param bool                $removeSelf
+     * @param null|\Closure       $keepFunc
+     *
+     * @return array
+     */
+    public function rmdir($dir, bool $removeSelf = false, \Closure $keepFunc = null) : array
+    {
+        if (null === ( $realpath = $this->pathvalDir($dir) )) {
+            return [];
+        }
+
+        $result = [];
+        $keepDirs = [];
+
+        $it = new \RecursiveDirectoryIterator($realpath, \RecursiveDirectoryIterator::SKIP_DOTS);
+        $iit = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::CHILD_FIRST);
+        foreach ( $iit as $splFileInfo ) {
+            /** @var \SplFileInfo $splFileInfo */
+
+            $shouldKeep = $keepFunc ? $keepFunc($splFileInfo) : false;
+
+            $dirname = dirname($splFileInfo->getRealPath());
+
+            $keepDirs[ $dirname ] = $keepDirs[ $dirname ]
+                ?: $shouldKeep;
+
+            if ($splFileInfo->isDir()) {
+                $keepDirs[ $splFileInfo->getRealPath() ] =
+                    $keepDirs[ $splFileInfo->getRealPath() ]
+                        ?: $shouldKeep;
+            }
+
+            if (! $shouldKeep) {
+                if ($splFileInfo->isFile()) {
+                    $result[] = $splFileInfo->getRealPath();
+
+                    unlink($splFileInfo->getRealPath());
+                }
             }
         }
 
-        if (! $number) {
-            throw new RuntimeException('Unable to decode unit', func_get_args());
+        $keepSelf = $keepDirs[ $realpath ] ?? false;
+        unset($keepDirs[ $realpath ]);
+
+        foreach ( $keepDirs as $dirPath => $shouldKeep ) {
+            if (! $shouldKeep) {
+                $result[] = $dirPath;
+
+                rmdir($dirPath);
+            }
         }
 
-        $result = floatval($number) * 1024 * pow(10, 3 * static::$units[ $unit ]);
+        if ($removeSelf && ! $keepSelf) {
+            $result[] = $realpath;
+
+            rmdir($realpath);
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * @param resource $readableA
+     * @param resource $readableB
+     * @param bool     $close
+     *
+     * @return bool
+     */
+    public function diff($readableA, $readableB, bool $close = false) : bool
+    {
+        $result = true;
+
+        if (null === ( $hA = $this->readableOpen($readableA, 'r') )) {
+            throw new RuntimeException([ 'ReadableA should be string/file/spl/resource: %s', $readableA ]);
+        }
+
+        if (null === ( $hB = $this->readableOpen($readableB, 'r') )) {
+            throw new RuntimeException([ 'ReadableB should be string/file/spl/resource: %s', $readableB ]);
+        }
+
+        do {
+            $bytesA = fread($hA, static::FREAD_SIZE);
+            $bytesB = fread($hB, static::FREAD_SIZE);
+
+            if ($bytesA !== $bytesB) {
+                $result = false;
+
+                break;
+            }
+        } while ( false !== $bytesA );
+
+        if ($close) {
+            fclose($readableA);
+            fclose($readableB);
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * @param string                       $contentA
+     * @param string|resource|\SplFileInfo $readableB
+     * @param bool                         $close
+     *
+     * @return bool
+     */
+    public function diffContent(string $contentA, $readableB, bool $close = false) : bool
+    {
+        $result = false;
+
+        $filesizeA = mb_strlen($contentA, '8bit');
+
+        if (! $result) {
+            if (null !== ( $realpathB = $this->pathvalFile($readableB) )) {
+                if ($filesizeA !== filesize($realpathB)) {
+                    $result = true;
+                }
+            }
+        }
+
+        if (! $result) {
+            if (is_string($readableB)) {
+                $result = $contentA !== $readableB;
+            }
+        }
+
+        if (! $result) {
+            $hA = $this->readableOpen($contentA, 'r');
+
+            $result = $this->diff($hA, $readableB, $close);
+
+            fclose($hA);
+        }
 
         return $result;
     }
 
     /**
-     * size_format
-     * конвертирует размер файла в читабельный вид (1024 => 1Mb)
+     * @param string|\SplFileInfo          $fileA
+     * @param string|resource|\SplFileInfo $readableB
+     * @param bool                         $throw
+     * @param bool                         $close
      *
-     * @param string $filesize
-     *
-     * @return string
+     * @return bool
      */
-    public function sizeFormat(string $filesize) : string
+    public function diffFile($fileA, $readableB, bool $throw = false, bool $close = false) : bool
     {
-        if (! ( false !== filter_var($filesize, FILTER_VALIDATE_INT) )) {
-            throw new InvalidArgumentException('Filesize should be int or float');
+        if (null === ( $realpathA = $this->pathvalFile($fileA) )) {
+            if (! $throw) {
+                return ! is_null($readableB);
+
+            } else {
+                throw new InvalidArgumentException(
+                    [ 'Invalid file or file not found: %s', $fileA ],
+                    func_get_args()
+                );
+            }
         }
 
-        $filesize = (float) $filesize;
+        $result = false;
 
-        $multiplier = 0;
-        while ( $filesize / 1024 > 0.9 ) {
-            $filesize = $filesize / 1024;
-            $multiplier++;
+        if (! $result) {
+            $filesizeA = filesize($realpathA);
+
+            if (null !== ( $realpathB = $this->pathvalFile($readableB) )) {
+                if ($filesizeA != filesize($realpathB)) {
+                    $result = true;
+                }
+            }
         }
 
-        $result = round($filesize) . array_search($multiplier, static::$units);
+        if (! $result) {
+            $hA = fopen($realpathA, 'r');
+
+            $result = $this->diff($hA, $readableB, $close);
+
+            fclose($hA);
+        }
 
         return $result;
+    }
+
+    /**
+     * @param resource                     $resourceA
+     * @param string|resource|\SplFileInfo $readableB
+     * @param bool                         $throw
+     * @param bool                         $close
+     *
+     * @return bool
+     */
+    public function diffResource($resourceA, $readableB, bool $throw = false, bool $close = false) : bool
+    {
+        if (null === ( $realpathA = $this->filter->filterReadableResource($resourceA) )) {
+            if (! $throw) {
+                return ! is_null($readableB);
+
+            } else {
+                throw new InvalidArgumentException(
+                    [ 'Invalid readable resource: %s', $resourceA ],
+                    func_get_args()
+                );
+            }
+        }
+
+        $hA = fopen($resourceA, 'r');
+
+        $result = $this->diff($hA, $readableB, $close);
+
+        fclose($hA);
+
+        return $result;
+    }
+
+
+    /**
+     * @param string|\SplFileInfo|resource $readable
+     * @param null|string                  $mode
+     * @param bool                         $use_include_path
+     * @param null                         $context
+     *
+     * @return null|resource
+     */
+    public function readableOpen($readable, $mode, $use_include_path = false, $context = null) // : ?resource
+    {
+        if (null !== ( $h = $this->filter->filterReadableResource($readable) )) {
+            $meta = stream_get_meta_data($h);
+
+            $themode = rtrim($meta[ 'mode' ], '+');
+            if ($themode !== $mode) {
+                throw new InvalidArgumentException(
+                    [ 'Resource is readable, but mode mismatch: %s [ %s ]', $readable, [ $mode, $themode ] ],
+                    func_get_args()
+                );
+            }
+
+            return $h;
+        }
+
+        if (null !== ( $realpath = $this->pathvalFile($readable) )) {
+            $h = $context
+                ? fopen($realpath, $mode, $use_include_path, $context)
+                : fopen($realpath, $mode, $use_include_path);
+
+            return $h;
+        }
+
+        if (null !== ( $content = $this->filter->filterStringOrNumber($readable) )) {
+            $h = fopen('php://temp', 'w+');
+            fwrite($h, $content);
+            rewind($h);
+
+            return $h;
+        }
+
+        return null;
     }
 
 

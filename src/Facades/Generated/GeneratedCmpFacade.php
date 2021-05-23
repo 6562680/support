@@ -3,15 +3,16 @@
 /**
  * This file is auto-generated.
  *
- * * @noinspection PhpUnhandledExceptionInspection
- * * @noinspection PhpDocMissingThrowsInspection
+ * @noinspection PhpUnhandledExceptionInspection
+ * @noinspection PhpDocMissingThrowsInspection
  */
 
 namespace Gzhegow\Support\Facades\Generated;
 
-use Gzhegow\Support\Cmp as _Cmp;
+use Gzhegow\Support\Cmp;
+use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
-abstract class Cmp
+abstract class GeneratedCmpFacade
 {
     /**
      * @param mixed $a
@@ -19,7 +20,7 @@ abstract class Cmp
      *
      * @return int
      */
-    public static function cmp($a, $b) : int
+    public static function cmp($a, $b): int
     {
         return static::getInstance()->cmp($a, $b);
     }
@@ -31,7 +32,7 @@ abstract class Cmp
      *
      * @return int
      */
-    public static function cmpnum($a, $b, bool $coalesce = null) : int
+    public static function cmpnum($a, $b, bool $coalesce = null): int
     {
         return static::getInstance()->cmpnum($a, $b, $coalesce);
     }
@@ -44,7 +45,7 @@ abstract class Cmp
      *
      * @return int
      */
-    public static function cmpstr($a, $b, bool $natural = null, bool $coalesce = null) : int
+    public static function cmpstr($a, $b, bool $natural = null, bool $coalesce = null): int
     {
         return static::getInstance()->cmpstr($a, $b, $natural, $coalesce);
     }
@@ -57,7 +58,7 @@ abstract class Cmp
      *
      * @return int
      */
-    public static function cmpstrCase($a, $b, bool $natural = null, bool $coalesce = null) : int
+    public static function cmpstrCase($a, $b, bool $natural = null, bool $coalesce = null): int
     {
         return static::getInstance()->cmpstrCase($a, $b, $natural, $coalesce);
     }
@@ -69,14 +70,13 @@ abstract class Cmp
      *
      * @return int
      */
-    public static function cmpdate(\DateTime $aDate = null, $b = null, bool $coalesce = null) : int
+    public static function cmpdate(\DateTime $aDate = null, $b = null, bool $coalesce = null): int
     {
         return static::getInstance()->cmpdate($aDate, $b, $coalesce);
     }
 
-
     /**
-     * @return _Cmp
+     * @return Cmp
      */
-    abstract public static function getInstance() : _Cmp;
+    abstract public static function getInstance(): Cmp;
 }

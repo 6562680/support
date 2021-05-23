@@ -3,15 +3,16 @@
 /**
  * This file is auto-generated.
  *
- * * @noinspection PhpUnhandledExceptionInspection
- * * @noinspection PhpDocMissingThrowsInspection
+ * @noinspection PhpUnhandledExceptionInspection
+ * @noinspection PhpDocMissingThrowsInspection
  */
 
 namespace Gzhegow\Support\Facades\Generated;
 
-use Gzhegow\Support\Func as _Func;
+use Gzhegow\Support\Exceptions\RuntimeException;
+use Gzhegow\Support\Func;
 
-abstract class Func
+abstract class GeneratedFuncFacade
 {
     /**
      * filter
@@ -24,7 +25,7 @@ abstract class Func
      *
      * @return bool|array
      */
-    public static function filter(?callable $func, $arg, ...$arguments) : bool
+    public static function filter(?callable $func, $arg, ...$arguments): bool
     {
         return static::getInstance()->filter($func, $arg, ...$arguments);
     }
@@ -55,7 +56,7 @@ abstract class Func
      *
      * @return \Closure
      */
-    public static function bind(callable $func, ...$arguments) : \Closure
+    public static function bind(callable $func, ...$arguments): \Closure
     {
         return static::getInstance()->bind($func, ...$arguments);
     }
@@ -90,9 +91,8 @@ abstract class Func
         return static::getInstance()->apply($func, $arguments);
     }
 
-
     /**
-     * @return _Func
+     * @return Func
      */
-    abstract public static function getInstance() : _Func;
+    abstract public static function getInstance(): Func;
 }

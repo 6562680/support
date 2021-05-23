@@ -28,7 +28,9 @@ class Str
      *
      * @param Filter $filter
      */
-    public function __construct(Filter $filter)
+    public function __construct(
+        Filter $filter
+    )
     {
         $this->filter = $filter;
     }
@@ -51,12 +53,14 @@ class Str
         if ('' === $needle) return $str;
 
         $pos = $ignoreCase
-            ? stripos($str, $needle)
-            : strpos($str, $needle);
+            ? mb_stripos($str, $needle)
+            : mb_strpos($str, $needle);
 
-        return 0 === $pos
-            ? substr($str, strlen($needle))
+        $result = 0 === $pos
+            ? mb_substr($str, mb_strlen($needle))
             : null;
+
+        return $result;
     }
 
     /**
@@ -76,12 +80,14 @@ class Str
         if ('' === $needle) return $str;
 
         $pos = $ignoreCase
-            ? stripos($str, $needle)
-            : strpos($str, $needle);
+            ? mb_strripos($str, $needle)
+            : mb_strrpos($str, $needle);
 
-        return $pos === strlen($str) - strlen($needle)
-            ? substr($str, 0, $pos)
+        $result = $pos === mb_strlen($str) - mb_strlen($needle)
+            ? mb_substr($str, 0, $pos)
             : null;
+
+        return $result;
     }
 
     /**
@@ -101,24 +107,26 @@ class Str
         if ('' === $str) return [];
         if ('' === $needle) return [ $str ];
 
-        $pos = $ignoreCase
-            ? stripos($str, $needle)
-            : strpos($str, $needle);
+        $limit = null !== $limit
+            ? max(0, $limit)
+            : null;
 
-        $str = $ignoreCase
+        $strCase = $ignoreCase
             ? str_ireplace($needle, $needle, $str)
             : $str;
 
         $result = [];
 
-        if (is_int($pos)) {
+        if (false !== ( $pos = mb_strpos($str, $needle) )) {
             $result = null
-                ?? ( is_int($limit) ? explode($needle, $str, $limit) : null )
-                ?? ( explode($needle, $str) );
+                ?? ( '' === $needle ? [ $str ] : null )
+                ?? ( $limit ? explode($needle, $strCase, $limit) : null )
+                ?? ( explode($needle, $strCase) );
         }
 
         return $result;
     }
+
 
     /**
      * Search all sequences starts & ends from given substr
@@ -167,6 +175,226 @@ class Str
 
 
     /**
+     * @param string|string[] $search
+     * @param string|string[] $replace
+     * @param string|string[] $subject
+     * @param null|int        $limit
+     * @param null|int        $count
+     *
+     * @return string|string[]
+     */
+    public function replace($search, $replace, $subject, int $limit = null, int &$count = null) // : string|string[]
+    {
+        $searchArray = $this->strings($search);
+        $replaceArray = $this->strings($replace);
+        $subjectArray = $this->strings($subject);
+
+        if ([] === $searchArray) return $subject;
+        if ([] === $replaceArray) return $subject;
+        if ([] === $subjectArray) return $subject;
+
+        if (null === $limit) {
+            $result = ( 5 === func_num_args() )
+                ? str_replace($search, $replace, $subject, $count)
+                : str_replace($search, $replace, $subject);
+
+        } else {
+            $reverse = $limit < 0;
+
+            $count = 0;
+            $limit = abs($limit);
+
+            $cntSearch = count($searchArray);
+            $cntReplace = count($replaceArray);
+
+            $len = max(0, $cntSearch, $cntReplace);
+
+            for ( $i = 0; $i < $len; $i++ ) {
+                $curSearch = $searchArray[ $i ] = $searchArray[ $i ]
+                    ?? $searchArray[ 0 ];
+
+                $curReplace = $replaceArray[ $i ] = $replaceArray[ $i ]
+                    ?? $replaceArray[ 0 ];
+
+                $lenSearch = mb_strlen($curSearch);
+
+                foreach ( array_keys($subjectArray) as $idx ) {
+                    $curLimit = $limit;
+
+                    while ( 0 < $curLimit-- ) {
+                        if ($reverse) {
+                            if (false !== ( $pos = mb_strrpos($subjectArray[ $idx ], $curSearch) )) {
+                                $count++;
+
+                                $subjectArray[ $idx ] = mb_substr($subjectArray[ $idx ], 0, $pos)
+                                    . $curReplace
+                                    . mb_substr($subjectArray[ $idx ], $pos + $lenSearch);
+                            }
+                        } else {
+                            if (false !== ( $pos = mb_strpos($subjectArray[ $idx ], $curSearch) )) {
+                                $count++;
+
+                                $subjectArray[ $idx ] = mb_substr($subjectArray[ $idx ], 0, $pos)
+                                    . $curReplace
+                                    . mb_substr($subjectArray[ $idx ], $pos + $lenSearch);
+                            }
+                        }
+                    }
+                }
+            }
+
+            $result = 1 < count($subjectArray)
+                ? $subjectArray
+                : reset($subjectArray);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string|string[] $search
+     * @param string|string[] $replace
+     * @param string|string[] $subject
+     * @param null|int        $limit
+     * @param null|int        $count
+     *
+     * @return string|string[]
+     */
+    public function ireplace($search, $replace, $subject, int $limit = null, int &$count = null) // : string|string[]
+    {
+        $searchArray = $this->strings($search);
+        $replaceArray = $this->strings($replace);
+        $subjectArray = $this->strings($subject);
+
+        if ([] === $searchArray) return $subject;
+        if ([] === $replaceArray) return $subject;
+        if ([] === $subjectArray) return $subject;
+
+        if (null === $limit) {
+            $result = ( 5 === func_num_args() )
+                ? str_ireplace($search, $replace, $subject, $count)
+                : str_ireplace($search, $replace, $subject);
+
+        } else {
+            $reverse = $limit < 0;
+
+            $count = 0;
+            $limit = abs($limit);
+
+            $cntSearch = count($searchArray);
+            $cntReplace = count($replaceArray);
+
+            $len = max(0, $cntSearch, $cntReplace);
+
+            for ( $i = 0; $i < $len; $i++ ) {
+                $curSearch = $searchArray[ $i ] = $searchArray[ $i ]
+                    ?? $searchArray[ 0 ];
+
+                $curReplace = $replaceArray[ $i ] = $replaceArray[ $i ]
+                    ?? $replaceArray[ 0 ];
+
+                $lenSearch = mb_strlen($curSearch);
+
+                foreach ( array_keys($subjectArray) as $idx ) {
+                    $curLimit = $limit;
+
+                    while ( 0 < $curLimit-- ) {
+                        if ($reverse) {
+                            if (false !== ( $pos = mb_strripos($subjectArray[ $idx ], $curSearch) )) {
+                                $count++;
+
+                                $subjectArray[ $idx ] = mb_substr($subjectArray[ $idx ], 0, $pos)
+                                    . $curReplace
+                                    . mb_substr($subjectArray[ $idx ], $pos + $lenSearch);
+                            }
+                        } else {
+                            if (false !== ( $pos = mb_stripos($subjectArray[ $idx ], $curSearch) )) {
+                                $count++;
+
+                                $subjectArray[ $idx ] = mb_substr($subjectArray[ $idx ], 0, $pos)
+                                    . $curReplace
+                                    . mb_substr($subjectArray[ $idx ], $pos + $lenSearch);
+                            }
+                        }
+                    }
+                }
+            }
+
+            $result = 1 < count($subjectArray)
+                ? $subjectArray
+                : reset($subjectArray);
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * @param string $haystack
+     * @param mixed  $needle
+     * @param int    $offset
+     *
+     * @return int
+     */
+    public function strpos($haystack, $needle, $offset) : int
+    {
+        $result = false === ( $pos = mb_strpos($haystack, $needle, $offset) )
+            ? -1
+            : $pos;
+
+        return $result;
+    }
+
+    /**
+     * @param string $haystack
+     * @param mixed  $needle
+     * @param int    $offset
+     *
+     * @return int
+     */
+    public function strrpos($haystack, $needle, $offset) : int
+    {
+        $result = false === ( $pos = mb_strrpos($haystack, $needle, $offset) )
+            ? -1
+            : $pos;
+
+        return $result;
+    }
+
+    /**
+     * @param string $haystack
+     * @param mixed  $needle
+     * @param int    $offset
+     *
+     * @return int
+     */
+    public function stripos($haystack, $needle, $offset) : int
+    {
+        $result = false === ( $pos = mb_stripos($haystack, $needle, $offset) )
+            ? -1
+            : $pos;
+
+        return $result;
+    }
+
+    /**
+     * @param string $haystack
+     * @param mixed  $needle
+     * @param int    $offset
+     *
+     * @return int
+     */
+    public function strripos($haystack, $needle, $offset) : int
+    {
+        $result = false === ( $pos = mb_strripos($haystack, $needle, $offset) )
+            ? -1
+            : $pos;
+
+        return $result;
+    }
+
+
+    /**
      * Adds some string(-s) to start
      *
      * @param string      $str
@@ -183,7 +411,9 @@ class Str
 
         $len = max(0, intval($len));
 
-        return str_repeat($sym, $len) . $str;
+        $result = str_repeat($sym, $len) . $str;
+
+        return $result;
     }
 
     /**
@@ -203,7 +433,9 @@ class Str
 
         $len = max(0, intval($len));
 
-        return $str . str_repeat($sym, $len);
+        $result = $str . str_repeat($sym, $len);
+
+        return $result;
     }
 
     /**
@@ -223,7 +455,9 @@ class Str
 
         $len = max(0, intval($len));
 
-        return str_repeat($sym, $len) . $str . str_repeat($sym, $len);
+        $result = str_repeat($sym, $len) . $str . str_repeat($sym, $len);
+
+        return $result;
     }
 
 
@@ -243,12 +477,14 @@ class Str
         if ('' === $needle) return $str;
 
         $fn = $ignoreCase
-            ? 'stripos'
-            : 'strpos';
+            ? 'mb_stripos'
+            : 'mb_strpos';
 
-        return 0 === call_user_func($fn, $str, $needle)
+        $result = 0 === call_user_func($fn, $str, $needle)
             ? $str
             : $needle . $str;
+
+        return $result;
     }
 
     /**
@@ -267,12 +503,14 @@ class Str
         if ('' === $needle) return $str;
 
         $func = $ignoreCase
-            ? 'strripos'
-            : 'strrpos';
+            ? 'mb_strripos'
+            : 'mb_strrpos';
 
-        return strlen($str) - strlen($needle) === call_user_func($func, $str, $needle)
+        $result = ( ( mb_strlen($str) - mb_strlen($needle) ) === call_user_func($func, $str, $needle) )
             ? $str
             : $str . $needle;
+
+        return $result;
     }
 
     /**
@@ -286,7 +524,11 @@ class Str
      */
     public function uncrop(string $str, string $needle = null, bool $ignoreCase = true) : string
     {
-        return $this->append($this->prepend($str, $needle, $ignoreCase), $needle, $ignoreCase);
+        $prepend = $this->prepend($str, $needle, $ignoreCase);
+
+        $result = $this->append($prepend, $needle, $ignoreCase);
+
+        return $result;
     }
 
 
@@ -307,17 +549,25 @@ class Str
 
         $ignoreCase = $ignoreCase ?? true;
 
-        while ( 1
-            && $limit--
-            && 0 === ( $ignoreCase
-                ? stripos($str, $needle)
-                : strpos($str, $needle)
-            )
-        ) {
-            $str = substr($str, strlen($needle));
+        $result = $str;
+
+        $pos = $ignoreCase
+            ? mb_stripos($result, $needle)
+            : mb_strpos($result, $needle);
+
+        while ( $pos === 0 ) {
+            if (! $limit--) {
+                break;
+            }
+
+            $result = mb_substr($result, mb_strlen($needle));
+
+            $pos = $ignoreCase
+                ? mb_stripos($result, $needle)
+                : mb_strpos($result, $needle);
         }
 
-        return $str;
+        return $result;
     }
 
     /**
@@ -337,16 +587,25 @@ class Str
 
         $ignoreCase = $ignoreCase ?? true;
 
-        while ( 1
-            && $limit--
-            && ( $pos = $ignoreCase
-                ? strripos($str, $needle)
-                : strrpos($str, $needle) ) === strlen($str) - strlen($needle)
-        ) {
-            $str = substr($str, 0, $pos);
+        $result = $str;
+
+        $pos = $ignoreCase
+            ? mb_strripos($result, $needle)
+            : mb_strrpos($result, $needle);
+
+        while ( $pos === ( mb_strlen($result) - mb_strlen($needle) ) ) {
+            if (! $limit--) {
+                break;
+            }
+
+            $result = mb_substr($result, 0, $pos);
+
+            $pos = $ignoreCase
+                ? mb_strripos($result, $needle)
+                : mb_strrpos($result, $needle);
         }
 
-        return $str;
+        return $result;
     }
 
     /**
@@ -359,100 +618,123 @@ class Str
      */
     public function crop(string $str, string $needle = null, bool $ignoreCase = null, int $limit = -1) : string
     {
-        return $this->rcrop($this->lcrop($str, $needle, $ignoreCase, $limit), $needle, $ignoreCase, $limit);
+        $lcrop = $this->lcrop($str, $needle, $ignoreCase, $limit);
+
+        $result = $this->rcrop($lcrop, $needle, $ignoreCase, $limit);
+
+        return $result;
     }
 
 
     /**
-     * @param mixed         $separators
-     * @param mixed|mixed[] ...$parts
+     * @param string|string[]|array $delimiters
+     * @param string|string[]|array ...$strvals
      *
      * @return array
      */
-    public function split($separators, ...$parts) : array
+    public function split($delimiters, ...$strvals) : array
     {
-        $separators = is_array($separators)
-            ? $separators
-            : [ $separators ];
+        $delimiters = $this->strings($delimiters);
 
-        foreach ( $separators as $separator ) {
-            if (! is_string($separator)) {
-                throw new InvalidArgumentException(
-                    'Each separator should be string',
-                    [ func_get_args(), $separator ]
-                );
-            }
-        }
-
-        $key = key($separators);
+        $key = key($delimiters);
         do {
-            $separator = ( null !== $key )
-                ? array_shift($separators)
+            $delimiter = ( null !== $key )
+                ? array_shift($delimiters)
                 : null;
 
-            array_walk_recursive($parts, function (&$ref) use ($separator) {
-                if (null === ( $strval = $this->filter->filterStringable($ref) )) {
+            array_walk_recursive($strvals, function (&$ref) use ($delimiter) {
+                if (null === $this->filter->filterStrval($ref)) {
                     throw new InvalidArgumentException(
                         'Each value should be stringable',
                         [ func_get_args(), $ref ]
                     );
                 }
 
-                $ref = ( ( null !== $separator ) && ( $split = $this->contains($ref, $separator) ) )
-                    ? $split
-                    : [ $ref ];
-            });
-        } while ( null !== ( $key = key($separators) ) );
+                if (null !== $delimiter) {
+                    if ('' === $delimiter) {
+                        $ref = str_split(strval($ref));
 
-        $results = [];
-        array_walk_recursive($parts, function ($v) use (&$results) {
-            $results[] = $v;
+                    } elseif ($split = $this->contains($ref, $delimiter, null, false)) {
+                        $ref = $split;
+
+                    }
+                } else {
+                    $ref = [ $ref ];
+                }
+            });
+        } while ( null !== ( $key = key($delimiters) ) );
+
+        $result = [];
+        array_walk_recursive($strvals, function ($v) use (&$result) {
+            $result[] = $v;
         });
 
-        return $results;
+        return $result;
+    }
+
+    /**
+     * @param string|string[]|array $delimiters
+     * @param string|string[]|array ...$strvals
+     *
+     * @return array
+     */
+    public function explode($delimiters, ...$strvals) : array
+    {
+        $delimiters = $this->strings($delimiters);
+
+        $key = key($delimiters);
+        do {
+            $delimiter = ( null !== $key )
+                ? array_shift($delimiters)
+                : null;
+
+            array_walk_recursive($strvals, function (&$ref) use ($delimiter) {
+                if (null === $this->filter->filterStrval($ref)) {
+                    throw new InvalidArgumentException(
+                        'Each value should be stringable',
+                        [ func_get_args(), $ref ]
+                    );
+                }
+
+                if ($split = $this->contains($ref, $delimiter, null, false)) {
+                    $ref = $split;
+                }
+            });
+        } while ( null !== ( $key = key($delimiters) ) );
+
+        $result = [];
+        array_walk_recursive($strvals, function ($v) use (&$result) {
+            $result[] = $v;
+        });
+
+        return $result;
     }
 
 
     /**
      * Explodes string recursive by several delimiters, especially for parsing 'Accept' Header
      *
-     * @param mixed    $separators
-     * @param string   $string
-     * @param int|null $limit
+     * @param string|string[]|array $delimiters
+     * @param string                $string
+     * @param int|null              $limit
      *
      * @return array
      */
-    public function explode($separators, string $string, int $limit = null) : array
+    public function separate($delimiters, string $string, int $limit = null) : array
     {
         $results = [];
         $results[] = $string;
 
-        $separators = is_array($separators)
-            ? $separators
-            : [ $separators ];
+        $delimiters = $this->strings($delimiters);
 
-        foreach ( $separators as $separator ) {
-            if (null === $this->filter->filterTheString($separator)) {
-                throw new InvalidArgumentException(
-                    'Each delimiter should be string',
-                    [ func_get_args(), $separator ]
-                );
-            }
-        }
+        foreach ( $delimiters as $delimiter ) {
+            array_walk_recursive($results, function (string &$ref) use ($delimiter, $limit) {
+                if ('' === $delimiter) {
+                    $ref = [ $ref ];
 
-        foreach ( $separators as $separator ) {
-            array_walk_recursive($results, function (&$ref) use ($separator, $limit) {
-                if (null === ( $strval = $this->filter->filterStringable($ref) )) {
-                    throw new InvalidArgumentException(
-                        'Each value should be stringable',
-                        [ func_get_args(), $ref ]
-                    );
-                }
+                } elseif ($split = $this->contains($ref, $delimiter, $limit, false)) {
+                    $ref = $split;
 
-                if (false !== mb_strpos($strval, $separator)) {
-                    $ref = isset($limit)
-                        ? explode($separator, $strval, $limit)
-                        : explode($separator, $strval);
                 }
             });
         }
@@ -468,17 +750,19 @@ class Str
     /**
      * Creates string like '1, 2, 3', includes empty strings, throws error on non-stringables
      *
-     * @param string        $delimiter
-     * @param mixed|mixed[] ...$parts
+     * @param string                $delimiter
+     * @param string|string[]|array ...$strvals
      *
      * @return string
      */
-    public function implode(string $delimiter, ...$parts) : string
+    public function implode(string $delimiter, ...$strvals) : string
     {
-        $result = $this->parts(false, ...$parts);
+        $result = $this->strings(...$strvals);
 
-        foreach ( $result as $idx => $val ) {
-            $result[ $idx ] = trim($val, $delimiter);
+        if ('' !== $delimiter) {
+            foreach ( $result as $idx => $val ) {
+                $result[ $idx ] = trim($val, $delimiter);
+            }
         }
 
         $result = implode($delimiter, $result);
@@ -489,17 +773,23 @@ class Str
     /**
      * Creates string like '1, 2, 3', includes empty strings, skips non-stringables
      *
-     * @param string        $delimiter
-     * @param mixed|mixed[] ...$parts
+     * @param string                $delimiter
+     * @param string|string[]|array ...$strvals
      *
      * @return string
      */
-    public function implodeForce(string $delimiter, ...$parts) : string
+    public function implodeskip(string $delimiter, ...$strvals) : string
     {
-        $result = $this->parts(true, ...$parts);
+        $result = $this->stringsskip(...$strvals);
 
-        foreach ( $result as $idx => $val ) {
-            $result[ $idx ] = trim($val, $delimiter);
+        if ('' !== $delimiter) {
+            foreach ( $result as $idx => $val ) {
+                $result[ $idx ] = trim($val, $delimiter);
+
+                if ('' === $result[ $idx ]) {
+                    unset($result[ $idx ]);
+                }
+            }
         }
 
         $result = implode($delimiter, $result);
@@ -511,18 +801,20 @@ class Str
     /**
      * Creates string like '1, 2, 3', skips empty strings, throws error on non-stringables
      *
-     * @param string        $delimiter
-     * @param mixed|mixed[] ...$parts
+     * @param string                $delimiter
+     * @param string|string[]|array ...$strvals
      *
      * @return string
      */
-    public function join(string $delimiter, ...$parts) : string
+    public function join(string $delimiter, ...$strvals) : string
     {
-        $result = $this->parts(false, ...$parts);
-        $result = array_filter($result);
+        $result = $this->strings(...$strvals);
+        $result = array_filter($result, 'strlen');
 
-        foreach ( $result as $idx => $val ) {
-            $result[ $idx ] = trim($val, $delimiter);
+        if ('' !== $delimiter) {
+            foreach ( $result as $idx => $val ) {
+                $result[ $idx ] = trim($val, $delimiter);
+            }
         }
 
         $result = implode($delimiter, $result);
@@ -533,18 +825,24 @@ class Str
     /**
      * Creates string like '1, 2, 3', skips empty strings, skips non-stringables
      *
-     * @param string        $delimiter
-     * @param mixed|mixed[] ...$parts
+     * @param string                $delimiter
+     * @param string|string[]|array ...$strvals
      *
      * @return string
      */
-    public function joinForce(string $delimiter, ...$parts) : string
+    public function joinskip(string $delimiter, ...$strvals) : string
     {
-        $result = $this->parts(true, ...$parts);
-        $result = array_filter($result);
+        $result = $this->stringsskip(...$strvals);
+        $result = array_filter($result, 'strlen');
 
-        foreach ( $result as $idx => $val ) {
-            $result[ $idx ] = trim($val, $delimiter);
+        if ('' !== $delimiter) {
+            foreach ( $result as $idx => $val ) {
+                $result[ $idx ] = trim($val, $delimiter);
+
+                if ('' === $result[ $idx ]) {
+                    unset($result[ $idx ]);
+                }
+            }
         }
 
         $result = implode($delimiter, $result);
@@ -556,15 +854,15 @@ class Str
     /**
      * Creates string like "`1`, `2` or `3`", skips empty strings, throws error on non-stringables
      *
-     * @param mixed|mixed[] $parts
-     * @param null|string   $delimiter
-     * @param null|string   $lastDelimiter
-     * @param null|string   $wrapper
+     * @param string|string[]|array $strings
+     * @param null|string           $delimiter
+     * @param null|string           $lastDelimiter
+     * @param null|string           $wrapper
      *
      * @return string
      */
     public function concat(
-        $parts,
+        $strings,
         string $delimiter = null,
         string $lastDelimiter = null,
         string $wrapper = null
@@ -574,7 +872,7 @@ class Str
         $lastDelimiter = $lastDelimiter ?? $delimiter;
         $wrapper = $wrapper ?? '';
 
-        $result = $this->parts(false, $parts);
+        $result = $this->words($strings);
 
         $last = null;
         if (null !== $lastDelimiter) {
@@ -597,15 +895,15 @@ class Str
     /**
      * Creates string like "`1`, `2` or `3`", skips empty strings, skips non-stringables
      *
-     * @param mixed|mixed[] $items
-     * @param null|string   $delimiter
-     * @param null|string   $wrapper
-     * @param null|string   $lastDelimiter
+     * @param string|string[]|array $strings
+     * @param null|string           $delimiter
+     * @param null|string           $wrapper
+     * @param null|string           $lastDelimiter
      *
      * @return string
      */
-    public function concatForce(
-        array $items,
+    public function concatskip(
+        array $strings,
         string $delimiter = null,
         string $lastDelimiter = null,
         string $wrapper = null
@@ -615,7 +913,7 @@ class Str
         $lastDelimiter = $lastDelimiter ?? $delimiter;
         $wrapper = $wrapper ?? '';
 
-        $result = $this->parts(true, $items);
+        $result = $this->wordsskip($strings);
 
         $last = null;
         if (null !== $lastDelimiter) {
@@ -729,6 +1027,250 @@ class Str
 
 
     /**
+     * @param string|string[]|array ...$numbers
+     *
+     * @return string[]
+     */
+    public function numbers(...$numbers) : array
+    {
+        $result = [];
+
+        array_walk_recursive($numbers, function ($number) use (&$result) {
+            if (null === $this->filter->filterNumval($number)) {
+                throw new InvalidArgumentException(
+                    'Each item should be numerable',
+                    [ func_get_args(), $number ]
+                );
+            }
+
+            $result[] = $number;
+        });
+
+        return $result;
+    }
+
+    /**
+     * @param string|string[]|array ...$numbers
+     *
+     * @return string[]
+     */
+    public function theNumbers(...$numbers) : array
+    {
+        $result = $this->numbers(...$numbers);
+
+        if (! count($result)) {
+            throw new InvalidArgumentException(
+                'At least one number should be provided',
+                func_get_args()
+            );
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string|string[]|array ...$numbers
+     *
+     * @return string[]
+     */
+    public function numbersskip(...$numbers) : array
+    {
+        $result = [];
+
+        array_walk_recursive($numbers, function ($number) use (&$result) {
+            if (null !== $this->filter->filterNumval($number)) {
+                $result[] = $number;
+            }
+        });
+
+        return $result;
+    }
+
+    /**
+     * @param string|string[]|array ...$numbers
+     *
+     * @return string[]
+     */
+    public function theNumbersskip(...$numbers) : array
+    {
+        $result = $this->numbersskip(...$numbers);
+
+        if (! count($result)) {
+            throw new InvalidArgumentException(
+                'At least one number should be provided',
+                func_get_args()
+            );
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * @param string|string[]|array ...$strings
+     *
+     * @return string[]
+     */
+    public function strings(...$strings) : array
+    {
+        $result = [];
+
+        array_walk_recursive($strings, function ($string) use (&$result) {
+            if (null === $this->filter->filterStrval($string)) {
+                throw new InvalidArgumentException(
+                    'Each item should be stringable',
+                    [ func_get_args(), $string ]
+                );
+            }
+
+            $result[] = strval($string);
+        });
+
+        return $result;
+    }
+
+    /**
+     * @param string|string[]|array ...$strings
+     *
+     * @return string[]
+     */
+    public function theStrings(...$strings) : array
+    {
+        $result = $this->strings(...$strings);
+
+        if (! count($result)) {
+            throw new InvalidArgumentException(
+                'At least one string should be provided',
+                func_get_args()
+            );
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string|string[]|array ...$strings
+     *
+     * @return string[]
+     */
+    public function stringsskip(...$strings) : array
+    {
+        $result = [];
+
+        array_walk_recursive($strings, function ($string) use (&$result) {
+            if (null !== $this->filter->filterStrval($string)) {
+                $result[] = strval($string);
+            }
+        });
+
+        return $result;
+    }
+
+    /**
+     * @param string|string[]|array ...$strings
+     *
+     * @return string[]
+     */
+    public function theStringsskip(...$strings) : array
+    {
+        $result = $this->stringsskip(...$strings);
+
+        if (! count($result)) {
+            throw new InvalidArgumentException(
+                'At least one string should be provided',
+                func_get_args()
+            );
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * @param string|string[]|array ...$words
+     *
+     * @return string[]
+     */
+    public function words(...$words) : array
+    {
+        $result = [];
+
+        array_walk_recursive($words, function ($word) use (&$result) {
+            $word = $this->filter->filterStrval($word);
+
+            if (null === $word || '' === $word) {
+                throw new InvalidArgumentException(
+                    'Each word should be non-empty string',
+                    [ func_get_args(), $word ]
+                );
+            }
+
+            $result[] = strval($word);
+        });
+
+        return $result;
+    }
+
+    /**
+     * @param string|string[]|array ...$words
+     *
+     * @return string[]
+     */
+    public function theWords(...$words) : array
+    {
+        $result = $this->words(...$words);
+
+        if (! count($result)) {
+            throw new InvalidArgumentException(
+                'At least one word should be provided',
+                func_get_args()
+            );
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string|string[]|array ...$words
+     *
+     * @return string[]
+     */
+    public function wordsskip(...$words) : array
+    {
+        $result = [];
+
+        array_walk_recursive($words, function ($word) use (&$result) {
+            $word = $this->filter->filterStrval($word);
+
+            if (null !== $word && '' !== $word) {
+                $result[] = strval($word);
+            }
+        });
+
+        return $result;
+    }
+
+    /**
+     * @param string|string[]|array ...$words
+     *
+     * @return array
+     */
+    public function theWordsskip(...$words) : array
+    {
+        $result = $this->wordsskip(...$words);
+
+        if (! count($result)) {
+            throw new InvalidArgumentException(
+                'At least one word should be provided',
+                func_get_args()
+            );
+        }
+
+        return $result;
+    }
+
+
+    /**
      * @param string     $value
      * @param string     $delimiter
      * @param string|int $case
@@ -766,35 +1308,6 @@ class Str
 
         $result = str_replace(array_keys($replacements), '', $result);
         $result = str_replace(static::REPLACER, $delimiter, $result);
-
-        return $result;
-    }
-
-    /**
-     * @param bool          $force
-     * @param mixed|mixed[] ...$parts
-     *
-     * @return array
-     */
-    protected function parts(bool $force = false, ...$parts) : array
-    {
-        $result = [];
-
-        array_walk_recursive($parts, function ($value) use (&$result, $force) {
-            if (null === ( $strval = $this->filter->filterStringable($value) )) {
-                if ($force) {
-                    return;
-
-                } else {
-                    throw new InvalidArgumentException(
-                        'Each value should be stringable',
-                        [ func_get_args(), $value ]
-                    );
-                }
-            }
-
-            $result[] = $strval;
-        });
 
         return $result;
     }

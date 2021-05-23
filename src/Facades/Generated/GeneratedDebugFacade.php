@@ -3,15 +3,15 @@
 /**
  * This file is auto-generated.
  *
- * * @noinspection PhpUnhandledExceptionInspection
- * * @noinspection PhpDocMissingThrowsInspection
+ * @noinspection PhpUnhandledExceptionInspection
+ * @noinspection PhpDocMissingThrowsInspection
  */
 
 namespace Gzhegow\Support\Facades\Generated;
 
-use Gzhegow\Support\Debug as _Debug;
+use Gzhegow\Support\Debug;
 
-abstract class Debug
+abstract class GeneratedDebugFacade
 {
     /**
      * Prints any type for debug, to work with exceptions and debug_backtrace()
@@ -20,7 +20,7 @@ abstract class Debug
      *
      * @return string
      */
-    public static function arg($arg) : string
+    public static function arg($arg): string
     {
         return static::getInstance()->arg($arg);
     }
@@ -30,7 +30,7 @@ abstract class Debug
      *
      * @return string[]
      */
-    public static function args(array $args) : array
+    public static function args(array $args): array
     {
         return static::getInstance()->args($args);
     }
@@ -42,7 +42,7 @@ abstract class Debug
      *
      * @return string
      */
-    public static function dom(string $content) : string
+    public static function dom(string $content): string
     {
         return static::getInstance()->dom($content);
     }
@@ -54,7 +54,7 @@ abstract class Debug
      *
      * @return array
      */
-    public static function trace(array $trace, array $columns = [], string $implode = null) : array
+    public static function trace(array $trace, array $columns = [], string $implode = null): array
     {
         return static::getInstance()->trace($trace, $columns, $implode);
     }
@@ -64,7 +64,7 @@ abstract class Debug
      *
      * @return string
      */
-    public static function varDump(...$arguments) : string
+    public static function varDump(...$arguments): string
     {
         return static::getInstance()->varDump(...$arguments);
     }
@@ -77,7 +77,7 @@ abstract class Debug
      *
      * @return string
      */
-    public static function printR($arg, bool $return = null) : ?string
+    public static function printR($arg, bool $return = null): ?string
     {
         return static::getInstance()->printR($arg, $return);
     }
@@ -90,14 +90,13 @@ abstract class Debug
      *
      * @return string
      */
-    public static function varExport($arg, bool $return = null) : ?string
+    public static function varExport($arg, bool $return = null): ?string
     {
         return static::getInstance()->varExport($arg, $return);
     }
 
-
     /**
-     * @return _Debug
+     * @return Debug
      */
-    abstract public static function getInstance() : _Debug;
+    abstract public static function getInstance(): Debug;
 }

@@ -3,15 +3,15 @@
 /**
  * This file is auto-generated.
  *
- * * @noinspection PhpUnhandledExceptionInspection
- * * @noinspection PhpDocMissingThrowsInspection
+ * @noinspection PhpUnhandledExceptionInspection
+ * @noinspection PhpDocMissingThrowsInspection
  */
 
 namespace Gzhegow\Support\Facades\Generated;
 
-use Gzhegow\Support\Env as _Env;
+use Gzhegow\Support\Env;
 
-abstract class Env
+abstract class GeneratedEnvFacade
 {
     /**
      * @param null      $option
@@ -30,14 +30,13 @@ abstract class Env
      *
      * @return bool
      */
-    public static function putenv(string $name, string $value) : bool
+    public static function putenv(string $name, string $value): bool
     {
         return static::getInstance()->putenv($name, $value);
     }
 
-
     /**
-     * @return _Env
+     * @return Env
      */
-    abstract public static function getInstance() : _Env;
+    abstract public static function getInstance(): Env;
 }

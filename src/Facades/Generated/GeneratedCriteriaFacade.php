@@ -3,15 +3,16 @@
 /**
  * This file is auto-generated.
  *
- * * @noinspection PhpUnhandledExceptionInspection
- * * @noinspection PhpDocMissingThrowsInspection
+ * @noinspection PhpUnhandledExceptionInspection
+ * @noinspection PhpDocMissingThrowsInspection
  */
 
 namespace Gzhegow\Support\Facades\Generated;
 
-use Gzhegow\Support\Criteria as _Criteria;
+use Gzhegow\Support\Criteria;
+use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
-abstract class Criteria
+abstract class GeneratedCriteriaFacade
 {
     /**
      * @param number    $needle
@@ -20,7 +21,7 @@ abstract class Criteria
      *
      * @return bool
      */
-    public static function isInNumber($needle, array $src, bool $coalesce = null) : bool
+    public static function isInNumber($needle, array $src, bool $coalesce = null): bool
     {
         return static::getInstance()->isInNumber($needle, $src, $coalesce);
     }
@@ -33,7 +34,7 @@ abstract class Criteria
      *
      * @return bool
      */
-    public static function isInString($needle, array $src, bool $natural = null, bool $coalesce = null) : bool
+    public static function isInString($needle, array $src, bool $natural = null, bool $coalesce = null): bool
     {
         return static::getInstance()->isInString($needle, $src, $natural, $coalesce);
     }
@@ -46,7 +47,7 @@ abstract class Criteria
      *
      * @return bool
      */
-    public static function isInStringCase($needle, array $src, bool $natural = null, bool $coalesce = null) : bool
+    public static function isInStringCase($needle, array $src, bool $natural = null, bool $coalesce = null): bool
     {
         return static::getInstance()->isInStringCase($needle, $src, $natural, $coalesce);
     }
@@ -58,7 +59,7 @@ abstract class Criteria
      *
      * @return bool
      */
-    public static function isInDate(\DateTime $needle, array $src, bool $coalesce = null) : bool
+    public static function isInDate(\DateTime $needle, array $src, bool $coalesce = null): bool
     {
         return static::getInstance()->isInDate($needle, $src, $coalesce);
     }
@@ -70,7 +71,7 @@ abstract class Criteria
      *
      * @return bool
      */
-    public static function isBetweenNumber($needle, array $src, bool $coalesce = null) : bool
+    public static function isBetweenNumber($needle, array $src, bool $coalesce = null): bool
     {
         return static::getInstance()->isBetweenNumber($needle, $src, $coalesce);
     }
@@ -82,7 +83,7 @@ abstract class Criteria
      *
      * @return bool
      */
-    public static function isBetweenDate(\DateTime $needle, array $src, bool $coalesce = null) : bool
+    public static function isBetweenDate(\DateTime $needle, array $src, bool $coalesce = null): bool
     {
         return static::getInstance()->isBetweenDate($needle, $src, $coalesce);
     }
@@ -95,7 +96,7 @@ abstract class Criteria
      *
      * @return bool
      */
-    public static function satisfy($needle, $src, string $operator, bool $coalesce = null) : bool
+    public static function satisfy($needle, $src, string $operator, bool $coalesce = null): bool
     {
         return static::getInstance()->satisfy($needle, $src, $operator, $coalesce);
     }
@@ -108,14 +109,13 @@ abstract class Criteria
      *
      * @return bool
      */
-    public static function satisfyArray($needle, array $arr, string $operator, bool $coalesce = null) : bool
+    public static function satisfyArray($needle, array $arr, string $operator, bool $coalesce = null): bool
     {
         return static::getInstance()->satisfyArray($needle, $arr, $operator, $coalesce);
     }
 
-
     /**
-     * @return _Criteria
+     * @return Criteria
      */
-    abstract public static function getInstance() : _Criteria;
+    abstract public static function getInstance(): Criteria;
 }

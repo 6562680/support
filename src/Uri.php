@@ -227,7 +227,7 @@ class Uri
             }
 
             foreach ( $args as $arg ) {
-                if (null !== ( $str = $this->filter->filterStringable($arg) )) {
+                if (null !== ( $str = $this->php->strval($arg) )) {
                     parse_str($str, $current);
 
                     if ($current) {
@@ -238,9 +238,8 @@ class Uri
         }
 
         array_walk_recursive($query, function (&$value) {
-            if (0
-                || ( [] === $value )
-                || ( null === $this->filter->filterStringable($value) )
+            if (( [] === $value )
+                || ( null === $this->php->strval($value) )
             ) {
                 $value = '';
             }
@@ -279,17 +278,17 @@ class Uri
 
     /**
      * @param string|null $link
-     * @param null|array  $q
-     * @param string|null $ref
+     * @param null|array  $query
+     * @param string|null $fragment
      *
      * @return string
      */
-    public function url(string $link = null, array $q = null, string $ref = null) : string
+    public function url(string $link = null, array $query = null, string $fragment = null) : string
     {
-        $q = $q ?? [];
+        $query = $query ?? [];
 
-        $query = [];
-        $fragment = null;
+        $_query = [];
+        $_fragment = null;
 
         if (is_null($link)) { // empty url with hash reference for <a href="#hello"></a>
             $info[ 'scheme' ] = null;
@@ -305,7 +304,7 @@ class Uri
             $info[ 'query' ] = $_SERVER[ 'QUERY_STRING' ];
             $info[ 'fragment' ] = null;
 
-            parse_str($info[ 'query' ], $query);
+            parse_str($info[ 'query' ], $_query);
 
         } else { // concrete page
             $info = $this->linkinfo($link);
@@ -313,14 +312,14 @@ class Uri
             $info[ 'scheme' ] = $info[ 'scheme' ] ?? $_SERVER[ 'REQUEST_SCHEME' ];
             $info[ 'host' ] = $info[ 'host' ] ?? $_SERVER[ 'HTTP_HOST' ];
 
-            parse_str($info[ 'query' ], $query);
+            parse_str($info[ 'query' ], $_query);
 
-            $fragment = $info[ 'fragment' ];
+            $_fragment = $info[ 'fragment' ];
         }
 
-        $q = array_replace_recursive($query, $q);
+        $_query = array_replace_recursive($_query, $query);
 
-        $ref = $ref ?? $fragment;
+        $_fragment = $fragment ?? $_fragment;
 
         $result = [];
 
@@ -339,8 +338,8 @@ class Uri
         }
 
         $result[] = $info[ 'path' ] ?: '';
-        $result[] = rtrim('?' . http_build_query($q), '?');
-        $result[] = rtrim('#' . ltrim($ref, '#'), '#');
+        $result[] = rtrim('?' . http_build_query($_query), '?');
+        $result[] = rtrim('#' . ltrim($_fragment, '#'), '#');
 
         $result = implode('', $result);
 
@@ -350,14 +349,14 @@ class Uri
 
     /**
      * @param string|null $link
-     * @param null|array  $q
-     * @param string|null $ref
+     * @param null|array  $query
+     * @param string|null $fragment
      *
      * @return string
      */
-    public function link(string $link = null, array $q = null, string $ref = null) : string
+    public function link(string $link = null, array $query = null, string $fragment = null) : string
     {
-        $result = $this->url($link, $q, $ref);
+        $result = $this->url($link, $query, $fragment);
 
         $info = parse_url($result);
 

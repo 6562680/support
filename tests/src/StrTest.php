@@ -3,6 +3,7 @@
 namespace Gzhegow\Support\Tests;
 
 use Gzhegow\Support\Str;
+use Gzhegow\Support\Php;
 use Gzhegow\Support\Filter;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
@@ -12,6 +13,13 @@ class StrTest extends AbstractTestCase
     protected function getFilter() : Filter
     {
         return new Filter();
+    }
+
+    protected function getPhp() : Php
+    {
+        return new Php(
+            $this->getFilter()
+        );
     }
 
     protected function getStr() : Str
@@ -78,6 +86,27 @@ class StrTest extends AbstractTestCase
 
         $this->assertEquals([], $str->match('a', 'a', 'Hello AWorldA AFooA bar', null, false));
         $this->assertEquals([ 'World', 'Foo' ], $str->match('A', 'A', 'Hello AWorldA AFooA bar', null, false));
+    }
+
+
+    public function testReplace()
+    {
+        $str = $this->getStr();
+
+        $this->assertEquals('baa', $str->replace('a', 'b', 'aaa', 1));
+        $this->assertEquals('bba', $str->replace('a', 'b', 'aaa', 2));
+        $this->assertEquals('aab', $str->replace('a', 'b', 'aaa', -1));
+        $this->assertEquals('abb', $str->replace('a', 'b', 'aaa', -2));
+    }
+
+    public function testIreplace()
+    {
+        $str = $this->getStr();
+
+        $this->assertEquals('bAa', $str->ireplace('A', 'b', 'aAa', 1));
+        $this->assertEquals('bba', $str->ireplace('A', 'b', 'aAa', 2));
+        $this->assertEquals('aAb', $str->ireplace('A', 'b', 'aAa', -1));
+        $this->assertEquals('abb', $str->ireplace('A', 'b', 'aAa', -2));
     }
 
 
@@ -442,8 +471,8 @@ class StrTest extends AbstractTestCase
     {
         $str = $this->getStr();
 
-        $this->assertEquals([ 'dadbdcd' ], $str->split('', 'dadbdcd'));
-        $this->assertEquals([ 'dadbdcd' ], $str->split([ '' ], 'dadbdcd'));
+        $this->assertEquals(str_split('dadbdcd'), $str->split('', 'dadbdcd'));
+        $this->assertEquals(str_split('dadbdcd'), $str->split([ '' ], 'dadbdcd'));
         $this->assertEquals([ 'd', 'dbdcd' ], $str->split([ 'a' ], 'dadbdcd'));
         $this->assertEquals([ 'd', 'd', 'dcd' ], $str->split([ 'a', 'b' ], 'dadbdcd'));
         $this->assertEquals([ 'd', 'd', 'd', 'd' ], $str->split([ 'a', 'b', 'c' ], 'dadbdcd'));
@@ -467,9 +496,11 @@ class StrTest extends AbstractTestCase
     {
         $str = $this->getStr();
 
+        $this->assertEquals([ 'dadbdcd' ], $str->explode('', 'dadbdcd'));
+        $this->assertEquals([ 'dadbdcd' ], $str->explode([ '' ], 'dadbdcd'));
         $this->assertEquals([ 'd', 'dbdcd' ], $str->explode([ 'a' ], 'dadbdcd'));
-        $this->assertEquals([ 'd', [ 'd', 'dcd' ] ], $str->explode([ 'a', 'b' ], 'dadbdcd'));
-        $this->assertEquals([ 'd', [ 'd', [ 'd', 'd' ] ] ], $str->explode([ 'a', 'b', 'c' ], 'dadbdcd'));
+        $this->assertEquals([ 'd', 'd', 'dcd' ], $str->explode([ 'a', 'b' ], 'dadbdcd'));
+        $this->assertEquals([ 'd', 'd', 'd', 'd' ], $str->explode([ 'a', 'b', 'c' ], 'dadbdcd'));
     }
 
     public function testBadExplode()
@@ -477,19 +508,32 @@ class StrTest extends AbstractTestCase
         $str = $this->getStr();
 
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->explode(null, 'dadbdcd');
+            $this->assertEquals([ 'dadbdcd' ], $str->explode(null, 'dadbdcd'));
         });
 
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->explode('', 'dadbdcd');
+            $this->assertEquals([ 'dadbdcd' ], $str->explode([ null ], 'dadbdcd'));
         });
+    }
+
+
+    public function testSeparate()
+    {
+        $str = $this->getStr();
+
+        $this->assertEquals([ 'dadbdcd' ], $str->separate('', 'dadbdcd'));
+        $this->assertEquals([ 'dadbdcd' ], $str->separate([ '' ], 'dadbdcd'));
+        $this->assertEquals([ 'd', 'dbdcd' ], $str->separate([ 'a' ], 'dadbdcd'));
+        $this->assertEquals([ 'd', [ 'd', 'dcd' ] ], $str->separate([ 'a', 'b' ], 'dadbdcd'));
+        $this->assertEquals([ 'd', [ 'd', [ 'd', 'd' ] ] ], $str->separate([ 'a', 'b', 'c' ], 'dadbdcd'));
+    }
+
+    public function testBadSeparate()
+    {
+        $str = $this->getStr();
 
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->explode([ '' ], 'dadbdcd');
-        });
-
-        $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->explode([ '' ], 'dadbdcd');
+            $str->separate(null, 'dadbdcd');
         });
     }
 
@@ -501,25 +545,25 @@ class StrTest extends AbstractTestCase
         $this->assertEquals('', $str->implode(''));
         $this->assertEquals('', $str->implode('', []));
 
-        $parts = [ [ 'a', 'b' ], '', ',a', [ ',b' ], ',' ];
+        $parts = [ '', ',', 'a', ',a', [ '', ',', 'a', ',a' ] ];
 
-        $this->assertEquals('ab,a,b,', $str->implode('', ...$parts));
-        $this->assertEquals('a,b,,a,b,', $str->implode(',', ...$parts));
+        $this->assertEquals(',a,a,a,a', $str->implodeskip('', ...$parts));
+        $this->assertEquals('a,a,a,a', $str->implodeskip(',', ...$parts));
     }
 
-    public function testImplodeForce()
+    public function testImplodeskip()
     {
         $str = $this->getStr();
 
-        $this->assertEquals('', $str->implodeForce('', null));
-        $this->assertEquals('', $str->implodeForce('', [ null ]));
-        $this->assertEquals('', $str->implodeForce('', []));
-        $this->assertEquals('', $str->implodeForce('', []));
+        $this->assertEquals('', $str->implodeskip('', null));
+        $this->assertEquals('', $str->implodeskip('', [ null ]));
+        $this->assertEquals('', $str->implodeskip('', []));
+        $this->assertEquals('', $str->implodeskip('', []));
 
-        $parts = [ [ 'a', 'b' ], '', ',a', [ ',b' ], ',', new \StdClass() ];
+        $parts = [ null, '', ',', 'a', ',a', new \StdClass(), [ null, '', ',', 'a', ',a', new \StdClass() ] ];
 
-        $this->assertEquals('ab,a,b,', $str->implodeForce('', ...$parts));
-        $this->assertEquals('a,b,,a,b,', $str->implodeForce(',', ...$parts));
+        $this->assertEquals(',a,a,a,a', $str->implodeskip('', ...$parts));
+        $this->assertEquals('a,a,a,a', $str->implodeskip(',', ...$parts));
     }
 
     public function testBadImplode()
@@ -547,25 +591,25 @@ class StrTest extends AbstractTestCase
         $this->assertEquals('', $str->join(''));
         $this->assertEquals('', $str->join('', []));
 
-        $parts = [ [ 'a', 'b' ], '', ',a', [ ',b' ], ',' ];
+        $parts = [ '', ',', 'a', ',a', [ '', ',', 'a', ',a' ] ];
 
-        $this->assertEquals('ab,a,b,', $str->join('', ...$parts));
-        $this->assertEquals('a,b,a,b,', $str->join(',', ...$parts));
+        $this->assertEquals(',a,a,a,a', $str->join('', ...$parts));
+        $this->assertEquals(',a,a,,a,a', $str->join(',', ...$parts));
     }
 
-    public function testJoinForce()
+    public function testJoinskip()
     {
         $str = $this->getStr();
 
-        $this->assertEquals('', $str->joinForce('', null));
-        $this->assertEquals('', $str->joinForce('', [ null ]));
-        $this->assertEquals('', $str->joinForce(''));
-        $this->assertEquals('', $str->joinForce('', []));
+        $this->assertEquals('', $str->joinskip('', null));
+        $this->assertEquals('', $str->joinskip('', [ null ]));
+        $this->assertEquals('', $str->joinskip(''));
+        $this->assertEquals('', $str->joinskip('', []));
 
-        $parts = [ [ 'a', 'b' ], '', ',a', [ ',b' ], ',', new \StdClass() ];
+        $parts = [ null, '', ',', 'a', ',a', new \StdClass(), [ null, '', ',', 'a', ',a', new \StdClass() ] ];
 
-        $this->assertEquals('ab,a,b,', $str->joinForce('', ...$parts));
-        $this->assertEquals('a,b,a,b,', $str->joinForce(',', ...$parts));
+        $this->assertEquals(',a,a,a,a', $str->joinskip('', ...$parts));
+        $this->assertEquals('a,a,a,a', $str->joinskip(',', ...$parts));
     }
 
     public function testBadJoin()
@@ -617,35 +661,35 @@ class StrTest extends AbstractTestCase
         $this->assertEquals('"a","b","c" or "d"', $str->concat($parts, ',', ' or ', '"'));
     }
 
-    public function testConcatForce()
+    public function testConcatskip()
     {
         $str = $this->getStr();
 
         $parts = [ [ 'a', 'b' ], 'c', [ 'd' ], new \StdClass() ];
 
-        $this->assertEquals('abcd', $str->concatForce($parts));
-        $this->assertEquals('abcd', $str->concatForce($parts, ''));
-        $this->assertEquals('a,b,c,d', $str->concatForce($parts, ','));
+        $this->assertEquals('abcd', $str->concatskip($parts));
+        $this->assertEquals('abcd', $str->concatskip($parts, ''));
+        $this->assertEquals('a,b,c,d', $str->concatskip($parts, ','));
 
-        $this->assertEquals('abcd', $str->concatForce($parts, null, ''));
-        $this->assertEquals('abcd', $str->concatForce($parts, '', ''));
-        $this->assertEquals('a,b,cd', $str->concatForce($parts, ',', ''));
+        $this->assertEquals('abcd', $str->concatskip($parts, null, ''));
+        $this->assertEquals('abcd', $str->concatskip($parts, '', ''));
+        $this->assertEquals('a,b,cd', $str->concatskip($parts, ',', ''));
 
-        $this->assertEquals('abc or d', $str->concatForce($parts, null, ' or '));
-        $this->assertEquals('abc or d', $str->concatForce($parts, '', ' or '));
-        $this->assertEquals('a,b,c or d', $str->concatForce($parts, ',', ' or '));
+        $this->assertEquals('abc or d', $str->concatskip($parts, null, ' or '));
+        $this->assertEquals('abc or d', $str->concatskip($parts, '', ' or '));
+        $this->assertEquals('a,b,c or d', $str->concatskip($parts, ',', ' or '));
 
-        $this->assertEquals('"a""b""c""d"', $str->concatForce($parts, null, null, '"'));
-        $this->assertEquals('"a""b""c""d"', $str->concatForce($parts, '', null, '"'));
-        $this->assertEquals('"a","b","c","d"', $str->concatForce($parts, ',', null, '"'));
+        $this->assertEquals('"a""b""c""d"', $str->concatskip($parts, null, null, '"'));
+        $this->assertEquals('"a""b""c""d"', $str->concatskip($parts, '', null, '"'));
+        $this->assertEquals('"a","b","c","d"', $str->concatskip($parts, ',', null, '"'));
 
-        $this->assertEquals('"a""b""c""d"', $str->concatForce($parts, null, '', '"'));
-        $this->assertEquals('"a""b""c""d"', $str->concatForce($parts, '', '', '"'));
-        $this->assertEquals('"a","b","c""d"', $str->concatForce($parts, ',', '', '"'));
+        $this->assertEquals('"a""b""c""d"', $str->concatskip($parts, null, '', '"'));
+        $this->assertEquals('"a""b""c""d"', $str->concatskip($parts, '', '', '"'));
+        $this->assertEquals('"a","b","c""d"', $str->concatskip($parts, ',', '', '"'));
 
-        $this->assertEquals('"a""b""c" or "d"', $str->concatForce($parts, null, ' or ', '"'));
-        $this->assertEquals('"a""b""c" or "d"', $str->concatForce($parts, '', ' or ', '"'));
-        $this->assertEquals('"a","b","c" or "d"', $str->concatForce($parts, ',', ' or ', '"'));
+        $this->assertEquals('"a""b""c" or "d"', $str->concatskip($parts, null, ' or ', '"'));
+        $this->assertEquals('"a""b""c" or "d"', $str->concatskip($parts, '', ' or ', '"'));
+        $this->assertEquals('"a","b","c" or "d"', $str->concatskip($parts, ',', ' or ', '"'));
     }
 
     public function testBadConcat()
@@ -824,5 +868,230 @@ class StrTest extends AbstractTestCase
         static::assertEquals('helloWorld.foo', $str->camel('Hello-World.foo'));
         static::assertEquals('helloWorld.foo', $str->camel('Hello World.foo'));
         static::assertEquals('helloWorld.foo', $str->camel('Hello_World.foo'));
+    }
+
+
+    public function testNumbers()
+    {
+        $str = $this->getStr();
+
+        $this->assertEquals([], $str->numbers());
+
+        $this->assertEquals([ 1 ], $str->numbers(1));
+        $this->assertEquals([ 1 ], $str->numbers(1.0));
+        $this->assertEquals([ 1.1 ], $str->numbers(1.1));
+        $this->assertEquals([ '1' ], $str->numbers('1'));
+        $this->assertEquals([ '1.0' ], $str->numbers('1.0'));
+        $this->assertEquals([ '1.1' ], $str->numbers('1.1'));
+        $this->assertEquals([], $str->numbers([]));
+
+        $this->assertEquals([ 1 ], $str->numbers([ 1 ]));
+        $this->assertEquals([ 1 ], $str->numbers([ 1.0 ]));
+        $this->assertEquals([ 1.1 ], $str->numbers([ 1.1 ]));
+        $this->assertEquals([ '1' ], $str->numbers([ '1' ]));
+        $this->assertEquals([ '1.0' ], $str->numbers([ '1.0' ]));
+        $this->assertEquals([ '1.1' ], $str->numbers([ '1.1' ]));
+        $this->assertEquals([], $str->numbers([ [] ]));
+
+        $this->assertEquals([ '1' ], $str->numbers([ [ 1 ] ]));
+        $this->assertEquals([ '1' ], $str->numbers([ [ 1.0 ] ]));
+        $this->assertEquals([ '1.1' ], $str->numbers([ [ 1.1 ] ]));
+        $this->assertEquals([ '1' ], $str->numbers([ [ '1' ] ]));
+        $this->assertEquals([ '1.0' ], $str->numbers([ [ '1.0' ] ]));
+        $this->assertEquals([ '1.1' ], $str->numbers([ [ '1.1' ] ]));
+        $this->assertEquals([], $str->numbers([ [ [] ] ]));
+    }
+
+    public function testNumbersBad()
+    {
+        $str = $this->getStr();
+
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->numbers(null);
+        });
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->numbers(false);
+        });
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->numbers('');
+        });
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->numbers('hello');
+        });
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->numbers(new \StdClass());
+        });
+
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->numbers([ null ]);
+        });
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->numbers([ false ]);
+        });
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->numbers([ '' ]);
+        });
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->numbers([ 'hello' ]);
+        });
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->numbers([ new \StdClass() ]);
+        });
+
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->numbers([ [ null ] ]);
+        });
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->numbers([ [ false ] ]);
+        });
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->numbers([ [ '' ] ]);
+        });
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->numbers([ [ 'hello' ] ]);
+        });
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->numbers([ [ new \StdClass() ] ]);
+        });
+    }
+
+
+    public function testStrings()
+    {
+        $str = $this->getStr();
+
+        $this->assertEquals([], $str->strings());
+
+        $this->assertEquals([ '1' ], $str->strings(1));
+        $this->assertEquals([ '1' ], $str->strings(1.0));
+        $this->assertEquals([ '1.1' ], $str->strings(1.1));
+        $this->assertEquals([ '' ], $str->strings(''));
+        $this->assertEquals([ 'hello' ], $str->strings('hello'));
+        $this->assertEquals([ 'hello', 'hello' ], $str->strings('hello', 'hello'));
+        $this->assertEquals([], $str->strings([]));
+
+        $this->assertEquals([ '1' ], $str->strings([ 1 ]));
+        $this->assertEquals([ '1' ], $str->strings([ 1.0 ]));
+        $this->assertEquals([ '1.1' ], $str->strings([ 1.1 ]));
+        $this->assertEquals([ '' ], $str->strings([ '' ]));
+        $this->assertEquals([ 'hello' ], $str->strings([ 'hello' ]));
+        $this->assertEquals([ 'hello', 'hello' ], $str->strings([ 'hello', 'hello' ]));
+        $this->assertEquals([], $str->strings([ [] ]));
+
+        $this->assertEquals([ '1' ], $str->strings([ [ 1 ] ]));
+        $this->assertEquals([ '1' ], $str->strings([ [ 1.0 ] ]));
+        $this->assertEquals([ '1.1' ], $str->strings([ [ 1.1 ] ]));
+        $this->assertEquals([ '' ], $str->strings([ [ '' ] ]));
+        $this->assertEquals([ 'hello' ], $str->strings([ [ 'hello' ] ]));
+        $this->assertEquals([ 'hello', 'hello' ], $str->strings([ [ 'hello' ], 'hello' ]));
+        $this->assertEquals([], $str->strings([ [ [] ] ]));
+    }
+
+    public function testStringsBad()
+    {
+        $str = $this->getStr();
+
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->strings(null);
+        });
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->strings(false);
+        });
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->strings(new \StdClass());
+        });
+
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->strings([ null ]);
+        });
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->strings([ false ]);
+        });
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->strings([ new \StdClass() ]);
+        });
+
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->strings([ [ null ] ]);
+        });
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->strings([ [ false ] ]);
+        });
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->strings([ [ new \StdClass() ] ]);
+        });
+    }
+
+
+    public function testWords()
+    {
+        $str = $this->getStr();
+
+        $this->assertEquals([], $str->words());
+
+        $this->assertEquals([ '1' ], $str->words(1));
+        $this->assertEquals([ '1' ], $str->words(1.0));
+        $this->assertEquals([ '1.1' ], $str->words(1.1));
+        $this->assertEquals([ 'hello' ], $str->words('hello'));
+        $this->assertEquals([ 'hello', 'hello' ], $str->words('hello', 'hello'));
+        $this->assertEquals([], $str->words([]));
+
+        $this->assertEquals([ '1' ], $str->words([ 1 ]));
+        $this->assertEquals([ '1' ], $str->words([ 1.0 ]));
+        $this->assertEquals([ '1.1' ], $str->words([ 1.1 ]));
+        $this->assertEquals([ 'hello' ], $str->words([ 'hello' ]));
+        $this->assertEquals([ 'hello', 'hello' ], $str->words([ 'hello', 'hello' ]));
+        $this->assertEquals([], $str->words([ [] ]));
+
+        $this->assertEquals([ '1' ], $str->words([ [ 1 ] ]));
+        $this->assertEquals([ '1' ], $str->words([ [ 1.0 ] ]));
+        $this->assertEquals([ '1.1' ], $str->words([ [ 1.1 ] ]));
+        $this->assertEquals([ 'hello' ], $str->words([ [ 'hello' ] ]));
+        $this->assertEquals([ 'hello', 'hello' ], $str->words([ [ 'hello' ], 'hello' ]));
+        $this->assertEquals([], $str->words([ [ [] ] ]));
+    }
+
+    public function testWordsBad()
+    {
+        $str = $this->getStr();
+
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->words(null);
+        });
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->words(false);
+        });
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->words('');
+        });
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->words(new \StdClass());
+        });
+
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->words([ null ]);
+        });
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->words([ false ]);
+        });
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->words([ '' ]);
+        });
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->words([ new \StdClass() ]);
+        });
+
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->words([ [ null ] ]);
+        });
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->words([ [ false ] ]);
+        });
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->words([ [ '' ] ]);
+        });
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->words([ [ new \StdClass() ] ]);
+        });
     }
 }

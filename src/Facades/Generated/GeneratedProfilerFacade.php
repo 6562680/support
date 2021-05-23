@@ -3,22 +3,22 @@
 /**
  * This file is auto-generated.
  *
- * * @noinspection PhpUnhandledExceptionInspection
- * * @noinspection PhpDocMissingThrowsInspection
+ * @noinspection PhpUnhandledExceptionInspection
+ * @noinspection PhpDocMissingThrowsInspection
  */
 
 namespace Gzhegow\Support\Facades\Generated;
 
-use Gzhegow\Support\Profiler as _Profiler;
+use Gzhegow\Support\Profiler;
 
-abstract class Profiler
+abstract class GeneratedProfilerFacade
 {
     /**
      * @param null|string $comment
      *
      * @return float
      */
-    public static function tick(string $comment = null) : float
+    public static function tick(string $comment = null): float
     {
         return static::getInstance()->tick($comment);
     }
@@ -28,22 +28,21 @@ abstract class Profiler
      *
      * @return array
      */
-    public static function report(int $decimals = null) : array
+    public static function report(int $decimals = null): array
     {
         return static::getInstance()->report($decimals);
     }
 
     /**
-     * @return _Profiler
+     * @return static
      */
     public static function flush()
     {
         return static::getInstance()->flush();
     }
 
-
     /**
-     * @return _Profiler
+     * @return Profiler
      */
-    abstract public static function getInstance() : _Profiler;
+    abstract public static function getInstance(): Profiler;
 }
