@@ -2,7 +2,6 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Path;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
@@ -864,12 +863,12 @@ class Fs
      *
      * @return null|string
      */
-    public function fileGet($file, bool $use_include_path = false, $context = null,
+    public function fileGet($file, bool $use_include_path = null, $context = null,
         $offset = 0,
         $length = null
-    ) : ?string
+    ) : string
     {
-        if (null !== ( $realpath = $this->pathvalFile($file) )) {
+        if (null === ( $realpath = $this->pathvalFile($file) )) {
             throw new InvalidArgumentException(
                 [ 'Invalid file: %s', $this->secure($file) ]
             );
@@ -881,9 +880,11 @@ class Fs
             );
         }
 
-        $content = file_get_contents($realpath, $use_include_path, $context, $offset, $length);
+        $content = null !== $length
+            ? file_get_contents($realpath, $use_include_path, $context, $offset, $length)
+            : file_get_contents($realpath, $use_include_path, $context, $offset);
 
-        if (false !== $content) {
+        if (false === $content) {
             throw new RuntimeException(
                 'Unable to read file: ' . $this->secure($realpath)
             );
@@ -900,9 +901,9 @@ class Fs
      *
      * @return null|string
      */
-    public function filePut(string $filepath, $data, int $flags = 0, $context = null) : ?string
+    public function filePut(string $filepath, $data, int $flags = null, $context = null) : ?string
     {
-        if (! is_writable($filepath)) {
+        if (file_exists($filepath) && ! is_writable($filepath)) {
             throw new InvalidArgumentException(
                 'File is not writable: ' . $this->secure($filepath)
             );

@@ -244,6 +244,55 @@ class FsTest extends AbstractTestCase
     }
 
 
+    public function testFileGet()
+    {
+        $fs = $this->getFs();
+
+        $dir = $fs->mkdir(__DIR__ . '/../storage/fs/fileGet');
+        $file = $dir . '/hello.txt';
+
+        $fs->mkdir($dir);
+
+        file_put_contents($file, '123');
+
+        $content = $fs->fileGet($file);
+
+        $this->assertEquals('123', $content);
+
+        $fs->rmdir($dir, true);
+    }
+
+    public function testFilePut()
+    {
+        $fs = $this->getFs();
+
+        $dir = $fs->mkdir(__DIR__ . '/../storage/fs/filePut');
+        $file = $dir . '/hello.txt';
+
+        $fs->mkdir($dir);
+
+        $fs->filePut($file, '123');
+
+        $content = file_get_contents($file);
+
+        $this->assertFileExists($file);
+        $this->assertEquals('123', $content);
+
+        $fs->rmdir($dir, true);
+    }
+
+
+    public function testMkdir()
+    {
+        $fs = $this->getFs();
+
+        $dir = $fs->mkdir(__DIR__ . '/../storage/fs/mkdir/1/2/3');
+
+        $this->assertDirectoryExists($dir);
+
+        $fs->rmdir($dir, true);
+    }
+
     public function testRmdir()
     {
         $fs = $this->getFs();
