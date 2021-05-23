@@ -148,7 +148,7 @@ class LoaderTest extends AbstractTestCase
         $this->assertEquals([ 'Gzhegow\Support\Tests', 'LoaderTest' ], $loader->nsClass($a));
         $this->assertEquals([ 'Gzhegow\Support', 'Loader' ], $loader->nsClass($b));
         $this->assertEquals([ 'A\\B\\C', 'D' ], $loader->nsClass($c));
-        $this->assertEquals([ '\\A\\B\\C', 'D' ], $loader->nsClass($d));
+        $this->assertEquals([ 'A\\B\\C', 'D' ], $loader->nsClass($d));
     }
 
     public function testNamespace()
@@ -163,7 +163,7 @@ class LoaderTest extends AbstractTestCase
         $this->assertEquals('Gzhegow\Support\Tests', $loader->namespace($a));
         $this->assertEquals('Gzhegow\Support', $loader->namespace($b));
         $this->assertEquals('A\\B\\C', $loader->namespace($c));
-        $this->assertEquals('\\A\\B\\C', $loader->namespace($d));
+        $this->assertEquals('A\\B\\C', $loader->namespace($d));
     }
 
     public function testClassName()

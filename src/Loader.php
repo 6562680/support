@@ -243,8 +243,13 @@ class Loader
             throw new InvalidArgumentException('Class should be classval or object');
         }
 
-        $namespace = substr($class, 0, strrpos($class, '\\'));
-        $class = substr($class, strrpos($class, '\\') + 1);
+        $class = ltrim($class, '\\');
+
+        $namespace = null;
+        if (false !== ( $pos = strrpos($class, '\\') )) {
+            $namespace = substr($class, 0, $pos);
+            $class = substr($class, $pos + 1);
+        }
 
         return [ $namespace, $class ];
     }
@@ -261,9 +266,14 @@ class Loader
             throw new InvalidArgumentException('Class should be classval or object');
         }
 
-        $result = substr($class, 0, strrpos($class, '\\'));
+        $class = ltrim($class, '\\');
 
-        return $result;
+        $namespace = null;
+        if (false !== ( $pos = strrpos($class, '\\') )) {
+            $namespace = substr($class, 0, $pos);
+        }
+
+        return $namespace;
     }
 
     /**
@@ -277,9 +287,13 @@ class Loader
             throw new InvalidArgumentException('Class should be classval or object');
         }
 
-        $result = substr($class, strrpos($class, '\\') + 1);
+        $class = ltrim($class, '\\');
 
-        return $result;
+        if (false !== ( $pos = strrpos($class, '\\') )) {
+            $class = substr($class, $pos + 1);
+        }
+
+        return $class;
     }
 
 
