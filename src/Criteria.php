@@ -274,7 +274,7 @@ class Criteria
     public function satisfy($needle, $src, string $operator, bool $coalesce = null) : bool
     {
         if (! isset(static::THE_OPERATOR_LIST[ $operator ])) {
-            throw new InvalidArgumentException('Unknown operator: ' . $operator, func_get_args());
+            throw new InvalidArgumentException('Unknown operator: ' . $operator);
         }
 
         $coalesce = $coalesce ?? false;
@@ -337,7 +337,7 @@ class Criteria
     public function satisfyArray($needle, array $arr, string $operator, bool $coalesce = null) : bool
     {
         if (! isset(static::THE_OPERATOR_LIST[ $operator ])) {
-            throw new InvalidArgumentException('Unknown operator: ' . $operator, func_get_args());
+            throw new InvalidArgumentException('Unknown operator: ' . $operator);
         }
 
         $coalesce = $coalesce ?? false;

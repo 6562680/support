@@ -3,15 +3,18 @@
 /**
  * This file is auto-generated.
  *
- * @noinspection PhpUnhandledExceptionInspection
  * @noinspection PhpDocMissingThrowsInspection
+ * @noinspection PhpUnhandledExceptionInspection
+ * @noinspection PhpUnusedAliasInspection
  */
 
 namespace Gzhegow\Support\Facades\Generated;
 
+use Gzhegow\Support\Assert;
 use Gzhegow\Support\Domain\Filter\CallableInfo;
 use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
 use Gzhegow\Support\Filter;
+use Gzhegow\Support\Type;
 
 abstract class GeneratedFilterFacade
 {
@@ -145,6 +148,16 @@ abstract class GeneratedFilterFacade
     public static function filterAssoc($assoc, callable $of = null): ?array
     {
         return static::getInstance()->filterAssoc($assoc, $of);
+    }
+
+    /**
+     * @param mixed $array
+     *
+     * @return null|array
+     */
+    public static function filterPlainArray($array): ?array
+    {
+        return static::getInstance()->filterPlainArray($array);
     }
 
     /**
@@ -370,6 +383,16 @@ abstract class GeneratedFilterFacade
      *
      * @return null|resource
      */
+    public static function filterResource($h)
+    {
+        return static::getInstance()->filterResource($h);
+    }
+
+    /**
+     * @param mixed $h
+     *
+     * @return null|resource
+     */
     public static function filterOpenedResource($h)
     {
         return static::getInstance()->filterOpenedResource($h);
@@ -456,14 +479,30 @@ abstract class GeneratedFilterFacade
     }
 
     /**
+     * @return Assert
+     */
+    public static function assert(): Assert
+    {
+        return static::getInstance()->assert();
+    }
+
+    /**
+     * @return Type
+     */
+    public static function type(): Type
+    {
+        return static::getInstance()->type();
+    }
+
+    /**
      * @param string $filter
      * @param mixed  ...$arguments
      *
      * @return null|mixed
      */
-    public static function filter(string $filter, ...$arguments)
+    public static function satisfy(string $filter, ...$arguments)
     {
-        return static::getInstance()->filter($filter, ...$arguments);
+        return static::getInstance()->satisfy($filter, ...$arguments);
     }
 
     /**
@@ -472,16 +511,16 @@ abstract class GeneratedFilterFacade
      *
      * @return \Closure
      */
-    public static function bindFilter(string $filter, ...$arguments): \Closure
+    public static function bind(string $filter, ...$arguments): \Closure
     {
-        return static::getInstance()->bindFilter($filter, ...$arguments);
+        return static::getInstance()->bind($filter, ...$arguments);
     }
 
     /**
      * @param string   $filter
      * @param \Closure $callable
      *
-     * @return static
+     * @return Filter
      */
     public static function addCustomFilter(string $filter, \Closure $callable)
     {
@@ -492,7 +531,7 @@ abstract class GeneratedFilterFacade
      * @param string   $filter
      * @param \Closure $callable
      *
-     * @return static
+     * @return Filter
      */
     public static function replaceCustomFilter(string $filter, \Closure $callable)
     {

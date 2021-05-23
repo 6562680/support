@@ -136,7 +136,7 @@ class PathTest extends AbstractTestCase
         $this->assertEquals('B/C/D', $path->basename($c, null, 2));
     }
 
-    public function testBasepath()
+    public function testRelative()
     {
         $path = $this->getPath();
 
@@ -146,12 +146,12 @@ class PathTest extends AbstractTestCase
         $b = 'A\\B/C\\D';
         $c = '\\A\\B/C\\D';
 
-        $this->assertEquals('Support/Tests/PathTest', $path->basepath($a, 'Gzhegow'));
+        $this->assertEquals('Support/Tests/PathTest', $path->relative($a, 'Gzhegow'));
 
-        $this->assertEquals('A/B/C/D', $path->basepath($b));
-        $this->assertEquals('B/C/D', $path->basepath($b, 'A'));
+        $this->assertEquals('A/B/C/D', $path->relative($b));
+        $this->assertEquals('B/C/D', $path->relative($b, 'A'));
 
-        $this->assertEquals('C/D', $path->basepath($c, '/A\\B'));
-        $this->assertEquals(null, $path->basepath($c, 'D'));
+        $this->assertEquals('C/D', $path->relative($c, '/A\\B'));
+        $this->assertEquals(null, $path->relative($c, 'D'));
     }
 }

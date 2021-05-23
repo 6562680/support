@@ -3,8 +3,9 @@
 /**
  * This file is auto-generated.
  *
- * @noinspection PhpUnhandledExceptionInspection
  * @noinspection PhpDocMissingThrowsInspection
+ * @noinspection PhpUnhandledExceptionInspection
+ * @noinspection PhpUnusedAliasInspection
  */
 
 namespace Gzhegow\Support\Facades\Generated;

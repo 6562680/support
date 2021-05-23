@@ -1,7 +1,8 @@
-<?php
+<?php /** @noinspection PhpUnusedAliasInspection */
 
 namespace Gzhegow\Support;
 
+use Gzhegow\Support\Path;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
@@ -48,7 +49,7 @@ class Loader
         $this->php = $php;
         $this->path = $path;
 
-        $path->using('\\');
+        $path->using('\\', '/');
     }
 
 
@@ -180,6 +181,58 @@ class Loader
 
 
     /**
+     * @param object          $value
+     * @param string|string[] ...$classes
+     *
+     * @return null|object
+     */
+    public function assertInstanceOf($value, ...$classes) // : ?object
+    {
+        if (null === $this->filterInstanceOf($value, ...$classes)) {
+            throw new InvalidArgumentException('Value should be instance of: '
+                . '[' . implode(', ', $this->php->listvalFlatten(...$classes)) . ']'
+            );
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param string|object   $value
+     * @param string|string[] ...$classes
+     *
+     * @return null|string|object
+     */
+    public function assertClassOf($value, ...$classes) // : ?string|object
+    {
+        if (null === $this->filterClassOf($value, ...$classes)) {
+            throw new InvalidArgumentException('Value should be class of: '
+                . '[' . implode(', ', $this->php->listvalFlatten(...$classes)) . ']'
+            );
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param string|object   $value
+     * @param string|string[] ...$classes
+     *
+     * @return null|string|object
+     */
+    public function assertSubclassOf($value, ...$classes) // : ?string|object
+    {
+        if (null === $this->filterSubclassOf($value, ...$classes)) {
+            throw new InvalidArgumentException('Value should be subclass of: '
+                . '[' . implode(', ', $this->php->listvalFlatten(...$classes)) . ']'
+            );
+        }
+
+        return $value;
+    }
+
+
+    /**
      * @param string|object $classOrObject
      *
      * @return string[]
@@ -231,19 +284,77 @@ class Loader
 
 
     /**
-     * @param string|object $classOrObject
-     * @param null|string   $suffix
-     * @param null|int      $limit
+     * @return Path
+     */
+    public function path() : Path
+    {
+        return $this->path;
+    }
+
+
+    /**
+     * @param string|string[]|array ...$parts
+     *
+     * @return array
+     */
+    public function pathSplit(...$parts) : array
+    {
+        $result = $this->path->split(...$parts);
+
+        return $result;
+    }
+
+    /**
+     * @param string|string[]|array ...$parts
      *
      * @return string
      */
-    public function basename($classOrObject, string $suffix = null, int $limit = null) : ?string
+    public function pathJoin(...$parts) : string
+    {
+        $result = $this->path->join(...$parts);
+
+        return $result;
+    }
+
+    /**
+     * @param mixed ...$parts
+     *
+     * @return string
+     */
+    public function pathNormalize(...$parts) : string
+    {
+        $result = $this->path->normalize(...$parts);
+
+        return $result;
+    }
+
+    /**
+     * @param string|string[]|array ...$parts
+     *
+     * @return string
+     */
+    public function pathConcat(...$parts) : string
+    {
+        $result = $this->path->concat(...$parts);
+
+        return $result;
+    }
+
+
+    /**
+     * @param string|object $classOrObject
+     * @param null|string   $suffix
+     * @param int           $levels
+     *
+     * @return null|string
+     */
+    public function pathBasename($classOrObject, string $suffix = null, int $levels = 0) : ?string
     {
         if (null === ( $class = $this->php->classval($classOrObject) )) {
             throw new InvalidArgumentException('Class should be classval or object');
         }
 
-        $result = $this->path->basename($class, $suffix, $limit);
+        $result = $this->path->basename($class, $suffix, $levels);
 
         return $result;
     }
@@ -254,13 +365,13 @@ class Loader
      *
      * @return string
      */
-    public function basepath($classOrObject, string $base = null) : ?string
+    public function pathRelative($classOrObject, string $base = '') : ?string
     {
         if (null === ( $class = $this->php->classval($classOrObject) )) {
             throw new InvalidArgumentException('Class should be classval or object');
         }
 
-        $result = $this->path->basepath($class, $base);
+        $result = $this->path->relative($class, $base);
 
         return $result;
     }

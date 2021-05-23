@@ -72,8 +72,9 @@ class Php
 
 
     /**
-     * возвращает строчный идентификатор значения любой переменной на текущий момент в виде строки для дальнейшего сравнения
-     * идентификаторы могут быть позже использованы другими обьектами, поэтому его актуальность до тех пор, пока конкретный обьект существует
+     * возвращает строчный идентификатор значения любой переменной в виде строки для дальнейшего сравнения
+     * идентификаторы могут быть позже использованы другими обьектами
+     * поэтому его актуальность до тех пор, пока конкретный обьект существует
      *
      * @param mixed $value
      *
@@ -109,7 +110,9 @@ class Php
 
         endswitch;
 
-        throw new UnexpectedValueException('Unable to hash passed element', func_get_args());
+        throw new UnexpectedValueException(
+            [ 'Unable to hash passed element: %s', $value ]
+        );
     }
 
 
@@ -466,6 +469,29 @@ class Php
 
 
     /**
+     * @param null|\Throwable $e
+     * @param null|int        $limit
+     *
+     * @return array
+     */
+    public function throwableMessages(\Throwable $e, int $limit = -1)
+    {
+        $messages = [];
+
+        $parent = $e;
+        while ( null !== $parent ) {
+            $messages[ get_class($parent) ][] = $parent->getMessage();
+
+            if (! $limit--) break;
+
+            $parent = $parent->getPrevious();
+        }
+
+        return $messages;
+    }
+
+
+    /**
      * @param int|float|int[]|float[] $sleeps
      *
      * @return static
@@ -479,8 +505,7 @@ class Php
         foreach ( $sleeps as $sleep ) {
             if (null === $this->numval($sleep)) {
                 throw new InvalidArgumentException(
-                    'Each sleep should be numerable',
-                    [ func_get_args(), $sleep ]
+                    [ 'Each sleep should be numerable: %s', $sleep ],
                 );
             }
         }

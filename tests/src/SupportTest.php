@@ -6,6 +6,7 @@ use Gzhegow\Support\Str;
 use Gzhegow\Support\Php;
 use Gzhegow\Support\Filter;
 
+
 class SupportTest extends AbstractTestCase
 {
     protected function getFilter() : Filter
@@ -115,6 +116,7 @@ class SupportTest extends AbstractTestCase
             $assertMethods[ $method ] = true;
         }
         unset($assertMethods[ '__construct' ]);
+        unset($assertMethods[ '' ]);
 
 
         $filterMethods = [];
@@ -145,6 +147,7 @@ class SupportTest extends AbstractTestCase
             $typeMethods[ $method ] = true;
         }
         unset($typeMethods[ '__construct' ]);
+        unset($typeMethods[ '' ]);
 
 
         $this->assertEquals($filterMethods, $assertMethods);

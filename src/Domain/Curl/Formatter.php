@@ -155,7 +155,7 @@ class Formatter
 
         foreach ( $kwargs as $opt => $val ) {
             if (null === ( $optCode = $this->detectOptCode($opt) )) {
-                throw new InvalidArgumentException('Invalid CURL option: ' . $opt, func_get_args());
+                throw new InvalidArgumentException('Invalid CURL option: ' . $opt);
             }
 
             ( $optCode === CURLOPT_HTTPHEADER )
@@ -165,7 +165,7 @@ class Formatter
 
         foreach ( $args as $opt => $val ) {
             if (null === ( $optCode = $this->detectOptCode($opt) )) {
-                throw new InvalidArgumentException('Invalid CURL option: ' . $opt, func_get_args());
+                throw new InvalidArgumentException('Invalid CURL option: ' . $opt);
             }
 
             ( $optCode === CURLOPT_HTTPHEADER )

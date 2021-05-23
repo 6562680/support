@@ -3,8 +3,9 @@
 /**
  * This file is auto-generated.
  *
- * @noinspection PhpUnhandledExceptionInspection
  * @noinspection PhpDocMissingThrowsInspection
+ * @noinspection PhpUnhandledExceptionInspection
+ * @noinspection PhpUnusedAliasInspection
  */
 
 namespace Gzhegow\Support\Facades\Generated;
@@ -149,6 +150,16 @@ abstract class GeneratedAssertFacade
     public static function assertAssoc($assoc, callable $of = null): ?array
     {
         return static::getInstance()->assertAssoc($assoc, $of);
+    }
+
+    /**
+     * @param mixed $array
+     *
+     * @return array
+     */
+    public static function assertPlainArray($array): ?array
+    {
+        return static::getInstance()->assertPlainArray($array);
     }
 
     /**
@@ -367,6 +378,16 @@ abstract class GeneratedAssertFacade
     public static function assertReflectionType($value): ?\ReflectionType
     {
         return static::getInstance()->assertReflectionType($value);
+    }
+
+    /**
+     * @param mixed $h
+     *
+     * @return resource
+     */
+    public static function assertResource($h)
+    {
+        return static::getInstance()->assertResource($h);
     }
 
     /**

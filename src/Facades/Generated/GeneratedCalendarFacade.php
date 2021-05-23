@@ -3,8 +3,9 @@
 /**
  * This file is auto-generated.
  *
- * @noinspection PhpUnhandledExceptionInspection
  * @noinspection PhpDocMissingThrowsInspection
+ * @noinspection PhpUnhandledExceptionInspection
+ * @noinspection PhpUnusedAliasInspection
  */
 
 namespace Gzhegow\Support\Facades\Generated;
@@ -142,7 +143,7 @@ abstract class GeneratedCalendarFacade
     /**
      * @param mixed $timezone
      *
-     * @return static
+     * @return Calendar
      */
     public static function setTimezone($timezone)
     {

@@ -2,6 +2,7 @@
 
 use Gzhegow\Support\Filter;
 
+
 require_once __DIR__ . '/vendor/autoload.php';
 
 
@@ -30,8 +31,9 @@ $phpFile = new \Nette\PhpGenerator\PhpFile();
 $phpFile->setComment(implode("\n", [
     'This file is auto-generated.',
     '',
-    '@noinspection PhpUnhandledExceptionInspection',
     '@noinspection PhpDocMissingThrowsInspection',
+    '@noinspection PhpUnhandledExceptionInspection',
+    '@noinspection PhpUnusedAliasInspection',
 ]));
 
 // namespace
@@ -79,15 +81,17 @@ $method->setComment(implode("\n", [
     '@return bool',
 ]));
 $method->setBody(implode("\n", [
-    'return null !== $this->filter->filter($filter, ...$arguments);',
+    'return null !== $this->filter->satisfy($filter, ...$arguments);',
 ]));
 $moduleType->addMember($method);
 
 // copy methods
 $moduleCopy = \Nette\PhpGenerator\ClassType::from(Filter::class);
 $moduleCopy->removeMethod('getCustomFilters');
-$moduleCopy->removeMethod('filter');
-$moduleCopy->removeMethod('bindFilter');
+$moduleCopy->removeMethod('assert');
+$moduleCopy->removeMethod('type');
+$moduleCopy->removeMethod('satisfy');
+$moduleCopy->removeMethod('bind');
 $moduleCopy->removeMethod('addCustomFilter');
 $moduleCopy->removeMethod('replaceCustomFilter');
 $moduleCopy->removeMethod('findCustomFilter');
@@ -105,10 +109,10 @@ foreach ( $moduleCopy->getMethods() as $method ) {
 
     $lines = explode("\n", $methodComment);
     foreach ( $lines as $i => $line ) {
-        $parts = explode('@return', $line);
+        if (false !== mb_strpos($line, $separator = '@return')) {
+            $parts = explode($separator, $line);
 
-        if (2 === count($parts)) {
-            $lines[ $i ] = implode('@return', [ $parts[ 0 ], ' bool' ]);
+            $lines[ $i ] = implode($separator, [ $parts[ 0 ], ' bool' ]);
         }
     }
     $methodCommentNew = implode("\n", $lines);

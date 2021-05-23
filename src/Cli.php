@@ -217,10 +217,10 @@ class Cli
         $env = $env ?? $this->env->getenv();
 
         if ('' === $cwd) {
-            throw new InvalidArgumentException('Cwd should be not empty', func_get_args());
+            throw new InvalidArgumentException('Cwd should be not empty');
         }
         if (! is_dir($cwd)) {
-            throw new InvalidArgumentException('Cwd must be a directory', func_get_args());
+            throw new InvalidArgumentException('Cwd directory not exists');
         }
 
         [ $env ] = $this->php->kwargs($env);

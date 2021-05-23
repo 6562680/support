@@ -4,16 +4,21 @@ namespace Gzhegow\Support;
 
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
+
 /**
  * Str
  */
 class Str
 {
-    const REPLACER = "\0";
+    const CASE_REPLACER = "\0";
+
+    /** @php internal */
+    const MB_CASE_LOWER = MB_CASE_UPPER;
+    const MB_CASE_UPPER = MB_CASE_LOWER;
 
     const THE_MB_CASE_LIST = [
-        MB_CASE_LOWER => true,
-        MB_CASE_UPPER => true,
+        self::MB_CASE_LOWER => true,
+        self::MB_CASE_UPPER => true,
     ];
 
 
@@ -37,7 +42,8 @@ class Str
 
 
     /**
-     * Determine if string starts with, returns string without needle or null if nothing found
+     * если строка начинается на искомую, отрезает ее и возвращает укороченную
+     * if (null !== ($substr = $str->ends('hello', 'h'))) {} // 'ello'
      *
      * @param string      $str
      * @param string|null $needle
@@ -64,7 +70,8 @@ class Str
     }
 
     /**
-     * Determine if string ends with, returns string without needle or null if nothing found
+     * если строка заканчивается на искомую, отрезает ее и возвращает укороченную
+     * if (null !== ($substr = $str->ends('hello', 'o'))) {} // 'hell'
      *
      * @param string      $str
      * @param string|null $needle
@@ -91,7 +98,8 @@ class Str
     }
 
     /**
-     * Determine if string contains needle, returns array of parts without needle or empty array if nothing found
+     * ищет подстроку в строке и разбивает по ней результат
+     * if ($explode = $str->contains('hello', 'h')) {} // ['', 'ello']
      *
      * @param string      $str
      * @param string|null $needle
@@ -129,8 +137,8 @@ class Str
 
 
     /**
-     * Search all sequences starts & ends from given substr
-     * and return array that contains all of them without enclosures
+     * ищет все совпадения начинающиеся "с" и заканчивающиеся "на"
+     * используется при замене подстановок в тексте
      *
      * @param string   $start
      * @param string   $end
@@ -175,6 +183,107 @@ class Str
 
 
     /**
+     * стандартная функция возвращает false, если не найдено
+     * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для сдвига
+     * usort($array, function ($a, $b) { return $str->strpos($hs, $a) - $str->strpos($hs, $b); }}
+     *
+     * @param string $haystack
+     * @param mixed  $needle
+     * @param int    $offset
+     *
+     * @return int
+     */
+    public function strpos($haystack, $needle, $offset) : int
+    {
+        $result = false === ( $pos = mb_strpos($haystack, $needle, $offset) )
+            ? -1
+            : $pos;
+
+        return $result;
+    }
+
+    /**
+     * стандартная функция возвращает false, если не найдено
+     * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для сдвига
+     * usort($array, function ($a, $b) { return $str->strpos($hs, $a) - $str->strpos($hs, $b); }}
+     *
+     * @param string $haystack
+     * @param mixed  $needle
+     * @param int    $offset
+     *
+     * @return int
+     */
+    public function strrpos($haystack, $needle, $offset) : int
+    {
+        $result = false === ( $pos = mb_strrpos($haystack, $needle, $offset) )
+            ? -1
+            : $pos;
+
+        return $result;
+    }
+
+    /**
+     * стандартная функция возвращает false, если не найдено
+     * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для сдвига
+     * usort($array, function ($a, $b) { return $str->strpos($hs, $a) - $str->strpos($hs, $b); }}
+     *
+     * @param string $haystack
+     * @param mixed  $needle
+     * @param int    $offset
+     *
+     * @return int
+     */
+    public function stripos($haystack, $needle, $offset) : int
+    {
+        $result = false === ( $pos = mb_stripos($haystack, $needle, $offset) )
+            ? -1
+            : $pos;
+
+        return $result;
+    }
+
+    /**
+     * стандартная функция возвращает false, если не найдено
+     * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для сдвига
+     * usort($array, function ($a, $b) { return $str->strpos($hs, $a) - $str->strpos($hs, $b); }}
+     *
+     * @param string $haystack
+     * @param mixed  $needle
+     * @param int    $offset
+     *
+     * @return int
+     */
+    public function strripos($haystack, $needle, $offset) : int
+    {
+        $result = false === ( $pos = mb_strripos($haystack, $needle, $offset) )
+            ? -1
+            : $pos;
+
+        return $result;
+    }
+
+
+    /**
+     * фикс. стандартная функция при попытке разбить пустую строку возвращает массив из пустой строки
+     *
+     * @param string   $string
+     * @param null|int $len
+     *
+     * @return array
+     */
+    public function split(string $string, int $len = null) : array
+    {
+        $result = $string !== ''
+            ? str_split($string, $len)
+            : [];
+
+        return $result;
+    }
+
+
+    /**
+     * фикс. стандартная функция не поддерживает лимит замен
+     *
      * @param string|string[] $search
      * @param string|string[] $replace
      * @param string|string[] $subject
@@ -252,6 +361,8 @@ class Str
     }
 
     /**
+     * фикс. стандартная функция не поддерживает лимит замен
+     *
      * @param string|string[] $search
      * @param string|string[] $replace
      * @param string|string[] $subject
@@ -324,71 +435,6 @@ class Str
                 ? $subjectArray
                 : reset($subjectArray);
         }
-
-        return $result;
-    }
-
-
-    /**
-     * @param string $haystack
-     * @param mixed  $needle
-     * @param int    $offset
-     *
-     * @return int
-     */
-    public function strpos($haystack, $needle, $offset) : int
-    {
-        $result = false === ( $pos = mb_strpos($haystack, $needle, $offset) )
-            ? -1
-            : $pos;
-
-        return $result;
-    }
-
-    /**
-     * @param string $haystack
-     * @param mixed  $needle
-     * @param int    $offset
-     *
-     * @return int
-     */
-    public function strrpos($haystack, $needle, $offset) : int
-    {
-        $result = false === ( $pos = mb_strrpos($haystack, $needle, $offset) )
-            ? -1
-            : $pos;
-
-        return $result;
-    }
-
-    /**
-     * @param string $haystack
-     * @param mixed  $needle
-     * @param int    $offset
-     *
-     * @return int
-     */
-    public function stripos($haystack, $needle, $offset) : int
-    {
-        $result = false === ( $pos = mb_stripos($haystack, $needle, $offset) )
-            ? -1
-            : $pos;
-
-        return $result;
-    }
-
-    /**
-     * @param string $haystack
-     * @param mixed  $needle
-     * @param int    $offset
-     *
-     * @return int
-     */
-    public function strripos($haystack, $needle, $offset) : int
-    {
-        $result = false === ( $pos = mb_strripos($haystack, $needle, $offset) )
-            ? -1
-            : $pos;
 
         return $result;
     }
@@ -632,52 +678,6 @@ class Str
      *
      * @return array
      */
-    public function split($delimiters, ...$strvals) : array
-    {
-        $delimiters = $this->strings($delimiters);
-
-        $key = key($delimiters);
-        do {
-            $delimiter = ( null !== $key )
-                ? array_shift($delimiters)
-                : null;
-
-            array_walk_recursive($strvals, function (&$ref) use ($delimiter) {
-                if (null === $this->filter->filterStrval($ref)) {
-                    throw new InvalidArgumentException(
-                        'Each value should be stringable',
-                        [ func_get_args(), $ref ]
-                    );
-                }
-
-                if (null !== $delimiter) {
-                    if ('' === $delimiter) {
-                        $ref = str_split(strval($ref));
-
-                    } elseif ($split = $this->contains($ref, $delimiter, null, false)) {
-                        $ref = $split;
-
-                    }
-                } else {
-                    $ref = [ $ref ];
-                }
-            });
-        } while ( null !== ( $key = key($delimiters) ) );
-
-        $result = [];
-        array_walk_recursive($strvals, function ($v) use (&$result) {
-            $result[] = $v;
-        });
-
-        return $result;
-    }
-
-    /**
-     * @param string|string[]|array $delimiters
-     * @param string|string[]|array ...$strvals
-     *
-     * @return array
-     */
     public function explode($delimiters, ...$strvals) : array
     {
         $delimiters = $this->strings($delimiters);
@@ -691,8 +691,7 @@ class Str
             array_walk_recursive($strvals, function (&$ref) use ($delimiter) {
                 if (null === $this->filter->filterStrval($ref)) {
                     throw new InvalidArgumentException(
-                        'Each value should be stringable',
-                        [ func_get_args(), $ref ]
+                        [ 'Each value should be stringable: %s', $ref ],
                     );
                 }
 
@@ -712,7 +711,7 @@ class Str
 
 
     /**
-     * Explodes string recursive by several delimiters, especially for parsing 'Accept' Header
+     * рекурсивно разрывает строку в многоуровневый массив
      *
      * @param string|string[]|array $delimiters
      * @param string                $string
@@ -748,7 +747,7 @@ class Str
 
 
     /**
-     * Creates string like '1, 2, 3', includes empty strings, throws error on non-stringables
+     * '1, 2, 3', включая пустые строки, исключение если нельзя привести к строке
      *
      * @param string                $delimiter
      * @param string|string[]|array ...$strvals
@@ -771,7 +770,7 @@ class Str
     }
 
     /**
-     * Creates string like '1, 2, 3', includes empty strings, skips non-stringables
+     * '1, 2, 3', включая пустые строки, пропускает если нельзя привести к строке
      *
      * @param string                $delimiter
      * @param string|string[]|array ...$strvals
@@ -799,7 +798,7 @@ class Str
 
 
     /**
-     * Creates string like '1, 2, 3', skips empty strings, throws error on non-stringables
+     * '1, 2, 3', пропускает пустые строки, исключение если нельзя привести к строке
      *
      * @param string                $delimiter
      * @param string|string[]|array ...$strvals
@@ -823,7 +822,7 @@ class Str
     }
 
     /**
-     * Creates string like '1, 2, 3', skips empty strings, skips non-stringables
+     * '1, 2, 3', пропускает пустые строки, пропускает если нельзя привести к строке
      *
      * @param string                $delimiter
      * @param string|string[]|array ...$strvals
@@ -852,7 +851,7 @@ class Str
 
 
     /**
-     * Creates string like "`1`, `2` or `3`", skips empty strings, throws error on non-stringables
+     * "`1`, `2` or `3`", всегда пропускает пустые строки, исключение если нельзя привести к строке
      *
      * @param string|string[]|array $strings
      * @param null|string           $delimiter
@@ -893,7 +892,7 @@ class Str
     }
 
     /**
-     * Creates string like "`1`, `2` or `3`", skips empty strings, skips non-stringables
+     * "`1`, `2` or `3`", всегда пропускает пустые строки, пропускает если нельзя привести к строке
      *
      * @param string|string[]|array $strings
      * @param null|string           $delimiter
@@ -1038,8 +1037,7 @@ class Str
         array_walk_recursive($numbers, function ($number) use (&$result) {
             if (null === $this->filter->filterNumval($number)) {
                 throw new InvalidArgumentException(
-                    'Each item should be numerable',
-                    [ func_get_args(), $number ]
+                    [ 'Each item should be numerable: %s', $number ],
                 );
             }
 
@@ -1060,8 +1058,7 @@ class Str
 
         if (! count($result)) {
             throw new InvalidArgumentException(
-                'At least one number should be provided',
-                func_get_args()
+                [ 'At least one number should be provided: %s', $numbers ],
             );
         }
 
@@ -1097,8 +1094,7 @@ class Str
 
         if (! count($result)) {
             throw new InvalidArgumentException(
-                'At least one number should be provided',
-                func_get_args()
+                [ 'At least one number should be provided: %s', $numbers ],
             );
         }
 
@@ -1118,8 +1114,7 @@ class Str
         array_walk_recursive($strings, function ($string) use (&$result) {
             if (null === $this->filter->filterStrval($string)) {
                 throw new InvalidArgumentException(
-                    'Each item should be stringable',
-                    [ func_get_args(), $string ]
+                    [ 'Each item should be stringable: %s', $string ],
                 );
             }
 
@@ -1140,8 +1135,7 @@ class Str
 
         if (! count($result)) {
             throw new InvalidArgumentException(
-                'At least one string should be provided',
-                func_get_args()
+                [ 'At least one string should be provided: %s', $strings ],
             );
         }
 
@@ -1177,8 +1171,7 @@ class Str
 
         if (! count($result)) {
             throw new InvalidArgumentException(
-                'At least one string should be provided',
-                func_get_args()
+                [ 'At least one string should be provided: %s', $strings ],
             );
         }
 
@@ -1200,8 +1193,7 @@ class Str
 
             if (null === $word || '' === $word) {
                 throw new InvalidArgumentException(
-                    'Each word should be non-empty string',
-                    [ func_get_args(), $word ]
+                    [ 'Each word should be non-empty string: %s', $word ],
                 );
             }
 
@@ -1222,8 +1214,7 @@ class Str
 
         if (! count($result)) {
             throw new InvalidArgumentException(
-                'At least one word should be provided',
-                func_get_args()
+                [ 'At least one word should be provided: %s', $words ],
             );
         }
 
@@ -1261,8 +1252,7 @@ class Str
 
         if (! count($result)) {
             throw new InvalidArgumentException(
-                'At least one word should be provided',
-                func_get_args()
+                [ 'At least one word should be provided: %s', $words ],
             );
         }
 
@@ -1301,13 +1291,13 @@ class Str
 
         $right = preg_replace('/[\s' . $regexDelimiters . ']*(\p{Lu})/', $delimiter . '$1', $right);
         $right = preg_replace_callback('/[\s' . $regexDelimiters . ']+(\p{L})/', function ($m) use ($case) {
-            return static::REPLACER . mb_convert_case($m[ 1 ], $case, 'UTF-8');
+            return static::CASE_REPLACER . mb_convert_case($m[ 1 ], $case, 'UTF-8');
         }, $right);
 
         $result = mb_convert_case($left, $case, 'UTF-8') . $right;
 
         $result = str_replace(array_keys($replacements), '', $result);
-        $result = str_replace(static::REPLACER, $delimiter, $result);
+        $result = str_replace(static::CASE_REPLACER, $delimiter, $result);
 
         return $result;
     }

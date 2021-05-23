@@ -101,7 +101,7 @@ class Blueprint
     public function setOpt(string $opt, $value)
     {
         if (null === ( $optCode = $this->formatter->detectOptCode($opt) )) {
-            throw new InvalidArgumentException('Invalid CURL option: ' . $opt, func_get_args());
+            throw new InvalidArgumentException('Invalid CURL option: ' . $opt);
         }
 
         $this->curlOptArray[ $opt ] = $value;
@@ -252,10 +252,11 @@ class Blueprint
             || $isMethodDelete
             || $isMethodHead
             || $isMethodOptions;
-        $isNoFiles = 0
-            || $isMethodGet;
         $isNoBody = 0
+            || $isNoData
             || $isMethodGet;
+        $isNoFiles = 0
+            || $isNoBody;
 
         $curlOptArray = [];
         $curlOptArray[ CURLOPT_CUSTOMREQUEST ] = $httpMethod;
@@ -280,11 +281,11 @@ class Blueprint
             if (is_array($data)) {
                 foreach ( $this->arr->walk($data) as $fullpath => $value ) {
                     if (null !== $this->filter->filterFileInfo($fileInfo)) {
-                        $this->arr->set($files, $fullpath,
-                            $file = curl_file_create($fileInfo->getRealPath(),
-                                mime_content_type($fileInfo->getRealPath())
-                            )
+                        $file = curl_file_create($fileInfo->getRealPath(),
+                            mime_content_type($fileInfo->getRealPath())
                         );
+
+                        $this->arr->set($files, $fullpath, $file);
 
                         continue;
                     }
@@ -307,12 +308,16 @@ class Blueprint
             }
 
             if ($isNoFiles && $files) {
-                throw new InvalidArgumentException('Unable to send files using method: ' . $httpMethod);
+                throw new InvalidArgumentException(
+                    'Unable to send files using method: ' . $httpMethod
+                );
             }
 
             if ($body) {
                 if ($isNoBody) {
-                    throw new InvalidArgumentException('Unable to send raw body using method: ' . $httpMethod);
+                    throw new InvalidArgumentException(
+                        'Unable to send raw body using method: ' . $httpMethod
+                    );
                 }
 
                 if ($fields) {

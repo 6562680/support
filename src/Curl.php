@@ -403,8 +403,7 @@ class Curl
         foreach ( $limits as $limit ) {
             if (null === $this->php->intval($limit)) {
                 throw new InvalidArgumentException(
-                    'Each limit should be intable',
-                    [ func_get_args(), $limit ]
+                    [ 'Each limit should be intable: %s', $limit ]
                 );
             }
         }
@@ -413,7 +412,9 @@ class Curl
 
         foreach ( $curls as $ch ) {
             if (! $this->isOpenedCurl($ch)) {
-                throw new InvalidArgumentException('Each argument should be opened CURL resource');
+                throw new InvalidArgumentException(
+                    [ 'Each argument should be opened CURL resource: %s', $ch ]
+                );
             }
         }
 

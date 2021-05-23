@@ -1,7 +1,9 @@
-<?php
+<?php /** @noinspection PhpUnusedAliasInspection */
 
 namespace Gzhegow\Support;
 
+use Gzhegow\Support\Type;
+use Gzhegow\Support\Assert;
 use Gzhegow\Support\Domain\Filter\CallableInfo;
 use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
 
@@ -11,6 +13,17 @@ use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
  */
 class Filter
 {
+    /**
+     * @var Assert
+     */
+    protected $assert;
+
+    /**
+     * @var Type
+     */
+    protected $type;
+
+
     /**
      * @return callable[]
      */
@@ -261,6 +274,42 @@ class Filter
 
 
     /**
+     * @param mixed $array
+     *
+     * @return null|array
+     */
+    public function filterPlainArray($array) : ?array
+    {
+        if (! is_array($array)) {
+            return null;
+        }
+
+        $queue = [ $array ];
+        while ( null !== key($queue) ) {
+            $current = array_shift($queue);
+
+            if (is_array($current) && [] !== $current) {
+                foreach ( $current as $value ) {
+                    $queue[] = $value;
+                }
+
+            } else {
+                if ([] === $current
+                    || is_null($current)
+                    || is_scalar($current)
+                ) {
+                    continue;
+                }
+
+                return null;
+            }
+        }
+
+        return $array;
+    }
+
+
+    /**
      * @param mixed $value
      *
      * @return null|string
@@ -481,7 +530,11 @@ class Filter
 
         $validate = preg_replace('~[a-zA-Z0-9_\x80-\xff]*~', '', $class);
 
-        foreach ( str_split($validate) as $letter ) {
+        $letters = '' !== $validate
+            ? str_split($validate)
+            : [];
+
+        foreach ( $letters as $letter ) {
             if ($letter !== '\\') {
                 return null;
             }
@@ -625,9 +678,21 @@ class Filter
      *
      * @return null|resource
      */
+    public function filterResource($h) // : ?resource
+    {
+        return ( is_resource($h) || 'resource (closed)' === gettype($h) )
+            ? $h
+            : null;
+    }
+
+    /**
+     * @param mixed $h
+     *
+     * @return null|resource
+     */
     public function filterOpenedResource($h) // : ?resource
     {
-        return ( is_resource($h) && 'resource (closed)' !== gettype($h) )
+        return is_resource($h)
             ? $h
             : null;
     }
@@ -639,10 +704,11 @@ class Filter
      */
     public function filterClosedResource($h) // : ?resource
     {
-        return ( is_resource($h) && 'resource (closed)' === gettype($h) )
+        return ( 'resource (closed)' === gettype($h) )
             ? $h
             : null;
     }
+
 
     /**
      * @param mixed $h
@@ -800,15 +866,34 @@ class Filter
 
 
     /**
+     * @return Assert
+     */
+    public function assert() : Assert
+    {
+        return $this->assert = $this->assert
+            ?? new Assert($this);
+    }
+
+    /**
+     * @return Type
+     */
+    public function type() : Type
+    {
+        return $this->type = $this->type
+            ?? new Type($this);
+    }
+
+
+    /**
      * @param string $filter
      * @param mixed  ...$arguments
      *
      * @return null|mixed
      */
-    public function filter(string $filter, ...$arguments) // : ?mixed
+    public function satisfy(string $filter, ...$arguments) // : ?mixed
     {
         if (null === ( $filterCallable = $this->findCustomFilter($filter) )) {
-            throw new UnderflowException('FilterService is not defined: ' . $filter, func_get_args());
+            throw new UnderflowException('Filter not defined: ' . $filter);
         }
 
         $filtered = call_user_func_array($filterCallable, $arguments);
@@ -822,10 +907,10 @@ class Filter
      *
      * @return \Closure
      */
-    public function bindFilter(string $filter, ...$arguments) : \Closure
+    public function bind(string $filter, ...$arguments) : \Closure
     {
         if (null === ( $filterCallable = $this->findCustomFilter($filter) )) {
-            throw new UnderflowException('FilterService is not defined: ' . $filter, func_get_args());
+            throw new UnderflowException('Filter not defined: ' . $filter);
         }
 
         $closure = function (...$args) use ($filterCallable, $arguments) {
@@ -850,7 +935,7 @@ class Filter
     public function addCustomFilter(string $filter, \Closure $callable)
     {
         if (null !== $this->findCustomFilter($filter)) {
-            throw new UnderflowException('FilterService is already defined: ' . $filter, func_get_args());
+            throw new UnderflowException('FilterService is already defined: ' . $filter);
         }
 
         $filterLower = strtolower($filter);
@@ -869,7 +954,7 @@ class Filter
     public function replaceCustomFilter(string $filter, \Closure $callable)
     {
         if (null === $this->findCustomFilter($filter)) {
-            throw new UnderflowException('FilterService is not defined: ' . $filter, func_get_args());
+            throw new UnderflowException('FilterService is not defined: ' . $filter);
         }
 
         $filterLower = strtolower($filter);

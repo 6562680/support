@@ -84,8 +84,20 @@ trait ExceptionTrait
     {
         $trace = [];
 
+        $index = [];
         foreach ( $this->getTrace() as $idx => $step ) {
-            $trace[ $idx ] = $this->debug->trace($step);
+            $key = implode(':', [
+                $step[ 'file' ] ?? '<file>',
+                $step[ 'line' ] ?? '<line>',
+            ]);
+
+            $index[ $key ] = $index[ $key ] ?? 0;
+
+            $key = isset($trace[ $key ])
+                ? $key . ':' . $index[ $key ]++
+                : $key;
+
+            $trace[ $key ] = $this->debug->trace($step);
         }
 
         return $trace;
@@ -123,15 +135,21 @@ trait ExceptionTrait
      */
     public function getReport() : array
     {
-        $this->reportTrace = $this->reportTrace
-            ?? $this->loadReportTrace();
-
         return [
             'name'    => $this->name,
             'text'    => $this->text,
             'payload' => $this->payload,
-            'trace'   => $this->reportTrace,
+            'trace'   => $this->getReportTrace(),
         ];
+    }
+
+    /**
+     * @return array
+     */
+    public function getReportTrace() : array
+    {
+        return $this->reportTrace = $this->reportTrace
+            ?? $this->loadReportTrace();
     }
 
 

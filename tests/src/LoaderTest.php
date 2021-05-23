@@ -182,6 +182,82 @@ class LoaderTest extends AbstractTestCase
     }
 
 
+    public function testPathSplit()
+    {
+        $loader = $this->getLoader();
+        $ds = '\\';
+
+        $this->assertEquals([ 'aa', 'aa', 'aa', 'aa' ], $loader->pathSplit('aa/aa\\aa/aa'));
+        $this->assertEquals([ "${ds}", 'aa', 'aa', 'aa', 'aa' ], $loader->pathSplit('/aa/aa\\aa/aa\\'));
+        $this->assertEquals([ "${ds}${ds}", 'aa', 'aa', 'aa', 'aa' ], $loader->pathSplit('//aa/aa\\aa/aa\\'));
+        $this->assertEquals([ "${ds}${ds}${ds}", 'aa', 'aa', 'aa', 'aa' ], $loader->pathSplit('/\\/aa/aa\\aa/aa\\'));
+    }
+
+    public function testPathJoin()
+    {
+        $loader = $this->getLoader();
+        $ds = '\\';
+
+        $this->assertEquals('', $loader->pathJoin(''));
+        $this->assertEquals(',', $loader->pathJoin(','));
+        $this->assertEquals("${ds}", $loader->pathJoin('/'));
+        $this->assertEquals('a', $loader->pathJoin('a'));
+        $this->assertEquals(',a', $loader->pathJoin(',a'));
+        $this->assertEquals("${ds}a", $loader->pathJoin('/a'));
+        $this->assertEquals('', $loader->pathJoin('', [ '' ]));
+        $this->assertEquals(",${ds},", $loader->pathJoin(',', [ ',' ]));
+        $this->assertEquals("${ds}/", $loader->pathJoin('/', [ '/' ]));
+        $this->assertEquals("a${ds}a", $loader->pathJoin('a', [ 'a' ]));
+        $this->assertEquals(",a${ds},a", $loader->pathJoin(',a', [ ',a' ]));
+        $this->assertEquals("${ds}a${ds}/a", $loader->pathJoin('/a', [ '/a' ]));
+
+        $this->assertEquals("${ds}/a", $loader->pathJoin('/', [ '/a' ]));
+
+        $parts = [ '', ',', "${ds}", 'a', ',a', "${ds}a", [ '', ',', "${ds}", 'a', ',a', "${ds}a" ] ];
+
+        $this->assertEquals(",${ds}a${ds},a${ds}a${ds},${ds}a${ds},a${ds}a", $loader->pathJoin(...$parts));
+    }
+
+    public function testPathNormalize()
+    {
+        $loader = $this->getLoader();
+        $ds = '\\';
+
+        $this->assertEquals('', $loader->pathNormalize(''));
+        $this->assertEquals(',', $loader->pathNormalize(','));
+        $this->assertEquals("${ds}", $loader->pathNormalize('/'));
+        $this->assertEquals('a', $loader->pathNormalize('a'));
+        $this->assertEquals(',a', $loader->pathNormalize(',a'));
+        $this->assertEquals("${ds}a", $loader->pathNormalize('/a'));
+        $this->assertEquals('', $loader->pathNormalize('', [ '' ]));
+        $this->assertEquals(",${ds},", $loader->pathNormalize(',', [ ',' ]));
+        $this->assertEquals("${ds}", $loader->pathNormalize('/', [ '/' ]));
+        $this->assertEquals("a${ds}a", $loader->pathNormalize('a', [ 'a' ]));
+        $this->assertEquals(",a${ds},a", $loader->pathNormalize(',a', [ ',a' ]));
+        $this->assertEquals("${ds}a${ds}a", $loader->pathNormalize('/a', [ '/a' ]));
+
+        $this->assertEquals("${ds}a", $loader->pathNormalize('/', [ '/a' ]));
+
+        $parts = [ '', ',', "${ds}", 'a', ',a', "${ds}a", [ '', ',', "${ds}", 'a', ',a', "${ds}a" ] ];
+
+        $this->assertEquals(",${ds}a${ds},a${ds}a${ds},${ds}a${ds},a${ds}a", $loader->pathNormalize(...$parts));
+    }
+
+    public function testPathConcat()
+    {
+        $loader = $this->getLoader();
+        $ds = '\\';
+
+        $this->assertEquals("1${ds}2${ds}3", $loader->pathConcat('1/2/3', ''));
+        $this->assertEquals("1${ds}2${ds}3${ds}/", $loader->pathConcat('1/2/3', '/'));
+        $this->assertEquals("1${ds}2${ds}3${ds}1", $loader->pathConcat('1/2/3', '1'));
+        $this->assertEquals("1${ds}2${ds}3/4", $loader->pathConcat('1/2/3', '3/4'));
+        $this->assertEquals("1${ds}2/3/4", $loader->pathConcat('1/2/3', '2/3/4'));
+        $this->assertEquals("1/2/3/4", $loader->pathConcat('1/2/3', '1/2/3/4'));
+        $this->assertEquals("1${ds}2${ds}3${ds}0/1/2/3/4", $loader->pathConcat('1/2/3', '0/1/2/3/4'));
+    }
+
+
     public function testBasename()
     {
         $loader = $this->getLoader();
@@ -191,16 +267,16 @@ class LoaderTest extends AbstractTestCase
         $c = 'A\\B\\C\\D';
         $d = '\\A\\B\\C\\D';
 
-        $this->assertEquals('Loader', $loader->basename($a, 'Test'));
-        $this->assertEquals('Loader', $loader->basename($b));
+        $this->assertEquals('Loader', $loader->pathBasename($a, 'Test'));
+        $this->assertEquals('Loader', $loader->pathBasename($b));
 
-        $this->assertEquals('D', $loader->basename($c));
-        $this->assertEquals('D', $loader->basename($c, null, 0));
+        $this->assertEquals('D', $loader->pathBasename($c));
+        $this->assertEquals('D', $loader->pathBasename($c, null, 0));
 
-        $this->assertEquals('B\\C\\D', $loader->basename($d, null, 2));
+        $this->assertEquals('B\\C\\D', $loader->pathBasename($d, null, 2));
     }
 
-    public function testBasepath()
+    public function testRelative()
     {
         $loader = $this->getLoader();
 
@@ -209,12 +285,12 @@ class LoaderTest extends AbstractTestCase
         $c = 'A\\B\\C\\D';
         $d = '\\A\\B\\C\\D';
 
-        $this->assertEquals('Support\\Tests\\LoaderTest', $loader->basepath($a, 'Gzhegow'));
-        $this->assertEquals('Support\\Loader', $loader->basepath($b, 'Gzhegow'));
+        $this->assertEquals('Support\\Tests\\LoaderTest', $loader->pathRelative($a, 'Gzhegow'));
+        $this->assertEquals('Support\\Loader', $loader->pathRelative($b, 'Gzhegow'));
 
-        $this->assertEquals('B\\C\\D', $loader->basepath($c, 'A'));
+        $this->assertEquals('B\\C\\D', $loader->pathRelative($c, 'A'));
 
-        $this->assertEquals('C\\D', $loader->basepath($d, '\\A\\B'));
-        $this->assertEquals(null, $loader->basepath($d, 'D'));
+        $this->assertEquals('C\\D', $loader->pathRelative($d, '\\A\\B'));
+        $this->assertEquals(null, $loader->pathRelative($d, 'D'));
     }
 }

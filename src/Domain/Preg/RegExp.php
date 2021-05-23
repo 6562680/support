@@ -100,6 +100,102 @@ class RegExp
 
 
     /**
+     * @param string $delimiter
+     *
+     * @return null|array
+     */
+    public function fetchDelimiters(string $delimiter) : ?array
+    {
+        if (false === ( $pos = strpos(static::$_delimiters[ 0 ], $delimiter) )) {
+            return null;
+        }
+
+        $delimiters = [
+            static::$_delimiters[ 0 ][ $pos ],
+            static::$_delimiters[ 1 ][ $pos ],
+        ];
+
+        return $delimiters;
+    }
+
+
+    /**
+     * @param string|string[] ...$parts
+     *
+     * @return static
+     */
+    public function concat(...$parts)
+    {
+        foreach ( $parts as $part ) {
+            is_array($part)
+                ? $this->addQuote($part)
+                : $this->add($part);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param null|string $delimiter
+     * @param null|string $flags
+     *
+     * @return string
+     */
+    public function compile(string $delimiter = null, string $flags = null) : string
+    {
+        if (null !== $delimiter) $this->setDelimiter($delimiter);
+        if (null !== $flags) $this->setFlags($flags);
+
+        $delimiters = $this->delimiters
+            ?? $this->delimitersDefault;
+
+        $flags = $this->flags
+            ?? $this->flagsDefault;
+
+        $regex = '';
+        foreach ( $this->regex as $part ) {
+            $regex .= is_array($part)
+                ? preg_quote($part[ 0 ], '/')
+                : $part;
+        }
+
+        $result = ''
+            . $delimiters[ 0 ]
+            . $regex
+            . $delimiters[ 1 ]
+            . $flags;
+
+
+        if (! $this->preg->isValid($result)) {
+            throw new RuntimeException('Unable to compile regex: ' . $regex, $this);
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * @param string $delimiter
+     *
+     * @return static
+     */
+    public function d(string $delimiter)
+    {
+        return $this->setDelimiter($delimiter);
+    }
+
+    /**
+     * @param string $flags
+     *
+     * @return static
+     */
+    public function f(string $flags)
+    {
+        return $this->setFlags($flags);
+    }
+
+
+    /**
      * @param string ...$regex
      *
      * @return static
@@ -160,104 +256,7 @@ class RegExp
     /**
      * @param string $delimiter
      *
-     * @return null|array
-     */
-    public function fetchDelimiters(string $delimiter) : ?array
-    {
-        if (false === ( $pos = strpos(static::$_delimiters[ 0 ], $delimiter) )) {
-            return null;
-        }
-
-        $delimiters = [
-            static::$_delimiters[ 0 ][ $pos ],
-            static::$_delimiters[ 1 ][ $pos ],
-        ];
-
-        return $delimiters;
-    }
-
-
-    /**
-     * @param string|string[] ...$parts
-     *
      * @return static
-     */
-    public function concat(...$parts)
-    {
-        foreach ( $parts as $part ) {
-            is_array($part)
-                ? $this->addQuote($part)
-                : $this->add($part);
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * @param null|string $delimiter
-     * @param null|string $flags
-     *
-     * @return string
-     */
-    public function compile(string $delimiter = null, string $flags = null) : string
-    {
-        if (null !== $delimiter) $this->setDelimiter($delimiter);
-        if (null !== $flags) $this->setFlags($flags);
-
-        $delimiters = $this->delimiters
-            ?? $this->delimitersDefault;
-
-        $flags = $this->flags
-            ?? $this->flagsDefault;
-
-        $regex = '';
-        foreach ( $this->regex as $part ) {
-            $regex .= is_array($part)
-                ? preg_quote($part[ 0 ], '/')
-                : $part;
-        }
-
-        $result = ''
-            . $delimiters[ 0 ]
-            . $regex
-            . $delimiters[ 1 ]
-            . $flags;
-
-
-        if (! $this->preg->isValid($result)) {
-            throw new RuntimeException('Unable to compile regex: ' . $regex, $this);
-        }
-
-        return $result;
-    }
-
-
-    /**
-     * @param string $delimiter
-     *
-     * @return $this
-     */
-    public function d(string $delimiter)
-    {
-        return $this->setDelimiter($delimiter);
-    }
-
-    /**
-     * @param string $flags
-     *
-     * @return $this
-     */
-    public function f(string $flags)
-    {
-        return $this->setFlags($flags);
-    }
-
-
-    /**
-     * @param string $delimiter
-     *
-     * @return $this
      */
     protected function setDelimiter(string $delimiter)
     {
@@ -277,19 +276,22 @@ class RegExp
     /**
      * @param string $flags
      *
-     * @return $this
+     * @return static
      */
     protected function setFlags(string $flags)
     {
         $uniq = [];
 
-        $split = array_filter(str_split($flags));
-        foreach ( $split as $f ) {
-            if (false === strpos(static::$_flags, $f)) {
-                throw new InvalidArgumentException('Invalid flag passed: ' . $f);
+        $letters = '' !== $flags
+            ? array_filter(str_split($flags))
+            : [];
+
+        foreach ( $letters as $letter ) {
+            if (false === strpos(static::$_flags, $letter)) {
+                throw new InvalidArgumentException('Invalid flag passed: ' . $letter);
             }
 
-            $uniq[ $f ] = true;
+            $uniq[ $letter ] = true;
         }
 
         $this->flags = $uniq

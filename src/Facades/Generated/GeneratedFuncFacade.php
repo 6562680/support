@@ -3,21 +3,56 @@
 /**
  * This file is auto-generated.
  *
- * @noinspection PhpUnhandledExceptionInspection
  * @noinspection PhpDocMissingThrowsInspection
+ * @noinspection PhpUnhandledExceptionInspection
+ * @noinspection PhpUnusedAliasInspection
  */
 
 namespace Gzhegow\Support\Facades\Generated;
 
+use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Func;
 
 abstract class GeneratedFuncFacade
 {
     /**
-     * filter
-     * выполняет функцию как array_filter. Если передать null, преобразует все аргументы к булеву типу
-     * отталкивается от аргумента arg, работает над ним если null
+     * @param \Closure $func
+     * @param string   $returnType
+     *
+     * @return bool
+     */
+    public static function isFactory(\Closure $func, string $returnType): bool
+    {
+        return static::getInstance()->isFactory($func, $returnType);
+    }
+
+    /**
+     * проверяет возвращаемый тип у замыкания
+     *
+     * @param \Closure $func
+     * @param string   $returnType
+     *
+     * @return null|\Closure
+     */
+    public static function filterFactory(\Closure $func, string $returnType): ?\Closure
+    {
+        return static::getInstance()->filterFactory($func, $returnType);
+    }
+
+    /**
+     * @param \Closure $func
+     * @param string   $returnType
+     *
+     * @return \Closure
+     */
+    public static function assertFactory(\Closure $func, string $returnType): \Closure
+    {
+        return static::getInstance()->assertFactory($func, $returnType);
+    }
+
+    /**
+     * выполняет функцию как шаг array_filter
      *
      * @param null|callable $func
      * @param               $arg
@@ -31,9 +66,7 @@ abstract class GeneratedFuncFacade
     }
 
     /**
-     * map
-     * выполняет функцию как array_map. Если передать null, возвращает исходные аргументы
-     * отталкивается от аргумента arg, работает над ним если null
+     * выполняет функцию как шаг array_map
      *
      * @param null|callable $func
      * @param               $arg
@@ -44,6 +77,21 @@ abstract class GeneratedFuncFacade
     public static function map(?callable $func, $arg, ...$arguments)
     {
         return static::getInstance()->map($func, $arg, ...$arguments);
+    }
+
+    /**
+     * выполняет функцию как шаг array_reduce
+     *
+     * @param null|callable $func
+     * @param               $arg
+     * @param null          $carry
+     * @param array         $arguments
+     *
+     * @return mixed
+     */
+    public static function reduce(?callable $func, $arg, $carry = null, ...$arguments)
+    {
+        return static::getInstance()->reduce($func, $arg, $carry, ...$arguments);
     }
 
     /**

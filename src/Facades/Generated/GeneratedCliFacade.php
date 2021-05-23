@@ -3,8 +3,9 @@
 /**
  * This file is auto-generated.
  *
- * @noinspection PhpUnhandledExceptionInspection
  * @noinspection PhpDocMissingThrowsInspection
+ * @noinspection PhpUnhandledExceptionInspection
+ * @noinspection PhpUnusedAliasInspection
  */
 
 namespace Gzhegow\Support\Facades\Generated;
@@ -60,7 +61,7 @@ abstract class GeneratedCliFacade
      * @param string $content
      * @param string $answer
      *
-     * @return static
+     * @return Cli
      */
     public static function writeFile(string $outputPath, string $content, string &$answer = 'n')
     {

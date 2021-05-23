@@ -22,8 +22,7 @@ class Assert extends GeneratedAssert
     {
         if (0 !== strpos($method, 'assert')) {
             throw new BadMethodCallException(
-                'TypeService method should start with `assert` like `assertFloat`',
-                func_get_args()
+                [ 'TypeService method should start with `assert` like `assertFloat`: %s', $method ],
             );
         }
 

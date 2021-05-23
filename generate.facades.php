@@ -22,6 +22,7 @@ $fnStarts = function (string $str, string $needle = null, bool $ignoreCase = tru
 $fnUses = function (string $class) use ($fnStarts) : array {
     $uses = [];
 
+    /** @noinspection PhpUnhandledExceptionInspection */
     $rc = new \ReflectionClass($class);
 
     $filepath = $rc->getFileName();
@@ -90,8 +91,9 @@ foreach ( $facades as $facade => $from ) {
     $phpFile->setComment(implode("\n", [
         'This file is auto-generated.',
         '',
-        '@noinspection PhpUnhandledExceptionInspection',
         '@noinspection PhpDocMissingThrowsInspection',
+        '@noinspection PhpUnhandledExceptionInspection',
+        '@noinspection PhpUnusedAliasInspection',
     ]));
 
     // namespace
@@ -135,6 +137,16 @@ foreach ( $facades as $facade => $from ) {
                 : '$' . $last->getName();
         }
 
+        $lines = explode("\n", $methodComment);
+        foreach ( $lines as $i => $line ) {
+            if (false !== mb_strpos($line, $separator = '@return static')) {
+                $parts = explode($separator, $line);
+
+                $lines[ $i ] = implode('@return ' . $originalClassName, $parts);
+            }
+        }
+        $methodCommentNew = implode("\n", $lines);
+
         $return = null
             ?? ( $methodReturnType === 'void' ? '' : null )
             ?? ( $methodReturnType === \Generator::class ? 'yield from ' : null )
@@ -147,7 +159,7 @@ foreach ( $facades as $facade => $from ) {
         $methodNew->setReturnType($methodReturnType);
         $methodNew->setPublic();
         $methodNew->setStatic();
-        $methodNew->setComment($methodComment);
+        $methodNew->setComment($methodCommentNew);
         $methodNew->setBody(implode("\n", [
             sprintf(
                 $return . 'static::getInstance()->' . $methodName . '(%s);',

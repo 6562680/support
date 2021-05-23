@@ -467,31 +467,6 @@ class StrTest extends AbstractTestCase
     }
 
 
-    public function testSplit()
-    {
-        $str = $this->getStr();
-
-        $this->assertEquals(str_split('dadbdcd'), $str->split('', 'dadbdcd'));
-        $this->assertEquals(str_split('dadbdcd'), $str->split([ '' ], 'dadbdcd'));
-        $this->assertEquals([ 'd', 'dbdcd' ], $str->split([ 'a' ], 'dadbdcd'));
-        $this->assertEquals([ 'd', 'd', 'dcd' ], $str->split([ 'a', 'b' ], 'dadbdcd'));
-        $this->assertEquals([ 'd', 'd', 'd', 'd' ], $str->split([ 'a', 'b', 'c' ], 'dadbdcd'));
-    }
-
-    public function testBadSplit()
-    {
-        $str = $this->getStr();
-
-        $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $this->assertEquals([ 'dadbdcd' ], $str->split(null, 'dadbdcd'));
-        });
-
-        $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $this->assertEquals([ 'dadbdcd' ], $str->split([ null ], 'dadbdcd'));
-        });
-    }
-
-
     public function testExplode()
     {
         $str = $this->getStr();

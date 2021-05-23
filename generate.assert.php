@@ -2,6 +2,7 @@
 
 use Gzhegow\Support\Filter;
 
+
 require_once __DIR__ . '/vendor/autoload.php';
 
 
@@ -31,8 +32,9 @@ $phpFile = new \Nette\PhpGenerator\PhpFile();
 $phpFile->setComment(implode("\n", [
     'This file is auto-generated.',
     '',
-    '@noinspection PhpUnhandledExceptionInspection',
     '@noinspection PhpDocMissingThrowsInspection',
+    '@noinspection PhpUnhandledExceptionInspection',
+    '@noinspection PhpUnusedAliasInspection',
 ]));
 
 // namespace
@@ -80,8 +82,8 @@ $method->setComment(implode("\n", [
     '@return null|mixed',
 ]));
 $method->setBody(implode("\n", [
-    'if (null === ($filtered = $this->filter->filter($filter, ...$arguments))) {',
-    '    throw new InvalidArgumentException(\'Invalid \' . $filter . \' passed\', func_get_args());',
+    'if (null === ($filtered = $this->filter->satisfy($filter, ...$arguments))) {',
+    '    throw new InvalidArgumentException(\'Invalid \' . $filter . \' passed\');',
     '}',
     '',
     'return $filtered;',
@@ -91,8 +93,10 @@ $moduleAssert->addMember($method);
 // copy methods
 $moduleCopy = \Nette\PhpGenerator\ClassType::from(Filter::class);
 $moduleCopy->removeMethod('getCustomFilters');
-$moduleCopy->removeMethod('filter');
-$moduleCopy->removeMethod('bindFilter');
+$moduleCopy->removeMethod('assert');
+$moduleCopy->removeMethod('type');
+$moduleCopy->removeMethod('satisfy');
+$moduleCopy->removeMethod('bind');
 $moduleCopy->removeMethod('addCustomFilter');
 $moduleCopy->removeMethod('replaceCustomFilter');
 $moduleCopy->removeMethod('findCustomFilter');
@@ -110,9 +114,9 @@ foreach ( $moduleCopy->getMethods() as $method ) {
 
     $lines = explode("\n", $methodComment);
     foreach ( $lines as $i => $line ) {
-        $parts = explode($separator = '@return', $line);
+        if (false !== mb_strpos($line, $separator = '@return')) {
+            $parts = explode($separator, $line);
 
-        if (2 === count($parts)) {
             $type = ltrim($parts[ 1 ]);
 
             $lines[ $i ] = implode($separator, [
@@ -146,7 +150,7 @@ foreach ( $moduleCopy->getMethods() as $method ) {
             'if (null === ($filtered = $this->filter->' . $methodName . '(%s))) {',
             implode(', ', $arguments),
         ),
-        "    throw new InvalidArgumentException('Invalid $filterName passed', func_get_args());",
+        "    throw new InvalidArgumentException('Invalid $filterName passed');",
         '}',
         '',
         'return $filtered;',

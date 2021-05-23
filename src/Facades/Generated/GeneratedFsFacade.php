@@ -3,8 +3,9 @@
 /**
  * This file is auto-generated.
  *
- * @noinspection PhpUnhandledExceptionInspection
  * @noinspection PhpDocMissingThrowsInspection
+ * @noinspection PhpUnhandledExceptionInspection
+ * @noinspection PhpUnusedAliasInspection
  */
 
 namespace Gzhegow\Support\Facades\Generated;
@@ -12,9 +13,28 @@ namespace Gzhegow\Support\Facades\Generated;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Fs;
+use Gzhegow\Support\Path;
 
 abstract class GeneratedFsFacade
 {
+    /**
+     * @param string $root
+     *
+     * @return Fs
+     */
+    public static function clone(string $root)
+    {
+        return static::getInstance()->clone($root);
+    }
+
+    /**
+     * @return string
+     */
+    public static function getRoot(): string
+    {
+        return static::getInstance()->getRoot();
+    }
+
     /**
      * @return bool
      */
@@ -368,15 +388,21 @@ abstract class GeneratedFsFacade
     }
 
     /**
-     * распознает DRIVE/HOME и возвращает realpath
+     * @param string $root
      *
-     * @param string|string[]|array ...$parts
-     *
-     * @return string
+     * @return Fs
      */
-    public static function pathResolve(...$parts): string
+    public static function using(string $root)
     {
-        return static::getInstance()->pathResolve(...$parts);
+        return static::getInstance()->using($root);
+    }
+
+    /**
+     * @return Path
+     */
+    public static function path(): Path
+    {
+        return static::getInstance()->path();
     }
 
     /**
@@ -426,9 +452,9 @@ abstract class GeneratedFsFacade
      *
      * @return null|string
      */
-    public static function basename(string $path, string $suffix = null, int $levels = 0): ?string
+    public static function pathBasename(string $path, string $suffix = null, int $levels = 0): ?string
     {
-        return static::getInstance()->basename($path, $suffix, $levels);
+        return static::getInstance()->pathBasename($path, $suffix, $levels);
     }
 
     /**
@@ -437,19 +463,32 @@ abstract class GeneratedFsFacade
      *
      * @return string
      */
-    public static function basepath(string $path, string $base = ''): ?string
+    public static function pathRelative(string $path, string $base = null): ?string
     {
-        return static::getInstance()->basepath($path, $base);
+        return static::getInstance()->pathRelative($path, $base);
     }
 
     /**
-     * @param string $path
+     * @param mixed       $value
+     * @param string|null $base
      *
      * @return string
      */
-    public static function realpath(string $path): string
+    public static function secure($value, string $base = null): ?string
     {
-        return static::getInstance()->realpath($path);
+        return static::getInstance()->secure($value, $base);
+    }
+
+    /**
+     * распознает DRIVE/HOME и возвращает realpath
+     *
+     * @param string|string[]|array ...$parts
+     *
+     * @return string
+     */
+    public static function resolve(...$parts): string
+    {
+        return static::getInstance()->resolve(...$parts);
     }
 
     /**
@@ -459,9 +498,9 @@ abstract class GeneratedFsFacade
      *
      * @return array
      */
-    public static function mountpath(string $path): array
+    public static function drive(string $path): array
     {
-        return static::getInstance()->mountpath($path);
+        return static::getInstance()->drive($path);
     }
 
     /**

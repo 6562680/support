@@ -3,8 +3,9 @@
 /**
  * This file is auto-generated.
  *
- * @noinspection PhpUnhandledExceptionInspection
  * @noinspection PhpDocMissingThrowsInspection
+ * @noinspection PhpUnhandledExceptionInspection
+ * @noinspection PhpUnusedAliasInspection
  */
 
 namespace Gzhegow\Support\Facades\Generated;
@@ -148,6 +149,16 @@ abstract class GeneratedTypeFacade
     public static function isAssoc($assoc, callable $of = null): ?bool
     {
         return static::getInstance()->isAssoc($assoc, $of);
+    }
+
+    /**
+     * @param mixed $array
+     *
+     * @return bool
+     */
+    public static function isPlainArray($array): ?bool
+    {
+        return static::getInstance()->isPlainArray($array);
     }
 
     /**
@@ -366,6 +377,16 @@ abstract class GeneratedTypeFacade
     public static function isReflectionType($value): ?bool
     {
         return static::getInstance()->isReflectionType($value);
+    }
+
+    /**
+     * @param mixed $h
+     *
+     * @return bool
+     */
+    public static function isResource($h): bool
+    {
+        return static::getInstance()->isResource($h);
     }
 
     /**

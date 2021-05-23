@@ -4,6 +4,8 @@ namespace Gzhegow\Support;
 
 
 use Gzhegow\Support\Exceptions\RuntimeException;
+use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+
 
 /**
  * Func
@@ -21,7 +23,11 @@ class Func
             $rf = new \ReflectionFunction($callable);
         }
         catch ( \ReflectionException $e ) {
-            throw new RuntimeException('Unable to reflect function', func_get_args(), $e);
+            throw new RuntimeException(
+                [ 'Unable to reflect function: %s', $callable ],
+                null,
+                $e
+            );
         }
 
         return $rf;
@@ -29,9 +35,65 @@ class Func
 
 
     /**
-     * filter
-     * выполняет функцию как array_filter. Если передать null, преобразует все аргументы к булеву типу
-     * отталкивается от аргумента arg, работает над ним если null
+     * @param \Closure $func
+     * @param string   $returnType
+     *
+     * @return bool
+     */
+    public function isFactory(\Closure $func, string $returnType) : bool
+    {
+        return null !== $this->filterFactory($func, $returnType);
+    }
+
+    /**
+     * проверяет возвращаемый тип у замыкания
+     *
+     * @param \Closure $func
+     * @param string   $returnType
+     *
+     * @return null|\Closure
+     */
+    public function filterFactory(\Closure $func, string $returnType) : ?\Closure
+    {
+        $rf = $this->newReflectionFunction($func);
+
+        $rt = $rf->getReturnType();
+
+        if (null === $rt) {
+            return null;
+        }
+
+        if (class_exists('ReflectionNamedType') && is_a($rt, 'ReflectionNamedType')) {
+            if ($rt->getName() !== $returnType) {
+                return null;
+            }
+        }
+
+        if (class_exists('ReflectionUnionType') && is_a($rt, 'ReflectionUnionType')) {
+            return null;
+        }
+
+        return $func;
+    }
+
+    /**
+     * @param \Closure $func
+     * @param string   $returnType
+     *
+     * @return \Closure
+     */
+    public function assertFactory(\Closure $func, string $returnType) : \Closure
+    {
+        if (null === $this->filterFactory($func, $returnType)) {
+            throw new InvalidArgumentException('\Closure should have returnType ' . $returnType);
+        }
+
+        return $func;
+    }
+
+
+    /**
+     * выполняет функцию как шаг array_filter
      *
      * @param null|callable $func
      * @param               $arg
@@ -42,11 +104,7 @@ class Func
     public function filter(?callable $func, $arg, ...$arguments) : bool
     {
         if (! $func) {
-            return is_array($arg)
-                ? array_map(function ($val) {
-                    return empty($val);
-                }, $arg)
-                : empty($arg);
+            return empty($arg);
         }
 
         $result = (bool) call_user_func(
@@ -57,9 +115,7 @@ class Func
     }
 
     /**
-     * map
-     * выполняет функцию как array_map. Если передать null, возвращает исходные аргументы
-     * отталкивается от аргумента arg, работает над ним если null
+     * выполняет функцию как шаг array_map
      *
      * @param null|callable $func
      * @param               $arg
@@ -75,6 +131,29 @@ class Func
 
         $result = call_user_func(
             $this->bind($func, $arg, ...$arguments)
+        );
+
+        return $result;
+    }
+
+    /**
+     * выполняет функцию как шаг array_reduce
+     *
+     * @param null|callable $func
+     * @param               $arg
+     * @param null          $carry
+     * @param array         $arguments
+     *
+     * @return mixed
+     */
+    public function reduce(?callable $func, $arg, $carry = null, ...$arguments) // : mixed
+    {
+        if (! $func) {
+            return $carry;
+        }
+
+        $result = call_user_func(
+            $this->bind($func, $carry, $arg, ...$arguments)
         );
 
         return $result;

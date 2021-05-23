@@ -127,7 +127,7 @@ class Arr
             return $this->put($src, $path, $default);
         }
 
-        throw new OutOfRangeException('Index not found', func_get_args());
+        throw new OutOfRangeException([ 'Index not found: %s', $path ]);
     }
 
 
@@ -169,7 +169,7 @@ class Arr
     public function del(array $src, ...$path) : ?array
     {
         if (false === ( $status = $this->delete($src, ...$path) )) {
-            throw new UnderflowException('Unable to delete due to missing/invalid key', func_get_args());
+            throw new UnderflowException([ 'Unable to delete due to missing/invalid key: %s', $path ]);
         }
 
         return $src;
@@ -185,7 +185,7 @@ class Arr
     {
         $result = false;
 
-        $fullpath = $this->str->split('.', $path);
+        $fullpath = $this->str->explode('.', $path);
 
         $ref =& $src;
 
@@ -235,10 +235,10 @@ class Arr
      */
     public function &put(array &$dst, $path, $value) // : mixed
     {
-        $fullpath = $this->str->split('.', $path);
+        $fullpath = $this->str->explode('.', $path);
 
         if (null === key($fullpath)) {
-            throw new InvalidArgumentException('Empty path passed', func_get_args());
+            throw new InvalidArgumentException([ 'Empty path passed: %s', $path ]);
         }
 
         $last = array_pop($fullpath);
@@ -279,7 +279,7 @@ class Arr
      */
     public function key($separators = "\0", ...$keys) : string
     {
-        $result = $this->str->split($separators, ...$keys);
+        $result = $this->str->explode($separators, ...$keys);
 
         $result = $this->str->join($separators[ 0 ], $result);
 
@@ -313,21 +313,7 @@ class Arr
             ? $value
             : [ $value ];
 
-        $invalid = false;
-        array_walk_recursive($list, function ($value) use (&$invalid) {
-            if (! ( ( [] === $value )
-                || is_null($value)
-                || is_scalar($value)
-            )) {
-                $invalid = true;
-
-                return;
-            }
-        });
-
-        if ($invalid) {
-            throw new InvalidArgumentException('Unable to create index from given value', func_get_args());
-        }
+        $this->filter->assert()->assertPlainArray($list);
 
         $result = json_encode($value);
 
@@ -543,7 +529,9 @@ class Arr
                 : null;
 
             if (( null !== $res ) && ( null === $this->filter->filterKey($res) )) {
-                throw new UnexpectedValueException('Invalid group name returned', func_get_args());
+                throw new UnexpectedValueException(
+                    [ 'Invalid group name returned: %s', $res ]
+                );
             }
 
             ( null !== $res )
@@ -794,8 +782,7 @@ class Arr
 
             if (null === $word) {
                 throw new InvalidArgumentException(
-                    'Each key should be string or number',
-                    [ func_get_args(), $word ]
+                    [ 'Each key should be string or number: %s', $word ]
                 );
             }
 
@@ -816,8 +803,7 @@ class Arr
 
         if (! count($result)) {
             throw new InvalidArgumentException(
-                'At least one word should be provided',
-                func_get_args()
+                [ 'At least one word should be provided: %s', $keys ],
             );
         }
 
@@ -856,8 +842,7 @@ class Arr
 
         if (! count($result)) {
             throw new InvalidArgumentException(
-                'At least one word should be provided',
-                func_get_args()
+                [ 'At least one word should be provided: %s', $keys ]
             );
         }
 

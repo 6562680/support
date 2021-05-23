@@ -21,8 +21,7 @@ class Type extends GeneratedType
     {
         if (0 !== strpos($method, 'is')) {
             throw new BadMethodCallException(
-                'TypeService method should start with `is` like `isFloat`',
-                func_get_args()
+                [ 'TypeService method should start with `is` like `isFloat`: %s', $method ],
             );
         }
 

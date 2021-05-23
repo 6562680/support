@@ -3,8 +3,9 @@
 /**
  * This file is auto-generated.
  *
- * @noinspection PhpUnhandledExceptionInspection
  * @noinspection PhpDocMissingThrowsInspection
+ * @noinspection PhpUnhandledExceptionInspection
+ * @noinspection PhpUnusedAliasInspection
  */
 
 namespace Gzhegow\Support\Facades\Generated;
@@ -37,8 +38,9 @@ abstract class GeneratedPhpFacade
     }
 
     /**
-     * возвращает строчный идентификатор значения любой переменной на текущий момент в виде строки для дальнейшего сравнения
-     * идентификаторы могут быть позже использованы другими обьектами, поэтому его актуальность до тех пор, пока конкретный обьект существует
+     * возвращает строчный идентификатор значения любой переменной в виде строки для дальнейшего сравнения
+     * идентификаторы могут быть позже использованы другими обьектами
+     * поэтому его актуальность до тех пор, пока конкретный обьект существует
      *
      * @param mixed $value
      *
@@ -201,9 +203,20 @@ abstract class GeneratedPhpFacade
     }
 
     /**
+     * @param null|\Throwable $e
+     * @param null|int        $limit
+     *
+     * @return array
+     */
+    public static function throwableMessages(\Throwable $e, int $limit = -1)
+    {
+        return static::getInstance()->throwableMessages($e, $limit);
+    }
+
+    /**
      * @param int|float|int[]|float[] $sleeps
      *
-     * @return static
+     * @return Php
      */
     public static function sleep($sleeps)
     {

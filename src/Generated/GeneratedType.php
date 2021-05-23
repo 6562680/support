@@ -3,8 +3,9 @@
 /**
  * This file is auto-generated.
  *
- * @noinspection PhpUnhandledExceptionInspection
  * @noinspection PhpDocMissingThrowsInspection
+ * @noinspection PhpUnhandledExceptionInspection
+ * @noinspection PhpUnusedAliasInspection
  */
 
 namespace Gzhegow\Support\Generated;
@@ -35,7 +36,7 @@ abstract class GeneratedType
      */
     public function is(string $filter, ...$arguments): bool
     {
-        return null !== $this->filter->filter($filter, ...$arguments);
+        return null !== $this->filter->satisfy($filter, ...$arguments);
     }
 
     /**
@@ -160,6 +161,16 @@ abstract class GeneratedType
     public function isAssoc($assoc, callable $of = null): ?bool
     {
         return null !== $this->filter->filterAssoc($assoc, $of);
+    }
+
+    /**
+     * @param mixed $array
+     *
+     * @return bool
+     */
+    public function isPlainArray($array): ?bool
+    {
+        return null !== $this->filter->filterPlainArray($array);
     }
 
     /**
@@ -378,6 +389,16 @@ abstract class GeneratedType
     public function isReflectionType($value): ?bool
     {
         return null !== $this->filter->filterReflectionType($value);
+    }
+
+    /**
+     * @param mixed $h
+     *
+     * @return bool
+     */
+    public function isResource($h): bool
+    {
+        return null !== $this->filter->filterResource($h);
     }
 
     /**

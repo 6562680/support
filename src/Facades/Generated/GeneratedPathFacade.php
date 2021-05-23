@@ -3,8 +3,9 @@
 /**
  * This file is auto-generated.
  *
- * @noinspection PhpUnhandledExceptionInspection
  * @noinspection PhpDocMissingThrowsInspection
+ * @noinspection PhpUnhandledExceptionInspection
+ * @noinspection PhpUnusedAliasInspection
  */
 
 namespace Gzhegow\Support\Facades\Generated;
@@ -14,11 +15,37 @@ use Gzhegow\Support\Path;
 abstract class GeneratedPathFacade
 {
     /**
+     * @param mixed ...$delimiters
+     *
+     * @return Path
+     */
+    public static function clone(...$delimiters)
+    {
+        return static::getInstance()->clone(...$delimiters);
+    }
+
+    /**
+     * @return string
+     */
+    public static function getSeparator(): string
+    {
+        return static::getInstance()->getSeparator();
+    }
+
+    /**
+     * @return string[]
+     */
+    public static function getDelimiters(): array
+    {
+        return static::getInstance()->getDelimiters();
+    }
+
+    /**
      * @param string|string[] $delimiters
      *
-     * @return static
+     * @return Path
      */
-    public static function using(...$delimiters): self
+    public static function using(...$delimiters)
     {
         return static::getInstance()->using(...$delimiters);
     }
@@ -102,9 +129,9 @@ abstract class GeneratedPathFacade
      *
      * @return string
      */
-    public static function basepath(string $path, string $base = ''): ?string
+    public static function relative(string $path, string $base = ''): ?string
     {
-        return static::getInstance()->basepath($path, $base);
+        return static::getInstance()->relative($path, $base);
     }
 
     /**

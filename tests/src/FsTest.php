@@ -184,15 +184,15 @@ class FsTest extends AbstractTestCase
         $b = 'A\\B/C\\D';
         $c = '\\A\\B/C\\D';
 
-        $this->assertEquals('Fs', $fs->basename($a, 'Test'));
+        $this->assertEquals('Fs', $fs->pathBasename($a, 'Test'));
 
-        $this->assertEquals('D', $fs->basename($b));
-        $this->assertEquals('D', $fs->basename($b, null, 0));
+        $this->assertEquals('D', $fs->pathBasename($b));
+        $this->assertEquals('D', $fs->pathBasename($b, null, 0));
 
-        $this->assertEquals("B${ds}C${ds}D", $fs->basename($c, null, 2));
+        $this->assertEquals("B${ds}C${ds}D", $fs->pathBasename($c, null, 2));
     }
 
-    public function testBasepath()
+    public function testRelative()
     {
         $fs = $this->getFs();
         $ds = DIRECTORY_SEPARATOR;
@@ -201,13 +201,13 @@ class FsTest extends AbstractTestCase
         $b = 'A\\B/C\\D';
         $c = '\\A\\B/C\\D';
 
-        $this->assertEquals("Support${ds}Tests${ds}FsTest", $fs->basepath($a, 'Gzhegow'));
+        $this->assertEquals("Support${ds}Tests${ds}FsTest", $fs->pathRelative($a, 'Gzhegow'));
 
-        $this->assertEquals("A${ds}B${ds}C${ds}D", $fs->basepath($b));
-        $this->assertEquals("B${ds}C${ds}D", $fs->basepath($b, 'A'));
+        $this->assertEquals("A${ds}B${ds}C${ds}D", $fs->pathRelative($b));
+        $this->assertEquals("B${ds}C${ds}D", $fs->pathRelative($b, 'A'));
 
-        $this->assertEquals("C${ds}D", $fs->basepath($c, '/A\\B'));
-        $this->assertEquals(null, $fs->basepath($c, 'D'));
+        $this->assertEquals("C${ds}D", $fs->pathRelative($c, '/A\\B'));
+        $this->assertEquals(null, $fs->pathRelative($c, 'D'));
     }
 
 

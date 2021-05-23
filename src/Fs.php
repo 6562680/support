@@ -1,7 +1,8 @@
-<?php
+<?php /** @noinspection PhpUnusedAliasInspection */
 
 namespace Gzhegow\Support;
 
+use Gzhegow\Support\Path;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
@@ -31,6 +32,11 @@ class Fs
      */
     protected $php;
 
+    /**
+     * @var string
+     */
+    protected $root = '';
+
 
     /**
      * Constructor
@@ -50,6 +56,30 @@ class Fs
         $this->php = $php;
 
         $path->using(DIRECTORY_SEPARATOR, '/', '\\');
+    }
+
+
+    /**
+     * @param string $root
+     *
+     * @return static
+     */
+    public function clone(string $root)
+    {
+        $instance = clone $this;
+
+        $instance->using($root);
+
+        return $instance;
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getRoot() : string
+    {
+        return $this->root;
     }
 
 
@@ -299,7 +329,9 @@ class Fs
     public function assertPathFileExists($value) : ?string
     {
         if (null === ( $result = $this->filterPathFileExists($value) )) {
-            throw new InvalidArgumentException('Invalid path or file/dir/link not found', func_get_args());
+            throw new InvalidArgumentException(
+                [ 'Invalid path or file/dir/link not found: %s', $this->secure($value) ]
+            );
         }
 
         return $result;
@@ -313,7 +345,9 @@ class Fs
     public function assertPathFile($value) : ?string
     {
         if (null === ( $result = $this->filterPathFile($value) )) {
-            throw new InvalidArgumentException('Invalid path or file not found', func_get_args());
+            throw new InvalidArgumentException(
+                [ 'Invalid path or file not found: %s', $this->secure($value) ]
+            );
         }
 
         return $result;
@@ -327,7 +361,9 @@ class Fs
     public function assertPathDir($value) : ?string
     {
         if (null === ( $result = $this->filterPathDir($value) )) {
-            throw new InvalidArgumentException('Invalid path or dir not found', func_get_args());
+            throw new InvalidArgumentException(
+                [ 'Invalid path or dir not found: %s', $this->secure($value) ]
+            );
         }
 
         return $result;
@@ -341,7 +377,9 @@ class Fs
     public function assertPathLink($value) : ?string
     {
         if (null === ( $result = $this->filterPathLink($value) )) {
-            throw new InvalidArgumentException('Invalid path or link not found', func_get_args());
+            throw new InvalidArgumentException(
+                [ 'Invalid path or link not found: %s', $this->secure($value) ]
+            );
         }
 
         return $result;
@@ -356,7 +394,9 @@ class Fs
     public function assertSplFileExists($value) : ?\SplFileInfo
     {
         if (null === ( $result = $this->filterSplFileExists($value) )) {
-            throw new InvalidArgumentException('Invalid spl or spl is not a file/dir/link', func_get_args());
+            throw new InvalidArgumentException(
+                [ 'Invalid spl or spl is not a file/dir/link: %s', $this->secure($value) ]
+            );
         }
 
         return $result;
@@ -370,7 +410,9 @@ class Fs
     public function assertSplFile($value) : ?\SplFileInfo
     {
         if (null === ( $result = $this->filterSplFile($value) )) {
-            throw new InvalidArgumentException('Invalid spl or spl is not a file', func_get_args());
+            throw new InvalidArgumentException(
+                [ 'Invalid spl or spl is not a file: %s', $this->secure($value) ]
+            );
         }
 
         return $result;
@@ -384,7 +426,9 @@ class Fs
     public function assertSplDir($value) : ?\SplFileInfo
     {
         if (null === ( $result = $this->filterSplDir($value) )) {
-            throw new InvalidArgumentException('Invalid spl or spl is not a dir', func_get_args());
+            throw new InvalidArgumentException(
+                [ 'Invalid spl or spl is not a dir: %s', $this->secure($value) ]
+            );
         }
 
         return $result;
@@ -398,7 +442,9 @@ class Fs
     public function assertSplLink($value) : ?\SplFileInfo
     {
         if (null === ( $result = $this->filterSplLink($value) )) {
-            throw new InvalidArgumentException('Invalid spl or spl is not a link', func_get_args());
+            throw new InvalidArgumentException(
+                [ 'Invalid spl or spl is not a link: %s', $this->secure($value) ]
+            );
         }
 
         return $result;
@@ -552,41 +598,26 @@ class Fs
 
 
     /**
-     * распознает DRIVE/HOME и возвращает realpath
+     * @param string $root
      *
-     * @param string|string[]|array ...$parts
-     *
-     * @return string
+     * @return static
      */
-    public function pathResolve(...$parts) : string
+    public function using(string $root)
     {
-        $normalized = $this->pathNormalize(...$parts);
+        $realpath = $this->assertPathDir($root);
 
-        [ $drive, $relpath ] = $this->mountpath($normalized);
+        $this->root = $realpath;
 
-        $items = [];
-        foreach ( explode(DIRECTORY_SEPARATOR, $relpath) as $part ) {
-            if ('.' == $part) continue;
-            if ('..' == $part) {
-                array_pop($items);
+        return $this;
+    }
 
-            } else {
-                $items[] = $part;
-            }
-        }
 
-        $join = implode(DIRECTORY_SEPARATOR, $items);
-
-        $result = $this->mount($drive) . ltrim($join, DIRECTORY_SEPARATOR);
-
-        if (file_exists($result)
-            && is_link($result)
-            && function_exists('readlink')
-        ) {
-            $result = readlink($result);
-        }
-
-        return $result;
+    /**
+     * @return Path
+     */
+    public function path() : Path
+    {
+        return $this->path;
     }
 
 
@@ -646,7 +677,7 @@ class Fs
      *
      * @return null|string
      */
-    public function basename(string $path, string $suffix = null, int $levels = 0) : ?string
+    public function pathBasename(string $path, string $suffix = null, int $levels = 0) : ?string
     {
         $result = $this->path->basename($path, $suffix, $levels);
 
@@ -659,23 +690,66 @@ class Fs
      *
      * @return string
      */
-    public function basepath(string $path, string $base = '') : ?string
+    public function pathRelative(string $path, string $base = null) : ?string
     {
-        $result = $this->path->basepath($path, $base);
+        $base = $base ?? $this->root;
+
+        $result = $this->path->relative($path, $base);
 
         return $result;
     }
 
 
     /**
-     * @param string $path
+     * @param mixed       $value
+     * @param string|null $base
      *
      * @return string
      */
-    public function realpath(string $path) : string
+    public function secure($value, string $base = null) : ?string
     {
-        if (false === ( $result = realpath($path) )) {
-            throw new InvalidArgumentException('Path not exists: ' . $path);
+        $result = ( null !== ( $strval = $this->filter->filterStrval($value) ) )
+            ? ( $this->pathRelative($strval, $base) ?? null )
+            : null;
+
+        $result = $result ?? $value;
+
+        return $result;
+    }
+
+    /**
+     * распознает DRIVE/HOME и возвращает realpath
+     *
+     * @param string|string[]|array ...$parts
+     *
+     * @return string
+     */
+    public function resolve(...$parts) : string
+    {
+        $normalized = $this->pathNormalize(...$parts);
+
+        [ $drive, $relpath ] = $this->drive($normalized);
+
+        $items = [];
+        foreach ( explode(DIRECTORY_SEPARATOR, $relpath) as $part ) {
+            if ('.' == $part) continue;
+            if ('..' == $part) {
+                array_pop($items);
+
+            } else {
+                $items[] = $part;
+            }
+        }
+
+        $join = implode(DIRECTORY_SEPARATOR, $items);
+
+        $result = $this->parseDrive($drive) . ltrim($join, DIRECTORY_SEPARATOR);
+
+        if (file_exists($result)
+            && is_link($result)
+            && function_exists('readlink')
+        ) {
+            $result = readlink($result);
         }
 
         return $result;
@@ -688,7 +762,7 @@ class Fs
      *
      * @return array
      */
-    public function mountpath(string $path) : array
+    public function drive(string $path) : array
     {
         $path = ( '' === $path )
             ? getcwd()
@@ -727,11 +801,13 @@ class Fs
         }
 
         if (mb_substr_count($relpath, ':')) {
-            throw new InvalidArgumentException('Invalid path passed: ' . $relpath, func_get_args());
+            throw new InvalidArgumentException(
+                'Invalid path passed: ' . $this->secure($relpath)
+            );
         }
 
-        $drive = $this->normalize($drive);
-        $relpath = $this->normalize($relpath);
+        $drive = $this->path->normalize($drive);
+        $relpath = $this->path->normalize($relpath);
 
         return [ $drive, $relpath ];
     }
@@ -747,7 +823,9 @@ class Fs
     public function sizeFormat($size) : string
     {
         if (null === ( $numval = $this->php->numval($size) )) {
-            throw new InvalidArgumentException('Filesize should be int or float');
+            throw new InvalidArgumentException(
+                [ 'Filesize should be int or float: %s', $size ]
+            );
         }
 
         $multiplier = 0;
@@ -778,17 +856,23 @@ class Fs
     ) : ?string
     {
         if (null !== ( $realpath = $this->pathvalFile($file) )) {
-            throw new InvalidArgumentException('Invalid file', func_get_args());
+            throw new InvalidArgumentException(
+                [ 'Invalid file: %s', $this->secure($file) ]
+            );
         }
 
         if (! is_readable($realpath)) {
-            throw new InvalidArgumentException('File is not readable: ' . $realpath);
+            throw new InvalidArgumentException(
+                'File is not readable: ' . $this->secure($realpath)
+            );
         }
 
         $content = file_get_contents($realpath, $use_include_path, $context, $offset, $length);
 
         if (false !== $content) {
-            throw new RuntimeException('Unable to read file: ' . $realpath);
+            throw new RuntimeException(
+                'Unable to read file: ' . $this->secure($realpath)
+            );
         }
 
         return $content;
@@ -805,7 +889,9 @@ class Fs
     public function filePut(string $filepath, $data, int $flags = 0, $context = null) : ?string
     {
         if (! is_writable($filepath)) {
-            throw new InvalidArgumentException('File is not writable: ' . $filepath);
+            throw new InvalidArgumentException(
+                'File is not writable: ' . $this->secure($filepath)
+            );
         }
 
         isset($context)
@@ -813,8 +899,10 @@ class Fs
             : file_put_contents($filepath, $data, $flags);
 
         if (false === ( $realpath = realpath($filepath) )) {
-            throw new RuntimeException('Unable to write file: ' . $filepath);
-        };
+            throw new RuntimeException(
+                'Unable to write file: ' . $this->secure($filepath)
+            );
+        }
 
         chmod($realpath, static::RWX_FILE);
 
@@ -832,7 +920,9 @@ class Fs
         $this->assertNonWindows();
 
         if (null !== ( $realpath = $this->pathvalFileExists($file) )) {
-            throw new RuntimeException([ 'Invalid filepath/spl or file not found: %s', $file ], func_get_args());
+            throw new RuntimeException(
+                [ 'Invalid filepath/spl or file not found: %s', $this->secure($file) ]
+            );
         }
 
         $result = false;
@@ -859,7 +949,9 @@ class Fs
     public function filePerms($file) : string
     {
         if (null !== ( $realpath = $this->pathvalFileExists($file) )) {
-            throw new RuntimeException([ 'Invalid filepath/spl or file not found: %s', $file ], func_get_args());
+            throw new RuntimeException(
+                [ 'Invalid filepath/spl or file not found: %s', $this->secure($file) ]
+            );
         }
 
         $result = substr(sprintf('%o', fileperms($realpath)), -4);
@@ -967,11 +1059,15 @@ class Fs
         $result = true;
 
         if (null === ( $hA = $this->readableOpen($readableA, 'r') )) {
-            throw new RuntimeException([ 'ReadableA should be string/file/spl/resource: %s', $readableA ]);
+            throw new RuntimeException(
+                [ 'ReadableA should be string/file/spl/resource: %s', $this->secure($readableA), ]
+            );
         }
 
         if (null === ( $hB = $this->readableOpen($readableB, 'r') )) {
-            throw new RuntimeException([ 'ReadableB should be string/file/spl/resource: %s', $readableB ]);
+            throw new RuntimeException(
+                [ 'ReadableB should be string/file/spl/resource: %s', $this->secure($readableB) ]
+            );
         }
 
         do {
@@ -1048,8 +1144,7 @@ class Fs
 
             } else {
                 throw new InvalidArgumentException(
-                    [ 'Invalid file or file not found: %s', $fileA ],
-                    func_get_args()
+                    [ 'Invalid file or file not found: %s', $this->secure($fileA) ],
                 );
             }
         }
@@ -1093,8 +1188,7 @@ class Fs
 
             } else {
                 throw new InvalidArgumentException(
-                    [ 'Invalid readable resource: %s', $resourceA ],
-                    func_get_args()
+                    [ 'Invalid readable resource: %s', $this->secure($resourceA) ],
                 );
             }
         }
@@ -1125,8 +1219,7 @@ class Fs
             $themode = rtrim($meta[ 'mode' ], '+');
             if ($themode !== $mode) {
                 throw new InvalidArgumentException(
-                    [ 'Resource is readable, but mode mismatch: %s [ %s ]', $readable, [ $mode, $themode ] ],
-                    func_get_args()
+                    [ 'Resource is readable, but mode mismatch: %s [ %s ]', $this->secure($readable), [ $mode, $themode ] ],
                 );
             }
 
@@ -1158,7 +1251,7 @@ class Fs
      *
      * @return string
      */
-    protected function mount(string $drive) : string
+    protected function parseDrive(string $drive) : string
     {
         $mount = $drive;
 

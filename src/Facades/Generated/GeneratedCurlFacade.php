@@ -3,8 +3,9 @@
 /**
  * This file is auto-generated.
  *
- * @noinspection PhpUnhandledExceptionInspection
  * @noinspection PhpDocMissingThrowsInspection
+ * @noinspection PhpUnhandledExceptionInspection
+ * @noinspection PhpUnusedAliasInspection
  */
 
 namespace Gzhegow\Support\Facades\Generated;
@@ -197,7 +198,7 @@ abstract class GeneratedCurlFacade
      * @param       $opt
      * @param mixed $value
      *
-     * @return static
+     * @return Curl
      */
     public static function setOpt(string $opt, $value)
     {
@@ -207,7 +208,7 @@ abstract class GeneratedCurlFacade
     /**
      * @param array $opts
      *
-     * @return static
+     * @return Curl
      */
     public static function setOptArray(array $opts)
     {
@@ -215,7 +216,7 @@ abstract class GeneratedCurlFacade
     }
 
     /**
-     * @return static
+     * @return Curl
      */
     public static function clearOptArray()
     {
@@ -223,7 +224,7 @@ abstract class GeneratedCurlFacade
     }
 
     /**
-     * @return static
+     * @return Curl
      */
     public static function resetOptArray()
     {

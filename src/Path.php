@@ -45,11 +45,43 @@ class Path
 
 
     /**
+     * @param mixed ...$delimiters
+     *
+     * @return static
+     */
+    public function clone(...$delimiters)
+    {
+        $instance = clone $this;
+
+        $instance->using(...$delimiters);
+
+        return $instance;
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getSeparator() : string
+    {
+        return $this->separator;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getDelimiters() : array
+    {
+        return $this->delimiters;
+    }
+
+
+    /**
      * @param string|string[] $delimiters
      *
      * @return static
      */
-    public function using(...$delimiters) : self
+    public function using(...$delimiters)
     {
         $delimiters = $this->str->theWords(...$delimiters);
         $delimiters = array_unique($delimiters);
@@ -59,7 +91,6 @@ class Path
 
         return $this;
     }
-
 
 
     /**
@@ -258,7 +289,7 @@ class Path
      *
      * @return string
      */
-    public function basepath(string $path, string $base = '') : ?string
+    public function relative(string $path, string $base = '') : ?string
     {
         $normalizedPath = $this->normalize($path);
 

@@ -3,8 +3,9 @@
 /**
  * This file is auto-generated.
  *
- * @noinspection PhpUnhandledExceptionInspection
  * @noinspection PhpDocMissingThrowsInspection
+ * @noinspection PhpUnhandledExceptionInspection
+ * @noinspection PhpUnusedAliasInspection
  */
 
 namespace Gzhegow\Support\Facades\Generated;
@@ -15,7 +16,8 @@ use Gzhegow\Support\Str;
 abstract class GeneratedStrFacade
 {
     /**
-     * Determine if string starts with, returns string without needle or null if nothing found
+     * если строка начинается на искомую, отрезает ее и возвращает укороченную
+     * if (null !== ($substr = $str->ends('hello', 'h'))) {} // 'ello'
      *
      * @param string      $str
      * @param string|null $needle
@@ -29,7 +31,8 @@ abstract class GeneratedStrFacade
     }
 
     /**
-     * Determine if string ends with, returns string without needle or null if nothing found
+     * если строка заканчивается на искомую, отрезает ее и возвращает укороченную
+     * if (null !== ($substr = $str->ends('hello', 'o'))) {} // 'hell'
      *
      * @param string      $str
      * @param string|null $needle
@@ -43,7 +46,8 @@ abstract class GeneratedStrFacade
     }
 
     /**
-     * Determine if string contains needle, returns array of parts without needle or empty array if nothing found
+     * ищет подстроку в строке и разбивает по ней результат
+     * if ($explode = $str->contains('hello', 'h')) {} // ['', 'ello']
      *
      * @param string      $str
      * @param string|null $needle
@@ -62,8 +66,8 @@ abstract class GeneratedStrFacade
     }
 
     /**
-     * Search all sequences starts & ends from given substr
-     * and return array that contains all of them without enclosures
+     * ищет все совпадения начинающиеся "с" и заканчивающиеся "на"
+     * используется при замене подстановок в тексте
      *
      * @param string   $start
      * @param string   $end
@@ -84,6 +88,85 @@ abstract class GeneratedStrFacade
     }
 
     /**
+     * стандартная функция возвращает false, если не найдено
+     * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для сдвига
+     * usort($array, function ($a, $b) { return $str->strpos($hs, $a) - $str->strpos($hs, $b); }}
+     *
+     * @param string $haystack
+     * @param mixed  $needle
+     * @param int    $offset
+     *
+     * @return int
+     */
+    public static function strpos($haystack, $needle, $offset): int
+    {
+        return static::getInstance()->strpos($haystack, $needle, $offset);
+    }
+
+    /**
+     * стандартная функция возвращает false, если не найдено
+     * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для сдвига
+     * usort($array, function ($a, $b) { return $str->strpos($hs, $a) - $str->strpos($hs, $b); }}
+     *
+     * @param string $haystack
+     * @param mixed  $needle
+     * @param int    $offset
+     *
+     * @return int
+     */
+    public static function strrpos($haystack, $needle, $offset): int
+    {
+        return static::getInstance()->strrpos($haystack, $needle, $offset);
+    }
+
+    /**
+     * стандартная функция возвращает false, если не найдено
+     * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для сдвига
+     * usort($array, function ($a, $b) { return $str->strpos($hs, $a) - $str->strpos($hs, $b); }}
+     *
+     * @param string $haystack
+     * @param mixed  $needle
+     * @param int    $offset
+     *
+     * @return int
+     */
+    public static function stripos($haystack, $needle, $offset): int
+    {
+        return static::getInstance()->stripos($haystack, $needle, $offset);
+    }
+
+    /**
+     * стандартная функция возвращает false, если не найдено
+     * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для сдвига
+     * usort($array, function ($a, $b) { return $str->strpos($hs, $a) - $str->strpos($hs, $b); }}
+     *
+     * @param string $haystack
+     * @param mixed  $needle
+     * @param int    $offset
+     *
+     * @return int
+     */
+    public static function strripos($haystack, $needle, $offset): int
+    {
+        return static::getInstance()->strripos($haystack, $needle, $offset);
+    }
+
+    /**
+     * фикс. стандартная функция при попытке разбить пустую строку возвращает массив из пустой строки
+     *
+     * @param string   $string
+     * @param null|int $len
+     *
+     * @return array
+     */
+    public static function split(string $string, int $len = null): array
+    {
+        return static::getInstance()->split($string, $len);
+    }
+
+    /**
+     * фикс. стандартная функция не поддерживает лимит замен
+     *
      * @param string|string[] $search
      * @param string|string[] $replace
      * @param string|string[] $subject
@@ -98,6 +181,8 @@ abstract class GeneratedStrFacade
     }
 
     /**
+     * фикс. стандартная функция не поддерживает лимит замен
+     *
      * @param string|string[] $search
      * @param string|string[] $replace
      * @param string|string[] $subject
@@ -109,54 +194,6 @@ abstract class GeneratedStrFacade
     public static function ireplace($search, $replace, $subject, int $limit = null, int &$count = null)
     {
         return static::getInstance()->ireplace($search, $replace, $subject, $limit, $count);
-    }
-
-    /**
-     * @param string $haystack
-     * @param mixed  $needle
-     * @param int    $offset
-     *
-     * @return int
-     */
-    public static function strpos($haystack, $needle, $offset): int
-    {
-        return static::getInstance()->strpos($haystack, $needle, $offset);
-    }
-
-    /**
-     * @param string $haystack
-     * @param mixed  $needle
-     * @param int    $offset
-     *
-     * @return int
-     */
-    public static function strrpos($haystack, $needle, $offset): int
-    {
-        return static::getInstance()->strrpos($haystack, $needle, $offset);
-    }
-
-    /**
-     * @param string $haystack
-     * @param mixed  $needle
-     * @param int    $offset
-     *
-     * @return int
-     */
-    public static function stripos($haystack, $needle, $offset): int
-    {
-        return static::getInstance()->stripos($haystack, $needle, $offset);
-    }
-
-    /**
-     * @param string $haystack
-     * @param mixed  $needle
-     * @param int    $offset
-     *
-     * @return int
-     */
-    public static function strripos($haystack, $needle, $offset): int
-    {
-        return static::getInstance()->strripos($haystack, $needle, $offset);
     }
 
     /**
@@ -288,24 +325,13 @@ abstract class GeneratedStrFacade
      *
      * @return array
      */
-    public static function split($delimiters, ...$strvals): array
-    {
-        return static::getInstance()->split($delimiters, ...$strvals);
-    }
-
-    /**
-     * @param string|string[]|array $delimiters
-     * @param string|string[]|array ...$strvals
-     *
-     * @return array
-     */
     public static function explode($delimiters, ...$strvals): array
     {
         return static::getInstance()->explode($delimiters, ...$strvals);
     }
 
     /**
-     * Explodes string recursive by several delimiters, especially for parsing 'Accept' Header
+     * рекурсивно разрывает строку в многоуровневый массив
      *
      * @param string|string[]|array $delimiters
      * @param string                $string
@@ -319,7 +345,7 @@ abstract class GeneratedStrFacade
     }
 
     /**
-     * Creates string like '1, 2, 3', includes empty strings, throws error on non-stringables
+     * '1, 2, 3', включая пустые строки, исключение если нельзя привести к строке
      *
      * @param string                $delimiter
      * @param string|string[]|array ...$strvals
@@ -332,7 +358,7 @@ abstract class GeneratedStrFacade
     }
 
     /**
-     * Creates string like '1, 2, 3', includes empty strings, skips non-stringables
+     * '1, 2, 3', включая пустые строки, пропускает если нельзя привести к строке
      *
      * @param string                $delimiter
      * @param string|string[]|array ...$strvals
@@ -345,7 +371,7 @@ abstract class GeneratedStrFacade
     }
 
     /**
-     * Creates string like '1, 2, 3', skips empty strings, throws error on non-stringables
+     * '1, 2, 3', пропускает пустые строки, исключение если нельзя привести к строке
      *
      * @param string                $delimiter
      * @param string|string[]|array ...$strvals
@@ -358,7 +384,7 @@ abstract class GeneratedStrFacade
     }
 
     /**
-     * Creates string like '1, 2, 3', skips empty strings, skips non-stringables
+     * '1, 2, 3', пропускает пустые строки, пропускает если нельзя привести к строке
      *
      * @param string                $delimiter
      * @param string|string[]|array ...$strvals
@@ -371,7 +397,7 @@ abstract class GeneratedStrFacade
     }
 
     /**
-     * Creates string like "`1`, `2` or `3`", skips empty strings, throws error on non-stringables
+     * "`1`, `2` or `3`", всегда пропускает пустые строки, исключение если нельзя привести к строке
      *
      * @param string|string[]|array $strings
      * @param null|string           $delimiter
@@ -390,7 +416,7 @@ abstract class GeneratedStrFacade
     }
 
     /**
-     * Creates string like "`1`, `2` or `3`", skips empty strings, skips non-stringables
+     * "`1`, `2` or `3`", всегда пропускает пустые строки, пропускает если нельзя привести к строке
      *
      * @param string|string[]|array $strings
      * @param null|string           $delimiter

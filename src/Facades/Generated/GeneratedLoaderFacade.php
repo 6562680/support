@@ -3,14 +3,16 @@
 /**
  * This file is auto-generated.
  *
- * @noinspection PhpUnhandledExceptionInspection
  * @noinspection PhpDocMissingThrowsInspection
+ * @noinspection PhpUnhandledExceptionInspection
+ * @noinspection PhpUnusedAliasInspection
  */
 
 namespace Gzhegow\Support\Facades\Generated;
 
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Loader;
+use Gzhegow\Support\Path;
 
 abstract class GeneratedLoaderFacade
 {
@@ -89,6 +91,39 @@ abstract class GeneratedLoaderFacade
     }
 
     /**
+     * @param object          $value
+     * @param string|string[] ...$classes
+     *
+     * @return null|object
+     */
+    public static function assertInstanceOf($value, ...$classes)
+    {
+        return static::getInstance()->assertInstanceOf($value, ...$classes);
+    }
+
+    /**
+     * @param string|object   $value
+     * @param string|string[] ...$classes
+     *
+     * @return null|string|object
+     */
+    public static function assertClassOf($value, ...$classes)
+    {
+        return static::getInstance()->assertClassOf($value, ...$classes);
+    }
+
+    /**
+     * @param string|object   $value
+     * @param string|string[] ...$classes
+     *
+     * @return null|string|object
+     */
+    public static function assertSubclassOf($value, ...$classes)
+    {
+        return static::getInstance()->assertSubclassOf($value, ...$classes);
+    }
+
+    /**
      * @param string|object $classOrObject
      *
      * @return string[]
@@ -119,15 +154,63 @@ abstract class GeneratedLoaderFacade
     }
 
     /**
-     * @param string|object $classOrObject
-     * @param null|string   $suffix
-     * @param null|int      $limit
+     * @return Path
+     */
+    public static function path(): Path
+    {
+        return static::getInstance()->path();
+    }
+
+    /**
+     * @param string|string[]|array ...$parts
+     *
+     * @return array
+     */
+    public static function pathSplit(...$parts): array
+    {
+        return static::getInstance()->pathSplit(...$parts);
+    }
+
+    /**
+     * @param string|string[]|array ...$parts
      *
      * @return string
      */
-    public static function basename($classOrObject, string $suffix = null, int $limit = null): ?string
+    public static function pathJoin(...$parts): string
     {
-        return static::getInstance()->basename($classOrObject, $suffix, $limit);
+        return static::getInstance()->pathJoin(...$parts);
+    }
+
+    /**
+     * @param mixed ...$parts
+     *
+     * @return string
+     */
+    public static function pathNormalize(...$parts): string
+    {
+        return static::getInstance()->pathNormalize(...$parts);
+    }
+
+    /**
+     * @param string|string[]|array ...$parts
+     *
+     * @return string
+     */
+    public static function pathConcat(...$parts): string
+    {
+        return static::getInstance()->pathConcat(...$parts);
+    }
+
+    /**
+     * @param string|object $classOrObject
+     * @param null|string   $suffix
+     * @param int           $levels
+     *
+     * @return null|string
+     */
+    public static function pathBasename($classOrObject, string $suffix = null, int $levels = 0): ?string
+    {
+        return static::getInstance()->pathBasename($classOrObject, $suffix, $levels);
     }
 
     /**
@@ -136,9 +219,9 @@ abstract class GeneratedLoaderFacade
      *
      * @return string
      */
-    public static function basepath($classOrObject, string $base = null): ?string
+    public static function pathRelative($classOrObject, string $base = ''): ?string
     {
-        return static::getInstance()->basepath($classOrObject, $base);
+        return static::getInstance()->pathRelative($classOrObject, $base);
     }
 
     /**
