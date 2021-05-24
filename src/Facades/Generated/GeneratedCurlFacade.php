@@ -40,7 +40,7 @@ abstract class GeneratedCurlFacade
     }
 
     /**
-     * @param mixed $ch
+     * @param resource $ch
      *
      * @return boolean
      */
@@ -50,7 +50,7 @@ abstract class GeneratedCurlFacade
     }
 
     /**
-     * @param mixed $ch
+     * @param resource $ch
      *
      * @return boolean
      */
@@ -60,13 +60,34 @@ abstract class GeneratedCurlFacade
     }
 
     /**
-     * @param mixed $ch
+     * @param resource $ch
      *
      * @return boolean
      */
     public static function isClosedCurl($ch): bool
     {
         return static::getInstance()->isClosedCurl($ch);
+    }
+
+    /**
+     * @param string $opt
+     * @param mixed  $value
+     *
+     * @return Curl
+     */
+    public static function setOpt(string $opt, $value)
+    {
+        return static::getInstance()->setOpt($opt, $value);
+    }
+
+    /**
+     * @param array $opts
+     *
+     * @return Curl
+     */
+    public static function setOptArray(array $opts)
+    {
+        return static::getInstance()->setOptArray($opts);
     }
 
     /**
@@ -176,7 +197,7 @@ abstract class GeneratedCurlFacade
     /**
      * @param resource $ch
      *
-     * @return null|mixed[]|mixed[][]
+     * @return null|mixed[]
      */
     public static function curlInfo($ch): ?array
     {
@@ -192,27 +213,6 @@ abstract class GeneratedCurlFacade
     public static function curlInfoOpt($ch, $opt)
     {
         return static::getInstance()->curlInfoOpt($ch, $opt);
-    }
-
-    /**
-     * @param       $opt
-     * @param mixed $value
-     *
-     * @return Curl
-     */
-    public static function setOpt(string $opt, $value)
-    {
-        return static::getInstance()->setOpt($opt, $value);
-    }
-
-    /**
-     * @param array $opts
-     *
-     * @return Curl
-     */
-    public static function setOptArray(array $opts)
-    {
-        return static::getInstance()->setOptArray($opts);
     }
 
     /**
@@ -232,8 +232,8 @@ abstract class GeneratedCurlFacade
     }
 
     /**
-     * @param mixed $curl
-     * @param mixed $opt
+     * @param resource   $curl
+     * @param int|string $opt
      *
      * @return null|string|string[]
      */

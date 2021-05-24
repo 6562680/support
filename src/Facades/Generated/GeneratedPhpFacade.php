@@ -32,9 +32,19 @@ abstract class GeneratedPhpFacade
      *
      * @return bool
      */
-    public static function isEmpty(&$value): bool
+    public static function isBlank(&$value): bool
     {
-        return static::getInstance()->isEmpty($value);
+        return static::getInstance()->isBlank($value);
+    }
+
+    /**
+     * @param mixed &$value
+     *
+     * @return bool
+     */
+    public static function isNotBlank(&$value): bool
+    {
+        return static::getInstance()->isNotBlank($value);
     }
 
     /**
@@ -42,9 +52,19 @@ abstract class GeneratedPhpFacade
      *
      * @return mixed
      */
-    public static function assertEmpty(&$value)
+    public static function assertBlank(&$value)
     {
-        return static::getInstance()->assertEmpty($value);
+        return static::getInstance()->assertBlank($value);
+    }
+
+    /**
+     * @param mixed &$value
+     *
+     * @return mixed
+     */
+    public static function assertNotBlank(&$value)
+    {
+        return static::getInstance()->assertNotBlank($value);
     }
 
     /**

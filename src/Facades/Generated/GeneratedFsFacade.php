@@ -51,7 +51,7 @@ abstract class GeneratedFsFacade
     }
 
     /**
-     * @param mixed $value
+     * @param string $value
      *
      * @return bool
      */
@@ -61,7 +61,7 @@ abstract class GeneratedFsFacade
     }
 
     /**
-     * @param mixed $value
+     * @param string $value
      *
      * @return bool
      */
@@ -71,7 +71,7 @@ abstract class GeneratedFsFacade
     }
 
     /**
-     * @param mixed $value
+     * @param string $value
      *
      * @return bool
      */
@@ -81,7 +81,7 @@ abstract class GeneratedFsFacade
     }
 
     /**
-     * @param mixed $value
+     * @param string $value
      *
      * @return bool
      */
@@ -91,7 +91,7 @@ abstract class GeneratedFsFacade
     }
 
     /**
-     * @param mixed $value
+     * @param \SplFileInfo $value
      *
      * @return bool
      */
@@ -101,7 +101,7 @@ abstract class GeneratedFsFacade
     }
 
     /**
-     * @param mixed $value
+     * @param \SplFileInfo $value
      *
      * @return bool
      */
@@ -111,7 +111,7 @@ abstract class GeneratedFsFacade
     }
 
     /**
-     * @param mixed $value
+     * @param \SplFileInfo $value
      *
      * @return bool
      */
@@ -121,7 +121,7 @@ abstract class GeneratedFsFacade
     }
 
     /**
-     * @param mixed $value
+     * @param \SplFileInfo $value
      *
      * @return bool
      */
@@ -131,7 +131,7 @@ abstract class GeneratedFsFacade
     }
 
     /**
-     * @param mixed $value
+     * @param string $value
      *
      * @return null|string
      */
@@ -141,7 +141,7 @@ abstract class GeneratedFsFacade
     }
 
     /**
-     * @param mixed $value
+     * @param string $value
      *
      * @return null|string
      */
@@ -151,7 +151,7 @@ abstract class GeneratedFsFacade
     }
 
     /**
-     * @param mixed $value
+     * @param string $value
      *
      * @return null|string
      */
@@ -161,7 +161,7 @@ abstract class GeneratedFsFacade
     }
 
     /**
-     * @param mixed $value
+     * @param string $value
      *
      * @return null|string
      */
@@ -171,7 +171,7 @@ abstract class GeneratedFsFacade
     }
 
     /**
-     * @param mixed $value
+     * @param \SplFileInfo $value
      *
      * @return null|\SplFileInfo
      */
@@ -181,7 +181,7 @@ abstract class GeneratedFsFacade
     }
 
     /**
-     * @param mixed $value
+     * @param \SplFileInfo $value
      *
      * @return null|\SplFileInfo
      */
@@ -191,7 +191,7 @@ abstract class GeneratedFsFacade
     }
 
     /**
-     * @param mixed $value
+     * @param \SplFileInfo $value
      *
      * @return null|\SplFileInfo
      */
@@ -201,7 +201,7 @@ abstract class GeneratedFsFacade
     }
 
     /**
-     * @param mixed $value
+     * @param \SplFileInfo $value
      *
      * @return null|\SplFileInfo
      */
@@ -227,7 +227,7 @@ abstract class GeneratedFsFacade
     }
 
     /**
-     * @param mixed $value
+     * @param string $value
      *
      * @return null|string
      */
@@ -237,7 +237,7 @@ abstract class GeneratedFsFacade
     }
 
     /**
-     * @param mixed $value
+     * @param string $value
      *
      * @return null|string
      */
@@ -247,7 +247,7 @@ abstract class GeneratedFsFacade
     }
 
     /**
-     * @param mixed $value
+     * @param string $value
      *
      * @return null|string
      */
@@ -257,7 +257,7 @@ abstract class GeneratedFsFacade
     }
 
     /**
-     * @param mixed $value
+     * @param string $value
      *
      * @return null|string
      */
@@ -267,7 +267,7 @@ abstract class GeneratedFsFacade
     }
 
     /**
-     * @param mixed $value
+     * @param \SplFileInfo $value
      *
      * @return null|\SplFileInfo
      */
@@ -277,7 +277,7 @@ abstract class GeneratedFsFacade
     }
 
     /**
-     * @param mixed $value
+     * @param \SplFileInfo $value
      *
      * @return null|\SplFileInfo
      */
@@ -287,7 +287,7 @@ abstract class GeneratedFsFacade
     }
 
     /**
-     * @param mixed $value
+     * @param \SplFileInfo $value
      *
      * @return null|\SplFileInfo
      */
@@ -297,7 +297,7 @@ abstract class GeneratedFsFacade
     }
 
     /**
-     * @param mixed $value
+     * @param \SplFileInfo $value
      *
      * @return null|\SplFileInfo
      */
@@ -425,7 +425,7 @@ abstract class GeneratedFsFacade
     }
 
     /**
-     * @param mixed ...$parts
+     * @param string|string[]|array ...$parts
      *
      * @return string
      */
@@ -480,7 +480,7 @@ abstract class GeneratedFsFacade
     }
 
     /**
-     * @param mixed       $value
+     * @param string      $value
      * @param string|null $base
      *
      * @return string
@@ -546,10 +546,10 @@ abstract class GeneratedFsFacade
     }
 
     /**
-     * @param string $filepath
-     * @param mixed  $data
-     * @param int    $flags
-     * @param null   $context
+     * @param string   $filepath
+     * @param mixed    $data
+     * @param null|int $flags
+     * @param null     $context
      *
      * @return null|string
      */

@@ -793,22 +793,22 @@ class ArrTest extends AbstractTestCase
     {
         $arr = $this->getArr();
 
-        $this->assertEquals([ '' ], $arr->path('.', ''));
-        $this->assertEquals([ 'hello' ], $arr->path('.', 'hello'));
-        $this->assertEquals([ 'hello', 'world' ], $arr->path('.', 'hello.world'));
-        $this->assertEquals([], $arr->path('.', []));
-        $this->assertEquals([ '' ], $arr->path('.', [ '' ]));
-        $this->assertEquals([ '', '' ], $arr->path('.', [ '', '' ]));
-        $this->assertEquals([ 'hello' ], $arr->path('.', [ 'hello' ]));
-        $this->assertEquals([ 'hello', 'world' ], $arr->path('.', [ 'hello.world' ]));
-        $this->assertEquals([ 'hello', 'world' ], $arr->path('.', [ 'hello', 'world' ]));
+        $this->assertEquals([ '' ], $arr->path('', ':'));
+        $this->assertEquals([ 'hello' ], $arr->path('hello', ':'));
+        $this->assertEquals([ 'hello', 'world' ], $arr->path('hello:world', ':'));
+        $this->assertEquals([], $arr->path([], ':'));
+        $this->assertEquals([ '' ], $arr->path([ '' ], ':'));
+        $this->assertEquals([ '', '' ], $arr->path([ '', '' ], ':'));
+        $this->assertEquals([ 'hello' ], $arr->path([ 'hello' ], ':'));
+        $this->assertEquals([ 'hello', 'world' ], $arr->path([ 'hello:world' ], ':'));
+        $this->assertEquals([ 'hello', 'world' ], $arr->path([ 'hello', 'world' ], ':'));
         $this->assertEquals(
             [ 'hello', 'world', 'hello', 'world' ],
-            $arr->path('.', [ 'hello', 'world', 'hello.world' ])
+            $arr->path([ 'hello', 'world', 'hello:world' ], ':')
         );
         $this->assertEquals(
             [ 'hello', 'world', 'hello', 'world' ],
-            $arr->path('.', [ 'hello', 'world', [ 'hello.world' ] ])
+            $arr->path([ 'hello', 'world', [ 'hello:world' ] ], ':')
         );
     }
 
@@ -817,11 +817,11 @@ class ArrTest extends AbstractTestCase
         $arr = $this->getArr();
 
         $this->assertException(InvalidArgumentException::class, function () use ($arr) {
-            $arr->path('.', null);
+            $arr->path(null, ':');
         });
 
         $this->assertException(InvalidArgumentException::class, function () use ($arr) {
-            $arr->path('.', [ null ]);
+            $arr->path([ null ], ':');
         });
     }
 
@@ -830,22 +830,22 @@ class ArrTest extends AbstractTestCase
     {
         $arr = $this->getArr();
 
-        $this->assertEquals('', $arr->key('.', ''));
-        $this->assertEquals('hello', $arr->key('.', 'hello'));
-        $this->assertEquals('hello.world', $arr->key('.', 'hello.world'));
-        $this->assertEquals('', $arr->key('.', []));
-        $this->assertEquals('', $arr->key('.', [ '' ]));
-        $this->assertEquals('', '', $arr->key('.', [ '', '' ]));
-        $this->assertEquals('hello', $arr->key('.', [ 'hello' ]));
-        $this->assertEquals('hello.world', $arr->key('.', [ 'hello.world' ]));
-        $this->assertEquals('hello.world', $arr->key('.', [ 'hello', 'world' ]));
+        $this->assertEquals('', $arr->key('', ':'));
+        $this->assertEquals('hello', $arr->key('hello', ':'));
+        $this->assertEquals('hello:world', $arr->key('hello:world', ':'));
+        $this->assertEquals('', $arr->key([], ':'));
+        $this->assertEquals('', $arr->key([ '' ], ':'));
+        $this->assertEquals('', '', $arr->key([ '', '' ], ':'));
+        $this->assertEquals('hello', $arr->key([ 'hello' ], ':'));
+        $this->assertEquals('hello:world', $arr->key([ 'hello:world' ], ':'));
+        $this->assertEquals('hello:world', $arr->key([ 'hello', 'world' ], ':'));
         $this->assertEquals(
-            'hello.world.hello.world',
-            $arr->key('.', [ 'hello', 'world', 'hello.world' ])
+            'hello:world:hello:world',
+            $arr->key([ 'hello', 'world', 'hello:world' ], ':')
         );
         $this->assertEquals(
-            'hello.world.hello.world',
-            $arr->key('.', [ 'hello', 'world', [ 'hello.world' ] ])
+            'hello:world:hello:world',
+            $arr->key([ 'hello', 'world', [ 'hello:world' ] ], ':')
         );
     }
 
@@ -867,17 +867,17 @@ class ArrTest extends AbstractTestCase
     {
         $arr = $this->getArr();
 
-        $this->assertEquals('', $arr->indexkey('', '.'));
-        $this->assertEquals('', $arr->indexkey([ '' ], '.'));
-        $this->assertEquals("hello", $arr->indexkey('hello', '.'));
-        $this->assertEquals("hello\0world", $arr->indexkey('hello.world', '.'));
-        $this->assertEquals('', $arr->indexkey([], '.'));
-        $this->assertEquals("\0", $arr->indexkey([ '', '' ], '.'));
-        $this->assertEquals("hello", $arr->indexkey([ 'hello' ], '.'));
-        $this->assertEquals("hello\0world", $arr->indexkey([ 'hello.world' ], '.'));
-        $this->assertEquals("hello\0world", $arr->indexkey([ 'hello', 'world' ], '.'));
-        $this->assertEquals("hello\0world\0hello\0world", $arr->indexkey([ 'hello', 'world', 'hello.world' ], '.'));
-        $this->assertEquals("hello\0world\0hello\0world", $arr->indexkey([ 'hello', 'world', [ 'hello.world' ] ], '.'));
+        $this->assertEquals('', $arr->indexkey('.', ''));
+        $this->assertEquals('', $arr->indexkey('.', [ '' ]));
+        $this->assertEquals('hello', $arr->indexkey('.', 'hello'));
+        $this->assertEquals('hello.world', $arr->indexkey('.', 'hello.world'));
+        $this->assertEquals('', $arr->indexkey('.', []));
+        $this->assertEquals('.', $arr->indexkey('.', [ '', '' ]));
+        $this->assertEquals('hello', $arr->indexkey('.', [ 'hello' ]));
+        $this->assertEquals('hello.world', $arr->indexkey('.', [ 'hello.world' ]));
+        $this->assertEquals('hello.world', $arr->indexkey('.', [ 'hello', 'world' ]));
+        $this->assertEquals('hello.world.hello.world', $arr->indexkey('.', [ 'hello', 'world', 'hello.world' ]));
+        $this->assertEquals('hello.world.hello.world', $arr->indexkey('.', [ 'hello', 'world', [ 'hello.world' ] ]));
     }
 
     public function testBadIndexKey()
@@ -997,9 +997,9 @@ class ArrTest extends AbstractTestCase
             null,
             [],
             [
-                "hello"       => null,
-                "world"       => [],
-                "hello.world" => [
+                'hello'       => null,
+                'world'       => [],
+                'hello.world' => [
                     0 => null,
                 ],
             ],

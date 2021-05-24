@@ -244,7 +244,7 @@ class Criteria
         $srcDates = [];
         foreach ( $src as $i => $val ) {
             $date = null
-                ?? ( $this->calendar->isDate($src[ $i ]) ? $src[ $i ] : null )
+                ?? ( $this->calendar->isDateTime($src[ $i ]) ? $src[ $i ] : null )
                 ?? ( $coalesce ? $this->calendar->date($src[ $i ]) : null )
                 ?? null;
 
@@ -311,7 +311,7 @@ class Criteria
                     return null === $this->str->ends($needle, $src, $coalesce);
                 }
 
-            } elseif ($this->calendar->isDate($needle)) {
+            } elseif ($this->calendar->isDateTime($needle)) {
                 if ($operator === static::OPERATOR_GT) return 1 === $this->cmp->cmpDate($needle, $src);
                 if ($operator === static::OPERATOR_LT) return -1 === $this->cmp->cmpDate($needle, $src);
                 if ($operator === static::OPERATOR_GTE) return -1 !== $this->cmp->cmpDate($needle, $src);
@@ -357,7 +357,7 @@ class Criteria
                 return ! $this->isInString($needle, $arr, $coalesce);
             }
 
-        } elseif ($this->calendar->isDate($needle)) {
+        } elseif ($this->calendar->isDateTime($needle)) {
             if ($operator === static::OPERATOR_IN) return $this->isInDate($needle, $arr, $coalesce);
             if ($operator === static::OPERATOR_NIN) {
                 return ! $this->isInDate($needle, $arr, $coalesce);

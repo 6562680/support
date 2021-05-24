@@ -93,7 +93,7 @@ abstract class GeneratedStrFacade
      * usort($array, function ($a, $b) { return $str->strpos($hs, $a) - $str->strpos($hs, $b); }}
      *
      * @param string $haystack
-     * @param mixed  $needle
+     * @param string $needle
      * @param int    $offset
      *
      * @return int
@@ -109,7 +109,7 @@ abstract class GeneratedStrFacade
      * usort($array, function ($a, $b) { return $str->strpos($hs, $a) - $str->strpos($hs, $b); }}
      *
      * @param string $haystack
-     * @param mixed  $needle
+     * @param string $needle
      * @param int    $offset
      *
      * @return int
@@ -125,7 +125,7 @@ abstract class GeneratedStrFacade
      * usort($array, function ($a, $b) { return $str->strpos($hs, $a) - $str->strpos($hs, $b); }}
      *
      * @param string $haystack
-     * @param mixed  $needle
+     * @param string $needle
      * @param int    $offset
      *
      * @return int
@@ -141,7 +141,7 @@ abstract class GeneratedStrFacade
      * usort($array, function ($a, $b) { return $str->strpos($hs, $a) - $str->strpos($hs, $b); }}
      *
      * @param string $haystack
-     * @param mixed  $needle
+     * @param string $needle
      * @param int    $offset
      *
      * @return int
@@ -510,123 +510,135 @@ abstract class GeneratedStrFacade
     }
 
     /**
-     * @param string|string[]|array ...$numbers
+     * @param string|string[]|array $numbers
+     * @param null|bool             $uniq
      *
      * @return string[]
      */
-    public static function numbers(...$numbers): array
+    public static function numbers($numbers, bool $uniq = null): array
     {
-        return static::getInstance()->numbers(...$numbers);
+        return static::getInstance()->numbers($numbers, $uniq);
     }
 
     /**
-     * @param string|string[]|array ...$numbers
+     * @param string|string[]|array $numbers
+     * @param null|bool             $uniq
      *
      * @return string[]
      */
-    public static function theNumbers(...$numbers): array
+    public static function theNumbers($numbers, bool $uniq = null): array
     {
-        return static::getInstance()->theNumbers(...$numbers);
+        return static::getInstance()->theNumbers($numbers, $uniq);
     }
 
     /**
-     * @param string|string[]|array ...$numbers
+     * @param string|string[]|array $numbers
+     * @param null|bool             $uniq
      *
      * @return string[]
      */
-    public static function numbersskip(...$numbers): array
+    public static function numbersskip($numbers, bool $uniq = null): array
     {
-        return static::getInstance()->numbersskip(...$numbers);
+        return static::getInstance()->numbersskip($numbers, $uniq);
     }
 
     /**
-     * @param string|string[]|array ...$numbers
+     * @param string|string[]|array $numbers
+     * @param null|bool             $uniq
      *
      * @return string[]
      */
-    public static function theNumbersskip(...$numbers): array
+    public static function theNumbersskip($numbers, bool $uniq = null): array
     {
-        return static::getInstance()->theNumbersskip(...$numbers);
+        return static::getInstance()->theNumbersskip($numbers, $uniq);
     }
 
     /**
-     * @param string|string[]|array ...$strings
+     * @param string|string[]|array $strings
+     * @param null|bool             $uniq
      *
      * @return string[]
      */
-    public static function strings(...$strings): array
+    public static function strings($strings, bool $uniq = null): array
     {
-        return static::getInstance()->strings(...$strings);
+        return static::getInstance()->strings($strings, $uniq);
     }
 
     /**
-     * @param string|string[]|array ...$strings
+     * @param string|string[]|array $strings
+     * @param null|bool             $uniq
      *
      * @return string[]
      */
-    public static function theStrings(...$strings): array
+    public static function theStrings($strings, bool $uniq = null): array
     {
-        return static::getInstance()->theStrings(...$strings);
+        return static::getInstance()->theStrings($strings, $uniq);
     }
 
     /**
-     * @param string|string[]|array ...$strings
+     * @param string|string[]|array $strings
+     * @param null|bool             $uniq
      *
      * @return string[]
      */
-    public static function stringsskip(...$strings): array
+    public static function stringsskip($strings, bool $uniq = null): array
     {
-        return static::getInstance()->stringsskip(...$strings);
+        return static::getInstance()->stringsskip($strings, $uniq);
     }
 
     /**
-     * @param string|string[]|array ...$strings
+     * @param string|string[]|array $strings
+     * @param null|bool             $uniq
      *
      * @return string[]
      */
-    public static function theStringsskip(...$strings): array
+    public static function theStringsskip($strings, bool $uniq = null): array
     {
-        return static::getInstance()->theStringsskip(...$strings);
+        return static::getInstance()->theStringsskip($strings, $uniq);
     }
 
     /**
-     * @param string|string[]|array ...$words
+     * @param string|string[]|array $words
+     * @param null|bool             $uniq
      *
      * @return string[]
      */
-    public static function words(...$words): array
+    public static function words($words, bool $uniq = null): array
     {
-        return static::getInstance()->words(...$words);
+        return static::getInstance()->words($words, $uniq);
     }
 
     /**
-     * @param string|string[]|array ...$words
+     * @param string|string[]|array $words
+     * @param null|bool             $uniq
      *
      * @return string[]
      */
-    public static function theWords(...$words): array
+    public static function theWords($words, bool $uniq = null): array
     {
-        return static::getInstance()->theWords(...$words);
+        return static::getInstance()->theWords($words, $uniq);
     }
 
     /**
-     * @param string|string[]|array ...$words
+     * @param string|string[]|array $words
+     * @param null|bool             $uniq
      *
      * @return string[]
      */
-    public static function wordsskip(...$words): array
+    public static function wordsskip($words, bool $uniq = null): array
     {
-        return static::getInstance()->wordsskip(...$words);
+        return static::getInstance()->wordsskip($words, $uniq);
     }
 
     /**
-     * @param string|string[]|array ...$words
+     * @param string|string[]|array $words
+     * @param null|bool             $uniq
      *
      * @return array
      */
-    public static function theWordsskip(...$words): array
+    public static function theWordsskip($words, bool $uniq = null): array
     {
-        return static::getInstance()->theWordsskip(...$words);
+        return static::getInstance()->theWordsskip($words, $uniq);
     }
 
     /**

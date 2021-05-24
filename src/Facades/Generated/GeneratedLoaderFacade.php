@@ -181,7 +181,7 @@ abstract class GeneratedLoaderFacade
     }
 
     /**
-     * @param mixed ...$parts
+     * @param string|string[]|array ...$parts
      *
      * @return string
      */

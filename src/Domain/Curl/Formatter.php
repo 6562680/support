@@ -67,7 +67,7 @@ class Formatter
 
 
     /**
-     * @param $method
+     * @param string $method
      *
      * @return null|string
      */
@@ -77,49 +77,60 @@ class Formatter
             return null;
         }
 
-        return isset(static::THE_METHOD_LIST[ $httpMethod = strtoupper($method) ])
-            ? $httpMethod
-            : null;
+        if ('' === $method) {
+            return null;
+        }
+
+        if (isset(static::THE_METHOD_LIST[ $httpMethod = strtoupper($method) ])) {
+            return $httpMethod;
+        }
+
+        return null;
     }
 
+
     /**
-     * @param mixed $info
+     * @param int|string $info
      *
      * @return null|int
      */
     public function detectInfoCode($info) : ?int
     {
-        $infoCode = null
-            ?? ( ( ( null !== $this->filter->filterInt($info) )
-                && isset(static::$infoCodes[ $info ]) )
-                ? $info
-                : false
-            )
-            ?? ( is_string($info) ? static::$info[ $info ] : false );
+        if (null !== $this->filter->filterInt($info)) {
+            if (isset(static::$infoCodes[ $info ])) {
+                return $info;
+            }
 
-        return false !== $infoCode
-            ? $infoCode
-            : null;
+            return false;
+        }
+
+        if (is_string($info)) {
+            return static::$info[ $info ] ?? false;
+        }
+
+        return null;
     }
 
     /**
-     * @param mixed $opt
+     * @param int|string $opt
      *
      * @return null|int
      */
     public function detectOptCode($opt) : ?int
     {
-        $optCode = null
-            ?? ( ( ( null !== $this->filter->filterInt($opt) )
-                && isset(static::$curloptCodes[ $opt ]) )
-                ? $opt
-                : false
-            )
-            ?? ( is_string($opt) ? static::$curlopt[ $opt ] : false );
+        if (null !== $this->filter->filterInt($opt)) {
+            if (isset(static::$curloptCodes[ $opt ])) {
+                return $opt;
+            }
 
-        return false !== $optCode
-            ? $optCode
-            : null;
+            return false;
+        }
+
+        if (is_string($opt)) {
+            return static::$curlopt[ $opt ] ?? false;
+        }
+
+        return null;
     }
 
 

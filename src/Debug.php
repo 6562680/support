@@ -9,7 +9,7 @@ namespace Gzhegow\Support;
 class Debug
 {
     /**
-     * Prints any type for debug, to work with exceptions and debug_backtrace()
+     * Выводит любой тип для дебага и отчета в исключениях
      *
      * @param mixed $arg
      *
@@ -55,7 +55,7 @@ class Debug
 
 
     /**
-     * Replaces any count of spaces to one space like HTML do
+     * Заменяет любое число пробелов в тексте на один
      *
      * @param string $content
      *
@@ -68,6 +68,9 @@ class Debug
 
 
     /**
+     * Извлекает определенные колонки из debug_backtrace()/$throwable->getTrace()
+     * может соединить их через разделитель в строку
+     *
      * @param array       $trace
      * @param array       $columns
      * @param null|string $implode
@@ -128,6 +131,8 @@ class Debug
 
 
     /**
+     * Возвращает результат var_dump, заменяет все пробелы на один
+     *
      * @param array $arguments
      *
      * @return string
@@ -138,14 +143,16 @@ class Debug
 
         var_dump(...$arguments);
 
-        $result = ob_get_clean();
+        $result = $this->dom(
+            ob_get_clean()
+        );
 
         return $result;
     }
 
 
     /**
-     * Executes print_r, replaces all spaces to one when return
+     * Запускает print_r, заменяет все пробелы на один
      *
      * @param mixed     $arg
      * @param bool|null $return
@@ -169,7 +176,7 @@ class Debug
 
 
     /**
-     * Executes var_export, replaces all spaces to one when return
+     * Запускает var_export, заменяет все пробелы на один
      *
      * @param mixed     $arg
      * @param bool|null $return

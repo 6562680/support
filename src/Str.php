@@ -188,7 +188,7 @@ class Str
      * usort($array, function ($a, $b) { return $str->strpos($hs, $a) - $str->strpos($hs, $b); }}
      *
      * @param string $haystack
-     * @param mixed  $needle
+     * @param string $needle
      * @param int    $offset
      *
      * @return int
@@ -208,7 +208,7 @@ class Str
      * usort($array, function ($a, $b) { return $str->strpos($hs, $a) - $str->strpos($hs, $b); }}
      *
      * @param string $haystack
-     * @param mixed  $needle
+     * @param string $needle
      * @param int    $offset
      *
      * @return int
@@ -228,7 +228,7 @@ class Str
      * usort($array, function ($a, $b) { return $str->strpos($hs, $a) - $str->strpos($hs, $b); }}
      *
      * @param string $haystack
-     * @param mixed  $needle
+     * @param string $needle
      * @param int    $offset
      *
      * @return int
@@ -248,7 +248,7 @@ class Str
      * usort($array, function ($a, $b) { return $str->strpos($hs, $a) - $str->strpos($hs, $b); }}
      *
      * @param string $haystack
-     * @param mixed  $needle
+     * @param string $needle
      * @param int    $offset
      *
      * @return int
@@ -680,7 +680,7 @@ class Str
      */
     public function explode($delimiters, ...$strvals) : array
     {
-        $delimiters = $this->strings($delimiters);
+        $delimiters = $this->theStrings($delimiters, true);
 
         $key = key($delimiters);
         do {
@@ -724,7 +724,7 @@ class Str
         $results = [];
         $results[] = $string;
 
-        $delimiters = $this->strings($delimiters);
+        $delimiters = $this->theStrings($delimiters, true);
 
         foreach ( $delimiters as $delimiter ) {
             array_walk_recursive($results, function (string &$ref) use ($delimiter, $limit) {
@@ -756,7 +756,7 @@ class Str
      */
     public function implode(string $delimiter, ...$strvals) : string
     {
-        $result = $this->strings(...$strvals);
+        $result = $this->strings($strvals);
 
         if ('' !== $delimiter) {
             foreach ( $result as $idx => $val ) {
@@ -779,7 +779,7 @@ class Str
      */
     public function implodeskip(string $delimiter, ...$strvals) : string
     {
-        $result = $this->stringsskip(...$strvals);
+        $result = $this->stringsskip($strvals);
 
         if ('' !== $delimiter) {
             foreach ( $result as $idx => $val ) {
@@ -807,7 +807,7 @@ class Str
      */
     public function join(string $delimiter, ...$strvals) : string
     {
-        $result = $this->strings(...$strvals);
+        $result = $this->strings($strvals);
         $result = array_filter($result, 'strlen');
 
         if ('' !== $delimiter) {
@@ -831,7 +831,7 @@ class Str
      */
     public function joinskip(string $delimiter, ...$strvals) : string
     {
-        $result = $this->stringsskip(...$strvals);
+        $result = $this->stringsskip($strvals);
         $result = array_filter($result, 'strlen');
 
         if ('' !== $delimiter) {
@@ -1026,13 +1026,18 @@ class Str
 
 
     /**
-     * @param string|string[]|array ...$numbers
+     * @param string|string[]|array $numbers
+     * @param null|bool             $uniq
      *
      * @return string[]
      */
-    public function numbers(...$numbers) : array
+    public function numbers($numbers, bool $uniq = null) : array
     {
         $result = [];
+
+        $numbers = is_array($numbers)
+            ? $numbers
+            : [ $numbers ];
 
         array_walk_recursive($numbers, function ($number) use (&$result) {
             if (null === $this->filter->filterNumval($number)) {
@@ -1044,17 +1049,22 @@ class Str
             $result[] = $number;
         });
 
+        if ($uniq ?? false) {
+            $result = array_values(array_unique($result));
+        }
+
         return $result;
     }
 
     /**
-     * @param string|string[]|array ...$numbers
+     * @param string|string[]|array $numbers
+     * @param null|bool             $uniq
      *
      * @return string[]
      */
-    public function theNumbers(...$numbers) : array
+    public function theNumbers($numbers, bool $uniq = null) : array
     {
-        $result = $this->numbers(...$numbers);
+        $result = $this->numbers($numbers, $uniq);
 
         if (! count($result)) {
             throw new InvalidArgumentException(
@@ -1066,13 +1076,18 @@ class Str
     }
 
     /**
-     * @param string|string[]|array ...$numbers
+     * @param string|string[]|array $numbers
+     * @param null|bool             $uniq
      *
      * @return string[]
      */
-    public function numbersskip(...$numbers) : array
+    public function numbersskip($numbers, bool $uniq = null) : array
     {
         $result = [];
+
+        $numbers = is_array($numbers)
+            ? $numbers
+            : [ $numbers ];
 
         array_walk_recursive($numbers, function ($number) use (&$result) {
             if (null !== $this->filter->filterNumval($number)) {
@@ -1080,17 +1095,22 @@ class Str
             }
         });
 
+        if ($uniq ?? false) {
+            $result = array_values(array_unique($result));
+        }
+
         return $result;
     }
 
     /**
-     * @param string|string[]|array ...$numbers
+     * @param string|string[]|array $numbers
+     * @param null|bool             $uniq
      *
      * @return string[]
      */
-    public function theNumbersskip(...$numbers) : array
+    public function theNumbersskip($numbers, bool $uniq = null) : array
     {
-        $result = $this->numbersskip(...$numbers);
+        $result = $this->numbersskip($numbers, $uniq);
 
         if (! count($result)) {
             throw new InvalidArgumentException(
@@ -1103,13 +1123,18 @@ class Str
 
 
     /**
-     * @param string|string[]|array ...$strings
+     * @param string|string[]|array $strings
+     * @param null|bool             $uniq
      *
      * @return string[]
      */
-    public function strings(...$strings) : array
+    public function strings($strings, bool $uniq = null) : array
     {
         $result = [];
+
+        $strings = is_array($strings)
+            ? $strings
+            : [ $strings ];
 
         array_walk_recursive($strings, function ($string) use (&$result) {
             if (null === $this->filter->filterStrval($string)) {
@@ -1121,17 +1146,22 @@ class Str
             $result[] = strval($string);
         });
 
+        if ($uniq ?? false) {
+            $result = array_values(array_unique($result));
+        }
+
         return $result;
     }
 
     /**
-     * @param string|string[]|array ...$strings
+     * @param string|string[]|array $strings
+     * @param null|bool             $uniq
      *
      * @return string[]
      */
-    public function theStrings(...$strings) : array
+    public function theStrings($strings, bool $uniq = null) : array
     {
-        $result = $this->strings(...$strings);
+        $result = $this->strings($strings, $uniq);
 
         if (! count($result)) {
             throw new InvalidArgumentException(
@@ -1143,13 +1173,18 @@ class Str
     }
 
     /**
-     * @param string|string[]|array ...$strings
+     * @param string|string[]|array $strings
+     * @param null|bool             $uniq
      *
      * @return string[]
      */
-    public function stringsskip(...$strings) : array
+    public function stringsskip($strings, bool $uniq = null) : array
     {
         $result = [];
+
+        $strings = is_array($strings)
+            ? $strings
+            : [ $strings ];
 
         array_walk_recursive($strings, function ($string) use (&$result) {
             if (null !== $this->filter->filterStrval($string)) {
@@ -1157,17 +1192,22 @@ class Str
             }
         });
 
+        if ($uniq ?? false) {
+            $result = array_values(array_unique($result));
+        }
+
         return $result;
     }
 
     /**
-     * @param string|string[]|array ...$strings
+     * @param string|string[]|array $strings
+     * @param null|bool             $uniq
      *
      * @return string[]
      */
-    public function theStringsskip(...$strings) : array
+    public function theStringsskip($strings, bool $uniq = null) : array
     {
-        $result = $this->stringsskip(...$strings);
+        $result = $this->stringsskip($strings, $uniq);
 
         if (! count($result)) {
             throw new InvalidArgumentException(
@@ -1180,13 +1220,18 @@ class Str
 
 
     /**
-     * @param string|string[]|array ...$words
+     * @param string|string[]|array $words
+     * @param null|bool             $uniq
      *
      * @return string[]
      */
-    public function words(...$words) : array
+    public function words($words, bool $uniq = null) : array
     {
         $result = [];
+
+        $words = is_array($words)
+            ? $words
+            : [ $words ];
 
         array_walk_recursive($words, function ($word) use (&$result) {
             $word = $this->filter->filterStrval($word);
@@ -1200,17 +1245,22 @@ class Str
             $result[] = strval($word);
         });
 
+        if ($uniq ?? false) {
+            $result = array_values(array_unique($result));
+        }
+
         return $result;
     }
 
     /**
-     * @param string|string[]|array ...$words
+     * @param string|string[]|array $words
+     * @param null|bool             $uniq
      *
      * @return string[]
      */
-    public function theWords(...$words) : array
+    public function theWords($words, bool $uniq = null) : array
     {
-        $result = $this->words(...$words);
+        $result = $this->words($words, $uniq);
 
         if (! count($result)) {
             throw new InvalidArgumentException(
@@ -1222,13 +1272,18 @@ class Str
     }
 
     /**
-     * @param string|string[]|array ...$words
+     * @param string|string[]|array $words
+     * @param null|bool             $uniq
      *
      * @return string[]
      */
-    public function wordsskip(...$words) : array
+    public function wordsskip($words, bool $uniq = null) : array
     {
         $result = [];
+
+        $words = is_array($words)
+            ? $words
+            : [ $words ];
 
         array_walk_recursive($words, function ($word) use (&$result) {
             $word = $this->filter->filterStrval($word);
@@ -1238,17 +1293,22 @@ class Str
             }
         });
 
+        if ($uniq ?? false) {
+            $result = array_values(array_unique($result));
+        }
+
         return $result;
     }
 
     /**
-     * @param string|string[]|array ...$words
+     * @param string|string[]|array $words
+     * @param null|bool             $uniq
      *
      * @return array
      */
-    public function theWordsskip(...$words) : array
+    public function theWordsskip($words, bool $uniq = null) : array
     {
-        $result = $this->wordsskip(...$words);
+        $result = $this->wordsskip($words, $uniq);
 
         if (! count($result)) {
             throw new InvalidArgumentException(

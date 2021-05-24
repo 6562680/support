@@ -45,7 +45,7 @@ class Path
 
 
     /**
-     * @param mixed ...$delimiters
+     * @param string|string[]|array ...$delimiters
      *
      * @return static
      */
@@ -83,8 +83,7 @@ class Path
      */
     public function using(...$delimiters)
     {
-        $delimiters = $this->str->theWords(...$delimiters);
-        $delimiters = array_unique($delimiters);
+        $delimiters = $this->str->theWords($delimiters, true);
 
         $this->separator = $delimiters[ 0 ];
         $this->delimiters = $delimiters;
@@ -107,16 +106,16 @@ class Path
 
     /**
      * @param string     $string
-     * @param null|array $delimiters
+     * @param null|array $replacements
      *
      * @return string
      */
-    public function pregOptimize(string $string, array &$delimiters = null) : string
+    public function pregOptimize(string $string, array &$replacements = null) : string
     {
         $pattern = '(' . implode('|', array_map('preg_quote', $this->delimiters)) . ')';
 
-        $result = preg_replace_callback($pattern, function ($m) use (&$delimiters) {
-            $delimiters[] = $m[ 0 ];
+        $result = preg_replace_callback($pattern, function ($m) use (&$replacements) {
+            $replacements[] = $m[ 0 ];
 
             return $this->separator;
         }, $string);
@@ -134,7 +133,7 @@ class Path
     {
         $strvals[] = '';
 
-        $list = $this->str->stringsskip(...$strvals);
+        $list = $this->str->stringsskip($strvals);
 
         $first = array_shift($list);
         $first = $this->optimize($first);
@@ -163,7 +162,7 @@ class Path
     {
         $strvals[] = '';
 
-        $list = $this->str->stringsskip(...$strvals);
+        $list = $this->str->stringsskip($strvals);
 
         $first = array_shift($list);
         $first = $this->optimize($first);
@@ -189,7 +188,7 @@ class Path
     {
         $strvals[] = '';
 
-        $list = $this->str->stringsskip(...$strvals);
+        $list = $this->str->stringsskip($strvals);
 
         $first = array_shift($list);
         $first = $this->optimize($first);
@@ -217,7 +216,7 @@ class Path
      */
     public function concat(...$strvals) : string
     {
-        $words = $this->str->stringsskip(...$strvals);
+        $words = $this->str->stringsskip($strvals);
         $words = array_filter($words, 'strlen');
 
         $result = array_shift($words);

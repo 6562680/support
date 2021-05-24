@@ -70,7 +70,7 @@ abstract class GeneratedUriFacade
     }
 
     /**
-     * @param mixed ...$batches
+     * @param array ...$batches
      *
      * @return array
      */

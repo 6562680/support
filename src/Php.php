@@ -47,8 +47,16 @@ class Php
      *
      * @return bool
      */
-    public function isEmpty(&$value) : bool
+    public function isBlank(&$value) : bool
     {
+        if (0 === $value) {
+            return false;
+        }
+
+        if (0.0 === $value) {
+            return false;
+        }
+
         if (empty($value)) {
             return true;
         }
@@ -70,16 +78,26 @@ class Php
         return false;
     }
 
+    /**
+     * @param mixed &$value
+     *
+     * @return bool
+     */
+    public function isNotBlank(&$value) : bool
+    {
+        return ! $this->isBlank($value);
+    }
+
 
     /**
      * @param mixed &$value
      *
      * @return mixed
      */
-    public function assertEmpty(&$value) // : mixed
+    public function assertBlank(&$value) // : mixed
     {
-        if (false === $this->isEmpty($value)) {
-            throw new InvalidArgumentException('Value should exists');
+        if (false === $this->isBlank($value)) {
+            throw new InvalidArgumentException([ 'Value should be empty: %s', $value ]);
         }
 
         return $value;
@@ -90,10 +108,25 @@ class Php
      *
      * @return mixed
      */
+    public function assertNotBlank(&$value) // : mixed
+    {
+        if (false === $this->isNotBlank($value)) {
+            throw new InvalidArgumentException([ 'Value should not be blank: %s', $value ]);
+        }
+
+        return $value;
+    }
+
+
+    /**
+     * @param mixed &$value
+     *
+     * @return mixed
+     */
     public function assertIsset(&$value) // : mixed
     {
         if (false === isset($value)) {
-            throw new InvalidArgumentException('Value should exists');
+            throw new InvalidArgumentException([ 'Value should exists: %s', $value ]);
         }
 
         return $value;

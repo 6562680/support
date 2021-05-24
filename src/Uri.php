@@ -5,6 +5,7 @@ namespace Gzhegow\Support;
 
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
+
 /**
  * Uri
  */
@@ -211,7 +212,7 @@ class Uri
 
 
     /**
-     * @param mixed ...$batches
+     * @param array ...$batches
      *
      * @return array
      */

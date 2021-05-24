@@ -15,7 +15,7 @@ use Gzhegow\Support\Path;
 abstract class GeneratedPathFacade
 {
     /**
-     * @param mixed ...$delimiters
+     * @param string|string[]|array ...$delimiters
      *
      * @return Path
      */
@@ -62,13 +62,13 @@ abstract class GeneratedPathFacade
 
     /**
      * @param string     $string
-     * @param null|array $delimiters
+     * @param null|array $replacements
      *
      * @return string
      */
-    public static function pregOptimize(string $string, array &$delimiters = null): string
+    public static function pregOptimize(string $string, array &$replacements = null): string
     {
-        return static::getInstance()->pregOptimize($string, $delimiters);
+        return static::getInstance()->pregOptimize($string, $replacements);
     }
 
     /**

@@ -31,10 +31,11 @@ class Calendar
      * @var \DateTime
      */
     protected $today;
+
     /**
-     * @var string
+     * @var \DateTimeZone
      */
-    protected $timezoneName = 'UTC';
+    protected $timezone;
 
 
     /**
@@ -47,52 +48,73 @@ class Calendar
     )
     {
         $this->filter = $filter;
+
+        $this->timezone = new \DateTimeZone('UTC');
     }
 
-
-    /**
-     * @return string
-     */
-    public function getTimezoneName() : string
-    {
-        return $this->timezoneName;
-    }
 
     /**
      * @return \DateTimeZone
      */
     public function getTimezone() : \DateTimeZone
     {
-        return new \DateTimeZone($this->timezoneName);
+        return $this->timezone;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTimezoneName() : string
+    {
+        return $this->timezone->getName();
     }
 
 
     /**
-     * @param mixed $date
+     * @param int|float|string|\DateTime $date
      *
      * @return bool
      */
-    public function isDate($date) : bool
+    public function isDateTime($date) : bool
     {
-        return is_object($date)
-            && is_a($date, \DateTime::class);
+        return null !== $this->filterDateTime($date);
     }
 
     /**
-     * @param mixed              $date
-     * @param \DateTimeZone|null $tz
+     * @param \DateTimeZone $tz
      *
      * @return bool
      */
-    public function isDateable($date, \DateTimeZone $tz = null) : bool
+    public function isDateTimeZone($tz) : bool
     {
-        return null !== $this->detectDate($date, $tz);
+        return null !== $this->filterDateTimeZone($tz);
     }
 
 
     /**
-     * @param mixed $a
-     * @param mixed $b
+     * @param int|float|string|\DateTime $date
+     *
+     * @return bool
+     */
+    public function isDateval($date) : bool
+    {
+        return null !== $this->filterDateval($date);
+    }
+
+    /**
+     * @param string|\DateTimeZone $tz
+     *
+     * @return bool
+     */
+    public function isTzval($tz) : bool
+    {
+        return null !== $this->filterTzval($tz);
+    }
+
+
+    /**
+     * @param int|float|string|\DateTime $a
+     * @param int|float|string|\DateTime $b
      *
      * @return bool
      */
@@ -129,8 +151,8 @@ class Calendar
 
 
     /**
-     * @param mixed $a
-     * @param mixed $b
+     * @param int|float|string|\DateTime $a
+     * @param int|float|string|\DateTime $b
      *
      * @return bool
      */
@@ -164,8 +186,8 @@ class Calendar
     }
 
     /**
-     * @param mixed $a
-     * @param mixed $b
+     * @param int|float|string|\DateTime $a
+     * @param int|float|string|\DateTime $b
      *
      * @return bool
      */
@@ -205,8 +227,8 @@ class Calendar
 
 
     /**
-     * @param mixed $a
-     * @param mixed $b
+     * @param int|float|string|\DateTime $a
+     * @param int|float|string|\DateTime $b
      *
      * @return bool
      */
@@ -240,8 +262,8 @@ class Calendar
     }
 
     /**
-     * @param mixed $a
-     * @param mixed $b
+     * @param int|float|string|\DateTime $a
+     * @param int|float|string|\DateTime $b
      *
      * @return bool
      */
@@ -252,8 +274,8 @@ class Calendar
         $parsedA = $this->parse($a);
         $parsedB = $this->parse($b);
 
-        $isDateA = $this->isDate($parsedA);
-        $isDateB = $this->isDate($parsedB);
+        $isDateA = $this->isDateTime($parsedA);
+        $isDateB = $this->isDateTime($parsedB);
 
         if ($cmp = ( $isDateB - $isDateA )) {
             $result = $cmp > 0;
@@ -281,8 +303,8 @@ class Calendar
 
 
     /**
-     * @param mixed $dt
-     * @param array $dates
+     * @param int|float|string|\DateTime         $dt
+     * @param int[]|float[]|string[]|\DateTime[] $dates
      *
      * @return bool
      */
@@ -292,7 +314,7 @@ class Calendar
             array_map($dates,
                 [ $this, 'parse' ]
             ),
-            [ $this, 'isDate' ]
+            [ $this, 'isDateTime' ]
         );
 
         if (! $list) {
@@ -321,13 +343,13 @@ class Calendar
             array_map($dates,
                 [ $this, 'parse' ]
             ),
-            [ $this, 'isDate' ]
+            [ $this, 'isDateTime' ]
         );
         $listWith = array_filter(
             array_map($dates,
                 [ $this, 'parse' ]
             ),
-            [ $this, 'isDate' ]
+            [ $this, 'isDateTime' ]
         );
 
         if (! $list) {
@@ -353,77 +375,201 @@ class Calendar
 
 
     /**
-     * @param mixed              $date
-     * @param \DateTimeZone|null $tz
+     * @param \DateTime $date
      *
      * @return null|\DateTime
      */
-    public function detectDate($date, \DateTimeZone $tz = null) : ?\DateTime
+    public function filterDateTime($date) : ?\DateTime
     {
-        if (is_object($date) && is_a($date, \DateTime::class)) {
-            return $date;
-        }
+        $result = is_object($date) && is_a($date, \DateTime::class)
+            ? $date
+            : null;
 
-        if (null !== ( $int = $this->filter->filterInt($date) )) {
-            return $this->createDateFromInt($int, $tz);
-        }
+        return $result;
+    }
 
-        if (null !== ( $float = $this->filter->filterFloat($date) )) {
-            return $this->createDateFromFloat($float, $tz);
-        }
+    /**
+     * @param \DateTimeZone $tz
+     *
+     * @return null|\DateTimeZone
+     */
+    public function filterDateTimeZone($tz) : ?\DateTimeZone
+    {
+        $result = is_object($tz) && is_a($tz, \DateTimeZone::class)
+            ? $tz
+            : null;
 
-        if (is_string($date) && ( '' !== $date )) {
-            try {
-                return $this->createDateFromString($date, $tz);
-            }
-            catch ( \Throwable $e ) {
-                return null;
-            }
-        }
-
-        return null;
+        return $result;
     }
 
 
     /**
-     * @param mixed $timezone
+     * @param int|float|string|\DateTime $date
+     * @param null|string                $format
+     * @param \DateTimeZone|null         $tz
+     *
+     * @return null|int|float|string|\DateTime
+     */
+    public function filterDateval($date, $format = null, $tz = null) // : ?int|float|string|\DateTime
+    {
+        if (null === $this->dateval($date, $format, $tz)) {
+            return null;
+        }
+
+        return $date;
+    }
+
+    /**
+     * @param string|\DateTimeZone $tz
+     *
+     * @return null|string|\DateTimeZone
+     */
+    public function filterTzval($tz) // : ?string|\DateTimeZone
+    {
+        if (null === $this->tzval($tz)) {
+            return null;
+        }
+
+        return $tz;
+    }
+
+
+    /**
+     * @param \DateTime $date
+     *
+     * @return \DateTime
+     */
+    public function assertDateTime($date) : \DateTime
+    {
+        if (null === ( $filtered = $this->filterDateTime($date) )) {
+            throw new InvalidArgumentException([ 'Invalid DateTime passed: %s', $date ]);
+        }
+
+        return $filtered;
+    }
+
+    /**
+     * @param \DateTimeZone $tz
+     *
+     * @return \DateTimeZone
+     */
+    public function assertDateTimeZone($tz) : \DateTimeZone
+    {
+        if (null === ( $filtered = $this->filterDateTimeZone($tz) )) {
+            throw new InvalidArgumentException([ 'Invalid DateTimeZone passed: %s', $tz ]);
+        }
+
+        return $filtered;
+    }
+
+
+    /**
+     * @param int|float|string|\DateTime $date
+     * @param null|string                $format
+     * @param string|\DateTimeZone|null  $tz
+     *
+     * @return int|float|string|\DateTime
+     */
+    public function assertDateval($date, $format = null, $tz = null) : \DateTime
+    {
+        if (null === ( $filtered = $this->filterDateval($date, $format, $tz) )) {
+            throw new InvalidArgumentException([ 'Invalid Dateval passed: %s', $date ]);
+        }
+
+        return $filtered;
+    }
+
+    /**
+     * @param string|\DateTimeZone $tz
+     *
+     * @return string|\DateTimeZone
+     */
+    public function assertTzval($tz) : \DateTimeZone
+    {
+        if (null === ( $filtered = $this->filterTzval($tz) )) {
+            throw new InvalidArgumentException([ 'Invalid Tzval passed: %s', $tz ]);
+        }
+
+        return $filtered;
+    }
+
+
+    /**
+     * @param string|\DateTimeZone $tz
      *
      * @return static
      */
-    public function setTimezone($timezone)
+    public function setTimezone($tz)
     {
-        $tz = false;
-        if (is_string($timezone)) {
-            $tz = timezone_open($timezone);
-
-        } elseif (is_object($timezone) && is_a($timezone, \DateTimeZone::class)) {
-            $tz = $timezone;
-
-        }
-
-        if (false === $tz) {
-            throw new InvalidArgumentException('Invalid timezone passed', $tz);
-        }
-
-        $this->timezoneName = $tz->getName();
+        $this->timezone = $this->timezone($tz);
 
         return $this;
     }
 
 
     /**
-     * @param mixed              $date
-     * @param null|string        $format
-     * @param \DateTimeZone|null $tz
+     * @param int|float|string|\DateTime $date
+     * @param null|string                $format
+     * @param \DateTimeZone|null         $tz
      *
-     * @return \DateTime
+     * @return null|\DateTime
      */
-    public function date($date, string $format = null, \DateTimeZone $tz = null) : \DateTime
+    public function dateval($date, $format = null, $tz = null) : ?\DateTime
     {
         $result = $this->parse($date, $format, $tz);
 
-        if (! $result) {
-            throw new \InvalidArgumentException('Invalid date passed: ' . gettype($date));
+        return $result;
+    }
+
+    /**
+     * @param string|\DateTimeZone $tz
+     *
+     * @return null|\DateTimeZone
+     */
+    public function tzval($tz) : ?\DateTimeZone
+    {
+        $result = null;
+
+        if (is_string($tz)) {
+            $result = timezone_open($tz);
+
+        } elseif (null !== ( $dateTimeZone = $this->filterDateTimeZone($tz) )) {
+            $result = $dateTimeZone;
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * @param int|float|string|\DateTime $date
+     * @param string|null                $format
+     * @param \DateTimeZone|null         $tz
+     *
+     * @return \DateTime
+     */
+    public function date($date, $format = null, $tz = null) : \DateTime
+    {
+        $result = $this->dateval($date, $format, $tz);
+
+        if (null === $result) {
+            throw new InvalidArgumentException([ 'Invalid Date passed: %s', $date ]);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param \DateTimeZone|null $tz
+     *
+     * @return \DateTimeZone
+     */
+    public function timezone($tz) : \DateTimeZone
+    {
+        $result = $this->tzval($tz);
+
+        if (null === $result) {
+            throw new InvalidArgumentException([ 'Invalid TimeZone passed: %s', $tz ]);
         }
 
         return $result;
@@ -435,9 +581,10 @@ class Calendar
      *
      * @return \DateTime
      */
-    public function now(\DateTimeZone $tz = null) : \DateTime
+    public function now($tz = null) : \DateTime
     {
-        $tz = $tz ?? $this->getTimezone();
+        $tz = $tz
+            ?? $this->getTimezone();
 
         $now = null;
         try {
@@ -455,9 +602,10 @@ class Calendar
      *
      * @return \DateTime
      */
-    public function today(\DateTimeZone $tz = null) : \DateTime
+    public function today($tz = null) : \DateTime
     {
-        $tz = $tz ?? $this->getTimezone();
+        $tz = $tz
+            ?? $this->getTimezone();
 
         if (! isset($this->today)) {
             try {
@@ -469,6 +617,7 @@ class Calendar
         }
 
         $today = clone $this->today;
+
         $today->setTimezone($tz);
 
         return $today;
@@ -476,84 +625,95 @@ class Calendar
 
 
     /**
-     * @param mixed $a
-     * @param mixed $b
+     * @param int|float|string|\DateTime $a
+     * @param int|float|string|\DateTime $b
      *
      * @return float
      */
-    public function diff(\DateTime $a, \DateTime $b) : float
+    public function diff($a, $b) : float
     {
-        $diff = (float) $a->format('U.u') - (float) $b->format('U.u');
+        $dateA = $this->date($a);
+        $dateB = $this->date($b);
+
+        $diff = (float) $dateA->format('U.u') - (float) $dateB->format('U.u');
 
         return $diff;
     }
 
 
     /**
-     * @param mixed              $date
-     * @param null|string        $format
-     * @param \DateTimeZone|null $tz
+     * @param int|float|string|\DateTime $date
+     * @param string|null                $format
+     * @param \DateTimeZone|null         $tz
      *
      * @return \DateTime
      */
-    public function parse($date, string $format = null, \DateTimeZone $tz = null) : ?\DateTime
+    public function parse($date, $format = null, $tz = null) : ?\DateTime
     {
+        if (null !== $format) {
+            $this->filter->assert()->assertStrval($format);
+
+            $format = strval($format);
+        }
+
+        $tz = ( null !== $tz )
+            ? $this->timezone($tz)
+            : null;
+
         return null
-            ?? $this->createDateFromInstance($date)
-            ?? $this->createDateFromInt($date, $tz)
-            ?? $this->createDateFromFloat($date, $tz)
-            ?? $this->createDateFromString($date, $format, $tz);
+            ?? $this->tryParseDateFromInstance($date, $tz)
+            ?? $this->tryParseDateFromInt($date, $tz)
+            ?? $this->tryParseDateFromFloat($date, $tz)
+            ?? $this->tryParseDateFromString($date, $format, $tz);
     }
 
     /**
-     * @param string $date
+     * @param int|float|string|\DateTime $date
      *
      * @return \DateTimeZone
      */
-    protected function parseTimezone(string $date) : \DateTimeZone
+    public function parseTimezone($date) : \DateTimeZone
     {
-        foreach ( static::$formatsTimezone as $format => $bool ) {
-            try {
-                if (false !== ( $dt = \DateTime::createFromFormat($format, $date) )) {
-                    return $dt->getTimezone();
-                }
-            }
-            catch ( \Throwable $e ) {
-            }
-        }
-
-        $result = $this->getTimezone();
+        $result = $this->date($date)->getTimezone();
 
         return $result;
     }
 
 
     /**
-     * @param $instance
+     * @param \DateTime          $instance
+     * @param null|\DateTimeZone $tz
      *
      * @return \DateTime
      */
-    protected function createDateFromInstance($instance) : ?\DateTime
+    protected function tryParseDateFromInstance($instance, \DateTimeZone $tz = null) : ?\DateTime
     {
         if (! is_object($instance)) return null;
         if (! is_a($instance, \DateTime::class)) return null;
+
+        if ($tz) {
+            $instance->setTimezone($tz);
+        }
 
         return $instance;
     }
 
     /**
-     * @param                    $int
+     * @param int                $int
      * @param \DateTimeZone|null $tz
      *
      * @return null|\DateTime
      */
-    protected function createDateFromInt($int, \DateTimeZone $tz = null) : ?\DateTime
+    protected function tryParseDateFromInt($int, \DateTimeZone $tz = null) : ?\DateTime
     {
-        if (! is_int($int)) return null;
+        if (! is_int($int)) {
+            return null;
+        }
 
         try {
             $dt = $this->now($tz);
             $dt = $dt->setTimestamp($int);
+
             $dt->setTime(
                 (int) $dt->format('G'), // 0-23 -> int -> 0-23
                 (int) $dt->format('i'), // 00-59 -> int -> 0-59
@@ -561,9 +721,13 @@ class Calendar
                 0
             );
 
-            if (false === $dt) return null;
+            if (false === $dt) {
+                return null;
+            }
         }
         catch ( \Throwable $e ) {
+            dd($e);
+
             return null;
         }
 
@@ -571,14 +735,16 @@ class Calendar
     }
 
     /**
-     * @param                    $float
+     * @param float              $float
      * @param \DateTimeZone|null $tz
      *
      * @return null|\DateTime
      */
-    protected function createDateFromFloat($float, \DateTimeZone $tz = null) : ?\DateTime
+    protected function tryParseDateFromFloat($float, \DateTimeZone $tz = null) : ?\DateTime
     {
-        if (! is_float($float)) return null;
+        if (! is_float($float)) {
+            return null;
+        }
 
         [ $int, $microseconds ] = explode('.', sprintf('%f', $float)) + [ null, null ];
 
@@ -594,7 +760,9 @@ class Calendar
                 $microseconds
             );
 
-            if (false === $dt) return null;
+            if (false === $dt) {
+                return null;
+            }
         }
         catch ( \Throwable $e ) {
             return null;
@@ -605,27 +773,27 @@ class Calendar
 
     /**
      * @param string             $string
-     * @param null|string        $format
+     * @param string|null        $format
      * @param \DateTimeZone|null $tz
      *
      * @return null|\DateTime
      */
-    protected function createDateFromString($string, string $format = null, \DateTimeZone $tz = null) : ?\DateTime
+    protected function tryParseDateFromString($string, string $format = null, \DateTimeZone $tz = null) : ?\DateTime
     {
         if (! is_string($string)) return null;
         if ('' === $string) return null;
 
         if (is_numeric($string)) {
             if (false !== ( $int = filter_var($string, FILTER_VALIDATE_INT) )) {
-                return $this->createDateFromInt($int, $tz);
+                return $this->tryParseDateFromInt($int, $tz);
             }
 
             if (false !== ( $float = filter_var($string, FILTER_VALIDATE_FLOAT) )) {
-                return $this->createDateFromFloat($float, $tz);
+                return $this->tryParseDateFromFloat($float, $tz);
             }
         }
 
-        $tz = $tz ?? $this->getTimezone();
+        $tz = $tz ?? $this->getTimezoneName();
 
         // try to parse using certain format
         if (null !== $format) {
@@ -651,7 +819,7 @@ class Calendar
                 $dt2 = ( new \DateTime('1971-12-25T00:00:00Z') )->modify($string);
 
                 if ($isRelativeDateString = ( $dt1 != $dt2 )) {
-                    $dt = $this->createDateFromInt($int);
+                    $dt = $this->tryParseDateFromInt($int);
 
                     return $dt; // ! return
                 }

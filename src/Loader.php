@@ -330,7 +330,7 @@ class Loader
     }
 
     /**
-     * @param mixed ...$parts
+     * @param string|string[]|array ...$parts
      *
      * @return string
      */

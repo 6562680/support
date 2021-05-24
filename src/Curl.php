@@ -120,7 +120,7 @@ class Curl
 
 
     /**
-     * @param mixed $ch
+     * @param resource $ch
      *
      * @return boolean
      */
@@ -131,7 +131,7 @@ class Curl
     }
 
     /**
-     * @param mixed $ch
+     * @param resource $ch
      *
      * @return boolean
      */
@@ -142,7 +142,7 @@ class Curl
     }
 
     /**
-     * @param mixed $ch
+     * @param resource $ch
      *
      * @return boolean
      */
@@ -150,6 +150,32 @@ class Curl
     {
         return $this->isCurl($ch)
             && null !== $this->filter->filterClosedResource($ch);
+    }
+
+
+    /**
+     * @param string $opt
+     * @param mixed  $value
+     *
+     * @return static
+     */
+    public function setOpt(string $opt, $value)
+    {
+        $this->blueprintRoot->setOpt($opt, $value);
+
+        return $this;
+    }
+
+    /**
+     * @param array $opts
+     *
+     * @return static
+     */
+    public function setOptArray(array $opts)
+    {
+        $this->blueprintRoot->setOptArray($opts);
+
+        return $this;
     }
 
 
@@ -174,6 +200,7 @@ class Curl
     {
         return $this->blueprintRoot->options($url, $headers);
     }
+
 
     /**
      * @param string $url
@@ -267,7 +294,7 @@ class Curl
     /**
      * @param resource $ch
      *
-     * @return null|mixed[]|mixed[][]
+     * @return null|mixed[]
      */
     public function curlInfo($ch) : ?array
     {
@@ -301,32 +328,6 @@ class Curl
 
 
     /**
-     * @param       $opt
-     * @param mixed $value
-     *
-     * @return static
-     */
-    public function setOpt(string $opt, $value)
-    {
-        $this->blueprintRoot->setOpt($opt, $value);
-
-        return $this;
-    }
-
-    /**
-     * @param array $opts
-     *
-     * @return static
-     */
-    public function setOptArray(array $opts)
-    {
-        $this->blueprintRoot->setOptArray($opts);
-
-        return $this;
-    }
-
-
-    /**
      * @return static
      */
     public function clearOptArray()
@@ -348,8 +349,8 @@ class Curl
 
 
     /**
-     * @param mixed $curl
-     * @param mixed $opt
+     * @param resource   $curl
+     * @param int|string $opt
      *
      * @return null|string|string[]
      */

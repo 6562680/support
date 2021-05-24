@@ -93,8 +93,8 @@ class Blueprint
 
 
     /**
-     * @param       $opt
-     * @param mixed $value
+     * @param string $opt
+     * @param mixed  $value
      *
      * @return static
      */

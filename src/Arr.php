@@ -259,46 +259,47 @@ class Arr
 
 
     /**
-     * @param string|string[] $separators
-     * @param string|string[] ...$keys
+     * @param string|string[]|array $keys
+     * @param string|string[]|array $separators
      *
      * @return array
      */
-    public function path($separators = ".", ...$keys) : array
+    public function path($keys, $separators = '.') : array
     {
+        $keys = $this->keys($keys);
+
         $result = $this->str->explode($separators, ...$keys);
 
         return $result;
     }
 
     /**
-     * @param string|string[] $separators
-     * @param string|string[] ...$keys
+     * @param string|string[]|array $keys
+     * @param string|string[]|array $separators
      *
      * @return string
      */
-    public function key($separators = ".", ...$keys) : string
+    public function key($keys, $separators = '.') : string
     {
-        $separators = $this->str->theWords($separators);
-        $keys = $this->keys(...$keys);
+        $keys = $this->keys($keys);
 
         $explode = $this->str->explode($separators, $keys);
 
-        $result = $this->str->implode($separators[ 0 ], $explode);
+        $result = implode($separators[ 0 ], $explode);
 
         return $result;
     }
 
 
     /**
-     * @param string|string[]|array $keys
-     * @param string|string[]|array $delimiters
+     * @param string|string[]|array $separators
+     * @param string|string[]|array ...$keys
      *
      * @return string
      */
-    public function indexkey($keys, $delimiters = "\0") : string
+    public function indexkey($separators = '.', ...$keys) : string
     {
-        $result = $this->key([ "\0", $delimiters ], $keys);
+        $result = $this->key($keys, $separators);
 
         return $result;
     }
@@ -342,14 +343,14 @@ class Arr
 
 
     /**
-     * @param array $array
-     * @param mixed ...$keys
+     * @param array                 $array
+     * @param string|string[]|array ...$keys
      *
      * @return array
      */
     public function only(array $array, ...$keys) : array
     {
-        $keys = $this->str->theWords(...$keys);
+        $keys = $this->theKeys($keys, true);
 
         $result = [];
 
@@ -365,14 +366,14 @@ class Arr
     }
 
     /**
-     * @param array $array
-     * @param mixed ...$keys
+     * @param array                 $array
+     * @param string|string[]|array ...$keys
      *
      * @return array
      */
     public function except(array $array, ...$keys) : array
     {
-        $keys = $this->str->theWords(...$keys);
+        $keys = $this->theKeys($keys, true);
 
         $result = [];
 
@@ -388,14 +389,14 @@ class Arr
     }
 
     /**
-     * @param array $array
-     * @param mixed ...$keys
+     * @param array                 $array
+     * @param string|string[]|array ...$keys
      *
      * @return array
      */
     public function drop(array $array, ...$keys)
     {
-        $keys = $this->str->theWords(...$keys);
+        $keys = $this->theKeys($keys, true);
 
         foreach ( $keys as $key ) {
             unset($array[ $key ]);
@@ -408,7 +409,7 @@ class Arr
 
 
     /**
-     * array_combine позволяющий передать отличный от keys массив значений
+     * array_combine позволяющий передать разное число ключей и значений
      *
      * @param string|string[]    $keys
      * @param null|mixed|mixed[] $values
@@ -475,7 +476,6 @@ class Arr
     }
 
     /**
-     * partition
      * разбивает массив на два по указанному критерию
      *
      * @param array         $array
@@ -509,8 +509,7 @@ class Arr
     }
 
     /**
-     * group
-     * разбивает массив на группированный список и остаток, колбэк возвращает имя группы
+     * разбивает массив на группированный список и остаток, замыкание возвращает имя группы
      *
      * @param array         $array
      * @param \Closure|null $func
@@ -529,10 +528,8 @@ class Arr
                 ? $func($item, $i)
                 : null;
 
-            if (( null !== $res ) && ( null === $this->filter->filterKey($res) )) {
-                throw new UnexpectedValueException(
-                    [ 'Invalid group name returned: %s', $res ]
-                );
+            if (null !== $res) {
+                $this->filter->assert()->assertKey($res);
             }
 
             ( null !== $res )
@@ -545,12 +542,12 @@ class Arr
 
 
     /**
-     * @param iterable $iterable
-     * @param string   $separator
+     * @param iterable              $iterable
+     * @param string|string[]|array $separators
      *
      * @return array
      */
-    public function dot(iterable $iterable, string $separator = ".") : array
+    public function dot(iterable $iterable, $separators = '.') : array
     {
         $result = [];
 
@@ -561,28 +558,28 @@ class Arr
                 continue;
             }
 
-            $result[ $this->key($separator, $fullpath) ] = $value;
+            $result[ $this->key($fullpath, $separators) ] = $value;
         }
 
         return $result;
     }
 
     /**
-     * @param iterable $iterable
-     * @param string   $separator
+     * @param iterable              $iterable
+     * @param string|string[]|array $separators
      *
      * @return array
      */
-    public function dotarr(iterable $iterable, string $separator = ".") : array
+    public function dotarr(iterable $iterable, $separators = '.') : array
     {
-        $result = $this->dot($iterable, $separator);
+        $result = $this->dot($iterable, $separators);
 
         foreach ( $result as $dotkey => $value ) {
-            $path = explode($separator, $dotkey);
+            $path = $this->str->explode($separators, $dotkey);
             $last = array_pop($path);
 
             if (null !== $this->filter->filterInt($last)) {
-                $result[ implode($separator, $path) ][] = $value;
+                $result[ implode($separators[ 0 ], $path) ][] = $value;
 
                 unset($result[ $dotkey ]);
             }
@@ -597,12 +594,12 @@ class Arr
      *
      * @return array
      */
-    public function undot(array $data, $separators = ".") : array
+    public function undot(array $data, $separators = '.') : array
     {
         $result = [];
 
         foreach ( $data as $key => $value ) {
-            $path = $this->path($separators, $key);
+            $path = $this->path($key, $separators);
 
             $ref =& $result;
             while ( null !== key($path) ) {
@@ -661,7 +658,7 @@ class Arr
      * и в инжекторе зависимостей, чтобы между переданными параметрами воткнуть свой
      *
      * @param array   $dst
-     * @param mixed[] ...$expands
+     * @param array[] ...$expands
      *
      * @return array
      */
@@ -770,13 +767,18 @@ class Arr
 
 
     /**
-     * @param string|string[]|array ...$keys
+     * @param string|string[]|array $keys
+     * @param null|bool             $uniq
      *
      * @return string[]
      */
-    public function keys(...$keys) : array
+    public function keys($keys, bool $uniq = null) : array
     {
         $result = [];
+
+        $keys = is_array($keys)
+            ? $keys
+            : [ $keys ];
 
         array_walk_recursive($keys, function ($word) use (&$result) {
             $word = $this->filter->filterKey($word);
@@ -790,17 +792,22 @@ class Arr
             $result[] = strval($word);
         });
 
+        if ($uniq ?? false) {
+            $result = array_values(array_unique($result));
+        }
+
         return $result;
     }
 
     /**
-     * @param string|string[]|array ...$keys
+     * @param string|string[]|array $keys
+     * @param null|bool             $uniq
      *
      * @return array
      */
-    public function theKeys(...$keys) : array
+    public function theKeys($keys, bool $uniq = null) : array
     {
-        $result = $this->keys(...$keys);
+        $result = $this->keys($keys, $uniq);
 
         if (! count($result)) {
             throw new InvalidArgumentException(
@@ -813,13 +820,18 @@ class Arr
 
 
     /**
-     * @param string|string[]|array ...$keys
+     * @param string|string[]|array $keys
+     * @param null|bool             $uniq
      *
      * @return array
      */
-    public function keysskip(...$keys) : array
+    public function keysskip($keys, bool $uniq = null) : array
     {
         $result = [];
+
+        $keys = is_array($keys)
+            ? $keys
+            : [ $keys ];
 
         array_walk_recursive($keys, function ($word) use (&$result) {
             $word = $this->filter->filterKey($word);
@@ -829,17 +841,22 @@ class Arr
             }
         });
 
+        if ($uniq ?? false) {
+            $result = array_values(array_unique($result));
+        }
+
         return $result;
     }
 
     /**
-     * @param string|string[]|array ...$keys
+     * @param string|string[]|array $keys
+     * @param null|bool             $uniq
      *
      * @return array
      */
-    public function theKeysskip(...$keys) : array
+    public function theKeysskip($keys, bool $uniq = null) : array
     {
-        $result = $this->keysskip(...$keys);
+        $result = $this->keysskip($keys, $uniq);
 
         if (! count($result)) {
             throw new InvalidArgumentException(
@@ -862,7 +879,7 @@ class Arr
     {
         $error = static::ERROR_FETCHREF_EMPTY_KEY;
 
-        $fullpath = $this->path('.', $path);
+        $fullpath = $this->path($path);
 
         $ref =& $source;
         while ( null !== key($fullpath) ) {

@@ -189,14 +189,14 @@ class Cmp
 
         $bDate = null
             ?? ( ( null === $b ) ? $b : null )
-            ?? ( ( null !== ( $dt = $this->calendar->detectDate($b) ) ) ? $dt : null )
+            ?? ( ( null !== ( $dt = $this->calendar->filterDateval($b) ) ) ? $dt : null )
             ?? ( $coalesce ? $this->calendar->date($b) : null );
 
         $isA = false;
         $isB = false;
         if (1
-            && ( $isA = $this->calendar->isDate($aDate) )
-            && ( $isB = $this->calendar->isDate($bDate) )
+            && ( $isA = $this->calendar->isDateTime($aDate) )
+            && ( $isB = $this->calendar->isDateTime($bDate) )
         ) {
             $diff = $this->calendar->diff($aDate, $bDate);
 

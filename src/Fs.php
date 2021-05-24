@@ -100,7 +100,7 @@ class Fs
 
 
     /**
-     * @param mixed $value
+     * @param string $value
      *
      * @return bool
      */
@@ -110,7 +110,7 @@ class Fs
     }
 
     /**
-     * @param mixed $value
+     * @param string $value
      *
      * @return bool
      */
@@ -120,7 +120,7 @@ class Fs
     }
 
     /**
-     * @param mixed $value
+     * @param string $value
      *
      * @return bool
      */
@@ -130,7 +130,7 @@ class Fs
     }
 
     /**
-     * @param mixed $value
+     * @param string $value
      *
      * @return bool
      */
@@ -141,7 +141,7 @@ class Fs
 
 
     /**
-     * @param mixed $value
+     * @param \SplFileInfo $value
      *
      * @return bool
      */
@@ -151,7 +151,7 @@ class Fs
     }
 
     /**
-     * @param mixed $value
+     * @param \SplFileInfo $value
      *
      * @return bool
      */
@@ -161,7 +161,7 @@ class Fs
     }
 
     /**
-     * @param mixed $value
+     * @param \SplFileInfo $value
      *
      * @return bool
      */
@@ -171,7 +171,7 @@ class Fs
     }
 
     /**
-     * @param mixed $value
+     * @param \SplFileInfo $value
      *
      * @return bool
      */
@@ -182,7 +182,7 @@ class Fs
 
 
     /**
-     * @param mixed $value
+     * @param string $value
      *
      * @return null|string
      */
@@ -196,7 +196,7 @@ class Fs
     }
 
     /**
-     * @param mixed $value
+     * @param string $value
      *
      * @return null|string
      */
@@ -210,7 +210,7 @@ class Fs
     }
 
     /**
-     * @param mixed $value
+     * @param string $value
      *
      * @return null|string
      */
@@ -224,7 +224,7 @@ class Fs
     }
 
     /**
-     * @param mixed $value
+     * @param string $value
      *
      * @return null|string
      */
@@ -239,7 +239,7 @@ class Fs
 
 
     /**
-     * @param mixed $value
+     * @param \SplFileInfo $value
      *
      * @return null|\SplFileInfo
      */
@@ -253,7 +253,7 @@ class Fs
     }
 
     /**
-     * @param mixed $value
+     * @param \SplFileInfo $value
      *
      * @return null|\SplFileInfo
      */
@@ -267,7 +267,7 @@ class Fs
     }
 
     /**
-     * @param mixed $value
+     * @param \SplFileInfo $value
      *
      * @return null|\SplFileInfo
      */
@@ -281,7 +281,7 @@ class Fs
     }
 
     /**
-     * @param mixed $value
+     * @param \SplFileInfo $value
      *
      * @return null|\SplFileInfo
      */
@@ -321,7 +321,7 @@ class Fs
 
 
     /**
-     * @param mixed $value
+     * @param string $value
      *
      * @return null|string
      */
@@ -337,7 +337,7 @@ class Fs
     }
 
     /**
-     * @param mixed $value
+     * @param string $value
      *
      * @return null|string
      */
@@ -353,7 +353,7 @@ class Fs
     }
 
     /**
-     * @param mixed $value
+     * @param string $value
      *
      * @return null|string
      */
@@ -369,7 +369,7 @@ class Fs
     }
 
     /**
-     * @param mixed $value
+     * @param string $value
      *
      * @return null|string
      */
@@ -386,7 +386,7 @@ class Fs
 
 
     /**
-     * @param mixed $value
+     * @param \SplFileInfo $value
      *
      * @return null|\SplFileInfo
      */
@@ -402,7 +402,7 @@ class Fs
     }
 
     /**
-     * @param mixed $value
+     * @param \SplFileInfo $value
      *
      * @return null|\SplFileInfo
      */
@@ -418,7 +418,7 @@ class Fs
     }
 
     /**
-     * @param mixed $value
+     * @param \SplFileInfo $value
      *
      * @return null|\SplFileInfo
      */
@@ -434,7 +434,7 @@ class Fs
     }
 
     /**
-     * @param mixed $value
+     * @param \SplFileInfo $value
      *
      * @return null|\SplFileInfo
      */
@@ -645,7 +645,7 @@ class Fs
     }
 
     /**
-     * @param mixed ...$parts
+     * @param string|string[]|array ...$parts
      *
      * @return string
      */
@@ -714,7 +714,7 @@ class Fs
 
 
     /**
-     * @param mixed       $value
+     * @param string      $value
      * @param string|null $base
      *
      * @return string
@@ -894,10 +894,10 @@ class Fs
     }
 
     /**
-     * @param string $filepath
-     * @param mixed  $data
-     * @param int    $flags
-     * @param null   $context
+     * @param string   $filepath
+     * @param mixed    $data
+     * @param null|int $flags
+     * @param null     $context
      *
      * @return null|string
      */

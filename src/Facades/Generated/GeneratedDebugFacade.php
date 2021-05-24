@@ -15,7 +15,7 @@ use Gzhegow\Support\Debug;
 abstract class GeneratedDebugFacade
 {
     /**
-     * Prints any type for debug, to work with exceptions and debug_backtrace()
+     * Выводит любой тип для дебага и отчета в исключениях
      *
      * @param mixed $arg
      *
@@ -37,7 +37,7 @@ abstract class GeneratedDebugFacade
     }
 
     /**
-     * Replaces any count of spaces to one space like HTML do
+     * Заменяет любое число пробелов в тексте на один
      *
      * @param string $content
      *
@@ -49,6 +49,9 @@ abstract class GeneratedDebugFacade
     }
 
     /**
+     * Извлекает определенные колонки из debug_backtrace()/$throwable->getTrace()
+     * может соединить их через разделитель в строку
+     *
      * @param array       $trace
      * @param array       $columns
      * @param null|string $implode
@@ -61,6 +64,8 @@ abstract class GeneratedDebugFacade
     }
 
     /**
+     * Возвращает результат var_dump, заменяет все пробелы на один
+     *
      * @param array $arguments
      *
      * @return string
@@ -71,7 +76,7 @@ abstract class GeneratedDebugFacade
     }
 
     /**
-     * Executes print_r, replaces all spaces to one when return
+     * Запускает print_r, заменяет все пробелы на один
      *
      * @param mixed     $arg
      * @param bool|null $return
@@ -84,7 +89,7 @@ abstract class GeneratedDebugFacade
     }
 
     /**
-     * Executes var_export, replaces all spaces to one when return
+     * Запускает var_export, заменяет все пробелы на один
      *
      * @param mixed     $arg
      * @param bool|null $return

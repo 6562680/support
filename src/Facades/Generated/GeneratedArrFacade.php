@@ -103,36 +103,36 @@ abstract class GeneratedArrFacade
     }
 
     /**
-     * @param string|string[] $separators
-     * @param string|string[] ...$keys
+     * @param string|string[]|array $keys
+     * @param string|string[]|array $separators
      *
      * @return array
      */
-    public static function path($separators = '.', ...$keys): array
+    public static function path($keys, $separators = '.'): array
     {
-        return static::getInstance()->path($separators, ...$keys);
-    }
-
-    /**
-     * @param string|string[] $separators
-     * @param string|string[] ...$keys
-     *
-     * @return string
-     */
-    public static function key($separators = '.', ...$keys): string
-    {
-        return static::getInstance()->key($separators, ...$keys);
+        return static::getInstance()->path($keys, $separators);
     }
 
     /**
      * @param string|string[]|array $keys
-     * @param string|string[]|array $delimiters
+     * @param string|string[]|array $separators
      *
      * @return string
      */
-    public static function indexkey($keys, $delimiters = "\x00"): string
+    public static function key($keys, $separators = '.'): string
     {
-        return static::getInstance()->indexkey($keys, $delimiters);
+        return static::getInstance()->key($keys, $separators);
+    }
+
+    /**
+     * @param string|string[]|array $separators
+     * @param string|string[]|array ...$keys
+     *
+     * @return string
+     */
+    public static function indexkey($separators = '.', ...$keys): string
+    {
+        return static::getInstance()->indexkey($separators, ...$keys);
     }
 
     /**
@@ -158,8 +158,8 @@ abstract class GeneratedArrFacade
     }
 
     /**
-     * @param array $array
-     * @param mixed ...$keys
+     * @param array                 $array
+     * @param string|string[]|array ...$keys
      *
      * @return array
      */
@@ -169,8 +169,8 @@ abstract class GeneratedArrFacade
     }
 
     /**
-     * @param array $array
-     * @param mixed ...$keys
+     * @param array                 $array
+     * @param string|string[]|array ...$keys
      *
      * @return array
      */
@@ -180,8 +180,8 @@ abstract class GeneratedArrFacade
     }
 
     /**
-     * @param array $array
-     * @param mixed ...$keys
+     * @param array                 $array
+     * @param string|string[]|array ...$keys
      *
      * @return array
      */
@@ -191,7 +191,7 @@ abstract class GeneratedArrFacade
     }
 
     /**
-     * array_combine позволяющий передать отличный от keys массив значений
+     * array_combine позволяющий передать разное число ключей и значений
      *
      * @param string|string[]    $keys
      * @param null|mixed|mixed[] $values
@@ -219,7 +219,6 @@ abstract class GeneratedArrFacade
     }
 
     /**
-     * partition
      * разбивает массив на два по указанному критерию
      *
      * @param array         $array
@@ -233,8 +232,7 @@ abstract class GeneratedArrFacade
     }
 
     /**
-     * group
-     * разбивает массив на группированный список и остаток, колбэк возвращает имя группы
+     * разбивает массив на группированный список и остаток, замыкание возвращает имя группы
      *
      * @param array         $array
      * @param \Closure|null $func
@@ -247,25 +245,25 @@ abstract class GeneratedArrFacade
     }
 
     /**
-     * @param iterable $iterable
-     * @param string   $separator
+     * @param iterable              $iterable
+     * @param string|string[]|array $separators
      *
      * @return array
      */
-    public static function dot(iterable $iterable, string $separator = '.'): array
+    public static function dot(iterable $iterable, $separators = '.'): array
     {
-        return static::getInstance()->dot($iterable, $separator);
+        return static::getInstance()->dot($iterable, $separators);
     }
 
     /**
-     * @param iterable $iterable
-     * @param string   $separator
+     * @param iterable              $iterable
+     * @param string|string[]|array $separators
      *
      * @return array
      */
-    public static function dotarr(iterable $iterable, string $separator = '.'): array
+    public static function dotarr(iterable $iterable, $separators = '.'): array
     {
-        return static::getInstance()->dotarr($iterable, $separator);
+        return static::getInstance()->dotarr($iterable, $separators);
     }
 
     /**
@@ -308,7 +306,7 @@ abstract class GeneratedArrFacade
      * и в инжекторе зависимостей, чтобы между переданными параметрами воткнуть свой
      *
      * @param array   $dst
-     * @param mixed[] ...$expands
+     * @param array[] ...$expands
      *
      * @return array
      */
@@ -330,43 +328,47 @@ abstract class GeneratedArrFacade
     }
 
     /**
-     * @param string|string[]|array ...$keys
+     * @param string|string[]|array $keys
+     * @param null|bool             $uniq
      *
      * @return string[]
      */
-    public static function keys(...$keys): array
+    public static function keys($keys, bool $uniq = null): array
     {
-        return static::getInstance()->keys(...$keys);
+        return static::getInstance()->keys($keys, $uniq);
     }
 
     /**
-     * @param string|string[]|array ...$keys
+     * @param string|string[]|array $keys
+     * @param null|bool             $uniq
      *
      * @return array
      */
-    public static function theKeys(...$keys): array
+    public static function theKeys($keys, bool $uniq = null): array
     {
-        return static::getInstance()->theKeys(...$keys);
+        return static::getInstance()->theKeys($keys, $uniq);
     }
 
     /**
-     * @param string|string[]|array ...$keys
+     * @param string|string[]|array $keys
+     * @param null|bool             $uniq
      *
      * @return array
      */
-    public static function keysskip(...$keys): array
+    public static function keysskip($keys, bool $uniq = null): array
     {
-        return static::getInstance()->keysskip(...$keys);
+        return static::getInstance()->keysskip($keys, $uniq);
     }
 
     /**
-     * @param string|string[]|array ...$keys
+     * @param string|string[]|array $keys
+     * @param null|bool             $uniq
      *
      * @return array
      */
-    public static function theKeysskip(...$keys): array
+    public static function theKeysskip($keys, bool $uniq = null): array
     {
-        return static::getInstance()->theKeysskip(...$keys);
+        return static::getInstance()->theKeysskip($keys, $uniq);
     }
 
     /**

@@ -27,7 +27,9 @@ class Loader extends GeneratedLoaderFacade
     public static function getInstance() : _Loader
     {
         return new _Loader(
-            Str::getInstance(),
+            Filter::getInstance(),
+            Path::getInstance(),
+            Php::getInstance(),
         );
     }
 }

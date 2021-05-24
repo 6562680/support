@@ -850,8 +850,6 @@ class StrTest extends AbstractTestCase
     {
         $str = $this->getStr();
 
-        $this->assertEquals([], $str->numbers());
-
         $this->assertEquals([ 1 ], $str->numbers(1));
         $this->assertEquals([ 1 ], $str->numbers(1.0));
         $this->assertEquals([ 1.1 ], $str->numbers(1.1));
@@ -935,14 +933,12 @@ class StrTest extends AbstractTestCase
     {
         $str = $this->getStr();
 
-        $this->assertEquals([], $str->strings());
-
         $this->assertEquals([ '1' ], $str->strings(1));
         $this->assertEquals([ '1' ], $str->strings(1.0));
         $this->assertEquals([ '1.1' ], $str->strings(1.1));
         $this->assertEquals([ '' ], $str->strings(''));
         $this->assertEquals([ 'hello' ], $str->strings('hello'));
-        $this->assertEquals([ 'hello', 'hello' ], $str->strings('hello', 'hello'));
+        $this->assertEquals([ 'hello', 'hello' ], $str->strings([ 'hello', 'hello' ]));
         $this->assertEquals([], $str->strings([]));
 
         $this->assertEquals([ '1' ], $str->strings([ 1 ]));
@@ -1002,13 +998,11 @@ class StrTest extends AbstractTestCase
     {
         $str = $this->getStr();
 
-        $this->assertEquals([], $str->words());
-
         $this->assertEquals([ '1' ], $str->words(1));
         $this->assertEquals([ '1' ], $str->words(1.0));
         $this->assertEquals([ '1.1' ], $str->words(1.1));
         $this->assertEquals([ 'hello' ], $str->words('hello'));
-        $this->assertEquals([ 'hello', 'hello' ], $str->words('hello', 'hello'));
+        $this->assertEquals([ 'hello', 'hello' ], $str->words([ 'hello', 'hello' ]));
         $this->assertEquals([], $str->words([]));
 
         $this->assertEquals([ '1' ], $str->words([ 1 ]));
