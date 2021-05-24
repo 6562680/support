@@ -28,13 +28,55 @@ abstract class GeneratedPhpFacade
     }
 
     /**
-     * @param mixed $value
+     * @param mixed &$value
      *
      * @return bool
      */
-    public static function isEmpty($value): bool
+    public static function isEmpty(&$value): bool
     {
         return static::getInstance()->isEmpty($value);
+    }
+
+    /**
+     * @param mixed &$value
+     *
+     * @return mixed
+     */
+    public static function assertEmpty(&$value)
+    {
+        return static::getInstance()->assertEmpty($value);
+    }
+
+    /**
+     * @param mixed &$value
+     *
+     * @return mixed
+     */
+    public static function assertIsset(&$value)
+    {
+        return static::getInstance()->assertIsset($value);
+    }
+
+    /**
+     * @param string $key
+     * @param array  $array
+     *
+     * @return mixed
+     */
+    public static function assertKeyExists(string $key, array $array)
+    {
+        return static::getInstance()->assertKeyExists($key, $array);
+    }
+
+    /**
+     * @param string $name
+     * @param null   $value
+     *
+     * @return null|string
+     */
+    public static function const(string $name, $value = null): ?string
+    {
+        return static::getInstance()->const($name, $value);
     }
 
     /**
@@ -49,17 +91,6 @@ abstract class GeneratedPhpFacade
     public static function hash($value): string
     {
         return static::getInstance()->hash($value);
-    }
-
-    /**
-     * @param string $name
-     * @param null   $value
-     *
-     * @return null|string
-     */
-    public static function const(string $name, $value = null): ?string
-    {
-        return static::getInstance()->const($name, $value);
     }
 
     /**
@@ -203,6 +234,16 @@ abstract class GeneratedPhpFacade
     }
 
     /**
+     * @param int|float|int[]|float[] $sleeps
+     *
+     * @return Php
+     */
+    public static function sleep($sleeps)
+    {
+        return static::getInstance()->sleep($sleeps);
+    }
+
+    /**
      * @param null|\Throwable $e
      * @param null|int        $limit
      *
@@ -211,16 +252,6 @@ abstract class GeneratedPhpFacade
     public static function throwableMessages(\Throwable $e, int $limit = -1)
     {
         return static::getInstance()->throwableMessages($e, $limit);
-    }
-
-    /**
-     * @param int|float|int[]|float[] $sleeps
-     *
-     * @return Php
-     */
-    public static function sleep($sleeps)
-    {
-        return static::getInstance()->sleep($sleeps);
     }
 
     /**

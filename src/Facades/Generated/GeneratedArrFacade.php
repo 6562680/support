@@ -108,7 +108,7 @@ abstract class GeneratedArrFacade
      *
      * @return array
      */
-    public static function path($separators = "\x00", ...$keys): array
+    public static function path($separators = '.', ...$keys): array
     {
         return static::getInstance()->path($separators, ...$keys);
     }
@@ -119,20 +119,20 @@ abstract class GeneratedArrFacade
      *
      * @return string
      */
-    public static function key($separators = "\x00", ...$keys): string
+    public static function key($separators = '.', ...$keys): string
     {
         return static::getInstance()->key($separators, ...$keys);
     }
 
     /**
      * @param string|string[]|array $keys
-     * @param string                $separator
+     * @param string|string[]|array $delimiters
      *
      * @return string
      */
-    public static function indexkey($keys, string $separator = "\x00"): string
+    public static function indexkey($keys, $delimiters = "\x00"): string
     {
-        return static::getInstance()->indexkey($keys, $separator);
+        return static::getInstance()->indexkey($keys, $delimiters);
     }
 
     /**

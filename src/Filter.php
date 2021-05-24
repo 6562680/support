@@ -2,8 +2,6 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Type;
-use Gzhegow\Support\Assert;
 use Gzhegow\Support\Domain\Filter\CallableInfo;
 use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
 
@@ -753,7 +751,6 @@ class Filter
     }
 
 
-
     /**
      * @param mixed $value
      *
@@ -864,6 +861,24 @@ class Filter
         return $value;
     }
 
+    /**
+     * @param string   $filter
+     * @param \Closure $callable
+     *
+     * @return static
+     */
+    public function addCustomFilter(string $filter, \Closure $callable)
+    {
+        if (null !== $this->findCustomFilter($filter)) {
+            throw new UnderflowException('FilterService is already defined: ' . $filter);
+        }
+
+        $filterLower = strtolower($filter);
+
+        static::$customFilters[ $filterLower ] = $callable;
+
+        return $this;
+    }
 
     /**
      * @return Assert
@@ -882,7 +897,6 @@ class Filter
         return $this->type = $this->type
             ?? new Type($this);
     }
-
 
     /**
      * @param string $filter
@@ -923,26 +937,6 @@ class Filter
         };
 
         return $closure;
-    }
-
-
-    /**
-     * @param string   $filter
-     * @param \Closure $callable
-     *
-     * @return static
-     */
-    public function addCustomFilter(string $filter, \Closure $callable)
-    {
-        if (null !== $this->findCustomFilter($filter)) {
-            throw new UnderflowException('FilterService is already defined: ' . $filter);
-        }
-
-        $filterLower = strtolower($filter);
-
-        static::$customFilters[ $filterLower ] = $callable;
-
-        return $this;
     }
 
     /**

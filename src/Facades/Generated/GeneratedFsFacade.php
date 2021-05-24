@@ -13,7 +13,6 @@ namespace Gzhegow\Support\Facades\Generated;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Fs;
-use Gzhegow\Support\Path;
 
 abstract class GeneratedFsFacade
 {
@@ -400,7 +399,7 @@ abstract class GeneratedFsFacade
     /**
      * @return Path
      */
-    public static function path(): Path
+    public static function path(): \Gzhegow\Support\Path
     {
         return static::getInstance()->path();
     }
@@ -538,11 +537,11 @@ abstract class GeneratedFsFacade
      */
     public static function fileGet(
         $file,
-        bool $use_include_path = false,
+        bool $use_include_path = null,
         $context = null,
         $offset = 0,
         $length = null
-    ): ?string {
+    ): string {
         return static::getInstance()->fileGet($file, $use_include_path, $context, $offset, $length);
     }
 
@@ -554,7 +553,7 @@ abstract class GeneratedFsFacade
      *
      * @return null|string
      */
-    public static function filePut(string $filepath, $data, int $flags = 0, $context = null): ?string
+    public static function filePut(string $filepath, $data, int $flags = null, $context = null): ?string
     {
         return static::getInstance()->filePut($filepath, $data, $flags, $context);
     }

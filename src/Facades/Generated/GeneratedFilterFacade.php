@@ -10,11 +10,9 @@
 
 namespace Gzhegow\Support\Facades\Generated;
 
-use Gzhegow\Support\Assert;
 use Gzhegow\Support\Domain\Filter\CallableInfo;
 use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
 use Gzhegow\Support\Filter;
-use Gzhegow\Support\Type;
 
 abstract class GeneratedFilterFacade
 {
@@ -479,9 +477,20 @@ abstract class GeneratedFilterFacade
     }
 
     /**
+     * @param string   $filter
+     * @param \Closure $callable
+     *
+     * @return Filter
+     */
+    public static function addCustomFilter(string $filter, \Closure $callable)
+    {
+        return static::getInstance()->addCustomFilter($filter, $callable);
+    }
+
+    /**
      * @return Assert
      */
-    public static function assert(): Assert
+    public static function assert(): \Gzhegow\Support\Assert
     {
         return static::getInstance()->assert();
     }
@@ -489,7 +498,7 @@ abstract class GeneratedFilterFacade
     /**
      * @return Type
      */
-    public static function type(): Type
+    public static function type(): \Gzhegow\Support\Type
     {
         return static::getInstance()->type();
     }
@@ -514,17 +523,6 @@ abstract class GeneratedFilterFacade
     public static function bind(string $filter, ...$arguments): \Closure
     {
         return static::getInstance()->bind($filter, ...$arguments);
-    }
-
-    /**
-     * @param string   $filter
-     * @param \Closure $callable
-     *
-     * @return Filter
-     */
-    public static function addCustomFilter(string $filter, \Closure $callable)
-    {
-        return static::getInstance()->addCustomFilter($filter, $callable);
     }
 
     /**

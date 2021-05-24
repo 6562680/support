@@ -43,11 +43,11 @@ class Php
 
 
     /**
-     * @param mixed $value
+     * @param mixed &$value
      *
      * @return bool
      */
-    public function isEmpty($value) : bool
+    public function isEmpty(&$value) : bool
     {
         if (empty($value)) {
             return true;
@@ -68,6 +68,76 @@ class Php
         }
 
         return false;
+    }
+
+
+    /**
+     * @param mixed &$value
+     *
+     * @return mixed
+     */
+    public function assertEmpty(&$value) // : mixed
+    {
+        if (false === $this->isEmpty($value)) {
+            throw new InvalidArgumentException('Value should exists');
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param mixed &$value
+     *
+     * @return mixed
+     */
+    public function assertIsset(&$value) // : mixed
+    {
+        if (false === isset($value)) {
+            throw new InvalidArgumentException('Value should exists');
+        }
+
+        return $value;
+    }
+
+
+    /**
+     * @param string $key
+     * @param array  $array
+     *
+     * @return mixed
+     */
+    public function assertKeyExists(string $key, array $array) // : mixed
+    {
+        if (false === array_key_exists($key, $array)) {
+            throw new InvalidArgumentException('Key not found: ' . $key);
+        }
+
+        return $array[ $key ];
+    }
+
+
+    /**
+     * @param string $name
+     * @param null   $value
+     *
+     * @return null|string
+     */
+    public function const(string $name, $value = null) : ?string
+    {
+        if (! $name) {
+            throw new InvalidArgumentException('Argument 1 should be defined');
+        }
+
+        if (! defined($name)) {
+            define($name, $value);
+
+        } else {
+            if (isset($value)) {
+                throw new RuntimeException('Constant is already defined: ' . $name);
+            }
+        }
+
+        return constant($name);
     }
 
 
@@ -113,31 +183,6 @@ class Php
         throw new UnexpectedValueException(
             [ 'Unable to hash passed element: %s', $value ]
         );
-    }
-
-
-    /**
-     * @param string $name
-     * @param null   $value
-     *
-     * @return null|string
-     */
-    public function const(string $name, $value = null) : ?string
-    {
-        if (! $name) {
-            throw new InvalidArgumentException('Argument 1 should be defined');
-        }
-
-        if (! defined($name)) {
-            define($name, $value);
-
-        } else {
-            if (isset($value)) {
-                throw new RuntimeException('Constant is already defined: ' . $name);
-            }
-        }
-
-        return constant($name);
     }
 
 
@@ -267,6 +312,7 @@ class Php
         return null;
     }
 
+
     /**
      * @param mixed $classOrObject
      *
@@ -290,6 +336,7 @@ class Php
 
         return $result;
     }
+
 
 
     /**
@@ -469,29 +516,6 @@ class Php
 
 
     /**
-     * @param null|\Throwable $e
-     * @param null|int        $limit
-     *
-     * @return array
-     */
-    public function throwableMessages(\Throwable $e, int $limit = -1)
-    {
-        $messages = [];
-
-        $parent = $e;
-        while ( null !== $parent ) {
-            $messages[ get_class($parent) ][] = $parent->getMessage();
-
-            if (! $limit--) break;
-
-            $parent = $parent->getPrevious();
-        }
-
-        return $messages;
-    }
-
-
-    /**
      * @param int|float|int[]|float[] $sleeps
      *
      * @return static
@@ -531,6 +555,29 @@ class Php
         }
 
         return $this;
+    }
+
+
+    /**
+     * @param null|\Throwable $e
+     * @param null|int        $limit
+     *
+     * @return array
+     */
+    public function throwableMessages(\Throwable $e, int $limit = -1)
+    {
+        $messages = [];
+
+        $parent = $e;
+        while ( null !== $parent ) {
+            $messages[ get_class($parent) ][] = $parent->getMessage();
+
+            if (! $limit--) break;
+
+            $parent = $parent->getPrevious();
+        }
+
+        return $messages;
     }
 
 

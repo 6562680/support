@@ -116,6 +116,8 @@ class SupportTest extends AbstractTestCase
             $assertMethods[ $method ] = true;
         }
         unset($assertMethods[ '__construct' ]);
+        unset($assertMethods[ 'Isset' ]);
+        unset($assertMethods[ 'KeyExists' ]);
         unset($assertMethods[ '' ]);
 
 

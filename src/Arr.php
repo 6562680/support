@@ -264,7 +264,7 @@ class Arr
      *
      * @return array
      */
-    public function path($separators = "\0", ...$keys) : array
+    public function path($separators = ".", ...$keys) : array
     {
         $result = $this->str->explode($separators, ...$keys);
 
@@ -277,11 +277,14 @@ class Arr
      *
      * @return string
      */
-    public function key($separators = "\0", ...$keys) : string
+    public function key($separators = ".", ...$keys) : string
     {
-        $result = $this->str->explode($separators, ...$keys);
+        $separators = $this->str->theWords($separators);
+        $keys = $this->keys(...$keys);
 
-        $result = $this->str->join($separators[ 0 ], $result);
+        $explode = $this->str->explode($separators, $keys);
+
+        $result = $this->str->implode($separators[ 0 ], $explode);
 
         return $result;
     }
@@ -289,15 +292,13 @@ class Arr
 
     /**
      * @param string|string[]|array $keys
-     * @param string                $separator
+     * @param string|string[]|array $delimiters
      *
      * @return string
      */
-    public function indexkey($keys, string $separator = "\0") : string
+    public function indexkey($keys, $delimiters = "\0") : string
     {
-        $keys = $this->keys($keys);
-
-        $result = $this->str->implode($separator, $keys);
+        $result = $this->key([ "\0", $delimiters ], $keys);
 
         return $result;
     }
@@ -560,7 +561,7 @@ class Arr
                 continue;
             }
 
-            $result[ $this->indexkey($fullpath, $separator) ] = $value;
+            $result[ $this->key($separator, $fullpath) ] = $value;
         }
 
         return $result;

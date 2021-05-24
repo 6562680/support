@@ -1309,7 +1309,8 @@ class Fs
      * @var array
      */
     protected static $units = [
-        'B'  => 0,
+        'B' => 0,
+
         'Kb' => 1,
         'Mb' => 2,
         'Gb' => 3,
