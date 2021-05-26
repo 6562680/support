@@ -190,7 +190,7 @@ class Cmp
         $bDate = null
             ?? ( ( null === $b ) ? $b : null )
             ?? ( ( null !== ( $dt = $this->calendar->filterDateval($b) ) ) ? $dt : null )
-            ?? ( $coalesce ? $this->calendar->date($b) : null );
+            ?? ( $coalesce ? $this->calendar->theDate($b) : null );
 
         $isA = false;
         $isB = false;

@@ -3,8 +3,8 @@
 namespace Gzhegow\Support\Facades;
 
 use Gzhegow\Support\Calendar as _Calendar;
-use Gzhegow\Support\Facades\Generated\GeneratedCalendarFacade;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
+use Gzhegow\Support\Facades\Generated\GeneratedCalendarFacade;
 
 
 /**
@@ -27,7 +27,9 @@ class Calendar extends GeneratedCalendarFacade
     public static function getInstance() : _Calendar
     {
         return new _Calendar(
-            Filter::getInstance()
+            Filter::getInstance(),
+            Php::getInstance(),
+            Str::getInstance()
         );
     }
 }

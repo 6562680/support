@@ -72,7 +72,7 @@ class Profiler
 
         $current = null;
         foreach ( $this->ticks as $idx => $float ) {
-            $dt = $this->calendar->date($float);
+            $dt = $this->calendar->theDate($float);
             $comment = $this->tickComments[ $idx ];
 
             $time = $current

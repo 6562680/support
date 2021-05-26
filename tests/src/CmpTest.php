@@ -3,6 +3,8 @@
 namespace Gzhegow\Support\Tests;
 
 use Gzhegow\Support\Cmp;
+use Gzhegow\Support\Php;
+use Gzhegow\Support\Str;
 use Gzhegow\Support\Type;
 use Gzhegow\Support\Filter;
 use Gzhegow\Support\Calendar;
@@ -22,10 +24,26 @@ class CmpTest extends AbstractTestCase
         );
     }
 
+    protected function getPhp() : Php
+    {
+        return new Php(
+            $this->getFilter()
+        );
+    }
+
+    protected function getStr() : Str
+    {
+        return new Str(
+            $this->getFilter()
+        );
+    }
+
     protected function getCalendar() : Calendar
     {
         return new Calendar(
-            $this->getFilter()
+            $this->getFilter(),
+            $this->getPhp(),
+            $this->getStr()
         );
     }
 
@@ -43,9 +61,9 @@ class CmpTest extends AbstractTestCase
         $calendar = $this->getCalendar();
         $cmp = $this->getCmp();
 
-        $dt[] = $dt1 = $calendar->date(50);
-        $dt[] = $dt3 = $calendar->date(200);
-        $dt[] = $dt2 = $calendar->date(100);
+        $dt[] = $dt1 = $calendar->theDate(50);
+        $dt[] = $dt3 = $calendar->theDate(200);
+        $dt[] = $dt2 = $calendar->theDate(100);
 
         usort($dt, [ $cmp, 'cmpdate' ]);
 

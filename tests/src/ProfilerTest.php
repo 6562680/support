@@ -2,6 +2,8 @@
 
 namespace Gzhegow\Support\Tests;
 
+use Gzhegow\Support\Php;
+use Gzhegow\Support\Str;
 use Gzhegow\Support\Filter;
 use Gzhegow\Support\Profiler;
 use Gzhegow\Support\Calendar;
@@ -14,10 +16,26 @@ class ProfilerTest extends AbstractTestCase
         return new Filter();
     }
 
+    protected function getPhp() : Php
+    {
+        return new Php(
+            $this->getFilter()
+        );
+    }
+
+    protected function getStr() : Str
+    {
+        return new Str(
+            $this->getFilter()
+        );
+    }
+
     protected function getCalendar() : Calendar
     {
         return new Calendar(
-            $this->getFilter()
+            $this->getFilter(),
+            $this->getPhp(),
+            $this->getStr()
         );
     }
 

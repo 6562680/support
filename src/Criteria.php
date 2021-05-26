@@ -245,7 +245,7 @@ class Criteria
         foreach ( $src as $i => $val ) {
             $date = null
                 ?? ( $this->calendar->isDateTime($src[ $i ]) ? $src[ $i ] : null )
-                ?? ( $coalesce ? $this->calendar->date($src[ $i ]) : null )
+                ?? ( $coalesce ? $this->calendar->theDate($src[ $i ]) : null )
                 ?? null;
 
             if (null !== $date) {
