@@ -488,6 +488,14 @@ abstract class GeneratedFilterFacade
     }
 
     /**
+     * @return Filter
+     */
+    public static function filter(): Filter
+    {
+        return static::getInstance()->filter();
+    }
+
+    /**
      * @return Assert
      */
     public static function assert(): \Gzhegow\Support\Assert
@@ -504,14 +512,14 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param string $filter
+     * @param string $customFilter
      * @param mixed  ...$arguments
      *
      * @return null|mixed
      */
-    public static function satisfy(string $filter, ...$arguments)
+    public static function call(string $customFilter, ...$arguments)
     {
-        return static::getInstance()->satisfy($filter, ...$arguments);
+        return static::getInstance()->call($customFilter, ...$arguments);
     }
 
     /**

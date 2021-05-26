@@ -288,62 +288,36 @@ class Calendar
 
 
     /**
-     * @param int|float|string|\DateTime         $dt
+     * @param int|float|string|\DateTime         $date
      * @param int[]|float[]|string[]|\DateTime[] $dates
      *
      * @return bool
      */
-    public function isBetween($dt, array $dates = []) : bool
+    public function isBetween($date, ...$dates) : bool
     {
-        $list = array_filter(
-            array_map($dates,
-                [ $this, 'parse' ]
-            ),
-            [ $this, 'isDateTime' ]
-        );
-
-        if (! $list) {
-            return false;
-        }
+        $date = $this->theDate($date);
+        $dates = $this->theDates($dates, true, true);
 
         $min = min($dates);
         $max = max($dates);
 
         $result = true
-            && $this->isAfterOrSame($dt, $min)
-            && $this->isBeforeOrSame($dt, $max);
+            && $this->isAfterOrSame($date, $min)
+            && $this->isBeforeOrSame($date, $max);
 
         return $result;
     }
 
     /**
-     * @param array $dates
-     * @param array $datesWith
+     * @param int[]|float[]|string[]|\DateTime[] $dates
+     * @param int[]|float[]|string[]|\DateTime[] $datesWith
      *
      * @return bool
      */
-    public function isIntersect(array $dates = [], array $datesWith = []) : bool
+    public function isIntersect($dates = [], $datesWith = []) : bool
     {
-        $list = array_filter(
-            array_map($dates,
-                [ $this, 'parse' ]
-            ),
-            [ $this, 'isDateTime' ]
-        );
-        $listWith = array_filter(
-            array_map($dates,
-                [ $this, 'parse' ]
-            ),
-            [ $this, 'isDateTime' ]
-        );
-
-        if (! $list) {
-            return false;
-        }
-
-        if (! $listWith) {
-            return false;
-        }
+        $dates = $this->theDates($dates, true, true);
+        $datesWith = $this->theDates($datesWith, true, true);
 
         $min = min($dates);
         $max = max($dates);
@@ -878,6 +852,143 @@ class Calendar
         }
 
         return $dateInterval;
+    }
+
+
+    /**
+     * @param \DateTime|\DateTime[]|array $dates
+     * @param null|bool                   $uniq
+     * @param null|bool                   $coalesce
+     *
+     * @return string[]
+     */
+    public function dates($dates, bool $uniq = null, bool $coalesce = null) : array
+    {
+        $result = [];
+
+        $dates = is_array($dates)
+            ? $dates
+            : [ $dates ];
+
+        array_walk_recursive($dates, function ($date) use (&$result) {
+            if (null === $this->filterDateval($date)) {
+                throw new InvalidArgumentException(
+                    [ 'Each item should be dateable: %s', $date ],
+                );
+            }
+
+            $result[] = $date;
+        });
+
+        if ($uniq ?? false) {
+            $array = [];
+            foreach ( $result as $idx => $item ) {
+                if (is_object($item)) {
+                    $array[] = $item;
+
+                    unset($result[ $idx ]);
+                }
+            }
+
+            $result = array_merge(
+                array_values(array_unique($result)),
+                $array
+            );
+        }
+
+        if ($coalesce ?? false) {
+            foreach ( $result as $idx => $item ) {
+                $result[ $idx ] = $this->dateval($item);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param \DateTime|\DateTime[]|array $dates
+     * @param null|bool                   $uniq
+     * @param null|bool                   $coalesce
+     *
+     * @return string[]
+     */
+    public function theDates($dates, bool $uniq = null, bool $coalesce = null) : array
+    {
+        $result = $this->dates($dates, $uniq, $coalesce);
+
+        if (! count($result)) {
+            throw new InvalidArgumentException(
+                [ 'At least one date should be provided: %s', $dates ],
+            );
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param \DateTime|\DateTime[]|array $dates
+     * @param null|bool                   $uniq
+     * @param null|bool                   $coalesce
+     *
+     * @return string[]
+     */
+    public function datesskip($dates, bool $uniq = null, bool $coalesce = null) : array
+    {
+        $result = [];
+
+        $dates = is_array($dates)
+            ? $dates
+            : [ $dates ];
+
+        array_walk_recursive($dates, function ($date) use (&$result, $coalesce) {
+            if (null !== $this->filterDateval($date)) {
+                $result[] = $date;
+            }
+        });
+
+        if ($uniq ?? false) {
+            $array = [];
+            foreach ( $result as $idx => $item ) {
+                if (is_object($item)) {
+                    $array[] = $item;
+
+                    unset($result[ $idx ]);
+                }
+            }
+
+            $result = array_merge(
+                array_values(array_unique($result)),
+                $array
+            );
+        }
+
+        if ($coalesce ?? false) {
+            foreach ( $result as $idx => $item ) {
+                $result[ $idx ] = $this->dateval($item);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param \DateTime|\DateTime[]|array $dates
+     * @param null|bool                   $uniq
+     * @param null|bool                   $coalesce
+     *
+     * @return string[]
+     */
+    public function theDatesskip($dates, bool $uniq = null, bool $coalesce = null) : array
+    {
+        $result = $this->datesskip($dates, $uniq, $coalesce);
+
+        if (! count($result)) {
+            throw new InvalidArgumentException(
+                [ 'At least one date should be provided: %s', $dates ],
+            );
+        }
+
+        return $result;
     }
 
 

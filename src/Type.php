@@ -8,6 +8,9 @@ use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 
 /**
  * Type
+ *
+ * Этот класс оборачивает Filter и конвертирует результаты в булев тип
+ * Это может пригодится при фильтрации массива через array_filter, где не удобно отсеивать null/false/0/0.0/'0'/''/[]
  */
 class Type extends GeneratedType
 {
@@ -38,5 +41,30 @@ class Type extends GeneratedType
         $result = null !== $filtered;
 
         return $result;
+    }
+
+
+    /**
+     * @return Filter
+     */
+    public function filter() : Filter
+    {
+        return $this->filter;
+    }
+
+    /**
+     * @return Assert
+     */
+    public function assert() : Assert
+    {
+        return $this->filter->assert();
+    }
+
+    /**
+     * @return Type
+     */
+    public function type() : Type
+    {
+        return $this;
     }
 }

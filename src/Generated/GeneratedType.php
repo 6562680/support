@@ -29,14 +29,14 @@ abstract class GeneratedType
     }
 
     /**
-     * @param string $filter
+     * @param string $customFilter
      * @param mixed ...$arguments
      *
      * @return bool
      */
-    public function is(string $filter, ...$arguments): bool
+    public function call(string $customFilter, ...$arguments): bool
     {
-        return null !== $this->filter->satisfy($filter, ...$arguments);
+        return null !== $this->filter->call($customFilter, ...$arguments);
     }
 
     /**
@@ -489,5 +489,16 @@ abstract class GeneratedType
     public function isTheStrval($value): ?bool
     {
         return null !== $this->filter->filterTheStrval($value);
+    }
+
+    /**
+     * @param string $customFilter
+     * @param mixed  ...$arguments
+     *
+     * @return bool
+     */
+    public function is(string $customFilter, ...$arguments): bool
+    {
+        return null !== $this->filter->call($customFilter, ...$arguments);
     }
 }

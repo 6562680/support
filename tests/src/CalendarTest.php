@@ -41,68 +41,86 @@ class CalendarTest extends AbstractTestCase
 
     public function testIsSame()
     {
-        // @todo
-
         $calendar = $this->getCalendar();
 
-        $this->assertEquals(true, true);
+        $today1 = $calendar->today();
+        $today2 = $calendar->today();
+
+        $this->assertEquals(true, $calendar->isSame($today1, $today2));
     }
 
 
     public function testIsBefore()
     {
-        // @todo
-
         $calendar = $this->getCalendar();
 
-        $this->assertEquals(true, true);
+        $now = $calendar->now();
+        $today = $calendar->today();
+
+        $this->assertEquals(true, $calendar->isBefore($now, $today));
     }
 
     public function testIsBeforeOrSame()
     {
-        // @todo
-
         $calendar = $this->getCalendar();
 
-        $this->assertEquals(true, true);
+        $now = $calendar->now();
+        $today1 = $calendar->today();
+        $today2 = $calendar->today();
+
+        $this->assertEquals(true, $calendar->isBeforeOrSame($now, $today1));
+        $this->assertEquals(true, $calendar->isBeforeOrSame($today1, $today2));
     }
 
 
     public function testIsAfter()
     {
-        // @todo
-
         $calendar = $this->getCalendar();
 
-        $this->assertEquals(true, true);
+        $now = $calendar->now();
+        $today = $calendar->today();
+
+        $this->assertEquals(true, $calendar->isAfter($today, $now));
     }
 
     public function testIsAfterOrSame()
     {
-        // @todo
-
         $calendar = $this->getCalendar();
 
-        $this->assertEquals(true, true);
+        $now = $calendar->now();
+        $today1 = $calendar->today();
+        $today2 = $calendar->today();
+
+        $this->assertEquals(true, $calendar->isAfterOrSame($today1, $now));
+        $this->assertEquals(true, $calendar->isAfterOrSame($today1, $today2));
     }
 
 
     public function testIsBetween()
     {
-        // @todo
-
         $calendar = $this->getCalendar();
 
-        $this->assertEquals(true, true);
+        $now1 = $calendar->now();
+        $now2 = $calendar->now();
+        $now3 = $calendar->now();
+        $now4 = $calendar->now();
+
+        $this->assertEquals(true, $calendar->isBetween($now2, [ $now1, $now3, $now4 ]));
     }
 
     public function testIsIntersect()
     {
-        // @todo
-
         $calendar = $this->getCalendar();
 
-        $this->assertEquals(true, true);
+        $now1 = $calendar->now();
+        $now2 = $calendar->now();
+        $now3 = $calendar->now();
+        $now4 = $calendar->now();
+
+        $this->assertEquals(true, $calendar->isIntersect(
+            [ $now1, $now3 ],
+            [ $now2, $now4 ]
+        ));
     }
 
 

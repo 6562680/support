@@ -861,6 +861,7 @@ class Filter
         return $value;
     }
 
+
     /**
      * @param string   $filter
      * @param \Closure $callable
@@ -877,6 +878,15 @@ class Filter
 
         static::$customFilters[ $filterLower ] = $callable;
 
+        return $this;
+    }
+
+
+    /**
+     * @return Filter
+     */
+    public function filter() : Filter
+    {
         return $this;
     }
 
@@ -898,16 +908,17 @@ class Filter
             ?? new Type($this);
     }
 
+
     /**
-     * @param string $filter
+     * @param string $customFilter
      * @param mixed  ...$arguments
      *
      * @return null|mixed
      */
-    public function satisfy(string $filter, ...$arguments) // : ?mixed
+    public function call(string $customFilter, ...$arguments) // : ?mixed
     {
-        if (null === ( $filterCallable = $this->findCustomFilter($filter) )) {
-            throw new UnderflowException('Filter not defined: ' . $filter);
+        if (null === ( $filterCallable = $this->findCustomFilter($customFilter) )) {
+            throw new UnderflowException('Filter not defined: ' . $customFilter);
         }
 
         $filtered = call_user_func_array($filterCallable, $arguments);
@@ -939,6 +950,7 @@ class Filter
         return $closure;
     }
 
+
     /**
      * @param string   $filter
      * @param \Closure $callable
@@ -957,7 +969,6 @@ class Filter
 
         return $this;
     }
-
 
     /**
      * @param string $filter

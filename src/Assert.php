@@ -9,6 +9,9 @@ use Gzhegow\Support\Exceptions\Runtime\UnexpectedValueException;
 
 /**
  * Assert
+ *
+ * Этот класс оборачивает Filter и бросает исключение, если фильтрация неудачная. Если все хорошо - вернет исходное значение
+ * Это может пригодится при проверка входящих данных в сеттерах и бизнеслогике в одну строку
  */
 class Assert extends GeneratedAssert
 {
@@ -41,5 +44,30 @@ class Assert extends GeneratedAssert
         }
 
         return $filtered;
+    }
+
+
+    /**
+     * @return Filter
+     */
+    public function filter() : Filter
+    {
+        return $this->filter;
+    }
+
+    /**
+     * @return Assert
+     */
+    public function assert() : Assert
+    {
+        return $this;
+    }
+
+    /**
+     * @return Type
+     */
+    public function type() : Type
+    {
+        return $this->filter->type();
     }
 }

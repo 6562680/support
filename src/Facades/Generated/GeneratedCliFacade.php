@@ -54,18 +54,18 @@ abstract class GeneratedCliFacade
     }
 
     /**
-     * writeFile
-     * сохраняет файл в указанное место, но выводит предупреждение что файл уже есть и предлагает его переписать, сохранив копию
+     * сохраняет файл в указанное место, но выводит предупреждение что файл уже есть
+     * предлагает его переписать, сохранив копию
      *
-     * @param string $outputPath
-     * @param string $content
-     * @param string $answer
+     * @param string      $outputPath
+     * @param string      $content
+     * @param null|string $overwrite
      *
      * @return Cli
      */
-    public static function writeFile(string $outputPath, string $content, string &$answer = 'n')
+    public static function writeFile(string $outputPath, string $content, string &$overwrite = null): string
     {
-        return static::getInstance()->writeFile($outputPath, $content, $answer);
+        return static::getInstance()->writeFile($outputPath, $content, $overwrite);
     }
 
     /**

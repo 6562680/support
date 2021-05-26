@@ -30,15 +30,15 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param string $filter
+     * @param string $customFilter
      * @param mixed ...$arguments
      *
      * @return null|mixed
      */
-    public function assert(string $filter, ...$arguments)
+    public function call(string $customFilter, ...$arguments)
     {
-        if (null === ($filtered = $this->filter->satisfy($filter, ...$arguments))) {
-            throw new InvalidArgumentException('Invalid ' . $filter . ' passed');
+        if (null === ($filtered = $this->filter->call($customFilter, ...$arguments))) {
+            throw new InvalidArgumentException('Invalid ' . $customFilter . ' passed');
         }
 
         return $filtered;

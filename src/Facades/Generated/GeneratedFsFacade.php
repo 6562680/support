@@ -551,9 +551,9 @@ abstract class GeneratedFsFacade
      * @param null|int $flags
      * @param null     $context
      *
-     * @return null|string
+     * @return string
      */
-    public static function filePut(string $filepath, $data, int $flags = null, $context = null): ?string
+    public static function filePut(string $filepath, $data, int $flags = null, $context = null): string
     {
         return static::getInstance()->filePut($filepath, $data, $flags, $context);
     }

@@ -67,32 +67,33 @@ $method->addParameter('filter')->setType(Filter::class);
 $moduleType->addMember($method);
 
 // add methods
-$method = new \Nette\PhpGenerator\Method('is');
+$method = new \Nette\PhpGenerator\Method('call');
 $method->setPublic();
-$method->addParameter('filter')->setType('string');
-$method->setVariadic();
+$method->addParameter('customFilter')->setType('string');
 $method->addParameter('arguments');
+$method->setVariadic();
 $method->setReturnType('bool');
 $method->setComment(implode("\n", [
     '',
-    '@param string $filter',
+    '@param string $customFilter',
     '@param mixed ...$arguments',
     '',
     '@return bool',
 ]));
 $method->setBody(implode("\n", [
-    'return null !== $this->filter->satisfy($filter, ...$arguments);',
+    'return null !== $this->filter->call($customFilter, ...$arguments);',
 ]));
 $moduleType->addMember($method);
 
 // copy methods
 $moduleCopy = \Nette\PhpGenerator\ClassType::from(Filter::class);
 $moduleCopy->removeMethod('getCustomFilters');
+$moduleCopy->removeMethod('addCustomFilter');
 $moduleCopy->removeMethod('assert');
 $moduleCopy->removeMethod('type');
-$moduleCopy->removeMethod('satisfy');
+$moduleCopy->removeMethod('filter');
+$moduleCopy->removeMethod('call');
 $moduleCopy->removeMethod('bind');
-$moduleCopy->removeMethod('addCustomFilter');
 $moduleCopy->removeMethod('replaceCustomFilter');
 $moduleCopy->removeMethod('findCustomFilter');
 foreach ( $moduleCopy->getMethods() as $method ) {
@@ -123,9 +124,11 @@ foreach ( $moduleCopy->getMethods() as $method ) {
     foreach ( $parameters as $parameter ) {
         $arguments[] = '$' . $parameter->getName();
     }
-    $arguments[] = $method->isVariadic()
-        ? '...$' . $last->getName()
-        : '$' . $last->getName();
+    if ($last) {
+        $arguments[] = $method->isVariadic()
+            ? '...$' . $last->getName()
+            : '$' . $last->getName();
+    }
 
     $methodNew = new \Nette\PhpGenerator\Method($methodNameNew);
     $methodNew->setVariadic($method->isVariadic());

@@ -79,23 +79,23 @@ abstract class GeneratedCalendarFacade
     }
 
     /**
-     * @param int|float|string|\DateTime         $dt
+     * @param int|float|string|\DateTime         $date
      * @param int[]|float[]|string[]|\DateTime[] $dates
      *
      * @return bool
      */
-    public static function isBetween($dt, array $dates = []): bool
+    public static function isBetween($date, ...$dates): bool
     {
-        return static::getInstance()->isBetween($dt, $dates);
+        return static::getInstance()->isBetween($date, ...$dates);
     }
 
     /**
-     * @param array $dates
-     * @param array $datesWith
+     * @param int[]|float[]|string[]|\DateTime[] $dates
+     * @param int[]|float[]|string[]|\DateTime[] $datesWith
      *
      * @return bool
      */
-    public static function isIntersect(array $dates = [], array $datesWith = []): bool
+    public static function isIntersect($dates = [], $datesWith = []): bool
     {
         return static::getInstance()->isIntersect($dates, $datesWith);
     }
@@ -461,6 +461,54 @@ abstract class GeneratedCalendarFacade
     public static function parseInterval($interval, string $unit = null): ?\DateInterval
     {
         return static::getInstance()->parseInterval($interval, $unit);
+    }
+
+    /**
+     * @param \DateTime|\DateTime[]|array $dates
+     * @param null|bool                   $uniq
+     * @param null|bool                   $coalesce
+     *
+     * @return string[]
+     */
+    public static function dates($dates, bool $uniq = null, bool $coalesce = null): array
+    {
+        return static::getInstance()->dates($dates, $uniq, $coalesce);
+    }
+
+    /**
+     * @param \DateTime|\DateTime[]|array $dates
+     * @param null|bool                   $uniq
+     * @param null|bool                   $coalesce
+     *
+     * @return string[]
+     */
+    public static function theDates($dates, bool $uniq = null, bool $coalesce = null): array
+    {
+        return static::getInstance()->theDates($dates, $uniq, $coalesce);
+    }
+
+    /**
+     * @param \DateTime|\DateTime[]|array $dates
+     * @param null|bool                   $uniq
+     * @param null|bool                   $coalesce
+     *
+     * @return string[]
+     */
+    public static function datesskip($dates, bool $uniq = null, bool $coalesce = null): array
+    {
+        return static::getInstance()->datesskip($dates, $uniq, $coalesce);
+    }
+
+    /**
+     * @param \DateTime|\DateTime[]|array $dates
+     * @param null|bool                   $uniq
+     * @param null|bool                   $coalesce
+     *
+     * @return string[]
+     */
+    public static function theDatesskip($dates, bool $uniq = null, bool $coalesce = null): array
+    {
+        return static::getInstance()->theDatesskip($dates, $uniq, $coalesce);
     }
 
     /**

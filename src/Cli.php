@@ -17,6 +17,10 @@ class Cli
      */
     protected $env;
     /**
+     * @var Fs
+     */
+    protected $fs;
+    /**
      * @var Php
      */
     protected $php;
@@ -26,15 +30,18 @@ class Cli
      * Constructor
      *
      * @param Env $env
+     * @param Fs  $fs
      * @param Php $php
      */
     public function __construct(
         Env $env,
+        Fs $fs,
         Php $php
     )
     {
         $this->env = $env;
         $this->php = $php;
+        $this->fs = $fs;
     }
 
 
@@ -134,34 +141,36 @@ class Cli
 
 
     /**
-     * writeFile
-     * сохраняет файл в указанное место, но выводит предупреждение что файл уже есть и предлагает его переписать, сохранив копию
+     * сохраняет файл в указанное место, но выводит предупреждение что файл уже есть
+     * предлагает его переписать, сохранив копию
      *
-     * @param string $outputPath
-     * @param string $content
-     * @param string $answer
+     * @param string      $outputPath
+     * @param string      $content
+     * @param null|string $overwrite
      *
      * @return static
      */
-    public function writeFile(string $outputPath, string $content, string &$answer = 'n')
+    public function writeFile(string $outputPath, string $content, string &$overwrite = null) : string
     {
-        $overwrite = ( 'y' === $answer ) || ( 'yy' === $answer );
-        $all = ( 'nn' === $answer ) || ( 'yy' === $answer );
+        $overwrite = $overwrite ?? 'n';
+
+        $willOverwrite = ( 'y' === $overwrite ) || ( 'yy' === $overwrite );
+        $all = ( 'nn' === $overwrite ) || ( 'yy' === $overwrite );
 
         if (! file_exists($outputPath)) {
-            if (! is_dir($dir = dirname($outputPath))) {
-                mkdir($dir, 0755, true);
-            }
+            $this->fs->mkdir(dirname($outputPath));
 
-            file_put_contents($outputPath, $content);
+            $result = $this->fs->filePut($outputPath, $content);
 
             echo 'Created file: ' . $outputPath . PHP_EOL;
 
         } else {
+            $outputPath = realpath($outputPath);
+
             if (! $all) {
                 $accepted = [ 'yy', 'y', 'n', 'nn' ];
                 $message = 'File exists: ' . basename($outputPath) . PHP_EOL
-                    . $outputPath . PHP_EOL
+                    . $this->fs->secure($outputPath) . PHP_EOL
                     . 'Overwrite? [' . implode('/', $accepted) . ']';
 
                 echo $message . PHP_EOL;
@@ -170,28 +179,27 @@ class Cli
                     echo 'Please enter one of: [' . implode('/', $accepted) . ']';
                 }
 
-                $answer = $var;
+                $overwrite = $var;
 
-                $overwrite = ( 'y' === $answer ) || ( 'yy' === $answer );
+                $willOverwrite = ( 'y' === $overwrite ) || ( 'yy' === $overwrite );
             }
 
-            if (! $overwrite) {
-                echo 'File exists: ' . $outputPath . PHP_EOL;
+            if (! $willOverwrite) {
+                echo 'File exists: ' . $this->fs->secure($outputPath) . PHP_EOL;
 
             } else {
-                if (! is_dir($dir = dirname($outputPath))) {
-                    mkdir($dir, 0755, true);
-                }
-
                 copy($outputPath, $backupPath = $outputPath . '.backup' . date('Ymd_His'));
-                file_put_contents($outputPath, $content);
 
-                echo 'Backup stored at ' . $backupPath . PHP_EOL;
-                echo 'Replaced ' . $outputPath . PHP_EOL;
+                $this->fs->filePut($outputPath, $content);
+
+                echo 'Backup stored at ' . $this->fs->secure($backupPath) . PHP_EOL;
+                echo 'Replaced ' . $this->fs->secure($outputPath) . PHP_EOL;
             }
+
+            $result = realpath($outputPath);
         }
 
-        return $this;
+        return $result;
     }
 
 

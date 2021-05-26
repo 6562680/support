@@ -18,14 +18,14 @@ use Gzhegow\Support\Filter;
 abstract class GeneratedAssertFacade
 {
     /**
-     * @param string $filter
+     * @param string $customFilter
      * @param mixed ...$arguments
      *
      * @return null|mixed
      */
-    public static function assert(string $filter, ...$arguments)
+    public static function call(string $customFilter, ...$arguments)
     {
-        return static::getInstance()->assert($filter, ...$arguments);
+        return static::getInstance()->call($customFilter, ...$arguments);
     }
 
     /**
@@ -478,6 +478,17 @@ abstract class GeneratedAssertFacade
     public static function assertTheStrval($value): ?string
     {
         return static::getInstance()->assertTheStrval($value);
+    }
+
+    /**
+     * @param string $customFilter
+     * @param mixed  ...$arguments
+     *
+     * @return mixed
+     */
+    public static function assert(string $customFilter, ...$arguments)
+    {
+        return static::getInstance()->assert($customFilter, ...$arguments);
     }
 
     /**

@@ -899,9 +899,9 @@ class Fs
      * @param null|int $flags
      * @param null     $context
      *
-     * @return null|string
+     * @return string
      */
-    public function filePut(string $filepath, $data, int $flags = null, $context = null) : ?string
+    public function filePut(string $filepath, $data, int $flags = null, $context = null) : string
     {
         if (file_exists($filepath) && ! is_writable($filepath)) {
             throw new InvalidArgumentException(
@@ -986,6 +986,12 @@ class Fs
     public function mkdir(string $dirname, int $mode = null, bool $recursive = true, $context = null) : string
     {
         if (! is_dir($dirname)) {
+            if (file_exists($dirname)) {
+                throw new RuntimeException([
+                    'Unable to create directory, same file exists: ' . $this->secure($dirname),
+                ]);
+            }
+
             $mode = $mode ?? static::RWX_DIR;
 
             $context

@@ -17,14 +17,14 @@ use Gzhegow\Support\Type;
 abstract class GeneratedTypeFacade
 {
     /**
-     * @param string $filter
+     * @param string $customFilter
      * @param mixed ...$arguments
      *
      * @return bool
      */
-    public static function is(string $filter, ...$arguments): bool
+    public static function call(string $customFilter, ...$arguments): bool
     {
-        return static::getInstance()->is($filter, ...$arguments);
+        return static::getInstance()->call($customFilter, ...$arguments);
     }
 
     /**
@@ -477,6 +477,17 @@ abstract class GeneratedTypeFacade
     public static function isTheStrval($value): ?bool
     {
         return static::getInstance()->isTheStrval($value);
+    }
+
+    /**
+     * @param string $customFilter
+     * @param mixed  ...$arguments
+     *
+     * @return bool
+     */
+    public static function is(string $customFilter, ...$arguments): bool
+    {
+        return static::getInstance()->is($customFilter, ...$arguments);
     }
 
     /**
