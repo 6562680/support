@@ -480,17 +480,6 @@ abstract class GeneratedTypeFacade
     }
 
     /**
-     * @param string $customFilter
-     * @param mixed  ...$arguments
-     *
-     * @return bool
-     */
-    public static function is(string $customFilter, ...$arguments): bool
-    {
-        return static::getInstance()->is($customFilter, ...$arguments);
-    }
-
-    /**
      * @return Type
      */
     abstract public static function getInstance(): Type;

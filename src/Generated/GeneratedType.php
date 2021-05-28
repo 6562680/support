@@ -490,15 +490,4 @@ abstract class GeneratedType
     {
         return null !== $this->filter->filterTheStrval($value);
     }
-
-    /**
-     * @param string $customFilter
-     * @param mixed  ...$arguments
-     *
-     * @return bool
-     */
-    public function is(string $customFilter, ...$arguments): bool
-    {
-        return null !== $this->filter->call($customFilter, ...$arguments);
-    }
 }

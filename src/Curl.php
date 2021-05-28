@@ -126,30 +126,44 @@ class Curl
      */
     public function isCurl($ch) : bool
     {
-        return is_resource($ch)
-            && ( false !== @curl_error($ch) );
+        return null !== $this->filterCurl($ch);
+    }
+
+    /**
+     * @param resource|\CurlHandle $ch
+     *
+     * @return null|resource|\CurlHandle
+     */
+    public function filterCurl($ch) // : ?resource|\CurlHandle
+    {
+        if (is_object($ch) && class_exists('CurlHandle') && is_a($ch, 'CurlHandle')) {
+            return $ch;
+
+        } elseif (null !== $this->filter->filterOpenedResource($ch)) {
+            if (false === @curl_error($ch)) {
+                return null;
+            }
+
+            return $ch;
+        }
+
+        return null;
     }
 
     /**
      * @param resource $ch
      *
-     * @return boolean
+     * @return null|resource
      */
-    public function isOpenedCurl($ch) : bool
+    public function assertCurl($ch) // : ?resource
     {
-        return $this->isCurl($ch)
-            && null === $this->filter->filterClosedResource($ch);
-    }
+        if (null === $this->filterCurl($ch)) {
+            throw new InvalidArgumentException(
+                [ 'Ch should be cURL Resource: %s', $ch ]
+            );
+        }
 
-    /**
-     * @param resource $ch
-     *
-     * @return boolean
-     */
-    public function isClosedCurl($ch) : bool
-    {
-        return $this->isCurl($ch)
-            && null !== $this->filter->filterClosedResource($ch);
+        return $ch;
     }
 
 
@@ -294,7 +308,7 @@ class Curl
     /**
      * @param resource $ch
      *
-     * @return null|mixed[]
+     * @return null|int[]|string[]
      */
     public function curlInfo($ch) : ?array
     {
@@ -311,7 +325,7 @@ class Curl
      * @param resource   $ch
      * @param int|string $opt
      *
-     * @return null|mixed|mixed[]
+     * @return null|int|string|int[]|string[]
      */
     public function curlInfoOpt($ch, $opt)
     {
@@ -367,7 +381,7 @@ class Curl
     /**
      * @param int|int[]|string|string[]               $limit
      * @param int|float|int[]|float[]|string|string[] $sleep
-     * @param resource|resource[]                     $curls
+     * @param resource|resource[]|array               $curls
      *
      * @return array
      */
@@ -389,9 +403,9 @@ class Curl
     }
 
     /**
-     * @param int|int[]               $limits
-     * @param int|float|int[]|float[] $sleeps
-     * @param resource|resource[]     $curls
+     * @param int|int[]                 $limits
+     * @param int|float|int[]|float[]   $sleeps
+     * @param resource|resource[]|array $curls
      *
      * @return \Generator
      */
@@ -412,7 +426,7 @@ class Curl
         [ 1 => $curls ] = $this->php->kwargsFlattenDistinct(...$curls);
 
         foreach ( $curls as $ch ) {
-            if (! $this->isOpenedCurl($ch)) {
+            if (! $this->isCurl($ch)) {
                 throw new InvalidArgumentException(
                     [ 'Each argument should be opened CURL resource: %s', $ch ]
                 );
@@ -449,7 +463,7 @@ class Curl
 
 
     /**
-     * @param resource|resource[] $curls
+     * @param resource|resource[]|array $curls
      *
      * @return array
      */
@@ -458,7 +472,7 @@ class Curl
         [ 1 => $curls ] = $this->php->kwargsFlattenDistinct(...$curls);
 
         foreach ( $curls as $ch ) {
-            if (! $this->isOpenedCurl($ch)) {
+            if (! $this->isCurl($ch)) {
                 throw new InvalidArgumentException('Each argument should be opened CURL resource');
             }
         }
@@ -497,5 +511,102 @@ class Curl
 
         // result
         return [ $results, $urls, $hh ];
+    }
+
+
+    /**
+     * @param resource|resource[]|array $chh
+     * @param null|bool                 $uniq
+     *
+     * @return string[]
+     */
+    public function curls($chh, bool $uniq = null) : array
+    {
+        $result = [];
+
+        $chh = is_array($chh)
+            ? $chh
+            : [ $chh ];
+
+        array_walk_recursive($chh, function ($string) use (&$result) {
+            if (null === $this->filterCurl($string)) {
+                throw new InvalidArgumentException(
+                    [ 'Each item should be stringable: %s', $string ],
+                );
+            }
+
+            $result[] = strval($string);
+        });
+
+        if ($uniq ?? false) {
+            $result = array_values(array_unique($result));
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string|string[]|array $chh
+     * @param null|bool             $uniq
+     *
+     * @return string[]
+     */
+    public function theCurls($chh, bool $uniq = null) : array
+    {
+        $result = $this->curls($chh, $uniq);
+
+        if (! count($result)) {
+            throw new InvalidArgumentException(
+                [ 'At least one string should be provided: %s', $chh ],
+            );
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string|string[]|array $chh
+     * @param null|bool             $uniq
+     *
+     * @return string[]
+     */
+    public function curlsskip($chh, bool $uniq = null) : array
+    {
+        $result = [];
+
+        $chh = is_array($chh)
+            ? $chh
+            : [ $chh ];
+
+        array_walk_recursive($chh, function ($string) use (&$result) {
+            if (null !== $this->filterCurl($string)) {
+                $result[] = strval($string);
+            }
+        });
+
+        if ($uniq ?? false) {
+            $result = array_values(array_unique($result));
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string|string[]|array $chh
+     * @param null|bool             $uniq
+     *
+     * @return string[]
+     */
+    public function theCurlsskip($chh, bool $uniq = null) : array
+    {
+        $result = $this->curlsskip($chh, $uniq);
+
+        if (! count($result)) {
+            throw new InvalidArgumentException(
+                [ 'At least one string should be provided: %s', $chh ],
+            );
+        }
+
+        return $result;
     }
 }

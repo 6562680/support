@@ -16,78 +16,6 @@ use Gzhegow\Support\Str;
 abstract class GeneratedStrFacade
 {
     /**
-     * если строка начинается на искомую, отрезает ее и возвращает укороченную
-     * if (null !== ($substr = $str->ends('hello', 'h'))) {} // 'ello'
-     *
-     * @param string      $str
-     * @param string|null $needle
-     * @param bool|null   $ignoreCase
-     *
-     * @return null|string
-     */
-    public static function starts(string $str, string $needle = null, bool $ignoreCase = true): ?string
-    {
-        return static::getInstance()->starts($str, $needle, $ignoreCase);
-    }
-
-    /**
-     * если строка заканчивается на искомую, отрезает ее и возвращает укороченную
-     * if (null !== ($substr = $str->ends('hello', 'o'))) {} // 'hell'
-     *
-     * @param string      $str
-     * @param string|null $needle
-     * @param bool|null   $ignoreCase
-     *
-     * @return null|string
-     */
-    public static function ends(string $str, string $needle = null, bool $ignoreCase = true): ?string
-    {
-        return static::getInstance()->ends($str, $needle, $ignoreCase);
-    }
-
-    /**
-     * ищет подстроку в строке и разбивает по ней результат
-     * if ($explode = $str->contains('hello', 'h')) {} // ['', 'ello']
-     *
-     * @param string      $str
-     * @param string|null $needle
-     * @param null|int    $limit
-     * @param bool|null   $ignoreCase
-     *
-     * @return array
-     */
-    public static function contains(
-        string $str,
-        string $needle = null,
-        int $limit = null,
-        bool $ignoreCase = true
-    ): array {
-        return static::getInstance()->contains($str, $needle, $limit, $ignoreCase);
-    }
-
-    /**
-     * ищет все совпадения начинающиеся "с" и заканчивающиеся "на"
-     * используется при замене подстановок в тексте
-     *
-     * @param string   $start
-     * @param string   $end
-     * @param string   $haystack
-     * @param null|int $offset
-     * @param bool     $ignoreCase
-     *
-     * @return array
-     */
-    public static function match(
-        string $start,
-        string $end,
-        string $haystack,
-        int $offset = null,
-        bool $ignoreCase = true
-    ): array {
-        return static::getInstance()->match($start, $end, $haystack, $offset, $ignoreCase);
-    }
-
-    /**
      * стандартная функция возвращает false, если не найдено
      * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для сдвига
      * usort($array, function ($a, $b) { return $str->strpos($hs, $a) - $str->strpos($hs, $b); }}
@@ -194,6 +122,78 @@ abstract class GeneratedStrFacade
     public static function ireplace($search, $replace, $subject, int $limit = null, int &$count = null)
     {
         return static::getInstance()->ireplace($search, $replace, $subject, $limit, $count);
+    }
+
+    /**
+     * если строка начинается на искомую, отрезает ее и возвращает укороченную
+     * if (null !== ($substr = $str->ends('hello', 'h'))) {} // 'ello'
+     *
+     * @param string      $str
+     * @param string|null $needle
+     * @param bool|null   $ignoreCase
+     *
+     * @return null|string
+     */
+    public static function starts(string $str, string $needle = null, bool $ignoreCase = true): ?string
+    {
+        return static::getInstance()->starts($str, $needle, $ignoreCase);
+    }
+
+    /**
+     * если строка заканчивается на искомую, отрезает ее и возвращает укороченную
+     * if (null !== ($substr = $str->ends('hello', 'o'))) {} // 'hell'
+     *
+     * @param string      $str
+     * @param string|null $needle
+     * @param bool|null   $ignoreCase
+     *
+     * @return null|string
+     */
+    public static function ends(string $str, string $needle = null, bool $ignoreCase = true): ?string
+    {
+        return static::getInstance()->ends($str, $needle, $ignoreCase);
+    }
+
+    /**
+     * ищет подстроку в строке и разбивает по ней результат
+     * if ($explode = $str->contains('hello', 'h')) {} // ['', 'ello']
+     *
+     * @param string      $str
+     * @param string|null $needle
+     * @param null|int    $limit
+     * @param bool|null   $ignoreCase
+     *
+     * @return array
+     */
+    public static function contains(
+        string $str,
+        string $needle = null,
+        int $limit = null,
+        bool $ignoreCase = true
+    ): array {
+        return static::getInstance()->contains($str, $needle, $limit, $ignoreCase);
+    }
+
+    /**
+     * ищет все совпадения начинающиеся "с" и заканчивающиеся "на"
+     * используется при замене подстановок в тексте
+     *
+     * @param string   $start
+     * @param string   $end
+     * @param string   $haystack
+     * @param null|int $offset
+     * @param bool     $ignoreCase
+     *
+     * @return array
+     */
+    public static function match(
+        string $start,
+        string $end,
+        string $haystack,
+        int $offset = null,
+        bool $ignoreCase = true
+    ): array {
+        return static::getInstance()->match($start, $end, $haystack, $offset, $ignoreCase);
     }
 
     /**
@@ -317,6 +317,17 @@ abstract class GeneratedStrFacade
     public static function crop(string $str, string $needle = null, bool $ignoreCase = null, int $limit = -1): string
     {
         return static::getInstance()->crop($str, $needle, $ignoreCase, $limit);
+    }
+
+    /**
+     * @param string   $needle
+     * @param null|int $maxlen
+     *
+     * @return string
+     */
+    public static function prefix($needle, int $maxlen = null): string
+    {
+        return static::getInstance()->prefix($needle, $maxlen);
     }
 
     /**

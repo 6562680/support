@@ -504,6 +504,14 @@ abstract class GeneratedFilterFacade
     }
 
     /**
+     * @return Php
+     */
+    public static function php(): \Gzhegow\Support\Php
+    {
+        return static::getInstance()->php();
+    }
+
+    /**
      * @return Type
      */
     public static function type(): \Gzhegow\Support\Type

@@ -50,23 +50,23 @@ abstract class GeneratedCurlFacade
     }
 
     /**
-     * @param resource $ch
+     * @param resource|\CurlHandle $ch
      *
-     * @return boolean
+     * @return null|resource|\CurlHandle
      */
-    public static function isOpenedCurl($ch): bool
+    public static function filterCurl($ch)
     {
-        return static::getInstance()->isOpenedCurl($ch);
+        return static::getInstance()->filterCurl($ch);
     }
 
     /**
      * @param resource $ch
      *
-     * @return boolean
+     * @return null|resource
      */
-    public static function isClosedCurl($ch): bool
+    public static function assertCurl($ch)
     {
-        return static::getInstance()->isClosedCurl($ch);
+        return static::getInstance()->assertCurl($ch);
     }
 
     /**
@@ -197,7 +197,7 @@ abstract class GeneratedCurlFacade
     /**
      * @param resource $ch
      *
-     * @return null|mixed[]
+     * @return null|int[]|string[]
      */
     public static function curlInfo($ch): ?array
     {
@@ -208,7 +208,7 @@ abstract class GeneratedCurlFacade
      * @param resource   $ch
      * @param int|string $opt
      *
-     * @return null|mixed|mixed[]
+     * @return null|int|string|int[]|string[]
      */
     public static function curlInfoOpt($ch, $opt)
     {
@@ -245,7 +245,7 @@ abstract class GeneratedCurlFacade
     /**
      * @param int|int[]|string|string[]               $limit
      * @param int|float|int[]|float[]|string|string[] $sleep
-     * @param resource|resource[]                     $curls
+     * @param resource|resource[]|array               $curls
      *
      * @return array
      */
@@ -255,9 +255,9 @@ abstract class GeneratedCurlFacade
     }
 
     /**
-     * @param int|int[]               $limits
-     * @param int|float|int[]|float[] $sleeps
-     * @param resource|resource[]     $curls
+     * @param int|int[]                 $limits
+     * @param int|float|int[]|float[]   $sleeps
+     * @param resource|resource[]|array $curls
      *
      * @return \Generator
      */
@@ -267,13 +267,57 @@ abstract class GeneratedCurlFacade
     }
 
     /**
-     * @param resource|resource[] $curls
+     * @param resource|resource[]|array $curls
      *
      * @return array
      */
     public static function multi(...$curls): array
     {
         return static::getInstance()->multi(...$curls);
+    }
+
+    /**
+     * @param resource|resource[]|array $chh
+     * @param null|bool                 $uniq
+     *
+     * @return string[]
+     */
+    public static function curls($chh, bool $uniq = null): array
+    {
+        return static::getInstance()->curls($chh, $uniq);
+    }
+
+    /**
+     * @param string|string[]|array $chh
+     * @param null|bool             $uniq
+     *
+     * @return string[]
+     */
+    public static function theCurls($chh, bool $uniq = null): array
+    {
+        return static::getInstance()->theCurls($chh, $uniq);
+    }
+
+    /**
+     * @param string|string[]|array $chh
+     * @param null|bool             $uniq
+     *
+     * @return string[]
+     */
+    public static function curlsskip($chh, bool $uniq = null): array
+    {
+        return static::getInstance()->curlsskip($chh, $uniq);
+    }
+
+    /**
+     * @param string|string[]|array $chh
+     * @param null|bool             $uniq
+     *
+     * @return string[]
+     */
+    public static function theCurlsskip($chh, bool $uniq = null): array
+    {
+        return static::getInstance()->theCurlsskip($chh, $uniq);
     }
 
     /**

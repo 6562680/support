@@ -17,6 +17,11 @@ class Filter
     protected $assert;
 
     /**
+     * @var Php
+     */
+    protected $php;
+
+    /**
      * @var Type
      */
     protected $type;
@@ -897,6 +902,15 @@ class Filter
     {
         return $this->assert = $this->assert
             ?? new Assert($this);
+    }
+
+    /**
+     * @return Php
+     */
+    public function php() : Php
+    {
+        return $this->php = $this->php
+            ?? new Php($this);
     }
 
     /**

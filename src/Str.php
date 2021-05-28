@@ -42,147 +42,6 @@ class Str
 
 
     /**
-     * если строка начинается на искомую, отрезает ее и возвращает укороченную
-     * if (null !== ($substr = $str->ends('hello', 'h'))) {} // 'ello'
-     *
-     * @param string      $str
-     * @param string|null $needle
-     * @param bool|null   $ignoreCase
-     *
-     * @return null|string
-     */
-    public function starts(string $str, string $needle = null, bool $ignoreCase = true) : ?string
-    {
-        $needle = $needle ?? '';
-
-        if ('' === $str) return null;
-        if ('' === $needle) return $str;
-
-        $pos = $ignoreCase
-            ? mb_stripos($str, $needle)
-            : mb_strpos($str, $needle);
-
-        $result = 0 === $pos
-            ? mb_substr($str, mb_strlen($needle))
-            : null;
-
-        return $result;
-    }
-
-    /**
-     * если строка заканчивается на искомую, отрезает ее и возвращает укороченную
-     * if (null !== ($substr = $str->ends('hello', 'o'))) {} // 'hell'
-     *
-     * @param string      $str
-     * @param string|null $needle
-     * @param bool|null   $ignoreCase
-     *
-     * @return null|string
-     */
-    public function ends(string $str, string $needle = null, bool $ignoreCase = true) : ?string
-    {
-        $needle = $needle ?? '';
-
-        if ('' === $str) return null;
-        if ('' === $needle) return $str;
-
-        $pos = $ignoreCase
-            ? mb_strripos($str, $needle)
-            : mb_strrpos($str, $needle);
-
-        $result = $pos === mb_strlen($str) - mb_strlen($needle)
-            ? mb_substr($str, 0, $pos)
-            : null;
-
-        return $result;
-    }
-
-    /**
-     * ищет подстроку в строке и разбивает по ней результат
-     * if ($explode = $str->contains('hello', 'h')) {} // ['', 'ello']
-     *
-     * @param string      $str
-     * @param string|null $needle
-     * @param null|int    $limit
-     * @param bool|null   $ignoreCase
-     *
-     * @return array
-     */
-    public function contains(string $str, string $needle = null, int $limit = null, bool $ignoreCase = true) : array
-    {
-        $needle = $needle ?? '';
-
-        if ('' === $str) return [];
-        if ('' === $needle) return [ $str ];
-
-        $limit = null !== $limit
-            ? max(0, $limit)
-            : null;
-
-        $strCase = $ignoreCase
-            ? str_ireplace($needle, $needle, $str)
-            : $str;
-
-        $result = [];
-
-        if (false !== ( $pos = mb_strpos($str, $needle) )) {
-            $result = null
-                ?? ( '' === $needle ? [ $str ] : null )
-                ?? ( $limit ? explode($needle, $strCase, $limit) : null )
-                ?? ( explode($needle, $strCase) );
-        }
-
-        return $result;
-    }
-
-
-    /**
-     * ищет все совпадения начинающиеся "с" и заканчивающиеся "на"
-     * используется при замене подстановок в тексте
-     *
-     * @param string   $start
-     * @param string   $end
-     * @param string   $haystack
-     * @param null|int $offset
-     * @param bool     $ignoreCase
-     *
-     * @return array
-     */
-    public function match(string $start, string $end, string $haystack,
-        int $offset = null,
-        bool $ignoreCase = true
-    ) : array
-    {
-        $offset = $offset ?? 0;
-
-        $flags = 'u';
-        $flags .= $ignoreCase ? 'i' : '';
-
-        $isMatch = preg_match_all('/'
-            . preg_quote($start, '/')
-            . '(.*?)'
-            . preg_quote($end, '/')
-            . '/' . $flags,
-            $haystack,
-            $result
-        );
-
-        if (false === $isMatch) {
-            $result = [];
-
-        } else {
-            $result = $result[ 1 ] ?? [];
-
-            if ($offset) {
-                array_splice($result, $offset);
-            }
-        }
-
-        return $result;
-    }
-
-
-    /**
      * стандартная функция возвращает false, если не найдено
      * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для сдвига
      * usort($array, function ($a, $b) { return $str->strpos($hs, $a) - $str->strpos($hs, $b); }}
@@ -441,6 +300,147 @@ class Str
 
 
     /**
+     * если строка начинается на искомую, отрезает ее и возвращает укороченную
+     * if (null !== ($substr = $str->ends('hello', 'h'))) {} // 'ello'
+     *
+     * @param string      $str
+     * @param string|null $needle
+     * @param bool|null   $ignoreCase
+     *
+     * @return null|string
+     */
+    public function starts(string $str, string $needle = null, bool $ignoreCase = true) : ?string
+    {
+        $needle = $needle ?? '';
+
+        if ('' === $str) return null;
+        if ('' === $needle) return $str;
+
+        $pos = $ignoreCase
+            ? mb_stripos($str, $needle)
+            : mb_strpos($str, $needle);
+
+        $result = 0 === $pos
+            ? mb_substr($str, mb_strlen($needle))
+            : null;
+
+        return $result;
+    }
+
+    /**
+     * если строка заканчивается на искомую, отрезает ее и возвращает укороченную
+     * if (null !== ($substr = $str->ends('hello', 'o'))) {} // 'hell'
+     *
+     * @param string      $str
+     * @param string|null $needle
+     * @param bool|null   $ignoreCase
+     *
+     * @return null|string
+     */
+    public function ends(string $str, string $needle = null, bool $ignoreCase = true) : ?string
+    {
+        $needle = $needle ?? '';
+
+        if ('' === $str) return null;
+        if ('' === $needle) return $str;
+
+        $pos = $ignoreCase
+            ? mb_strripos($str, $needle)
+            : mb_strrpos($str, $needle);
+
+        $result = $pos === mb_strlen($str) - mb_strlen($needle)
+            ? mb_substr($str, 0, $pos)
+            : null;
+
+        return $result;
+    }
+
+    /**
+     * ищет подстроку в строке и разбивает по ней результат
+     * if ($explode = $str->contains('hello', 'h')) {} // ['', 'ello']
+     *
+     * @param string      $str
+     * @param string|null $needle
+     * @param null|int    $limit
+     * @param bool|null   $ignoreCase
+     *
+     * @return array
+     */
+    public function contains(string $str, string $needle = null, int $limit = null, bool $ignoreCase = true) : array
+    {
+        $needle = $needle ?? '';
+
+        if ('' === $str) return [];
+        if ('' === $needle) return [ $str ];
+
+        $limit = null !== $limit
+            ? max(0, $limit)
+            : null;
+
+        $strCase = $ignoreCase
+            ? str_ireplace($needle, $needle, $str)
+            : $str;
+
+        $result = [];
+
+        if (false !== ( $pos = mb_strpos($str, $needle) )) {
+            $result = null
+                ?? ( '' === $needle ? [ $str ] : null )
+                ?? ( $limit ? explode($needle, $strCase, $limit) : null )
+                ?? ( explode($needle, $strCase) );
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * ищет все совпадения начинающиеся "с" и заканчивающиеся "на"
+     * используется при замене подстановок в тексте
+     *
+     * @param string   $start
+     * @param string   $end
+     * @param string   $haystack
+     * @param null|int $offset
+     * @param bool     $ignoreCase
+     *
+     * @return array
+     */
+    public function match(string $start, string $end, string $haystack,
+        int $offset = null,
+        bool $ignoreCase = true
+    ) : array
+    {
+        $offset = $offset ?? 0;
+
+        $flags = 'u';
+        $flags .= $ignoreCase ? 'i' : '';
+
+        $isMatch = preg_match_all('/'
+            . preg_quote($start, '/')
+            . '(.*?)'
+            . preg_quote($end, '/')
+            . '/' . $flags,
+            $haystack,
+            $result
+        );
+
+        if (false === $isMatch) {
+            $result = [];
+
+        } else {
+            $result = $result[ 1 ] ?? [];
+
+            if ($offset) {
+                array_splice($result, $offset);
+            }
+        }
+
+        return $result;
+    }
+
+
+    /**
      * Adds some string(-s) to start
      *
      * @param string      $str
@@ -667,6 +667,58 @@ class Str
         $lcrop = $this->lcrop($str, $needle, $ignoreCase, $limit);
 
         $result = $this->rcrop($lcrop, $needle, $ignoreCase, $limit);
+
+        return $result;
+    }
+
+
+    /**
+     * @param string   $needle
+     * @param null|int $maxlen
+     *
+     * @return string
+     */
+    public function prefix($needle, int $maxlen = null) : string
+    {
+        if (null === $this->filter->filterStrval($needle)) {
+            throw new InvalidArgumentException(
+                [ 'Needle should be stringable: %s', $needle ]
+            );
+        }
+
+        $needle = strval($needle);
+        $maxlen = max(0, $maxlen ?? 3);
+
+        if ('' === $needle) return '';
+        if (0 === $maxlen) return '';
+
+        if (! preg_match('/[a-zıəöü]/iu', $needle)) {
+            throw new InvalidArgumentException(
+                [ 'Needle could be UTF-8 but only english/ANSI letters allowed: %s' ]
+            );
+        }
+
+        $lenTotal = min($maxlen, mb_strlen($needle));
+
+        $needleLower = mb_strtolower($needle);
+
+        $result[] = $needleLower[ 0 ];
+        $needleLower = mb_substr($needle, 1);
+        $lenTotal--;
+
+        $needleNoVowels = preg_replace('/[aeiouıəöü]/iu', '', $needleLower);
+
+        $source = ( mb_strlen($needleNoVowels) >= $lenTotal )
+            ? $needleNoVowels
+            : $needleLower;
+
+        for ( $i = 0; $i < $lenTotal; $i++ ) {
+            $result[ $i + 1 ] = $source[ 0 ];
+
+            $source = mb_substr($source, 1);
+        }
+
+        $result = implode('', $result);
 
         return $result;
     }

@@ -481,17 +481,6 @@ abstract class GeneratedAssertFacade
     }
 
     /**
-     * @param string $customFilter
-     * @param mixed  ...$arguments
-     *
-     * @return mixed
-     */
-    public static function assert(string $customFilter, ...$arguments)
-    {
-        return static::getInstance()->assert($customFilter, ...$arguments);
-    }
-
-    /**
      * @return Assert
      */
     abstract public static function getInstance(): Assert;

@@ -617,14 +617,16 @@ class Php
     /**
      * Выполняет func_get_arg($num) позволяя задать вероятные позиции аргумента и отфильтровать их
      *
-     * @param array         $args
+     * @param null|array    $args
      * @param int|int[]     $num
      * @param null|callable $coalesce
      *
      * @return null|mixed
      */
-    protected function overload(array &$args, $num, callable $coalesce = null) // : ?mixed
+    public function overload(?array &$args, $num, callable $coalesce = null) // : ?mixed
     {
+        $args = $args ?? [];
+
         $arr = $this->listvalFlatten($num);
         $arr = array_map('intval', $arr);
 
@@ -652,14 +654,16 @@ class Php
     /**
      * Выполняет func_get_arg($num) позволяя задать вероятные позиции аргумента и проверить их
      *
-     * @param array         $args
+     * @param null|array    $args
      * @param int|int[]     $num
      * @param null|callable $if
      *
      * @return null|mixed
      */
-    protected function overloadIf(array &$args, $num, callable $if = null) // : ?mixed
+    public function overloadIf(?array &$args, $num, callable $if = null) // : ?mixed
     {
+        $args = $args ?? [];
+
         $arr = $this->listvalFlatten($num);
         $arr = array_map('intval', $arr);
 

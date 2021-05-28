@@ -97,12 +97,14 @@ class SupportTest extends AbstractTestCase
                 'Type',
             ])) {
                 unset($objMethods[ 'assert' ]);
-                unset($objMethods[ 'type' ]);
                 unset($objMethods[ 'filter' ]);
+                unset($objMethods[ 'php' ]);
+                unset($objMethods[ 'type' ]);
 
                 unset($facadeMethods[ 'assert' ]);
-                unset($facadeMethods[ 'type' ]);
                 unset($facadeMethods[ 'filter' ]);
+                unset($facadeMethods[ 'php' ]);
+                unset($facadeMethods[ 'type' ]);
             }
 
             $this->assertEquals($objMethods, $facadeMethods);
@@ -124,7 +126,8 @@ class SupportTest extends AbstractTestCase
                 continue;
             }
 
-            if (null === ( $method = $str->starts($m->getName(), 'assert') )) {
+            // null or empty string causes to continue
+            if (! $method = $str->starts($m->getName(), 'assert')) {
                 continue;
             }
 
@@ -139,7 +142,8 @@ class SupportTest extends AbstractTestCase
                 continue;
             }
 
-            if (null === ( $method = $str->starts($m->getName(), 'filter') )) {
+            // null or empty string causes to continue
+            if (! $method = $str->starts($m->getName(), 'filter')) {
                 continue;
             }
 
@@ -154,7 +158,8 @@ class SupportTest extends AbstractTestCase
                 continue;
             }
 
-            if (null === ( $method = $str->starts($m->getName(), 'is') )) {
+            // null or empty string causes to continue
+            if (! $method = $str->starts($m->getName(), 'is')) {
                 continue;
             }
 

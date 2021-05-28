@@ -30,6 +30,27 @@ class StrTest extends AbstractTestCase
     }
 
 
+    public function testReplace()
+    {
+        $str = $this->getStr();
+
+        $this->assertEquals('baa', $str->replace('a', 'b', 'aaa', 1));
+        $this->assertEquals('bba', $str->replace('a', 'b', 'aaa', 2));
+        $this->assertEquals('aab', $str->replace('a', 'b', 'aaa', -1));
+        $this->assertEquals('abb', $str->replace('a', 'b', 'aaa', -2));
+    }
+
+    public function testIreplace()
+    {
+        $str = $this->getStr();
+
+        $this->assertEquals('bAa', $str->ireplace('A', 'b', 'aAa', 1));
+        $this->assertEquals('bba', $str->ireplace('A', 'b', 'aAa', 2));
+        $this->assertEquals('aAb', $str->ireplace('A', 'b', 'aAa', -1));
+        $this->assertEquals('abb', $str->ireplace('A', 'b', 'aAa', -2));
+    }
+
+
     public function testStarts()
     {
         $str = $this->getStr();
@@ -86,27 +107,6 @@ class StrTest extends AbstractTestCase
 
         $this->assertEquals([], $str->match('a', 'a', 'Hello AWorldA AFooA bar', null, false));
         $this->assertEquals([ 'World', 'Foo' ], $str->match('A', 'A', 'Hello AWorldA AFooA bar', null, false));
-    }
-
-
-    public function testReplace()
-    {
-        $str = $this->getStr();
-
-        $this->assertEquals('baa', $str->replace('a', 'b', 'aaa', 1));
-        $this->assertEquals('bba', $str->replace('a', 'b', 'aaa', 2));
-        $this->assertEquals('aab', $str->replace('a', 'b', 'aaa', -1));
-        $this->assertEquals('abb', $str->replace('a', 'b', 'aaa', -2));
-    }
-
-    public function testIreplace()
-    {
-        $str = $this->getStr();
-
-        $this->assertEquals('bAa', $str->ireplace('A', 'b', 'aAa', 1));
-        $this->assertEquals('bba', $str->ireplace('A', 'b', 'aAa', 2));
-        $this->assertEquals('aAb', $str->ireplace('A', 'b', 'aAa', -1));
-        $this->assertEquals('abb', $str->ireplace('A', 'b', 'aAa', -2));
     }
 
 
@@ -467,6 +467,34 @@ class StrTest extends AbstractTestCase
     }
 
 
+    public function testPrefix()
+    {
+        $str = $this->getStr();
+
+        $this->assertEquals('', $str->prefix('aaa', 0));
+
+        $this->assertEquals('aaa', $str->prefix('aaa', null));
+        $this->assertEquals('aaa', $str->prefix('aaa', 3));
+        $this->assertEquals('aaa', $str->prefix('aaa', 4));
+
+        $this->assertEquals('bbb', $str->prefix('bbbb', null));
+        $this->assertEquals('bbb', $str->prefix('bbbb', 3));
+        $this->assertEquals('bbbb', $str->prefix('bbbb', 4));
+
+        $this->assertEquals('bbb', $str->prefix('babab', null));
+        $this->assertEquals('bbb', $str->prefix('babab', 3));
+        $this->assertEquals('baba', $str->prefix('babab', 4));
+
+        $this->assertEquals('usr', $str->prefix('user', null));
+        $this->assertEquals('usr', $str->prefix('user', 3));
+        $this->assertEquals('user', $str->prefix('user', 4));
+
+        $this->assertEquals('opr', $str->prefix('operator', null));
+        $this->assertEquals('opr', $str->prefix('operator', 3));
+        $this->assertEquals('oprt', $str->prefix('operator', 4));
+    }
+
+
     public function testExplode()
     {
         $str = $this->getStr();
@@ -546,15 +574,15 @@ class StrTest extends AbstractTestCase
         $str = $this->getStr();
 
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $this->assertEquals('', $str->implode('', null));
+            $str->implode('', null);
         });
 
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $this->assertEquals('', $str->implode('', [ null ]));
+            $str->implode('', [ null ]);
         });
 
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $this->assertEquals('', $str->implode('', new \StdClass()));
+            $str->implode('', [ new \StdClass() ]);
         });
     }
 
@@ -592,15 +620,15 @@ class StrTest extends AbstractTestCase
         $str = $this->getStr();
 
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $this->assertEquals('', $str->join('', null));
+            $str->join('', null);
         });
 
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $this->assertEquals('', $str->join('', [ null ]));
+            $str->join('', [ null ]);
         });
 
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $this->assertEquals('', $str->join('', new \StdClass()));
+            $str->join('', [ new \StdClass() ]);
         });
     }
 
@@ -672,15 +700,15 @@ class StrTest extends AbstractTestCase
         $str = $this->getStr();
 
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $this->assertEquals('', $str->concat(null));
+            $str->concat(null);
         });
 
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $this->assertEquals('', $str->concat([ null ]));
+            $str->concat([ null ]);
         });
 
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $this->assertEquals('', $str->concat(new \StdClass()));
+            $str->concat([ new \StdClass() ]);
         });
     }
 
@@ -892,7 +920,7 @@ class StrTest extends AbstractTestCase
             $str->numbers('hello');
         });
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->numbers(new \StdClass());
+            $str->numbers([ new \StdClass() ]);
         });
 
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
@@ -969,7 +997,7 @@ class StrTest extends AbstractTestCase
             $str->strings(false);
         });
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->strings(new \StdClass());
+            $str->strings([ new \StdClass() ]);
         });
 
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
@@ -1034,7 +1062,7 @@ class StrTest extends AbstractTestCase
             $str->words('');
         });
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->words(new \StdClass());
+            $str->words([ new \StdClass() ]);
         });
 
         $this->assertException(InvalidArgumentException::class, function () use ($str) {

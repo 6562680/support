@@ -275,6 +275,34 @@ abstract class GeneratedPhpFacade
     }
 
     /**
+     * Выполняет func_get_arg($num) позволяя задать вероятные позиции аргумента и отфильтровать их
+     *
+     * @param null|array    $args
+     * @param int|int[]     $num
+     * @param null|callable $coalesce
+     *
+     * @return null|mixed
+     */
+    public static function overload(?array &$args, $num, callable $coalesce = null)
+    {
+        return static::getInstance()->overload($args, $num, $coalesce);
+    }
+
+    /**
+     * Выполняет func_get_arg($num) позволяя задать вероятные позиции аргумента и проверить их
+     *
+     * @param null|array    $args
+     * @param int|int[]     $num
+     * @param null|callable $if
+     *
+     * @return null|mixed
+     */
+    public static function overloadIf(?array &$args, $num, callable $if = null)
+    {
+        return static::getInstance()->overloadIf($args, $num, $if);
+    }
+
+    /**
      * @return Php
      */
     abstract public static function getInstance(): Php;

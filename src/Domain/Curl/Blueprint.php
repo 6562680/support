@@ -104,7 +104,7 @@ class Blueprint
             throw new InvalidArgumentException('Invalid CURL option: ' . $opt);
         }
 
-        $this->curlOptArray[ $opt ] = $value;
+        $this->curlOptArray[ $optCode ] = $value;
 
         return $this;
     }
@@ -292,8 +292,6 @@ class Blueprint
 
                     if (null !== ( $strval = $this->filter->filterStrval($value) )) {
                         $this->arr->set($fields, $fullpath, strval($strval));
-
-                        continue;
                     }
                 }
 
@@ -340,7 +338,7 @@ class Blueprint
                     : $body
                 );
 
-            $opts[ CURLOPT_POSTFIELDS ] = $requestBody;
+            $curlOptArray[ CURLOPT_POSTFIELDS ] = $requestBody;
         }
 
         if ($headers) {
