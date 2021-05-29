@@ -44,6 +44,10 @@ class Calendar
      */
     protected $filter;
     /**
+     * @var Num
+     */
+    protected $num;
+    /**
      * @var Php
      */
     protected $php;
@@ -68,15 +72,18 @@ class Calendar
      *
      * @param Filter $filter
      * @param Php    $php
+     * @param Num    $num
      * @param Str    $str
      */
     public function __construct(
         Filter $filter,
+        Num $num,
         Php $php,
         Str $str
     )
     {
         $this->filter = $filter;
+        $this->num = $num;
         $this->php = $php;
         $this->str = $str;
 
@@ -296,7 +303,7 @@ class Calendar
     public function isBetween($date, ...$dates) : bool
     {
         $date = $this->theDate($date);
-        $dates = $this->theDates($dates, true, true);
+        $dates = $this->theDatevals($dates, true);
 
         $min = min($dates);
         $max = max($dates);
@@ -316,8 +323,8 @@ class Calendar
      */
     public function isIntersect($dates = [], $datesWith = []) : bool
     {
-        $dates = $this->theDates($dates, true, true);
-        $datesWith = $this->theDates($datesWith, true, true);
+        $dates = $this->theDatevals($dates, true);
+        $datesWith = $this->theDatevals($datesWith, true);
 
         $min = min($dates);
         $max = max($dates);
@@ -856,13 +863,14 @@ class Calendar
 
 
     /**
-     * @param \DateTime|\DateTime[]|array $dates
-     * @param null|bool                   $uniq
-     * @param null|bool                   $coalesce
+     * @param int|float|string|\DateTime|array $dates
+     * @param null|bool                        $uniq
+     * @param null|string|array                $message
+     * @param mixed                            ...$arguments
      *
      * @return string[]
      */
-    public function dates($dates, bool $uniq = null, bool $coalesce = null) : array
+    public function datevals($dates, $uniq = null, $message = null, ...$arguments) : array
     {
         $result = [];
 
@@ -870,51 +878,52 @@ class Calendar
             ? $dates
             : [ $dates ];
 
-        array_walk_recursive($dates, function ($date) use (&$result) {
-            if (null === $this->filterDateval($date)) {
-                throw new InvalidArgumentException(
-                    [ 'Each item should be dateable: %s', $date ],
+        if ($hasMessage = (null !== $message)) {
+            $this->filter->assert($message, ...$arguments);
+        }
+
+        $input = [];
+        array_walk_recursive($dates, function ($date) use (&$input, &$result) {
+            if (null === ( $dateval = $this->dateval($date) )) {
+                throw new InvalidArgumentException($this->filter->assert()->flushMessage($date)
+                    ?? [ 'Each item should be convertable to date: %s', $date ],
                 );
             }
 
-            $result[] = $date;
+            $input[] = $date;
+            $result[] = $dateval;
         });
 
-        if ($uniq ?? false) {
-            $array = [];
-            foreach ( $result as $idx => $item ) {
-                if (is_object($item)) {
-                    $array[] = $item;
+        if ($hasMessage) {
+            $this->filter->assert()->flushMessage();
+        }
 
+        if ($uniq ?? false) {
+            $input = $this->php->distinct($input);
+
+            foreach ( $result as $idx => $val ) {
+                if (! isset($input[ $idx ])) {
                     unset($result[ $idx ]);
                 }
             }
 
-            $result = array_merge(
-                array_values(array_unique($result)),
-                $array
-            );
-        }
-
-        if ($coalesce ?? false) {
-            foreach ( $result as $idx => $item ) {
-                $result[ $idx ] = $this->dateval($item);
-            }
+            $result = array_values($result);
         }
 
         return $result;
     }
 
     /**
-     * @param \DateTime|\DateTime[]|array $dates
-     * @param null|bool                   $uniq
-     * @param null|bool                   $coalesce
+     * @param int|float|string|\DateTime|array $dates
+     * @param null|bool                        $uniq
+     * @param null|string|array                $message
+     * @param mixed                            ...$arguments
      *
      * @return string[]
      */
-    public function theDates($dates, bool $uniq = null, bool $coalesce = null) : array
+    public function theDatevals($dates, $uniq = null, $message = null, ...$arguments) : array
     {
-        $result = $this->dates($dates, $uniq, $coalesce);
+        $result = $this->datevals($dates, $uniq, $message, ...$arguments);
 
         if (! count($result)) {
             throw new InvalidArgumentException(
@@ -926,13 +935,12 @@ class Calendar
     }
 
     /**
-     * @param \DateTime|\DateTime[]|array $dates
-     * @param null|bool                   $uniq
-     * @param null|bool                   $coalesce
+     * @param int|float|string|\DateTime|array $dates
+     * @param null|bool                        $uniq
      *
      * @return string[]
      */
-    public function datesskip($dates, bool $uniq = null, bool $coalesce = null) : array
+    public function datevalsSkip($dates, $uniq = null) : array
     {
         $result = [];
 
@@ -940,47 +948,38 @@ class Calendar
             ? $dates
             : [ $dates ];
 
-        array_walk_recursive($dates, function ($date) use (&$result, $coalesce) {
-            if (null !== $this->filterDateval($date)) {
-                $result[] = $date;
+        $input = [];
+        array_walk_recursive($dates, function ($date) use (&$input, &$result) {
+            if (null !== ( $dateval = $this->dateval($date) )) {
+                $input[] = $date;
+                $result[] = $dateval;
             }
         });
 
         if ($uniq ?? false) {
-            $array = [];
-            foreach ( $result as $idx => $item ) {
-                if (is_object($item)) {
-                    $array[] = $item;
+            $input = $this->php->distinct($input);
 
+            foreach ( $result as $idx => $val ) {
+                if (! isset($input[ $idx ])) {
                     unset($result[ $idx ]);
                 }
             }
 
-            $result = array_merge(
-                array_values(array_unique($result)),
-                $array
-            );
-        }
-
-        if ($coalesce ?? false) {
-            foreach ( $result as $idx => $item ) {
-                $result[ $idx ] = $this->dateval($item);
-            }
+            $result = array_values($result);
         }
 
         return $result;
     }
 
     /**
-     * @param \DateTime|\DateTime[]|array $dates
-     * @param null|bool                   $uniq
-     * @param null|bool                   $coalesce
+     * @param int|float|string|\DateTime|array $dates
+     * @param null|bool                        $uniq
      *
      * @return string[]
      */
-    public function theDatesskip($dates, bool $uniq = null, bool $coalesce = null) : array
+    public function theDatevalsSkip($dates, $uniq = null) : array
     {
-        $result = $this->datesskip($dates, $uniq, $coalesce);
+        $result = $this->datevalsSkip($dates, $uniq);
 
         if (! count($result)) {
             throw new InvalidArgumentException(
@@ -1113,13 +1112,13 @@ class Calendar
 
         $dateTimeZone = $this->theTimezone($timezone);
 
-        if (null !== ( $int = $this->php->intval($numeric) )) {
+        if (null !== ( $int = $this->num->intval($numeric) )) {
             $dateTime = $this->tryDateFromInt($int, $dateTimeZone);
 
             return $dateTime;
         }
 
-        if (null !== ( $float = $this->php->floatval($numeric) )) {
+        if (null !== ( $float = $this->num->floatval($numeric) )) {
             $dateTime = $this->tryDateFromFloat($float, $dateTimeZone);
 
             return $dateTime;
@@ -1217,7 +1216,7 @@ class Calendar
      */
     protected function tryTimezoneFromNumval($numval, bool $isDst = null) : ?\DateTimeZone
     {
-        if (null === ( $numval = $this->php->numval($numval) )) {
+        if (null === ( $numval = $this->num->numval($numval) )) {
             return null;
         }
 
@@ -1305,7 +1304,7 @@ class Calendar
         // if ('' === $number) return null;
         if (! is_numeric($numeric)) return null;
 
-        if (null !== ( $numval = $this->php->numval($numeric) )) {
+        if (null !== ( $numval = $this->num->numval($numeric) )) {
             $dateTimeZone = $this->tryTimezoneFromNumval($numval, $isDst);
 
             return $dateTimeZone;
@@ -1463,7 +1462,7 @@ class Calendar
         if ('' === $numeric) return null;
         if (! is_numeric($numeric)) return null;
 
-        if (null !== ( $int = $this->php->intval($numeric) )) {
+        if (null !== ( $int = $this->num->intval($numeric) )) {
             $dateInterval = $this->tryIntervalFromInt($int, $unit);
 
             return $dateInterval;

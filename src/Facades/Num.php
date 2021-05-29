@@ -2,15 +2,16 @@
 
 namespace Gzhegow\Support\Facades;
 
-use Gzhegow\Support\Type as _Type;
-use Gzhegow\Support\Facades\Generated\GeneratedTypeFacade;
+use Gzhegow\Support\Num as _Num;
+use Gzhegow\Support\Domain\SupportFactory;
+use Gzhegow\Support\Facades\Generated\GeneratedNumFacade;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 
 
 /**
- * Type
+ * Num
  */
-class Type extends GeneratedTypeFacade
+class Num extends GeneratedNumFacade
 {
     /**
      * Constructor
@@ -20,13 +21,12 @@ class Type extends GeneratedTypeFacade
         throw new BadMethodCallException('Class should be used statically: ' . __CLASS__);
     }
 
+
     /**
-     * @return _Type
+     * @return _Num
      */
-    public static function getInstance() : _Type
+    public static function getInstance() : _Num
     {
-        return new _Type(
-            Filter::getInstance()
-        );
+        return ( new SupportFactory() )->newNum();
     }
 }

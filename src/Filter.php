@@ -2,7 +2,9 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Domain\Filter\CallableInfo;
+use Gzhegow\Support\Domain\Filter\Type;
+use Gzhegow\Support\Domain\Filter\Assert;
+use Gzhegow\Support\Domain\Filter\CallableInfoVO;
 use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
 
 
@@ -17,14 +19,19 @@ class Filter
     protected $assert;
 
     /**
-     * @var Php
-     */
-    protected $php;
-
-    /**
      * @var Type
      */
     protected $type;
+
+
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->assert = new Assert($this);
+        $this->type = new Type($this);
+    }
 
 
     /**
@@ -33,23 +40,6 @@ class Filter
     public function getCustomFilters() : array
     {
         return static::$customFilters;
-    }
-
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|int|string
-     */
-    public function filterKey($value) // : ?int|string
-    {
-        // \Generator can pass any object as foreach key, so this check is recommended
-
-        if (null === $this->filterStringOrNumber($value)) {
-            return null;
-        }
-
-        return $value;
     }
 
 
@@ -95,7 +85,6 @@ class Filter
         return null;
     }
 
-
     /**
      * @param mixed $value
      *
@@ -117,15 +106,120 @@ class Filter
     /**
      * @param mixed $value
      *
+     * @return null|int|string
+     */
+    public function filterIntval($value) : ?int
+    {
+        if (null !== $this->filterInt($value)) {
+            return $value;
+        }
+
+        if (false !== ( $result = filter_var($value, FILTER_VALIDATE_INT) )) {
+            return $result;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|float|string
+     */
+    public function filterFloatval($value) : ?float
+    {
+        if (null !== $this->filterFloat($value)) {
+            return $value;
+        }
+
+        if (false !== ( $result = filter_var($value, FILTER_VALIDATE_FLOAT) )) {
+            return $result;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|int|float|string
+     */
+    public function filterNumval($value) // : ?int|float
+    {
+        if (null !== $this->filterNumber($value)) {
+            return $value;
+        }
+
+        if (is_numeric($value)) {
+            return null
+                ?? $this->filterIntval($value)
+                ?? $this->filterFloatval($value);
+        }
+
+        return null;
+    }
+
+
+    /**
+     * @param mixed $value
+     *
      * @return null|string
      */
-    public function filterTheString($value) : ?string
+    public function filterString($value) : ?string
+    {
+        $result = is_string($value)
+            ? $value
+            : null;
+
+        return $result;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|string
+     */
+    public function filterWord($value) : ?string
     {
         $result = ( is_string($value) && ( '' !== $value ) )
             ? $value
             : null;
 
         return $result;
+    }
+
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|int|float|string
+     */
+    public function filterStringOrInt($value) // : ?null|int|float|string
+    {
+        $result = ( is_string($value)
+            || ( null !== $this->filterInt($value) )
+        )
+            ? $value
+            : null;
+
+        return $result;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|int|float|string
+     */
+    public function filterWordOrInt($value) // : ?null|int|float|string
+    {
+        $result = ( 0
+            || ( null !== $this->filterWord($value) )
+            || ( null !== $this->filterInt($value) )
+        );
+
+        return $result
+            ? $value
+            : null;
     }
 
 
@@ -150,16 +244,87 @@ class Filter
      *
      * @return null|int|float|string
      */
-    public function filterTheStringOrNumber($value) // : ?null|int|float|string
+    public function filterWordOrNumber($value) // : ?null|int|float|string
     {
         $result = ( 0
-            || ( null !== $this->filterTheString($value) )
+            || ( null !== $this->filterWord($value) )
             || ( null !== $this->filterNumber($value) )
         );
 
         return $result
             ? $value
             : null;
+    }
+
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|string
+     */
+    public function filterStrval($value) : ?string
+    {
+        if (is_null($value)) {
+            return null; // becomes '' and causes data lost
+        }
+
+        if (is_bool($value)) {
+            return null; // becomes '' on false and causes data lost
+        }
+
+        if (is_array($value)) {
+            return null; // becomes 'Array' and causes data lost
+        }
+
+        if (null !== $this->filterStringOrNumber($value)) {
+            return $value;
+        }
+
+        try {
+            if (false === settype($value, 'string')) {
+                return null; // __toString()
+            }
+        }
+        catch ( \Throwable $e ) {
+            return null;
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|string
+     */
+    public function filterWordval($value) : ?string
+    {
+        if ('' === $value) {
+            return null;
+        }
+
+        if (null === $this->filterStrval($value)) {
+            return null;
+        }
+
+        return $value;
+    }
+
+
+    /**
+     * \Generator может передать любой объект в качестве ключа для foreach, пригодится
+     *
+     * @param mixed $value
+     *
+     * @return null|int|string
+     */
+    public function filterKey($value) // : ?int|string
+    {
+        if (null === $this->filterStringOrInt($value)) {
+            return null;
+        }
+
+        return $value;
     }
 
 
@@ -222,7 +387,7 @@ class Filter
         if (! $dict) return null; // empty array is a dict
 
         foreach ( $dict as $key => &$val ) {
-            if (null === $this->filterTheString($key)) {
+            if (null === $this->filterWord($key)) {
                 return null;
             }
 
@@ -251,7 +416,7 @@ class Filter
         $hasInt = false;
         foreach ( $assoc as $key => &$val ) {
             $hasInt = $hasInt || is_int($key);
-            $hasStr = $hasStr || ( null !== $this->filterTheString($key) );
+            $hasStr = $hasStr || ( null !== $this->filterWord($key) );
 
             if ($hasInt && $hasStr) {
                 break;
@@ -315,6 +480,37 @@ class Filter
     /**
      * @param mixed $value
      *
+     * @return null|mixed
+     */
+    public function filterArrval($value) // : ?mixed
+    {
+        if (is_array($value)
+            || is_null($value)
+            || is_scalar($value)
+            || is_iterable($value)
+        ) {
+            return $value;
+
+        } elseif (is_object($value)) {
+            $result = null;
+            try {
+                $result = $value->toArray();
+            }
+            catch ( \Throwable $e ) {
+            }
+
+            return null !== $result
+                ? $value
+                : null;
+        }
+
+        return null;
+    }
+
+
+    /**
+     * @param mixed $value
+     *
      * @return null|string
      */
     public function filterLink($value) : ?string
@@ -343,12 +539,12 @@ class Filter
 
 
     /**
-     * @param mixed             $callable
-     * @param null|CallableInfo $callableInfo
+     * @param mixed               $callable
+     * @param null|CallableInfoVO $callableInfo
      *
      * @return null|string|array|\Closure|callable
      */
-    public function filterCallable($callable, CallableInfo &$callableInfo = null) // : ?string|array|\Closure
+    public function filterCallable($callable, CallableInfoVO &$callableInfo = null) // : ?string|array|\Closure
     {
         if (0
             || ( null !== $this->filterClosure($callable, $callableInfo) )
@@ -362,12 +558,12 @@ class Filter
     }
 
     /**
-     * @param mixed             $callableString
-     * @param null|CallableInfo $callableInfo
+     * @param mixed               $callableString
+     * @param null|CallableInfoVO $callableInfo
      *
      * @return null|string|array|callable
      */
-    public function filterCallableString($callableString, CallableInfo &$callableInfo = null) // : ?string|array
+    public function filterCallableString($callableString, CallableInfoVO &$callableInfo = null) // : ?string|array
     {
         if (! is_array($callableString)
             && ( 0
@@ -382,16 +578,16 @@ class Filter
     }
 
     /**
-     * @param mixed             $callableString
-     * @param null|CallableInfo $callableInfo
+     * @param mixed               $callableString
+     * @param null|CallableInfoVO $callableInfo
      *
      * @return null|string|callable
      */
-    public function filterCallableStringFunction($callableString, CallableInfo &$callableInfo = null) : ?string
+    public function filterCallableStringFunction($callableString, CallableInfoVO &$callableInfo = null) : ?string
     {
-        $callableInfo = $callableInfo ?? new CallableInfo();
+        $callableInfo = $callableInfo ?? new CallableInfoVO();
 
-        if (( null !== $this->filterTheString($callableString) )
+        if (( null !== $this->filterWord($callableString) )
             && function_exists($callableString)
         ) {
             $callableInfo->function = $callableString;
@@ -404,14 +600,14 @@ class Filter
     }
 
     /**
-     * @param mixed             $callableString
-     * @param null|CallableInfo $callableInfo
+     * @param mixed               $callableString
+     * @param null|CallableInfoVO $callableInfo
      *
      * @return null|string|callable
      */
-    public function filterCallableStringStatic($callableString, CallableInfo &$callableInfo = null) : ?string
+    public function filterCallableStringStatic($callableString, CallableInfoVO &$callableInfo = null) : ?string
     {
-        if (! $isCallable = ( null !== $this->filterTheString($callableString) )
+        if (! $isCallable = ( null !== $this->filterWord($callableString) )
             && ( 1 === substr_count($callableString, '::') )
         ) {
             return null;
@@ -428,12 +624,12 @@ class Filter
 
 
     /**
-     * @param mixed             $callableArray
-     * @param null|CallableInfo $callableInfo
+     * @param mixed               $callableArray
+     * @param null|CallableInfoVO $callableInfo
      *
      * @return null|array|callable
      */
-    public function filterCallableArray($callableArray, CallableInfo &$callableInfo = null) : ?array
+    public function filterCallableArray($callableArray, CallableInfoVO &$callableInfo = null) : ?array
     {
         if (is_array($callableArray)
             && ( 0
@@ -448,18 +644,18 @@ class Filter
     }
 
     /**
-     * @param mixed             $callableArray
-     * @param null|CallableInfo $callableInfo
+     * @param mixed               $callableArray
+     * @param null|CallableInfoVO $callableInfo
      *
      * @return null|array|callable
      */
-    public function filterCallableArrayStatic($callableArray, CallableInfo &$callableInfo = null) : ?array
+    public function filterCallableArrayStatic($callableArray, CallableInfoVO &$callableInfo = null) : ?array
     {
-        $callableInfo = $callableInfo ?? new CallableInfo();
+        $callableInfo = $callableInfo ?? new CallableInfoVO();
 
         if (is_array($callableArray)
-            && isset($callableArray[ 0 ]) && ( null !== $this->filterTheString($callableArray[ 0 ]) )
-            && isset($callableArray[ 1 ]) && ( null !== $this->filterTheString($callableArray[ 1 ]) )
+            && isset($callableArray[ 0 ]) && ( null !== $this->filterWord($callableArray[ 0 ]) )
+            && isset($callableArray[ 1 ]) && ( null !== $this->filterWord($callableArray[ 1 ]) )
             && is_callable($callableArray)
         ) {
             $callableInfo->class = $callableArray[ 0 ];
@@ -473,18 +669,18 @@ class Filter
     }
 
     /**
-     * @param mixed             $callableArray
-     * @param null|CallableInfo $callableInfo
+     * @param mixed               $callableArray
+     * @param null|CallableInfoVO $callableInfo
      *
      * @return null|array|callable
      */
-    public function filterCallableArrayPublic($callableArray, CallableInfo &$callableInfo = null) : ?array
+    public function filterCallableArrayPublic($callableArray, CallableInfoVO &$callableInfo = null) : ?array
     {
-        $callableInfo = $callableInfo ?? new CallableInfo();
+        $callableInfo = $callableInfo ?? new CallableInfoVO();
 
         if (is_array($callableArray)
             && isset($callableArray[ 0 ]) && is_object($callableArray[ 0 ])
-            && isset($callableArray[ 1 ]) && ( null !== $this->filterTheString($callableArray[ 1 ]) )
+            && isset($callableArray[ 1 ]) && ( null !== $this->filterWord($callableArray[ 1 ]) )
             && is_callable($callableArray)
         ) {
             $callableInfo->object = $callableArray[ 0 ];
@@ -500,14 +696,14 @@ class Filter
 
 
     /**
-     * @param mixed             $closure
-     * @param null|CallableInfo $callableInfo
+     * @param mixed               $closure
+     * @param null|CallableInfoVO $callableInfo
      *
      * @return null|\Closure
      */
-    public function filterClosure($closure, CallableInfo &$callableInfo = null) : ?\Closure
+    public function filterClosure($closure, CallableInfoVO &$callableInfo = null) : ?\Closure
     {
-        $callableInfo = $callableInfo ?? new CallableInfo();
+        $callableInfo = $callableInfo ?? new CallableInfoVO();
 
         if (is_object($closure) && ( get_class($closure) === \Closure::class )) {
             $callableInfo->closure = $closure;
@@ -527,7 +723,7 @@ class Filter
      */
     public function filterClass($class) : ?string
     {
-        if (null === $this->filterTheString($class)) {
+        if (null === $this->filterWord($class)) {
             return null;
         }
 
@@ -553,7 +749,7 @@ class Filter
      */
     public function filterClassName($className) : ?string
     {
-        if (null === $this->filterTheString($className)) {
+        if (null === $this->filterWord($className)) {
             return null;
         }
 
@@ -757,117 +953,6 @@ class Filter
 
 
     /**
-     * @param mixed $value
-     *
-     * @return null|int
-     */
-    public function filterIntval($value) : ?int
-    {
-        if (null !== $this->filterInt($value)) {
-            return $value;
-        }
-
-        if (false !== ( $result = filter_var($value, FILTER_VALIDATE_INT) )) {
-            return $result;
-        }
-
-        return null;
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|float
-     */
-    public function filterFloatval($value) : ?float
-    {
-        if (null !== $this->filterFloat($value)) {
-            return $value;
-        }
-
-        if (false !== ( $result = filter_var($value, FILTER_VALIDATE_FLOAT) )) {
-            return $result;
-        }
-
-        return null;
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|int|float
-     */
-    public function filterNumval($value) // : ?int|float
-    {
-        if (null !== $this->filterNumber($value)) {
-            return $value;
-        }
-
-        if (is_numeric($value)) {
-            return null
-                ?? $this->filterIntval($value)
-                ?? $this->filterFloatval($value);
-        }
-
-        return null;
-    }
-
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|string
-     */
-    public function filterStrval($value) : ?string
-    {
-        if (is_null($value)) {
-            return null; // becomes '' and causes data lost
-        }
-
-        if (is_bool($value)) {
-            return null; // becomes '' on false and causes data lost
-        }
-
-        if (is_array($value)) {
-            return null; // becomes 'Array' and causes data lost
-        }
-
-        if (null !== $this->filterStringOrNumber($value)) {
-            return $value;
-        }
-
-        try {
-            if (false === settype($value, 'string')) {
-                return null; // __toString()
-            }
-        }
-        catch ( \Throwable $e ) {
-            return null;
-        }
-
-        return $value;
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|string
-     */
-    public function filterTheStrval($value) : ?string
-    {
-        if ('' === $value) {
-            return null;
-        }
-
-        if (null === $this->filterStrval($value)) {
-            return null;
-        }
-
-        return $value;
-    }
-
-
-    /**
      * @param string   $filter
      * @param \Closure $callable
      *
@@ -888,29 +973,18 @@ class Filter
 
 
     /**
-     * @return Filter
-     */
-    public function filter() : Filter
-    {
-        return $this;
-    }
-
-    /**
+     * @param null|string|array $message
+     * @param mixed             ...$arguments
+     *
      * @return Assert
      */
-    public function assert() : Assert
+    public function assert($message = null, ...$arguments) : Assert
     {
-        return $this->assert = $this->assert
-            ?? new Assert($this);
-    }
+        if (null !== $message) {
+            $this->assert->message($message, ...$arguments);
+        }
 
-    /**
-     * @return Php
-     */
-    public function php() : Php
-    {
-        return $this->php = $this->php
-            ?? new Php($this);
+        return $this->assert;
     }
 
     /**
@@ -918,8 +992,7 @@ class Filter
      */
     public function type() : Type
     {
-        return $this->type = $this->type
-            ?? new Type($this);
+        return $this->type;
     }
 
 

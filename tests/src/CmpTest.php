@@ -3,56 +3,20 @@
 namespace Gzhegow\Support\Tests;
 
 use Gzhegow\Support\Cmp;
-use Gzhegow\Support\Php;
-use Gzhegow\Support\Str;
-use Gzhegow\Support\Type;
-use Gzhegow\Support\Filter;
 use Gzhegow\Support\Calendar;
+use Gzhegow\Support\Domain\SupportFactory;
 
 
 class CmpTest extends AbstractTestCase
 {
-    protected function getFilter() : Filter
-    {
-        return new Filter();
-    }
-
-    protected function getType() : Type
-    {
-        return new Type(
-            $this->getFilter()
-        );
-    }
-
-    protected function getPhp() : Php
-    {
-        return new Php(
-            $this->getFilter()
-        );
-    }
-
-    protected function getStr() : Str
-    {
-        return new Str(
-            $this->getFilter()
-        );
-    }
-
     protected function getCalendar() : Calendar
     {
-        return new Calendar(
-            $this->getFilter(),
-            $this->getPhp(),
-            $this->getStr()
-        );
+        return ( new SupportFactory() )->newCalendar();
     }
 
     protected function getCmp() : Cmp
     {
-        return new Cmp(
-            $this->getCalendar(),
-            $this->getType(),
-        );
+        return ( new SupportFactory() )->newCmp();
     }
 
 

@@ -8,9 +8,9 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
- * Formatter
+ * CurlFormatter
  */
-class Formatter
+class CurlFormatter
 {
     const METHOD_CONNECT = 'CONNECT';
     const METHOD_DELETE  = 'DELETE';

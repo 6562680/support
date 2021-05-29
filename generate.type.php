@@ -37,10 +37,10 @@ $phpFile->setComment(implode("\n", [
 ]));
 
 // namespace
-$namespace = new \Nette\PhpGenerator\PhpNamespace('Gzhegow\\Support\\Generated');
+$namespace = new \Nette\PhpGenerator\PhpNamespace('Gzhegow\\Support\\Domain\\Filter\\Generated');
 $phpFile->addNamespace($namespace);
 $namespace->addUse(\Gzhegow\Support\Filter::class, 'Filter');
-$namespace->addUse(\Gzhegow\Support\Domain\Filter\CallableInfo::class, 'CallableInfo');
+$namespace->addUse(\Gzhegow\Support\Domain\Filter\CallableInfoVO::class, 'CallableInfoVO');
 
 // class
 $moduleType = new \Nette\PhpGenerator\ClassType('GeneratedType');
@@ -156,7 +156,7 @@ $namespace->add($moduleType);
 $content = $printer->printFile($phpFile);
 
 // store
-$filepath = __DIR__ . '/src/Generated/GeneratedType.php';
+$filepath = __DIR__ . '/src/Domain/Filter/Generated/GeneratedType.php';
 
 echo 'Writing file: ' . $filepath . PHP_EOL;
 file_put_contents($filepath, $content);

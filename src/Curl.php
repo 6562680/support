@@ -2,8 +2,8 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Domain\Curl\Blueprint;
-use Gzhegow\Support\Domain\Curl\Formatter;
+use Gzhegow\Support\Domain\Curl\CurlBlueprint;
+use Gzhegow\Support\Domain\Curl\CurlFormatter;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
@@ -25,24 +25,24 @@ class Curl
      */
     protected $php;
 
-
     /**
-     * @var Formatter
+     * @var CurlFormatter
      */
     protected $formatter;
 
     /**
-     * @var Blueprint
+     * @var CurlBlueprint
      */
-    protected $blueprintRoot;
+    protected $blueprint;
 
 
     /**
      * Constructor
      *
      * @param Arr    $arr
-     * @param Php    $php
      * @param Filter $filter
+     * @param Num    $num
+     * @param Php    $php
      */
     public function __construct(
         Arr $arr,
@@ -56,7 +56,7 @@ class Curl
 
         $this->formatter = $this->newFormatter();
 
-        $this->blueprintRoot = $this->newBlueprint([
+        $this->blueprint = $this->newBlueprint([
             CURLOPT_HEADER         => 0,
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_FOLLOWLOCATION => 1,
@@ -69,11 +69,11 @@ class Curl
     /**
      * @param array $curlOptArray
      *
-     * @return Blueprint
+     * @return CurlBlueprint
      */
-    protected function newBlueprint(array $curlOptArray = []) : Blueprint
+    public function newBlueprint(array $curlOptArray = []) : CurlBlueprint
     {
-        return new Blueprint(
+        return new CurlBlueprint(
             $this->arr,
             $this->filter,
 
@@ -84,11 +84,11 @@ class Curl
     }
 
     /**
-     * @return Formatter
+     * @return CurlFormatter
      */
-    protected function newFormatter() : Formatter
+    public function newFormatter() : CurlFormatter
     {
-        return new Formatter(
+        return new CurlFormatter(
             $this->filter,
             $this->php,
         );
@@ -96,13 +96,40 @@ class Curl
 
 
     /**
-     * @param bool $verbose
+     * @param array $curlOptArray
      *
-     * @return array
+     * @return CurlBlueprint
      */
-    public function getOptArray(bool $verbose = false) : array
+    public function cloneBlueprint(array $curlOptArray = []) : CurlBlueprint
     {
-        return $this->blueprintRoot->getOptArray($verbose);
+        $clone = clone $this->blueprint;
+
+        $clone->setOptArray($curlOptArray);
+
+        return $clone;
+    }
+
+    /**
+     * @param CurlBlueprint $blueprint
+     *
+     * @return static
+     */
+    public function clone(CurlBlueprint $blueprint)
+    {
+        $instance = clone $this;
+
+        $instance->using($blueprint);
+
+        return $instance;
+    }
+
+
+    /**
+     * @return CurlBlueprint
+     */
+    public function getBlueprint() : CurlBlueprint
+    {
+        return $this->blueprint;
     }
 
 
@@ -115,7 +142,7 @@ class Curl
      */
     public function get(string $url, $data = null, array $headers = [])
     {
-        return $this->blueprintRoot->get($url, $data, $headers);
+        return $this->blueprint->get($url, $data, $headers);
     }
 
 
@@ -159,7 +186,7 @@ class Curl
     {
         if (null === $this->filterCurl($ch)) {
             throw new InvalidArgumentException(
-                [ 'Ch should be cURL Resource: %s', $ch ]
+                [ 'Ch should be cURL Handle: %s', $ch ]
             );
         }
 
@@ -168,26 +195,13 @@ class Curl
 
 
     /**
-     * @param string $opt
-     * @param mixed  $value
+     * @param CurlBlueprint $blueprint
      *
      * @return static
      */
-    public function setOpt(string $opt, $value)
+    public function using(CurlBlueprint $blueprint)
     {
-        $this->blueprintRoot->setOpt($opt, $value);
-
-        return $this;
-    }
-
-    /**
-     * @param array $opts
-     *
-     * @return static
-     */
-    public function setOptArray(array $opts)
-    {
-        $this->blueprintRoot->setOptArray($opts);
+        $this->blueprint = $blueprint;
 
         return $this;
     }
@@ -197,22 +211,22 @@ class Curl
      * @param string $url
      * @param array  $headers
      *
-     * @return resource
+     * @return resource|\CurlHandle
      */
     public function head(string $url, array $headers = [])
     {
-        return $this->blueprintRoot->head($url, $headers);
+        return $this->blueprint->head($url, $headers);
     }
 
     /**
      * @param string $url
      * @param array  $headers
      *
-     * @return resource
+     * @return resource|\CurlHandle
      */
     public function options(string $url, array $headers = [])
     {
-        return $this->blueprintRoot->options($url, $headers);
+        return $this->blueprint->options($url, $headers);
     }
 
 
@@ -221,11 +235,11 @@ class Curl
      * @param mixed  $data
      * @param array  $headers
      *
-     * @return resource
+     * @return resource|\CurlHandle
      */
     public function post(string $url, $data = null, array $headers = [])
     {
-        return $this->blueprintRoot->post($url, $data, $headers);
+        return $this->blueprint->post($url, $data, $headers);
     }
 
     /**
@@ -233,11 +247,11 @@ class Curl
      * @param mixed  $data
      * @param array  $headers
      *
-     * @return resource
+     * @return resource|\CurlHandle
      */
     public function patch(string $url, $data = null, array $headers = [])
     {
-        return $this->blueprintRoot->patch($url, $data, $headers);
+        return $this->blueprint->patch($url, $data, $headers);
     }
 
     /**
@@ -245,22 +259,22 @@ class Curl
      * @param mixed  $data
      * @param array  $headers
      *
-     * @return resource
+     * @return resource|\CurlHandle
      */
     public function put(string $url, $data = null, array $headers = [])
     {
-        return $this->blueprintRoot->put($url, $data, $headers);
+        return $this->blueprint->put($url, $data, $headers);
     }
 
     /**
      * @param string $url
      * @param array  $headers
      *
-     * @return resource
+     * @return resource|\CurlHandle
      */
     public function delete(string $url, array $headers = [])
     {
-        return $this->blueprintRoot->delete($url, $headers);
+        return $this->blueprint->delete($url, $headers);
     }
 
     /**
@@ -268,11 +282,11 @@ class Curl
      * @param mixed  $data
      * @param array  $headers
      *
-     * @return resource
+     * @return resource|\CurlHandle
      */
     public function purge(string $url, $data = null, array $headers = [])
     {
-        return $this->blueprintRoot->purge($url, $data, $headers);
+        return $this->blueprint->purge($url, $data, $headers);
     }
 
 
@@ -282,33 +296,18 @@ class Curl
      * @param mixed  $data
      * @param array  $headers
      *
-     * @return resource
+     * @return resource|\CurlHandle
      */
     public function request(string $method, string $url, $data = null, array $headers = [])
     {
-        return $this->blueprintRoot->request($method, $url, $data, $headers);
-    }
-
-
-    /**
-     * @param array $curlOptArray
-     *
-     * @return Blueprint
-     */
-    public function blueprint(array $curlOptArray = []) : Blueprint
-    {
-        $clone = clone $this->blueprintRoot;
-
-        $clone->setOptArray($curlOptArray);
-
-        return $clone;
+        return $this->blueprint->request($method, $url, $data, $headers);
     }
 
 
     /**
      * @param resource $ch
      *
-     * @return null|int[]|string[]
+     * @return null|array
      */
     public function curlInfo($ch) : ?array
     {
@@ -325,7 +324,7 @@ class Curl
      * @param resource   $ch
      * @param int|string $opt
      *
-     * @return null|int|string|int[]|string[]
+     * @return null|mixed|array
      */
     public function curlInfoOpt($ch, $opt)
     {
@@ -333,32 +332,11 @@ class Curl
             return null;
         }
 
-        $result = ( null !== $this->formatter->detectInfoCode($opt) )
-            ? curl_getinfo($ch, $opt)
-            : curl_getinfo($ch)[ $opt ];
+        $result = ( null !== ( $infoCode = $this->formatter->detectInfoCode($opt) ) )
+            ? curl_getinfo($ch, $infoCode)
+            : curl_getinfo($ch)[ $infoCode ];
 
         return $result ?: null;
-    }
-
-
-    /**
-     * @return static
-     */
-    public function clearOptArray()
-    {
-        $this->blueprintRoot->clearOptArray();
-
-        return $this;
-    }
-
-    /**
-     * @return static
-     */
-    public function resetOptArray()
-    {
-        $this->blueprintRoot->resetOptArray();
-
-        return $this;
     }
 
 
@@ -379,19 +357,19 @@ class Curl
 
 
     /**
-     * @param int|int[]|string|string[]               $limit
-     * @param int|float|int[]|float[]|string|string[] $sleep
-     * @param resource|resource[]|array               $curls
+     * @param int|string|array           $limits
+     * @param int|float|string|array     $sleeps
+     * @param resource|\CurlHandle|array $curls
      *
      * @return array
      */
-    public function batch($limit, $sleep, ...$curls) : array
+    public function batch($limits, $sleeps, $curls) : array
     {
         $results = [];
         $urls = [];
         $hh = [];
 
-        foreach ( $this->batchwalk($limit, $sleep, ...$curls) as $result ) {
+        foreach ( $this->batchwalk($limits, $sleeps, $curls) as $result ) {
             [ $resultsCurrent, $urlsCurrent, $hhCurrent ] = $result;
 
             $results += $resultsCurrent;
@@ -403,35 +381,27 @@ class Curl
     }
 
     /**
-     * @param int|int[]                 $limits
-     * @param int|float|int[]|float[]   $sleeps
-     * @param resource|resource[]|array $curls
+     * @param int|string|array           $limits
+     * @param int|float|string|array     $sleeps
+     * @param resource|\CurlHandle|array $curls
      *
      * @return \Generator
      */
-    public function batchwalk($limits, $sleeps, ...$curls) : \Generator
+    public function batchwalk($limits, $sleeps, $curls) : \Generator
     {
         $limits = is_array($limits)
             ? $limits
             : [ $limits ];
 
-        foreach ( $limits as $limit ) {
-            if (null === $this->php->intval($limit)) {
+        foreach ( $limits as $idx => $limit ) {
+            if (null === $this->filter->filterIntval($limit)) {
                 throw new InvalidArgumentException(
-                    [ 'Each limit should be intable: %s', $limit ]
+                    [ 'Each limit should be int: %s', $limit ]
                 );
             }
         }
 
-        [ 1 => $curls ] = $this->php->kwargsFlattenDistinct(...$curls);
-
-        foreach ( $curls as $ch ) {
-            if (! $this->isCurl($ch)) {
-                throw new InvalidArgumentException(
-                    [ 'Each argument should be opened CURL resource: %s', $ch ]
-                );
-            }
-        }
+        $curls = $this->theCurls($curls);
 
         $limitMin = max(1, min($limits));
         $limitMax = max(1, max($limits));
@@ -463,19 +433,13 @@ class Curl
 
 
     /**
-     * @param resource|resource[]|array $curls
+     * @param resource|\CurlHandle|array $curls
      *
      * @return array
      */
-    public function multi(...$curls) : array
+    public function multi($curls) : array
     {
-        [ 1 => $curls ] = $this->php->kwargsFlattenDistinct(...$curls);
-
-        foreach ( $curls as $ch ) {
-            if (! $this->isCurl($ch)) {
-                throw new InvalidArgumentException('Each argument should be opened CURL resource');
-            }
-        }
+        $curls = $this->theCurls($curls);
 
         $master = curl_multi_init();
 
@@ -515,49 +479,67 @@ class Curl
 
 
     /**
-     * @param resource|resource[]|array $chh
-     * @param null|bool                 $uniq
+     * @param resource|\CurlHandle|array $curls
+     * @param null|bool                  $uniq
+     * @param null|string|array          $message
+     * @param mixed                      ...$arguments
      *
-     * @return string[]
+     * @return resource[]|\CurlHandle[]
      */
-    public function curls($chh, bool $uniq = null) : array
+    public function curls($curls, $uniq = null, $message = null, ...$arguments) : array
     {
         $result = [];
 
-        $chh = is_array($chh)
-            ? $chh
-            : [ $chh ];
+        $curls = is_array($curls)
+            ? $curls
+            : [ $curls ];
 
-        array_walk_recursive($chh, function ($string) use (&$result) {
-            if (null === $this->filterCurl($string)) {
-                throw new InvalidArgumentException(
-                    [ 'Each item should be stringable: %s', $string ],
+        if ($hasMessage = ( null !== $message )) {
+            $this->filter->assert($message, ...$arguments);
+        }
+
+        foreach ( $curls as $idx => $curl ) {
+            if (null === $this->filterCurl($curl)) {
+                throw new InvalidArgumentException($this->filter->assert()->flushMessage($curl)
+                    ?? [ 'Each item should be curl handle: %s', $curl ],
                 );
             }
 
-            $result[] = strval($string);
-        });
+            $result[ $idx ] = $curl;
+        }
+
+        if ($hasMessage) {
+            $this->filter->assert()->flushMessage();
+        }
 
         if ($uniq ?? false) {
-            $result = array_values(array_unique($result));
+            $distinct = $this->php->distinct($result);
+
+            foreach ( $result as $idx => $val ) {
+                if (! isset($distinct[ $idx ])) {
+                    unset($result[ $idx ]);
+                }
+            }
         }
 
         return $result;
     }
 
     /**
-     * @param string|string[]|array $chh
-     * @param null|bool             $uniq
+     * @param resource|\CurlHandle|array $curls
+     * @param null|bool                  $uniq
+     * @param null|string|array          $message
+     * @param mixed                      ...$arguments
      *
-     * @return string[]
+     * @return resource[]|\CurlHandle[]
      */
-    public function theCurls($chh, bool $uniq = null) : array
+    public function theCurls($curls, $uniq = null, $message = null, ...$arguments) : array
     {
-        $result = $this->curls($chh, $uniq);
+        $result = $this->curls($curls, $uniq, $message, ...$arguments);
 
         if (! count($result)) {
             throw new InvalidArgumentException(
-                [ 'At least one string should be provided: %s', $chh ],
+                [ 'At least one curl handle should be provided: %s', $curls ],
             );
         }
 
@@ -565,45 +547,51 @@ class Curl
     }
 
     /**
-     * @param string|string[]|array $chh
-     * @param null|bool             $uniq
+     * @param resource|\CurlHandle|array $curls
+     * @param null|bool                  $uniq
      *
-     * @return string[]
+     * @return resource[]|\CurlHandle[]
      */
-    public function curlsskip($chh, bool $uniq = null) : array
+    public function curlsSkip($curls, $uniq = null) : array
     {
         $result = [];
 
-        $chh = is_array($chh)
-            ? $chh
-            : [ $chh ];
+        $curls = is_array($curls)
+            ? $curls
+            : [ $curls ];
 
-        array_walk_recursive($chh, function ($string) use (&$result) {
-            if (null !== $this->filterCurl($string)) {
-                $result[] = strval($string);
+        foreach ( $curls as $idx => $curl ) {
+            if (null !== $this->filterCurl($curl)) {
+                $result[ $idx ] = $curl;
             }
-        });
+        }
 
         if ($uniq ?? false) {
-            $result = array_values(array_unique($result));
+            $distinct = $this->php->distinct($result);
+
+            foreach ( $result as $idx => $val ) {
+                if (! isset($distinct[ $idx ])) {
+                    unset($result[ $idx ]);
+                }
+            }
         }
 
         return $result;
     }
 
     /**
-     * @param string|string[]|array $chh
-     * @param null|bool             $uniq
+     * @param resource|\CurlHandle|array $curls
+     * @param null|bool                  $uniq
      *
-     * @return string[]
+     * @return resource[]|\CurlHandle[]
      */
-    public function theCurlsskip($chh, bool $uniq = null) : array
+    public function theCurlsSkip($curls, $uniq = null) : array
     {
-        $result = $this->curlsskip($chh, $uniq);
+        $result = $this->curlsSkip($curls, $uniq);
 
         if (! count($result)) {
             throw new InvalidArgumentException(
-                [ 'At least one string should be provided: %s', $chh ],
+                [ 'At least one curl handle should be provided: %s', $curls ],
             );
         }
 

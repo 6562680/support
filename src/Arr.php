@@ -2,13 +2,12 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Domain\Arr\ExpandVo;
+use Gzhegow\Support\Domain\Arr\ArrExpandVO;
 use Gzhegow\Support\Domain\Arr\WalkIterator;
 use Gzhegow\Support\Domain\Arr\CrawlIterator;
 use Gzhegow\Support\Exceptions\Logic\OutOfRangeException;
 use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
-use Gzhegow\Support\Exceptions\Runtime\UnexpectedValueException;
 
 
 /**
@@ -27,6 +26,10 @@ class Arr
      */
     protected $filter;
     /**
+     * @var Num
+     */
+    protected $num;
+    /**
      * @var Php
      */
     protected $php;
@@ -40,16 +43,19 @@ class Arr
      * Constructor
      *
      * @param Filter $filter
+     * @param Num    $num
      * @param Php    $php
      * @param Str    $str
      */
     public function __construct(
         Filter $filter,
+        Num $num,
         Php $php,
         Str $str
     )
     {
         $this->filter = $filter;
+        $this->num = $num;
         $this->php = $php;
         $this->str = $str;
     }
@@ -84,11 +90,11 @@ class Arr
      * @param int        $priority
      * @param null|int   $idxInt
      *
-     * @return ExpandVo
+     * @return ArrExpandVO
      */
-    protected function newExpandVo($value, $idx, int $ordering, int $priority = 0, int $idxInt = null) : ExpandVo
+    protected function newExpandVo($value, $idx, int $ordering, int $priority = 0, int $idxInt = null) : ArrExpandVO
     {
-        return new ExpandVo($value, $idx, $ordering, $priority, $idxInt);
+        return new ArrExpandVO($value, $idx, $ordering, $priority, $idxInt);
     }
 
 
@@ -266,7 +272,7 @@ class Arr
      */
     public function path($keys, $separators = '.') : array
     {
-        $keys = $this->keys($keys);
+        $keys = $this->keyvals($keys);
 
         $result = $this->str->explode($separators, ...$keys);
 
@@ -281,7 +287,7 @@ class Arr
      */
     public function key($keys, $separators = '.') : string
     {
-        $keys = $this->keys($keys);
+        $keys = $this->keyvals($keys);
 
         $explode = $this->str->explode($separators, $keys);
 
@@ -315,7 +321,8 @@ class Arr
             ? $value
             : [ $value ];
 
-        $this->filter->assert()->assertPlainArray($list);
+        $this->filter->assert('Value is not indexable: %s', $value)
+            ->assertPlainArray($list);
 
         $result = json_encode($value);
 
@@ -350,7 +357,7 @@ class Arr
      */
     public function only(array $array, ...$keys) : array
     {
-        $keys = $this->theKeys($keys, true);
+        $keys = $this->theKeyvals($keys, true);
 
         $result = [];
 
@@ -373,7 +380,7 @@ class Arr
      */
     public function except(array $array, ...$keys) : array
     {
-        $keys = $this->theKeys($keys, true);
+        $keys = $this->theKeyvals($keys, true);
 
         $result = [];
 
@@ -396,7 +403,7 @@ class Arr
      */
     public function drop(array $array, ...$keys)
     {
-        $keys = $this->theKeys($keys, true);
+        $keys = $this->theKeyvals($keys, true);
 
         foreach ( $keys as $key ) {
             unset($array[ $key ]);
@@ -419,7 +426,7 @@ class Arr
      */
     public function combine(array $keys, $values = null, bool $drop = null) : array
     {
-        $keys = $this->theKeys($keys);
+        $keys = $this->theKeyvals($keys);
         $drop = $drop ?? false;
 
         if (! is_array($values)) {
@@ -509,7 +516,7 @@ class Arr
     }
 
     /**
-     * разбивает массив на группированный список и остаток, замыкание возвращает имя группы
+     * разбивает массив на группированный список и остаток, замыкание должно возвращать имя группы
      *
      * @param array         $array
      * @param \Closure|null $func
@@ -542,6 +549,9 @@ class Arr
 
 
     /**
+     * рекурсивно собирает массив в одноуровневый соединяя ключи через разделитель
+     * пустые массивы пропускаются
+     *
      * @param iterable              $iterable
      * @param string|string[]|array $separators
      *
@@ -554,17 +564,18 @@ class Arr
         $generator = $this->crawl($iterable, \RecursiveIteratorIterator::SELF_FIRST);
 
         foreach ( $generator as $fullpath => $value ) {
-            if (is_iterable($value)) {
-                continue;
+            if (! is_iterable($value)) {
+                $result[ $this->key($fullpath, $separators) ] = $value;
             }
-
-            $result[ $this->key($fullpath, $separators) ] = $value;
         }
 
         return $result;
     }
 
     /**
+     * рекурсивно собирает массив в одноуровневый соединяя ключи через разделитель
+     * пустые массивы и цифровые ключи на последнем уровне остаются массивами
+     *
      * @param iterable              $iterable
      * @param string|string[]|array $separators
      *
@@ -572,16 +583,28 @@ class Arr
      */
     public function dotarr(iterable $iterable, $separators = '.') : array
     {
-        $result = $this->dot($iterable, $separators);
+        $result = [];
 
-        foreach ( $result as $dotkey => $value ) {
-            $path = $this->str->explode($separators, $dotkey);
-            $last = array_pop($path);
+        $generator = $this->crawl($iterable, \RecursiveIteratorIterator::SELF_FIRST);
 
-            if (null !== $this->filter->filterInt($last)) {
-                $result[ implode($separators[ 0 ], $path) ][] = $value;
+        foreach ( $generator as $fullpath => $value ) {
+            if ([] === $value) {
+                $result[ $this->key($fullpath, $separators) ] = $value;
 
-                unset($result[ $dotkey ]);
+            } elseif (! is_iterable($value)) {
+                end($fullpath);
+                $lastKey = key($fullpath);
+
+                if (! is_int($fullpath[ $lastKey ])) {
+                    $result[ $this->key($fullpath, $separators) ] = $value;
+
+                } else {
+                    $last = array_pop($fullpath);
+
+                    $fullpath
+                        ? ( $result[ $this->key($fullpath, $separators) ][ $last ] = $value )
+                        : ( $result[ $last ] = $value );
+                }
             }
         }
 
@@ -652,6 +675,20 @@ class Arr
 
 
     /**
+     * @param array $dst
+     * @param int   $expandIdx
+     * @param mixed $expandValue
+     *
+     * @return array
+     */
+    public function expand(array $dst, int $expandIdx, $expandValue) : array
+    {
+        $result = $this->expandMany($dst, [ $expandIdx => $expandValue ]);
+
+        return $result;
+    }
+
+    /**
      * Вставляет элементы в указанные позиции по индексам, изменяя числовые индексы существующих элементов
      *
      * Механизм применяется в dran-n-drop элементов списка при пользовательской сортировке
@@ -709,7 +746,7 @@ class Arr
             $lastIntIdx = $intIdx;
         }
 
-        $funcSorter = function (ExpandVo $a, ExpandVo $b) : int {
+        $funcSorter = function (ArrExpandVO $a, ArrExpandVO $b) : int {
             return null
                 ?? ( $a->getIdxInt() - $b->getIdxInt() ?: null )
                 ?? ( $b->getPriority() - $a->getPriority() ?: null )
@@ -751,28 +788,78 @@ class Arr
         return $result;
     }
 
-    /**
-     * @param array $dst
-     * @param int   $expandIdx
-     * @param mixed $expandValue
-     *
-     * @return array
-     */
-    public function expand(array $dst, int $expandIdx, $expandValue) : array
-    {
-        $result = $this->expandMany($dst, [ $expandIdx => $expandValue ]);
 
-        return $result;
+    /**
+     * @param mixed $value
+     *
+     * @return null|array
+     */
+    public function arrval($value) : ?array
+    {
+        if (is_array($value)) {
+            return $value;
+
+        } elseif (is_null($value)) {
+            return [];
+
+        } elseif (is_scalar($value)) {
+            return [ $value ];
+
+        } elseif (is_iterable($value)) {
+            $result = [];
+
+            foreach ( $value as $key => $item ) {
+                ( null === ( $keyval = $this->keyval($key) ) )
+                    ? ( $result[ $keyval ] = $item )
+                    : ( $result[] = $item );
+            }
+
+            return $result;
+
+        } elseif (is_object($value)) {
+            // if (method_exists($value, 'toArray')) // too slow
+
+            $result = null;
+            try {
+                $result = $value->toArray();
+            }
+            catch ( \Throwable $e ) {
+            }
+
+            /** @noinspection PhpExpressionAlwaysNullInspection */
+            return $result;
+        }
+
+        return null;
     }
 
 
     /**
-     * @param string|string[]|array $keys
-     * @param null|bool             $uniq
+     * @param mixed $value
+     *
+     * @return null|int|float
+     */
+    public function keyval($value) // : ?int|float
+    {
+        if (null === $this->filter->filterKey($value)) {
+            return null;
+        }
+
+        return null
+            ?? $this->num->intval($value)
+            ?? $this->str->strval($value);
+    }
+
+
+    /**
+     * @param int|string|array  $keys
+     * @param null|bool         $uniq
+     * @param null|string|array $message
+     * @param mixed             ...$arguments
      *
      * @return string[]
      */
-    public function keys($keys, bool $uniq = null) : array
+    public function keyvals($keys, $uniq = null, $message = null, ...$arguments) : array
     {
         $result = [];
 
@@ -780,38 +867,50 @@ class Arr
             ? $keys
             : [ $keys ];
 
-        array_walk_recursive($keys, function ($word) use (&$result) {
-            $word = $this->filter->filterKey($word);
+        if ($hasMessage = (null !== $message)) {
+            $this->filter->assert($message, ...$arguments);
+        }
 
-            if (null === $word) {
-                throw new InvalidArgumentException(
-                    [ 'Each key should be string or number: %s', $word ]
+        array_walk_recursive($keys, function ($key) use (&$result) {
+            if (null === ( $keyval = $this->keyval($key) )) {
+                throw new InvalidArgumentException($this->filter->assert()->flushMessage($key)
+                    ?? [ 'Each key should be valid array key: %s', $key ]
                 );
             }
 
-            $result[] = strval($word);
+            $result[] = $keyval;
         });
 
+        if ($hasMessage) {
+            $this->filter->assert()->flushMessage();
+        }
+
         if ($uniq ?? false) {
-            $result = array_values(array_unique($result));
+            $arr = [];
+            foreach ( $result as $i ) {
+                $arr[ $i ] = true;
+            }
+            $result = array_keys($arr);
         }
 
         return $result;
     }
 
     /**
-     * @param string|string[]|array $keys
-     * @param null|bool             $uniq
+     * @param int|string|array  $keys
+     * @param null|bool         $uniq
+     * @param null|string|array $message
+     * @param mixed             ...$arguments
      *
-     * @return array
+     * @return string[]
      */
-    public function theKeys($keys, bool $uniq = null) : array
+    public function theKeyvals($keys, $uniq = null, $message = null, ...$arguments) : array
     {
-        $result = $this->keys($keys, $uniq);
+        $result = $this->keyvals($keys, $uniq, $message, ...$arguments);
 
         if (! count($result)) {
             throw new InvalidArgumentException(
-                [ 'At least one word should be provided: %s', $keys ],
+                [ 'At least one key should be provided: %s', $keys ],
             );
         }
 
@@ -820,12 +919,12 @@ class Arr
 
 
     /**
-     * @param string|string[]|array $keys
-     * @param null|bool             $uniq
+     * @param int|string|array $keys
+     * @param null|bool        $uniq
      *
      * @return array
      */
-    public function keysskip($keys, bool $uniq = null) : array
+    public function keyvalsSkip($keys, $uniq = null) : array
     {
         $result = [];
 
@@ -833,34 +932,36 @@ class Arr
             ? $keys
             : [ $keys ];
 
-        array_walk_recursive($keys, function ($word) use (&$result) {
-            $word = $this->filter->filterKey($word);
-
-            if (null !== $word) {
-                $result[] = $word;
+        array_walk_recursive($keys, function ($key) use (&$result) {
+            if (null !== ( $keyval = $this->keyval($key) )) {
+                $result[] = $keyval;
             }
         });
 
         if ($uniq ?? false) {
-            $result = array_values(array_unique($result));
+            $arr = [];
+            foreach ( $result as $i ) {
+                $arr[ $i ] = true;
+            }
+            $result = array_keys($arr);
         }
 
         return $result;
     }
 
     /**
-     * @param string|string[]|array $keys
-     * @param null|bool             $uniq
+     * @param int|string|array $keys
+     * @param null|bool        $uniq
      *
      * @return array
      */
-    public function theKeysskip($keys, bool $uniq = null) : array
+    public function theKeyvalsSkip($keys, $uniq = null) : array
     {
-        $result = $this->keysskip($keys, $uniq);
+        $result = $this->keyvalsSkip($keys, $uniq);
 
         if (! count($result)) {
             throw new InvalidArgumentException(
-                [ 'At least one word should be provided: %s', $keys ]
+                [ 'At least one key should be provided: %s', $keys ]
             );
         }
 
@@ -869,9 +970,9 @@ class Arr
 
 
     /**
-     * @param array                 $source
-     * @param string|string[]|array $path
-     * @param null|int              $error
+     * @param array        $source
+     * @param string|array $path
+     * @param null|int     $error
      *
      * @return mixed
      */

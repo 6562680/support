@@ -212,37 +212,34 @@ class Uri
 
 
     /**
-     * @param array ...$batches
+     * @param mixed ...$items
      *
      * @return array
      */
-    public function query(...$batches) : array
+    public function query(...$items) : array
     {
         $query = [];
 
-        foreach ( $batches as $batch ) {
-            [ $kwargs, $args ] = $this->php->kwargs($batch);
+        foreach ( $items as $idx => $item ) {
+            if (is_array($item)) {
+                $parsed = $item;
 
-            if ($kwargs) {
-                $query = array_merge_recursive($query, $kwargs);
+            } else {
+                parse_str($item, $parsed);
             }
 
-            foreach ( $args as $arg ) {
-                if (null !== ( $str = $this->php->strval($arg) )) {
-                    parse_str($str, $current);
-
-                    if ($current) {
-                        $query = array_merge_recursive($query, $current);
-                    }
-                }
-            }
+            $query = array_replace_recursive($query, $parsed);
         }
 
         array_walk_recursive($query, function (&$value) {
-            if (( [] === $value )
-                || ( null === $this->php->strval($value) )
-            ) {
-                $value = '';
+            if ([] === $value) {
+                return;
+            }
+
+            if (null === $this->filter->filterStrval($value)) {
+                throw new InvalidArgumentException(
+                    [ 'Unable to create query string from: %s', $value ]
+                );
             }
         });
 

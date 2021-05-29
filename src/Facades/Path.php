@@ -3,6 +3,7 @@
 namespace Gzhegow\Support\Facades;
 
 use Gzhegow\Support\Path as _Path;
+use Gzhegow\Support\Domain\SupportFactory;
 use Gzhegow\Support\Facades\Generated\GeneratedPathFacade;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 
@@ -26,9 +27,6 @@ class Path extends GeneratedPathFacade
      */
     public static function getInstance() : _Path
     {
-        return new _Path(
-            Php::getInstance(),
-            Str::getInstance()
-        );
+        return ( new SupportFactory() )->newPath();
     }
 }

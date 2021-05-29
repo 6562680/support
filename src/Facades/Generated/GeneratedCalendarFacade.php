@@ -464,51 +464,51 @@ abstract class GeneratedCalendarFacade
     }
 
     /**
-     * @param \DateTime|\DateTime[]|array $dates
-     * @param null|bool                   $uniq
-     * @param null|bool                   $coalesce
+     * @param int|float|string|\DateTime|array $dates
+     * @param null|bool                        $uniq
+     * @param null|string|array                $message
+     * @param mixed                            ...$arguments
      *
      * @return string[]
      */
-    public static function dates($dates, bool $uniq = null, bool $coalesce = null): array
+    public static function datevals($dates, $uniq = null, $message = null, ...$arguments): array
     {
-        return static::getInstance()->dates($dates, $uniq, $coalesce);
+        return static::getInstance()->datevals($dates, $uniq, $message, ...$arguments);
     }
 
     /**
-     * @param \DateTime|\DateTime[]|array $dates
-     * @param null|bool                   $uniq
-     * @param null|bool                   $coalesce
+     * @param int|float|string|\DateTime|array $dates
+     * @param null|bool                        $uniq
+     * @param null|string|array                $message
+     * @param mixed                            ...$arguments
      *
      * @return string[]
      */
-    public static function theDates($dates, bool $uniq = null, bool $coalesce = null): array
+    public static function theDatevals($dates, $uniq = null, $message = null, ...$arguments): array
     {
-        return static::getInstance()->theDates($dates, $uniq, $coalesce);
+        return static::getInstance()->theDatevals($dates, $uniq, $message, ...$arguments);
     }
 
     /**
-     * @param \DateTime|\DateTime[]|array $dates
-     * @param null|bool                   $uniq
-     * @param null|bool                   $coalesce
+     * @param int|float|string|\DateTime|array $dates
+     * @param null|bool                        $uniq
      *
      * @return string[]
      */
-    public static function datesskip($dates, bool $uniq = null, bool $coalesce = null): array
+    public static function datevalsSkip($dates, $uniq = null): array
     {
-        return static::getInstance()->datesskip($dates, $uniq, $coalesce);
+        return static::getInstance()->datevalsSkip($dates, $uniq);
     }
 
     /**
-     * @param \DateTime|\DateTime[]|array $dates
-     * @param null|bool                   $uniq
-     * @param null|bool                   $coalesce
+     * @param int|float|string|\DateTime|array $dates
+     * @param null|bool                        $uniq
      *
      * @return string[]
      */
-    public static function theDatesskip($dates, bool $uniq = null, bool $coalesce = null): array
+    public static function theDatevalsSkip($dates, $uniq = null): array
     {
-        return static::getInstance()->theDatesskip($dates, $uniq, $coalesce);
+        return static::getInstance()->theDatevalsSkip($dates, $uniq);
     }
 
     /**

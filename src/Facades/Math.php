@@ -3,6 +3,7 @@
 namespace Gzhegow\Support\Facades;
 
 use Gzhegow\Support\Math as _Math;
+use Gzhegow\Support\Domain\SupportFactory;
 use Gzhegow\Support\Facades\Generated\GeneratedMathFacade;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 
@@ -26,9 +27,6 @@ class Math extends GeneratedMathFacade
      */
     public static function getInstance() : _Math
     {
-        return new _Math(
-            Php::getInstance(),
-            Type::getInstance(),
-        );
+        return ( new SupportFactory() )->newMath();
     }
 }

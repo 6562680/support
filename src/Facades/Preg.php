@@ -3,6 +3,7 @@
 namespace Gzhegow\Support\Facades;
 
 use Gzhegow\Support\Preg as _Preg;
+use Gzhegow\Support\Domain\SupportFactory;
 use Gzhegow\Support\Facades\Generated\GeneratedPregFacade;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 
@@ -26,8 +27,6 @@ class Preg extends GeneratedPregFacade
      */
     public static function getInstance() : _Preg
     {
-        return new _Preg(
-            Str::getInstance()
-        );
+        return ( new SupportFactory() )->newPreg();
     }
 }

@@ -70,13 +70,13 @@ abstract class GeneratedUriFacade
     }
 
     /**
-     * @param array ...$batches
+     * @param mixed ...$items
      *
      * @return array
      */
-    public static function query(...$batches): array
+    public static function query(...$items): array
     {
-        return static::getInstance()->query(...$batches);
+        return static::getInstance()->query(...$items);
     }
 
     /**

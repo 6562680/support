@@ -188,7 +188,7 @@ class Fs
      */
     public function filterPathFileExists($value) : ?string
     {
-        $result = ( ( null !== $this->filter->filterTheString($value) ) && file_exists($value) )
+        $result = ( ( null !== $this->filter->filterWord($value) ) && file_exists($value) )
             ? $value
             : null;
 
@@ -202,7 +202,7 @@ class Fs
      */
     public function filterPathFile($value) : ?string
     {
-        $result = ( ( null !== $this->filter->filterTheString($value) ) && is_file($value) )
+        $result = ( ( null !== $this->filter->filterWord($value) ) && is_file($value) )
             ? $value
             : null;
 
@@ -216,7 +216,7 @@ class Fs
      */
     public function filterPathDir($value) : ?string
     {
-        $result = ( ( null !== $this->filter->filterTheString($value) ) && is_dir($value) )
+        $result = ( ( null !== $this->filter->filterWord($value) ) && is_dir($value) )
             ? $value
             : null;
 
@@ -230,7 +230,7 @@ class Fs
      */
     public function filterPathLink($value) : ?string
     {
-        $result = ( ( null !== $this->filter->filterTheString($value) ) && is_link($value) )
+        $result = ( ( null !== $this->filter->filterWord($value) ) && is_link($value) )
             ? $value
             : null;
 

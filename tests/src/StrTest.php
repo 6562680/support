@@ -3,30 +3,15 @@
 namespace Gzhegow\Support\Tests;
 
 use Gzhegow\Support\Str;
-use Gzhegow\Support\Php;
-use Gzhegow\Support\Filter;
+use Gzhegow\Support\Domain\SupportFactory;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 class StrTest extends AbstractTestCase
 {
-    protected function getFilter() : Filter
-    {
-        return new Filter();
-    }
-
-    protected function getPhp() : Php
-    {
-        return new Php(
-            $this->getFilter()
-        );
-    }
-
     protected function getStr() : Str
     {
-        return new Str(
-            $this->getFilter()
-        );
+        return ( new SupportFactory() )->newStr();
     }
 
 
@@ -874,116 +859,33 @@ class StrTest extends AbstractTestCase
     }
 
 
-    public function testNumbers()
-    {
-        $str = $this->getStr();
-
-        $this->assertEquals([ 1 ], $str->numbers(1));
-        $this->assertEquals([ 1 ], $str->numbers(1.0));
-        $this->assertEquals([ 1.1 ], $str->numbers(1.1));
-        $this->assertEquals([ '1' ], $str->numbers('1'));
-        $this->assertEquals([ '1.0' ], $str->numbers('1.0'));
-        $this->assertEquals([ '1.1' ], $str->numbers('1.1'));
-        $this->assertEquals([], $str->numbers([]));
-
-        $this->assertEquals([ 1 ], $str->numbers([ 1 ]));
-        $this->assertEquals([ 1 ], $str->numbers([ 1.0 ]));
-        $this->assertEquals([ 1.1 ], $str->numbers([ 1.1 ]));
-        $this->assertEquals([ '1' ], $str->numbers([ '1' ]));
-        $this->assertEquals([ '1.0' ], $str->numbers([ '1.0' ]));
-        $this->assertEquals([ '1.1' ], $str->numbers([ '1.1' ]));
-        $this->assertEquals([], $str->numbers([ [] ]));
-
-        $this->assertEquals([ '1' ], $str->numbers([ [ 1 ] ]));
-        $this->assertEquals([ '1' ], $str->numbers([ [ 1.0 ] ]));
-        $this->assertEquals([ '1.1' ], $str->numbers([ [ 1.1 ] ]));
-        $this->assertEquals([ '1' ], $str->numbers([ [ '1' ] ]));
-        $this->assertEquals([ '1.0' ], $str->numbers([ [ '1.0' ] ]));
-        $this->assertEquals([ '1.1' ], $str->numbers([ [ '1.1' ] ]));
-        $this->assertEquals([], $str->numbers([ [ [] ] ]));
-    }
-
-    public function testNumbersBad()
-    {
-        $str = $this->getStr();
-
-        $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->numbers(null);
-        });
-        $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->numbers(false);
-        });
-        $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->numbers('');
-        });
-        $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->numbers('hello');
-        });
-        $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->numbers([ new \StdClass() ]);
-        });
-
-        $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->numbers([ null ]);
-        });
-        $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->numbers([ false ]);
-        });
-        $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->numbers([ '' ]);
-        });
-        $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->numbers([ 'hello' ]);
-        });
-        $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->numbers([ new \StdClass() ]);
-        });
-
-        $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->numbers([ [ null ] ]);
-        });
-        $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->numbers([ [ false ] ]);
-        });
-        $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->numbers([ [ '' ] ]);
-        });
-        $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->numbers([ [ 'hello' ] ]);
-        });
-        $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->numbers([ [ new \StdClass() ] ]);
-        });
-    }
-
-
     public function testStrings()
     {
         $str = $this->getStr();
 
-        $this->assertEquals([ '1' ], $str->strings(1));
-        $this->assertEquals([ '1' ], $str->strings(1.0));
-        $this->assertEquals([ '1.1' ], $str->strings(1.1));
-        $this->assertEquals([ '' ], $str->strings(''));
-        $this->assertEquals([ 'hello' ], $str->strings('hello'));
-        $this->assertEquals([ 'hello', 'hello' ], $str->strings([ 'hello', 'hello' ]));
-        $this->assertEquals([], $str->strings([]));
+        $this->assertEquals([ '1' ], $str->strvals(1));
+        $this->assertEquals([ '1' ], $str->strvals(1.0));
+        $this->assertEquals([ '1.1' ], $str->strvals(1.1));
+        $this->assertEquals([ '' ], $str->strvals(''));
+        $this->assertEquals([ 'hello' ], $str->strvals('hello'));
+        $this->assertEquals([ 'hello', 'hello' ], $str->strvals([ 'hello', 'hello' ]));
+        $this->assertEquals([], $str->strvals([]));
 
-        $this->assertEquals([ '1' ], $str->strings([ 1 ]));
-        $this->assertEquals([ '1' ], $str->strings([ 1.0 ]));
-        $this->assertEquals([ '1.1' ], $str->strings([ 1.1 ]));
-        $this->assertEquals([ '' ], $str->strings([ '' ]));
-        $this->assertEquals([ 'hello' ], $str->strings([ 'hello' ]));
-        $this->assertEquals([ 'hello', 'hello' ], $str->strings([ 'hello', 'hello' ]));
-        $this->assertEquals([], $str->strings([ [] ]));
+        $this->assertEquals([ '1' ], $str->strvals([ 1 ]));
+        $this->assertEquals([ '1' ], $str->strvals([ 1.0 ]));
+        $this->assertEquals([ '1.1' ], $str->strvals([ 1.1 ]));
+        $this->assertEquals([ '' ], $str->strvals([ '' ]));
+        $this->assertEquals([ 'hello' ], $str->strvals([ 'hello' ]));
+        $this->assertEquals([ 'hello', 'hello' ], $str->strvals([ 'hello', 'hello' ]));
+        $this->assertEquals([], $str->strvals([ [] ]));
 
-        $this->assertEquals([ '1' ], $str->strings([ [ 1 ] ]));
-        $this->assertEquals([ '1' ], $str->strings([ [ 1.0 ] ]));
-        $this->assertEquals([ '1.1' ], $str->strings([ [ 1.1 ] ]));
-        $this->assertEquals([ '' ], $str->strings([ [ '' ] ]));
-        $this->assertEquals([ 'hello' ], $str->strings([ [ 'hello' ] ]));
-        $this->assertEquals([ 'hello', 'hello' ], $str->strings([ [ 'hello' ], 'hello' ]));
-        $this->assertEquals([], $str->strings([ [ [] ] ]));
+        $this->assertEquals([ '1' ], $str->strvals([ [ 1 ] ]));
+        $this->assertEquals([ '1' ], $str->strvals([ [ 1.0 ] ]));
+        $this->assertEquals([ '1.1' ], $str->strvals([ [ 1.1 ] ]));
+        $this->assertEquals([ '' ], $str->strvals([ [ '' ] ]));
+        $this->assertEquals([ 'hello' ], $str->strvals([ [ 'hello' ] ]));
+        $this->assertEquals([ 'hello', 'hello' ], $str->strvals([ [ 'hello' ], 'hello' ]));
+        $this->assertEquals([], $str->strvals([ [ [] ] ]));
     }
 
     public function testStringsBad()
@@ -991,33 +893,33 @@ class StrTest extends AbstractTestCase
         $str = $this->getStr();
 
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->strings(null);
+            $str->strvals(null);
         });
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->strings(false);
+            $str->strvals(false);
         });
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->strings([ new \StdClass() ]);
-        });
-
-        $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->strings([ null ]);
-        });
-        $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->strings([ false ]);
-        });
-        $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->strings([ new \StdClass() ]);
+            $str->strvals([ new \StdClass() ]);
         });
 
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->strings([ [ null ] ]);
+            $str->strvals([ null ]);
         });
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->strings([ [ false ] ]);
+            $str->strvals([ false ]);
         });
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->strings([ [ new \StdClass() ] ]);
+            $str->strvals([ new \StdClass() ]);
+        });
+
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->strvals([ [ null ] ]);
+        });
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->strvals([ [ false ] ]);
+        });
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->strvals([ [ new \StdClass() ] ]);
         });
     }
 
@@ -1026,26 +928,26 @@ class StrTest extends AbstractTestCase
     {
         $str = $this->getStr();
 
-        $this->assertEquals([ '1' ], $str->words(1));
-        $this->assertEquals([ '1' ], $str->words(1.0));
-        $this->assertEquals([ '1.1' ], $str->words(1.1));
-        $this->assertEquals([ 'hello' ], $str->words('hello'));
-        $this->assertEquals([ 'hello', 'hello' ], $str->words([ 'hello', 'hello' ]));
-        $this->assertEquals([], $str->words([]));
+        $this->assertEquals([ '1' ], $str->wordvals(1));
+        $this->assertEquals([ '1' ], $str->wordvals(1.0));
+        $this->assertEquals([ '1.1' ], $str->wordvals(1.1));
+        $this->assertEquals([ 'hello' ], $str->wordvals('hello'));
+        $this->assertEquals([ 'hello', 'hello' ], $str->wordvals([ 'hello', 'hello' ]));
+        $this->assertEquals([], $str->wordvals([]));
 
-        $this->assertEquals([ '1' ], $str->words([ 1 ]));
-        $this->assertEquals([ '1' ], $str->words([ 1.0 ]));
-        $this->assertEquals([ '1.1' ], $str->words([ 1.1 ]));
-        $this->assertEquals([ 'hello' ], $str->words([ 'hello' ]));
-        $this->assertEquals([ 'hello', 'hello' ], $str->words([ 'hello', 'hello' ]));
-        $this->assertEquals([], $str->words([ [] ]));
+        $this->assertEquals([ '1' ], $str->wordvals([ 1 ]));
+        $this->assertEquals([ '1' ], $str->wordvals([ 1.0 ]));
+        $this->assertEquals([ '1.1' ], $str->wordvals([ 1.1 ]));
+        $this->assertEquals([ 'hello' ], $str->wordvals([ 'hello' ]));
+        $this->assertEquals([ 'hello', 'hello' ], $str->wordvals([ 'hello', 'hello' ]));
+        $this->assertEquals([], $str->wordvals([ [] ]));
 
-        $this->assertEquals([ '1' ], $str->words([ [ 1 ] ]));
-        $this->assertEquals([ '1' ], $str->words([ [ 1.0 ] ]));
-        $this->assertEquals([ '1.1' ], $str->words([ [ 1.1 ] ]));
-        $this->assertEquals([ 'hello' ], $str->words([ [ 'hello' ] ]));
-        $this->assertEquals([ 'hello', 'hello' ], $str->words([ [ 'hello' ], 'hello' ]));
-        $this->assertEquals([], $str->words([ [ [] ] ]));
+        $this->assertEquals([ '1' ], $str->wordvals([ [ 1 ] ]));
+        $this->assertEquals([ '1' ], $str->wordvals([ [ 1.0 ] ]));
+        $this->assertEquals([ '1.1' ], $str->wordvals([ [ 1.1 ] ]));
+        $this->assertEquals([ 'hello' ], $str->wordvals([ [ 'hello' ] ]));
+        $this->assertEquals([ 'hello', 'hello' ], $str->wordvals([ [ 'hello' ], 'hello' ]));
+        $this->assertEquals([], $str->wordvals([ [ [] ] ]));
     }
 
     public function testWordsBad()
@@ -1053,42 +955,42 @@ class StrTest extends AbstractTestCase
         $str = $this->getStr();
 
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->words(null);
+            $str->wordvals(null);
         });
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->words(false);
+            $str->wordvals(false);
         });
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->words('');
+            $str->wordvals('');
         });
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->words([ new \StdClass() ]);
-        });
-
-        $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->words([ null ]);
-        });
-        $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->words([ false ]);
-        });
-        $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->words([ '' ]);
-        });
-        $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->words([ new \StdClass() ]);
+            $str->wordvals([ new \StdClass() ]);
         });
 
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->words([ [ null ] ]);
+            $str->wordvals([ null ]);
         });
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->words([ [ false ] ]);
+            $str->wordvals([ false ]);
         });
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->words([ [ '' ] ]);
+            $str->wordvals([ '' ]);
         });
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->words([ [ new \StdClass() ] ]);
+            $str->wordvals([ new \StdClass() ]);
+        });
+
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->wordvals([ [ null ] ]);
+        });
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->wordvals([ [ false ] ]);
+        });
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->wordvals([ [ '' ] ]);
+        });
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->wordvals([ [ new \StdClass() ] ]);
         });
     }
 }

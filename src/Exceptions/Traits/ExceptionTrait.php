@@ -168,7 +168,7 @@ trait ExceptionTrait
         $placeholders = $this->php->listval($message);
         $text = array_shift($placeholders);
 
-        if (null === $this->filter->filterTheStringOrNumber($text)) {
+        if (null === $this->filter->filterWordOrNumber($text)) {
             throw new \InvalidArgumentException('Message Text should be string/number', null, $this);
         }
 
@@ -179,7 +179,12 @@ trait ExceptionTrait
                 $placeholders[ $idx ] = $this->debug->printR($placeholders[ $idx ], 1);
             }
 
-            $text = vsprintf($text, $placeholders);
+            $text = vsprintf($text,
+                array_slice($placeholders, 0, substr_count(
+                    str_replace('%%', "\0", $text),
+                    '%'
+                ))
+            );
         }
 
         $this->text = $text;

@@ -5,212 +5,249 @@ namespace Gzhegow\Support;
 use Gzhegow\Support\Exceptions\Runtime\OutOfBoundsException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
+
 /**
  * Math
  */
 class Math
 {
     /**
-     * @var Php
+     * @var Filter
      */
-    protected $php;
+    protected $filter;
     /**
-     * @var Type
+     * @var Num
      */
-    protected $type;
+    protected $num;
 
 
     /**
      * Constructor
      *
-     * @param Php  $php
-     * @param Type $type
+     * @param Filter $filter
+     * @param Num    $num
      */
     public function __construct(
-        Php $php,
-        Type $type
+        Filter $filter,
+        Num $num
     )
     {
-        $this->php = $php;
-        $this->type = $type;
+        $this->filter = $filter;
+        $this->num = $num;
     }
 
 
     /**
-     * @param           $src
-     * @param null|bool $coalesce
+     * @param int|float ...$values
      *
-     * @return bool
+     * @return int|float
      */
-    public function isPositive($src, bool $coalesce = null) : bool
+    public function sum(...$values)
     {
-        $coalesce = $coalesce ?? false;
+        $list = $this->num->theNumvals($values);
 
-        $srcNum = null
-            ?? ( $this->type->isNumber($src) ? $src : null )
-            ?? ( $coalesce ? floatval($src) : null )
-            ?? null;
+        $result = array_sum($list);
 
-        if (null !== $srcNum) {
-            return $srcNum > 0;
-        }
-
-        return false;
+        return $result;
     }
 
     /**
-     * @param           $src
-     * @param null|bool $coalesce
-     *
-     * @return bool
-     */
-    public function isNegative($src, bool $coalesce = null) : bool
-    {
-        $coalesce = $coalesce ?? false;
-
-        $srcNum = null
-            ?? ( $this->type->isNumber($src) ? $src : null )
-            ?? ( $coalesce ? floatval($src) : null )
-            ?? null;
-
-        if (null !== $srcNum) {
-            return $srcNum < 0;
-        }
-
-        return false;
-    }
-
-
-    /**
-     * @param           $src
-     * @param null|bool $coalesce
-     *
-     * @return bool
-     */
-    public function isNonPositive($src, bool $coalesce = null) : bool
-    {
-        $coalesce = $coalesce ?? false;
-
-        $srcNum = null
-            ?? ( $this->type->isNumber($src) ? $src : null )
-            ?? ( $coalesce ? floatval($src) : null )
-            ?? null;
-
-        if (null !== $srcNum) {
-            return $srcNum <= 0;
-        }
-
-        return false;
-    }
-
-    /**
-     * @param           $src
-     * @param null|bool $coalesce
-     *
-     * @return bool
-     */
-    public function isNonNegative($src, bool $coalesce = null) : bool
-    {
-        $coalesce = $coalesce ?? false;
-
-        $srcNum = null
-            ?? ( $this->type->isNumber($src) ? $src : null )
-            ?? ( $coalesce ? floatval($src) : null )
-            ?? null;
-
-        if (null !== $srcNum) {
-            return $srcNum >= 0;
-        }
-
-        return false;
-    }
-
-
-    /**
-     * @param int|float      $value
-     * @param null|int|float $sum
+     * @param int|float ...$values
      *
      * @return float
      */
-    public function ratio($value, $sum = null) : float
+    public function avg(...$values) : float
     {
-        if (! $this->type->isNumber($value)) {
-            throw new InvalidArgumentException('Value should be number');
+        $list = $this->num->theNumvals($values);
+
+        $sum = $this->sum(...$list);
+        $len = count($list);
+
+        $avg = $len
+            ? ( $sum / $len )
+            : 0.0;
+
+        return $avg;
+    }
+
+
+    /**
+     * bcfrac
+     * получает дробную часть числа в виде строки
+     *
+     * @param int|float|string $number
+     * @param int|null         $decimals
+     * @param null             $int
+     *
+     * @return string
+     */
+    public function bcFrac($number, int $decimals = 0, &$int = null) : string
+    {
+        if ($decimals && ( $decimals < 0 )) {
+            throw new \InvalidArgumentException('Decimals should begins from 0');
         }
 
-        if (isset($sum) && ! $this->type->isNumber($sum)) {
-            throw new InvalidArgumentException('Sum should be number');
+        $number = $this->bcnum($number);
+        $decimals = ( 2 <= func_num_args() )
+            ? $decimals
+            : $this->bcDecimals($number);
+
+        $int = bcadd($number, 0, $decimals);
+
+        $frac = '0';
+        if (false !== ( $pos = strrpos($int, '.') )) {
+            $frac = sprintf('%d', substr($int, $pos + 1));
+
+            $int = substr($int, 0, $pos);
         }
 
-        $sum = $sum ?? 1;
+        return $frac;
+    }
 
-        $result = min(1, max(-1, $value / $sum));
+
+    /**
+     * @param int|float|string $number
+     * @param int              $decimals
+     *
+     * @return null|string
+     */
+    public function bcRound($number, int $decimals = 0)
+    {
+        $number = $this->bcnum($number);
+
+        $pow = bcpow(10, $decimals + 1);
+        $const = $this->bcNegative($number)
+            ? -5
+            : 5;
+
+        $result = bcdiv(
+            bcadd(
+                bcmul(
+                    $number,
+                    $pow, $decimals
+                ),
+                $const, $decimals
+            ),
+            $pow, $decimals
+        );
 
         return $result;
     }
 
     /**
-     * @param int|float      $value
-     * @param null|int|float $sum
+     * @param int|float|string $number
+     *
+     * @return string
+     */
+    public function bcCeil(string $number)
+    {
+        $number = $this->bcNum($number);
+
+        $result = $this->bcNegative($number)
+            ? ( ( $v = $this->bcFloor(substr($number, 1)) )
+                ? "-$v"
+                : $v )
+            : bcadd(strtok($number, '.'), strtok('.') != 0);
+
+        return $result;
+    }
+
+    /**
+     * @param int|float|string $number
+     *
+     * @return string
+     */
+    public function bcFloor($number)
+    {
+        $number = $this->bcnum($number);
+
+        $result = $this->bcnegative($number)
+            ? '-' . $this->bcceil(substr($number, 1))
+            : strtok($number, '.');
+
+        return $result;
+    }
+
+
+    /**
+     * @param int|float|string $number
+     *
+     * @return bool
+     */
+    public function bcNegative($number) : bool
+    {
+        $number = $this->bcnum($number);
+
+        $result = strpos($number, '-') === 0; // Is the number less than 0?
+
+        return $result;
+    }
+
+
+    /**
+     * @param int|float|string $number
+     *
+     * @return string
+     */
+    public function bcAbs(string $number) : string
+    {
+        $number = $this->bcnum($number);
+
+        $result = $this->bcnegative($number)
+            ? strpos($number, 1)
+            : $number;
+
+        return $result;
+    }
+
+
+    /**
+     * @param int|float|string $number
      *
      * @return int
      */
-    public function percent($value, $sum = null) : int
+    public function bcDecimals($number) : int
     {
-        if (! $this->type->isNumber($value)) {
-            throw new InvalidArgumentException('Value should be number');
-        }
+        $number = $this->bcnum($number);
 
-        if (isset($sum) && ! $this->type->isNumber($sum)) {
-            throw new InvalidArgumentException('Sum should be number');
-        }
+        $decimals = strlen(substr(strstr($number, '.'), 1));
 
-        $sum = $sum ?? 1;
-
-        $result = (int) round(( $value / $sum ) * 100);
-
-        return $result;
+        return $decimals;
     }
 
 
     /**
-     * @param int|float $value
+     * @param int|float|string $number
      *
-     * @return null|int|float
+     * @return string
      */
-    public function positive($value)
+    public function bcNum($number) : string
     {
-        if (! $this->type->isNumber($value)) {
-            throw new InvalidArgumentException('Value should be number');
+        if (! ( is_string($number) || is_float($number) || is_int($number) )) {
+            throw new InvalidArgumentException('Num should be int, float or string');
         }
 
-        $result = $value > 0
-            ? $value
-            : null;
+        if ('' === $number) {
+            throw new InvalidArgumentException('Num should be not empty');
+        }
 
-        return $result;
+        $converted = implode('.', explode(',', $number, 2));
+        $converted = str_replace(' ', '', $converted);
+
+        if (! ctype_digit(str_replace('.', '', $converted))) {
+            throw new InvalidArgumentException('Invalid number passed: ' . $number);
+        }
+
+        return $converted;
     }
 
+
     /**
-     * @param int|float $value
+     * Округление по "правилу денег" (проверка потерянной копейки)
+     * Округлит 1.00000001 до 1.01 (если нужно два знака после запятой)
+     * Как правило клиенту выставляется цена на копейку больше, а со счета компании списывается на копейку меньше
+     * Когда наоборот - это мое уважение
      *
-     * @return null|int|float
-     */
-    public function negative($value)
-    {
-        if (! $this->type->isNumber($value)) {
-            throw new InvalidArgumentException('Value should be number');
-        }
-
-        $result = $value < 0
-            ? $value
-            : null;
-
-        return $result;
-    }
-
-
-    /**
      * @param int|float $value
      * @param null|int  $decimals
      *
@@ -218,7 +255,7 @@ class Math
      */
     public function moneyround($value, int $decimals = null)
     {
-        if (! $this->type->isNumber($value)) {
+        if (null === $this->filter->filterNumval($value)) {
             throw new InvalidArgumentException('Value should be number');
         }
 
@@ -236,70 +273,28 @@ class Math
         return $result;
     }
 
-
     /**
-     * @param int|float ...$values
+     * Разбивает сумму между получателями
+     * Если разделить 100 на 3 получается 33.33, 33.33, и 33.34
+     * Функция позволяет разбить исходное число на три, не потеряв дробную часть
      *
-     * @return int|float
-     */
-    public function sum(...$values)
-    {
-        $list = $this->php->listvalFlatten(...$values);
-
-        if (! $this->type->isList($list, [ $this->type, 'isNumber' ])) {
-            throw new InvalidArgumentException('Each rate should be number');
-        }
-
-        $result = array_sum($list);
-
-        return $result;
-    }
-
-    /**
-     * @param int|float ...$values
-     *
-     * @return int|float
-     */
-    public function avg(...$values) : float
-    {
-        $list = $this->php->listvalFlatten(...$values);
-
-        if (! $this->type->isList($list, [ $this->type, 'isNumber' ])) {
-            throw new InvalidArgumentException('Each rate should be number');
-        }
-
-        $sum = $this->sum(...$list);
-        $len = count($list);
-
-        $avg = $len
-            ? ( $sum / $len )
-            : 0;
-
-        return $avg;
-    }
-
-
-    /**
-     * @param int|float     $sum
-     * @param int[]|float[] $rates
-     * @param null|int      $decimals
+     * @param int|float       $sum
+     * @param int|float|array $rates
+     * @param null|int        $decimals
      *
      * @return int[]|float[]
      */
-    public function share($sum, array $rates, int $decimals = null) : array
+    public function moneyshare($sum, $rates, int $decimals = null) : array
     {
-        if (! $this->type->isNumber($sum)) {
-            throw new InvalidArgumentException('Sum should be number');
-        }
+        $this->filter->assert('Sum should be number: %s')
+            ->assertNumval($sum);
 
-        if (! $this->type->isList($rates, [ $this->type, 'isNumber' ])) {
-            throw new InvalidArgumentException('Each rate should be number');
-        }
+        $rates = $this->num->theNumvals($rates, null, 'Each Rate should be number: %s');
 
         $result = [];
 
         $ratesIndexes = array_keys($rates);
-        $ratesSum = $this->sum($rates);
+        $ratesSum = array_sum($rates);
 
         if ($ratesSum <= 0) {
             throw new OutOfBoundsException('Sum of rates should be positive');
@@ -339,7 +334,9 @@ class Math
 
 
     /**
-     * Balances $sum between given $rates regarding $freezes values
+     * Балансирует общую сумму между получателями учитывая заранее известные ("замороженные") значения
+     * Заберет у тех, у кого много, раздаст тем, кому мало, недостающее выдаст из суммы
+     * Очень социалистическая функция :)
      *
      * [ 5, 10, 50 ] -> [ , , 20 ]
      * 5x + 10x + 50x = ((5 + 10 + 50) - 20) = 45
@@ -348,26 +345,23 @@ class Math
      * [ 13.5, 31.5, 20 ] -> round to decimals...
      * [ 14, 31, 20 ]
      *
-     * @param int|float $sum
-     * @param array     $rates
-     * @param array     $freezes
-     * @param null|int  $decimals
+     * @param int|float            $sum
+     * @param int|float|array      $rates
+     * @param null|int|float|array $freezes
+     * @param null|int             $decimals
      *
      * @return array
      */
-    public function balance($sum, array $rates, array $freezes = [], int $decimals = null) : array
+    public function balance($sum, array $rates, array $freezes = null, int $decimals = null) : array
     {
-        if (! $this->type->isNumber($sum)) {
-            throw new InvalidArgumentException('Sum should be number', $sum);
+        $freezes = $freezes ?? [];
+
+        if (null === $this->filter->filterNumval($sum)) {
+            throw new InvalidArgumentException('Sum should be number');
         }
 
-        if (! $this->type->isList($rates, [ $this->type, 'isNumber' ])) {
-            throw new InvalidArgumentException('Each rate should be number', $rates);
-        }
-
-        if (! $this->type->isList($freezes, [ $this->type, 'isNumber' ])) {
-            throw new InvalidArgumentException('Each rate should be number', $freezes);
-        }
+        $rates = $this->num->theNumvals($rates);
+        $freezes = $this->num->numvals($freezes);
 
         if ($sum <= 0) {
             throw new OutOfBoundsException('Sum should be positive', $sum);
@@ -376,8 +370,8 @@ class Math
         $keysRates = array_keys($rates);
         $keysFreezes = array_keys($freezes);
 
-        $sumRates = $this->sum($rates);
-        $sumFreezes = $this->sum($freezes);
+        $sumRates = array_sum($rates);
+        $sumFreezes = array_sum($freezes);
 
         if ($sumRates <= 0) {
             throw new OutOfBoundsException('SumRates should be positive', $sumRates);
@@ -440,7 +434,7 @@ class Math
             $shareRates[ $k ] = $src[ $k ];
         }
 
-        $sumShare = $this->sum($shareRates);
+        $sumShare = array_sum($shareRates);
 
         foreach ( $keysFreezes as $i ) {
             if ($diff[ $i ] < 0) {
@@ -476,20 +470,22 @@ class Math
     }
 
     /**
-     * @param array $rates
+     * Рассчитывает соотношение балансировки - чем больше у получателя было тем больше ему достанется
+     * Учитывает получателей у которых было значение 0, в этом случае им достанется определенный минимум
+     * Очень капиталистическая функция :(
+     *
+     * @param int|float|array $rates
      *
      * @return array
      */
-    public function balanceRatios(array $rates) : array
+    public function balanceRatios(...$rates) : array
     {
-        if (! $this->type->isList($rates, [ $this->type, 'isNumber' ])) {
-            throw new InvalidArgumentException('Each rate should be number');
-        }
+        $rates = $this->num->theNumvals(...$rates);
 
         $result = [];
 
-        $ratesSum = $this->sum($rates);
         $ratesIndexes = array_keys($rates);
+        $ratesSum = array_sum($rates);
 
         $valuesIndexes = [];
         $zeroIndexes = [];
@@ -521,7 +517,7 @@ class Math
         foreach ( $valuesIndexes as $i ) {
             $result[ $i ] = ( $rates[ $i ] / $ratesSum ) * ( 1 - ( $zeroRate / $cmpLen ) );
         }
-        $resultSum = $this->sum($result);
+        $resultSum = array_sum($result);
         $zeroSum = 1 - $resultSum;
 
         foreach ( $zeroIndexes as $i ) {

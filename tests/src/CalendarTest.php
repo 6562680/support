@@ -6,36 +6,14 @@ use Gzhegow\Support\Php;
 use Gzhegow\Support\Str;
 use Gzhegow\Support\Filter;
 use Gzhegow\Support\Calendar;
+use Gzhegow\Support\Domain\SupportFactory;
 
 
 class CalendarTest extends AbstractTestCase
 {
-    protected function getFilter() : Filter
-    {
-        return new Filter();
-    }
-
-    protected function getPhp() : Php
-    {
-        return new Php(
-            $this->getFilter()
-        );
-    }
-
-    protected function getStr() : Str
-    {
-        return new Str(
-            $this->getFilter()
-        );
-    }
-
     protected function getCalendar() : Calendar
     {
-        return new Calendar(
-            $this->getFilter(),
-            $this->getPhp(),
-            $this->getStr()
-        );
+        return ( new SupportFactory() )->newCalendar();
     }
 
 

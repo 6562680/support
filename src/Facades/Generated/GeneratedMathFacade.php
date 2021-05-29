@@ -17,103 +17,6 @@ use Gzhegow\Support\Math;
 abstract class GeneratedMathFacade
 {
     /**
-     * @param           $src
-     * @param null|bool $coalesce
-     *
-     * @return bool
-     */
-    public static function isPositive($src, bool $coalesce = null): bool
-    {
-        return static::getInstance()->isPositive($src, $coalesce);
-    }
-
-    /**
-     * @param           $src
-     * @param null|bool $coalesce
-     *
-     * @return bool
-     */
-    public static function isNegative($src, bool $coalesce = null): bool
-    {
-        return static::getInstance()->isNegative($src, $coalesce);
-    }
-
-    /**
-     * @param           $src
-     * @param null|bool $coalesce
-     *
-     * @return bool
-     */
-    public static function isNonPositive($src, bool $coalesce = null): bool
-    {
-        return static::getInstance()->isNonPositive($src, $coalesce);
-    }
-
-    /**
-     * @param           $src
-     * @param null|bool $coalesce
-     *
-     * @return bool
-     */
-    public static function isNonNegative($src, bool $coalesce = null): bool
-    {
-        return static::getInstance()->isNonNegative($src, $coalesce);
-    }
-
-    /**
-     * @param int|float      $value
-     * @param null|int|float $sum
-     *
-     * @return float
-     */
-    public static function ratio($value, $sum = null): float
-    {
-        return static::getInstance()->ratio($value, $sum);
-    }
-
-    /**
-     * @param int|float      $value
-     * @param null|int|float $sum
-     *
-     * @return int
-     */
-    public static function percent($value, $sum = null): int
-    {
-        return static::getInstance()->percent($value, $sum);
-    }
-
-    /**
-     * @param int|float $value
-     *
-     * @return null|int|float
-     */
-    public static function positive($value)
-    {
-        return static::getInstance()->positive($value);
-    }
-
-    /**
-     * @param int|float $value
-     *
-     * @return null|int|float
-     */
-    public static function negative($value)
-    {
-        return static::getInstance()->negative($value);
-    }
-
-    /**
-     * @param int|float $value
-     * @param null|int  $decimals
-     *
-     * @return int|float
-     */
-    public static function moneyround($value, int $decimals = null)
-    {
-        return static::getInstance()->moneyround($value, $decimals);
-    }
-
-    /**
      * @param int|float ...$values
      *
      * @return int|float
@@ -126,7 +29,7 @@ abstract class GeneratedMathFacade
     /**
      * @param int|float ...$values
      *
-     * @return int|float
+     * @return float
      */
     public static function avg(...$values): float
     {
@@ -134,19 +37,127 @@ abstract class GeneratedMathFacade
     }
 
     /**
-     * @param int|float     $sum
-     * @param int[]|float[] $rates
-     * @param null|int      $decimals
+     * bcfrac
+     * получает дробную часть числа в виде строки
      *
-     * @return int[]|float[]
+     * @param int|float|string $number
+     * @param int|null         $decimals
+     * @param null             $int
+     *
+     * @return string
      */
-    public static function share($sum, array $rates, int $decimals = null): array
+    public static function bcFrac($number, int $decimals = 0, &$int = null): string
     {
-        return static::getInstance()->share($sum, $rates, $decimals);
+        return static::getInstance()->bcFrac($number, $decimals, $int);
     }
 
     /**
-     * Balances $sum between given $rates regarding $freezes values
+     * @param int|float|string $number
+     * @param int              $decimals
+     *
+     * @return null|string
+     */
+    public static function bcRound($number, int $decimals = 0)
+    {
+        return static::getInstance()->bcRound($number, $decimals);
+    }
+
+    /**
+     * @param int|float|string $number
+     *
+     * @return string
+     */
+    public static function bcCeil(string $number)
+    {
+        return static::getInstance()->bcCeil($number);
+    }
+
+    /**
+     * @param int|float|string $number
+     *
+     * @return string
+     */
+    public static function bcFloor($number)
+    {
+        return static::getInstance()->bcFloor($number);
+    }
+
+    /**
+     * @param int|float|string $number
+     *
+     * @return bool
+     */
+    public static function bcNegative($number): bool
+    {
+        return static::getInstance()->bcNegative($number);
+    }
+
+    /**
+     * @param int|float|string $number
+     *
+     * @return string
+     */
+    public static function bcAbs(string $number): string
+    {
+        return static::getInstance()->bcAbs($number);
+    }
+
+    /**
+     * @param int|float|string $number
+     *
+     * @return int
+     */
+    public static function bcDecimals($number): int
+    {
+        return static::getInstance()->bcDecimals($number);
+    }
+
+    /**
+     * @param int|float|string $number
+     *
+     * @return string
+     */
+    public static function bcNum($number): string
+    {
+        return static::getInstance()->bcNum($number);
+    }
+
+    /**
+     * Округление по "правилу денег" (проверка потерянной копейки)
+     * Округлит 1.00000001 до 1.01 (если нужно два знака после запятой)
+     * Как правило клиенту выставляется цена на копейку больше, а со счета компании списывается на копейку меньше
+     * Когда наоборот - это мое уважение
+     *
+     * @param int|float $value
+     * @param null|int  $decimals
+     *
+     * @return int|float
+     */
+    public static function moneyround($value, int $decimals = null)
+    {
+        return static::getInstance()->moneyround($value, $decimals);
+    }
+
+    /**
+     * Разбивает сумму между получателями
+     * Если разделить 100 на 3 получается 33.33, 33.33, и 33.34
+     * Функция позволяет разбить исходное число на три, не потеряв дробную часть
+     *
+     * @param int|float       $sum
+     * @param int|float|array $rates
+     * @param null|int        $decimals
+     *
+     * @return int[]|float[]
+     */
+    public static function moneyshare($sum, $rates, int $decimals = null): array
+    {
+        return static::getInstance()->moneyshare($sum, $rates, $decimals);
+    }
+
+    /**
+     * Балансирует общую сумму между получателями учитывая заранее известные ("замороженные") значения
+     * Заберет у тех, у кого много, раздаст тем, кому мало, недостающее выдаст из суммы
+     * Очень социалистическая функция :)
      *
      * [ 5, 10, 50 ] -> [ , , 20 ]
      * 5x + 10x + 50x = ((5 + 10 + 50) - 20) = 45
@@ -155,26 +166,30 @@ abstract class GeneratedMathFacade
      * [ 13.5, 31.5, 20 ] -> round to decimals...
      * [ 14, 31, 20 ]
      *
-     * @param int|float $sum
-     * @param array     $rates
-     * @param array     $freezes
-     * @param null|int  $decimals
+     * @param int|float            $sum
+     * @param int|float|array      $rates
+     * @param null|int|float|array $freezes
+     * @param null|int             $decimals
      *
      * @return array
      */
-    public static function balance($sum, array $rates, array $freezes = [], int $decimals = null): array
+    public static function balance($sum, array $rates, array $freezes = null, int $decimals = null): array
     {
         return static::getInstance()->balance($sum, $rates, $freezes, $decimals);
     }
 
     /**
-     * @param array $rates
+     * Рассчитывает соотношение балансировки - чем больше у получателя было тем больше ему достанется
+     * Учитывает получателей у которых было значение 0, в этом случае им достанется определенный минимум
+     * Очень капиталистическая функция :(
+     *
+     * @param int|float|array $rates
      *
      * @return array
      */
-    public static function balanceRatios(array $rates): array
+    public static function balanceRatios(...$rates): array
     {
-        return static::getInstance()->balanceRatios($rates);
+        return static::getInstance()->balanceRatios(...$rates);
     }
 
     /**

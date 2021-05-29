@@ -25,35 +25,68 @@ abstract class GeneratedLoaderFacade
 
     /**
      * @param object          $value
-     * @param string|string[] ...$classes
+     * @param string|string[] $classes
      *
      * @return bool
      */
-    public static function isInstanceOf($value, ...$classes): bool
+    public static function isInstanceOf($value, $classes): bool
     {
-        return static::getInstance()->isInstanceOf($value, ...$classes);
+        return static::getInstance()->isInstanceOf($value, $classes);
     }
 
     /**
      * @param string|object   $value
-     * @param string|string[] ...$classes
+     * @param string|string[] $classes
      *
      * @return bool
      */
-    public static function isClassOf($value, ...$classes): bool
+    public static function isClassOf($value, $classes): bool
     {
-        return static::getInstance()->isClassOf($value, ...$classes);
+        return static::getInstance()->isClassOf($value, $classes);
     }
 
     /**
      * @param string|object   $value
-     * @param string|string[] ...$classes
+     * @param string|string[] $classes
      *
      * @return bool
      */
-    public static function isSubclassOf($value, ...$classes): bool
+    public static function isSubclassOf($value, $classes): bool
     {
-        return static::getInstance()->isSubclassOf($value, ...$classes);
+        return static::getInstance()->isSubclassOf($value, $classes);
+    }
+
+    /**
+     * @param object          $value
+     * @param string|string[] $classes
+     *
+     * @return null|object
+     */
+    public static function filterInstanceOf($value, $classes)
+    {
+        return static::getInstance()->filterInstanceOf($value, $classes);
+    }
+
+    /**
+     * @param string|object   $value
+     * @param string|string[] $classes
+     *
+     * @return null|string|object
+     */
+    public static function filterClassOf($value, $classes)
+    {
+        return static::getInstance()->filterClassOf($value, $classes);
+    }
+
+    /**
+     * @param string|object   $value
+     * @param string|string[] $classes
+     *
+     * @return null|string|object
+     */
+    public static function filterSubclassOf($value, $classes)
+    {
+        return static::getInstance()->filterSubclassOf($value, $classes);
     }
 
     /**
@@ -62,9 +95,9 @@ abstract class GeneratedLoaderFacade
      *
      * @return null|object
      */
-    public static function filterInstanceOf($value, ...$classes)
+    public static function assertInstanceOf($value, $classes)
     {
-        return static::getInstance()->filterInstanceOf($value, ...$classes);
+        return static::getInstance()->assertInstanceOf($value, $classes);
     }
 
     /**
@@ -73,9 +106,9 @@ abstract class GeneratedLoaderFacade
      *
      * @return null|string|object
      */
-    public static function filterClassOf($value, ...$classes)
+    public static function assertClassOf($value, $classes)
     {
-        return static::getInstance()->filterClassOf($value, ...$classes);
+        return static::getInstance()->assertClassOf($value, $classes);
     }
 
     /**
@@ -84,42 +117,9 @@ abstract class GeneratedLoaderFacade
      *
      * @return null|string|object
      */
-    public static function filterSubclassOf($value, ...$classes)
+    public static function assertSubclassOf($value, $classes)
     {
-        return static::getInstance()->filterSubclassOf($value, ...$classes);
-    }
-
-    /**
-     * @param object          $value
-     * @param string|string[] ...$classes
-     *
-     * @return null|object
-     */
-    public static function assertInstanceOf($value, ...$classes)
-    {
-        return static::getInstance()->assertInstanceOf($value, ...$classes);
-    }
-
-    /**
-     * @param string|object   $value
-     * @param string|string[] ...$classes
-     *
-     * @return null|string|object
-     */
-    public static function assertClassOf($value, ...$classes)
-    {
-        return static::getInstance()->assertClassOf($value, ...$classes);
-    }
-
-    /**
-     * @param string|object   $value
-     * @param string|string[] ...$classes
-     *
-     * @return null|string|object
-     */
-    public static function assertSubclassOf($value, ...$classes)
-    {
-        return static::getInstance()->assertSubclassOf($value, ...$classes);
+        return static::getInstance()->assertSubclassOf($value, $classes);
     }
 
     /**
@@ -244,6 +244,16 @@ abstract class GeneratedLoaderFacade
     public static function searchDeclaredClass(callable $filter, int $limit = null, int $offset = 0): array
     {
         return static::getInstance()->searchDeclaredClass($filter, $limit, $offset);
+    }
+
+    /**
+     * @param mixed $classOrObject
+     *
+     * @return null|string
+     */
+    public static function classval($classOrObject): ?string
+    {
+        return static::getInstance()->classval($classOrObject);
     }
 
     /**

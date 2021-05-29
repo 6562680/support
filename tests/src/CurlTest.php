@@ -2,50 +2,15 @@
 
 namespace Gzhegow\Support\Tests;
 
-use Gzhegow\Support\Arr;
-use Gzhegow\Support\Php;
-use Gzhegow\Support\Str;
 use Gzhegow\Support\Curl;
-use Gzhegow\Support\Filter;
+use Gzhegow\Support\Domain\SupportFactory;
 
 
 class CurlTest extends AbstractTestCase
 {
-    protected function getFilter() : Filter
-    {
-        return new Filter();
-    }
-
-    protected function getPhp() : Php
-    {
-        return new Php(
-            $this->getFilter()
-        );
-    }
-
-    protected function getStr() : Str
-    {
-        return new Str(
-            $this->getFilter()
-        );
-    }
-
-    protected function getArr() : Arr
-    {
-        return new Arr(
-            $this->getFilter(),
-            $this->getPhp(),
-            $this->getStr()
-        );
-    }
-
     protected function getCurl() : Curl
     {
-        return new Curl(
-            $this->getArr(),
-            $this->getFilter(),
-            $this->getPhp()
-        );
+        return ( new SupportFactory() )->newCurl();
     }
 
 

@@ -16,9 +16,9 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 abstract class GeneratedCriteriaFacade
 {
     /**
-     * @param number    $needle
-     * @param array     $src
-     * @param null|bool $coalesce
+     * @param int|float|string $needle
+     * @param array            $src
+     * @param null|bool        $coalesce
      *
      * @return bool
      */

@@ -3,6 +3,7 @@
 namespace Gzhegow\Support\Facades;
 
 use Gzhegow\Support\Net as _Net;
+use Gzhegow\Support\Domain\SupportFactory;
 use Gzhegow\Support\Facades\Generated\GeneratedNetFacade;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 
@@ -26,8 +27,6 @@ class Net extends GeneratedNetFacade
      */
     public static function getInstance() : _Net
     {
-        return new _Net(
-            Str::getInstance(),
-        );
+        return ( new SupportFactory() )->newNet();
     }
 }

@@ -3,7 +3,7 @@
 namespace Gzhegow\Support\Tests;
 
 use Gzhegow\Support\Php;
-use Gzhegow\Support\Filter;
+use Gzhegow\Support\Domain\SupportFactory;
 use Gzhegow\Support\Exceptions\Exception;
 use Gzhegow\Support\Exceptions\LogicException;
 use Gzhegow\Support\Exceptions\RuntimeException;
@@ -11,16 +11,9 @@ use Gzhegow\Support\Exceptions\RuntimeException;
 
 class ExceptionTest extends AbstractTestCase
 {
-    public function getFilter() : Filter
-    {
-        return new Filter();
-    }
-
     public function getPhp() : Php
     {
-        return new Php(
-            $this->getFilter()
-        );
+        return ( new SupportFactory() )->newPhp();
     }
 
 

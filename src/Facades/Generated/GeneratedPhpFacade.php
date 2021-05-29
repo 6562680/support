@@ -114,76 +114,6 @@ abstract class GeneratedPhpFacade
     }
 
     /**
-     * @param mixed $value
-     *
-     * @return null|int
-     */
-    public static function intval($value): ?int
-    {
-        return static::getInstance()->intval($value);
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|float
-     */
-    public static function floatval($value): ?float
-    {
-        return static::getInstance()->floatval($value);
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|int|float
-     */
-    public static function numval($value)
-    {
-        return static::getInstance()->numval($value);
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|string
-     */
-    public static function strval($value): ?string
-    {
-        return static::getInstance()->strval($value);
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|string
-     */
-    public static function theStrval($value): ?string
-    {
-        return static::getInstance()->theStrval($value);
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|array
-     */
-    public static function arrval($value): ?array
-    {
-        return static::getInstance()->arrval($value);
-    }
-
-    /**
-     * @param mixed $classOrObject
-     *
-     * @return null|string
-     */
-    public static function classval($classOrObject): ?string
-    {
-        return static::getInstance()->classval($classOrObject);
-    }
-
-    /**
      * @param mixed ...$items
      *
      * @return array
@@ -228,6 +158,16 @@ abstract class GeneratedPhpFacade
      *
      * @return array
      */
+    public static function theKwargs(...$arguments): array
+    {
+        return static::getInstance()->theKwargs(...$arguments);
+    }
+
+    /**
+     * @param mixed ...$arguments
+     *
+     * @return array
+     */
     public static function kwargsFlatten(...$arguments): array
     {
         return static::getInstance()->kwargsFlatten(...$arguments);
@@ -248,9 +188,59 @@ abstract class GeneratedPhpFacade
      *
      * @return array
      */
-    public static function kwparams(...$arguments): array
+    public static function theKwargsFlatten(...$arguments): array
     {
-        return static::getInstance()->kwparams(...$arguments);
+        return static::getInstance()->theKwargsFlatten(...$arguments);
+    }
+
+    /**
+     * @param mixed ...$values
+     *
+     * @return array
+     */
+    public static function distinct(array $values): array
+    {
+        return static::getInstance()->distinct($values);
+    }
+
+    /**
+     * @param mixed ...$values
+     *
+     * @return array
+     */
+    public static function unique(...$values): array
+    {
+        return static::getInstance()->unique(...$values);
+    }
+
+    /**
+     * @param mixed ...$values
+     *
+     * @return array
+     */
+    public static function uniqueFlatten(...$values): array
+    {
+        return static::getInstance()->uniqueFlatten(...$values);
+    }
+
+    /**
+     * @param mixed ...$values
+     *
+     * @return array
+     */
+    public static function duplicates(...$values): array
+    {
+        return static::getInstance()->duplicates(...$values);
+    }
+
+    /**
+     * @param mixed ...$values
+     *
+     * @return array
+     */
+    public static function duplicatesFlatten(...$values): array
+    {
+        return static::getInstance()->duplicatesFlatten(...$values);
     }
 
     /**
@@ -258,20 +248,9 @@ abstract class GeneratedPhpFacade
      *
      * @return Php
      */
-    public static function sleep($sleeps)
+    public static function sleep(...$sleeps)
     {
-        return static::getInstance()->sleep($sleeps);
-    }
-
-    /**
-     * @param null|\Throwable $e
-     * @param null|int        $limit
-     *
-     * @return array
-     */
-    public static function throwableMessages(\Throwable $e, int $limit = -1)
-    {
-        return static::getInstance()->throwableMessages($e, $limit);
+        return static::getInstance()->sleep(...$sleeps);
     }
 
     /**
@@ -300,6 +279,17 @@ abstract class GeneratedPhpFacade
     public static function overloadIf(?array &$args, $num, callable $if = null)
     {
         return static::getInstance()->overloadIf($args, $num, $if);
+    }
+
+    /**
+     * @param null|\Throwable $e
+     * @param null|int        $limit
+     *
+     * @return array
+     */
+    public static function throwableMessages(\Throwable $e, int $limit = -1)
+    {
+        return static::getInstance()->throwableMessages($e, $limit);
     }
 
     /**

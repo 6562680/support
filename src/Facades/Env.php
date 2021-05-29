@@ -3,6 +3,7 @@
 namespace Gzhegow\Support\Facades;
 
 use Gzhegow\Support\Env as _Env;
+use Gzhegow\Support\Domain\SupportFactory;
 use Gzhegow\Support\Facades\Generated\GeneratedEnvFacade;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 
@@ -26,6 +27,6 @@ class Env extends GeneratedEnvFacade
      */
     public static function getInstance() : _Env
     {
-        return new _Env();
+        return ( new SupportFactory() )->newEnv();
     }
 }

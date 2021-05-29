@@ -3,6 +3,7 @@
 namespace Gzhegow\Support\Facades;
 
 use Gzhegow\Support\Debug as _Debug;
+use Gzhegow\Support\Domain\SupportFactory;
 use Gzhegow\Support\Facades\Generated\GeneratedDebugFacade;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 
@@ -26,6 +27,6 @@ class Debug extends GeneratedDebugFacade
      */
     public static function getInstance() : _Debug
     {
-        return new _Debug();
+        return ( new SupportFactory() )->newDebug();
     }
 }

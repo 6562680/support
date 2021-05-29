@@ -3,51 +3,14 @@
 namespace Gzhegow\Support\Tests;
 
 use Gzhegow\Support\Uri;
-use Gzhegow\Support\Php;
-use Gzhegow\Support\Arr;
-use Gzhegow\Support\Str;
-use Gzhegow\Support\Filter;
+use Gzhegow\Support\Domain\SupportFactory;
 
 
 class UriTest extends AbstractTestCase
 {
-    protected function getFilter() : Filter
-    {
-        return new Filter();
-    }
-
-    protected function getPhp() : Php
-    {
-        return new Php(
-            $this->getFilter()
-        );
-    }
-
-    protected function getStr() : Str
-    {
-        return new Str(
-            $this->getFilter(),
-            $this->getPhp()
-        );
-    }
-
-    protected function getArr() : Arr
-    {
-        return new Arr(
-            $this->getFilter(),
-            $this->getPhp(),
-            $this->getStr()
-        );
-    }
-
     protected function getUri() : Uri
     {
-        return new Uri(
-            $this->getArr(),
-            $this->getFilter(),
-            $this->getPhp(),
-            $this->getStr()
-        );
+        return ( new SupportFactory() )->newUri();
     }
 
 

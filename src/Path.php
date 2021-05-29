@@ -83,7 +83,7 @@ class Path
      */
     public function using(...$delimiters)
     {
-        $delimiters = $this->str->theWords($delimiters, true);
+        $delimiters = $this->str->theWordvals($delimiters, true);
 
         $this->separator = $delimiters[ 0 ];
         $this->delimiters = $delimiters;
@@ -133,7 +133,7 @@ class Path
     {
         $strvals[] = '';
 
-        $list = $this->str->stringsskip($strvals);
+        $list = $this->str->strvalsSkip($strvals);
 
         $first = array_shift($list);
         $first = $this->optimize($first);
@@ -162,7 +162,7 @@ class Path
     {
         $strvals[] = '';
 
-        $list = $this->str->stringsskip($strvals);
+        $list = $this->str->strvalsSkip($strvals);
 
         $first = array_shift($list);
         $first = $this->optimize($first);
@@ -188,7 +188,7 @@ class Path
     {
         $strvals[] = '';
 
-        $list = $this->str->stringsskip($strvals);
+        $list = $this->str->strvalsSkip($strvals);
 
         $first = array_shift($list);
         $first = $this->optimize($first);
@@ -216,7 +216,7 @@ class Path
      */
     public function concat(...$strvals) : string
     {
-        $words = $this->str->stringsskip($strvals);
+        $words = $this->str->strvalsSkip($strvals);
         $words = array_filter($words, 'strlen');
 
         $result = array_shift($words);

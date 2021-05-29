@@ -3,6 +3,7 @@
 namespace Gzhegow\Support\Facades;
 
 use Gzhegow\Support\Uri as _Uri;
+use Gzhegow\Support\Domain\SupportFactory;
 use Gzhegow\Support\Facades\Generated\GeneratedUriFacade;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 
@@ -26,11 +27,6 @@ class Uri extends GeneratedUriFacade
      */
     public static function getInstance() : _Uri
     {
-        return new _Uri(
-            Arr::getInstance(),
-            Filter::getInstance(),
-            Php::getInstance(),
-            Str::getInstance()
-        );
+        return ( new SupportFactory() )->newUri();
     }
 }

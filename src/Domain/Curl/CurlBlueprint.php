@@ -9,9 +9,9 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
- * Blueprint
+ * CurlBlueprint
  */
-class Blueprint
+class CurlBlueprint
 {
     /**
      * @var Arr
@@ -23,7 +23,7 @@ class Blueprint
     protected $filter;
 
     /**
-     * @var Formatter
+     * @var CurlFormatter
      */
     protected $formatter;
 
@@ -41,17 +41,17 @@ class Blueprint
     /**
      * Constructor
      *
-     * @param Arr       $arr
-     * @param Filter    $filter
-     * @param Formatter $formatter
+     * @param Arr           $arr
+     * @param Filter        $filter
+     * @param CurlFormatter $formatter
      *
-     * @param array     $curlOptArray
+     * @param array         $curlOptArray
      */
     public function __construct(
         Arr $arr,
         Filter $filter,
 
-        Formatter $formatter,
+        CurlFormatter $formatter,
 
         array $curlOptArray = []
     )
@@ -84,11 +84,11 @@ class Blueprint
      * @param mixed  $data
      * @param array  $headers
      *
-     * @return resource
+     * @return resource|\CurlHandle
      */
     public function get(string $url, $data = null, array $headers = [])
     {
-        return $this->request(Formatter::METHOD_GET, $url, $data, $headers);
+        return $this->request(CurlFormatter::METHOD_GET, $url, $data, $headers);
     }
 
 
@@ -151,22 +151,22 @@ class Blueprint
      * @param string $url
      * @param array  $headers
      *
-     * @return resource
+     * @return resource|\CurlHandle
      */
     public function head(string $url, array $headers = [])
     {
-        return $this->request(Formatter::METHOD_HEAD, $url, null, $headers);
+        return $this->request(CurlFormatter::METHOD_HEAD, $url, null, $headers);
     }
 
     /**
      * @param string $url
      * @param array  $headers
      *
-     * @return resource
+     * @return resource|\CurlHandle
      */
     public function options(string $url, array $headers = [])
     {
-        return $this->request(Formatter::METHOD_OPTIONS, $url, null, $headers);
+        return $this->request(CurlFormatter::METHOD_OPTIONS, $url, null, $headers);
     }
 
 
@@ -175,11 +175,11 @@ class Blueprint
      * @param mixed  $data
      * @param array  $headers
      *
-     * @return resource
+     * @return resource|\CurlHandle
      */
     public function post(string $url, $data = null, array $headers = [])
     {
-        return $this->request(Formatter::METHOD_POST, $url, $data, $headers);
+        return $this->request(CurlFormatter::METHOD_POST, $url, $data, $headers);
     }
 
     /**
@@ -187,11 +187,11 @@ class Blueprint
      * @param mixed  $data
      * @param array  $headers
      *
-     * @return resource
+     * @return resource|\CurlHandle
      */
     public function patch(string $url, $data = null, array $headers = [])
     {
-        return $this->request(Formatter::METHOD_PATCH, $url, $data, $headers);
+        return $this->request(CurlFormatter::METHOD_PATCH, $url, $data, $headers);
     }
 
     /**
@@ -199,22 +199,22 @@ class Blueprint
      * @param mixed  $data
      * @param array  $headers
      *
-     * @return resource
+     * @return resource|\CurlHandle
      */
     public function put(string $url, $data = null, array $headers = [])
     {
-        return $this->request(Formatter::METHOD_PUT, $url, $data, $headers);
+        return $this->request(CurlFormatter::METHOD_PUT, $url, $data, $headers);
     }
 
     /**
      * @param string $url
      * @param array  $headers
      *
-     * @return resource
+     * @return resource|\CurlHandle
      */
     public function delete(string $url, array $headers = [])
     {
-        return $this->request(Formatter::METHOD_DELETE, $url, null, $headers);
+        return $this->request(CurlFormatter::METHOD_DELETE, $url, null, $headers);
     }
 
 
@@ -223,11 +223,11 @@ class Blueprint
      * @param mixed  $data
      * @param array  $headers
      *
-     * @return resource
+     * @return resource|\CurlHandle
      */
     public function purge(string $url, $data = null, array $headers = [])
     {
-        return $this->request(Formatter::METHOD_PURGE, $url, $data, $headers);
+        return $this->request(CurlFormatter::METHOD_PURGE, $url, $data, $headers);
     }
 
 
@@ -237,16 +237,16 @@ class Blueprint
      * @param mixed  $data
      * @param array  $headers
      *
-     * @return resource
+     * @return resource|\CurlHandle
      */
     public function request(string $method, string $url, $data = null, array $headers = [])
     {
         $httpMethod = $this->formatter->detectHttpMethod($method);
 
-        $isMethodDelete = ( Formatter::METHOD_DELETE === $httpMethod );
-        $isMethodGet = ( Formatter::METHOD_GET === $httpMethod );
-        $isMethodHead = ( Formatter::METHOD_HEAD === $httpMethod );
-        $isMethodOptions = ( Formatter::METHOD_OPTIONS === $httpMethod );
+        $isMethodDelete = ( CurlFormatter::METHOD_DELETE === $httpMethod );
+        $isMethodGet = ( CurlFormatter::METHOD_GET === $httpMethod );
+        $isMethodHead = ( CurlFormatter::METHOD_HEAD === $httpMethod );
+        $isMethodOptions = ( CurlFormatter::METHOD_OPTIONS === $httpMethod );
 
         $isNoData = 0
             || $isMethodDelete
@@ -270,39 +270,36 @@ class Blueprint
         $files = [];
         $body = '';
         if ($data) {
-            /** @var \SplFileInfo $fileInfo */
-
             if ($isNoData) {
                 throw new RuntimeException(
                     'Unable to send data using method: ' . $httpMethod
                 );
             }
 
+            $flatten = [];
             if (is_array($data)) {
                 foreach ( $this->arr->walk($data) as $fullpath => $value ) {
-                    if (null !== $this->filter->filterFileInfo($fileInfo)) {
-                        $file = curl_file_create($fileInfo->getRealPath(),
-                            mime_content_type($fileInfo->getRealPath())
-                        );
+                    $flatten[] = [ $fullpath, $value ];
+                }
+            } elseif (null !== ( $fileInfo = $this->filter->filterFileInfo($data) )) {
+                $flatten[] = [ [ 'file' ], $fileInfo ];
 
-                        $this->arr->set($files, $fullpath, $file);
+            } elseif (null !== $this->filter->filterStrval($data)) {
+                $body = strval($data);
+            }
 
-                        continue;
-                    }
-
-                    if (null !== ( $strval = $this->filter->filterStrval($value) )) {
-                        $this->arr->set($fields, $fullpath, strval($strval));
-                    }
+            foreach ( $flatten as [ $fullpath, $value ] ) {
+                if (null !== $this->filter->filterStrval($value)) {
+                    $this->arr->set($fields, $fullpath, strval($value));
                 }
 
-            } elseif (null !== $this->filter->filterFileInfo($fileInfo = $data)) {
-                $files[ 'file' ] = curl_file_create($fileInfo->getRealPath(),
-                    mime_content_type($fileInfo->getRealPath())
-                );
-
-            } elseif (null !== ( $strval = $this->filter->filterStrval($data) )) {
-                $body = strval($strval);
-
+                if (null !== ( $fileInfo = $this->filter->filterFileInfo($value) )) {
+                    $this->arr->set($files, $fullpath,
+                        curl_file_create($fileInfo->getRealPath(),
+                            mime_content_type($fileInfo->getRealPath())
+                        )
+                    );
+                }
             }
 
             if ($isNoFiles && $files) {
@@ -319,11 +316,11 @@ class Blueprint
                 }
 
                 if ($fields) {
-                    $headers[] = 'Content-TypeService: multipart/form-data';
+                    $headers[] = 'Content-Type: multipart/form-data';
 
                     $key = implode(";\n", [
                         'raw',
-                        'Content-TypeService: text/plain',
+                        'Content-Type: text/plain',
                         'Content-Disposition: form-data',
                     ]);
 
@@ -345,8 +342,7 @@ class Blueprint
             $curlOptArray[ CURLOPT_HTTPHEADER ] = $headers;
         }
 
-        $curlOptArray = $this->formatter->mergeOptions(
-            $this->getOptArray(),
+        $curlOptArray = $this->formatter->mergeOptions($this->getOptArray(),
             $curlOptArray
         );
 

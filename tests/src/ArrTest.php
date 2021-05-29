@@ -6,6 +6,7 @@ use Gzhegow\Support\Arr;
 use Gzhegow\Support\Php;
 use Gzhegow\Support\Str;
 use Gzhegow\Support\Filter;
+use Gzhegow\Support\Domain\SupportFactory;
 use Gzhegow\Support\Exceptions\Logic\OutOfRangeException;
 use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
@@ -13,32 +14,9 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 class ArrTest extends AbstractTestCase
 {
-    protected function getFilter() : Filter
-    {
-        return new Filter();
-    }
-
-    protected function getPhp() : Php
-    {
-        return new Php(
-            $this->getFilter()
-        );
-    }
-
-    protected function getStr() : Str
-    {
-        return new Str(
-            $this->getFilter()
-        );
-    }
-
     protected function getArr() : Arr
     {
-        return new Arr(
-            $this->getFilter(),
-            $this->getPhp(),
-            $this->getStr()
-        );
+        return ( new SupportFactory() )->newArr();
     }
 
 
@@ -943,6 +921,20 @@ class ArrTest extends AbstractTestCase
             '1.1.0'   => 3,
             '1.1.1.0' => 4,
         ], $arr->dot($array));
+    }
+
+    public function testDotarr()
+    {
+        $arr = $this->getArr();
+
+        $array = [ 1, [ 2, [ 3, [ 4 ] ] ] ];
+
+        $this->assertEquals([
+            0       => 1,
+            1       => [ 2 ],
+            '1.1'   => [ 3 ],
+            '1.1.1' => [ 4 ],
+        ], $arr->dotarr($array));
     }
 
     public function testUndot()

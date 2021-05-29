@@ -11,20 +11,56 @@
 namespace Gzhegow\Support\Facades\Generated;
 
 use Gzhegow\Support\Curl;
-use Gzhegow\Support\Domain\Curl\Blueprint;
-use Gzhegow\Support\Domain\Curl\Formatter;
+use Gzhegow\Support\Domain\Curl\CurlBlueprint;
+use Gzhegow\Support\Domain\Curl\CurlFormatter;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 abstract class GeneratedCurlFacade
 {
     /**
-     * @param bool $verbose
+     * @param array $curlOptArray
      *
-     * @return array
+     * @return CurlBlueprint
      */
-    public static function getOptArray(bool $verbose = false): array
+    public static function newBlueprint(array $curlOptArray = []): CurlBlueprint
     {
-        return static::getInstance()->getOptArray($verbose);
+        return static::getInstance()->newBlueprint($curlOptArray);
+    }
+
+    /**
+     * @return CurlFormatter
+     */
+    public static function newFormatter(): CurlFormatter
+    {
+        return static::getInstance()->newFormatter();
+    }
+
+    /**
+     * @param array $curlOptArray
+     *
+     * @return CurlBlueprint
+     */
+    public static function cloneBlueprint(array $curlOptArray = []): CurlBlueprint
+    {
+        return static::getInstance()->cloneBlueprint($curlOptArray);
+    }
+
+    /**
+     * @param CurlBlueprint $blueprint
+     *
+     * @return Curl
+     */
+    public static function clone(CurlBlueprint $blueprint)
+    {
+        return static::getInstance()->clone($blueprint);
+    }
+
+    /**
+     * @return CurlBlueprint
+     */
+    public static function getBlueprint(): CurlBlueprint
+    {
+        return static::getInstance()->getBlueprint();
     }
 
     /**
@@ -70,31 +106,20 @@ abstract class GeneratedCurlFacade
     }
 
     /**
-     * @param string $opt
-     * @param mixed  $value
+     * @param CurlBlueprint $blueprint
      *
      * @return Curl
      */
-    public static function setOpt(string $opt, $value)
+    public static function using(CurlBlueprint $blueprint)
     {
-        return static::getInstance()->setOpt($opt, $value);
-    }
-
-    /**
-     * @param array $opts
-     *
-     * @return Curl
-     */
-    public static function setOptArray(array $opts)
-    {
-        return static::getInstance()->setOptArray($opts);
+        return static::getInstance()->using($blueprint);
     }
 
     /**
      * @param string $url
      * @param array  $headers
      *
-     * @return resource
+     * @return resource|\CurlHandle
      */
     public static function head(string $url, array $headers = [])
     {
@@ -105,7 +130,7 @@ abstract class GeneratedCurlFacade
      * @param string $url
      * @param array  $headers
      *
-     * @return resource
+     * @return resource|\CurlHandle
      */
     public static function options(string $url, array $headers = [])
     {
@@ -117,7 +142,7 @@ abstract class GeneratedCurlFacade
      * @param mixed  $data
      * @param array  $headers
      *
-     * @return resource
+     * @return resource|\CurlHandle
      */
     public static function post(string $url, $data = null, array $headers = [])
     {
@@ -129,7 +154,7 @@ abstract class GeneratedCurlFacade
      * @param mixed  $data
      * @param array  $headers
      *
-     * @return resource
+     * @return resource|\CurlHandle
      */
     public static function patch(string $url, $data = null, array $headers = [])
     {
@@ -141,7 +166,7 @@ abstract class GeneratedCurlFacade
      * @param mixed  $data
      * @param array  $headers
      *
-     * @return resource
+     * @return resource|\CurlHandle
      */
     public static function put(string $url, $data = null, array $headers = [])
     {
@@ -152,7 +177,7 @@ abstract class GeneratedCurlFacade
      * @param string $url
      * @param array  $headers
      *
-     * @return resource
+     * @return resource|\CurlHandle
      */
     public static function delete(string $url, array $headers = [])
     {
@@ -164,7 +189,7 @@ abstract class GeneratedCurlFacade
      * @param mixed  $data
      * @param array  $headers
      *
-     * @return resource
+     * @return resource|\CurlHandle
      */
     public static function purge(string $url, $data = null, array $headers = [])
     {
@@ -177,7 +202,7 @@ abstract class GeneratedCurlFacade
      * @param mixed  $data
      * @param array  $headers
      *
-     * @return resource
+     * @return resource|\CurlHandle
      */
     public static function request(string $method, string $url, $data = null, array $headers = [])
     {
@@ -185,19 +210,9 @@ abstract class GeneratedCurlFacade
     }
 
     /**
-     * @param array $curlOptArray
-     *
-     * @return Blueprint
-     */
-    public static function blueprint(array $curlOptArray = []): Blueprint
-    {
-        return static::getInstance()->blueprint($curlOptArray);
-    }
-
-    /**
      * @param resource $ch
      *
-     * @return null|int[]|string[]
+     * @return null|array
      */
     public static function curlInfo($ch): ?array
     {
@@ -208,27 +223,11 @@ abstract class GeneratedCurlFacade
      * @param resource   $ch
      * @param int|string $opt
      *
-     * @return null|int|string|int[]|string[]
+     * @return null|mixed|array
      */
     public static function curlInfoOpt($ch, $opt)
     {
         return static::getInstance()->curlInfoOpt($ch, $opt);
-    }
-
-    /**
-     * @return Curl
-     */
-    public static function clearOptArray()
-    {
-        return static::getInstance()->clearOptArray();
-    }
-
-    /**
-     * @return Curl
-     */
-    public static function resetOptArray()
-    {
-        return static::getInstance()->resetOptArray();
     }
 
     /**
@@ -243,81 +242,85 @@ abstract class GeneratedCurlFacade
     }
 
     /**
-     * @param int|int[]|string|string[]               $limit
-     * @param int|float|int[]|float[]|string|string[] $sleep
-     * @param resource|resource[]|array               $curls
+     * @param int|string|array           $limits
+     * @param int|float|string|array     $sleeps
+     * @param resource|\CurlHandle|array $curls
      *
      * @return array
      */
-    public static function batch($limit, $sleep, ...$curls): array
+    public static function batch($limits, $sleeps, $curls): array
     {
-        return static::getInstance()->batch($limit, $sleep, ...$curls);
+        return static::getInstance()->batch($limits, $sleeps, $curls);
     }
 
     /**
-     * @param int|int[]                 $limits
-     * @param int|float|int[]|float[]   $sleeps
-     * @param resource|resource[]|array $curls
+     * @param int|string|array           $limits
+     * @param int|float|string|array     $sleeps
+     * @param resource|\CurlHandle|array $curls
      *
      * @return \Generator
      */
-    public static function batchwalk($limits, $sleeps, ...$curls): \Generator
+    public static function batchwalk($limits, $sleeps, $curls): \Generator
     {
-        yield from static::getInstance()->batchwalk($limits, $sleeps, ...$curls);
+        yield from static::getInstance()->batchwalk($limits, $sleeps, $curls);
     }
 
     /**
-     * @param resource|resource[]|array $curls
+     * @param resource|\CurlHandle|array $curls
      *
      * @return array
      */
-    public static function multi(...$curls): array
+    public static function multi($curls): array
     {
-        return static::getInstance()->multi(...$curls);
+        return static::getInstance()->multi($curls);
     }
 
     /**
-     * @param resource|resource[]|array $chh
-     * @param null|bool                 $uniq
+     * @param resource|\CurlHandle|array $curls
+     * @param null|bool                  $uniq
+     * @param null|string|array          $message
+     * @param mixed                      ...$arguments
      *
-     * @return string[]
+     * @return resource[]|\CurlHandle[]
      */
-    public static function curls($chh, bool $uniq = null): array
+    public static function curls($curls, $uniq = null, $message = null, ...$arguments): array
     {
-        return static::getInstance()->curls($chh, $uniq);
+        return static::getInstance()->curls($curls, $uniq, $message, ...$arguments);
     }
 
     /**
-     * @param string|string[]|array $chh
-     * @param null|bool             $uniq
+     * @param resource|\CurlHandle|array $curls
+     * @param null|bool                  $uniq
+     * @param null|string|array          $message
+     * @param mixed                      ...$arguments
      *
-     * @return string[]
+     * @return resource[]|\CurlHandle[]
      */
-    public static function theCurls($chh, bool $uniq = null): array
+    public static function theCurls($curls, $uniq = null, $message = null, ...$arguments): array
     {
-        return static::getInstance()->theCurls($chh, $uniq);
+        return static::getInstance()->theCurls($curls, $uniq, $message, ...$arguments);
     }
 
     /**
-     * @param string|string[]|array $chh
-     * @param null|bool             $uniq
+     * @param resource|\CurlHandle|array $curls
+     * @param null|bool                  $uniq
      *
-     * @return string[]
+     * @return resource[]|\CurlHandle[]
      */
-    public static function curlsskip($chh, bool $uniq = null): array
+    public static function curlsSkip($curls, $uniq = null): array
     {
-        return static::getInstance()->curlsskip($chh, $uniq);
+        return static::getInstance()->curlsSkip($curls, $uniq);
     }
 
     /**
-     * @param string|string[]|array $chh
-     * @param null|bool             $uniq
+     * @param resource|\CurlHandle|array $curls
+     * @param null|bool                  $uniq
      *
-     * @return string[]
+     * @return resource[]|\CurlHandle[]
      */
-    public static function theCurlsskip($chh, bool $uniq = null): array
+    public static function theCurlsSkip($curls, $uniq = null): array
     {
-        return static::getInstance()->theCurlsskip($chh, $uniq);
+        return static::getInstance()->theCurlsSkip($curls, $uniq);
     }
 
     /**

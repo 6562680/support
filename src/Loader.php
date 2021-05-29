@@ -19,10 +19,9 @@ class Loader
      */
     protected $path;
     /**
-     * @var Php
+     * @var Str
      */
-    protected $php;
-
+    protected $str;
 
     /**
      * @var array
@@ -30,23 +29,22 @@ class Loader
     protected $declaredClasses;
 
 
-
     /**
      * Constructor
      *
      * @param Filter $filter
      * @param Path   $path
-     * @param Php    $php
+     * @param Str    $str
      */
     public function __construct(
         Filter $filter,
         Path $path,
-        Php $php
+        Str $str
     )
     {
         $this->filter = $filter;
-        $this->php = $php;
         $this->path = $path;
+        $this->str = $str;
 
         $path->using('\\', '/');
     }
@@ -79,47 +77,47 @@ class Loader
 
     /**
      * @param object          $value
-     * @param string|string[] ...$classes
+     * @param string|string[] $classes
      *
      * @return bool
      */
-    public function isInstanceOf($value, ...$classes) : bool
+    public function isInstanceOf($value, $classes) : bool
     {
-        return null !== $this->filterInstanceOf($value, ...$classes);
+        return null !== $this->filterInstanceOf($value, $classes);
     }
 
     /**
      * @param string|object   $value
-     * @param string|string[] ...$classes
+     * @param string|string[] $classes
      *
      * @return bool
      */
-    public function isClassOf($value, ...$classes) : bool
+    public function isClassOf($value, $classes) : bool
     {
-        return null !== $this->filterClassOf($value, ...$classes);
+        return null !== $this->filterClassOf($value, $classes);
     }
 
     /**
      * @param string|object   $value
-     * @param string|string[] ...$classes
+     * @param string|string[] $classes
      *
      * @return bool
      */
-    public function isSubclassOf($value, ...$classes) : bool
+    public function isSubclassOf($value, $classes) : bool
     {
-        return null !== $this->filterSubclassOf($value, ...$classes);
+        return null !== $this->filterSubclassOf($value, $classes);
     }
 
 
     /**
      * @param object          $value
-     * @param string|string[] ...$classes
+     * @param string|string[] $classes
      *
      * @return null|object
      */
-    public function filterInstanceOf($value, ...$classes) // : ?object
+    public function filterInstanceOf($value, $classes) // : ?object
     {
-        $list = $this->php->listvalFlatten(...$classes);
+        $list = $this->str->theWordvals($classes, true);
 
         foreach ( $list as $class ) {
             if ($value instanceof $class) {
@@ -132,15 +130,15 @@ class Loader
 
     /**
      * @param string|object   $value
-     * @param string|string[] ...$classes
+     * @param string|string[] $classes
      *
      * @return null|string|object
      */
-    public function filterClassOf($value, ...$classes) // : ?string|object
+    public function filterClassOf($value, $classes) // : ?string|object
     {
-        $list = $this->php->listvalFlatten(...$classes);
+        $list = $this->str->theWordvals($classes, true);
 
-        $allowString = ( null !== ( $strval = $this->php->strval($value) ) );
+        $allowString = ( null !== ( $strval = $this->str->strval($value) ) );
 
         foreach ( $list as $class ) {
             if ($allowString && is_a($strval, $class, true)) {
@@ -156,15 +154,15 @@ class Loader
 
     /**
      * @param string|object   $value
-     * @param string|string[] ...$classes
+     * @param string|string[] $classes
      *
      * @return null|string|object
      */
-    public function filterSubclassOf($value, ...$classes) // : ?string|object
+    public function filterSubclassOf($value, $classes) // : ?string|object
     {
-        $list = $this->php->listvalFlatten(...$classes);
+        $list = $this->str->theWordvals($classes, true);
 
-        $allowString = ( null !== ( $strval = $this->php->strval($value) ) );
+        $allowString = ( null !== ( $strval = $this->str->strval($value) ) );
 
         foreach ( $list as $class ) {
             if ($allowString && is_subclass_of($strval, $class, true)) {
@@ -185,11 +183,14 @@ class Loader
      *
      * @return null|object
      */
-    public function assertInstanceOf($value, ...$classes) // : ?object
+    public function assertInstanceOf($value, $classes) // : ?object
     {
-        if (null === $this->filterInstanceOf($value, ...$classes)) {
+        if (null === $this->filterInstanceOf($value, $classes)) {
             throw new InvalidArgumentException('Value should be instance of: '
-                . '[' . implode(', ', $this->php->listvalFlatten(...$classes)) . ']'
+                . '[' . implode(', ', is_array($classes)
+                    ? $classes
+                    : [ $classes ]
+                ) . ']'
             );
         }
 
@@ -202,11 +203,14 @@ class Loader
      *
      * @return null|string|object
      */
-    public function assertClassOf($value, ...$classes) // : ?string|object
+    public function assertClassOf($value, $classes) // : ?string|object
     {
-        if (null === $this->filterClassOf($value, ...$classes)) {
+        if (null === $this->filterClassOf($value, $classes)) {
             throw new InvalidArgumentException('Value should be class of: '
-                . '[' . implode(', ', $this->php->listvalFlatten(...$classes)) . ']'
+                . '[' . implode(', ', is_array($classes)
+                    ? $classes
+                    : [ $classes ]
+                ) . ']'
             );
         }
 
@@ -219,11 +223,14 @@ class Loader
      *
      * @return null|string|object
      */
-    public function assertSubclassOf($value, ...$classes) // : ?string|object
+    public function assertSubclassOf($value, $classes) // : ?string|object
     {
-        if (null === $this->filterSubclassOf($value, ...$classes)) {
+        if (null === $this->filterSubclassOf($value, $classes)) {
             throw new InvalidArgumentException('Value should be subclass of: '
-                . '[' . implode(', ', $this->php->listvalFlatten(...$classes)) . ']'
+                . '[' . implode(', ', is_array($classes)
+                    ? $classes
+                    : [ $classes ]
+                ) . ']'
             );
         }
 
@@ -238,7 +245,7 @@ class Loader
      */
     public function nsClass($classOrObject) : array
     {
-        if (null === ( $class = $this->php->classval($classOrObject) )) {
+        if (null === ( $class = $this->classval($classOrObject) )) {
             throw new InvalidArgumentException('Class should be classval or object');
         }
 
@@ -261,7 +268,7 @@ class Loader
      */
     public function namespace($classOrObject) : ?string
     {
-        if (null === ( $class = $this->php->classval($classOrObject) )) {
+        if (null === ( $class = $this->classval($classOrObject) )) {
             throw new InvalidArgumentException('Class should be classval or object');
         }
 
@@ -282,7 +289,7 @@ class Loader
      */
     public function className($classOrObject) : string
     {
-        if (null === ( $class = $this->php->classval($classOrObject) )) {
+        if (null === ( $class = $this->classval($classOrObject) )) {
             throw new InvalidArgumentException('Class should be classval or object');
         }
 
@@ -362,7 +369,7 @@ class Loader
      */
     public function pathDirname($classOrObject, int $levels = 0) : ?string
     {
-        if (null === ( $class = $this->php->classval($classOrObject) )) {
+        if (null === ( $class = $this->classval($classOrObject) )) {
             throw new InvalidArgumentException(
                 [ 'Class should be valid class name or object: %s', $classOrObject ]
             );
@@ -382,7 +389,7 @@ class Loader
      */
     public function pathBasename($classOrObject, string $suffix = null, int $levels = 0) : ?string
     {
-        if (null === ( $class = $this->php->classval($classOrObject) )) {
+        if (null === ( $class = $this->classval($classOrObject) )) {
             throw new InvalidArgumentException(
                 [ 'Class should be valid class name or object: %s', $classOrObject ]
             );
@@ -401,7 +408,7 @@ class Loader
      */
     public function pathRelative($classOrObject, string $base = '') : ?string
     {
-        if (null === ( $class = $this->php->classval($classOrObject) )) {
+        if (null === ( $class = $this->classval($classOrObject) )) {
             throw new InvalidArgumentException(
                 [ 'Class should be valid class name or object: %s', $classOrObject ]
             );
@@ -433,6 +440,31 @@ class Loader
 
             if (0 < $offset--) continue;
             if (isset($limit) && ! $limit--) break;
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * @param mixed $classOrObject
+     *
+     * @return null|string
+     */
+    public function classval($classOrObject) : ?string
+    {
+        $result = null;
+
+        if (null !== ( $class = $this->filter->filterClass($classOrObject) )) {
+            $result = $class;
+
+        } elseif (is_object($classOrObject)) {
+            if (null !== ( $reflectionClass = $this->filter->filterReflectionClass($classOrObject) )) {
+                $result = $reflectionClass->getName();
+
+            } else {
+                $result = get_class($classOrObject);
+            }
         }
 
         return $result;

@@ -2,39 +2,16 @@
 
 namespace Gzhegow\Support\Tests;
 
-use Gzhegow\Support\Str;
-use Gzhegow\Support\Php;
 use Gzhegow\Support\Preg;
-use Gzhegow\Support\Filter;
+use Gzhegow\Support\Domain\SupportFactory;
 use Gzhegow\Support\Exceptions\RuntimeException;
 
 
 class PregTest extends AbstractTestCase
 {
-    protected function getFilter() : Filter
-    {
-        return new Filter();
-    }
-
-    protected function getPhp() : Php
-    {
-        return new Php(
-            $this->getFilter()
-        );
-    }
-
-    protected function getStr() : Str
-    {
-        return new Str(
-            $this->getFilter()
-        );
-    }
-
     protected function getPreg() : Preg
     {
-        return new Preg(
-            $this->getStr()
-        );
+        return ( new SupportFactory() )->newPreg();
     }
 
 

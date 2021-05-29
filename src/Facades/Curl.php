@@ -3,6 +3,7 @@
 namespace Gzhegow\Support\Facades;
 
 use Gzhegow\Support\Curl as _Curl;
+use Gzhegow\Support\Domain\SupportFactory;
 use Gzhegow\Support\Facades\Generated\GeneratedCurlFacade;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 
@@ -26,10 +27,6 @@ class Curl extends GeneratedCurlFacade
      */
     public static function getInstance() : _Curl
     {
-        return new _Curl(
-            Arr::getInstance(),
-            Filter::getInstance(),
-            Php::getInstance()
-        );
+        return ( new SupportFactory() )->newCurl();
     }
 }

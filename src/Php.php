@@ -132,7 +132,6 @@ class Php
         return $value;
     }
 
-
     /**
      * @param string $key
      * @param array  $array
@@ -202,8 +201,11 @@ class Php
             case is_string($value):
                 return $value;
 
-            case is_array($value):
-                return md5('#' . json_encode($value));
+            case ( null !== $this->filter->filterPlainArray($value) ):
+                return json_encode($value);
+
+            case ( is_array($value) ):
+                return md5(json_encode($value));
 
             case is_object($value):
                 return '{' . spl_object_hash((object) $value) . '}';
@@ -217,159 +219,6 @@ class Php
             [ 'Unable to hash passed element: %s', $value ]
         );
     }
-
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|int
-     */
-    public function intval($value) : ?int
-    {
-        if (null === $this->filter->filterIntval($value)) {
-            return null;
-        }
-
-        $result = intval($value);
-
-        return $result;
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|float
-     */
-    public function floatval($value) : ?float
-    {
-        if (null === $this->filter->filterFloatval($value)) {
-            return null;
-        }
-
-        $result = floatval($value);
-
-        return $result;
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|int|float
-     */
-    public function numval($value) // : ?int|float
-    {
-        if (null === $this->filter->filterNumval($value)) {
-            return null;
-        }
-
-        return null
-            ?? $this->intval($value)
-            ?? $this->floatval($value);
-    }
-
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|string
-     */
-    public function strval($value) : ?string
-    {
-        if (null === $this->filter->filterStrval($value)) {
-            return null;
-        }
-
-        $result = strval($value);
-
-        return $result;
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|string
-     */
-    public function theStrval($value) : ?string
-    {
-        if (null === $this->filter->filterTheStrval($value)) {
-            return null;
-        }
-
-        $result = strval($value);
-
-        return $result;
-    }
-
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|array
-     */
-    public function arrval($value) : ?array
-    {
-        if (is_array($value)) {
-            return $value;
-
-        } elseif (is_null($value)) {
-            return [];
-
-        } elseif (is_scalar($value)) {
-            return [ $value ];
-
-        } elseif (is_iterable($value)) {
-            $result = [];
-
-            foreach ( $value as $key => $item ) {
-                ( null === ( $strval = $this->filter->filterKey($key) ) )
-                    ? ( $result[ $strval ] = $item )
-                    : ( $result[] = $item );
-            }
-
-            return $result;
-
-        } elseif (is_object($value)) {
-            // if (method_exists($value, 'toArray')) // too slow
-
-            $result = null;
-            try {
-                $result = $value->toArray();
-            }
-            catch ( \Throwable $e ) {
-            }
-
-            /** @noinspection PhpExpressionAlwaysNullInspection */
-            return $result;
-        }
-
-        return null;
-    }
-
-
-    /**
-     * @param mixed $classOrObject
-     *
-     * @return null|string
-     */
-    public function classval($classOrObject) : ?string
-    {
-        $result = null;
-
-        if (null !== ( $class = $this->filter->filterClass($classOrObject) )) {
-            $result = $class;
-
-        } elseif (is_object($classOrObject)) {
-            if (null !== ( $reflectionClass = $this->filter->filterReflectionClass($classOrObject) )) {
-                $result = $reflectionClass->getName();
-
-            } else {
-                $result = get_class($classOrObject);
-            }
-        }
-
-        return $result;
-    }
-
 
 
     /**
@@ -430,7 +279,7 @@ class Php
         foreach ( $arguments as $argument ) {
             if (is_array($argument)) {
                 foreach ( $argument as $key => $val ) {
-                    ( null !== $this->filter->filterInt($key) )
+                    is_int($key)
                         ? ( $args[] = $val )
                         : ( $kwargs[ $key ] = $val );
                 }
@@ -455,13 +304,50 @@ class Php
         foreach ( $arguments as $argument ) {
             if (is_array($argument)) {
                 foreach ( $argument as $key => $val ) {
-                    ( null !== ( $int = $this->filter->filterInt($key) ) )
-                        ? ( $args[ $int ] = $val )
+                    is_int($key)
+                        ? ( $args[ $key ] = $val )
                         : ( $kwargs[ $key ] = $val );
                 }
             } else {
                 $args[] = $argument;
             }
+        }
+
+        return [ $kwargs, $args ];
+    }
+
+    /**
+     * @param mixed ...$arguments
+     *
+     * @return array
+     */
+    public function theKwargs(...$arguments) : array
+    {
+        $kwargs = [];
+        $args = [];
+
+        $flatten = [];
+        foreach ( $arguments as $idx => $argument ) {
+            if (is_array($argument)) {
+                foreach ( $argument as $key => $val ) {
+                    $flatten[] = [ $key, $val ];
+                }
+            } else {
+                $flatten[] = [ $idx, $argument ];
+            }
+        }
+
+        $registry = [];
+        foreach ( $flatten as [ $key, $val ] ) {
+            if (isset($registry[ $key ])) {
+                throw new InvalidArgumentException('Duplicate key: ' . $key);
+            }
+
+            $registry[ $key ] = true;
+
+            is_int($key)
+                ? ( $args[ $key ] = $val )
+                : ( $kwargs[ $key ] = $val );
         }
 
         return [ $kwargs, $args ];
@@ -479,7 +365,7 @@ class Php
         $args = [];
 
         array_walk_recursive($arguments, function ($val, $key) use (&$kwargs, &$args) {
-            ( null !== $this->filter->filterInt($key) )
+            is_int($key)
                 ? ( $args[] = $val )
                 : ( $kwargs[ $key ] = $val );
         });
@@ -498,53 +384,141 @@ class Php
         $args = [];
 
         array_walk_recursive($arguments, function ($val, $key) use (&$kwargs, &$args) {
-            ( null !== ( $int = $this->filter->filterInt($key) ) )
-                ? ( $args[ $int ] = $val )
+            is_int($key)
+                ? ( $args[ $key ] = $val )
                 : ( $kwargs[ $key ] = $val );
         });
 
         return [ $kwargs, $args ];
     }
 
-
     /**
      * @param mixed ...$arguments
      *
      * @return array
      */
-    public function kwparams(...$arguments) : array
+    public function theKwargsFlatten(...$arguments) : array
     {
         $kwargs = [];
         $args = [];
 
+        $flatten = [];
+        array_walk_recursive($arguments, function ($val, $key) use (&$flatten) {
+            $flatten[] = [ $key, $val ];
+        });
+
         $registry = [];
-        foreach ( $arguments as $idx => $argument ) {
-            if (is_array($argument)) {
-                foreach ( $argument as $key => $val ) {
-                    if (isset($registry[ $key ])) {
-                        throw new InvalidArgumentException('Duplicate key found: ' . $key, $arguments);
-
-                    } else {
-                        $registry[ $key ] = true;
-
-                        ( null !== ( $int = $this->filter->filterInt($key) ) )
-                            ? ( $args[ $int ] = $val )
-                            : ( $kwargs[ $key ] = $val );
-                    }
-                }
-            } else {
-                if (isset($registry[ $idx ])) {
-                    throw new InvalidArgumentException('Duplicate key found: ' . $idx, $arguments);
-
-                } else {
-                    $registry[ $idx ] = true;
-
-                    $args[ $idx ] = $argument;
-                }
+        foreach ( $flatten as [ $key, $val ] ) {
+            if (isset($registry[ $key ])) {
+                throw new InvalidArgumentException('Duplicate key: ' . $key);
             }
+
+            $registry[ $key ] = true;
+
+            is_int($key)
+                ? ( $args[ $key ] = $val )
+                : ( $kwargs[ $key ] = $val );
         }
 
         return [ $kwargs, $args ];
+    }
+
+
+    /**
+     * @param mixed ...$values
+     *
+     * @return array
+     */
+    public function distinct(array $values) : array
+    {
+        $result = [];
+
+        $arr = [];
+        foreach ( $values as $idx => $value ) {
+            $arr[ $this->hash($value) ] = $idx;
+        }
+
+        foreach ( $arr as $idx ) {
+            $result[ $idx ] = $values[ $idx ];
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * @param mixed ...$values
+     *
+     * @return array
+     */
+    public function unique(...$values) : array
+    {
+        $arr = [];
+        foreach ( $values as $value ) {
+            $arr[ $this->hash($value) ] = $value;
+        }
+
+        return array_values($arr);
+    }
+
+    /**
+     * @param mixed ...$values
+     *
+     * @return array
+     */
+    public function uniqueFlatten(...$values) : array
+    {
+        $arr = [];
+        array_walk_recursive($values, function ($value) use (&$arr) {
+            $arr[ $this->hash($value) ] = $value;
+        });
+
+        return array_values($arr);
+    }
+
+
+    /**
+     * @param mixed ...$values
+     *
+     * @return array
+     */
+    public function duplicates(...$values) : array
+    {
+        $arr = [];
+        $duplicates = [];
+        foreach ( $values as $value ) {
+            $hash = $this->hash($value);
+
+            if (isset($arr[ $hash ])) {
+                $duplicates[ $hash ][] = $value;
+            }
+
+            $arr[ $hash ] = true;
+        }
+
+        return $duplicates;
+    }
+
+    /**
+     * @param mixed ...$values
+     *
+     * @return array
+     */
+    public function duplicatesFlatten(...$values) : array
+    {
+        $arr = [];
+        $duplicates = [];
+        array_walk_recursive($values, function ($value) use (&$duplicates, &$arr) {
+            $hash = $this->hash($value);
+
+            if (isset($arr[ $hash ])) {
+                $duplicates[ $hash ][] = $value;
+            }
+
+            $arr[ $hash ] = true;
+        });
+
+        return $duplicates;
     }
 
 
@@ -553,16 +527,14 @@ class Php
      *
      * @return static
      */
-    public function sleep($sleeps)
+    public function sleep(...$sleeps)
     {
-        $sleeps = is_array($sleeps)
-            ? $sleeps
-            : [ $sleeps ];
+        $sleeps = $this->listval(...$sleeps);
 
-        foreach ( $sleeps as $sleep ) {
-            if (null === $this->numval($sleep)) {
+        foreach ( $sleeps as $idx => $sleep ) {
+            if (! is_numeric($sleep)) {
                 throw new InvalidArgumentException(
-                    [ 'Each sleep should be numerable: %s', $sleep ],
+                    [ 'Each sleep should be numeric: %s', $sleep ],
                 );
             }
         }
@@ -592,29 +564,6 @@ class Php
 
 
     /**
-     * @param null|\Throwable $e
-     * @param null|int        $limit
-     *
-     * @return array
-     */
-    public function throwableMessages(\Throwable $e, int $limit = -1)
-    {
-        $messages = [];
-
-        $parent = $e;
-        while ( null !== $parent ) {
-            $messages[ get_class($parent) ][] = $parent->getMessage();
-
-            if (! $limit--) break;
-
-            $parent = $parent->getPrevious();
-        }
-
-        return $messages;
-    }
-
-
-    /**
      * Выполняет func_get_arg($num) позволяя задать вероятные позиции аргумента и отфильтровать их
      *
      * @param null|array    $args
@@ -627,17 +576,27 @@ class Php
     {
         $args = $args ?? [];
 
-        $arr = $this->listvalFlatten($num);
-        $arr = array_map('intval', $arr);
+        $num = is_array($num)
+            ? $num
+            : [ $num ];
 
-        $min = max(0, min($arr));
-        $max = max(0, max($arr));
+        foreach ( $num as $n ) {
+            if (! is_int($n)) {
+                throw new InvalidArgumentException(
+                    [ 'Each num should be integer: %s', $n ]
+                );
+            }
+        }
+
+        $numMin = max(0, min($num));
+        $numMax = max(0, max($num));
 
         $result = null;
-        for ( $i = $max; $i >= $min; $i-- ) {
+        for ( $i = $numMax; $i >= $numMin; $i-- ) {
             if (array_key_exists($i, $args)) {
                 if (! $coalesce) {
                     $result = $args[ $i ];
+
                     $args[ $i ] = null;
 
                 } elseif (null !== ( $result = $coalesce($args[ $i ], $num, $args) )) {
@@ -664,21 +623,32 @@ class Php
     {
         $args = $args ?? [];
 
-        $arr = $this->listvalFlatten($num);
-        $arr = array_map('intval', $arr);
+        $num = is_array($num)
+            ? $num
+            : [ $num ];
 
-        $min = max(0, min($arr));
-        $max = max(0, max($arr));
+        foreach ( $num as $n ) {
+            if (! is_int($n)) {
+                throw new InvalidArgumentException(
+                    [ 'Each num should be integer: %s', $n ]
+                );
+            }
+        }
+
+        $numMin = max(0, min($num));
+        $numMax = max(0, max($num));
 
         $result = null;
-        for ( $i = $max; $i >= $min; $i-- ) {
+        for ( $i = $numMax; $i >= $numMin; $i-- ) {
             if (array_key_exists($i, $args)) {
                 if (! $if) {
                     $result = $args[ $i ];
+
                     $args[ $i ] = null;
 
                 } elseif ($if($args[ $i ], $num, $args)) {
                     $result = $args[ $i ];
+
                     $args[ $i ] = null;
 
                     break;
@@ -687,5 +657,28 @@ class Php
         }
 
         return $result;
+    }
+
+
+    /**
+     * @param null|\Throwable $e
+     * @param null|int        $limit
+     *
+     * @return array
+     */
+    public function throwableMessages(\Throwable $e, int $limit = -1)
+    {
+        $messages = [];
+
+        $parent = $e;
+        while ( null !== $parent ) {
+            $messages[ get_class($parent) ][] = $parent->getMessage();
+
+            if (! $limit--) break;
+
+            $parent = $parent->getPrevious();
+        }
+
+        return $messages;
     }
 }

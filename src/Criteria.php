@@ -84,9 +84,9 @@ class Criteria
 
 
     /**
-     * @param number    $needle
-     * @param array     $src
-     * @param null|bool $coalesce
+     * @param int|float|string $needle
+     * @param array            $src
+     * @param null|bool        $coalesce
      *
      * @return bool
      */
@@ -98,15 +98,14 @@ class Criteria
 
         $coalesce = $coalesce ?? false;
 
-        $res = false;
+        $res = null;
         foreach ( $src as $i => $val ) {
-            $res = ( 0 === $this->cmp->cmpnum($needle, $val, $coalesce) );
-            if (! $res) {
+            if (0 === ( $res = $this->cmp->cmpnum($needle, $val, $coalesce) )) {
                 break;
             }
         }
 
-        return $res;
+        return 0 === $res;
     }
 
 
@@ -126,15 +125,14 @@ class Criteria
 
         $coalesce = $coalesce ?? false;
 
-        $res = false;
+        $res = null;
         foreach ( $src as $i => $val ) {
-            $res = ( 0 === $this->cmp->cmpstr($needle, $val, $natural, $coalesce) );
-            if (! $res) {
+            if (0 === ( $res = $this->cmp->cmpstr($needle, $val, $natural, $coalesce) )) {
                 break;
             }
         }
 
-        return $res;
+        return 0 === $res;
     }
 
     /**
@@ -153,15 +151,14 @@ class Criteria
 
         $coalesce = $coalesce ?? false;
 
-        $res = false;
+        $res = null;
         foreach ( $src as $i => $val ) {
-            $res = ( 0 === $this->cmp->cmpstrCase($needle, $val, $natural, $coalesce) );
-            if (! $res) {
+            if (0 === ( $res = $this->cmp->cmpstrCase($needle, $val, $natural, $coalesce) )) {
                 break;
             }
         }
 
-        return $res;
+        return 0 === $res;
     }
 
 
@@ -176,18 +173,14 @@ class Criteria
     {
         $coalesce = $coalesce ?? false;
 
-        $res = false;
+        $res = null;
         foreach ( $src as $i => $val ) {
-            $res = $val
-                ? ( 0 === $this->cmp->cmpdate($needle, $val, $coalesce) )
-                : false;
-
-            if (! $res) {
+            if (0 === ( $res = $this->cmp->cmpdate($needle, $val, $coalesce) )) {
                 break;
             }
         }
 
-        return $res;
+        return 0 === $res;
     }
 
 
@@ -316,7 +309,6 @@ class Criteria
                 if ($operator === static::OPERATOR_LT) return -1 === $this->cmp->cmpDate($needle, $src);
                 if ($operator === static::OPERATOR_GTE) return -1 !== $this->cmp->cmpDate($needle, $src);
                 if ($operator === static::OPERATOR_LTE) return 1 !== $this->cmp->cmpDate($needle, $src);
-
             }
         }
 

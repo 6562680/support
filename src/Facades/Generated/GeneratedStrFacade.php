@@ -521,47 +521,49 @@ abstract class GeneratedStrFacade
     }
 
     /**
-     * @param string|string[]|array $numbers
-     * @param null|bool             $uniq
+     * @param mixed $value
      *
-     * @return string[]
+     * @return null|string
      */
-    public static function numbers($numbers, bool $uniq = null): array
+    public static function strval($value): ?string
     {
-        return static::getInstance()->numbers($numbers, $uniq);
+        return static::getInstance()->strval($value);
     }
 
     /**
-     * @param string|string[]|array $numbers
-     * @param null|bool             $uniq
+     * @param mixed $value
      *
-     * @return string[]
+     * @return null|string
      */
-    public static function theNumbers($numbers, bool $uniq = null): array
+    public static function wordval($value): ?string
     {
-        return static::getInstance()->theNumbers($numbers, $uniq);
+        return static::getInstance()->wordval($value);
     }
 
     /**
-     * @param string|string[]|array $numbers
+     * @param string|string[]|array $strings
      * @param null|bool             $uniq
+     * @param null|string|array     $message
+     * @param mixed                 ...$arguments
      *
      * @return string[]
      */
-    public static function numbersskip($numbers, bool $uniq = null): array
+    public static function strvals($strings, $uniq = null, $message = null, ...$arguments): array
     {
-        return static::getInstance()->numbersskip($numbers, $uniq);
+        return static::getInstance()->strvals($strings, $uniq, $message, ...$arguments);
     }
 
     /**
-     * @param string|string[]|array $numbers
+     * @param string|string[]|array $strings
      * @param null|bool             $uniq
+     * @param null|string|array     $message
+     * @param mixed                 ...$arguments
      *
      * @return string[]
      */
-    public static function theNumbersskip($numbers, bool $uniq = null): array
+    public static function theStrvals($strings, $uniq = null, $message = null, ...$arguments): array
     {
-        return static::getInstance()->theNumbersskip($numbers, $uniq);
+        return static::getInstance()->theStrvals($strings, $uniq, $message, ...$arguments);
     }
 
     /**
@@ -570,9 +572,9 @@ abstract class GeneratedStrFacade
      *
      * @return string[]
      */
-    public static function strings($strings, bool $uniq = null): array
+    public static function strvalsSkip($strings, $uniq = null): array
     {
-        return static::getInstance()->strings($strings, $uniq);
+        return static::getInstance()->strvalsSkip($strings, $uniq);
     }
 
     /**
@@ -581,31 +583,35 @@ abstract class GeneratedStrFacade
      *
      * @return string[]
      */
-    public static function theStrings($strings, bool $uniq = null): array
+    public static function theStrvalsSkip($strings, $uniq = null): array
     {
-        return static::getInstance()->theStrings($strings, $uniq);
+        return static::getInstance()->theStrvalsSkip($strings, $uniq);
     }
 
     /**
-     * @param string|string[]|array $strings
+     * @param string|string[]|array $words
      * @param null|bool             $uniq
+     * @param null|string|array     $message
+     * @param mixed                 ...$arguments
      *
      * @return string[]
      */
-    public static function stringsskip($strings, bool $uniq = null): array
+    public static function wordvals($words, $uniq = null, $message = null, ...$arguments): array
     {
-        return static::getInstance()->stringsskip($strings, $uniq);
+        return static::getInstance()->wordvals($words, $uniq, $message, ...$arguments);
     }
 
     /**
-     * @param string|string[]|array $strings
+     * @param string|string[]|array $words
      * @param null|bool             $uniq
+     * @param null|string|array     $message
+     * @param mixed                 ...$arguments
      *
      * @return string[]
      */
-    public static function theStringsskip($strings, bool $uniq = null): array
+    public static function theWordvals($words, $uniq = null, $message = null, ...$arguments): array
     {
-        return static::getInstance()->theStringsskip($strings, $uniq);
+        return static::getInstance()->theWordvals($words, $uniq, $message, ...$arguments);
     }
 
     /**
@@ -614,31 +620,9 @@ abstract class GeneratedStrFacade
      *
      * @return string[]
      */
-    public static function words($words, bool $uniq = null): array
+    public static function wordvalsSkip($words, $uniq = null): array
     {
-        return static::getInstance()->words($words, $uniq);
-    }
-
-    /**
-     * @param string|string[]|array $words
-     * @param null|bool             $uniq
-     *
-     * @return string[]
-     */
-    public static function theWords($words, bool $uniq = null): array
-    {
-        return static::getInstance()->theWords($words, $uniq);
-    }
-
-    /**
-     * @param string|string[]|array $words
-     * @param null|bool             $uniq
-     *
-     * @return string[]
-     */
-    public static function wordsskip($words, bool $uniq = null): array
-    {
-        return static::getInstance()->wordsskip($words, $uniq);
+        return static::getInstance()->wordvalsSkip($words, $uniq);
     }
 
     /**
@@ -647,9 +631,9 @@ abstract class GeneratedStrFacade
      *
      * @return array
      */
-    public static function theWordsskip($words, bool $uniq = null): array
+    public static function theWordvalsSkip($words, $uniq = null): array
     {
-        return static::getInstance()->theWordsskip($words, $uniq);
+        return static::getInstance()->theWordvalsSkip($words, $uniq);
     }
 
     /**

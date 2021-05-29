@@ -48,7 +48,6 @@ $fnUses = function (string $class) use ($fnStarts) : array {
 // list
 $facades = [
     'ArrFacade'      => [ null, \Gzhegow\Support\Arr::class ],
-    'BcmathFacade'   => [ null, \Gzhegow\Support\Bcmath::class ],
     'CalendarFacade' => [ null, \Gzhegow\Support\Calendar::class ],
     'CliFacade'      => [ null, \Gzhegow\Support\Cli::class ],
     'CmpFacade'      => [ null, \Gzhegow\Support\Cmp::class ],
@@ -62,15 +61,13 @@ $facades = [
     'LoaderFacade'   => [ null, \Gzhegow\Support\Loader::class ],
     'MathFacade'     => [ null, \Gzhegow\Support\Math::class ],
     'NetFacade'      => [ null, \Gzhegow\Support\Net::class ],
+    'NumFacade'      => [ null, \Gzhegow\Support\Num::class ],
     'PathFacade'     => [ null, \Gzhegow\Support\Path::class ],
     'PhpFacade'      => [ null, \Gzhegow\Support\Php::class ],
     'PregFacade'     => [ null, \Gzhegow\Support\Preg::class ],
     'ProfilerFacade' => [ null, \Gzhegow\Support\Profiler::class ],
     'StrFacade'      => [ null, \Gzhegow\Support\Str::class ],
     'UriFacade'      => [ null, \Gzhegow\Support\Uri::class ],
-
-    'AssertFacade' => [ \Gzhegow\Support\Generated\GeneratedAssert::class, \Gzhegow\Support\Assert::class ],
-    'TypeFacade'   => [ \Gzhegow\Support\Generated\GeneratedType::class, \Gzhegow\Support\Type::class ],
 ];
 
 foreach ( $facades as $facade => $from ) {

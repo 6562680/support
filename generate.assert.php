@@ -38,10 +38,10 @@ $phpFile->setComment(implode("\n", [
 ]));
 
 // namespace
-$namespace = new \Nette\PhpGenerator\PhpNamespace('Gzhegow\\Support\\Generated');
+$namespace = new \Nette\PhpGenerator\PhpNamespace('Gzhegow\\Support\\Domain\\Filter\\Generated');
 $phpFile->addNamespace($namespace);
 $namespace->addUse(\Gzhegow\Support\Filter::class, 'Filter');
-$namespace->addUse(\Gzhegow\Support\Domain\Filter\CallableInfo::class, 'CallableInfo');
+$namespace->addUse(\Gzhegow\Support\Domain\Filter\CallableInfoVO::class, 'CallableInfoVO');
 $namespace->addUse(\Gzhegow\Support\Exceptions\Logic\InvalidArgumentException::class, 'InvalidArgumentException');
 
 // class
@@ -57,6 +57,7 @@ $property->setComment(implode("\n", [
 ]));
 $moduleAssert->addMember($property);
 
+// add constructor
 $method = new \Nette\PhpGenerator\Method('__construct');
 $method->setComment(implode("\n", [
     '',
@@ -69,6 +70,7 @@ $method->addParameter('filter')->setType(Filter::class);
 $moduleAssert->addMember($method);
 
 // add methods
+// call()
 $method = new \Nette\PhpGenerator\Method('call');
 $method->setPublic();
 $method->addParameter('customFilter')->setType('string');
@@ -83,7 +85,9 @@ $method->setComment(implode("\n", [
 ]));
 $method->setBody(implode("\n", [
     'if (null === ($filtered = $this->filter->call($customFilter, ...$arguments))) {',
-    '    throw new InvalidArgumentException(\'Invalid \' . $customFilter . \' passed\');',
+    '    throw new InvalidArgumentException($this->flushMessage(...$arguments)',
+    '        ?? array_merge([ \'Invalid \' . $customFilter . \' passed: %s\' ], $arguments)',
+    '    );',
     '}',
     '',
     'return $filtered;',
@@ -141,6 +145,8 @@ foreach ( $moduleCopy->getMethods() as $method ) {
             : '$' . $last->getName();
     }
 
+    $arguments = implode(',', $arguments);
+
     $methodNew = new \Nette\PhpGenerator\Method($methodNameNew);
     $methodNew->setVariadic($method->isVariadic());
     $methodNew->setReturnNullable($method->isReturnNullable());
@@ -150,11 +156,10 @@ foreach ( $moduleCopy->getMethods() as $method ) {
     $methodNew->setComment($methodCommentNew);
     $methodNew->setReturnType($method->getReturnType());
     $methodNew->setBody(implode("\n", [
-        sprintf(
-            'if (null === ($filtered = $this->filter->' . $methodName . '(%s))) {',
-            implode(', ', $arguments),
-        ),
-        "    throw new InvalidArgumentException('Invalid $filterName passed');",
+        sprintf('if (null === ($filtered = $this->filter->' . $methodName . '(%s))) {', $arguments),
+        '    throw new InvalidArgumentException($this->flushMessage(...func_get_args())',
+        '        ?? array_merge([ \'Invalid ' . $filterName . ' passed: %s\' ], func_get_args())',
+        '    );',
         '}',
         '',
         'return $filtered;',
@@ -163,6 +168,20 @@ foreach ( $moduleCopy->getMethods() as $method ) {
     $moduleAssert->addMember($methodNew);
 }
 
+// add methods
+// flushMessage()
+$method = new \Nette\PhpGenerator\Method('flushMessage');
+$method->setVariadic();
+$method->setComment(implode("\n", [
+    '@param mixed ...$arguments',
+    '',
+    '@return null|string|array',
+]));
+$method->addParameter('arguments');
+$method->setAbstract();
+$method->setPublic();
+$moduleAssert->addMember($method);
+
 // add to namespace
 $namespace->add($moduleAssert);
 
@@ -170,7 +189,7 @@ $namespace->add($moduleAssert);
 $content = $printer->printFile($phpFile);
 
 // store
-$filepath = __DIR__ . '/src/Generated/GeneratedAssert.php';
+$filepath = __DIR__ . '/src/Domain/Filter/Generated/GeneratedAssert.php';
 
 echo 'Writing file: ' . $filepath . PHP_EOL;
 file_put_contents($filepath, $content);

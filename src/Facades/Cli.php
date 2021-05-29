@@ -3,6 +3,7 @@
 namespace Gzhegow\Support\Facades;
 
 use Gzhegow\Support\Cli as _Cli;
+use Gzhegow\Support\Domain\SupportFactory;
 use Gzhegow\Support\Facades\Generated\GeneratedCliFacade;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 
@@ -26,9 +27,6 @@ class Cli extends GeneratedCliFacade
      */
     public static function getInstance() : _Cli
     {
-        return new _Cli(
-            Env::getInstance(),
-            Php::getInstance()
-        );
+        return ( new SupportFactory() )->newCli();
     }
 }

@@ -15,24 +15,24 @@ class Cmp
      */
     protected $calendar;
     /**
-     * @var Type
+     * @var Filter
      */
-    protected $type;
+    protected $filter;
 
 
     /**
      * Constructor
      *
-     * @param Type     $type
      * @param Calendar $calendar
+     * @param Filter   $filter
      */
     public function __construct(
         Calendar $calendar,
-        Type $type
+        Filter $filter
     )
     {
         $this->calendar = $calendar;
-        $this->type = $type;
+        $this->filter = $filter;
     }
 
 
@@ -54,15 +54,17 @@ class Cmp
 
 
     /**
-     * @param null|int|float $a
-     * @param mixed          $b
-     * @param null|bool      $coalesce
+     * @param null|int|float|string $a
+     * @param mixed                 $b
+     * @param null|bool             $coalesce
      *
      * @return int
      */
     public function cmpnum($a, $b, bool $coalesce = null) : int
     {
-        if (! ( ( $a === null ) || $this->type->isNumber($a) )) {
+        if (! ( ( $a === null )
+            || ( null !== $this->filter->filterNumber($a) )
+        )) {
             throw new InvalidArgumentException('A should be number');
         }
 
@@ -72,14 +74,14 @@ class Cmp
 
         $bNumber = null
             ?? ( ( null === $b ) ? $b : null )
-            ?? ( $this->type->isNumber($b) ? $b : null )
+            ?? ( ( null !== $this->filter->filterNumber($b) ) ? $b : null )
             ?? ( $coalesce ? floatval($b) : null );
 
         $isA = false;
         $isB = false;
         if (1
-            && ( $isA = $this->type->isNumber($a) )
-            && ( $isB = $this->type->isNumber($bNumber) )
+            && ( $isA = ( null !== $this->filter->filterNumber($a) ) )
+            && ( $isB = ( null !== $this->filter->filterNumber($bNumber) ) )
         ) {
             $result = null
                 ?? ( $a < $b ? -1 : null )

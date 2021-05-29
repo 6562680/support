@@ -3,6 +3,7 @@
 namespace Gzhegow\Support\Facades;
 
 use Gzhegow\Support\Cmp as _Cmp;
+use Gzhegow\Support\Domain\SupportFactory;
 use Gzhegow\Support\Facades\Generated\GeneratedCmpFacade;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 
@@ -26,9 +27,6 @@ class Cmp extends GeneratedCmpFacade
      */
     public static function getInstance() : _Cmp
     {
-        return new _Cmp(
-            Calendar::getInstance(),
-            Type::getInstance()
-        );
+        return ( new SupportFactory() )->newCmp();
     }
 }

@@ -8,9 +8,9 @@
  * @noinspection PhpUnusedAliasInspection
  */
 
-namespace Gzhegow\Support\Generated;
+namespace Gzhegow\Support\Domain\Filter\Generated;
 
-use Gzhegow\Support\Domain\Filter\CallableInfo;
+use Gzhegow\Support\Domain\Filter\CallableInfoVO;
 use Gzhegow\Support\Filter;
 
 abstract class GeneratedType
@@ -37,16 +37,6 @@ abstract class GeneratedType
     public function call(string $customFilter, ...$arguments): bool
     {
         return null !== $this->filter->call($customFilter, ...$arguments);
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return bool
-     */
-    public function isKey($value): bool
-    {
-        return null !== $this->filter->filterKey($value);
     }
 
     /**
@@ -94,9 +84,69 @@ abstract class GeneratedType
      *
      * @return bool
      */
-    public function isTheString($value): ?bool
+    public function isIntval($value): ?bool
     {
-        return null !== $this->filter->filterTheString($value);
+        return null !== $this->filter->filterIntval($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    public function isFloatval($value): ?bool
+    {
+        return null !== $this->filter->filterFloatval($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    public function isNumval($value): bool
+    {
+        return null !== $this->filter->filterNumval($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    public function isString($value): ?bool
+    {
+        return null !== $this->filter->filterString($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    public function isWord($value): ?bool
+    {
+        return null !== $this->filter->filterWord($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    public function isStringOrInt($value): bool
+    {
+        return null !== $this->filter->filterStringOrInt($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    public function isWordOrInt($value): bool
+    {
+        return null !== $this->filter->filterWordOrInt($value);
     }
 
     /**
@@ -114,9 +164,41 @@ abstract class GeneratedType
      *
      * @return bool
      */
-    public function isTheStringOrNumber($value): bool
+    public function isWordOrNumber($value): bool
     {
-        return null !== $this->filter->filterTheStringOrNumber($value);
+        return null !== $this->filter->filterWordOrNumber($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    public function isStrval($value): ?bool
+    {
+        return null !== $this->filter->filterStrval($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    public function isWordval($value): ?bool
+    {
+        return null !== $this->filter->filterWordval($value);
+    }
+
+    /**
+     * \Generator может передать любой объект в качестве ключа для foreach, пригодится
+     *
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    public function isKey($value): bool
+    {
+        return null !== $this->filter->filterKey($value);
     }
 
     /**
@@ -178,6 +260,16 @@ abstract class GeneratedType
      *
      * @return bool
      */
+    public function isArrval($value): bool
+    {
+        return null !== $this->filter->filterArrval($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return bool
+     */
     public function isLink($value): ?bool
     {
         return null !== $this->filter->filterLink($value);
@@ -194,89 +286,89 @@ abstract class GeneratedType
     }
 
     /**
-     * @param mixed             $callable
-     * @param null|CallableInfo $callableInfo
+     * @param mixed               $callable
+     * @param null|CallableInfoVO $callableInfo
      *
      * @return bool
      */
-    public function isCallable($callable, CallableInfo &$callableInfo = null): bool
+    public function isCallable($callable, CallableInfoVO &$callableInfo = null): bool
     {
         return null !== $this->filter->filterCallable($callable, $callableInfo);
     }
 
     /**
-     * @param mixed             $callableString
-     * @param null|CallableInfo $callableInfo
+     * @param mixed               $callableString
+     * @param null|CallableInfoVO $callableInfo
      *
      * @return bool
      */
-    public function isCallableString($callableString, CallableInfo &$callableInfo = null): bool
+    public function isCallableString($callableString, CallableInfoVO &$callableInfo = null): bool
     {
         return null !== $this->filter->filterCallableString($callableString, $callableInfo);
     }
 
     /**
-     * @param mixed             $callableString
-     * @param null|CallableInfo $callableInfo
+     * @param mixed               $callableString
+     * @param null|CallableInfoVO $callableInfo
      *
      * @return bool
      */
-    public function isCallableStringFunction($callableString, CallableInfo &$callableInfo = null): ?bool
+    public function isCallableStringFunction($callableString, CallableInfoVO &$callableInfo = null): ?bool
     {
         return null !== $this->filter->filterCallableStringFunction($callableString, $callableInfo);
     }
 
     /**
-     * @param mixed             $callableString
-     * @param null|CallableInfo $callableInfo
+     * @param mixed               $callableString
+     * @param null|CallableInfoVO $callableInfo
      *
      * @return bool
      */
-    public function isCallableStringStatic($callableString, CallableInfo &$callableInfo = null): ?bool
+    public function isCallableStringStatic($callableString, CallableInfoVO &$callableInfo = null): ?bool
     {
         return null !== $this->filter->filterCallableStringStatic($callableString, $callableInfo);
     }
 
     /**
-     * @param mixed             $callableArray
-     * @param null|CallableInfo $callableInfo
+     * @param mixed               $callableArray
+     * @param null|CallableInfoVO $callableInfo
      *
      * @return bool
      */
-    public function isCallableArray($callableArray, CallableInfo &$callableInfo = null): ?bool
+    public function isCallableArray($callableArray, CallableInfoVO &$callableInfo = null): ?bool
     {
         return null !== $this->filter->filterCallableArray($callableArray, $callableInfo);
     }
 
     /**
-     * @param mixed             $callableArray
-     * @param null|CallableInfo $callableInfo
+     * @param mixed               $callableArray
+     * @param null|CallableInfoVO $callableInfo
      *
      * @return bool
      */
-    public function isCallableArrayStatic($callableArray, CallableInfo &$callableInfo = null): ?bool
+    public function isCallableArrayStatic($callableArray, CallableInfoVO &$callableInfo = null): ?bool
     {
         return null !== $this->filter->filterCallableArrayStatic($callableArray, $callableInfo);
     }
 
     /**
-     * @param mixed             $callableArray
-     * @param null|CallableInfo $callableInfo
+     * @param mixed               $callableArray
+     * @param null|CallableInfoVO $callableInfo
      *
      * @return bool
      */
-    public function isCallableArrayPublic($callableArray, CallableInfo &$callableInfo = null): ?bool
+    public function isCallableArrayPublic($callableArray, CallableInfoVO &$callableInfo = null): ?bool
     {
         return null !== $this->filter->filterCallableArrayPublic($callableArray, $callableInfo);
     }
 
     /**
-     * @param mixed             $closure
-     * @param null|CallableInfo $callableInfo
+     * @param mixed               $closure
+     * @param null|CallableInfoVO $callableInfo
      *
      * @return bool
      */
-    public function isClosure($closure, CallableInfo &$callableInfo = null): ?bool
+    public function isClosure($closure, CallableInfoVO &$callableInfo = null): ?bool
     {
         return null !== $this->filter->filterClosure($closure, $callableInfo);
     }
@@ -439,55 +531,5 @@ abstract class GeneratedType
     public function isWritableResource($h): bool
     {
         return null !== $this->filter->filterWritableResource($h);
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return bool
-     */
-    public function isIntval($value): ?bool
-    {
-        return null !== $this->filter->filterIntval($value);
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return bool
-     */
-    public function isFloatval($value): ?bool
-    {
-        return null !== $this->filter->filterFloatval($value);
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return bool
-     */
-    public function isNumval($value): bool
-    {
-        return null !== $this->filter->filterNumval($value);
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return bool
-     */
-    public function isStrval($value): ?bool
-    {
-        return null !== $this->filter->filterStrval($value);
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return bool
-     */
-    public function isTheStrval($value): ?bool
-    {
-        return null !== $this->filter->filterTheStrval($value);
     }
 }

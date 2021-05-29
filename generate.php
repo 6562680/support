@@ -30,7 +30,7 @@ $phpFile = new \Nette\PhpGenerator\PhpFile();
 $namespace = new \Nette\PhpGenerator\PhpNamespace('Gzhegow\\Support\\Generated');
 $phpFile->addNamespace($namespace);
 $namespace->addUse(\Gzhegow\Support\Filter::class, 'Filter');
-$namespace->addUse(\Gzhegow\Support\Domain\Filter\CallableInfo::class, 'CallableInfo');
+$namespace->addUse(\Gzhegow\Support\Domain\Filter\CallableInfoVO::class, 'CallableInfoVO');
 
 // class
 $moduleAssert = new \Nette\PhpGenerator\ClassType('GeneratedAssert');

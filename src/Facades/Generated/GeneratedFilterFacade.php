@@ -10,7 +10,9 @@
 
 namespace Gzhegow\Support\Facades\Generated;
 
-use Gzhegow\Support\Domain\Filter\CallableInfo;
+use Gzhegow\Support\Domain\Filter\Assert;
+use Gzhegow\Support\Domain\Filter\CallableInfoVO;
+use Gzhegow\Support\Domain\Filter\Type;
 use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
 use Gzhegow\Support\Filter;
 
@@ -22,16 +24,6 @@ abstract class GeneratedFilterFacade
     public static function getCustomFilters(): array
     {
         return static::getInstance()->getCustomFilters();
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|int|string
-     */
-    public static function filterKey($value)
-    {
-        return static::getInstance()->filterKey($value);
     }
 
     /**
@@ -77,11 +69,71 @@ abstract class GeneratedFilterFacade
     /**
      * @param mixed $value
      *
+     * @return null|int|string
+     */
+    public static function filterIntval($value): ?int
+    {
+        return static::getInstance()->filterIntval($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|float|string
+     */
+    public static function filterFloatval($value): ?float
+    {
+        return static::getInstance()->filterFloatval($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|int|float|string
+     */
+    public static function filterNumval($value)
+    {
+        return static::getInstance()->filterNumval($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
      * @return null|string
      */
-    public static function filterTheString($value): ?string
+    public static function filterString($value): ?string
     {
-        return static::getInstance()->filterTheString($value);
+        return static::getInstance()->filterString($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|string
+     */
+    public static function filterWord($value): ?string
+    {
+        return static::getInstance()->filterWord($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|int|float|string
+     */
+    public static function filterStringOrInt($value)
+    {
+        return static::getInstance()->filterStringOrInt($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|int|float|string
+     */
+    public static function filterWordOrInt($value)
+    {
+        return static::getInstance()->filterWordOrInt($value);
     }
 
     /**
@@ -99,9 +151,41 @@ abstract class GeneratedFilterFacade
      *
      * @return null|int|float|string
      */
-    public static function filterTheStringOrNumber($value)
+    public static function filterWordOrNumber($value)
     {
-        return static::getInstance()->filterTheStringOrNumber($value);
+        return static::getInstance()->filterWordOrNumber($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|string
+     */
+    public static function filterStrval($value): ?string
+    {
+        return static::getInstance()->filterStrval($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|string
+     */
+    public static function filterWordval($value): ?string
+    {
+        return static::getInstance()->filterWordval($value);
+    }
+
+    /**
+     * \Generator может передать любой объект в качестве ключа для foreach, пригодится
+     *
+     * @param mixed $value
+     *
+     * @return null|int|string
+     */
+    public static function filterKey($value)
+    {
+        return static::getInstance()->filterKey($value);
     }
 
     /**
@@ -161,6 +245,16 @@ abstract class GeneratedFilterFacade
     /**
      * @param mixed $value
      *
+     * @return null|mixed
+     */
+    public static function filterArrval($value)
+    {
+        return static::getInstance()->filterArrval($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
      * @return null|string
      */
     public static function filterLink($value): ?string
@@ -179,89 +273,89 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed             $callable
-     * @param null|CallableInfo $callableInfo
+     * @param mixed               $callable
+     * @param null|CallableInfoVO $callableInfo
      *
      * @return null|string|array|\Closure|callable
      */
-    public static function filterCallable($callable, CallableInfo &$callableInfo = null)
+    public static function filterCallable($callable, CallableInfoVO &$callableInfo = null)
     {
         return static::getInstance()->filterCallable($callable, $callableInfo);
     }
 
     /**
-     * @param mixed             $callableString
-     * @param null|CallableInfo $callableInfo
+     * @param mixed               $callableString
+     * @param null|CallableInfoVO $callableInfo
      *
      * @return null|string|array|callable
      */
-    public static function filterCallableString($callableString, CallableInfo &$callableInfo = null)
+    public static function filterCallableString($callableString, CallableInfoVO &$callableInfo = null)
     {
         return static::getInstance()->filterCallableString($callableString, $callableInfo);
     }
 
     /**
-     * @param mixed             $callableString
-     * @param null|CallableInfo $callableInfo
+     * @param mixed               $callableString
+     * @param null|CallableInfoVO $callableInfo
      *
      * @return null|string|callable
      */
-    public static function filterCallableStringFunction($callableString, CallableInfo &$callableInfo = null): ?string
+    public static function filterCallableStringFunction($callableString, CallableInfoVO &$callableInfo = null): ?string
     {
         return static::getInstance()->filterCallableStringFunction($callableString, $callableInfo);
     }
 
     /**
-     * @param mixed             $callableString
-     * @param null|CallableInfo $callableInfo
+     * @param mixed               $callableString
+     * @param null|CallableInfoVO $callableInfo
      *
      * @return null|string|callable
      */
-    public static function filterCallableStringStatic($callableString, CallableInfo &$callableInfo = null): ?string
+    public static function filterCallableStringStatic($callableString, CallableInfoVO &$callableInfo = null): ?string
     {
         return static::getInstance()->filterCallableStringStatic($callableString, $callableInfo);
     }
 
     /**
-     * @param mixed             $callableArray
-     * @param null|CallableInfo $callableInfo
+     * @param mixed               $callableArray
+     * @param null|CallableInfoVO $callableInfo
      *
      * @return null|array|callable
      */
-    public static function filterCallableArray($callableArray, CallableInfo &$callableInfo = null): ?array
+    public static function filterCallableArray($callableArray, CallableInfoVO &$callableInfo = null): ?array
     {
         return static::getInstance()->filterCallableArray($callableArray, $callableInfo);
     }
 
     /**
-     * @param mixed             $callableArray
-     * @param null|CallableInfo $callableInfo
+     * @param mixed               $callableArray
+     * @param null|CallableInfoVO $callableInfo
      *
      * @return null|array|callable
      */
-    public static function filterCallableArrayStatic($callableArray, CallableInfo &$callableInfo = null): ?array
+    public static function filterCallableArrayStatic($callableArray, CallableInfoVO &$callableInfo = null): ?array
     {
         return static::getInstance()->filterCallableArrayStatic($callableArray, $callableInfo);
     }
 
     /**
-     * @param mixed             $callableArray
-     * @param null|CallableInfo $callableInfo
+     * @param mixed               $callableArray
+     * @param null|CallableInfoVO $callableInfo
      *
      * @return null|array|callable
      */
-    public static function filterCallableArrayPublic($callableArray, CallableInfo &$callableInfo = null): ?array
+    public static function filterCallableArrayPublic($callableArray, CallableInfoVO &$callableInfo = null): ?array
     {
         return static::getInstance()->filterCallableArrayPublic($callableArray, $callableInfo);
     }
 
     /**
-     * @param mixed             $closure
-     * @param null|CallableInfo $callableInfo
+     * @param mixed               $closure
+     * @param null|CallableInfoVO $callableInfo
      *
      * @return null|\Closure
      */
-    public static function filterClosure($closure, CallableInfo &$callableInfo = null): ?\Closure
+    public static function filterClosure($closure, CallableInfoVO &$callableInfo = null): ?\Closure
     {
         return static::getInstance()->filterClosure($closure, $callableInfo);
     }
@@ -427,56 +521,6 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed $value
-     *
-     * @return null|int
-     */
-    public static function filterIntval($value): ?int
-    {
-        return static::getInstance()->filterIntval($value);
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|float
-     */
-    public static function filterFloatval($value): ?float
-    {
-        return static::getInstance()->filterFloatval($value);
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|int|float
-     */
-    public static function filterNumval($value)
-    {
-        return static::getInstance()->filterNumval($value);
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|string
-     */
-    public static function filterStrval($value): ?string
-    {
-        return static::getInstance()->filterStrval($value);
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|string
-     */
-    public static function filterTheStrval($value): ?string
-    {
-        return static::getInstance()->filterTheStrval($value);
-    }
-
-    /**
      * @param string   $filter
      * @param \Closure $callable
      *
@@ -488,33 +532,20 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @return Filter
-     */
-    public static function filter(): Filter
-    {
-        return static::getInstance()->filter();
-    }
-
-    /**
+     * @param null|string|array $message
+     * @param mixed             ...$arguments
+     *
      * @return Assert
      */
-    public static function assert(): \Gzhegow\Support\Assert
+    public static function assert($message = null, ...$arguments): Assert
     {
-        return static::getInstance()->assert();
-    }
-
-    /**
-     * @return Php
-     */
-    public static function php(): \Gzhegow\Support\Php
-    {
-        return static::getInstance()->php();
+        return static::getInstance()->assert($message, ...$arguments);
     }
 
     /**
      * @return Type
      */
-    public static function type(): \Gzhegow\Support\Type
+    public static function type(): Type
     {
         return static::getInstance()->type();
     }

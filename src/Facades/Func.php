@@ -3,6 +3,7 @@
 namespace Gzhegow\Support\Facades;
 
 use Gzhegow\Support\Func as _Func;
+use Gzhegow\Support\Domain\SupportFactory;
 use Gzhegow\Support\Facades\Generated\GeneratedFuncFacade;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 
@@ -26,6 +27,6 @@ class Func extends GeneratedFuncFacade
      */
     public static function getInstance() : _Func
     {
-        return new _Func();
+        return ( new SupportFactory() )->newFunc();
     }
 }

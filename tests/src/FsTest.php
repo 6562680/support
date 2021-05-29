@@ -3,48 +3,14 @@
 namespace Gzhegow\Support\Tests;
 
 use Gzhegow\Support\Fs;
-use Gzhegow\Support\Str;
-use Gzhegow\Support\Php;
-use Gzhegow\Support\Path;
-use Gzhegow\Support\Filter;
+use Gzhegow\Support\Domain\SupportFactory;
 
 
 class FsTest extends AbstractTestCase
 {
-    protected function getFilter() : Filter
-    {
-        return new Filter();
-    }
-
-    protected function getPhp() : Php
-    {
-        return new Php(
-            $this->getFilter()
-        );
-    }
-
-    protected function getStr() : Str
-    {
-        return new Str(
-            $this->getFilter()
-        );
-    }
-
-    protected function getPath() : Path
-    {
-        return new Path(
-            $this->getPhp(),
-            $this->getStr(),
-        );
-    }
-
     protected function getFs() : Fs
     {
-        return new Fs(
-            $this->getFilter(),
-            $this->getPath(),
-            $this->getPhp()
-        );
+        return ( new SupportFactory() )->newFs();
     }
 
 

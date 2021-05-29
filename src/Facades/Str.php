@@ -3,6 +3,7 @@
 namespace Gzhegow\Support\Facades;
 
 use Gzhegow\Support\Str as _Str;
+use Gzhegow\Support\Domain\SupportFactory;
 use Gzhegow\Support\Facades\Generated\GeneratedStrFacade;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 
@@ -26,8 +27,6 @@ class Str extends GeneratedStrFacade
      */
     public static function getInstance() : _Str
     {
-        return new _Str(
-            Filter::getInstance()
-        );
+        return ( new SupportFactory() )->newStr();
     }
 }

@@ -11,13 +11,12 @@
 namespace Gzhegow\Support\Facades\Generated;
 
 use Gzhegow\Support\Arr;
+use Gzhegow\Support\Domain\Arr\ArrExpandVO;
 use Gzhegow\Support\Domain\Arr\CrawlIterator;
-use Gzhegow\Support\Domain\Arr\ExpandVo;
 use Gzhegow\Support\Domain\Arr\WalkIterator;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\Logic\OutOfRangeException;
 use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
-use Gzhegow\Support\Exceptions\Runtime\UnexpectedValueException;
 
 abstract class GeneratedArrFacade
 {
@@ -232,7 +231,7 @@ abstract class GeneratedArrFacade
     }
 
     /**
-     * разбивает массив на группированный список и остаток, замыкание возвращает имя группы
+     * разбивает массив на группированный список и остаток, замыкание должно возвращать имя группы
      *
      * @param array         $array
      * @param \Closure|null $func
@@ -245,6 +244,9 @@ abstract class GeneratedArrFacade
     }
 
     /**
+     * рекурсивно собирает массив в одноуровневый соединяя ключи через разделитель
+     * пустые массивы пропускаются
+     *
      * @param iterable              $iterable
      * @param string|string[]|array $separators
      *
@@ -256,6 +258,9 @@ abstract class GeneratedArrFacade
     }
 
     /**
+     * рекурсивно собирает массив в одноуровневый соединяя ключи через разделитель
+     * пустые массивы и цифровые ключи на последнем уровне остаются массивами
+     *
      * @param iterable              $iterable
      * @param string|string[]|array $separators
      *
@@ -300,6 +305,18 @@ abstract class GeneratedArrFacade
     }
 
     /**
+     * @param array $dst
+     * @param int   $expandIdx
+     * @param mixed $expandValue
+     *
+     * @return array
+     */
+    public static function expand(array $dst, int $expandIdx, $expandValue): array
+    {
+        return static::getInstance()->expand($dst, $expandIdx, $expandValue);
+    }
+
+    /**
      * Вставляет элементы в указанные позиции по индексам, изменяя числовые индексы существующих элементов
      *
      * Механизм применяется в dran-n-drop элементов списка при пользовательской сортировке
@@ -316,59 +333,71 @@ abstract class GeneratedArrFacade
     }
 
     /**
-     * @param array $dst
-     * @param int   $expandIdx
-     * @param mixed $expandValue
+     * @param mixed $value
      *
-     * @return array
+     * @return null|array
      */
-    public static function expand(array $dst, int $expandIdx, $expandValue): array
+    public static function arrval($value): ?array
     {
-        return static::getInstance()->expand($dst, $expandIdx, $expandValue);
+        return static::getInstance()->arrval($value);
     }
 
     /**
-     * @param string|string[]|array $keys
-     * @param null|bool             $uniq
+     * @param mixed $value
+     *
+     * @return null|int|float
+     */
+    public static function keyval($value)
+    {
+        return static::getInstance()->keyval($value);
+    }
+
+    /**
+     * @param int|string|array  $keys
+     * @param null|bool         $uniq
+     * @param null|string|array $message
+     * @param mixed             ...$arguments
      *
      * @return string[]
      */
-    public static function keys($keys, bool $uniq = null): array
+    public static function keyvals($keys, $uniq = null, $message = null, ...$arguments): array
     {
-        return static::getInstance()->keys($keys, $uniq);
+        return static::getInstance()->keyvals($keys, $uniq, $message, ...$arguments);
     }
 
     /**
-     * @param string|string[]|array $keys
-     * @param null|bool             $uniq
+     * @param int|string|array  $keys
+     * @param null|bool         $uniq
+     * @param null|string|array $message
+     * @param mixed             ...$arguments
      *
-     * @return array
+     * @return string[]
      */
-    public static function theKeys($keys, bool $uniq = null): array
+    public static function theKeyvals($keys, $uniq = null, $message = null, ...$arguments): array
     {
-        return static::getInstance()->theKeys($keys, $uniq);
+        return static::getInstance()->theKeyvals($keys, $uniq, $message, ...$arguments);
     }
 
     /**
-     * @param string|string[]|array $keys
-     * @param null|bool             $uniq
+     * @param int|string|array $keys
+     * @param null|bool        $uniq
      *
      * @return array
      */
-    public static function keysskip($keys, bool $uniq = null): array
+    public static function keyvalsSkip($keys, $uniq = null): array
     {
-        return static::getInstance()->keysskip($keys, $uniq);
+        return static::getInstance()->keyvalsSkip($keys, $uniq);
     }
 
     /**
-     * @param string|string[]|array $keys
-     * @param null|bool             $uniq
+     * @param int|string|array $keys
+     * @param null|bool        $uniq
      *
      * @return array
      */
-    public static function theKeysskip($keys, bool $uniq = null): array
+    public static function theKeyvalsSkip($keys, $uniq = null): array
     {
-        return static::getInstance()->theKeysskip($keys, $uniq);
+        return static::getInstance()->theKeyvalsSkip($keys, $uniq);
     }
 
     /**

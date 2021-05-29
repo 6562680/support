@@ -2,9 +2,10 @@
 
 namespace Gzhegow\Support\Facades;
 
+use Gzhegow\Support\Domain\SupportFactory;
 use Gzhegow\Support\Profiler as _Profiler;
-use Gzhegow\Support\Facades\Generated\GeneratedProfilerFacade;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
+use Gzhegow\Support\Facades\Generated\GeneratedProfilerFacade;
 
 
 /**
@@ -26,8 +27,6 @@ class Profiler extends GeneratedProfilerFacade
      */
     public static function getInstance() : _Profiler
     {
-        return new _Profiler(
-            Calendar::getInstance()
-        );
+        return ( new SupportFactory() )->newProfiler();
     }
 }

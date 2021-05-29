@@ -27,9 +27,9 @@ abstract class GeneratedCmpFacade
     }
 
     /**
-     * @param null|int|float $a
-     * @param mixed          $b
-     * @param null|bool      $coalesce
+     * @param null|int|float|string $a
+     * @param mixed                 $b
+     * @param null|bool             $coalesce
      *
      * @return int
      */

@@ -3,6 +3,7 @@
 namespace Gzhegow\Support\Facades;
 
 use Gzhegow\Support\Php as _Php;
+use Gzhegow\Support\Domain\SupportFactory;
 use Gzhegow\Support\Facades\Generated\GeneratedPhpFacade;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 
@@ -26,8 +27,6 @@ class Php extends GeneratedPhpFacade
      */
     public static function getInstance() : _Php
     {
-        return new _Php(
-            Filter::getInstance()
-        );
+        return ( new SupportFactory() )->newPhp();
     }
 }

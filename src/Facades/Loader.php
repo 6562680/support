@@ -2,6 +2,7 @@
 
 namespace Gzhegow\Support\Facades;
 
+use Gzhegow\Support\Domain\SupportFactory;
 use Gzhegow\Support\Loader as _Loader;
 use Gzhegow\Support\Facades\Generated\GeneratedLoaderFacade;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
@@ -26,10 +27,6 @@ class Loader extends GeneratedLoaderFacade
      */
     public static function getInstance() : _Loader
     {
-        return new _Loader(
-            Filter::getInstance(),
-            Path::getInstance(),
-            Php::getInstance(),
-        );
+        return ( new SupportFactory() )->newLoader();
     }
 }
