@@ -717,39 +717,22 @@ class Filter
 
 
     /**
-     * @param array|mixed          $methodArray
-     * @param null|InvokableInfoVO $invokableInfo
+     * @param array|mixed $methodArray
      *
      * @return null|array
      */
-    public function filterMethodArray($methodArray, InvokableInfoVO &$invokableInfo = null) : ?array
+    public function filterMethodArray($methodArray) : ?array
     {
         if (is_array($methodArray)
             && isset($methodArray[ 0 ])
             && isset($methodArray[ 1 ]) && ( null !== $this->filterWord($methodArray[ 1 ]) )
         ) {
             $isObject = is_object($methodArray[ 0 ]);
-            $isClass = ! $isObject && ( null !== $this->filterWord($methodArray[ 0 ]) );
+            $isClass = ! $isObject
+                && ( null !== $this->filterWord($methodArray[ 0 ]) )
+                && class_exists($methodArray[ 0 ]);
 
             if (! $isObject && ! $isClass) {
-                return null;
-            }
-
-            try {
-                $rm = new \ReflectionMethod($methodArray[ 0 ], $methodArray[ 1 ]);
-
-                $invokableInfo = $invokableInfo ?? new InvokableInfoVO();
-                $invokableInfo->method = $rm->getName();
-
-                if ($isObject) {
-                    $invokableInfo->object = $methodArray[ 0 ];
-                    $invokableInfo->class = get_class($methodArray[ 0 ]);
-
-                } elseif ($isClass) {
-                    $invokableInfo->class = $methodArray[ 0 ];
-                }
-            }
-            catch ( \ReflectionException $e ) {
                 return null;
             }
 
@@ -757,6 +740,37 @@ class Filter
         }
 
         return null;
+    }
+
+    /**
+     * @param array|mixed          $methodArray
+     * @param null|InvokableInfoVO $invokableInfo
+     *
+     * @return null|array
+     */
+    public function filterMethodArrayReflection($methodArray, InvokableInfoVO &$invokableInfo = null) : ?array
+    {
+        [ $objectOrClass, $method ] = $this->filterMethodArray($methodArray);
+
+        try {
+            $rm = new \ReflectionMethod($objectOrClass, $method);
+
+            $invokableInfo = $invokableInfo ?? new InvokableInfoVO();
+            $invokableInfo->method = $rm->getName();
+
+            if (is_object($objectOrClass)) {
+                $invokableInfo->object = $objectOrClass;
+                $invokableInfo->class = get_class($objectOrClass);
+
+            } elseif ($objectOrClass) {
+                $invokableInfo->class = $objectOrClass;
+            }
+        }
+        catch ( \ReflectionException $e ) {
+            return null;
+        }
+
+        return $methodArray;
     }
 
 
