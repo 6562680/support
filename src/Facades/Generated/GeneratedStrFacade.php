@@ -16,9 +16,9 @@ use Gzhegow\Support\Str;
 abstract class GeneratedStrFacade
 {
     /**
-     * стандартная функция возвращает false, если не найдено
-     * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для сдвига
-     * usort($array, function ($a, $b) { return $str->strpos($hs, $a) - $str->strpos($hs, $b); }}
+     * стандартная функция возвращает false, если не найдено, false при вычитании приравнивается к 0
+     * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для битового сдвига
+     * usort($array, function ($a, $b) { return $str->strpos($haystack, $a) - $str->strpos($haystack, $b); }}
      *
      * @param string $haystack
      * @param string $needle
@@ -32,9 +32,9 @@ abstract class GeneratedStrFacade
     }
 
     /**
-     * стандартная функция возвращает false, если не найдено
-     * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для сдвига
-     * usort($array, function ($a, $b) { return $str->strpos($hs, $a) - $str->strpos($hs, $b); }}
+     * стандартная функция возвращает false, если не найдено, false при вычитании приравнивается к 0
+     * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для битового сдвига
+     * usort($array, function ($a, $b) { return $str->strrpos($haystack, $a) - $str->strrpos($haystack, $b); }}
      *
      * @param string $haystack
      * @param string $needle
@@ -48,9 +48,9 @@ abstract class GeneratedStrFacade
     }
 
     /**
-     * стандартная функция возвращает false, если не найдено
-     * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для сдвига
-     * usort($array, function ($a, $b) { return $str->strpos($hs, $a) - $str->strpos($hs, $b); }}
+     * стандартная функция возвращает false, если не найдено, false при вычитании приравнивается к 0
+     * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для битового сдвига
+     * usort($array, function ($a, $b) { return $str->stripos($haystack, $a) - $str->stripos($haystack, $b); }}
      *
      * @param string $haystack
      * @param string $needle
@@ -64,9 +64,9 @@ abstract class GeneratedStrFacade
     }
 
     /**
-     * стандартная функция возвращает false, если не найдено
-     * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для сдвига
-     * usort($array, function ($a, $b) { return $str->strpos($hs, $a) - $str->strpos($hs, $b); }}
+     * стандартная функция возвращает false, если не найдено, false при вычитании приравнивается к 0
+     * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для битового сдвига
+     * usort($array, function ($a, $b) { return $str->strripos($haystack, $a) - $str->strripos($haystack, $b); }}
      *
      * @param string $haystack
      * @param string $needle
