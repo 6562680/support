@@ -361,6 +361,17 @@ abstract class GeneratedFilterFacade
     }
 
     /**
+     * @param mixed               $handler
+     * @param null|CallableInfoVO $callableInfo
+     *
+     * @return null|string|callable
+     */
+    public static function filterHandler($handler, CallableInfoVO &$callableInfo = null): ?string
+    {
+        return static::getInstance()->filterHandler($handler, $callableInfo);
+    }
+
+    /**
      * @param mixed $class
      *
      * @return null|string

@@ -717,6 +717,42 @@ class Filter
 
 
     /**
+     * @param mixed               $handler
+     * @param null|CallableInfoVO $callableInfo
+     *
+     * @return null|string|callable
+     */
+    public function filterHandler($handler, CallableInfoVO &$callableInfo = null) : ?string
+    {
+        if (! $isCallable = ( null !== $this->filterWord($handler) )
+            && ( 1 === substr_count($handler, '@') )
+        ) {
+            return null;
+        }
+
+        [ $class, $method ] = explode('@', $handler, 2);
+
+        try {
+            $rm = new \ReflectionMethod($class, $method);
+
+            $callableInfo = $callableInfo ?? new CallableInfoVO();
+            $callableInfo->class = $class;
+            $callableInfo->method = $method;
+
+            $result = $rm->isPublic() && ! $rm->isStatic() && ! $rm->isAbstract()
+                ? $handler
+                : null;
+
+            return $result;
+        }
+        catch ( \ReflectionException $e ) {
+        }
+
+        return null;
+    }
+
+
+    /**
      * @param mixed $class
      *
      * @return null|string

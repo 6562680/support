@@ -573,6 +573,23 @@ abstract class GeneratedAssert
     }
 
     /**
+     * @param mixed               $handler
+     * @param null|CallableInfoVO $callableInfo
+     *
+     * @return string|callable
+     */
+    public function assertHandler($handler, CallableInfoVO &$callableInfo = null): ?string
+    {
+        if (null === ($filtered = $this->filter->filterHandler($handler,$callableInfo))) {
+            throw new InvalidArgumentException($this->flushMessage(...func_get_args())
+                ?? array_merge([ 'Invalid Handler passed: %s' ], func_get_args())
+            );
+        }
+
+        return $filtered;
+    }
+
+    /**
      * @param mixed $class
      *
      * @return string

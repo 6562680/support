@@ -374,6 +374,17 @@ abstract class GeneratedType
     }
 
     /**
+     * @param mixed               $handler
+     * @param null|CallableInfoVO $callableInfo
+     *
+     * @return bool
+     */
+    public function isHandler($handler, CallableInfoVO &$callableInfo = null): ?bool
+    {
+        return null !== $this->filter->filterHandler($handler, $callableInfo);
+    }
+
+    /**
      * @param mixed $class
      *
      * @return bool

@@ -125,6 +125,51 @@ abstract class GeneratedStrFacade
     }
 
     /**
+     * Обрезает у строки подстроку с начала (ltrim, только для строк а не букв)
+     *
+     * @param string      $str
+     * @param string|null $needle
+     * @param bool|null   $ignoreCase
+     * @param int         $limit
+     *
+     * @return string
+     */
+    public static function lcrop(string $str, string $needle = null, bool $ignoreCase = null, int $limit = -1): string
+    {
+        return static::getInstance()->lcrop($str, $needle, $ignoreCase, $limit);
+    }
+
+    /**
+     * Обрезает у строки подстроку с конца (rtrim, только для строк а не букв)
+     *
+     * @param string      $str
+     * @param string|null $needle
+     * @param bool|null   $ignoreCase
+     * @param int         $limit
+     *
+     * @return string
+     */
+    public static function rcrop(string $str, string $needle = null, bool $ignoreCase = null, int $limit = -1): string
+    {
+        return static::getInstance()->rcrop($str, $needle, $ignoreCase, $limit);
+    }
+
+    /**
+     * Обрезает у строки подстроки с обеих сторон (trim, только для строк а не букв)
+     *
+     * @param string      $str
+     * @param string|null $needle
+     * @param bool|null   $ignoreCase
+     * @param int         $limit
+     *
+     * @return string
+     */
+    public static function crop(string $str, $needle = null, bool $ignoreCase = null, int $limit = -1): string
+    {
+        return static::getInstance()->crop($str, $needle, $ignoreCase, $limit);
+    }
+
+    /**
      * если строка начинается на искомую, отрезает ее и возвращает укороченную
      * if (null !== ($substr = $str->ends('hello', 'h'))) {} // 'ello'
      *
@@ -175,71 +220,49 @@ abstract class GeneratedStrFacade
     }
 
     /**
-     * ищет все совпадения начинающиеся "с" и заканчивающиеся "на"
-     * используется при замене подстановок в тексте
-     *
-     * @param string   $start
-     * @param string   $end
-     * @param string   $haystack
-     * @param null|int $offset
-     * @param bool     $ignoreCase
-     *
-     * @return array
-     */
-    public static function match(
-        string $start,
-        string $end,
-        string $haystack,
-        int $offset = null,
-        bool $ignoreCase = true
-    ): array {
-        return static::getInstance()->match($start, $end, $haystack, $offset, $ignoreCase);
-    }
-
-    /**
-     * Adds some string(-s) to start
+     * Добавляет подстроку в начале строки
      *
      * @param string      $str
-     * @param string|null $sym
-     * @param int         $len
+     * @param string|null $wrap
+     * @param null|int    $len
      *
      * @return string
      */
-    public static function lwrap(string $str, string $sym = null, $len = 1): string
+    public static function lwrap(string $str, string $wrap = null, int $len = null): string
     {
-        return static::getInstance()->lwrap($str, $sym, $len);
+        return static::getInstance()->lwrap($str, $wrap, $len);
     }
 
     /**
-     * Adds some strings(-s) to end
+     * Добавляет подстроку в конце строки
      *
      * @param string      $str
-     * @param string|null $sym
-     * @param int         $len
+     * @param string|null $wrap
+     * @param null|int    $len
      *
      * @return string
      */
-    public static function rwrap(string $str, string $sym = null, $len = 1): string
+    public static function rwrap(string $str, string $wrap = null, int $len = null): string
     {
-        return static::getInstance()->rwrap($str, $sym, $len);
+        return static::getInstance()->rwrap($str, $wrap, $len);
     }
 
     /**
-     * Wraps string into another(-s), for example - quotes
+     * Оборачивает строку в другие, например в кавычки
      *
      * @param string      $str
-     * @param string|null $sym
-     * @param int         $len
+     * @param string|null $wrap
+     * @param null|int    $len
      *
      * @return string
      */
-    public static function wrap(string $str, string $sym = null, $len = 1): string
+    public static function wrap(string $str, $wrap = null, int $len = null): string
     {
-        return static::getInstance()->wrap($str, $sym, $len);
+        return static::getInstance()->wrap($str, $wrap, $len);
     }
 
     /**
-     * Prepend string if string don't starts with
+     * Добавляет подстроку в начало строки, если её уже там нет
      *
      * @param string      $str
      * @param string|null $needle
@@ -247,13 +270,13 @@ abstract class GeneratedStrFacade
      *
      * @return string
      */
-    public static function prepend(string $str, string $needle = null, bool $ignoreCase = true): string
+    public static function prepend(string $str, string $needle = null, bool $ignoreCase = null): string
     {
         return static::getInstance()->prepend($str, $needle, $ignoreCase);
     }
 
     /**
-     * Append string if string don't ends with
+     * Добавляет подстроку в конец строки, если её уже там нет
      *
      * @param string      $str
      * @param string|null $needle
@@ -261,13 +284,13 @@ abstract class GeneratedStrFacade
      *
      * @return string
      */
-    public static function append(string $str, string $needle = null, bool $ignoreCase = true): string
+    public static function append(string $str, string $needle = null, bool $ignoreCase = null): string
     {
         return static::getInstance()->append($str, $needle, $ignoreCase);
     }
 
     /**
-     * Wrap string if
+     * Оборачивает строку в подстроки, если их уже там нет
      *
      * @param string      $str
      * @param null|string $needle
@@ -275,59 +298,9 @@ abstract class GeneratedStrFacade
      *
      * @return string
      */
-    public static function uncrop(string $str, string $needle = null, bool $ignoreCase = true): string
+    public static function overlay(string $str, $needle = null, bool $ignoreCase = true): string
     {
-        return static::getInstance()->uncrop($str, $needle, $ignoreCase);
-    }
-
-    /**
-     * @param string      $str
-     * @param string|null $needle
-     * @param bool|null   $ignoreCase
-     * @param int         $limit
-     *
-     * @return string
-     */
-    public static function lcrop(string $str, string $needle = null, bool $ignoreCase = null, int $limit = -1): string
-    {
-        return static::getInstance()->lcrop($str, $needle, $ignoreCase, $limit);
-    }
-
-    /**
-     * @param string      $str
-     * @param string|null $needle
-     * @param bool|null   $ignoreCase
-     * @param int         $limit
-     *
-     * @return string
-     */
-    public static function rcrop(string $str, string $needle = null, bool $ignoreCase = null, int $limit = -1): string
-    {
-        return static::getInstance()->rcrop($str, $needle, $ignoreCase, $limit);
-    }
-
-    /**
-     * @param string      $str
-     * @param string|null $needle
-     * @param bool|null   $ignoreCase
-     * @param int         $limit
-     *
-     * @return string
-     */
-    public static function crop(string $str, string $needle = null, bool $ignoreCase = null, int $limit = -1): string
-    {
-        return static::getInstance()->crop($str, $needle, $ignoreCase, $limit);
-    }
-
-    /**
-     * @param string   $needle
-     * @param null|int $maxlen
-     *
-     * @return string
-     */
-    public static function prefix($needle, int $maxlen = null): string
-    {
-        return static::getInstance()->prefix($needle, $maxlen);
+        return static::getInstance()->overlay($str, $needle, $ignoreCase);
     }
 
     /**
@@ -376,9 +349,9 @@ abstract class GeneratedStrFacade
      *
      * @return string
      */
-    public static function implodeskip(string $delimiter, ...$strvals): string
+    public static function implodeSkip(string $delimiter, ...$strvals): string
     {
-        return static::getInstance()->implodeskip($delimiter, ...$strvals);
+        return static::getInstance()->implodeSkip($delimiter, ...$strvals);
     }
 
     /**
@@ -402,9 +375,9 @@ abstract class GeneratedStrFacade
      *
      * @return string
      */
-    public static function joinskip(string $delimiter, ...$strvals): string
+    public static function joinSkip(string $delimiter, ...$strvals): string
     {
-        return static::getInstance()->joinskip($delimiter, ...$strvals);
+        return static::getInstance()->joinSkip($delimiter, ...$strvals);
     }
 
     /**
@@ -436,13 +409,48 @@ abstract class GeneratedStrFacade
      *
      * @return string
      */
-    public static function concatskip(
+    public static function concatSkip(
         array $strings,
         string $delimiter = null,
         string $lastDelimiter = null,
         string $wrapper = null
     ): string {
-        return static::getInstance()->concatskip($strings, $delimiter, $lastDelimiter, $wrapper);
+        return static::getInstance()->concatSkip($strings, $delimiter, $lastDelimiter, $wrapper);
+    }
+
+    /**
+     * ищет все совпадения начинающиеся с "подстроки" и заканчивающиеся на "подстроку"
+     * используется при замене подстановок в тексте
+     *
+     * @param string   $start
+     * @param string   $end
+     * @param string   $haystack
+     * @param null|int $offset
+     * @param bool     $ignoreCase
+     *
+     * @return array
+     */
+    public static function match(
+        string $start,
+        string $end,
+        string $haystack,
+        int $offset = null,
+        bool $ignoreCase = true
+    ): array {
+        return static::getInstance()->match($start, $end, $haystack, $offset, $ignoreCase);
+    }
+
+    /**
+     * урезает английское слово до префикса из нескольких букв - используется в таблицах баз данных
+     *
+     * @param string   $needle
+     * @param null|int $maxlen
+     *
+     * @return string
+     */
+    public static function prefix(string $needle, int $maxlen = null): string
+    {
+        return static::getInstance()->prefix($needle, $maxlen);
     }
 
     /**

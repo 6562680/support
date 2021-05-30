@@ -300,6 +300,106 @@ class Str
 
 
     /**
+     * Обрезает у строки подстроку с начала (ltrim, только для строк а не букв)
+     *
+     * @param string      $str
+     * @param string|null $needle
+     * @param bool|null   $ignoreCase
+     * @param int         $limit
+     *
+     * @return string
+     */
+    public function lcrop(string $str, string $needle = null, bool $ignoreCase = null, int $limit = -1) : string
+    {
+        $needle = $needle ?? '';
+
+        if ('' === $str) return $str;
+        if ('' === $needle) return $str;
+
+        $ignoreCase = $ignoreCase ?? true;
+
+        $result = $str;
+
+        $pos = $ignoreCase
+            ? mb_stripos($result, $needle)
+            : mb_strpos($result, $needle);
+
+        while ( $pos === 0 ) {
+            if (! $limit--) {
+                break;
+            }
+
+            $result = mb_substr($result, mb_strlen($needle));
+
+            $pos = $ignoreCase
+                ? mb_stripos($result, $needle)
+                : mb_strpos($result, $needle);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Обрезает у строки подстроку с конца (rtrim, только для строк а не букв)
+     *
+     * @param string      $str
+     * @param string|null $needle
+     * @param bool|null   $ignoreCase
+     * @param int         $limit
+     *
+     * @return string
+     */
+    public function rcrop(string $str, string $needle = null, bool $ignoreCase = null, int $limit = -1) : string
+    {
+        $needle = $needle ?? '';
+
+        if ('' === $str) return $str;
+        if ('' === $needle) return $str;
+
+        $ignoreCase = $ignoreCase ?? true;
+
+        $result = $str;
+
+        $pos = $ignoreCase
+            ? mb_strripos($result, $needle)
+            : mb_strrpos($result, $needle);
+
+        while ( $pos === ( mb_strlen($result) - mb_strlen($needle) ) ) {
+            if (! $limit--) {
+                break;
+            }
+
+            $result = mb_substr($result, 0, $pos);
+
+            $pos = $ignoreCase
+                ? mb_strripos($result, $needle)
+                : mb_strrpos($result, $needle);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Обрезает у строки подстроки с обеих сторон (trim, только для строк а не букв)
+     *
+     * @param string      $str
+     * @param string|null $needle
+     * @param bool|null   $ignoreCase
+     * @param int         $limit
+     *
+     * @return string
+     */
+    public function crop(string $str, $needle = null, bool $ignoreCase = null, int $limit = -1) : string
+    {
+        $lcrop = $this->lcrop($str, $needle, $ignoreCase, $limit);
+
+        $result = $this->rcrop($lcrop, $needle, $ignoreCase, $limit);
+
+        return $result;
+    }
+
+
+    /**
      * если строка начинается на искомую, отрезает ее и возвращает укороченную
      * if (null !== ($substr = $str->ends('hello', 'h'))) {} // 'ello'
      *
@@ -395,120 +495,81 @@ class Str
 
 
     /**
-     * ищет все совпадения начинающиеся "с" и заканчивающиеся "на"
-     * используется при замене подстановок в тексте
-     *
-     * @param string   $start
-     * @param string   $end
-     * @param string   $haystack
-     * @param null|int $offset
-     * @param bool     $ignoreCase
-     *
-     * @return array
-     */
-    public function match(string $start, string $end, string $haystack,
-        int $offset = null,
-        bool $ignoreCase = true
-    ) : array
-    {
-        $offset = $offset ?? 0;
-
-        $flags = 'u';
-        $flags .= $ignoreCase ? 'i' : '';
-
-        $isMatch = preg_match_all('/'
-            . preg_quote($start, '/')
-            . '(.*?)'
-            . preg_quote($end, '/')
-            . '/' . $flags,
-            $haystack,
-            $result
-        );
-
-        if (false === $isMatch) {
-            $result = [];
-
-        } else {
-            $result = $result[ 1 ] ?? [];
-
-            if ($offset) {
-                array_splice($result, $offset);
-            }
-        }
-
-        return $result;
-    }
-
-
-    /**
-     * Adds some string(-s) to start
+     * Добавляет подстроку в начале строки
      *
      * @param string      $str
-     * @param string|null $sym
-     * @param int         $len
+     * @param string|null $wrap
+     * @param null|int    $len
      *
      * @return string
      */
-    public function lwrap(string $str, string $sym = null, $len = 1) : string
+    public function lwrap(string $str, string $wrap = null, int $len = null) : string
     {
-        $sym = $sym ?? '';
+        $wrap = $wrap ?? '';
+        $len = $len ?? 1;
 
-        if ('' === $sym) return $str;
+        if ('' === $wrap) return $str;
 
-        $len = max(0, intval($len));
+        $len = max(0, $len);
 
-        $result = str_repeat($sym, $len) . $str;
+        $result = str_repeat($wrap, $len) . $str;
 
         return $result;
     }
 
     /**
-     * Adds some strings(-s) to end
+     * Добавляет подстроку в конце строки
      *
      * @param string      $str
-     * @param string|null $sym
-     * @param int         $len
+     * @param string|null $wrap
+     * @param null|int    $len
      *
      * @return string
      */
-    public function rwrap(string $str, string $sym = null, $len = 1) : string
+    public function rwrap(string $str, string $wrap = null, int $len = null) : string
     {
-        $sym = $sym ?? '';
+        $wrap = $wrap ?? '';
+        $len = $len ?? 1;
 
-        if ('' === $sym) return $str;
+        if ('' === $wrap) return $str;
 
-        $len = max(0, intval($len));
+        $len = max(0, $len);
 
-        $result = $str . str_repeat($sym, $len);
+        $result = $str . str_repeat($wrap, $len);
 
         return $result;
     }
 
     /**
-     * Wraps string into another(-s), for example - quotes
+     * Оборачивает строку в другие, например в кавычки
      *
      * @param string      $str
-     * @param string|null $sym
-     * @param int         $len
+     * @param string|null $wrap
+     * @param null|int    $len
      *
      * @return string
      */
-    public function wrap(string $str, string $sym = null, $len = 1) : string
+    public function wrap(string $str, $wrap = null, int $len = null) : string
     {
-        $sym = $sym ?? '';
+        $wraps = is_array($wrap)
+            ? $wrap
+            : [ $wrap ];
 
-        if ('' === $sym) return $str;
+        $lwrap = array_shift($wraps);
+        $rwrap = null !== key($wraps)
+            ? current($wraps)
+            : $lwrap;
 
-        $len = max(0, intval($len));
-
-        $result = str_repeat($sym, $len) . $str . str_repeat($sym, $len);
+        $result = $str;
+        $result = $this->lwrap($result, $lwrap, $len);
+        $result = $this->rwrap($result, $rwrap, $len);
 
         return $result;
     }
 
 
     /**
-     * Prepend string if string don't starts with
+     * Добавляет подстроку в начало строки, если её уже там нет
      *
      * @param string      $str
      * @param string|null $needle
@@ -516,9 +577,10 @@ class Str
      *
      * @return string
      */
-    public function prepend(string $str, string $needle = null, bool $ignoreCase = true) : string
+    public function prepend(string $str, string $needle = null, bool $ignoreCase = null) : string
     {
         $needle = $needle ?? '';
+        $ignoreCase = $ignoreCase ?? true;
 
         if ('' === $needle) return $str;
 
@@ -534,7 +596,7 @@ class Str
     }
 
     /**
-     * Append string if string don't ends with
+     * Добавляет подстроку в конец строки, если её уже там нет
      *
      * @param string      $str
      * @param string|null $needle
@@ -542,9 +604,10 @@ class Str
      *
      * @return string
      */
-    public function append(string $str, string $needle = null, bool $ignoreCase = true) : string
+    public function append(string $str, string $needle = null, bool $ignoreCase = null) : string
     {
         $needle = $needle ?? '';
+        $ignoreCase = $ignoreCase ?? true;
 
         if ('' === $needle) return $str;
 
@@ -560,7 +623,7 @@ class Str
     }
 
     /**
-     * Wrap string if
+     * Оборачивает строку в подстроки, если их уже там нет
      *
      * @param string      $str
      * @param null|string $needle
@@ -568,157 +631,20 @@ class Str
      *
      * @return string
      */
-    public function uncrop(string $str, string $needle = null, bool $ignoreCase = true) : string
+    public function overlay(string $str, $needle = null, bool $ignoreCase = true) : string
     {
-        $prepend = $this->prepend($str, $needle, $ignoreCase);
+        $needles = is_array($needle)
+            ? $needle
+            : [ $needle ];
 
-        $result = $this->append($prepend, $needle, $ignoreCase);
-
-        return $result;
-    }
-
-
-    /**
-     * @param string      $str
-     * @param string|null $needle
-     * @param bool|null   $ignoreCase
-     * @param int         $limit
-     *
-     * @return string
-     */
-    public function lcrop(string $str, string $needle = null, bool $ignoreCase = null, int $limit = -1) : string
-    {
-        $needle = $needle ?? '';
-
-        if ('' === $str) return $str;
-        if ('' === $needle) return $str;
-
-        $ignoreCase = $ignoreCase ?? true;
+        $needlePrepend = array_shift($needles);
+        $needleAppend = null !== key($needles)
+            ? current($needles)
+            : $needlePrepend;
 
         $result = $str;
-
-        $pos = $ignoreCase
-            ? mb_stripos($result, $needle)
-            : mb_strpos($result, $needle);
-
-        while ( $pos === 0 ) {
-            if (! $limit--) {
-                break;
-            }
-
-            $result = mb_substr($result, mb_strlen($needle));
-
-            $pos = $ignoreCase
-                ? mb_stripos($result, $needle)
-                : mb_strpos($result, $needle);
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param string      $str
-     * @param string|null $needle
-     * @param bool|null   $ignoreCase
-     * @param int         $limit
-     *
-     * @return string
-     */
-    public function rcrop(string $str, string $needle = null, bool $ignoreCase = null, int $limit = -1) : string
-    {
-        $needle = $needle ?? '';
-
-        if ('' === $str) return $str;
-        if ('' === $needle) return $str;
-
-        $ignoreCase = $ignoreCase ?? true;
-
-        $result = $str;
-
-        $pos = $ignoreCase
-            ? mb_strripos($result, $needle)
-            : mb_strrpos($result, $needle);
-
-        while ( $pos === ( mb_strlen($result) - mb_strlen($needle) ) ) {
-            if (! $limit--) {
-                break;
-            }
-
-            $result = mb_substr($result, 0, $pos);
-
-            $pos = $ignoreCase
-                ? mb_strripos($result, $needle)
-                : mb_strrpos($result, $needle);
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param string      $str
-     * @param string|null $needle
-     * @param bool|null   $ignoreCase
-     * @param int         $limit
-     *
-     * @return string
-     */
-    public function crop(string $str, string $needle = null, bool $ignoreCase = null, int $limit = -1) : string
-    {
-        $lcrop = $this->lcrop($str, $needle, $ignoreCase, $limit);
-
-        $result = $this->rcrop($lcrop, $needle, $ignoreCase, $limit);
-
-        return $result;
-    }
-
-
-    /**
-     * @param string   $needle
-     * @param null|int $maxlen
-     *
-     * @return string
-     */
-    public function prefix($needle, int $maxlen = null) : string
-    {
-        if (null === $this->filter->filterStrval($needle)) {
-            throw new InvalidArgumentException(
-                [ 'Needle should be stringable: %s', $needle ]
-            );
-        }
-
-        $needle = strval($needle);
-        $maxlen = max(0, $maxlen ?? 3);
-
-        if ('' === $needle) return '';
-        if (0 === $maxlen) return '';
-
-        if (! preg_match('/[a-zıəöü]/iu', $needle)) {
-            throw new InvalidArgumentException(
-                [ 'Needle could be UTF-8 but only english/ANSI letters allowed: %s' ]
-            );
-        }
-
-        $lenTotal = min($maxlen, mb_strlen($needle));
-
-        $needleLower = mb_strtolower($needle);
-
-        $result[] = $needleLower[ 0 ];
-        $needleLower = mb_substr($needle, 1);
-        $lenTotal--;
-
-        $needleNoVowels = preg_replace('/[aeiouıəöü]/iu', '', $needleLower);
-
-        $source = ( mb_strlen($needleNoVowels) >= $lenTotal )
-            ? $needleNoVowels
-            : $needleLower;
-
-        for ( $i = 0; $i < $lenTotal; $i++ ) {
-            $result[ $i + 1 ] = $source[ 0 ];
-
-            $source = mb_substr($source, 1);
-        }
-
-        $result = implode('', $result);
+        $result = $this->prepend($result, $needlePrepend, $ignoreCase);
+        $result = $this->append($result, $needleAppend, $ignoreCase);
 
         return $result;
     }
@@ -829,7 +755,7 @@ class Str
      *
      * @return string
      */
-    public function implodeskip(string $delimiter, ...$strvals) : string
+    public function implodeSkip(string $delimiter, ...$strvals) : string
     {
         $result = $this->strvalsSkip($strvals);
 
@@ -881,7 +807,7 @@ class Str
      *
      * @return string
      */
-    public function joinskip(string $delimiter, ...$strvals) : string
+    public function joinSkip(string $delimiter, ...$strvals) : string
     {
         $result = $this->strvalsSkip($strvals);
         $result = array_filter($result, 'strlen');
@@ -953,7 +879,7 @@ class Str
      *
      * @return string
      */
-    public function concatskip(
+    public function concatSkip(
         array $strings,
         string $delimiter = null,
         string $lastDelimiter = null,
@@ -980,6 +906,99 @@ class Str
         if (null !== $last) {
             $result = $result . $lastDelimiter . $last;
         }
+
+        return $result;
+    }
+
+
+    /**
+     * ищет все совпадения начинающиеся с "подстроки" и заканчивающиеся на "подстроку"
+     * используется при замене подстановок в тексте
+     *
+     * @param string   $start
+     * @param string   $end
+     * @param string   $haystack
+     * @param null|int $offset
+     * @param bool     $ignoreCase
+     *
+     * @return array
+     */
+    public function match(string $start, string $end, string $haystack,
+        int $offset = null,
+        bool $ignoreCase = true
+    ) : array
+    {
+        $offset = $offset ?? 0;
+
+        $flags = 'u';
+        $flags .= $ignoreCase ? 'i' : '';
+
+        $isMatch = preg_match_all('/'
+            . preg_quote($start, '/')
+            . '(.*?)'
+            . preg_quote($end, '/')
+            . '/' . $flags,
+            $haystack,
+            $result
+        );
+
+        if (false === $isMatch) {
+            $result = [];
+
+        } else {
+            $result = $result[ 1 ] ?? [];
+
+            if ($offset) {
+                array_splice($result, $offset);
+            }
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * урезает английское слово до префикса из нескольких букв - используется в таблицах баз данных
+     *
+     * @param string   $needle
+     * @param null|int $maxlen
+     *
+     * @return string
+     */
+    public function prefix(string $needle, int $maxlen = null) : string
+    {
+        $maxlen = max(0, $maxlen ?? 3);
+
+        if ('' === $needle) return '';
+        if (0 === $maxlen) return '';
+
+        if (! preg_match('/[a-zıəöü]/iu', $needle)) {
+            throw new InvalidArgumentException(
+                [ 'Needle could be UTF-8 but only english/ANSI letters allowed: %s' ]
+            );
+        }
+
+        $lenTotal = min($maxlen, mb_strlen($needle));
+
+        $needleLower = mb_strtolower($needle);
+
+        $result[] = $needleLower[ 0 ];
+        $needleLower = mb_substr($needle, 1);
+        $lenTotal--;
+
+        $needleNoVowels = preg_replace('/[aeiouıəöü]/iu', '', $needleLower);
+
+        $source = ( mb_strlen($needleNoVowels) >= $lenTotal )
+            ? $needleNoVowels
+            : $needleLower;
+
+        for ( $i = 0; $i < $lenTotal; $i++ ) {
+            $result[ $i + 1 ] = $source[ 0 ];
+
+            $source = mb_substr($source, 1);
+        }
+
+        $result = implode('', $result);
 
         return $result;
     }
@@ -1126,7 +1145,7 @@ class Str
             ? $strings
             : [ $strings ];
 
-        if ($hasMessage = (null !== $message)) {
+        if ($hasMessage = ( null !== $message )) {
             $this->filter->assert($message, ...$arguments);
         }
 
@@ -1243,7 +1262,7 @@ class Str
             ? $words
             : [ $words ];
 
-        if ($hasMessage = (null !== $message)) {
+        if ($hasMessage = ( null !== $message )) {
             $this->filter->assert($message, ...$arguments);
         }
 

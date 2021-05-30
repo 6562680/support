@@ -170,7 +170,7 @@ class Path
         $trim = ltrim($first, $this->separator);
         $prefix = str_repeat($this->separator, mb_strlen($first) - mb_strlen($trim));
 
-        $result = $this->str->joinskip($this->separator, $first, $list);
+        $result = $this->str->joinSkip($this->separator, $first, $list);
 
         if ('' !== $prefix) {
             $result = $prefix . $result;
@@ -199,7 +199,7 @@ class Path
         $split = $this->str->explode($this->delimiters, $first, $list);
         $split = array_filter($split, 'strlen');
 
-        $result = $this->str->joinskip($this->separator, $split);
+        $result = $this->str->joinSkip($this->separator, $split);
 
         if ('' !== $prefix) {
             $result = $prefix . $result;
