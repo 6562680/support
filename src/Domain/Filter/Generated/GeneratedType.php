@@ -10,7 +10,7 @@
 
 namespace Gzhegow\Support\Domain\Filter\Generated;
 
-use Gzhegow\Support\Domain\Filter\CallableInfoVO;
+use Gzhegow\Support\Domain\Filter\InvokableInfoVO;
 use Gzhegow\Support\Filter;
 
 abstract class GeneratedType
@@ -40,7 +40,7 @@ abstract class GeneratedType
     }
 
     /**
-     * @param mixed $value
+     * @param int|mixed $value
      *
      * @return bool
      */
@@ -50,7 +50,7 @@ abstract class GeneratedType
     }
 
     /**
-     * @param mixed $value
+     * @param float|mixed $value
      *
      * @return bool
      */
@@ -60,7 +60,7 @@ abstract class GeneratedType
     }
 
     /**
-     * @param mixed $value
+     * @param float|mixed $value
      *
      * @return bool
      */
@@ -70,7 +70,7 @@ abstract class GeneratedType
     }
 
     /**
-     * @param mixed $value
+     * @param int|float|mixed $value
      *
      * @return bool
      */
@@ -80,7 +80,7 @@ abstract class GeneratedType
     }
 
     /**
-     * @param mixed $value
+     * @param int|string|mixed $value
      *
      * @return bool
      */
@@ -90,7 +90,7 @@ abstract class GeneratedType
     }
 
     /**
-     * @param mixed $value
+     * @param float|string|mixed $value
      *
      * @return bool
      */
@@ -100,7 +100,7 @@ abstract class GeneratedType
     }
 
     /**
-     * @param mixed $value
+     * @param int|float|string|mixed $value
      *
      * @return bool
      */
@@ -110,7 +110,7 @@ abstract class GeneratedType
     }
 
     /**
-     * @param mixed $value
+     * @param string|mixed $value
      *
      * @return bool
      */
@@ -120,7 +120,7 @@ abstract class GeneratedType
     }
 
     /**
-     * @param mixed $value
+     * @param string|mixed $value
      *
      * @return bool
      */
@@ -130,7 +130,7 @@ abstract class GeneratedType
     }
 
     /**
-     * @param mixed $value
+     * @param int|string|mixed $value
      *
      * @return bool
      */
@@ -140,7 +140,7 @@ abstract class GeneratedType
     }
 
     /**
-     * @param mixed $value
+     * @param int|string|mixed $value
      *
      * @return bool
      */
@@ -150,7 +150,7 @@ abstract class GeneratedType
     }
 
     /**
-     * @param mixed $value
+     * @param int|float|string|mixed $value
      *
      * @return bool
      */
@@ -160,7 +160,7 @@ abstract class GeneratedType
     }
 
     /**
-     * @param mixed $value
+     * @param int|float|string|mixed $value
      *
      * @return bool
      */
@@ -170,7 +170,7 @@ abstract class GeneratedType
     }
 
     /**
-     * @param mixed $value
+     * @param string|mixed $value
      *
      * @return bool
      */
@@ -180,7 +180,7 @@ abstract class GeneratedType
     }
 
     /**
-     * @param mixed $value
+     * @param string|mixed $value
      *
      * @return bool
      */
@@ -192,7 +192,7 @@ abstract class GeneratedType
     /**
      * \Generator может передать любой объект в качестве ключа для foreach, пригодится
      *
-     * @param mixed $value
+     * @param int|string|mixed $value
      *
      * @return bool
      */
@@ -202,7 +202,7 @@ abstract class GeneratedType
     }
 
     /**
-     * @param mixed         $array
+     * @param array|mixed   $array
      * @param null|callable $of
      *
      * @return bool
@@ -213,7 +213,7 @@ abstract class GeneratedType
     }
 
     /**
-     * @param mixed         $list
+     * @param array|mixed   $list
      * @param null|callable $of
      *
      * @return bool
@@ -224,7 +224,7 @@ abstract class GeneratedType
     }
 
     /**
-     * @param mixed         $dict
+     * @param array|mixed   $dict
      * @param null|callable $of
      *
      * @return bool
@@ -235,7 +235,7 @@ abstract class GeneratedType
     }
 
     /**
-     * @param mixed         $assoc
+     * @param array|mixed   $assoc
      * @param null|callable $of
      *
      * @return bool
@@ -246,7 +246,7 @@ abstract class GeneratedType
     }
 
     /**
-     * @param mixed $array
+     * @param array|mixed $array
      *
      * @return bool
      */
@@ -266,7 +266,7 @@ abstract class GeneratedType
     }
 
     /**
-     * @param mixed $value
+     * @param string|mixed $value
      *
      * @return bool
      */
@@ -276,7 +276,7 @@ abstract class GeneratedType
     }
 
     /**
-     * @param mixed $value
+     * @param string|mixed $value
      *
      * @return bool
      */
@@ -286,106 +286,117 @@ abstract class GeneratedType
     }
 
     /**
-     * @param mixed               $callable
-     * @param null|CallableInfoVO $callableInfo
+     * @param string|array|\Closure|callable|mixed $callable
+     * @param null|InvokableInfoVO                 $invokableInfo
      *
      * @return bool
      */
-    public function isCallable($callable, CallableInfoVO &$callableInfo = null): bool
+    public function isCallable($callable, InvokableInfoVO &$invokableInfo = null): bool
     {
-        return null !== $this->filter->filterCallable($callable, $callableInfo);
+        return null !== $this->filter->filterCallable($callable, $invokableInfo);
     }
 
     /**
-     * @param mixed               $callableString
-     * @param null|CallableInfoVO $callableInfo
+     * @param string|array|callable|mixed $callableString
+     * @param null|InvokableInfoVO        $invokableInfo
      *
      * @return bool
      */
-    public function isCallableString($callableString, CallableInfoVO &$callableInfo = null): bool
+    public function isCallableString($callableString, InvokableInfoVO &$invokableInfo = null): bool
     {
-        return null !== $this->filter->filterCallableString($callableString, $callableInfo);
+        return null !== $this->filter->filterCallableString($callableString, $invokableInfo);
     }
 
     /**
-     * @param mixed               $callableString
-     * @param null|CallableInfoVO $callableInfo
+     * @param string|callable|mixed $callableString
+     * @param null|InvokableInfoVO  $invokableInfo
      *
      * @return bool
      */
-    public function isCallableStringFunction($callableString, CallableInfoVO &$callableInfo = null): ?bool
+    public function isCallableStringFunction($callableString, InvokableInfoVO &$invokableInfo = null): ?bool
     {
-        return null !== $this->filter->filterCallableStringFunction($callableString, $callableInfo);
+        return null !== $this->filter->filterCallableStringFunction($callableString, $invokableInfo);
     }
 
     /**
-     * @param mixed               $callableString
-     * @param null|CallableInfoVO $callableInfo
+     * @param string|callable|mixed $callableString
+     * @param null|InvokableInfoVO  $invokableInfo
      *
      * @return bool
      */
-    public function isCallableStringStatic($callableString, CallableInfoVO &$callableInfo = null): ?bool
+    public function isCallableStringStatic($callableString, InvokableInfoVO &$invokableInfo = null): ?bool
     {
-        return null !== $this->filter->filterCallableStringStatic($callableString, $callableInfo);
+        return null !== $this->filter->filterCallableStringStatic($callableString, $invokableInfo);
     }
 
     /**
-     * @param mixed               $callableArray
-     * @param null|CallableInfoVO $callableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfoVO $invokableInfo
      *
      * @return bool
      */
-    public function isCallableArray($callableArray, CallableInfoVO &$callableInfo = null): ?bool
+    public function isCallableArray($callableArray, InvokableInfoVO &$invokableInfo = null): ?bool
     {
-        return null !== $this->filter->filterCallableArray($callableArray, $callableInfo);
+        return null !== $this->filter->filterCallableArray($callableArray, $invokableInfo);
     }
 
     /**
-     * @param mixed               $callableArray
-     * @param null|CallableInfoVO $callableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfoVO $invokableInfo
      *
      * @return bool
      */
-    public function isCallableArrayStatic($callableArray, CallableInfoVO &$callableInfo = null): ?bool
+    public function isCallableArrayStatic($callableArray, InvokableInfoVO &$invokableInfo = null): ?bool
     {
-        return null !== $this->filter->filterCallableArrayStatic($callableArray, $callableInfo);
+        return null !== $this->filter->filterCallableArrayStatic($callableArray, $invokableInfo);
     }
 
     /**
-     * @param mixed               $callableArray
-     * @param null|CallableInfoVO $callableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfoVO $invokableInfo
      *
      * @return bool
      */
-    public function isCallableArrayPublic($callableArray, CallableInfoVO &$callableInfo = null): ?bool
+    public function isCallableArrayPublic($callableArray, InvokableInfoVO &$invokableInfo = null): ?bool
     {
-        return null !== $this->filter->filterCallableArrayPublic($callableArray, $callableInfo);
+        return null !== $this->filter->filterCallableArrayPublic($callableArray, $invokableInfo);
     }
 
     /**
-     * @param mixed               $closure
-     * @param null|CallableInfoVO $callableInfo
+     * @param \Closure|mixed       $closure
+     * @param null|InvokableInfoVO $invokableInfo
      *
      * @return bool
      */
-    public function isClosure($closure, CallableInfoVO &$callableInfo = null): ?bool
+    public function isClosure($closure, InvokableInfoVO &$invokableInfo = null): ?bool
     {
-        return null !== $this->filter->filterClosure($closure, $callableInfo);
+        return null !== $this->filter->filterClosure($closure, $invokableInfo);
     }
 
     /**
-     * @param mixed               $handler
-     * @param null|CallableInfoVO $callableInfo
+     * @param array|mixed          $methodArray
+     * @param null|InvokableInfoVO $invokableInfo
      *
      * @return bool
      */
-    public function isHandler($handler, CallableInfoVO &$callableInfo = null): ?bool
+    public function isMethodArray($methodArray, InvokableInfoVO &$invokableInfo = null): ?bool
     {
-        return null !== $this->filter->filterHandler($handler, $callableInfo);
+        return null !== $this->filter->filterMethodArray($methodArray, $invokableInfo);
     }
 
     /**
-     * @param mixed $class
+     * @param string|mixed         $handler
+     * @param null|InvokableInfoVO $invokableInfo
+     *
+     * @return bool
+     */
+    public function isHandler($handler, InvokableInfoVO &$invokableInfo = null): ?bool
+    {
+        return null !== $this->filter->filterHandler($handler, $invokableInfo);
+    }
+
+    /**
+     * @param string|mixed $class
      *
      * @return bool
      */
@@ -395,7 +406,7 @@ abstract class GeneratedType
     }
 
     /**
-     * @param mixed $className
+     * @param string|mixed $className
      *
      * @return bool
      */
@@ -405,7 +416,7 @@ abstract class GeneratedType
     }
 
     /**
-     * @param object $value
+     * @param object|mixed $value
      *
      * @return bool
      */
@@ -415,7 +426,7 @@ abstract class GeneratedType
     }
 
     /**
-     * @param mixed $value
+     * @param \SplFileInfo|mixed $value
      *
      * @return bool
      */
@@ -425,7 +436,7 @@ abstract class GeneratedType
     }
 
     /**
-     * @param mixed $value
+     * @param \SplFileObject|mixed $value
      *
      * @return bool
      */
@@ -435,7 +446,7 @@ abstract class GeneratedType
     }
 
     /**
-     * @param mixed $value
+     * @param \ReflectionClass|mixed $value
      *
      * @return bool
      */
@@ -445,7 +456,7 @@ abstract class GeneratedType
     }
 
     /**
-     * @param mixed $value
+     * @param \ReflectionFunction|mixed $value
      *
      * @return bool
      */
@@ -455,7 +466,7 @@ abstract class GeneratedType
     }
 
     /**
-     * @param mixed $value
+     * @param \ReflectionMethod|mixed $value
      *
      * @return bool
      */
@@ -465,7 +476,7 @@ abstract class GeneratedType
     }
 
     /**
-     * @param mixed $value
+     * @param \ReflectionProperty|mixed $value
      *
      * @return bool
      */
@@ -475,7 +486,7 @@ abstract class GeneratedType
     }
 
     /**
-     * @param mixed $value
+     * @param \ReflectionParameter|mixed $value
      *
      * @return bool
      */
@@ -485,7 +496,7 @@ abstract class GeneratedType
     }
 
     /**
-     * @param mixed $value
+     * @param \ReflectionType|mixed $value
      *
      * @return bool
      */
@@ -495,7 +506,7 @@ abstract class GeneratedType
     }
 
     /**
-     * @param mixed $h
+     * @param resource|mixed $h
      *
      * @return bool
      */
@@ -505,7 +516,7 @@ abstract class GeneratedType
     }
 
     /**
-     * @param mixed $h
+     * @param resource|mixed $h
      *
      * @return bool
      */
@@ -515,7 +526,7 @@ abstract class GeneratedType
     }
 
     /**
-     * @param mixed $h
+     * @param resource|mixed $h
      *
      * @return bool
      */
@@ -525,7 +536,7 @@ abstract class GeneratedType
     }
 
     /**
-     * @param mixed $h
+     * @param resource|mixed $h
      *
      * @return bool
      */
@@ -535,7 +546,7 @@ abstract class GeneratedType
     }
 
     /**
-     * @param mixed $h
+     * @param resource|mixed $h
      *
      * @return bool
      */

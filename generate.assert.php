@@ -41,7 +41,7 @@ $phpFile->setComment(implode("\n", [
 $namespace = new \Nette\PhpGenerator\PhpNamespace('Gzhegow\\Support\\Domain\\Filter\\Generated');
 $phpFile->addNamespace($namespace);
 $namespace->addUse(\Gzhegow\Support\Filter::class, 'Filter');
-$namespace->addUse(\Gzhegow\Support\Domain\Filter\CallableInfoVO::class, 'CallableInfoVO');
+$namespace->addUse(\Gzhegow\Support\Domain\Filter\InvokableInfoVO::class, 'InvokableInfoVO');
 $namespace->addUse(\Gzhegow\Support\Exceptions\Logic\InvalidArgumentException::class, 'InvalidArgumentException');
 
 // class

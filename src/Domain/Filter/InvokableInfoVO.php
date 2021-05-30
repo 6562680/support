@@ -4,9 +4,9 @@ namespace Gzhegow\Support\Domain\Filter;
 
 
 /**
- * CallableInfoVO
+ * InvokableInfoVO
  */
-class CallableInfoVO
+class InvokableInfoVO
 {
     /**
      * @var callable

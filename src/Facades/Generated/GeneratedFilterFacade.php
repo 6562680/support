@@ -11,7 +11,7 @@
 namespace Gzhegow\Support\Facades\Generated;
 
 use Gzhegow\Support\Domain\Filter\Assert;
-use Gzhegow\Support\Domain\Filter\CallableInfoVO;
+use Gzhegow\Support\Domain\Filter\InvokableInfoVO;
 use Gzhegow\Support\Domain\Filter\Type;
 use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
 use Gzhegow\Support\Filter;
@@ -27,7 +27,7 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed $value
+     * @param int|mixed $value
      *
      * @return null|int
      */
@@ -37,7 +37,7 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed $value
+     * @param float|mixed $value
      *
      * @return null|float
      */
@@ -47,7 +47,7 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed $value
+     * @param float|mixed $value
      *
      * @return null|float
      */
@@ -57,9 +57,9 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed $value
+     * @param int|float|mixed $value
      *
-     * @return null|int|string
+     * @return null|int|float
      */
     public static function filterNumber($value)
     {
@@ -67,7 +67,7 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed $value
+     * @param int|string|mixed $value
      *
      * @return null|int|string
      */
@@ -77,7 +77,7 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed $value
+     * @param float|string|mixed $value
      *
      * @return null|float|string
      */
@@ -87,7 +87,7 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed $value
+     * @param int|float|string|mixed $value
      *
      * @return null|int|float|string
      */
@@ -97,7 +97,7 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed $value
+     * @param string|mixed $value
      *
      * @return null|string
      */
@@ -107,7 +107,7 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed $value
+     * @param string|mixed $value
      *
      * @return null|string
      */
@@ -117,7 +117,7 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed $value
+     * @param int|string|mixed $value
      *
      * @return null|int|float|string
      */
@@ -127,7 +127,7 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed $value
+     * @param int|string|mixed $value
      *
      * @return null|int|float|string
      */
@@ -137,7 +137,7 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed $value
+     * @param int|float|string|mixed $value
      *
      * @return null|int|float|string
      */
@@ -147,7 +147,7 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed $value
+     * @param int|float|string|mixed $value
      *
      * @return null|int|float|string
      */
@@ -157,7 +157,7 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed $value
+     * @param string|mixed $value
      *
      * @return null|string
      */
@@ -167,7 +167,7 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed $value
+     * @param string|mixed $value
      *
      * @return null|string
      */
@@ -179,7 +179,7 @@ abstract class GeneratedFilterFacade
     /**
      * \Generator может передать любой объект в качестве ключа для foreach, пригодится
      *
-     * @param mixed $value
+     * @param int|string|mixed $value
      *
      * @return null|int|string
      */
@@ -189,7 +189,7 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed         $array
+     * @param array|mixed   $array
      * @param null|callable $of
      *
      * @return null|array
@@ -200,7 +200,7 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed         $list
+     * @param array|mixed   $list
      * @param null|callable $of
      *
      * @return null|array
@@ -211,7 +211,7 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed         $dict
+     * @param array|mixed   $dict
      * @param null|callable $of
      *
      * @return null|array
@@ -222,7 +222,7 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed         $assoc
+     * @param array|mixed   $assoc
      * @param null|callable $of
      *
      * @return null|array
@@ -233,7 +233,7 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed $array
+     * @param array|mixed $array
      *
      * @return null|array
      */
@@ -253,7 +253,7 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed $value
+     * @param string|mixed $value
      *
      * @return null|string
      */
@@ -263,7 +263,7 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed $value
+     * @param string|mixed $value
      *
      * @return null|string
      */
@@ -273,106 +273,119 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed               $callable
-     * @param null|CallableInfoVO $callableInfo
+     * @param string|array|\Closure|callable|mixed $callable
+     * @param null|InvokableInfoVO                 $invokableInfo
      *
      * @return null|string|array|\Closure|callable
      */
-    public static function filterCallable($callable, CallableInfoVO &$callableInfo = null)
+    public static function filterCallable($callable, InvokableInfoVO &$invokableInfo = null)
     {
-        return static::getInstance()->filterCallable($callable, $callableInfo);
+        return static::getInstance()->filterCallable($callable, $invokableInfo);
     }
 
     /**
-     * @param mixed               $callableString
-     * @param null|CallableInfoVO $callableInfo
+     * @param string|array|callable|mixed $callableString
+     * @param null|InvokableInfoVO        $invokableInfo
      *
      * @return null|string|array|callable
      */
-    public static function filterCallableString($callableString, CallableInfoVO &$callableInfo = null)
+    public static function filterCallableString($callableString, InvokableInfoVO &$invokableInfo = null)
     {
-        return static::getInstance()->filterCallableString($callableString, $callableInfo);
+        return static::getInstance()->filterCallableString($callableString, $invokableInfo);
     }
 
     /**
-     * @param mixed               $callableString
-     * @param null|CallableInfoVO $callableInfo
+     * @param string|callable|mixed $callableString
+     * @param null|InvokableInfoVO  $invokableInfo
      *
      * @return null|string|callable
      */
-    public static function filterCallableStringFunction($callableString, CallableInfoVO &$callableInfo = null): ?string
-    {
-        return static::getInstance()->filterCallableStringFunction($callableString, $callableInfo);
+    public static function filterCallableStringFunction(
+        $callableString,
+        InvokableInfoVO &$invokableInfo = null
+    ): ?string {
+        return static::getInstance()->filterCallableStringFunction($callableString, $invokableInfo);
     }
 
     /**
-     * @param mixed               $callableString
-     * @param null|CallableInfoVO $callableInfo
+     * @param string|callable|mixed $callableString
+     * @param null|InvokableInfoVO  $invokableInfo
      *
      * @return null|string|callable
      */
-    public static function filterCallableStringStatic($callableString, CallableInfoVO &$callableInfo = null): ?string
+    public static function filterCallableStringStatic($callableString, InvokableInfoVO &$invokableInfo = null): ?string
     {
-        return static::getInstance()->filterCallableStringStatic($callableString, $callableInfo);
+        return static::getInstance()->filterCallableStringStatic($callableString, $invokableInfo);
     }
 
     /**
-     * @param mixed               $callableArray
-     * @param null|CallableInfoVO $callableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfoVO $invokableInfo
      *
      * @return null|array|callable
      */
-    public static function filterCallableArray($callableArray, CallableInfoVO &$callableInfo = null): ?array
+    public static function filterCallableArray($callableArray, InvokableInfoVO &$invokableInfo = null): ?array
     {
-        return static::getInstance()->filterCallableArray($callableArray, $callableInfo);
+        return static::getInstance()->filterCallableArray($callableArray, $invokableInfo);
     }
 
     /**
-     * @param mixed               $callableArray
-     * @param null|CallableInfoVO $callableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfoVO $invokableInfo
      *
      * @return null|array|callable
      */
-    public static function filterCallableArrayStatic($callableArray, CallableInfoVO &$callableInfo = null): ?array
+    public static function filterCallableArrayStatic($callableArray, InvokableInfoVO &$invokableInfo = null): ?array
     {
-        return static::getInstance()->filterCallableArrayStatic($callableArray, $callableInfo);
+        return static::getInstance()->filterCallableArrayStatic($callableArray, $invokableInfo);
     }
 
     /**
-     * @param mixed               $callableArray
-     * @param null|CallableInfoVO $callableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfoVO $invokableInfo
      *
      * @return null|array|callable
      */
-    public static function filterCallableArrayPublic($callableArray, CallableInfoVO &$callableInfo = null): ?array
+    public static function filterCallableArrayPublic($callableArray, InvokableInfoVO &$invokableInfo = null): ?array
     {
-        return static::getInstance()->filterCallableArrayPublic($callableArray, $callableInfo);
+        return static::getInstance()->filterCallableArrayPublic($callableArray, $invokableInfo);
     }
 
     /**
-     * @param mixed               $closure
-     * @param null|CallableInfoVO $callableInfo
+     * @param \Closure|mixed       $closure
+     * @param null|InvokableInfoVO $invokableInfo
      *
      * @return null|\Closure
      */
-    public static function filterClosure($closure, CallableInfoVO &$callableInfo = null): ?\Closure
+    public static function filterClosure($closure, InvokableInfoVO &$invokableInfo = null): ?\Closure
     {
-        return static::getInstance()->filterClosure($closure, $callableInfo);
+        return static::getInstance()->filterClosure($closure, $invokableInfo);
     }
 
     /**
-     * @param mixed               $handler
-     * @param null|CallableInfoVO $callableInfo
+     * @param array|mixed          $methodArray
+     * @param null|InvokableInfoVO $invokableInfo
+     *
+     * @return null|array
+     */
+    public static function filterMethodArray($methodArray, InvokableInfoVO &$invokableInfo = null): ?array
+    {
+        return static::getInstance()->filterMethodArray($methodArray, $invokableInfo);
+    }
+
+    /**
+     * @param string|mixed         $handler
+     * @param null|InvokableInfoVO $invokableInfo
      *
      * @return null|string|callable
      */
-    public static function filterHandler($handler, CallableInfoVO &$callableInfo = null): ?string
+    public static function filterHandler($handler, InvokableInfoVO &$invokableInfo = null): ?string
     {
-        return static::getInstance()->filterHandler($handler, $callableInfo);
+        return static::getInstance()->filterHandler($handler, $invokableInfo);
     }
 
     /**
-     * @param mixed $class
+     * @param string|mixed $class
      *
      * @return null|string
      */
@@ -382,7 +395,7 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed $className
+     * @param string|mixed $className
      *
      * @return null|string
      */
@@ -392,7 +405,7 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param object $value
+     * @param object|mixed $value
      *
      * @return null|object
      */
@@ -402,7 +415,7 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed $value
+     * @param \SplFileInfo|mixed $value
      *
      * @return null|\SplFileInfo
      */
@@ -412,7 +425,7 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed $value
+     * @param \SplFileObject|mixed $value
      *
      * @return null|\SplFileObject
      */
@@ -422,7 +435,7 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed $value
+     * @param \ReflectionClass|mixed $value
      *
      * @return null|\ReflectionClass
      */
@@ -432,7 +445,7 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed $value
+     * @param \ReflectionFunction|mixed $value
      *
      * @return null|\ReflectionFunction
      */
@@ -442,7 +455,7 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed $value
+     * @param \ReflectionMethod|mixed $value
      *
      * @return null|\ReflectionMethod
      */
@@ -452,7 +465,7 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed $value
+     * @param \ReflectionProperty|mixed $value
      *
      * @return null|\ReflectionProperty
      */
@@ -462,7 +475,7 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed $value
+     * @param \ReflectionParameter|mixed $value
      *
      * @return null|\ReflectionParameter
      */
@@ -472,7 +485,7 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed $value
+     * @param \ReflectionType|mixed $value
      *
      * @return null|\ReflectionType
      */
@@ -482,7 +495,7 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed $h
+     * @param resource|mixed $h
      *
      * @return null|resource
      */
@@ -492,7 +505,7 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed $h
+     * @param resource|mixed $h
      *
      * @return null|resource
      */
@@ -502,7 +515,7 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed $h
+     * @param resource|mixed $h
      *
      * @return null|resource
      */
@@ -512,7 +525,7 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed $h
+     * @param resource|mixed $h
      *
      * @return null|resource
      */
@@ -522,7 +535,7 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param mixed $h
+     * @param resource|mixed $h
      *
      * @return null|resource
      */

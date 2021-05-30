@@ -10,7 +10,7 @@
 
 namespace Gzhegow\Support\Domain\Filter\Generated;
 
-use Gzhegow\Support\Domain\Filter\CallableInfoVO;
+use Gzhegow\Support\Domain\Filter\InvokableInfoVO;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Filter;
 
@@ -47,7 +47,7 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed $value
+     * @param int|mixed $value
      *
      * @return int
      */
@@ -63,7 +63,7 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed $value
+     * @param float|mixed $value
      *
      * @return float
      */
@@ -79,7 +79,7 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed $value
+     * @param float|mixed $value
      *
      * @return float
      */
@@ -95,9 +95,9 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed $value
+     * @param int|float|mixed $value
      *
-     * @return int|string
+     * @return int|float
      */
     public function assertNumber($value)
     {
@@ -111,7 +111,7 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed $value
+     * @param int|string|mixed $value
      *
      * @return int|string
      */
@@ -127,7 +127,7 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed $value
+     * @param float|string|mixed $value
      *
      * @return float|string
      */
@@ -143,7 +143,7 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed $value
+     * @param int|float|string|mixed $value
      *
      * @return int|float|string
      */
@@ -159,7 +159,7 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed $value
+     * @param string|mixed $value
      *
      * @return string
      */
@@ -175,7 +175,7 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed $value
+     * @param string|mixed $value
      *
      * @return string
      */
@@ -191,7 +191,7 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed $value
+     * @param int|string|mixed $value
      *
      * @return int|float|string
      */
@@ -207,7 +207,7 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed $value
+     * @param int|string|mixed $value
      *
      * @return int|float|string
      */
@@ -223,7 +223,7 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed $value
+     * @param int|float|string|mixed $value
      *
      * @return int|float|string
      */
@@ -239,7 +239,7 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed $value
+     * @param int|float|string|mixed $value
      *
      * @return int|float|string
      */
@@ -255,7 +255,7 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed $value
+     * @param string|mixed $value
      *
      * @return string
      */
@@ -271,7 +271,7 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed $value
+     * @param string|mixed $value
      *
      * @return string
      */
@@ -289,7 +289,7 @@ abstract class GeneratedAssert
     /**
      * \Generator может передать любой объект в качестве ключа для foreach, пригодится
      *
-     * @param mixed $value
+     * @param int|string|mixed $value
      *
      * @return int|string
      */
@@ -305,7 +305,7 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed         $array
+     * @param array|mixed   $array
      * @param null|callable $of
      *
      * @return array
@@ -322,7 +322,7 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed         $list
+     * @param array|mixed   $list
      * @param null|callable $of
      *
      * @return array
@@ -339,7 +339,7 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed         $dict
+     * @param array|mixed   $dict
      * @param null|callable $of
      *
      * @return array
@@ -356,7 +356,7 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed         $assoc
+     * @param array|mixed   $assoc
      * @param null|callable $of
      *
      * @return array
@@ -373,7 +373,7 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed $array
+     * @param array|mixed $array
      *
      * @return array
      */
@@ -405,7 +405,7 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed $value
+     * @param string|mixed $value
      *
      * @return string
      */
@@ -421,7 +421,7 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed $value
+     * @param string|mixed $value
      *
      * @return string
      */
@@ -437,14 +437,14 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed               $callable
-     * @param null|CallableInfoVO $callableInfo
+     * @param string|array|\Closure|callable|mixed $callable
+     * @param null|InvokableInfoVO                 $invokableInfo
      *
      * @return string|array|\Closure|callable
      */
-    public function assertCallable($callable, CallableInfoVO &$callableInfo = null)
+    public function assertCallable($callable, InvokableInfoVO &$invokableInfo = null)
     {
-        if (null === ($filtered = $this->filter->filterCallable($callable,$callableInfo))) {
+        if (null === ($filtered = $this->filter->filterCallable($callable,$invokableInfo))) {
             throw new InvalidArgumentException($this->flushMessage(...func_get_args())
                 ?? array_merge([ 'Invalid Callable passed: %s' ], func_get_args())
             );
@@ -454,14 +454,14 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed               $callableString
-     * @param null|CallableInfoVO $callableInfo
+     * @param string|array|callable|mixed $callableString
+     * @param null|InvokableInfoVO        $invokableInfo
      *
      * @return string|array|callable
      */
-    public function assertCallableString($callableString, CallableInfoVO &$callableInfo = null)
+    public function assertCallableString($callableString, InvokableInfoVO &$invokableInfo = null)
     {
-        if (null === ($filtered = $this->filter->filterCallableString($callableString,$callableInfo))) {
+        if (null === ($filtered = $this->filter->filterCallableString($callableString,$invokableInfo))) {
             throw new InvalidArgumentException($this->flushMessage(...func_get_args())
                 ?? array_merge([ 'Invalid CallableString passed: %s' ], func_get_args())
             );
@@ -471,14 +471,14 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed               $callableString
-     * @param null|CallableInfoVO $callableInfo
+     * @param string|callable|mixed $callableString
+     * @param null|InvokableInfoVO  $invokableInfo
      *
      * @return string|callable
      */
-    public function assertCallableStringFunction($callableString, CallableInfoVO &$callableInfo = null): ?string
+    public function assertCallableStringFunction($callableString, InvokableInfoVO &$invokableInfo = null): ?string
     {
-        if (null === ($filtered = $this->filter->filterCallableStringFunction($callableString,$callableInfo))) {
+        if (null === ($filtered = $this->filter->filterCallableStringFunction($callableString,$invokableInfo))) {
             throw new InvalidArgumentException($this->flushMessage(...func_get_args())
                 ?? array_merge([ 'Invalid CallableStringFunction passed: %s' ], func_get_args())
             );
@@ -488,14 +488,14 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed               $callableString
-     * @param null|CallableInfoVO $callableInfo
+     * @param string|callable|mixed $callableString
+     * @param null|InvokableInfoVO  $invokableInfo
      *
      * @return string|callable
      */
-    public function assertCallableStringStatic($callableString, CallableInfoVO &$callableInfo = null): ?string
+    public function assertCallableStringStatic($callableString, InvokableInfoVO &$invokableInfo = null): ?string
     {
-        if (null === ($filtered = $this->filter->filterCallableStringStatic($callableString,$callableInfo))) {
+        if (null === ($filtered = $this->filter->filterCallableStringStatic($callableString,$invokableInfo))) {
             throw new InvalidArgumentException($this->flushMessage(...func_get_args())
                 ?? array_merge([ 'Invalid CallableStringStatic passed: %s' ], func_get_args())
             );
@@ -505,14 +505,14 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed               $callableArray
-     * @param null|CallableInfoVO $callableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfoVO $invokableInfo
      *
      * @return array|callable
      */
-    public function assertCallableArray($callableArray, CallableInfoVO &$callableInfo = null): ?array
+    public function assertCallableArray($callableArray, InvokableInfoVO &$invokableInfo = null): ?array
     {
-        if (null === ($filtered = $this->filter->filterCallableArray($callableArray,$callableInfo))) {
+        if (null === ($filtered = $this->filter->filterCallableArray($callableArray,$invokableInfo))) {
             throw new InvalidArgumentException($this->flushMessage(...func_get_args())
                 ?? array_merge([ 'Invalid CallableArray passed: %s' ], func_get_args())
             );
@@ -522,14 +522,14 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed               $callableArray
-     * @param null|CallableInfoVO $callableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfoVO $invokableInfo
      *
      * @return array|callable
      */
-    public function assertCallableArrayStatic($callableArray, CallableInfoVO &$callableInfo = null): ?array
+    public function assertCallableArrayStatic($callableArray, InvokableInfoVO &$invokableInfo = null): ?array
     {
-        if (null === ($filtered = $this->filter->filterCallableArrayStatic($callableArray,$callableInfo))) {
+        if (null === ($filtered = $this->filter->filterCallableArrayStatic($callableArray,$invokableInfo))) {
             throw new InvalidArgumentException($this->flushMessage(...func_get_args())
                 ?? array_merge([ 'Invalid CallableArrayStatic passed: %s' ], func_get_args())
             );
@@ -539,14 +539,14 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed               $callableArray
-     * @param null|CallableInfoVO $callableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfoVO $invokableInfo
      *
      * @return array|callable
      */
-    public function assertCallableArrayPublic($callableArray, CallableInfoVO &$callableInfo = null): ?array
+    public function assertCallableArrayPublic($callableArray, InvokableInfoVO &$invokableInfo = null): ?array
     {
-        if (null === ($filtered = $this->filter->filterCallableArrayPublic($callableArray,$callableInfo))) {
+        if (null === ($filtered = $this->filter->filterCallableArrayPublic($callableArray,$invokableInfo))) {
             throw new InvalidArgumentException($this->flushMessage(...func_get_args())
                 ?? array_merge([ 'Invalid CallableArrayPublic passed: %s' ], func_get_args())
             );
@@ -556,14 +556,14 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed               $closure
-     * @param null|CallableInfoVO $callableInfo
+     * @param \Closure|mixed       $closure
+     * @param null|InvokableInfoVO $invokableInfo
      *
      * @return \Closure
      */
-    public function assertClosure($closure, CallableInfoVO &$callableInfo = null): ?\Closure
+    public function assertClosure($closure, InvokableInfoVO &$invokableInfo = null): ?\Closure
     {
-        if (null === ($filtered = $this->filter->filterClosure($closure,$callableInfo))) {
+        if (null === ($filtered = $this->filter->filterClosure($closure,$invokableInfo))) {
             throw new InvalidArgumentException($this->flushMessage(...func_get_args())
                 ?? array_merge([ 'Invalid Closure passed: %s' ], func_get_args())
             );
@@ -573,14 +573,31 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed               $handler
-     * @param null|CallableInfoVO $callableInfo
+     * @param array|mixed          $methodArray
+     * @param null|InvokableInfoVO $invokableInfo
+     *
+     * @return array
+     */
+    public function assertMethodArray($methodArray, InvokableInfoVO &$invokableInfo = null): ?array
+    {
+        if (null === ($filtered = $this->filter->filterMethodArray($methodArray,$invokableInfo))) {
+            throw new InvalidArgumentException($this->flushMessage(...func_get_args())
+                ?? array_merge([ 'Invalid MethodArray passed: %s' ], func_get_args())
+            );
+        }
+
+        return $filtered;
+    }
+
+    /**
+     * @param string|mixed         $handler
+     * @param null|InvokableInfoVO $invokableInfo
      *
      * @return string|callable
      */
-    public function assertHandler($handler, CallableInfoVO &$callableInfo = null): ?string
+    public function assertHandler($handler, InvokableInfoVO &$invokableInfo = null): ?string
     {
-        if (null === ($filtered = $this->filter->filterHandler($handler,$callableInfo))) {
+        if (null === ($filtered = $this->filter->filterHandler($handler,$invokableInfo))) {
             throw new InvalidArgumentException($this->flushMessage(...func_get_args())
                 ?? array_merge([ 'Invalid Handler passed: %s' ], func_get_args())
             );
@@ -590,7 +607,7 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed $class
+     * @param string|mixed $class
      *
      * @return string
      */
@@ -606,7 +623,7 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed $className
+     * @param string|mixed $className
      *
      * @return string
      */
@@ -622,7 +639,7 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param object $value
+     * @param object|mixed $value
      *
      * @return object
      */
@@ -638,7 +655,7 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed $value
+     * @param \SplFileInfo|mixed $value
      *
      * @return \SplFileInfo
      */
@@ -654,7 +671,7 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed $value
+     * @param \SplFileObject|mixed $value
      *
      * @return \SplFileObject
      */
@@ -670,7 +687,7 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed $value
+     * @param \ReflectionClass|mixed $value
      *
      * @return \ReflectionClass
      */
@@ -686,7 +703,7 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed $value
+     * @param \ReflectionFunction|mixed $value
      *
      * @return \ReflectionFunction
      */
@@ -702,7 +719,7 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed $value
+     * @param \ReflectionMethod|mixed $value
      *
      * @return \ReflectionMethod
      */
@@ -718,7 +735,7 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed $value
+     * @param \ReflectionProperty|mixed $value
      *
      * @return \ReflectionProperty
      */
@@ -734,7 +751,7 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed $value
+     * @param \ReflectionParameter|mixed $value
      *
      * @return \ReflectionParameter
      */
@@ -750,7 +767,7 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed $value
+     * @param \ReflectionType|mixed $value
      *
      * @return \ReflectionType
      */
@@ -766,7 +783,7 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed $h
+     * @param resource|mixed $h
      *
      * @return resource
      */
@@ -782,7 +799,7 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed $h
+     * @param resource|mixed $h
      *
      * @return resource
      */
@@ -798,7 +815,7 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed $h
+     * @param resource|mixed $h
      *
      * @return resource
      */
@@ -814,7 +831,7 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed $h
+     * @param resource|mixed $h
      *
      * @return resource
      */
@@ -830,7 +847,7 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param mixed $h
+     * @param resource|mixed $h
      *
      * @return resource
      */
