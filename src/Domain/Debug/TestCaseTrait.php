@@ -88,4 +88,31 @@ trait TestCaseTrait
 
         $this->{'assertTrue'}($catched, $message);
     }
+
+
+    /**
+     * @return void
+     */
+    protected function setUp() : void
+    {
+        if (! static::$boot) {
+            static::boot();
+
+            static::$boot = true;
+        }
+    }
+
+
+    /**
+     * @return void
+     */
+    protected static function boot() : void
+    {
+    }
+
+
+    /**
+     * @var bool
+     */
+    protected static $boot = false;
 }
