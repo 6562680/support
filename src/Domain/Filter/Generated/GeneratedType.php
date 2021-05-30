@@ -374,14 +374,24 @@ abstract class GeneratedType
     }
 
     /**
+     * @param array|mixed $methodArray
+     *
+     * @return bool
+     */
+    public function isMethodArray($methodArray): ?bool
+    {
+        return null !== $this->filter->filterMethodArray($methodArray);
+    }
+
+    /**
      * @param array|mixed          $methodArray
      * @param null|InvokableInfoVO $invokableInfo
      *
      * @return bool
      */
-    public function isMethodArray($methodArray, InvokableInfoVO &$invokableInfo = null): ?bool
+    public function isMethodArrayReflection($methodArray, InvokableInfoVO &$invokableInfo = null): ?bool
     {
-        return null !== $this->filter->filterMethodArray($methodArray, $invokableInfo);
+        return null !== $this->filter->filterMethodArrayReflection($methodArray, $invokableInfo);
     }
 
     /**

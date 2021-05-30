@@ -616,7 +616,7 @@ class Filter
         $callable = explode('::', $callableString, 2);
 
         if (null !== $this->filterCallableArrayStatic($callable, $invokableInfo)) {
-            return $callable;
+            return $callableString;
         }
 
         return null;
@@ -797,11 +797,11 @@ class Filter
             $invokableInfo->class = $class;
             $invokableInfo->method = $method;
 
-            $result = $rm->isPublic() && ! $rm->isStatic() && ! $rm->isAbstract()
-                ? $handler
-                : null;
+            if (! $rm->isPublic() || $rm->isStatic() || $rm->isAbstract()) {
+                return null;
+            }
 
-            return $result;
+            return $handler;
         }
         catch ( \ReflectionException $e ) {
         }

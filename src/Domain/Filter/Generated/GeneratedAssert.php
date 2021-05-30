@@ -573,16 +573,32 @@ abstract class GeneratedAssert
     }
 
     /**
+     * @param array|mixed $methodArray
+     *
+     * @return array
+     */
+    public function assertMethodArray($methodArray): ?array
+    {
+        if (null === ($filtered = $this->filter->filterMethodArray($methodArray))) {
+            throw new InvalidArgumentException($this->flushMessage(...func_get_args())
+                ?? array_merge([ 'Invalid MethodArray passed: %s' ], func_get_args())
+            );
+        }
+
+        return $filtered;
+    }
+
+    /**
      * @param array|mixed          $methodArray
      * @param null|InvokableInfoVO $invokableInfo
      *
      * @return array
      */
-    public function assertMethodArray($methodArray, InvokableInfoVO &$invokableInfo = null): ?array
+    public function assertMethodArrayReflection($methodArray, InvokableInfoVO &$invokableInfo = null): ?array
     {
-        if (null === ($filtered = $this->filter->filterMethodArray($methodArray,$invokableInfo))) {
+        if (null === ($filtered = $this->filter->filterMethodArrayReflection($methodArray,$invokableInfo))) {
             throw new InvalidArgumentException($this->flushMessage(...func_get_args())
-                ?? array_merge([ 'Invalid MethodArray passed: %s' ], func_get_args())
+                ?? array_merge([ 'Invalid MethodArrayReflection passed: %s' ], func_get_args())
             );
         }
 

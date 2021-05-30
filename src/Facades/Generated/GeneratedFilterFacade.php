@@ -363,14 +363,24 @@ abstract class GeneratedFilterFacade
     }
 
     /**
+     * @param array|mixed $methodArray
+     *
+     * @return null|array
+     */
+    public static function filterMethodArray($methodArray): ?array
+    {
+        return static::getInstance()->filterMethodArray($methodArray);
+    }
+
+    /**
      * @param array|mixed          $methodArray
      * @param null|InvokableInfoVO $invokableInfo
      *
      * @return null|array
      */
-    public static function filterMethodArray($methodArray, InvokableInfoVO &$invokableInfo = null): ?array
+    public static function filterMethodArrayReflection($methodArray, InvokableInfoVO &$invokableInfo = null): ?array
     {
-        return static::getInstance()->filterMethodArray($methodArray, $invokableInfo);
+        return static::getInstance()->filterMethodArrayReflection($methodArray, $invokableInfo);
     }
 
     /**
