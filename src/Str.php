@@ -661,11 +661,11 @@ class Str
 
     /**
      * @param string|string[]|array $delimiters
-     * @param string|string[]|array ...$strvals
+     * @param string|string[]|array ...$strings
      *
      * @return array
      */
-    public function explode($delimiters, ...$strvals) : array
+    public function explode($delimiters, ...$strings) : array
     {
         $delimiters = $this->theStrvals($delimiters, true);
 
@@ -675,7 +675,7 @@ class Str
                 ? array_shift($delimiters)
                 : null;
 
-            array_walk_recursive($strvals, function (&$ref) use ($delimiter) {
+            array_walk_recursive($strings, function (&$ref) use ($delimiter) {
                 if (null === $this->filter->filterStrval($ref)) {
                     throw new InvalidArgumentException(
                         [ 'Each value should be stringable: %s', $ref ],
@@ -689,7 +689,7 @@ class Str
         } while ( null !== ( $key = key($delimiters) ) );
 
         $result = [];
-        array_walk_recursive($strvals, function ($v) use (&$result) {
+        array_walk_recursive($strings, function ($v) use (&$result) {
             $result[] = $v;
         });
 
@@ -737,13 +737,13 @@ class Str
      * '1, 2, 3', включая пустые строки, исключение если нельзя привести к строке
      *
      * @param string                $delimiter
-     * @param string|string[]|array ...$strvals
+     * @param string|string[]|array ...$strings
      *
      * @return string
      */
-    public function implode(string $delimiter, ...$strvals) : string
+    public function implode(string $delimiter, ...$strings) : string
     {
-        $result = $this->strvals($strvals);
+        $result = $this->strvals($strings);
 
         if ('' !== $delimiter) {
             foreach ( $result as $idx => $val ) {
@@ -760,13 +760,13 @@ class Str
      * '1, 2, 3', включая пустые строки, пропускает если нельзя привести к строке
      *
      * @param string                $delimiter
-     * @param string|string[]|array ...$strvals
+     * @param string|string[]|array ...$strings
      *
      * @return string
      */
-    public function implodeSkip(string $delimiter, ...$strvals) : string
+    public function implodeSkip(string $delimiter, ...$strings) : string
     {
-        $result = $this->strvalsSkip($strvals);
+        $result = $this->strvalsSkip($strings);
 
         if ('' !== $delimiter) {
             foreach ( $result as $idx => $val ) {
@@ -788,13 +788,13 @@ class Str
      * '1, 2, 3', пропускает пустые строки, исключение если нельзя привести к строке
      *
      * @param string                $delimiter
-     * @param string|string[]|array ...$strvals
+     * @param string|string[]|array ...$strings
      *
      * @return string
      */
-    public function join(string $delimiter, ...$strvals) : string
+    public function join(string $delimiter, ...$strings) : string
     {
-        $result = $this->strvals($strvals);
+        $result = $this->strvals($strings);
         $result = array_filter($result, 'strlen');
 
         if ('' !== $delimiter) {
@@ -812,13 +812,13 @@ class Str
      * '1, 2, 3', пропускает пустые строки, пропускает если нельзя привести к строке
      *
      * @param string                $delimiter
-     * @param string|string[]|array ...$strvals
+     * @param string|string[]|array ...$strings
      *
      * @return string
      */
-    public function joinSkip(string $delimiter, ...$strvals) : string
+    public function joinSkip(string $delimiter, ...$strings) : string
     {
-        $result = $this->strvalsSkip($strvals);
+        $result = $this->strvalsSkip($strings);
         $result = array_filter($result, 'strlen');
 
         if ('' !== $delimiter) {
