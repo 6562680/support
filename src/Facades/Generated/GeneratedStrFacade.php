@@ -419,6 +419,33 @@ abstract class GeneratedStrFacade
     }
 
     /**
+     * урезает английское слово(-а) до префикса из нескольких букв - когда имя индекса в бд слишком длинное
+     *
+     * @param string   $string
+     * @param null|int $len
+     *
+     * @return string
+     */
+    public static function prefix(string $string, int $len = null): string
+    {
+        return static::getInstance()->prefix($string, $len);
+    }
+
+    /**
+     * применяет prefix() ко всем строкам, затем соединяет результаты, чтобы урезать итоговый размер строки
+     *
+     * @param string|string[]|array      $strings
+     * @param null|int                   $limit
+     * @param null|string|string[]|array $delimiters
+     *
+     * @return string
+     */
+    public static function compact($strings, $delimiters = null, int $limit = null): string
+    {
+        return static::getInstance()->compact($strings, $delimiters, $limit);
+    }
+
+    /**
      * ищет все совпадения начинающиеся с "подстроки" и заканчивающиеся на "подстроку"
      * используется при замене подстановок в тексте
      *
@@ -438,19 +465,6 @@ abstract class GeneratedStrFacade
         bool $ignoreCase = true
     ): array {
         return static::getInstance()->match($start, $end, $haystack, $offset, $ignoreCase);
-    }
-
-    /**
-     * урезает английское слово до префикса из нескольких букв - используется в таблицах баз данных
-     *
-     * @param string   $needle
-     * @param null|int $maxlen
-     *
-     * @return string
-     */
-    public static function prefix(string $needle, int $maxlen = null): string
-    {
-        return static::getInstance()->prefix($needle, $maxlen);
     }
 
     /**

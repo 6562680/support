@@ -676,26 +676,44 @@ class StrTest extends AbstractTestCase
 
         $this->assertEquals('', $str->prefix('aaa', 0));
 
-        $this->assertEquals('aaa', $str->prefix('aaa', null));
-        $this->assertEquals('aaa', $str->prefix('aaa', 3));
-        $this->assertEquals('aaa', $str->prefix('aaa', 4));
+        $this->assertEquals('11', $str->prefix('11'));
+        $this->assertEquals('11', $str->prefix('11', 3));
+        $this->assertEquals('11', $str->prefix('11', 4));
 
-        $this->assertEquals('bbb', $str->prefix('bbbb', null));
+        $this->assertEquals('aa', $str->prefix('aa'));
+        $this->assertEquals('aa', $str->prefix('aa', 3));
+        $this->assertEquals('aa', $str->prefix('aa', 4));
+
+        $this->assertEquals('bbb', $str->prefix('bbbb'));
         $this->assertEquals('bbb', $str->prefix('bbbb', 3));
         $this->assertEquals('bbbb', $str->prefix('bbbb', 4));
 
-        $this->assertEquals('bbb', $str->prefix('babab', null));
-        $this->assertEquals('bbb', $str->prefix('babab', 3));
-        $this->assertEquals('baba', $str->prefix('babab', 4));
+        $this->assertEquals('a11', $str->prefix('aa11'));
+        $this->assertEquals('a11', $str->prefix('aa11', 3));
+        $this->assertEquals('aa11', $str->prefix('aa11', 4));
 
-        $this->assertEquals('usr', $str->prefix('user', null));
+        $this->assertEquals('usr', $str->prefix('user'));
         $this->assertEquals('usr', $str->prefix('user', 3));
         $this->assertEquals('user', $str->prefix('user', 4));
 
-        $this->assertEquals('opr', $str->prefix('operator', null));
+        $this->assertEquals('opr', $str->prefix('operator'));
         $this->assertEquals('opr', $str->prefix('operator', 3));
         $this->assertEquals('oprt', $str->prefix('operator', 4));
+
+        $this->assertEquals('usr', $str->prefix('user_operator'));
+        $this->assertEquals('usr', $str->prefix('user_operator', 3));
+        $this->assertEquals('usrp', $str->prefix('user_operator', 4));
     }
+
+    public function testCompact()
+    {
+        $str = $this->getStr();
+
+        $this->assertEquals('usropr', $str->compact('user_operator', '_'));
+        $this->assertEquals('usropr', $str->compact('user_operator', '_', 3));
+        $this->assertEquals('useroprt', $str->compact('user_operator', '_', 4));
+    }
+
 
 
     public function testSnake()

@@ -920,6 +920,94 @@ class Str
     }
 
 
+
+    /**
+     * урезает английское слово(-а) до префикса из нескольких букв - когда имя индекса в бд слишком длинное
+     *
+     * @param string   $string
+     * @param null|int $len
+     *
+     * @return string
+     */
+    public function prefix(string $string, int $len = null) : string
+    {
+        if ('' === $string) return '';
+
+        $len = $len ?? 3;
+        $len = max(0, $len);
+
+        $source = preg_replace('/[\p{C}\p{P}\p{S}\p{Z}]/', '', $string);
+        $sourceLetters = mb_str_split($source);
+
+        $len = min($len, count($sourceLetters));
+
+        if (0 === $len) return '';
+
+        $vowels = $this->vowels();
+
+        $sourceConsonants = [];
+        $sourceVowels = [];
+        foreach ( $sourceLetters as $i => $letter ) {
+            ( '' === trim($letter, $vowels) )
+                ? ( $sourceVowels[ $i ] = $letter )
+                : ( $sourceConsonants[] = $letter );
+        }
+
+        $letters = [];
+
+        $hasVowel = false;
+        $left = $len;
+        for ( $i = 0; $i < $len; $i++ ) {
+            $letter = null;
+            if (isset($sourceVowels[ $i ])) {
+                if (! $hasVowel) {
+                    $letter = $sourceVowels[ $i ];
+                    $hasVowel = true;
+
+                } elseif ($left > count($sourceConsonants)) {
+                    $letter = $sourceVowels[ $i ];
+                }
+            }
+
+            $letter = $letter ?? array_shift($sourceConsonants);
+            $left--;
+
+            $letters[] = $letter;
+        }
+
+        $result = implode('', $letters);
+
+        return $result;
+    }
+
+    /**
+     * применяет prefix() ко всем строкам, затем соединяет результаты, чтобы урезать итоговый размер строки
+     *
+     * @param string|string[]|array      $strings
+     * @param null|int                   $limit
+     * @param null|string|string[]|array $delimiters
+     *
+     * @return string
+     */
+    public function compact($strings, $delimiters = null, int $limit = null) : string
+    {
+        $strings = $this->strvalsSkip($strings);
+
+        if (null !== $delimiters) {
+            $strings = $this->explode($delimiters, $strings);
+        }
+
+        $result = [];
+        foreach ( $strings as $word ) {
+            $result[] = $this->prefix($word, $limit);
+        }
+
+        $result = implode('', $result);
+
+        return $result;
+    }
+
+
     /**
      * ищет все совпадения начинающиеся с "подстроки" и заканчивающиеся на "подстроку"
      * используется при замене подстановок в тексте
@@ -967,53 +1055,6 @@ class Str
 
 
     /**
-     * урезает английское слово до префикса из нескольких букв - используется в таблицах баз данных
-     *
-     * @param string   $needle
-     * @param null|int $maxlen
-     *
-     * @return string
-     */
-    public function prefix(string $needle, int $maxlen = null) : string
-    {
-        $maxlen = max(0, $maxlen ?? 3);
-
-        if ('' === $needle) return '';
-        if (0 === $maxlen) return '';
-
-        if (! preg_match('/[a-zıəöü]/iu', $needle)) {
-            throw new InvalidArgumentException(
-                [ 'Needle could be UTF-8 but only english/ANSI letters allowed: %s' ]
-            );
-        }
-
-        $lenTotal = min($maxlen, mb_strlen($needle));
-
-        $needleLower = mb_strtolower($needle);
-
-        $result[] = $needleLower[ 0 ];
-        $needleLower = mb_substr($needle, 1);
-        $lenTotal--;
-
-        $needleNoVowels = preg_replace('/[aeiouıəöü]/iu', '', $needleLower);
-
-        $source = ( mb_strlen($needleNoVowels) >= $lenTotal )
-            ? $needleNoVowels
-            : $needleLower;
-
-        for ( $i = 0; $i < $lenTotal; $i++ ) {
-            $result[ $i + 1 ] = $source[ 0 ];
-
-            $source = mb_substr($source, 1);
-        }
-
-        $result = implode('', $result);
-
-        return $result;
-    }
-
-
-    /**
      * snake_case
      *
      * @param string $value
@@ -1023,7 +1064,7 @@ class Str
      */
     public function snake(string $value, string $delimiter = '_') : string
     {
-        $result = $this->caseChange($value, $delimiter);
+        $result = $this->case($value, $delimiter);
 
         return $result;
     }
@@ -1039,7 +1080,7 @@ class Str
      */
     public function usnake(string $value, string $delimiter = '_') : string
     {
-        $result = $this->caseChange($value, $delimiter, MB_CASE_UPPER);
+        $result = $this->case($value, $delimiter, MB_CASE_UPPER);
 
         return $result;
     }
@@ -1379,7 +1420,7 @@ class Str
      *
      * @return string
      */
-    protected function caseChange(string $value, string $delimiter = '_', string $mbCase = MB_CASE_LOWER) : string
+    protected function case(string $value, string $delimiter = '_', string $mbCase = MB_CASE_LOWER) : string
     {
         if ('' === $value) {
             return $value;
@@ -1415,5 +1456,51 @@ class Str
         $result = str_replace(static::CASE_REPLACER, $delimiter, $result);
 
         return $result;
+    }
+
+    /**
+     * @return string
+     */
+    protected function vowels() : string
+    {
+        $vowels = [];
+
+        // latin
+        $vowels[ 'a' ] = 'aàáâãāăȧäảåǎȁąạḁẚầấẫẩằắẵẳǡǟǻậặæǽǣ';
+        $vowels[ 'e' ] = 'eèéêẽēĕėëẻěȅȇẹȩęḙḛềếễểḕḗệḝ';
+        $vowels[ 'i' ] = 'iìíîĩīĭıïỉǐịįȉȋḭḯ';
+        $vowels[ 'o' ] = 'oòóôõōŏȯöỏőǒȍȏơǫọøồốỗổȱȫȭṍṏṑṓờớỡởợǭộǿœ';
+        $vowels[ 'u' ] = 'uùúûũūŭüủůűǔȕȗưụṳųṷṵṹṻǖǜǘǖǚừứữửự';;
+        $vowels[ 'A' ] = 'AÀÁÂÃĀĂȦÄẢÅǍȀȂĄẠḀẦẤẪẨẰẮẴẲǠǞǺẬẶÆǼǢ';
+        $vowels[ 'E' ] = 'EÈÉÊẼĒĔĖËẺĚȄȆẸȨĘḘḚỀẾỄỂḔḖỆḜ';
+        $vowels[ 'I' ] = 'IÌÍÎĨĪĬİÏỈǏỊĮȈȊḬḮ';
+        $vowels[ 'O' ] = 'OÒÓÔÕŌŎȮÖỎŐǑȌȎƠǪỌØỒỐỖỔȰȪȬṌṐṒỜỚỠỞỢǬỘǾŒ';
+        $vowels[ 'U' ] = 'UÙÚÛŨŪŬÜỦŮŰǓȔȖƯỤṲŲṶṴṸṺǛǗǕǙỪỨỮỬỰ';
+
+        // ru
+        $vowels[ 'a' ] .= 'ая';
+        $vowels[ 'e' ] .= 'её';
+        $vowels[ 'i' ] .= 'иы';
+        $vowels[ 'o' ] .= 'о';
+        $vowels[ 'u' ] .= 'ую';
+        $vowels[ 'A' ] .= 'АЯ';
+        $vowels[ 'E' ] .= 'ЕЁ';
+        $vowels[ 'I' ] .= 'ИЫ';
+        $vowels[ 'O' ] .= 'О';
+        $vowels[ 'U' ] .= 'УЮ';
+
+        // ua
+        $vowels[ 'e' ] .= 'є';
+        $vowels[ 'i' ] .= 'ії';
+        $vowels[ 'E' ] .= 'Є';
+        $vowels[ 'I' ] .= 'ІЇ';
+
+        // by
+        $vowels[ 'u' ] .= 'ў';
+        $vowels[ 'U' ] .= 'Ў';
+
+        $vowels = implode('', $vowels);
+
+        return $vowels;
     }
 }
