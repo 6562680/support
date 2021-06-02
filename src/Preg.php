@@ -74,6 +74,10 @@ class Preg
             return null;
         }
 
+        if (preg_quote($regex, '/') === $regex) {
+            return null;
+        }
+
         if (null === $this->filterValid('/' . $regex . '/')) {
             return null;
         }
