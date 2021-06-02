@@ -40,14 +40,6 @@ class StrTest extends AbstractTestCase
     {
         $str = $this->getStr();
 
-        $this->assertEquals('', $str->lcrop('', null));
-        $this->assertEquals('', $str->lcrop('', null, false));
-        $this->assertEquals('', $str->lcrop('', null, false, 0));
-        $this->assertEquals('', $str->lcrop('', null, false, 1));
-        $this->assertEquals('', $str->lcrop('', null, true));
-        $this->assertEquals('', $str->lcrop('', null, true, 0));
-        $this->assertEquals('', $str->lcrop('', null, true, 1));
-
         $this->assertEquals('', $str->lcrop('', ''));
         $this->assertEquals('', $str->lcrop('', '', false));
         $this->assertEquals('', $str->lcrop('', '', false, 0));
@@ -63,14 +55,6 @@ class StrTest extends AbstractTestCase
         $this->assertEquals('', $str->lcrop('', 'A', true));
         $this->assertEquals('', $str->lcrop('', 'A', true, 0));
         $this->assertEquals('', $str->lcrop('', 'A', true, 1));
-
-        $this->assertEquals('a', $str->lcrop('a', null));
-        $this->assertEquals('a', $str->lcrop('a', null, false));
-        $this->assertEquals('a', $str->lcrop('a', null, false, 0));
-        $this->assertEquals('a', $str->lcrop('a', null, false, 1));
-        $this->assertEquals('a', $str->lcrop('a', null, true));
-        $this->assertEquals('a', $str->lcrop('a', null, true, 0));
-        $this->assertEquals('a', $str->lcrop('a', null, true, 1));
 
         $this->assertEquals('a', $str->lcrop('a', ''));
         $this->assertEquals('a', $str->lcrop('a', '', false));
@@ -109,14 +93,6 @@ class StrTest extends AbstractTestCase
     {
         $str = $this->getStr();
 
-        $this->assertEquals('', $str->rcrop('', null));
-        $this->assertEquals('', $str->rcrop('', null, false));
-        $this->assertEquals('', $str->rcrop('', null, false, 0));
-        $this->assertEquals('', $str->rcrop('', null, false, 1));
-        $this->assertEquals('', $str->rcrop('', null, true));
-        $this->assertEquals('', $str->rcrop('', null, true, 0));
-        $this->assertEquals('', $str->rcrop('', null, true, 1));
-
         $this->assertEquals('', $str->rcrop('', ''));
         $this->assertEquals('', $str->rcrop('', '', false));
         $this->assertEquals('', $str->rcrop('', '', false, 0));
@@ -132,14 +108,6 @@ class StrTest extends AbstractTestCase
         $this->assertEquals('', $str->rcrop('', 'A', true));
         $this->assertEquals('', $str->rcrop('', 'A', true, 0));
         $this->assertEquals('', $str->rcrop('', 'A', true, 1));
-
-        $this->assertEquals('a', $str->rcrop('a', null));
-        $this->assertEquals('a', $str->rcrop('a', null, false));
-        $this->assertEquals('a', $str->rcrop('a', null, false, 0));
-        $this->assertEquals('a', $str->rcrop('a', null, false, 1));
-        $this->assertEquals('a', $str->rcrop('a', null, true));
-        $this->assertEquals('a', $str->rcrop('a', null, true, 0));
-        $this->assertEquals('a', $str->rcrop('a', null, true, 1));
 
         $this->assertEquals('a', $str->rcrop('a', ''));
         $this->assertEquals('a', $str->rcrop('a', '', false));
@@ -178,14 +146,6 @@ class StrTest extends AbstractTestCase
     {
         $str = $this->getStr();
 
-        $this->assertEquals('', $str->crop('', null));
-        $this->assertEquals('', $str->crop('', null, false));
-        $this->assertEquals('', $str->crop('', null, false, 0));
-        $this->assertEquals('', $str->crop('', null, false, 1));
-        $this->assertEquals('', $str->crop('', null, true));
-        $this->assertEquals('', $str->crop('', null, true, 0));
-        $this->assertEquals('', $str->crop('', null, true, 1));
-
         $this->assertEquals('', $str->crop('', ''));
         $this->assertEquals('', $str->crop('', '', false));
         $this->assertEquals('', $str->crop('', '', false, 0));
@@ -201,14 +161,6 @@ class StrTest extends AbstractTestCase
         $this->assertEquals('', $str->crop('', 'A', true));
         $this->assertEquals('', $str->crop('', 'A', true, 0));
         $this->assertEquals('', $str->crop('', 'A', true, 1));
-
-        $this->assertEquals('a', $str->crop('a', null));
-        $this->assertEquals('a', $str->crop('a', null, false));
-        $this->assertEquals('a', $str->crop('a', null, false, 0));
-        $this->assertEquals('a', $str->crop('a', null, false, 1));
-        $this->assertEquals('a', $str->crop('a', null, true));
-        $this->assertEquals('a', $str->crop('a', null, true, 0));
-        $this->assertEquals('a', $str->crop('a', null, true, 1));
 
         $this->assertEquals('a', $str->crop('a', ''));
         $this->assertEquals('a', $str->crop('a', '', false));
@@ -294,17 +246,17 @@ class StrTest extends AbstractTestCase
     {
         $str = $this->getStr();
 
-        $this->assertEquals('', $str->lwrap('', null));
+        $this->assertEquals('', $str->lwrap(''));
         $this->assertEquals('', $str->lwrap('', ''));
         $this->assertEquals('$', $str->lwrap('', '$'));
         $this->assertEquals('$$', $str->lwrap('', '$', 2));
 
-        $this->assertEquals('a', $str->lwrap('a', null));
+        $this->assertEquals('a', $str->lwrap('a'));
         $this->assertEquals('a', $str->lwrap('a', ''));
         $this->assertEquals('$a', $str->lwrap('a', '$'));
         $this->assertEquals('$$a', $str->lwrap('a', '$', 2));
 
-        $this->assertEquals('$', $str->lwrap('$', null));
+        $this->assertEquals('$', $str->lwrap('$'));
         $this->assertEquals('$', $str->lwrap('$', ''));
         $this->assertEquals('$$', $str->lwrap('$', '$'));
         $this->assertEquals('$$$', $str->lwrap('$', '$', 2));
@@ -314,17 +266,17 @@ class StrTest extends AbstractTestCase
     {
         $str = $this->getStr();
 
-        $this->assertEquals('', $str->rwrap('', null));
+        $this->assertEquals('', $str->rwrap(''));
         $this->assertEquals('', $str->rwrap('', ''));
         $this->assertEquals('$', $str->rwrap('', '$'));
         $this->assertEquals('$$', $str->rwrap('', '$', 2));
 
-        $this->assertEquals('a', $str->rwrap('a', null));
+        $this->assertEquals('a', $str->rwrap('a'));
         $this->assertEquals('a', $str->rwrap('a', ''));
         $this->assertEquals('a$', $str->rwrap('a', '$'));
         $this->assertEquals('a$$', $str->rwrap('a', '$', 2));
 
-        $this->assertEquals('$', $str->lwrap('$', null));
+        $this->assertEquals('$', $str->lwrap('$'));
         $this->assertEquals('$', $str->lwrap('$', ''));
         $this->assertEquals('$$', $str->lwrap('$', '$'));
         $this->assertEquals('$$$', $str->lwrap('$', '$', 2));
@@ -355,27 +307,21 @@ class StrTest extends AbstractTestCase
     {
         $str = $this->getStr();
 
-        $this->assertEquals('', $str->prepend('', null));
         $this->assertEquals('', $str->prepend('', ''));
         $this->assertEquals('A', $str->prepend('', 'A'));
 
-        $this->assertEquals('a', $str->prepend('a', null));
         $this->assertEquals('a', $str->prepend('a', ''));
         $this->assertEquals('a', $str->prepend('a', 'A'));
 
-        $this->assertEquals('A', $str->prepend('A', null));
         $this->assertEquals('A', $str->prepend('A', ''));
         $this->assertEquals('A', $str->prepend('A', 'A'));
 
-        $this->assertEquals('', $str->prepend('', null, false));
         $this->assertEquals('', $str->prepend('', '', false));
         $this->assertEquals('A', $str->prepend('', 'A', false));
 
-        $this->assertEquals('a', $str->prepend('a', null, false));
         $this->assertEquals('a', $str->prepend('a', '', false));
         $this->assertEquals('Aa', $str->prepend('a', 'A', false));
 
-        $this->assertEquals('A', $str->prepend('A', null, false));
         $this->assertEquals('A', $str->prepend('A', '', false));
         $this->assertEquals('A', $str->prepend('A', 'A', false));
     }
@@ -384,27 +330,21 @@ class StrTest extends AbstractTestCase
     {
         $str = $this->getStr();
 
-        $this->assertEquals('', $str->append('', null));
         $this->assertEquals('', $str->append('', ''));
         $this->assertEquals('A', $str->append('', 'A'));
 
-        $this->assertEquals('a', $str->append('a', null));
         $this->assertEquals('a', $str->append('a', ''));
         $this->assertEquals('a', $str->append('a', 'A'));
 
-        $this->assertEquals('A', $str->append('A', null));
         $this->assertEquals('A', $str->append('A', ''));
         $this->assertEquals('A', $str->append('A', 'A'));
 
-        $this->assertEquals('', $str->append('', null, false));
         $this->assertEquals('', $str->append('', '', false));
         $this->assertEquals('A', $str->append('', 'A', false));
 
-        $this->assertEquals('a', $str->append('a', null, false));
         $this->assertEquals('a', $str->append('a', '', false));
         $this->assertEquals('aA', $str->append('a', 'A', false));
 
-        $this->assertEquals('A', $str->append('A', null, false));
         $this->assertEquals('A', $str->append('A', '', false));
         $this->assertEquals('A', $str->append('A', 'A', false));
     }
@@ -413,27 +353,21 @@ class StrTest extends AbstractTestCase
     {
         $str = $this->getStr();
 
-        $this->assertEquals('', $str->overlay('', null));
         $this->assertEquals('', $str->overlay('', ''));
         $this->assertEquals('A', $str->overlay('', 'A'));
 
-        $this->assertEquals('a', $str->overlay('a', null));
         $this->assertEquals('a', $str->overlay('a', ''));
         $this->assertEquals('a', $str->overlay('a', 'A'));
 
-        $this->assertEquals('A', $str->overlay('A', null));
         $this->assertEquals('A', $str->overlay('A', ''));
         $this->assertEquals('A', $str->overlay('A', 'A'));
 
-        $this->assertEquals('', $str->overlay('', null, false));
         $this->assertEquals('', $str->overlay('', '', false));
         $this->assertEquals('A', $str->overlay('', 'A', false));
 
-        $this->assertEquals('a', $str->overlay('a', null, false));
         $this->assertEquals('a', $str->overlay('a', '', false));
         $this->assertEquals('AaA', $str->overlay('a', 'A', false));
 
-        $this->assertEquals('A', $str->overlay('A', null, false));
         $this->assertEquals('A', $str->overlay('A', '', false));
         $this->assertEquals('A', $str->overlay('A', 'A', false));
     }

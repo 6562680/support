@@ -20,13 +20,13 @@ abstract class GeneratedStrFacade
      * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для битового сдвига
      * usort($array, function ($a, $b) { return $str->strpos($haystack, $a) - $str->strpos($haystack, $b); }}
      *
-     * @param string $haystack
-     * @param string $needle
-     * @param int    $offset
+     * @param string   $haystack
+     * @param string   $needle
+     * @param null|int $offset
      *
      * @return int
      */
-    public static function strpos($haystack, $needle, $offset): int
+    public static function strpos(string $haystack, string $needle, int $offset = null): int
     {
         return static::getInstance()->strpos($haystack, $needle, $offset);
     }
@@ -36,13 +36,13 @@ abstract class GeneratedStrFacade
      * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для битового сдвига
      * usort($array, function ($a, $b) { return $str->strrpos($haystack, $a) - $str->strrpos($haystack, $b); }}
      *
-     * @param string $haystack
-     * @param string $needle
-     * @param int    $offset
+     * @param string   $haystack
+     * @param string   $needle
+     * @param null|int $offset
      *
      * @return int
      */
-    public static function strrpos($haystack, $needle, $offset): int
+    public static function strrpos(string $haystack, string $needle, int $offset = null): int
     {
         return static::getInstance()->strrpos($haystack, $needle, $offset);
     }
@@ -52,13 +52,13 @@ abstract class GeneratedStrFacade
      * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для битового сдвига
      * usort($array, function ($a, $b) { return $str->stripos($haystack, $a) - $str->stripos($haystack, $b); }}
      *
-     * @param string $haystack
-     * @param string $needle
-     * @param int    $offset
+     * @param string   $haystack
+     * @param string   $needle
+     * @param null|int $offset
      *
      * @return int
      */
-    public static function stripos($haystack, $needle, $offset): int
+    public static function stripos(string $haystack, string $needle, int $offset = null): int
     {
         return static::getInstance()->stripos($haystack, $needle, $offset);
     }
@@ -68,13 +68,13 @@ abstract class GeneratedStrFacade
      * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для битового сдвига
      * usort($array, function ($a, $b) { return $str->strripos($haystack, $a) - $str->strripos($haystack, $b); }}
      *
-     * @param string $haystack
-     * @param string $needle
-     * @param int    $offset
+     * @param string   $haystack
+     * @param string   $needle
+     * @param null|int $offset
      *
      * @return int
      */
-    public static function strripos($haystack, $needle, $offset): int
+    public static function strripos(string $haystack, string $needle, int $offset = null): int
     {
         return static::getInstance()->strripos($haystack, $needle, $offset);
     }
@@ -95,223 +95,219 @@ abstract class GeneratedStrFacade
     /**
      * фикс. стандартная функция не поддерживает лимит замен
      *
-     * @param string|string[] $search
-     * @param string|string[] $replace
-     * @param string|string[] $subject
+     * @param string|string[] $strings
+     * @param string|string[] $replacements
+     * @param string|string[] $subjects
      * @param null|int        $limit
      * @param null|int        $count
      *
      * @return string|string[]
      */
-    public static function replace($search, $replace, $subject, int $limit = null, int &$count = null)
+    public static function replace($strings, $replacements, $subjects, int $limit = null, int &$count = null)
     {
-        return static::getInstance()->replace($search, $replace, $subject, $limit, $count);
+        return static::getInstance()->replace($strings, $replacements, $subjects, $limit, $count);
     }
 
     /**
      * фикс. стандартная функция не поддерживает лимит замен
      *
-     * @param string|string[] $search
-     * @param string|string[] $replace
-     * @param string|string[] $subject
+     * @param string|string[] $strings
+     * @param string|string[] $replacements
+     * @param string|string[] $subjects
      * @param null|int        $limit
      * @param null|int        $count
      *
      * @return string|string[]
      */
-    public static function ireplace($search, $replace, $subject, int $limit = null, int &$count = null)
+    public static function ireplace($strings, $replacements, $subjects, int $limit = null, int &$count = null)
     {
-        return static::getInstance()->ireplace($search, $replace, $subject, $limit, $count);
+        return static::getInstance()->ireplace($strings, $replacements, $subjects, $limit, $count);
     }
 
     /**
      * Обрезает у строки подстроку с начала (ltrim, только для строк а не букв)
      *
-     * @param string      $str
+     * @param string      $haystack
      * @param string|null $needle
      * @param bool|null   $ignoreCase
      * @param int         $limit
      *
      * @return string
      */
-    public static function lcrop(string $str, string $needle = null, bool $ignoreCase = null, int $limit = -1): string
+    public static function lcrop(string $haystack, string $needle, bool $ignoreCase = null, int $limit = -1): string
     {
-        return static::getInstance()->lcrop($str, $needle, $ignoreCase, $limit);
+        return static::getInstance()->lcrop($haystack, $needle, $ignoreCase, $limit);
     }
 
     /**
      * Обрезает у строки подстроку с конца (rtrim, только для строк а не букв)
      *
-     * @param string      $str
+     * @param string      $haystack
      * @param string|null $needle
      * @param bool|null   $ignoreCase
      * @param int         $limit
      *
      * @return string
      */
-    public static function rcrop(string $str, string $needle = null, bool $ignoreCase = null, int $limit = -1): string
+    public static function rcrop(string $haystack, string $needle, bool $ignoreCase = null, int $limit = -1): string
     {
-        return static::getInstance()->rcrop($str, $needle, $ignoreCase, $limit);
+        return static::getInstance()->rcrop($haystack, $needle, $ignoreCase, $limit);
     }
 
     /**
      * Обрезает у строки подстроки с обеих сторон (trim, только для строк а не букв)
      *
-     * @param string      $str
-     * @param string|null $needle
+     * @param string      $haystack
+     * @param string|null $needles
      * @param bool|null   $ignoreCase
      * @param int         $limit
      *
      * @return string
      */
-    public static function crop(string $str, $needle = null, bool $ignoreCase = null, int $limit = -1): string
+    public static function crop(string $haystack, $needles, bool $ignoreCase = null, int $limit = -1): string
     {
-        return static::getInstance()->crop($str, $needle, $ignoreCase, $limit);
+        return static::getInstance()->crop($haystack, $needles, $ignoreCase, $limit);
     }
 
     /**
      * если строка начинается на искомую, отрезает ее и возвращает укороченную
      * if (null !== ($substr = $str->ends('hello', 'h'))) {} // 'ello'
      *
-     * @param string      $str
+     * @param string      $haystack
      * @param string|null $needle
      * @param bool|null   $ignoreCase
      *
      * @return null|string
      */
-    public static function starts(string $str, string $needle = null, bool $ignoreCase = true): ?string
+    public static function starts(string $haystack, string $needle, bool $ignoreCase = null): ?string
     {
-        return static::getInstance()->starts($str, $needle, $ignoreCase);
+        return static::getInstance()->starts($haystack, $needle, $ignoreCase);
     }
 
     /**
      * если строка заканчивается на искомую, отрезает ее и возвращает укороченную
      * if (null !== ($substr = $str->ends('hello', 'o'))) {} // 'hell'
      *
-     * @param string      $str
+     * @param string      $haystack
      * @param string|null $needle
      * @param bool|null   $ignoreCase
      *
      * @return null|string
      */
-    public static function ends(string $str, string $needle = null, bool $ignoreCase = true): ?string
+    public static function ends(string $haystack, string $needle, bool $ignoreCase = null): ?string
     {
-        return static::getInstance()->ends($str, $needle, $ignoreCase);
+        return static::getInstance()->ends($haystack, $needle, $ignoreCase);
     }
 
     /**
      * ищет подстроку в строке и разбивает по ней результат
      * if ($explode = $str->contains('hello', 'h')) {} // ['', 'ello']
      *
-     * @param string      $str
+     * @param string      $haystack
      * @param string|null $needle
      * @param null|int    $limit
      * @param bool|null   $ignoreCase
      *
      * @return array
      */
-    public static function contains(
-        string $str,
-        string $needle = null,
-        int $limit = null,
-        bool $ignoreCase = true
-    ): array {
-        return static::getInstance()->contains($str, $needle, $limit, $ignoreCase);
+    public static function contains(string $haystack, string $needle, bool $ignoreCase = null, int $limit = null): array
+    {
+        return static::getInstance()->contains($haystack, $needle, $ignoreCase, $limit);
     }
 
     /**
      * Добавляет подстроку в начале строки
      *
      * @param string      $str
-     * @param string|null $wrap
+     * @param string|null $wrapper
      * @param null|int    $len
      *
      * @return string
      */
-    public static function lwrap(string $str, string $wrap = null, int $len = null): string
+    public static function lwrap(string $str, string $wrapper = null, int $len = null): string
     {
-        return static::getInstance()->lwrap($str, $wrap, $len);
+        return static::getInstance()->lwrap($str, $wrapper, $len);
     }
 
     /**
      * Добавляет подстроку в конце строки
      *
      * @param string      $str
-     * @param string|null $wrap
+     * @param string|null $wrapper
      * @param null|int    $len
      *
      * @return string
      */
-    public static function rwrap(string $str, string $wrap = null, int $len = null): string
+    public static function rwrap(string $str, string $wrapper = null, int $len = null): string
     {
-        return static::getInstance()->rwrap($str, $wrap, $len);
+        return static::getInstance()->rwrap($str, $wrapper, $len);
     }
 
     /**
      * Оборачивает строку в другие, например в кавычки
      *
      * @param string      $str
-     * @param string|null $wrap
+     * @param string|null $wrappers
      * @param null|int    $len
      *
      * @return string
      */
-    public static function wrap(string $str, $wrap = null, int $len = null): string
+    public static function wrap(string $str, $wrappers, int $len = null): string
     {
-        return static::getInstance()->wrap($str, $wrap, $len);
+        return static::getInstance()->wrap($str, $wrappers, $len);
     }
 
     /**
      * Добавляет подстроку в начало строки, если её уже там нет
      *
      * @param string      $str
-     * @param string|null $needle
+     * @param string|null $prepend
      * @param bool        $ignoreCase
      *
      * @return string
      */
-    public static function prepend(string $str, string $needle = null, bool $ignoreCase = null): string
+    public static function prepend(string $str, string $prepend, bool $ignoreCase = null): string
     {
-        return static::getInstance()->prepend($str, $needle, $ignoreCase);
+        return static::getInstance()->prepend($str, $prepend, $ignoreCase);
     }
 
     /**
      * Добавляет подстроку в конец строки, если её уже там нет
      *
      * @param string      $str
-     * @param string|null $needle
+     * @param string|null $append
      * @param bool        $ignoreCase
      *
      * @return string
      */
-    public static function append(string $str, string $needle = null, bool $ignoreCase = null): string
+    public static function append(string $str, string $append, bool $ignoreCase = null): string
     {
-        return static::getInstance()->append($str, $needle, $ignoreCase);
+        return static::getInstance()->append($str, $append, $ignoreCase);
     }
 
     /**
      * Оборачивает строку в подстроки, если их уже там нет
      *
      * @param string      $str
-     * @param null|string $needle
+     * @param null|string $overlays
      * @param bool        $ignoreCase
      *
      * @return string
      */
-    public static function overlay(string $str, $needle = null, bool $ignoreCase = true): string
+    public static function overlay(string $str, $overlays, bool $ignoreCase = null): string
     {
-        return static::getInstance()->overlay($str, $needle, $ignoreCase);
+        return static::getInstance()->overlay($str, $overlays, $ignoreCase);
     }
 
     /**
      * @param string|string[]|array $delimiters
-     * @param string|string[]|array ...$strvals
+     * @param string|string[]|array ...$strings
      *
      * @return array
      */
-    public static function explode($delimiters, ...$strvals): array
+    public static function explode($delimiters, ...$strings): array
     {
-        return static::getInstance()->explode($delimiters, ...$strvals);
+        return static::getInstance()->explode($delimiters, ...$strings);
     }
 
     /**
@@ -332,52 +328,52 @@ abstract class GeneratedStrFacade
      * '1, 2, 3', включая пустые строки, исключение если нельзя привести к строке
      *
      * @param string                $delimiter
-     * @param string|string[]|array ...$strvals
+     * @param string|string[]|array ...$strings
      *
      * @return string
      */
-    public static function implode(string $delimiter, ...$strvals): string
+    public static function implode(string $delimiter, ...$strings): string
     {
-        return static::getInstance()->implode($delimiter, ...$strvals);
+        return static::getInstance()->implode($delimiter, ...$strings);
     }
 
     /**
      * '1, 2, 3', включая пустые строки, пропускает если нельзя привести к строке
      *
      * @param string                $delimiter
-     * @param string|string[]|array ...$strvals
+     * @param string|string[]|array ...$strings
      *
      * @return string
      */
-    public static function implodeSkip(string $delimiter, ...$strvals): string
+    public static function implodeSkip(string $delimiter, ...$strings): string
     {
-        return static::getInstance()->implodeSkip($delimiter, ...$strvals);
+        return static::getInstance()->implodeSkip($delimiter, ...$strings);
     }
 
     /**
      * '1, 2, 3', пропускает пустые строки, исключение если нельзя привести к строке
      *
      * @param string                $delimiter
-     * @param string|string[]|array ...$strvals
+     * @param string|string[]|array ...$strings
      *
      * @return string
      */
-    public static function join(string $delimiter, ...$strvals): string
+    public static function join(string $delimiter, ...$strings): string
     {
-        return static::getInstance()->join($delimiter, ...$strvals);
+        return static::getInstance()->join($delimiter, ...$strings);
     }
 
     /**
      * '1, 2, 3', пропускает пустые строки, пропускает если нельзя привести к строке
      *
      * @param string                $delimiter
-     * @param string|string[]|array ...$strvals
+     * @param string|string[]|array ...$strings
      *
      * @return string
      */
-    public static function joinSkip(string $delimiter, ...$strvals): string
+    public static function joinSkip(string $delimiter, ...$strings): string
     {
-        return static::getInstance()->joinSkip($delimiter, ...$strvals);
+        return static::getInstance()->joinSkip($delimiter, ...$strings);
     }
 
     /**
@@ -462,7 +458,7 @@ abstract class GeneratedStrFacade
         string $end,
         string $haystack,
         int $offset = null,
-        bool $ignoreCase = true
+        bool $ignoreCase = null
     ): array {
         return static::getInstance()->match($start, $end, $haystack, $offset, $ignoreCase);
     }

@@ -22,21 +22,19 @@ abstract class GeneratedPregFacade
      *
      * @return RegExp
      */
-    public static function newRegExp($regex, string $delimiter = null, string $flags = null): RegExp
+    public static function new($regex, string $delimiter = null, string $flags = null): RegExp
     {
-        return static::getInstance()->newRegExp($regex, $delimiter, $flags);
+        return static::getInstance()->new($regex, $delimiter, $flags);
     }
 
     /**
-     * @param string|string[] $regex
-     * @param null|string     $delimiter
-     * @param null|string     $flags
+     * @param mixed $regex
      *
-     * @return RegExp
+     * @return bool
      */
-    public static function new($regex, string $delimiter = null, string $flags = null): string
+    public static function isShort($regex): bool
     {
-        return static::getInstance()->new($regex, $delimiter, $flags);
+        return static::getInstance()->isShort($regex);
     }
 
     /**
@@ -47,6 +45,26 @@ abstract class GeneratedPregFacade
     public static function isValid($regex): bool
     {
         return static::getInstance()->isValid($regex);
+    }
+
+    /**
+     * @param mixed $regex
+     *
+     * @return null|string
+     */
+    public static function filterShort($regex): ?string
+    {
+        return static::getInstance()->filterShort($regex);
+    }
+
+    /**
+     * @param mixed $regex
+     *
+     * @return null|string
+     */
+    public static function filterValid($regex): ?string
+    {
+        return static::getInstance()->filterValid($regex);
     }
 
     /**

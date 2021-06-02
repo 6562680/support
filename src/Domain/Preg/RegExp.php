@@ -71,9 +71,7 @@ class RegExp
         if (null !== $delimiter) $this->setDelimiter($delimiter);
         if (null !== $flags) $this->setFlags($flags);
 
-        is_array($regex)
-            ? $this->addQuote($regex)
-            : $this->add($regex);
+        $this->concat($regex);
     }
 
 
@@ -98,24 +96,111 @@ class RegExp
         return $this;
     }
 
-
     /**
      * @param string $delimiter
      *
-     * @return null|array
+     * @return static
      */
-    public function fetchDelimiters(string $delimiter) : ?array
+    protected function setDelimiter(string $delimiter)
     {
-        if (false === ( $pos = strpos(static::$_delimiters[ 0 ], $delimiter) )) {
-            return null;
+        if ('' === $delimiter) {
+            throw new InvalidArgumentException('Delimiter should be non-empty string');
         }
 
-        $delimiters = [
-            static::$_delimiters[ 0 ][ $pos ],
-            static::$_delimiters[ 1 ][ $pos ],
-        ];
+        if (null === ( $delimiters = $this->fetchDelimiters($delimiter) )) {
+            throw new InvalidArgumentException('Invalid delimiter passed: ' . $delimiter);
+        }
 
-        return $delimiters;
+        $this->delimiters = $delimiters;
+
+        return $this;
+    }
+
+    /**
+     * @param string $flags
+     *
+     * @return static
+     */
+    protected function setFlags(string $flags)
+    {
+        $uniq = [];
+
+        $letters = '' !== $flags
+            ? array_filter(str_split($flags))
+            : [];
+
+        foreach ( $letters as $letter ) {
+            if (false === strpos(static::$_flags, $letter)) {
+                throw new InvalidArgumentException('Invalid flag passed: ' . $letter);
+            }
+
+            $uniq[ $letter ] = true;
+        }
+
+        $this->flags = $uniq
+            ? implode('', array_keys($uniq))
+            : '';
+
+        return $this;
+    }
+
+
+    /**
+     * @param string ...$regex
+     *
+     * @return static
+     */
+    protected function addQuote(...$regex)
+    {
+        array_walk_recursive($regex, function (string $r) {
+            $this->regex[] = [ $r ];
+        });
+
+        return $this;
+    }
+
+    /**
+     * @param mixed ...$regex
+     *
+     * @return static
+     */
+    protected function addRegex(...$regex)
+    {
+        array_walk_recursive($regex, function (string $r) {
+            $delimiters = $this->fetchDelimiters($r[ 0 ]);
+
+            if (! $this->delimiters) {
+                $this->setDelimiter($delimiters[ 0 ]);
+            }
+
+            $parts = explode($delimiters[ 1 ], $r);
+            $flags = array_pop($parts);
+            if (! $this->flags) {
+                $this->setFlags($flags);
+            }
+
+            [ $rr ] = $this->str->match($delimiters[ 0 ], $delimiters[ 1 ], $r);
+
+            $this->regex[] = $rr;
+        });
+
+        return $this;
+    }
+
+    /**
+     * @param mixed ...$regex
+     *
+     * @return static
+     */
+    protected function add(...$regex)
+    {
+        array_walk_recursive($regex, function (string $r) {
+            $this->preg->isValid($r)
+                ? ( $this->addRegex($r) )
+                : ( $this->regex[] = $r );
+        });
+
+        return $this;
     }
 
 
@@ -196,111 +281,23 @@ class RegExp
 
 
     /**
-     * @param string ...$regex
-     *
-     * @return static
-     */
-    protected function addQuote(...$regex)
-    {
-        array_walk_recursive($regex, function (string $r) {
-            $this->regex[] = [ $r ];
-        });
-
-        return $this;
-    }
-
-    /**
-     * @param mixed ...$regex
-     *
-     * @return static
-     */
-    protected function addRegex(...$regex)
-    {
-        array_walk_recursive($regex, function (string $r) {
-            $delimiters = $this->fetchDelimiters($r[ 0 ]);
-            if (! $this->delimiters) {
-                $this->setDelimiter($delimiters[ 0 ]);
-            }
-
-            $parts = explode($delimiters[ 1 ], $r);
-            $flags = array_pop($parts);
-            if (! $this->flags) {
-                $this->setFlags($flags);
-            }
-
-            [ $rr ] = $this->str->match($delimiters[ 0 ], $delimiters[ 1 ], $r);
-
-            $this->regex[] = $rr;
-        });
-
-        return $this;
-    }
-
-    /**
-     * @param mixed ...$regex
-     *
-     * @return static
-     */
-    protected function add(...$regex)
-    {
-        array_walk_recursive($regex, function (string $r) {
-            $this->preg->isValid($r)
-                ? ( $this->addRegex($r) )
-                : ( $this->regex[] = $r );
-        });
-
-        return $this;
-    }
-
-
-    /**
      * @param string $delimiter
      *
-     * @return static
+     * @return null|array
      */
-    protected function setDelimiter(string $delimiter)
+    protected function fetchDelimiters(string $delimiter) : ?array
     {
-        if ('' === $delimiter) {
-            throw new InvalidArgumentException('Delimiter should be non-empty string');
+        if (false === ( $pos = strpos(static::$_delimiters[ 0 ], $delimiter) )) {
+            return null;
         }
 
-        if (null === ( $delimiters = $this->fetchDelimiters($delimiter) )) {
-            throw new InvalidArgumentException('Invalid delimiter passed: ' . $delimiter);
-        }
+        $delimiters = [
+            static::$_delimiters[ 0 ][ $pos ],
+            static::$_delimiters[ 1 ][ $pos ],
+        ];
 
-        $this->delimiters = $delimiters;
-
-        return $this;
+        return $delimiters;
     }
-
-    /**
-     * @param string $flags
-     *
-     * @return static
-     */
-    protected function setFlags(string $flags)
-    {
-        $uniq = [];
-
-        $letters = '' !== $flags
-            ? array_filter(str_split($flags))
-            : [];
-
-        foreach ( $letters as $letter ) {
-            if (false === strpos(static::$_flags, $letter)) {
-                throw new InvalidArgumentException('Invalid flag passed: ' . $letter);
-            }
-
-            $uniq[ $letter ] = true;
-        }
-
-        $this->flags = $uniq
-            ? implode('', array_keys($uniq))
-            : '';
-
-        return $this;
-    }
-
 
     /**
      * @var string[]

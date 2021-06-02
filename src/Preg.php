@@ -34,24 +34,11 @@ class Preg
      *
      * @return RegExp
      */
-    public function newRegExp($regex, string $delimiter = null, string $flags = null) : RegExp
+    public function new($regex, string $delimiter = null, string $flags = null) : RegExp
     {
         return new RegExp($this, $this->str,
             $regex, $delimiter, $flags
         );
-    }
-
-    /**
-     * @param string|string[] $regex
-     * @param null|string     $delimiter
-     * @param null|string     $flags
-     *
-     * @return RegExp
-     */
-    public function new($regex, string $delimiter = null, string $flags = null) : string
-    {
-        return $this->newRegExp($regex, $delimiter, $flags)
-            ->compile();
     }
 
 
@@ -60,10 +47,56 @@ class Preg
      *
      * @return bool
      */
+    public function isShort($regex) : bool
+    {
+        return null !== $this->filterShort($regex);
+    }
+
+    /**
+     * @param mixed $regex
+     *
+     * @return bool
+     */
     public function isValid($regex) : bool
     {
-        return is_string($regex)
-            && ( false !== @preg_match($regex, null) );
+        return null !== $this->filterValid($regex);
+    }
+
+
+    /**
+     * @param mixed $regex
+     *
+     * @return null|string
+     */
+    public function filterShort($regex) : ?string
+    {
+        if (! is_string($regex)) {
+            return null;
+        }
+
+        if (null === $this->filterValid('/' . $regex . '/')) {
+            return null;
+        }
+
+        return $regex;
+    }
+
+    /**
+     * @param mixed $regex
+     *
+     * @return null|string
+     */
+    public function filterValid($regex) : ?string
+    {
+        if (! is_string($regex)) {
+            return null;
+        }
+
+        if (false === @preg_match($regex, null)) {
+            return null;
+        }
+
+        return $regex;
     }
 
 
@@ -75,8 +108,7 @@ class Preg
      */
     public function concat($regex, ...$regexes) : string
     {
-        return $this->newRegExp($regex)
-            ->concat(...$regexes)
+        return $this->new($regex)->concat(...$regexes)
             ->compile();
     }
 }

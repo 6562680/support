@@ -46,13 +46,13 @@ class Str
      * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для битового сдвига
      * usort($array, function ($a, $b) { return $str->strpos($haystack, $a) - $str->strpos($haystack, $b); }}
      *
-     * @param string $haystack
-     * @param string $needle
-     * @param int    $offset
+     * @param string   $haystack
+     * @param string   $needle
+     * @param null|int $offset
      *
      * @return int
      */
-    public function strpos($haystack, $needle, $offset) : int
+    public function strpos(string $haystack, string $needle, int $offset = null) : int
     {
         $result = false === ( $pos = mb_strpos($haystack, $needle, $offset) )
             ? -1
@@ -66,13 +66,13 @@ class Str
      * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для битового сдвига
      * usort($array, function ($a, $b) { return $str->strrpos($haystack, $a) - $str->strrpos($haystack, $b); }}
      *
-     * @param string $haystack
-     * @param string $needle
-     * @param int    $offset
+     * @param string   $haystack
+     * @param string   $needle
+     * @param null|int $offset
      *
      * @return int
      */
-    public function strrpos($haystack, $needle, $offset) : int
+    public function strrpos(string $haystack, string $needle, int $offset = null) : int
     {
         $result = false === ( $pos = mb_strrpos($haystack, $needle, $offset) )
             ? -1
@@ -86,13 +86,13 @@ class Str
      * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для битового сдвига
      * usort($array, function ($a, $b) { return $str->stripos($haystack, $a) - $str->stripos($haystack, $b); }}
      *
-     * @param string $haystack
-     * @param string $needle
-     * @param int    $offset
+     * @param string   $haystack
+     * @param string   $needle
+     * @param null|int $offset
      *
      * @return int
      */
-    public function stripos($haystack, $needle, $offset) : int
+    public function stripos(string $haystack, string $needle, int $offset = null) : int
     {
         $result = false === ( $pos = mb_stripos($haystack, $needle, $offset) )
             ? -1
@@ -106,13 +106,13 @@ class Str
      * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для битового сдвига
      * usort($array, function ($a, $b) { return $str->strripos($haystack, $a) - $str->strripos($haystack, $b); }}
      *
-     * @param string $haystack
-     * @param string $needle
-     * @param int    $offset
+     * @param string   $haystack
+     * @param string   $needle
+     * @param null|int $offset
      *
      * @return int
      */
-    public function strripos($haystack, $needle, $offset) : int
+    public function strripos(string $haystack, string $needle, int $offset = null) : int
     {
         $result = false === ( $pos = mb_strripos($haystack, $needle, $offset) )
             ? -1
@@ -143,28 +143,28 @@ class Str
     /**
      * фикс. стандартная функция не поддерживает лимит замен
      *
-     * @param string|string[] $search
-     * @param string|string[] $replace
-     * @param string|string[] $subject
+     * @param string|string[] $strings
+     * @param string|string[] $replacements
+     * @param string|string[] $subjects
      * @param null|int        $limit
      * @param null|int        $count
      *
      * @return string|string[]
      */
-    public function replace($search, $replace, $subject, int $limit = null, int &$count = null) // : string|string[]
+    public function replace($strings, $replacements, $subjects, int $limit = null, int &$count = null) // : string|string[]
     {
-        $searchArray = $this->strvals($search);
-        $replaceArray = $this->strvals($replace);
-        $subjectArray = $this->strvals($subject);
+        $searchArray = $this->strvals($strings);
+        $replaceArray = $this->strvals($replacements);
+        $subjectArray = $this->strvals($subjects);
 
-        if ([] === $searchArray) return $subject;
-        if ([] === $replaceArray) return $subject;
-        if ([] === $subjectArray) return $subject;
+        if ([] === $searchArray) return $subjects;
+        if ([] === $replaceArray) return $subjects;
+        if ([] === $subjectArray) return $subjects;
 
         if (null === $limit) {
             $result = ( 5 === func_num_args() )
-                ? str_replace($search, $replace, $subject, $count)
-                : str_replace($search, $replace, $subject);
+                ? str_replace($strings, $replacements, $subjects, $count)
+                : str_replace($strings, $replacements, $subjects);
 
         } else {
             $reverse = $limit < 0;
@@ -222,28 +222,28 @@ class Str
     /**
      * фикс. стандартная функция не поддерживает лимит замен
      *
-     * @param string|string[] $search
-     * @param string|string[] $replace
-     * @param string|string[] $subject
+     * @param string|string[] $strings
+     * @param string|string[] $replacements
+     * @param string|string[] $subjects
      * @param null|int        $limit
      * @param null|int        $count
      *
      * @return string|string[]
      */
-    public function ireplace($search, $replace, $subject, int $limit = null, int &$count = null) // : string|string[]
+    public function ireplace($strings, $replacements, $subjects, int $limit = null, int &$count = null) // : string|string[]
     {
-        $searchArray = $this->strvals($search);
-        $replaceArray = $this->strvals($replace);
-        $subjectArray = $this->strvals($subject);
+        $searchArray = $this->strvals($strings);
+        $replaceArray = $this->strvals($replacements);
+        $subjectArray = $this->strvals($subjects);
 
-        if ([] === $searchArray) return $subject;
-        if ([] === $replaceArray) return $subject;
-        if ([] === $subjectArray) return $subject;
+        if ([] === $searchArray) return $subjects;
+        if ([] === $replaceArray) return $subjects;
+        if ([] === $subjectArray) return $subjects;
 
         if (null === $limit) {
             $result = ( 5 === func_num_args() )
-                ? str_ireplace($search, $replace, $subject, $count)
-                : str_ireplace($search, $replace, $subject);
+                ? str_ireplace($strings, $replacements, $subjects, $count)
+                : str_ireplace($strings, $replacements, $subjects);
 
         } else {
             $reverse = $limit < 0;
@@ -302,23 +302,21 @@ class Str
     /**
      * Обрезает у строки подстроку с начала (ltrim, только для строк а не букв)
      *
-     * @param string      $str
+     * @param string      $haystack
      * @param string|null $needle
      * @param bool|null   $ignoreCase
      * @param int         $limit
      *
      * @return string
      */
-    public function lcrop(string $str, string $needle = null, bool $ignoreCase = null, int $limit = -1) : string
+    public function lcrop(string $haystack, string $needle, bool $ignoreCase = null, int $limit = -1) : string
     {
-        $needle = $needle ?? '';
-
-        if ('' === $str) return $str;
-        if ('' === $needle) return $str;
-
         $ignoreCase = $ignoreCase ?? true;
 
-        $result = $str;
+        if ('' === $haystack) return $haystack;
+        if ('' === $needle) return $haystack;
+
+        $result = $haystack;
 
         $pos = $ignoreCase
             ? mb_stripos($result, $needle)
@@ -342,23 +340,21 @@ class Str
     /**
      * Обрезает у строки подстроку с конца (rtrim, только для строк а не букв)
      *
-     * @param string      $str
+     * @param string      $haystack
      * @param string|null $needle
      * @param bool|null   $ignoreCase
      * @param int         $limit
      *
      * @return string
      */
-    public function rcrop(string $str, string $needle = null, bool $ignoreCase = null, int $limit = -1) : string
+    public function rcrop(string $haystack, string $needle, bool $ignoreCase = null, int $limit = -1) : string
     {
-        $needle = $needle ?? '';
-
-        if ('' === $str) return $str;
-        if ('' === $needle) return $str;
-
         $ignoreCase = $ignoreCase ?? true;
 
-        $result = $str;
+        if ('' === $haystack) return $haystack;
+        if ('' === $needle) return $haystack;
+
+        $result = $haystack;
 
         $pos = $ignoreCase
             ? mb_strripos($result, $needle)
@@ -382,25 +378,25 @@ class Str
     /**
      * Обрезает у строки подстроки с обеих сторон (trim, только для строк а не букв)
      *
-     * @param string      $str
-     * @param string|null $needle
+     * @param string      $haystack
+     * @param string|null $needles
      * @param bool|null   $ignoreCase
      * @param int         $limit
      *
      * @return string
      */
-    public function crop(string $str, $needle = null, bool $ignoreCase = null, int $limit = -1) : string
+    public function crop(string $haystack, $needles, bool $ignoreCase = null, int $limit = -1) : string
     {
-        $needles = is_array($needle)
-            ? $needle
-            : [ $needle ];
+        $needles = is_array($needles)
+            ? $needles
+            : [ $needles ];
 
         $needleLcrop = array_shift($needles);
         $needleRcrop = null !== key($needles)
             ? current($needles)
             : $needleLcrop;
 
-        $result = $str;
+        $result = $haystack;
         $result = $this->lcrop($result, $needleLcrop, $ignoreCase, $limit);
         $result = $this->rcrop($result, $needleRcrop, $ignoreCase, $limit);
 
@@ -412,25 +408,25 @@ class Str
      * если строка начинается на искомую, отрезает ее и возвращает укороченную
      * if (null !== ($substr = $str->ends('hello', 'h'))) {} // 'ello'
      *
-     * @param string      $str
+     * @param string      $haystack
      * @param string|null $needle
      * @param bool|null   $ignoreCase
      *
      * @return null|string
      */
-    public function starts(string $str, string $needle = null, bool $ignoreCase = true) : ?string
+    public function starts(string $haystack, string $needle, bool $ignoreCase = null) : ?string
     {
-        $needle = $needle ?? '';
+        $ignoreCase = $ignoreCase ?? true;
 
-        if ('' === $str) return null;
-        if ('' === $needle) return $str;
+        if ('' === $haystack) return null;
+        if ('' === $needle) return $haystack;
 
         $pos = $ignoreCase
-            ? mb_stripos($str, $needle)
-            : mb_strpos($str, $needle);
+            ? mb_stripos($haystack, $needle)
+            : mb_strpos($haystack, $needle);
 
         $result = 0 === $pos
-            ? mb_substr($str, mb_strlen($needle))
+            ? mb_substr($haystack, mb_strlen($needle))
             : null;
 
         return $result;
@@ -440,25 +436,25 @@ class Str
      * если строка заканчивается на искомую, отрезает ее и возвращает укороченную
      * if (null !== ($substr = $str->ends('hello', 'o'))) {} // 'hell'
      *
-     * @param string      $str
+     * @param string      $haystack
      * @param string|null $needle
      * @param bool|null   $ignoreCase
      *
      * @return null|string
      */
-    public function ends(string $str, string $needle = null, bool $ignoreCase = true) : ?string
+    public function ends(string $haystack, string $needle, bool $ignoreCase = null) : ?string
     {
-        $needle = $needle ?? '';
+        $ignoreCase = $ignoreCase ?? true;
 
-        if ('' === $str) return null;
-        if ('' === $needle) return $str;
+        if ('' === $haystack) return null;
+        if ('' === $needle) return $haystack;
 
         $pos = $ignoreCase
-            ? mb_strripos($str, $needle)
-            : mb_strrpos($str, $needle);
+            ? mb_strripos($haystack, $needle)
+            : mb_strrpos($haystack, $needle);
 
-        $result = $pos === mb_strlen($str) - mb_strlen($needle)
-            ? mb_substr($str, 0, $pos)
+        $result = $pos === mb_strlen($haystack) - mb_strlen($needle)
+            ? mb_substr($haystack, 0, $pos)
             : null;
 
         return $result;
@@ -468,33 +464,33 @@ class Str
      * ищет подстроку в строке и разбивает по ней результат
      * if ($explode = $str->contains('hello', 'h')) {} // ['', 'ello']
      *
-     * @param string      $str
+     * @param string      $haystack
      * @param string|null $needle
      * @param null|int    $limit
      * @param bool|null   $ignoreCase
      *
      * @return array
      */
-    public function contains(string $str, string $needle = null, int $limit = null, bool $ignoreCase = true) : array
+    public function contains(string $haystack, string $needle, bool $ignoreCase = null, int $limit = null) : array
     {
-        $needle = $needle ?? '';
+        $ignoreCase = $ignoreCase ?? true;
 
-        if ('' === $str) return [];
-        if ('' === $needle) return [ $str ];
+        if ('' === $haystack) return [];
+        if ('' === $needle) return [ $haystack ];
 
         $limit = null !== $limit
             ? max(0, $limit)
             : null;
 
         $strCase = $ignoreCase
-            ? str_ireplace($needle, $needle, $str)
-            : $str;
+            ? str_ireplace($needle, $needle, $haystack)
+            : $haystack;
 
         $result = [];
 
-        if (false !== ( $pos = mb_strpos($str, $needle) )) {
+        if (false !== ( $pos = mb_strpos($haystack, $needle) )) {
             $result = null
-                ?? ( '' === $needle ? [ $str ] : null )
+                ?? ( '' === $needle ? [ $haystack ] : null )
                 ?? ( $limit ? explode($needle, $strCase, $limit) : null )
                 ?? ( explode($needle, $strCase) );
         }
@@ -507,21 +503,21 @@ class Str
      * Добавляет подстроку в начале строки
      *
      * @param string      $str
-     * @param string|null $wrap
+     * @param string|null $wrapper
      * @param null|int    $len
      *
      * @return string
      */
-    public function lwrap(string $str, string $wrap = null, int $len = null) : string
+    public function lwrap(string $str, string $wrapper = null, int $len = null) : string
     {
-        $wrap = $wrap ?? '';
+        $wrapper = $wrapper ?? '';
         $len = $len ?? 1;
 
-        if ('' === $wrap) return $str;
+        if ('' === $wrapper) return $str;
 
         $len = max(0, $len);
 
-        $result = str_repeat($wrap, $len) . $str;
+        $result = str_repeat($wrapper, $len) . $str;
 
         return $result;
     }
@@ -530,21 +526,21 @@ class Str
      * Добавляет подстроку в конце строки
      *
      * @param string      $str
-     * @param string|null $wrap
+     * @param string|null $wrapper
      * @param null|int    $len
      *
      * @return string
      */
-    public function rwrap(string $str, string $wrap = null, int $len = null) : string
+    public function rwrap(string $str, string $wrapper = null, int $len = null) : string
     {
-        $wrap = $wrap ?? '';
+        $wrapper = $wrapper ?? '';
         $len = $len ?? 1;
 
-        if ('' === $wrap) return $str;
+        if ('' === $wrapper) return $str;
 
         $len = max(0, $len);
 
-        $result = $str . str_repeat($wrap, $len);
+        $result = $str . str_repeat($wrapper, $len);
 
         return $result;
     }
@@ -553,16 +549,16 @@ class Str
      * Оборачивает строку в другие, например в кавычки
      *
      * @param string      $str
-     * @param string|null $wrap
+     * @param string|null $wrappers
      * @param null|int    $len
      *
      * @return string
      */
-    public function wrap(string $str, $wrap = null, int $len = null) : string
+    public function wrap(string $str, $wrappers, int $len = null) : string
     {
-        $wraps = is_array($wrap)
-            ? $wrap
-            : [ $wrap ];
+        $wraps = is_array($wrappers)
+            ? $wrappers
+            : [ $wrappers ];
 
         $lwrap = array_shift($wraps);
         $rwrap = null !== key($wraps)
@@ -581,25 +577,24 @@ class Str
      * Добавляет подстроку в начало строки, если её уже там нет
      *
      * @param string      $str
-     * @param string|null $needle
+     * @param string|null $prepend
      * @param bool        $ignoreCase
      *
      * @return string
      */
-    public function prepend(string $str, string $needle = null, bool $ignoreCase = null) : string
+    public function prepend(string $str, string $prepend, bool $ignoreCase = null) : string
     {
-        $needle = $needle ?? '';
         $ignoreCase = $ignoreCase ?? true;
 
-        if ('' === $needle) return $str;
+        if ('' === $prepend) return $str;
 
         $fn = $ignoreCase
             ? 'mb_stripos'
             : 'mb_strpos';
 
-        $result = 0 === call_user_func($fn, $str, $needle)
+        $result = 0 === call_user_func($fn, $str, $prepend)
             ? $str
-            : $needle . $str;
+            : $prepend . $str;
 
         return $result;
     }
@@ -608,25 +603,24 @@ class Str
      * Добавляет подстроку в конец строки, если её уже там нет
      *
      * @param string      $str
-     * @param string|null $needle
+     * @param string|null $append
      * @param bool        $ignoreCase
      *
      * @return string
      */
-    public function append(string $str, string $needle = null, bool $ignoreCase = null) : string
+    public function append(string $str, string $append, bool $ignoreCase = null) : string
     {
-        $needle = $needle ?? '';
         $ignoreCase = $ignoreCase ?? true;
 
-        if ('' === $needle) return $str;
+        if ('' === $append) return $str;
 
         $func = $ignoreCase
             ? 'mb_strripos'
             : 'mb_strrpos';
 
-        $result = ( ( mb_strlen($str) - mb_strlen($needle) ) === call_user_func($func, $str, $needle) )
+        $result = ( ( mb_strlen($str) - mb_strlen($append) ) === call_user_func($func, $str, $append) )
             ? $str
-            : $str . $needle;
+            : $str . $append;
 
         return $result;
     }
@@ -635,25 +629,25 @@ class Str
      * Оборачивает строку в подстроки, если их уже там нет
      *
      * @param string      $str
-     * @param null|string $needle
+     * @param null|string $overlays
      * @param bool        $ignoreCase
      *
      * @return string
      */
-    public function overlay(string $str, $needle = null, bool $ignoreCase = true) : string
+    public function overlay(string $str, $overlays, bool $ignoreCase = null) : string
     {
-        $needles = is_array($needle)
-            ? $needle
-            : [ $needle ];
+        $overlays = is_array($overlays)
+            ? $overlays
+            : [ $overlays ];
 
-        $needlePrepend = array_shift($needles);
-        $needleAppend = null !== key($needles)
-            ? current($needles)
-            : $needlePrepend;
+        $overlayPrepend = array_shift($overlays);
+        $overlayAppend = null !== key($overlays)
+            ? current($overlays)
+            : $overlayPrepend;
 
         $result = $str;
-        $result = $this->prepend($result, $needlePrepend, $ignoreCase);
-        $result = $this->append($result, $needleAppend, $ignoreCase);
+        $result = $this->prepend($result, $overlayPrepend, $ignoreCase);
+        $result = $this->append($result, $overlayAppend, $ignoreCase);
 
         return $result;
     }
@@ -1022,10 +1016,11 @@ class Str
      */
     public function match(string $start, string $end, string $haystack,
         int $offset = null,
-        bool $ignoreCase = true
+        bool $ignoreCase = null
     ) : array
     {
         $offset = $offset ?? 0;
+        $ignoreCase = $ignoreCase ?? true;
 
         $flags = 'u';
         $flags .= $ignoreCase ? 'i' : '';
@@ -1470,7 +1465,7 @@ class Str
         $vowels[ 'e' ] = 'eèéêẽēĕėëẻěȅȇẹȩęḙḛềếễểḕḗệḝ';
         $vowels[ 'i' ] = 'iìíîĩīĭıïỉǐịįȉȋḭḯ';
         $vowels[ 'o' ] = 'oòóôõōŏȯöỏőǒȍȏơǫọøồốỗổȱȫȭṍṏṑṓờớỡởợǭộǿœ';
-        $vowels[ 'u' ] = 'uùúûũūŭüủůűǔȕȗưụṳųṷṵṹṻǖǜǘǖǚừứữửự';;
+        $vowels[ 'u' ] = 'uùúûũūŭüủůűǔȕȗưụṳųṷṵṹṻǖǜǘǖǚừứữửự';
         $vowels[ 'A' ] = 'AÀÁÂÃĀĂȦÄẢÅǍȀȂĄẠḀẦẤẪẨẰẮẴẲǠǞǺẬẶÆǼǢ';
         $vowels[ 'E' ] = 'EÈÉÊẼĒĔĖËẺĚȄȆẸȨĘḘḚỀẾỄỂḔḖỆḜ';
         $vowels[ 'I' ] = 'IÌÍÎĨĪĬİÏỈǏỊĮȈȊḬḮ';
