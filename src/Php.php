@@ -223,6 +223,8 @@ class Php
 
 
     /**
+     * Превращает примитивы и массивы любой вложенности в одноуровневый список
+     *
      * @param mixed ...$items
      *
      * @return array
@@ -245,6 +247,8 @@ class Php
     }
 
     /**
+     * Превращает каждый аргумент из примитивов и массивов любой вложенности в список списков
+     *
      * @param mixed ...$lists
      *
      * @return array
@@ -262,11 +266,13 @@ class Php
 
 
     /**
+     * Превращает enum-список любой вложенности (значения могут быть в ключах или в полях) в список уникальных значений
+     *
      * @param mixed ...$items
      *
      * @return array
      */
-    public function mapval(...$items) : array
+    public function enumval(...$items) : array
     {
         $result = [];
 
@@ -310,16 +316,18 @@ class Php
     }
 
     /**
-     * @param mixed ...$maps
+     * Превращает каждый аргумент с помощью enumval
+     *
+     * @param mixed ...$enumlists
      *
      * @return array
      */
-    public function mapvals(...$maps) : array
+    public function enumvals(...$enumlists) : array
     {
         $result = [];
 
-        foreach ( $maps as $idx => $map ) {
-            $result[ $idx ] = $this->mapval($map);
+        foreach ( $enumlists as $idx => $map ) {
+            $result[ $idx ] = $this->enumval($map);
         }
 
         return $result;

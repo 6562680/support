@@ -114,6 +114,8 @@ abstract class GeneratedPhpFacade
     }
 
     /**
+     * Превращает примитивы и массивы любой вложенности в одноуровневый список
+     *
      * @param mixed ...$items
      *
      * @return array
@@ -124,6 +126,8 @@ abstract class GeneratedPhpFacade
     }
 
     /**
+     * Превращает каждый аргумент из примитивов и массивов любой вложенности в список списков
+     *
      * @param mixed ...$lists
      *
      * @return array
@@ -134,23 +138,27 @@ abstract class GeneratedPhpFacade
     }
 
     /**
+     * Превращает enum-список любой вложенности (значения могут быть в ключах или в полях) в список уникальных значений
+     *
      * @param mixed ...$items
      *
      * @return array
      */
-    public static function mapval(...$items): array
+    public static function enumval(...$items): array
     {
-        return static::getInstance()->mapval(...$items);
+        return static::getInstance()->enumval(...$items);
     }
 
     /**
-     * @param mixed ...$maps
+     * Превращает каждый аргумент с помощью enumval
+     *
+     * @param mixed ...$enumlists
      *
      * @return array
      */
-    public static function mapvals(...$maps): array
+    public static function enumvals(...$enumlists): array
     {
-        return static::getInstance()->mapvals(...$maps);
+        return static::getInstance()->enumvals(...$enumlists);
     }
 
     /**

@@ -42,7 +42,7 @@ class PhpTest extends AbstractTestCase
     }
 
 
-    public function testMapval()
+    public function testEnumval()
     {
         $php = $this->getPhp();
 
@@ -52,10 +52,10 @@ class PhpTest extends AbstractTestCase
             $map[] = array_combine($keys, array_fill(0, count($keys), $key));
         }
 
-        $this->assertEquals([ 0, 'a', 0.0 ], $php->mapval($map));
+        $this->assertEquals([ 0, 'a', 0.0 ], $php->enumval($map));
     }
 
-    public function testMapvals()
+    public function testEnumvals()
     {
         $php = $this->getPhp();
 
@@ -68,6 +68,6 @@ class PhpTest extends AbstractTestCase
         $this->assertEquals([
             [ 0, 'a', 0.0 ],
             [ 0, 'a', 0.0 ],
-        ], $php->mapvals($map, $map));
+        ], $php->enumvals($map, $map));
     }
 }
