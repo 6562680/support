@@ -157,10 +157,10 @@ abstract class GeneratedStrFacade
     /**
      * Обрезает у строки подстроки с обеих сторон (trim, только для строк а не букв)
      *
-     * @param string      $haystack
-     * @param string|null $needles
-     * @param bool|null   $ignoreCase
-     * @param int         $limit
+     * @param string          $haystack
+     * @param string|string[] $needles
+     * @param bool|null       $ignoreCase
+     * @param int             $limit
      *
      * @return string
      */
@@ -246,9 +246,9 @@ abstract class GeneratedStrFacade
     /**
      * Оборачивает строку в другие, например в кавычки
      *
-     * @param string      $str
-     * @param string|null $wrappers
-     * @param null|int    $len
+     * @param string          $str
+     * @param string|string[] $wrappers
+     * @param null|int        $len
      *
      * @return string
      */
@@ -288,9 +288,9 @@ abstract class GeneratedStrFacade
     /**
      * Оборачивает строку в подстроки, если их уже там нет
      *
-     * @param string      $str
-     * @param null|string $overlays
-     * @param bool        $ignoreCase
+     * @param string          $str
+     * @param string|string[] $overlays
+     * @param bool            $ignoreCase
      *
      * @return string
      */
@@ -431,8 +431,8 @@ abstract class GeneratedStrFacade
      * применяет prefix() ко всем строкам, затем соединяет результаты, чтобы урезать итоговый размер строки
      *
      * @param string|string[]|array      $strings
-     * @param null|int                   $limit
      * @param null|string|string[]|array $delimiters
+     * @param null|int                   $limit
      *
      * @return string
      */

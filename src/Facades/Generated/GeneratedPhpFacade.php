@@ -124,13 +124,13 @@ abstract class GeneratedPhpFacade
     }
 
     /**
-     * @param mixed ...$items
+     * @param mixed ...$lists
      *
      * @return array
      */
-    public static function listvalFlatten(...$items): array
+    public static function listvals(...$lists): array
     {
-        return static::getInstance()->listvalFlatten(...$items);
+        return static::getInstance()->listvals(...$lists);
     }
 
     /**

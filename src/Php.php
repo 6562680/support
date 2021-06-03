@@ -230,28 +230,6 @@ class Php
     {
         $result = [];
 
-        foreach ( $items as $idx => $item ) {
-            if (is_iterable($item)) {
-                foreach ( $item as $val ) {
-                    $result[] = $val;
-                }
-            } else {
-                $result[] = $item;
-            }
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param mixed ...$items
-     *
-     * @return array
-     */
-    public function listvalFlatten(...$items) : array
-    {
-        $result = [];
-
         array_walk_recursive($items, function ($item) use (&$result) {
             if (is_iterable($item)) {
                 foreach ( $item as $int => $val ) {
@@ -261,6 +239,28 @@ class Php
                 $result[] = $item;
             }
         });
+
+        return $result;
+    }
+
+    /**
+     * @param mixed ...$lists
+     *
+     * @return array
+     */
+    public function listvals(...$lists) : array
+    {
+        $result = [];
+
+        foreach ( $lists as $idx => $list ) {
+            if (is_iterable($list)) {
+                foreach ( $list as $val ) {
+                    $result[ $idx ][] = $val;
+                }
+            } else {
+                $result[ $idx ][] = $list;
+            }
+        }
 
         return $result;
     }
