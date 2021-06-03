@@ -40,6 +40,16 @@ abstract class GeneratedType
     }
 
     /**
+     * @param bool|mixed $value
+     *
+     * @return bool
+     */
+    public function isBool($value): ?bool
+    {
+        return null !== $this->filter->filterBool($value);
+    }
+
+    /**
      * @param int|mixed $value
      *
      * @return bool

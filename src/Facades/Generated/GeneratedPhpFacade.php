@@ -134,6 +134,26 @@ abstract class GeneratedPhpFacade
     }
 
     /**
+     * @param mixed ...$items
+     *
+     * @return array
+     */
+    public static function mapval(...$items): array
+    {
+        return static::getInstance()->mapval(...$items);
+    }
+
+    /**
+     * @param mixed ...$maps
+     *
+     * @return array
+     */
+    public static function mapvals(...$maps): array
+    {
+        return static::getInstance()->mapvals(...$maps);
+    }
+
+    /**
      * @param mixed ...$arguments
      *
      * @return array

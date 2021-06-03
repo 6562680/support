@@ -27,6 +27,16 @@ abstract class GeneratedFilterFacade
     }
 
     /**
+     * @param bool|mixed $value
+     *
+     * @return null|bool
+     */
+    public static function filterBool($value): ?bool
+    {
+        return static::getInstance()->filterBool($value);
+    }
+
+    /**
      * @param int|mixed $value
      *
      * @return null|int

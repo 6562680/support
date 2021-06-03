@@ -47,6 +47,22 @@ abstract class GeneratedAssert
     }
 
     /**
+     * @param bool|mixed $value
+     *
+     * @return bool
+     */
+    public function assertBool($value): ?bool
+    {
+        if (null === ($filtered = $this->filter->filterBool($value))) {
+            throw new InvalidArgumentException($this->flushMessage(...func_get_args())
+                ?? array_merge([ 'Invalid Bool passed: %s' ], func_get_args())
+            );
+        }
+
+        return $filtered;
+    }
+
+    /**
      * @param int|mixed $value
      *
      * @return int

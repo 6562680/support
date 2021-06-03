@@ -1,48 +1,8 @@
 <?php
 
-require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/generator.php';
 
-
-$fnStarts = function (string $str, string $needle = null, bool $ignoreCase = true) : ?string {
-    $needle = $needle ?? '';
-
-    if ('' === $str) return null;
-    if ('' === $needle) return $str;
-
-    $pos = $ignoreCase
-        ? mb_stripos($str, $needle)
-        : mb_strpos($str, $needle);
-
-    $result = 0 === $pos
-        ? mb_substr($str, mb_strlen($needle))
-        : null;
-
-    return $result;
-};
-$fnUses = function (string $class) use ($fnStarts) : array {
-    $uses = [];
-
-    /** @noinspection PhpUnhandledExceptionInspection */
-    $rc = new \ReflectionClass($class);
-
-    $filepath = $rc->getFileName();
-
-    $h = fopen($filepath, 'r');
-    while ( ! feof($h) ) {
-        $line = trim(fgets($h));
-
-        if (null !== ( $cut = $fnStarts($line, 'use ') )) {
-            $uses[] = rtrim($cut, ';');
-        }
-
-        if (null !== $fnStarts($line, 'class ')) {
-            break;
-        }
-    }
-    fclose($h);
-
-    return $uses;
-};
+$generator = new Gzhegow_Support_Generator();
 
 
 // list
@@ -98,7 +58,7 @@ foreach ( $facades as $facade => $from ) {
     $phpFile->addNamespace($namespace);
 
     $namespace->addUse($originalClass);
-    foreach ( $fnUses($fromClass) as $use ) {
+    foreach ( $generator->classUses($fromClass) as $use ) {
         $namespace->addUse($use);
     }
 
@@ -114,7 +74,7 @@ foreach ( $facades as $facade => $from ) {
         }
 
         $methodName = $method->getName();
-        if (null !== $fnStarts($methodName, '__')) {
+        if (null !== $generator->str_starts($methodName, '__')) {
             continue;
         }
 
@@ -185,7 +145,7 @@ foreach ( $facades as $facade => $from ) {
     $content = $printer->printFile($phpFile);
 
     // store
-    $filepath = __DIR__ . '/src/Facades/Generated/Generated' . $facade . '.php';
+    $filepath = __ROOT__ . '/src/Facades/Generated/Generated' . $facade . '.php';
 
     echo 'Writing file: ' . $filepath . PHP_EOL;
     file_put_contents($filepath, $content);

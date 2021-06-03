@@ -132,6 +132,7 @@ class Php
         return $value;
     }
 
+
     /**
      * @param string $key
      * @param array  $array
@@ -232,7 +233,7 @@ class Php
 
         array_walk_recursive($items, function ($item) use (&$result) {
             if (is_iterable($item)) {
-                foreach ( $item as $int => $val ) {
+                foreach ( $item as $val ) {
                     $result[] = $val;
                 }
             } else {
@@ -253,13 +254,72 @@ class Php
         $result = [];
 
         foreach ( $lists as $idx => $list ) {
-            if (is_iterable($list)) {
-                foreach ( $list as $val ) {
-                    $result[ $idx ][] = $val;
+            $result[ $idx ] = $this->listval($list);
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * @param mixed ...$items
+     *
+     * @return array
+     */
+    public function mapval(...$items) : array
+    {
+        $result = [];
+
+        array_walk_recursive($items, function ($item, $key) use (&$result) {
+            $map = [];
+
+            if (is_iterable($item)) {
+                foreach ( $item as $itemKey => $itemVal ) {
+                    $map[ $itemKey ] = $itemVal;
                 }
             } else {
-                $result[ $idx ][] = $list;
+                $map[ $key ] = $item;
             }
+
+            foreach ( $map as $valOrKey => $valOrBool ) {
+                $isIgnore = null === $valOrBool
+                    || false === $valOrBool
+                    || '' === $valOrBool;
+
+                if ($isIgnore) {
+                    continue;
+                }
+
+                $value = null
+                    ?? ( true === $valOrBool ? $valOrKey : null )
+                    ?? $this->filter->filterWord($valOrKey)
+                    ?? $this->filter->filterWordOrNumber($valOrBool)
+                    ?? $this->filter->filterInt($valOrKey);
+
+                if (null === $value) {
+                    continue;
+                }
+
+                $result[ $this->hash($value) ] = $value;
+            }
+        });
+
+        $result = array_values($result);
+
+        return $result;
+    }
+
+    /**
+     * @param mixed ...$maps
+     *
+     * @return array
+     */
+    public function mapvals(...$maps) : array
+    {
+        $result = [];
+
+        foreach ( $maps as $idx => $map ) {
+            $result[ $idx ] = $this->mapval($map);
         }
 
         return $result;

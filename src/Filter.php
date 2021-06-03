@@ -44,6 +44,21 @@ class Filter
 
 
     /**
+     * @param bool|mixed $value
+     *
+     * @return null|bool
+     */
+    public function filterBool($value) : ?bool
+    {
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        return null;
+    }
+
+
+    /**
      * @param int|mixed $value
      *
      * @return null|int
