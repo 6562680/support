@@ -124,9 +124,8 @@ class Debug
         }
 
         return null
-            ?? ( count($result) > 1 ? $result : null )
-            ?? ( count($result) > 0 ? reset($result) : null )
-            ?? [];
+            ?? ( count($result) === 1 ? reset($result) : null )
+            ?? $result;
     }
 
 

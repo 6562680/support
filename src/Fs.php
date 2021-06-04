@@ -1,4 +1,4 @@
-<?php /** @noinspection PhpUnusedAliasInspection */
+<?php
 
 namespace Gzhegow\Support;
 
@@ -245,7 +245,7 @@ class Fs
      */
     public function filterSplFileExists($value) : ?\SplFileInfo
     {
-        $result = ( null !== ( $spl = $this->filter->filterFileInfo($value) ) )
+        $result = ( null !== $this->filter->filterFileInfo($value) )
             ? $value
             : null;
 
@@ -461,7 +461,7 @@ class Fs
             return $spl->getRealPath();
         }
 
-        if (null !== ( $spl = $this->filterPathFileExists($pathOrSpl) )) {
+        if (null !== $this->filterPathFileExists($pathOrSpl)) {
             return realpath($pathOrSpl);
         }
 
@@ -479,7 +479,7 @@ class Fs
             return $spl->getRealPath();
         }
 
-        if (null !== ( $spl = $this->filterPathFile($pathOrSpl) )) {
+        if (null !== $this->filterPathFile($pathOrSpl)) {
             return realpath($pathOrSpl);
         }
 
@@ -497,7 +497,7 @@ class Fs
             return $spl->getRealPath();
         }
 
-        if (null !== ( $spl = $this->filterPathDir($pathOrSpl) )) {
+        if (null !== $this->filterPathDir($pathOrSpl)) {
             return realpath($pathOrSpl);
         }
 
@@ -515,7 +515,7 @@ class Fs
             return $spl->getRealPath();
         }
 
-        if (null !== ( $spl = $this->filterPathLink($pathOrSpl) )) {
+        if (null !== $this->filterPathLink($pathOrSpl)) {
             return realpath($pathOrSpl);
         }
 
@@ -670,9 +670,8 @@ class Fs
 
 
     /**
-     * @param string      $path
-     * @param null|string $suffix
-     * @param int         $levels
+     * @param string $path
+     * @param int    $levels
      *
      * @return null|string
      */
@@ -827,34 +826,6 @@ class Fs
 
 
     /**
-     * конвертирует цифру размера в читабельный формат (1024 => 1Mb)
-     *
-     * @param int|float|string $size
-     *
-     * @return string
-     */
-    public function sizeFormat($size) : string
-    {
-        if (null === ( $numval = $this->php->numval($size) )) {
-            throw new InvalidArgumentException(
-                [ 'Filesize should be int or float: %s', $size ]
-            );
-        }
-
-        $multiplier = 0;
-        while ( $numval / 1024 > 0.9 ) {
-            $numval = $numval / 1024;
-
-            $multiplier++;
-        }
-
-        $result = round($numval) . array_search($multiplier, static::$units);
-
-        return $result;
-    }
-
-
-    /**
      * @param string|\SplFileInfo $file
      * @param bool                $use_include_path
      * @param null                $context
@@ -942,7 +913,7 @@ class Fs
 
         $result = false;
 
-        $stat = stat($file);
+        $stat = stat($realpath);
         if ($stat) {
             /** @noinspection PhpComposerExtensionStubsInspection */
             $group = posix_getgrgid($stat[ 5 ]);
@@ -1214,7 +1185,7 @@ class Fs
             }
         }
 
-        $hA = fopen($resourceA, 'r');
+        $hA = fopen($realpathA, 'r');
 
         $result = $this->diff($hA, $readableB, $close);
 
@@ -1309,30 +1280,4 @@ class Fs
 
         return $mount;
     }
-
-
-    /**
-     * @var array
-     */
-    protected static $units = [
-        'B' => 0,
-
-        'Kb' => 1,
-        'Mb' => 2,
-        'Gb' => 3,
-        'Tb' => 4,
-        'Pb' => 5,
-        'Eb' => 6,
-        'Zb' => 7,
-        'Yb' => 8,
-
-        'K' => 1,
-        'M' => 2,
-        'G' => 3,
-        'T' => 4,
-        'P' => 5,
-        'E' => 6,
-        'Z' => 7,
-        'Y' => 8,
-    ];
 }

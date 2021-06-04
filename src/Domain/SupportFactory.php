@@ -20,6 +20,7 @@ use Gzhegow\Support\Preg;
 use Gzhegow\Support\Debug;
 use Gzhegow\Support\Filter;
 use Gzhegow\Support\Loader;
+use Gzhegow\Support\Format;
 use Gzhegow\Support\Calendar;
 use Gzhegow\Support\Criteria;
 use Gzhegow\Support\Profiler;
@@ -153,6 +154,17 @@ class SupportFactory implements SupportFactoryInterface
     {
         return $this->containerGet(Filter::class)
             ?? new Filter();
+    }
+
+    /**
+     * @return Format
+     */
+    public function newFormat() : Format
+    {
+        return $this->containerGet(Filter::class)
+            ?? new Format(
+                $this->newNum()
+            );
     }
 
     /**

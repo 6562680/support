@@ -220,7 +220,7 @@ class Uri
     {
         $query = [];
 
-        foreach ( $items as $idx => $item ) {
+        foreach ( $items as $item ) {
             if (is_array($item)) {
                 $parsed = $item;
 
@@ -231,7 +231,7 @@ class Uri
             $query = array_replace_recursive($query, $parsed);
         }
 
-        array_walk_recursive($query, function (&$value) {
+        array_walk_recursive($query, function ($value) {
             if ([] === $value) {
                 return;
             }

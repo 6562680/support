@@ -25,7 +25,7 @@ $phpFile->setComment(implode("\n", [
 $namespace = new \Nette\PhpGenerator\PhpNamespace('Gzhegow\\Support\\Domain\\Filter\\Generated');
 $phpFile->addNamespace($namespace);
 $namespace->addUse(\Gzhegow\Support\Filter::class, 'Filter');
-$namespace->addUse(\Gzhegow\Support\Domain\Filter\InvokableInfoVO::class, 'InvokableInfoVO');
+$namespace->addUse(\Gzhegow\Support\Domain\Filter\InvokableInfoVal::class, 'InvokableInfoVal');
 
 // class
 $moduleType = new \Nette\PhpGenerator\ClassType('GeneratedType');

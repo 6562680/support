@@ -4,7 +4,6 @@ namespace Gzhegow\Support\Tests;
 
 use Gzhegow\Support\Php;
 use Gzhegow\Support\Domain\SupportFactory;
-use Gzhegow\Support\Exceptions\RuntimeException;
 
 
 class PhpTest extends AbstractTestCase

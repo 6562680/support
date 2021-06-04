@@ -79,8 +79,8 @@ abstract class GeneratedCalendarFacade
     }
 
     /**
-     * @param int|float|string|\DateTime         $date
-     * @param int[]|float[]|string[]|\DateTime[] $dates
+     * @param int|float|string|\DateTime       $date
+     * @param int|float|string|\DateTime|array $dates
      *
      * @return bool
      */

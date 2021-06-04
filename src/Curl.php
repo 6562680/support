@@ -41,7 +41,6 @@ class Curl
      *
      * @param Arr    $arr
      * @param Filter $filter
-     * @param Num    $num
      * @param Php    $php
      */
     public function __construct(
@@ -160,6 +159,7 @@ class Curl
      * @param resource|\CurlHandle $ch
      *
      * @return null|resource|\CurlHandle
+     * @noinspection PhpStrictComparisonWithOperandsOfDifferentTypesInspection
      */
     public function filterCurl($ch) // : ?resource|\CurlHandle
     {
@@ -393,7 +393,7 @@ class Curl
             ? $limits
             : [ $limits ];
 
-        foreach ( $limits as $idx => $limit ) {
+        foreach ( $limits as $limit ) {
             if (null === $this->filter->filterIntval($limit)) {
                 throw new InvalidArgumentException(
                     [ 'Each limit should be int: %s', $limit ]

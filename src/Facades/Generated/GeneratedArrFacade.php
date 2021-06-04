@@ -11,7 +11,7 @@
 namespace Gzhegow\Support\Facades\Generated;
 
 use Gzhegow\Support\Arr;
-use Gzhegow\Support\Domain\Arr\ArrExpandVO;
+use Gzhegow\Support\Domain\Arr\ArrExpandVal;
 use Gzhegow\Support\Domain\Arr\CrawlIterator;
 use Gzhegow\Support\Domain\Arr\WalkIterator;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
@@ -27,7 +27,7 @@ abstract class GeneratedArrFacade
      *
      * @return mixed
      */
-    public static function get($path, array &$src, $default = null)
+    public static function get($path, array &$src, $default = "\x00")
     {
         return static::getInstance()->get($path, $src, $default);
     }
@@ -39,7 +39,7 @@ abstract class GeneratedArrFacade
      *
      * @return mixed
      */
-    public static function getRef($path, array &$src, $default = null)
+    public static function getRef($path, array &$src, $default = "\x00")
     {
         return static::getInstance()->getRef($path, $src, $default);
     }
@@ -124,6 +124,16 @@ abstract class GeneratedArrFacade
     }
 
     /**
+     * @param mixed $value
+     *
+     * @return string
+     */
+    public static function indexval($value): string
+    {
+        return static::getInstance()->indexval($value);
+    }
+
+    /**
      * @param string|string[]|array $separators
      * @param string|string[]|array ...$keys
      *
@@ -135,13 +145,14 @@ abstract class GeneratedArrFacade
     }
 
     /**
-     * @param mixed $value
+     * @param string|string[]|array $separators
+     * @param string|string[]|array ...$keys
      *
      * @return string
      */
-    public static function indexval($value): string
+    public static function indexkeySkip($separators = '.', ...$keys): string
     {
-        return static::getInstance()->indexval($value);
+        return static::getInstance()->indexkeySkip($separators, ...$keys);
     }
 
     /**

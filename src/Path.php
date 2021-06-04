@@ -239,7 +239,7 @@ class Path
                         array_slice($wordSteps, $len)
                     );
 
-                    continue( 2 );
+                    continue 2;
                 }
 
                 $len--;

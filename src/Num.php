@@ -37,59 +37,16 @@ class Num
 
 
     /**
-     * @param int|float      $value
-     * @param null|int|float $sum
-     *
-     * @return float
-     */
-    public function ratio($value, $sum = null) : float
-    {
-        $this->filter->assert()->assertNumval($value);
-
-        if (isset($sum)) {
-            $this->filter->assert('Sum should be number: %s', $sum)
-                ->assertNumval($sum);
-        }
-
-        $sum = $sum ?? 1;
-
-        $result = min(1, max(-1, $value / $sum));
-
-        return $result;
-    }
-
-    /**
-     * @param int|float      $value
-     * @param null|int|float $sum
-     *
-     * @return float
-     */
-    public function percent($value, $sum = null) : float
-    {
-        $this->filter->assert()->assertNumval($value);
-
-        if (isset($sum)) {
-            $this->filter->assert('Sum should be number: %s', $sum)
-                ->assertNumval($sum);
-        }
-
-        $sum = $sum ?? 1;
-
-        $result = $value / $sum * 100;
-
-        return $result;
-    }
-
-
-    /**
      * @param mixed $value
      *
-     * @return null|int
+     * @return int
      */
-    public function intval($value) : ?int
+    public function intval($value) : int
     {
         if (null === $this->filter->filterIntval($value)) {
-            return null;
+            throw new InvalidArgumentException(
+                [ 'Value should be convertable to intval: %s', $value ]
+            );
         }
 
         $result = intval($value);
@@ -100,12 +57,14 @@ class Num
     /**
      * @param mixed $value
      *
-     * @return null|float
+     * @return float
      */
-    public function floatval($value) : ?float
+    public function floatval($value) : float
     {
         if (null === $this->filter->filterFloatval($value)) {
-            return null;
+            throw new InvalidArgumentException(
+                [ 'Value should be convertable to floatval: %s', $value ]
+            );
         }
 
         $result = floatval($value);
@@ -116,12 +75,14 @@ class Num
     /**
      * @param mixed $value
      *
-     * @return null|int|float
+     * @return int|float
      */
-    public function numval($value) // : ?int|float
+    public function numval($value) // : int|float
     {
         if (null === $this->filter->filterNumval($value)) {
-            return null;
+            throw new InvalidArgumentException(
+                [ 'Value should be convertable to numval: %s', $value ]
+            );
         }
 
         return null
@@ -146,7 +107,7 @@ class Num
             ? $integers
             : [ $integers ];
 
-        if ($hasMessage = (null !== $message)) {
+        if ($hasMessage = ( null !== $message )) {
             $this->filter->assert($message, $arguments);
         }
 
@@ -263,7 +224,7 @@ class Num
             ? $floats
             : [ $floats ];
 
-        if ($hasMessage = (null !== $message)) {
+        if ($hasMessage = ( null !== $message )) {
             $this->filter->assert($message, ...$arguments);
         }
 
@@ -380,7 +341,7 @@ class Num
             ? $numbers
             : [ $numbers ];
 
-        if ($hasMessage = (null !== $message)) {
+        if ($hasMessage = ( null !== $message )) {
             $this->filter->assert($message, ...$arguments);
         }
 

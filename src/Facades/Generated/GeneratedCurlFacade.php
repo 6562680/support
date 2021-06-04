@@ -89,6 +89,7 @@ abstract class GeneratedCurlFacade
      * @param resource|\CurlHandle $ch
      *
      * @return null|resource|\CurlHandle
+     * @noinspection PhpStrictComparisonWithOperandsOfDifferentTypesInspection
      */
     public static function filterCurl($ch)
     {

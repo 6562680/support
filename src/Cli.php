@@ -148,7 +148,7 @@ class Cli
      * @param string      $content
      * @param null|string $overwrite
      *
-     * @return static
+     * @return string
      */
     public function writeFile(string $outputPath, string $content, string &$overwrite = null) : string
     {

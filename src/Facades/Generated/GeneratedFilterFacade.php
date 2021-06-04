@@ -11,7 +11,7 @@
 namespace Gzhegow\Support\Facades\Generated;
 
 use Gzhegow\Support\Domain\Filter\Assert;
-use Gzhegow\Support\Domain\Filter\InvokableInfoVO;
+use Gzhegow\Support\Domain\Filter\InvokableInfoVal;
 use Gzhegow\Support\Domain\Filter\Type;
 use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
 use Gzhegow\Support\Filter;
@@ -104,6 +104,46 @@ abstract class GeneratedFilterFacade
     public static function filterNumval($value)
     {
         return static::getInstance()->filterNumval($value);
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int|float|string
+     */
+    public static function filterPositive($value)
+    {
+        return static::getInstance()->filterPositive($value);
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int|float|string
+     */
+    public static function filterNonPositive($value)
+    {
+        return static::getInstance()->filterNonPositive($value);
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int|float|string
+     */
+    public static function filterNegative($value)
+    {
+        return static::getInstance()->filterNegative($value);
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int|float|string
+     */
+    public static function filterNonNegative($value)
+    {
+        return static::getInstance()->filterNonNegative($value);
     }
 
     /**
@@ -284,90 +324,90 @@ abstract class GeneratedFilterFacade
 
     /**
      * @param string|array|\Closure|callable|mixed $callable
-     * @param null|InvokableInfoVO                 $invokableInfo
+     * @param null|InvokableInfoVal                $invokableInfo
      *
      * @return null|string|array|\Closure|callable
      */
-    public static function filterCallable($callable, InvokableInfoVO &$invokableInfo = null)
+    public static function filterCallable($callable, InvokableInfoVal &$invokableInfo = null)
     {
         return static::getInstance()->filterCallable($callable, $invokableInfo);
     }
 
     /**
      * @param string|array|callable|mixed $callableString
-     * @param null|InvokableInfoVO        $invokableInfo
+     * @param null|InvokableInfoVal       $invokableInfo
      *
      * @return null|string|array|callable
      */
-    public static function filterCallableString($callableString, InvokableInfoVO &$invokableInfo = null)
+    public static function filterCallableString($callableString, InvokableInfoVal &$invokableInfo = null)
     {
         return static::getInstance()->filterCallableString($callableString, $invokableInfo);
     }
 
     /**
      * @param string|callable|mixed $callableString
-     * @param null|InvokableInfoVO  $invokableInfo
+     * @param null|InvokableInfoVal $invokableInfo
      *
      * @return null|string|callable
      */
     public static function filterCallableStringFunction(
         $callableString,
-        InvokableInfoVO &$invokableInfo = null
+        InvokableInfoVal &$invokableInfo = null
     ): ?string {
         return static::getInstance()->filterCallableStringFunction($callableString, $invokableInfo);
     }
 
     /**
      * @param string|callable|mixed $callableString
-     * @param null|InvokableInfoVO  $invokableInfo
+     * @param null|InvokableInfoVal $invokableInfo
      *
      * @return null|string|callable
      */
-    public static function filterCallableStringStatic($callableString, InvokableInfoVO &$invokableInfo = null): ?string
+    public static function filterCallableStringStatic($callableString, InvokableInfoVal &$invokableInfo = null): ?string
     {
         return static::getInstance()->filterCallableStringStatic($callableString, $invokableInfo);
     }
 
     /**
-     * @param array|callable|mixed $callableArray
-     * @param null|InvokableInfoVO $invokableInfo
+     * @param array|callable|mixed  $callableArray
+     * @param null|InvokableInfoVal $invokableInfo
      *
      * @return null|array|callable
      */
-    public static function filterCallableArray($callableArray, InvokableInfoVO &$invokableInfo = null): ?array
+    public static function filterCallableArray($callableArray, InvokableInfoVal &$invokableInfo = null): ?array
     {
         return static::getInstance()->filterCallableArray($callableArray, $invokableInfo);
     }
 
     /**
-     * @param array|callable|mixed $callableArray
-     * @param null|InvokableInfoVO $invokableInfo
+     * @param array|callable|mixed  $callableArray
+     * @param null|InvokableInfoVal $invokableInfo
      *
      * @return null|array|callable
      */
-    public static function filterCallableArrayStatic($callableArray, InvokableInfoVO &$invokableInfo = null): ?array
+    public static function filterCallableArrayStatic($callableArray, InvokableInfoVal &$invokableInfo = null): ?array
     {
         return static::getInstance()->filterCallableArrayStatic($callableArray, $invokableInfo);
     }
 
     /**
-     * @param array|callable|mixed $callableArray
-     * @param null|InvokableInfoVO $invokableInfo
+     * @param array|callable|mixed  $callableArray
+     * @param null|InvokableInfoVal $invokableInfo
      *
      * @return null|array|callable
      */
-    public static function filterCallableArrayPublic($callableArray, InvokableInfoVO &$invokableInfo = null): ?array
+    public static function filterCallableArrayPublic($callableArray, InvokableInfoVal &$invokableInfo = null): ?array
     {
         return static::getInstance()->filterCallableArrayPublic($callableArray, $invokableInfo);
     }
 
     /**
-     * @param \Closure|mixed       $closure
-     * @param null|InvokableInfoVO $invokableInfo
+     * @param \Closure|mixed        $closure
+     * @param null|InvokableInfoVal $invokableInfo
      *
      * @return null|\Closure
      */
-    public static function filterClosure($closure, InvokableInfoVO &$invokableInfo = null): ?\Closure
+    public static function filterClosure($closure, InvokableInfoVal &$invokableInfo = null): ?\Closure
     {
         return static::getInstance()->filterClosure($closure, $invokableInfo);
     }
@@ -383,23 +423,23 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param array|mixed          $methodArray
-     * @param null|InvokableInfoVO $invokableInfo
+     * @param array|mixed           $methodArray
+     * @param null|InvokableInfoVal $invokableInfo
      *
      * @return null|array
      */
-    public static function filterMethodArrayReflection($methodArray, InvokableInfoVO &$invokableInfo = null): ?array
+    public static function filterMethodArrayReflection($methodArray, InvokableInfoVal &$invokableInfo = null): ?array
     {
         return static::getInstance()->filterMethodArrayReflection($methodArray, $invokableInfo);
     }
 
     /**
-     * @param string|mixed         $handler
-     * @param null|InvokableInfoVO $invokableInfo
+     * @param string|mixed          $handler
+     * @param null|InvokableInfoVal $invokableInfo
      *
      * @return null|string|callable
      */
-    public static function filterHandler($handler, InvokableInfoVO &$invokableInfo = null): ?string
+    public static function filterHandler($handler, InvokableInfoVal &$invokableInfo = null): ?string
     {
         return static::getInstance()->filterHandler($handler, $invokableInfo);
     }

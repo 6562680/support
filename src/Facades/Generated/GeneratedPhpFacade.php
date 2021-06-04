@@ -31,6 +31,7 @@ abstract class GeneratedPhpFacade
      * @param mixed &$value
      *
      * @return bool
+     * @noinspection PhpParameterByRefIsNotUsedAsReferenceInspection
      */
     public static function isBlank(&$value): bool
     {
@@ -71,6 +72,7 @@ abstract class GeneratedPhpFacade
      * @param mixed &$value
      *
      * @return mixed
+     * @noinspection PhpParameterByRefIsNotUsedAsReferenceInspection
      */
     public static function assertIsset(&$value)
     {
@@ -219,6 +221,18 @@ abstract class GeneratedPhpFacade
     public static function theKwargsFlatten(...$arguments): array
     {
         return static::getInstance()->theKwargsFlatten(...$arguments);
+    }
+
+    /**
+     * Превращает примитивы и массивы любой вложенности в одноуровневый список
+     *
+     * @param mixed ...$items
+     *
+     * @return array
+     */
+    public static function collect(...$items): array
+    {
+        return static::getInstance()->collect(...$items);
     }
 
     /**

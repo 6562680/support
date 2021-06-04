@@ -488,7 +488,7 @@ class Str
 
         $result = [];
 
-        if (false !== ( $pos = mb_strpos($haystack, $needle) )) {
+        if (false !== mb_strpos($haystack, $needle)) {
             $result = null
                 ?? ( '' === $needle ? [ $haystack ] : null )
                 ?? ( $limit ? explode($needle, $strCase, $limit) : null )
@@ -1144,12 +1144,14 @@ class Str
     /**
      * @param mixed $value
      *
-     * @return null|string
+     * @return string
      */
-    public function strval($value) : ?string
+    public function strval($value) : string
     {
         if (null === $this->filter->filterStrval($value)) {
-            return null;
+            throw new InvalidArgumentException(
+                [ 'Value should be convertable to strval: %s', $value ]
+            );
         }
 
         $result = strval($value);
@@ -1160,12 +1162,14 @@ class Str
     /**
      * @param mixed $value
      *
-     * @return null|string
+     * @return string
      */
-    public function wordval($value) : ?string
+    public function wordval($value) : string
     {
         if (null === $this->filter->filterWordval($value)) {
-            return null;
+            throw new InvalidArgumentException(
+                [ 'Value should be convertable to wordval: %s', $value ]
+            );
         }
 
         $result = strval($value);

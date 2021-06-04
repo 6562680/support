@@ -46,6 +46,7 @@ class Php
      * @param mixed &$value
      *
      * @return bool
+     * @noinspection PhpParameterByRefIsNotUsedAsReferenceInspection
      */
     public function isBlank(&$value) : bool
     {
@@ -66,10 +67,7 @@ class Php
                 return ! count($value);
 
             } elseif (is_iterable($value)) {
-                $i = 0;
-                foreach ( $value as $v ) {
-                    $i++;
-                }
+                $i = iterator_count($value);
 
                 return $i === 0;
             }
@@ -122,6 +120,7 @@ class Php
      * @param mixed &$value
      *
      * @return mixed
+     * @noinspection PhpParameterByRefIsNotUsedAsReferenceInspection
      */
     public function assertIsset(&$value) // : mixed
     {
@@ -493,6 +492,30 @@ class Php
 
 
     /**
+     * Превращает примитивы и массивы любой вложенности в одноуровневый список
+     *
+     * @param mixed ...$items
+     *
+     * @return array
+     */
+    public function collect(...$items) : array
+    {
+        $result = [];
+
+        foreach ( $items as $idx => $item ) {
+            if (is_iterable($item)) {
+                foreach ( $item as $val ) {
+                    $result[ $idx ][] = $val;
+                }
+            } else {
+                $result[ $idx ][] = $item;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * @param mixed ...$values
      *
      * @return array
@@ -599,7 +622,7 @@ class Php
     {
         $sleeps = $this->listval(...$sleeps);
 
-        foreach ( $sleeps as $idx => $sleep ) {
+        foreach ( $sleeps as $sleep ) {
             if (! is_numeric($sleep)) {
                 throw new InvalidArgumentException(
                     [ 'Each sleep should be numeric: %s', $sleep ],

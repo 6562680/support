@@ -38,11 +38,58 @@ class Math
 
 
     /**
+     * @param int|float      $value
+     * @param null|int|float $sum
+     *
+     * @return float
+     */
+    public function ratio($value, $sum = null) : float
+    {
+        $this->filter->assert()->assertNumval($value);
+
+        if (isset($sum)) {
+            $this->filter->assert('Sum should be number: %s', $sum)
+                ->assertNumval($sum);
+        }
+
+        $sum = $sum ?? 1;
+
+        $result = min(1,
+            max(-1, $value / $sum)
+        );
+
+        return $result;
+    }
+
+    /**
+     * @param int|float      $value
+     * @param null|int|float $sum
+     *
+     * @return float
+     */
+    public function percent($value, $sum = null) : float
+    {
+        $this->filter->assert()->assertNumval($value);
+
+        if (isset($sum)) {
+            $this->filter->assert('Sum should be number: %s', $sum)
+                ->assertNumval($sum);
+        }
+
+        $sum = $sum ?? 1;
+
+        $result = $value / $sum * 100;
+
+        return $result;
+    }
+
+
+    /**
      * @param int|float ...$values
      *
      * @return int|float
      */
-    public function sum(...$values)
+    public function sum(...$values) // : int|float
     {
         $list = $this->num->theNumvals($values);
 
@@ -70,149 +117,146 @@ class Math
         return $avg;
     }
 
-
     /**
-     * bcfrac
-     * получает дробную часть числа в виде строки
+     * @param int|float ...$values
      *
-     * @param int|float|string $number
-     * @param int|null         $decimals
-     * @param null             $int
-     *
-     * @return string
+     * @return int|float|string
      */
-    public function bcFrac($number, int $decimals = 0, &$int = null) : string
+    public function median(...$values) // : int|float|string
     {
-        if ($decimals && ( $decimals < 0 )) {
-            throw new \InvalidArgumentException('Decimals should begins from 0');
-        }
+        $list = $this->num->theNumvals($values);
+        sort($list);
 
-        $number = $this->bcnum($number);
-        $decimals = ( 2 <= func_num_args() )
-            ? $decimals
-            : $this->bcDecimals($number);
+        $idx = count($list) / 2;
 
-        $int = bcadd($number, 0, $decimals);
+        $median = is_int($idx)
+            ? ( ( $list[ $idx ] + $list[ $idx + 1 ] ) / 2 )
+            : ( $list[ round($idx) ] );
 
-        $frac = '0';
-        if (false !== ( $pos = strrpos($int, '.') )) {
-            $frac = sprintf('%d', substr($int, $pos + 1));
-
-            $int = substr($int, 0, $pos);
-        }
-
-        return $frac;
+        return $median;
     }
 
 
     /**
-     * @param int|float|string $number
-     * @param int              $decimals
+     * Дробная часть числа
      *
-     * @return null|string
-     */
-    public function bcRound($number, int $decimals = 0)
-    {
-        $number = $this->bcnum($number);
-
-        $pow = bcpow(10, $decimals + 1);
-        $const = $this->bcNegative($number)
-            ? -5
-            : 5;
-
-        $result = bcdiv(
-            bcadd(
-                bcmul(
-                    $number,
-                    $pow, $decimals
-                ),
-                $const, $decimals
-            ),
-            $pow, $decimals
-        );
-
-        return $result;
-    }
-
-    /**
      * @param int|float|string $number
      *
      * @return string
      */
-    public function bcCeil(string $number)
+    public function bcfrac($number) : string
     {
-        $number = $this->bcNum($number);
+        $result = substr(strrchr($number, '.'), 1);
 
-        $result = $this->bcNegative($number)
-            ? ( ( $v = $this->bcFloor(substr($number, 1)) )
-                ? "-$v"
-                : $v )
-            : bcadd(strtok($number, '.'), strtok('.') != 0);
-
-        return $result;
+        return false !== $result
+            ? $result
+            : '';
     }
 
     /**
+     * Получает минус из первого символа если он там есть
+     *
      * @param int|float|string $number
      *
-     * @return string
+     * @return string[]
      */
-    public function bcFloor($number)
+    public function bcabs($number) : array
     {
-        $number = $this->bcnum($number);
+        $number = $this->bcnumval($number);
 
-        $result = $this->bcnegative($number)
-            ? '-' . $this->bcceil(substr($number, 1))
-            : strtok($number, '.');
+        $minus = strpos($number, '-') === 0
+            ? '-'
+            : '';
 
-        return $result;
-    }
-
-
-    /**
-     * @param int|float|string $number
-     *
-     * @return bool
-     */
-    public function bcNegative($number) : bool
-    {
-        $number = $this->bcnum($number);
-
-        $result = strpos($number, '-') === 0; // Is the number less than 0?
-
-        return $result;
-    }
-
-
-    /**
-     * @param int|float|string $number
-     *
-     * @return string
-     */
-    public function bcAbs(string $number) : string
-    {
-        $number = $this->bcnum($number);
-
-        $result = $this->bcnegative($number)
-            ? strpos($number, 1)
+        $abs = $minus
+            ? substr($number, 1)
             : $number;
 
-        return $result;
+        return [ $abs, $minus ];
     }
 
 
     /**
+     * Округление
+     *
+     * @param int|float|string|mixed $number
+     * @param int                    $precision
+     *
+     * @return string
+     */
+    public function bcround($number, $precision = 0) : string
+    {
+        $result = $this->bcnumval($number);
+
+        if ($hasDecimals = false !== strpos($number, '.')) {
+            [ , $minus ] = $this->bcabs($number);
+
+            $result = $minus
+                ? bcsub($number,
+                    '0.' . str_repeat('0', $precision) . '5',
+                    $precision
+                )
+                : bcadd($number,
+                    '0.' . str_repeat('0', $precision) . '5',
+                    $precision
+                );
+        }
+
+        return $result;
+    }
+
+    /**
+     * Округляет в большую сторону
+     *
      * @param int|float|string $number
      *
-     * @return int
+     * @return string
      */
-    public function bcDecimals($number) : int
+    public function bcceil(string $number)
     {
-        $number = $this->bcnum($number);
+        $result = $this->bcnumval($number);
 
-        $decimals = strlen(substr(strstr($number, '.'), 1));
+        if ($hasDecimals = false !== strpos($number, '.')) {
+            if (preg_match('~\.[0]+$~', $number)) {
+                $result = $this->bcround($number, 0);
 
-        return $decimals;
+            } else {
+                [ , $minus ] = $this->bcabs($number);
+
+                $result = $minus
+                    ? bcsub($number, 0, 0)
+                    : bcadd($number, 1, 0);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Округляет в меньшую сторону
+     *
+     * @param int|float|string $number
+     *
+     * @return string
+     */
+    public function bcfloor($number) : string
+    {
+        $result = $this->bcnumval($number);
+
+        if ($hasDecimals = false !== strpos($number, '.')) {
+            if (preg_match('~\.[0]+$~', $number)) {
+                $result = $this->bcround($number, 0);
+
+            } else {
+                [ , $minus ] = $this->bcabs($number);
+
+                $result = $minus
+                    ? bcsub($number, 1, 0)
+                    : bcadd($number, 0, 0);
+            }
+        }
+
+        return $result;
     }
 
 
@@ -221,14 +265,15 @@ class Math
      *
      * @return string
      */
-    public function bcNum($number) : string
+    public function bcnumval($number) : string
     {
-        if (! ( is_string($number) || is_float($number) || is_int($number) )) {
-            throw new InvalidArgumentException('Num should be int, float or string');
-        }
+        $isValue = ( '' !== $number );
+        $isType = $isValue && ( is_string($number) || is_float($number) || is_int($number) );
 
-        if ('' === $number) {
-            throw new InvalidArgumentException('Num should be not empty');
+        if (! ( $isType && $isValue )) {
+            throw new InvalidArgumentException(
+                [ 'Num should be int, float or non-empty string: %s', $number ]
+            );
         }
 
         $converted = implode('.', explode(',', $number, 2));

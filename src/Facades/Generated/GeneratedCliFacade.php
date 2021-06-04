@@ -61,7 +61,7 @@ abstract class GeneratedCliFacade
      * @param string      $content
      * @param null|string $overwrite
      *
-     * @return Cli
+     * @return string
      */
     public static function writeFile(string $outputPath, string $content, string &$overwrite = null): string
     {

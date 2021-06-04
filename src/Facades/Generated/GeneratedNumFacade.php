@@ -16,33 +16,11 @@ use Gzhegow\Support\Num;
 abstract class GeneratedNumFacade
 {
     /**
-     * @param int|float      $value
-     * @param null|int|float $sum
-     *
-     * @return float
-     */
-    public static function ratio($value, $sum = null): float
-    {
-        return static::getInstance()->ratio($value, $sum);
-    }
-
-    /**
-     * @param int|float      $value
-     * @param null|int|float $sum
-     *
-     * @return float
-     */
-    public static function percent($value, $sum = null): float
-    {
-        return static::getInstance()->percent($value, $sum);
-    }
-
-    /**
      * @param mixed $value
      *
      * @return null|int
      */
-    public static function intval($value): ?int
+    public static function intval($value): int
     {
         return static::getInstance()->intval($value);
     }
@@ -52,7 +30,7 @@ abstract class GeneratedNumFacade
      *
      * @return null|float
      */
-    public static function floatval($value): ?float
+    public static function floatval($value): float
     {
         return static::getInstance()->floatval($value);
     }

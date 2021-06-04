@@ -22,7 +22,7 @@ class Calendar
     const UNIT_WEEK   = 'week';
     const UNIT_YEAR   = 'year';
 
-    const THE_FORMAT_LIST = [
+    const THE_FORMAT_SQL_LIST = [
         self::FORMAT_SQL_DATE     => true,
         self::FORMAT_SQL_DATETIME => true,
         self::FORMAT_SQL_TIME     => true,
@@ -295,8 +295,8 @@ class Calendar
 
 
     /**
-     * @param int|float|string|\DateTime         $date
-     * @param int[]|float[]|string[]|\DateTime[] $dates
+     * @param int|float|string|\DateTime       $date
+     * @param int|float|string|\DateTime|array $dates
      *
      * @return bool
      */
@@ -878,7 +878,7 @@ class Calendar
             ? $dates
             : [ $dates ];
 
-        if ($hasMessage = (null !== $message)) {
+        if ($hasMessage = ( null !== $message )) {
             $this->filter->assert($message, ...$arguments);
         }
 
@@ -1025,11 +1025,11 @@ class Calendar
 
         $dateTime = $this->now($dateTimeZone);
 
-        $dateTime->setTimestamp($int);
-        $dateTime->setTime(
+        $dateTime = $dateTime->setTimestamp($int);
+        $dateTime = $dateTime->setTime(
             (int) $dateTime->format('G'), // 0-23 -> int -> 0-23
             (int) $dateTime->format('i'), // 00-59 -> int -> 0-59
-            (int) $dateTime->format('s'), // 00-59 -> int -> 0-59
+            (int) $dateTime->format('s') // 00-59 -> int -> 0-59
         );
 
         if (false === $dateTime) {
@@ -1061,8 +1061,8 @@ class Calendar
 
         $dateTime = $this->now($dateTimeZone);
 
-        $dateTime->setTimestamp($int);
-        $dateTime->setTime(
+        $dateTime = $dateTime->setTimestamp($int);
+        $dateTime = $dateTime->setTime(
             (int) $dateTime->format('G'), // 0-23 -> int -> 0-23
             (int) $dateTime->format('i'), // 00-59 -> int -> 0-59
             (int) $dateTime->format('s'), // 00-59 -> int -> 0-59

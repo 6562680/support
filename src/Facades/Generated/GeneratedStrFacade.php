@@ -543,7 +543,7 @@ abstract class GeneratedStrFacade
      *
      * @return null|string
      */
-    public static function strval($value): ?string
+    public static function strval($value): string
     {
         return static::getInstance()->strval($value);
     }
@@ -553,7 +553,7 @@ abstract class GeneratedStrFacade
      *
      * @return null|string
      */
-    public static function wordval($value): ?string
+    public static function wordval($value): string
     {
         return static::getInstance()->wordval($value);
     }

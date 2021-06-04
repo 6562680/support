@@ -2,7 +2,7 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Domain\Arr\ArrExpandVO;
+use Gzhegow\Support\Domain\Arr\ArrExpandVal;
 use Gzhegow\Support\Domain\Arr\WalkIterator;
 use Gzhegow\Support\Domain\Arr\CrawlIterator;
 use Gzhegow\Support\Exceptions\Logic\OutOfRangeException;
@@ -90,11 +90,11 @@ class Arr
      * @param int        $priority
      * @param null|int   $idxInt
      *
-     * @return ArrExpandVO
+     * @return ArrExpandVal
      */
-    protected function newExpandVo($value, $idx, int $ordering, int $priority = 0, int $idxInt = null) : ArrExpandVO
+    protected function newExpandVo($value, $idx, int $ordering, int $priority = 0, int $idxInt = null) : ArrExpandVal
     {
-        return new ArrExpandVO($value, $idx, $ordering, $priority, $idxInt);
+        return new ArrExpandVal($value, $idx, $ordering, $priority, $idxInt);
     }
 
 
@@ -105,11 +105,9 @@ class Arr
      *
      * @return mixed
      */
-    public function get($path, array &$src, $default = null) // : mixed
+    public function get($path, array &$src, $default = "\0") // : mixed
     {
-        $result = ( 3 === func_num_args() )
-            ? $this->getRef($path, $src, $default)
-            : $this->getRef($path, $src);
+        $result = $this->getRef($path, $src, $default);
 
         return $result;
     }
@@ -121,7 +119,7 @@ class Arr
      *
      * @return mixed
      */
-    public function &getRef($path, array &$src, $default = null) // : mixed
+    public function &getRef($path, array &$src, $default = "\0") // : mixed
     {
         $result = $this->reference($src, $path, $error);
 
@@ -129,7 +127,7 @@ class Arr
             return $result;
         }
 
-        if (3 === func_num_args()) {
+        if ("\0" !== $default) {
             return $this->put($src, $path, $default);
         }
 
@@ -174,7 +172,7 @@ class Arr
      */
     public function del(array $src, ...$path) : ?array
     {
-        if (false === ( $status = $this->delete($src, ...$path) )) {
+        if (false === $this->delete($src, ...$path)) {
             throw new UnderflowException([ 'Unable to delete due to missing/invalid key: %s', $path ]);
         }
 
@@ -298,19 +296,6 @@ class Arr
 
 
     /**
-     * @param string|string[]|array $separators
-     * @param string|string[]|array ...$keys
-     *
-     * @return string
-     */
-    public function indexkey($separators = '.', ...$keys) : string
-    {
-        $result = $this->key($keys, $separators);
-
-        return $result;
-    }
-
-    /**
      * @param mixed $value
      *
      * @return string
@@ -325,6 +310,35 @@ class Arr
             ->assertPlainArray($list);
 
         $result = json_encode($value);
+
+        return $result;
+    }
+
+
+    /**
+     * @param string|string[]|array $separators
+     * @param string|string[]|array ...$keys
+     *
+     * @return string
+     */
+    public function indexkey($separators = '.', ...$keys) : string
+    {
+        $result = $this->key($keys, $separators);
+
+        return $result;
+    }
+
+    /**
+     * @param string|string[]|array $separators
+     * @param string|string[]|array ...$keys
+     *
+     * @return string
+     */
+    public function indexkeySkip($separators = '.', ...$keys) : string
+    {
+        $keys = $this->keyvalsSkip($keys);
+
+        $result = $this->key($keys, $separators);
 
         return $result;
     }
@@ -746,7 +760,7 @@ class Arr
             $lastIntIdx = $intIdx;
         }
 
-        $funcSorter = function (ArrExpandVO $a, ArrExpandVO $b) : int {
+        $funcSorter = function (ArrExpandVal $a, ArrExpandVal $b) : int {
             return null
                 ?? ( $a->getIdxInt() - $b->getIdxInt() ?: null )
                 ?? ( $b->getPriority() - $a->getPriority() ?: null )
@@ -820,13 +834,13 @@ class Arr
             // if (method_exists($value, 'toArray')) // too slow
 
             $result = null;
+
             try {
                 $result = $value->toArray();
             }
             catch ( \Throwable $e ) {
             }
 
-            /** @noinspection PhpExpressionAlwaysNullInspection */
             return $result;
         }
 
@@ -837,12 +851,14 @@ class Arr
     /**
      * @param mixed $value
      *
-     * @return null|int|float
+     * @return int|float
      */
-    public function keyval($value) // : ?int|float
+    public function keyval($value) // : int|float
     {
         if (null === $this->filter->filterKey($value)) {
-            return null;
+            throw new InvalidArgumentException(
+                [ 'Value should be valid key: %s', $value ]
+            );
         }
 
         return null
@@ -867,7 +883,7 @@ class Arr
             ? $keys
             : [ $keys ];
 
-        if ($hasMessage = (null !== $message)) {
+        if ($hasMessage = ( null !== $message )) {
             $this->filter->assert($message, ...$arguments);
         }
 

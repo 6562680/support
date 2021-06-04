@@ -23,15 +23,26 @@ class Criteria
     const OPERATOR_NEQ     = '!eq';
     const OPERATOR_NIN     = '!in';
     const OPERATOR_NSTARTS = '!starts';
+    const OPERATOR_NSUBSTR = '!substr';
     const OPERATOR_STARTS  = 'starts';
+    const OPERATOR_SUBSTR  = 'substr';
+
+    const ORDER_ASC      = 'asc';
+    const ORDER_ASCNULL  = 'asc,null';
+    const ORDER_DEC      = 'dec';
+    const ORDER_DECNULL  = 'dec,null';
+    const ORDER_DESC     = 'desc';
+    const ORDER_DESCNULL = 'desc,null';
+    const ORDER_INC      = 'inc';
+    const ORDER_INCNULL  = 'inc,null';
+    const ORDER_NULLASC  = 'null,asc';
+    const ORDER_NULLDEC  = 'null,dec';
+    const ORDER_NULLDESC = 'null,desc';
+    const ORDER_NULLINC  = 'null,inc';
+
 
     const THE_OPERATOR_LIST = [
         self::OPERATOR_BTW     => true,
-        self::OPERATOR_NBTW    => true,
-        self::OPERATOR_NENDS   => true,
-        self::OPERATOR_NEQ     => true,
-        self::OPERATOR_NIN     => true,
-        self::OPERATOR_NSTARTS => true,
         self::OPERATOR_ENDS    => true,
         self::OPERATOR_EQ      => true,
         self::OPERATOR_GT      => true,
@@ -39,7 +50,29 @@ class Criteria
         self::OPERATOR_IN      => true,
         self::OPERATOR_LT      => true,
         self::OPERATOR_LTE     => true,
+        self::OPERATOR_NBTW    => true,
+        self::OPERATOR_NENDS   => true,
+        self::OPERATOR_NEQ     => true,
+        self::OPERATOR_NIN     => true,
+        self::OPERATOR_NSTARTS => true,
+        self::OPERATOR_NSUBSTR => true,
         self::OPERATOR_STARTS  => true,
+        self::OPERATOR_SUBSTR  => true,
+    ];
+
+    const THE_ORDER_LIST = [
+        self::ORDER_ASC      => true,
+        self::ORDER_ASCNULL  => true,
+        self::ORDER_DEC      => true,
+        self::ORDER_DECNULL  => true,
+        self::ORDER_DESC     => true,
+        self::ORDER_DESCNULL => true,
+        self::ORDER_INC      => true,
+        self::ORDER_INCNULL  => true,
+        self::ORDER_NULLASC  => true,
+        self::ORDER_NULLDEC  => true,
+        self::ORDER_NULLDESC => true,
+        self::ORDER_NULLINC  => true,
     ];
 
 
@@ -99,7 +132,7 @@ class Criteria
         $coalesce = $coalesce ?? false;
 
         $res = null;
-        foreach ( $src as $i => $val ) {
+        foreach ( $src as $val ) {
             if (0 === ( $res = $this->cmp->cmpnum($needle, $val, $coalesce) )) {
                 break;
             }
@@ -126,7 +159,7 @@ class Criteria
         $coalesce = $coalesce ?? false;
 
         $res = null;
-        foreach ( $src as $i => $val ) {
+        foreach ( $src as $val ) {
             if (0 === ( $res = $this->cmp->cmpstr($needle, $val, $natural, $coalesce) )) {
                 break;
             }
@@ -152,7 +185,7 @@ class Criteria
         $coalesce = $coalesce ?? false;
 
         $res = null;
-        foreach ( $src as $i => $val ) {
+        foreach ( $src as $val ) {
             if (0 === ( $res = $this->cmp->cmpstrCase($needle, $val, $natural, $coalesce) )) {
                 break;
             }
@@ -174,7 +207,7 @@ class Criteria
         $coalesce = $coalesce ?? false;
 
         $res = null;
-        foreach ( $src as $i => $val ) {
+        foreach ( $src as $val ) {
             if (0 === ( $res = $this->cmp->cmpdate($needle, $val, $coalesce) )) {
                 break;
             }

@@ -16,6 +16,7 @@ $facades = [
     'DebugFacade'    => [ null, \Gzhegow\Support\Debug::class ],
     'EnvFacade'      => [ null, \Gzhegow\Support\Env::class ],
     'FilterFacade'   => [ null, \Gzhegow\Support\Filter::class ],
+    'FormatFacade'   => [ null, \Gzhegow\Support\Format::class ],
     'FsFacade'       => [ null, \Gzhegow\Support\Fs::class ],
     'FuncFacade'     => [ null, \Gzhegow\Support\Func::class ],
     'LoaderFacade'   => [ null, \Gzhegow\Support\Loader::class ],

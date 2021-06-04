@@ -2,9 +2,6 @@
 
 namespace Gzhegow\Support\Tests;
 
-use Gzhegow\Support\Php;
-use Gzhegow\Support\Str;
-use Gzhegow\Support\Filter;
 use Gzhegow\Support\Calendar;
 use Gzhegow\Support\Domain\SupportFactory;
 

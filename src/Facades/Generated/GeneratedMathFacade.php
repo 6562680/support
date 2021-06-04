@@ -17,6 +17,28 @@ use Gzhegow\Support\Math;
 abstract class GeneratedMathFacade
 {
     /**
+     * @param int|float      $value
+     * @param null|int|float $sum
+     *
+     * @return float
+     */
+    public static function ratio($value, $sum = null): float
+    {
+        return static::getInstance()->ratio($value, $sum);
+    }
+
+    /**
+     * @param int|float      $value
+     * @param null|int|float $sum
+     *
+     * @return float
+     */
+    public static function percent($value, $sum = null): float
+    {
+        return static::getInstance()->percent($value, $sum);
+    }
+
+    /**
      * @param int|float ...$values
      *
      * @return int|float
@@ -37,79 +59,74 @@ abstract class GeneratedMathFacade
     }
 
     /**
-     * bcfrac
-     * получает дробную часть числа в виде строки
+     * @param int|float ...$values
      *
-     * @param int|float|string $number
-     * @param int|null         $decimals
-     * @param null             $int
-     *
-     * @return string
+     * @return int|float|string
      */
-    public static function bcFrac($number, int $decimals = 0, &$int = null): string
+    public static function median(...$values)
     {
-        return static::getInstance()->bcFrac($number, $decimals, $int);
+        return static::getInstance()->median(...$values);
     }
 
     /**
-     * @param int|float|string $number
-     * @param int              $decimals
+     * Дробная часть числа
      *
-     * @return null|string
-     */
-    public static function bcRound($number, int $decimals = 0)
-    {
-        return static::getInstance()->bcRound($number, $decimals);
-    }
-
-    /**
      * @param int|float|string $number
      *
      * @return string
      */
-    public static function bcCeil(string $number)
+    public static function bcfrac($number): string
     {
-        return static::getInstance()->bcCeil($number);
+        return static::getInstance()->bcfrac($number);
     }
 
     /**
+     * Получает минус из первого символа если он там есть
+     *
+     * @param int|float|string $number
+     *
+     * @return string[]
+     */
+    public static function bcabs($number): array
+    {
+        return static::getInstance()->bcabs($number);
+    }
+
+    /**
+     * Округление
+     *
+     * @param int|float|string|mixed $number
+     * @param int                    $precision
+     *
+     * @return string
+     */
+    public static function bcround($number, $precision = 0): string
+    {
+        return static::getInstance()->bcround($number, $precision);
+    }
+
+    /**
+     * Округляет в большую сторону
+     *
      * @param int|float|string $number
      *
      * @return string
      */
-    public static function bcFloor($number)
+    public static function bcceil(string $number)
     {
-        return static::getInstance()->bcFloor($number);
+        return static::getInstance()->bcceil($number);
     }
 
     /**
-     * @param int|float|string $number
+     * Округляет в меньшую сторону
      *
-     * @return bool
-     */
-    public static function bcNegative($number): bool
-    {
-        return static::getInstance()->bcNegative($number);
-    }
-
-    /**
      * @param int|float|string $number
      *
      * @return string
      */
-    public static function bcAbs(string $number): string
+    public static function bcfloor($number): string
     {
-        return static::getInstance()->bcAbs($number);
-    }
-
-    /**
-     * @param int|float|string $number
-     *
-     * @return int
-     */
-    public static function bcDecimals($number): int
-    {
-        return static::getInstance()->bcDecimals($number);
+        return static::getInstance()->bcfloor($number);
     }
 
     /**
@@ -117,9 +134,9 @@ abstract class GeneratedMathFacade
      *
      * @return string
      */
-    public static function bcNum($number): string
+    public static function bcnumval($number): string
     {
-        return static::getInstance()->bcNum($number);
+        return static::getInstance()->bcnumval($number);
     }
 
     /**

@@ -445,9 +445,8 @@ abstract class GeneratedFsFacade
     }
 
     /**
-     * @param string      $path
-     * @param null|string $suffix
-     * @param int         $levels
+     * @param string $path
+     * @param int    $levels
      *
      * @return null|string
      */
@@ -512,18 +511,6 @@ abstract class GeneratedFsFacade
     public static function drive(string $path): array
     {
         return static::getInstance()->drive($path);
-    }
-
-    /**
-     * конвертирует цифру размера в читабельный формат (1024 => 1Mb)
-     *
-     * @param int|float|string $size
-     *
-     * @return string
-     */
-    public static function sizeFormat($size): string
-    {
-        return static::getInstance()->sizeFormat($size);
     }
 
     /**

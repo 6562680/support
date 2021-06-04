@@ -4,7 +4,7 @@ namespace Gzhegow\Support;
 
 use Gzhegow\Support\Domain\Filter\Type;
 use Gzhegow\Support\Domain\Filter\Assert;
-use Gzhegow\Support\Domain\Filter\InvokableInfoVO;
+use Gzhegow\Support\Domain\Filter\InvokableInfoVal;
 use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
 
 
@@ -172,6 +172,79 @@ class Filter
         }
 
         return null;
+    }
+
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int|float|string
+     */
+    public function filterPositive($value) // : ?int|float|string
+    {
+        if (null === $this->filterNumval($value)) {
+            return null;
+        }
+
+        if (floatval($value) <= 0) {
+            return null;
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int|float|string
+     */
+    public function filterNonPositive($value) // : ?int|float|string
+    {
+        if (null === $this->filterNumval($value)) {
+            return null;
+        }
+
+        if (floatval($value) < 0) {
+            return null;
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int|float|string
+     */
+    public function filterNegative($value) // : ?int|float|string
+    {
+        if (null === $this->filterNumval($value)) {
+            return null;
+        }
+
+        if (floatval($value) >= 0) {
+            return null;
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int|float|string
+     */
+    public function filterNonNegative($value) // : ?int|float|string
+    {
+        if (null === $this->filterNumval($value)) {
+            return null;
+        }
+
+        if (floatval($value) > 0) {
+            return null;
+        }
+
+        return $value;
     }
 
 
@@ -354,7 +427,7 @@ class Filter
         if (! is_array($array)) return null;
         if (! $array) return null;
 
-        foreach ( $array as $key => &$val ) {
+        foreach ( $array as &$val ) {
             if ($of && ! $of($val)) {
                 return null;
             }
@@ -444,7 +517,7 @@ class Filter
         }
 
         if ($of) {
-            foreach ( $assoc as $key => &$val ) {
+            foreach ( $assoc as &$val ) {
                 if (! $of($val)) {
                     return null;
                 }
@@ -555,11 +628,11 @@ class Filter
 
     /**
      * @param string|array|\Closure|callable|mixed $callable
-     * @param null|InvokableInfoVO                 $invokableInfo
+     * @param null|InvokableInfoVal                $invokableInfo
      *
      * @return null|string|array|\Closure|callable
      */
-    public function filterCallable($callable, InvokableInfoVO &$invokableInfo = null) // : ?string|array|\Closure
+    public function filterCallable($callable, InvokableInfoVal &$invokableInfo = null) // : ?string|array|\Closure
     {
         if (0
             || ( null !== $this->filterClosure($callable, $invokableInfo) )
@@ -574,11 +647,11 @@ class Filter
 
     /**
      * @param string|array|callable|mixed $callableString
-     * @param null|InvokableInfoVO        $invokableInfo
+     * @param null|InvokableInfoVal       $invokableInfo
      *
      * @return null|string|array|callable
      */
-    public function filterCallableString($callableString, InvokableInfoVO &$invokableInfo = null) // : ?string|array
+    public function filterCallableString($callableString, InvokableInfoVal &$invokableInfo = null) // : ?string|array
     {
         if (! is_array($callableString)
             && ( 0
@@ -594,13 +667,13 @@ class Filter
 
     /**
      * @param string|callable|mixed $callableString
-     * @param null|InvokableInfoVO  $invokableInfo
+     * @param null|InvokableInfoVal $invokableInfo
      *
      * @return null|string|callable
      */
-    public function filterCallableStringFunction($callableString, InvokableInfoVO &$invokableInfo = null) : ?string
+    public function filterCallableStringFunction($callableString, InvokableInfoVal &$invokableInfo = null) : ?string
     {
-        $invokableInfo = $invokableInfo ?? new InvokableInfoVO();
+        $invokableInfo = $invokableInfo ?? new InvokableInfoVal();
 
         if (( null !== $this->filterWord($callableString) )
             && function_exists($callableString)
@@ -616,13 +689,13 @@ class Filter
 
     /**
      * @param string|callable|mixed $callableString
-     * @param null|InvokableInfoVO  $invokableInfo
+     * @param null|InvokableInfoVal $invokableInfo
      *
      * @return null|string|callable
      */
-    public function filterCallableStringStatic($callableString, InvokableInfoVO &$invokableInfo = null) : ?string
+    public function filterCallableStringStatic($callableString, InvokableInfoVal &$invokableInfo = null) : ?string
     {
-        if (! $isCallable = ( null !== $this->filterWord($callableString) )
+        if (! ( null !== $this->filterWord($callableString) )
             && ( 1 === substr_count($callableString, '::') )
         ) {
             return null;
@@ -639,12 +712,12 @@ class Filter
 
 
     /**
-     * @param array|callable|mixed $callableArray
-     * @param null|InvokableInfoVO $invokableInfo
+     * @param array|callable|mixed  $callableArray
+     * @param null|InvokableInfoVal $invokableInfo
      *
      * @return null|array|callable
      */
-    public function filterCallableArray($callableArray, InvokableInfoVO &$invokableInfo = null) : ?array
+    public function filterCallableArray($callableArray, InvokableInfoVal &$invokableInfo = null) : ?array
     {
         if (is_array($callableArray)
             && ( 0
@@ -659,14 +732,14 @@ class Filter
     }
 
     /**
-     * @param array|callable|mixed $callableArray
-     * @param null|InvokableInfoVO $invokableInfo
+     * @param array|callable|mixed  $callableArray
+     * @param null|InvokableInfoVal $invokableInfo
      *
      * @return null|array|callable
      */
-    public function filterCallableArrayStatic($callableArray, InvokableInfoVO &$invokableInfo = null) : ?array
+    public function filterCallableArrayStatic($callableArray, InvokableInfoVal &$invokableInfo = null) : ?array
     {
-        $invokableInfo = $invokableInfo ?? new InvokableInfoVO();
+        $invokableInfo = $invokableInfo ?? new InvokableInfoVal();
 
         if (is_array($callableArray)
             && isset($callableArray[ 0 ]) && ( null !== $this->filterWord($callableArray[ 0 ]) )
@@ -684,14 +757,14 @@ class Filter
     }
 
     /**
-     * @param array|callable|mixed $callableArray
-     * @param null|InvokableInfoVO $invokableInfo
+     * @param array|callable|mixed  $callableArray
+     * @param null|InvokableInfoVal $invokableInfo
      *
      * @return null|array|callable
      */
-    public function filterCallableArrayPublic($callableArray, InvokableInfoVO &$invokableInfo = null) : ?array
+    public function filterCallableArrayPublic($callableArray, InvokableInfoVal &$invokableInfo = null) : ?array
     {
-        $invokableInfo = $invokableInfo ?? new InvokableInfoVO();
+        $invokableInfo = $invokableInfo ?? new InvokableInfoVal();
 
         if (is_array($callableArray)
             && isset($callableArray[ 0 ]) && is_object($callableArray[ 0 ])
@@ -711,14 +784,14 @@ class Filter
 
 
     /**
-     * @param \Closure|mixed       $closure
-     * @param null|InvokableInfoVO $invokableInfo
+     * @param \Closure|mixed        $closure
+     * @param null|InvokableInfoVal $invokableInfo
      *
      * @return null|\Closure
      */
-    public function filterClosure($closure, InvokableInfoVO &$invokableInfo = null) : ?\Closure
+    public function filterClosure($closure, InvokableInfoVal &$invokableInfo = null) : ?\Closure
     {
-        $invokableInfo = $invokableInfo ?? new InvokableInfoVO();
+        $invokableInfo = $invokableInfo ?? new InvokableInfoVal();
 
         if (is_object($closure) && ( get_class($closure) === \Closure::class )) {
             $invokableInfo->closure = $closure;
@@ -758,19 +831,19 @@ class Filter
     }
 
     /**
-     * @param array|mixed          $methodArray
-     * @param null|InvokableInfoVO $invokableInfo
+     * @param array|mixed           $methodArray
+     * @param null|InvokableInfoVal $invokableInfo
      *
      * @return null|array
      */
-    public function filterMethodArrayReflection($methodArray, InvokableInfoVO &$invokableInfo = null) : ?array
+    public function filterMethodArrayReflection($methodArray, InvokableInfoVal &$invokableInfo = null) : ?array
     {
         [ $objectOrClass, $method ] = $this->filterMethodArray($methodArray);
 
         try {
             $rm = new \ReflectionMethod($objectOrClass, $method);
 
-            $invokableInfo = $invokableInfo ?? new InvokableInfoVO();
+            $invokableInfo = $invokableInfo ?? new InvokableInfoVal();
             $invokableInfo->method = $rm->getName();
 
             if (is_object($objectOrClass)) {
@@ -790,14 +863,14 @@ class Filter
 
 
     /**
-     * @param string|mixed         $handler
-     * @param null|InvokableInfoVO $invokableInfo
+     * @param string|mixed          $handler
+     * @param null|InvokableInfoVal $invokableInfo
      *
      * @return null|string|callable
      */
-    public function filterHandler($handler, InvokableInfoVO &$invokableInfo = null) : ?string
+    public function filterHandler($handler, InvokableInfoVal &$invokableInfo = null) : ?string
     {
-        if (! $isCallable = ( null !== $this->filterWord($handler) )
+        if (! ( null !== $this->filterWord($handler) )
             && ( 1 === substr_count($handler, '@') )
         ) {
             return null;
@@ -808,7 +881,7 @@ class Filter
         try {
             $rm = new \ReflectionMethod($class, $method);
 
-            $invokableInfo = $invokableInfo ?? new InvokableInfoVO();
+            $invokableInfo = $invokableInfo ?? new InvokableInfoVal();
             $invokableInfo->class = $class;
             $invokableInfo->method = $method;
 
@@ -1142,7 +1215,7 @@ class Filter
                 array_slice($args, 0, count($arguments))
             );
 
-            return call_user_func_array($arguments, $bind);
+            return call_user_func_array($filterCallable, $bind);
         };
 
         return $closure;
@@ -1177,9 +1250,9 @@ class Filter
     {
         $filterLower = strtolower($filter);
 
-        return isset(static::$customFilters[ $filterLower ])
-            ? static::$customFilters[ $filterLower ]
-            : null;
+        $result = static::$customFilters[ $filterLower ] ?? null;
+
+        return $result;
     }
 
 

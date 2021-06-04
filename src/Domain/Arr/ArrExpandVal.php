@@ -4,9 +4,9 @@ namespace Gzhegow\Support\Domain\Arr;
 
 
 /**
- * ArrExpandVO
+ * ArrExpandVal
  */
-class ArrExpandVO
+class ArrExpandVal
 {
     /**
      * @var mixed

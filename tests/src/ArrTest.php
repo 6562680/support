@@ -3,9 +3,6 @@
 namespace Gzhegow\Support\Tests;
 
 use Gzhegow\Support\Arr;
-use Gzhegow\Support\Php;
-use Gzhegow\Support\Str;
-use Gzhegow\Support\Filter;
 use Gzhegow\Support\Domain\SupportFactory;
 use Gzhegow\Support\Exceptions\Logic\OutOfRangeException;
 use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
