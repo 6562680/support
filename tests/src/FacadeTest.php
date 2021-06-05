@@ -4,6 +4,7 @@ namespace Gzhegow\Support\Tests;
 
 use Gzhegow\Support\Str;
 use Gzhegow\Support\Domain\SupportFactory;
+use Gzhegow\Support\Exceptions\RuntimeException;
 
 
 class FacadeTest extends AbstractTestCase
@@ -27,7 +28,6 @@ class FacadeTest extends AbstractTestCase
             'Env',
             'Filter',
             'Fs',
-            'Func',
             'Loader',
             'Math',
             'Net',
@@ -44,11 +44,16 @@ class FacadeTest extends AbstractTestCase
             $objReflection = null;
             $facadeReflection = null;
             try {
-                $objReflection = new \ReflectionClass('Gzhegow\\Support\\' . $className);
-                $facadeReflection = new \ReflectionClass('Gzhegow\\Support\\Facades\\' . $className);
+                $class = 'Gzhegow\\Support\\' . $className;
+                $facadeClass = 'Gzhegow\\Support\\Facades\\' . $className;
+
+                $objReflection = new \ReflectionClass($class);
+                $facadeReflection = new \ReflectionClass($facadeClass);
             }
             catch ( \ReflectionException $e ) {
-                // never thrown
+                throw new RuntimeException(
+                    [ 'Unable to reflect: [`%s`, `%s`]', $class, $facadeClass ]
+                );
             }
 
             $objMethods = [];

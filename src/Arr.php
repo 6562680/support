@@ -26,14 +26,6 @@ class Arr
      */
     protected $filter;
     /**
-     * @var Num
-     */
-    protected $num;
-    /**
-     * @var Php
-     */
-    protected $php;
-    /**
      * @var Str
      */
     protected $str;
@@ -43,20 +35,14 @@ class Arr
      * Constructor
      *
      * @param Filter $filter
-     * @param Num    $num
-     * @param Php    $php
      * @param Str    $str
      */
     public function __construct(
         Filter $filter,
-        Num $num,
-        Php $php,
         Str $str
     )
     {
         $this->filter = $filter;
-        $this->num = $num;
-        $this->php = $php;
         $this->str = $str;
     }
 
@@ -83,6 +69,7 @@ class Arr
         return new CrawlIterator($iterable, $flags);
     }
 
+
     /**
      * @param mixed      $value
      * @param int|string $idx
@@ -92,7 +79,7 @@ class Arr
      *
      * @return ArrExpandVal
      */
-    protected function newExpandVo($value, $idx, int $ordering, int $priority = 0, int $idxInt = null) : ArrExpandVal
+    protected function newArrExpandVal($value, $idx, int $ordering, int $priority = 0, int $idxInt = null) : ArrExpandVal
     {
         return new ArrExpandVal($value, $idx, $ordering, $priority, $idxInt);
     }
@@ -189,7 +176,7 @@ class Arr
     {
         $result = false;
 
-        $fullpath = $this->str->explode('.', $path);
+        $fullpath = $this->fullpath($path);
 
         $ref =& $src;
 
@@ -239,7 +226,7 @@ class Arr
      */
     public function &put(array &$dst, $path, $value) // : mixed
     {
-        $fullpath = $this->str->explode('.', $path);
+        $fullpath = $this->fullpath($path);
 
         if (null === key($fullpath)) {
             throw new InvalidArgumentException([ 'Empty path passed: %s', $path ]);
@@ -268,11 +255,11 @@ class Arr
      *
      * @return array
      */
-    public function path($keys, $separators = '.') : array
+    public function fullpath($keys, $separators = '.') : array
     {
-        $keys = $this->keyvals($keys);
+        $keys = $this->theKeyvals($keys);
 
-        $result = $this->str->explode($separators, ...$keys);
+        $result = $this->str->explode($separators, $keys);
 
         return $result;
     }
@@ -285,45 +272,11 @@ class Arr
      */
     public function key($keys, $separators = '.') : string
     {
-        $keys = $this->keyvals($keys);
+        $keys = $this->theKeyvals($keys);
 
-        $explode = $this->str->explode($separators, $keys);
+        $result = $this->str->explode($separators, $keys);
 
-        $result = implode($separators[ 0 ], $explode);
-
-        return $result;
-    }
-
-
-    /**
-     * @param mixed $value
-     *
-     * @return string
-     */
-    public function indexval($value) : string
-    {
-        $list = is_array($value)
-            ? $value
-            : [ $value ];
-
-        $this->filter->assert('Value is not indexable: %s', $value)
-            ->assertPlainArray($list);
-
-        $result = json_encode($value);
-
-        return $result;
-    }
-
-
-    /**
-     * @param string|string[]|array $separators
-     * @param string|string[]|array ...$keys
-     *
-     * @return string
-     */
-    public function indexkey($separators = '.', ...$keys) : string
-    {
-        $result = $this->key($keys, $separators);
+        $result = implode($separators[ 0 ], $result);
 
         return $result;
     }
@@ -334,11 +287,15 @@ class Arr
      *
      * @return string
      */
-    public function indexkeySkip($separators = '.', ...$keys) : string
+    public function index($separators = '.', ...$keys) : string
     {
-        $keys = $this->keyvalsSkip($keys);
+        $keys = $this->theKeyvals($keys);
 
-        $result = $this->key($keys, $separators);
+        $result = $this->str->explode($separators, $keys);
+
+        $result = array_filter($result, 'strlen');
+
+        $result = implode($separators[ 0 ], $result);
 
         return $result;
     }
@@ -447,18 +404,30 @@ class Arr
             $values = array_fill(0, count($keys), $values);
         }
 
-        [ $kwargs, $args ] = $this->php->kwargs($values);
+        $strkeys = [];
+        $intkeys = [];
+        foreach ( $values as $argument ) {
+            if (is_array($argument)) {
+                foreach ( $argument as $key => $val ) {
+                    is_int($key)
+                        ? ( $intkeys[] = $val )
+                        : ( $strkeys[ $key ] = $val );
+                }
+            } else {
+                $intkeys[] = $argument;
+            }
+        }
 
         $result = [];
         foreach ( $keys as $key ) {
-            if (array_key_exists($key, $kwargs)) {
-                $result[ $key ] = $kwargs[ $key ];
+            if (array_key_exists($key, $strkeys)) {
+                $result[ $key ] = $strkeys[ $key ];
 
-            } elseif ($args) {
-                $index = key($args);
-                $result[ $key ] = $args[ $index ];
+            } elseif ($intkeys) {
+                $index = key($intkeys);
+                $result[ $key ] = $intkeys[ $index ];
 
-                array_shift($args);
+                array_shift($intkeys);
                 unset($values[ $index ]);
 
             } else {
@@ -636,7 +605,7 @@ class Arr
         $result = [];
 
         foreach ( $data as $key => $value ) {
-            $path = $this->path($key, $separators);
+            $path = $this->fullpath($key, $separators);
 
             $ref =& $result;
             while ( null !== key($path) ) {
@@ -742,7 +711,7 @@ class Arr
                     ? $idx
                     : $lastIntIdx;
 
-                $values[] = $this->newExpandVo($val, $idx, $pos++, $isNew = 1, $intIdx);
+                $values[] = $this->newArrExpandVal($val, $idx, $pos++, $isNew = 1, $intIdx);
 
                 $lastIntIdx = $intIdx;
             }
@@ -755,7 +724,7 @@ class Arr
                 ? $idx
                 : $lastIntIdx;
 
-            $values[] = $this->newExpandVo($val, $idx, $pos++, $isNew = 0, $intIdx);
+            $values[] = $this->newArrExpandVal($val, $idx, $pos++, $isNew = 0, $intIdx);
 
             $lastIntIdx = $intIdx;
         }
@@ -807,6 +776,7 @@ class Arr
      * @param mixed $value
      *
      * @return null|array
+     * @noinspection PhpExpressionAlwaysNullInspection
      */
     public function arrval($value) : ?array
     {
@@ -847,90 +817,55 @@ class Arr
         return null;
     }
 
+    /**
+     * @param mixed $value
+     *
+     * @return array
+     */
+    public function theArrval($value) : array
+    {
+        if (null === ( $arrval = $this->arrval($value) )) {
+            throw new InvalidArgumentException(
+                [ 'Value should be convertable to arrval: %s', $value ],
+            );
+        }
+
+        return $arrval;
+    }
+
 
     /**
      * @param mixed $value
      *
-     * @return int|float
+     * @return null|int|float
      */
-    public function keyval($value) // : int|float
+    public function keyval($value) // : ?int|float
     {
-        if (null === $this->filter->filterKey($value)) {
-            throw new InvalidArgumentException(
-                [ 'Value should be valid key: %s', $value ]
-            );
+        if (null !== $this->filter->filterStrval($value)) {
+            return strval($value);
         }
 
-        return null
-            ?? $this->num->intval($value)
-            ?? $this->str->strval($value);
-    }
-
-
-    /**
-     * @param int|string|array  $keys
-     * @param null|bool         $uniq
-     * @param null|string|array $message
-     * @param mixed             ...$arguments
-     *
-     * @return string[]
-     */
-    public function keyvals($keys, $uniq = null, $message = null, ...$arguments) : array
-    {
-        $result = [];
-
-        $keys = is_array($keys)
-            ? $keys
-            : [ $keys ];
-
-        if ($hasMessage = ( null !== $message )) {
-            $this->filter->assert($message, ...$arguments);
+        if (null !== $this->filter->filterIntval($value)) {
+            return intval($value);
         }
 
-        array_walk_recursive($keys, function ($key) use (&$result) {
-            if (null === ( $keyval = $this->keyval($key) )) {
-                throw new InvalidArgumentException($this->filter->assert()->flushMessage($key)
-                    ?? [ 'Each key should be valid array key: %s', $key ]
-                );
-            }
-
-            $result[] = $keyval;
-        });
-
-        if ($hasMessage) {
-            $this->filter->assert()->flushMessage();
-        }
-
-        if ($uniq ?? false) {
-            $arr = [];
-            foreach ( $result as $i ) {
-                $arr[ $i ] = true;
-            }
-            $result = array_keys($arr);
-        }
-
-        return $result;
+        return null;
     }
 
     /**
-     * @param int|string|array  $keys
-     * @param null|bool         $uniq
-     * @param null|string|array $message
-     * @param mixed             ...$arguments
+     * @param mixed $value
      *
-     * @return string[]
+     * @return null|int|float
      */
-    public function theKeyvals($keys, $uniq = null, $message = null, ...$arguments) : array
+    public function theKeyval($value) // : ?int|float
     {
-        $result = $this->keyvals($keys, $uniq, $message, ...$arguments);
-
-        if (! count($result)) {
+        if (null === ( $keyval = $this->keyval($value) )) {
             throw new InvalidArgumentException(
-                [ 'At least one key should be provided: %s', $keys ],
+                [ 'Value should be convertable to keyval: %s', $value ],
             );
         }
 
-        return $result;
+        return $keyval;
     }
 
 
@@ -938,9 +873,9 @@ class Arr
      * @param int|string|array $keys
      * @param null|bool        $uniq
      *
-     * @return array
+     * @return string[]
      */
-    public function keyvalsSkip($keys, $uniq = null) : array
+    public function keyvals($keys, $uniq = null) : array
     {
         $result = [];
 
@@ -949,9 +884,7 @@ class Arr
             : [ $keys ];
 
         array_walk_recursive($keys, function ($key) use (&$result) {
-            if (null !== ( $keyval = $this->keyval($key) )) {
-                $result[] = $keyval;
-            }
+            $result[] = $this->keyval($key);
         });
 
         if ($uniq ?? false) {
@@ -969,16 +902,26 @@ class Arr
      * @param int|string|array $keys
      * @param null|bool        $uniq
      *
-     * @return array
+     * @return string[]
      */
-    public function theKeyvalsSkip($keys, $uniq = null) : array
+    public function theKeyvals($keys, $uniq = null) : array
     {
-        $result = $this->keyvalsSkip($keys, $uniq);
+        $result = [];
 
-        if (! count($result)) {
-            throw new InvalidArgumentException(
-                [ 'At least one key should be provided: %s', $keys ]
-            );
+        $keys = is_array($keys)
+            ? $keys
+            : [ $keys ];
+
+        array_walk_recursive($keys, function ($key) use (&$result) {
+            $result[] = $this->theKeyval($key);
+        });
+
+        if ($uniq ?? false) {
+            $arr = [];
+            foreach ( $result as $i ) {
+                $arr[ $i ] = true;
+            }
+            $result = array_keys($arr);
         }
 
         return $result;
@@ -996,7 +939,7 @@ class Arr
     {
         $error = static::ERROR_FETCHREF_EMPTY_KEY;
 
-        $fullpath = $this->path($path);
+        $fullpath = $this->fullpath($path);
 
         $ref =& $source;
         while ( null !== key($fullpath) ) {

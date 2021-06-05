@@ -543,7 +543,7 @@ abstract class GeneratedStrFacade
      *
      * @return null|string
      */
-    public static function strval($value): string
+    public static function strval($value): ?string
     {
         return static::getInstance()->strval($value);
     }
@@ -553,35 +553,29 @@ abstract class GeneratedStrFacade
      *
      * @return null|string
      */
-    public static function wordval($value): string
+    public static function wordval($value): ?string
     {
         return static::getInstance()->wordval($value);
     }
 
     /**
-     * @param string|string[]|array $strings
-     * @param null|bool             $uniq
-     * @param null|string|array     $message
-     * @param mixed                 ...$arguments
+     * @param mixed $value
      *
-     * @return string[]
+     * @return string
      */
-    public static function strvals($strings, $uniq = null, $message = null, ...$arguments): array
+    public static function theStrval($value): string
     {
-        return static::getInstance()->strvals($strings, $uniq, $message, ...$arguments);
+        return static::getInstance()->theStrval($value);
     }
 
     /**
-     * @param string|string[]|array $strings
-     * @param null|bool             $uniq
-     * @param null|string|array     $message
-     * @param mixed                 ...$arguments
+     * @param mixed $value
      *
-     * @return string[]
+     * @return string
      */
-    public static function theStrvals($strings, $uniq = null, $message = null, ...$arguments): array
+    public static function theWordval($value): string
     {
-        return static::getInstance()->theStrvals($strings, $uniq, $message, ...$arguments);
+        return static::getInstance()->theWordval($value);
     }
 
     /**
@@ -590,9 +584,20 @@ abstract class GeneratedStrFacade
      *
      * @return string[]
      */
-    public static function strvalsSkip($strings, $uniq = null): array
+    public static function strvals($strings, $uniq = null): array
     {
-        return static::getInstance()->strvalsSkip($strings, $uniq);
+        return static::getInstance()->strvals($strings, $uniq);
+    }
+
+    /**
+     * @param string|string[]|array $words
+     * @param null|bool             $uniq
+     *
+     * @return string[]
+     */
+    public static function wordvals($words, $uniq = null): array
+    {
+        return static::getInstance()->wordvals($words, $uniq);
     }
 
     /**
@@ -601,35 +606,9 @@ abstract class GeneratedStrFacade
      *
      * @return string[]
      */
-    public static function theStrvalsSkip($strings, $uniq = null): array
+    public static function theStrvals($strings, $uniq = null): array
     {
-        return static::getInstance()->theStrvalsSkip($strings, $uniq);
-    }
-
-    /**
-     * @param string|string[]|array $words
-     * @param null|bool             $uniq
-     * @param null|string|array     $message
-     * @param mixed                 ...$arguments
-     *
-     * @return string[]
-     */
-    public static function wordvals($words, $uniq = null, $message = null, ...$arguments): array
-    {
-        return static::getInstance()->wordvals($words, $uniq, $message, ...$arguments);
-    }
-
-    /**
-     * @param string|string[]|array $words
-     * @param null|bool             $uniq
-     * @param null|string|array     $message
-     * @param mixed                 ...$arguments
-     *
-     * @return string[]
-     */
-    public static function theWordvals($words, $uniq = null, $message = null, ...$arguments): array
-    {
-        return static::getInstance()->theWordvals($words, $uniq, $message, ...$arguments);
+        return static::getInstance()->theStrvals($strings, $uniq);
     }
 
     /**
@@ -638,20 +617,9 @@ abstract class GeneratedStrFacade
      *
      * @return string[]
      */
-    public static function wordvalsSkip($words, $uniq = null): array
+    public static function theWordvals($words, $uniq = null): array
     {
-        return static::getInstance()->wordvalsSkip($words, $uniq);
-    }
-
-    /**
-     * @param string|string[]|array $words
-     * @param null|bool             $uniq
-     *
-     * @return array
-     */
-    public static function theWordvalsSkip($words, $uniq = null): array
-    {
-        return static::getInstance()->theWordvalsSkip($words, $uniq);
+        return static::getInstance()->theWordvals($words, $uniq);
     }
 
     /**

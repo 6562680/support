@@ -68,10 +68,11 @@ $method->setComment(implode("\n", [
     '@return null|mixed',
 ]));
 $method->setBody(implode("\n", [
-    'if (null === ($filtered = $this->filter->call($customFilter, ...$arguments))) {',
-    '    throw new InvalidArgumentException($this->flushMessage(...$arguments)',
-    '        ?? array_merge([ \'Invalid \' . $customFilter . \' passed: %s\' ], $arguments)',
-    '    );',
+    'if (null === ( $filtered = $this->filter->call($customFilter, ...$arguments) )) {',
+    '    throw $this->flushThrowable()',
+    '        ?? new InvalidArgumentException($this->flushMessage(...$arguments)',
+    '            ?? array_merge([ \'Invalid \' . $customFilter . \' passed: %s\' ], $arguments)',
+    '        );',
     '}',
     '',
     'return $filtered;',
@@ -140,10 +141,11 @@ foreach ( $moduleCopy->getMethods() as $method ) {
     $methodNew->setComment($methodCommentNew);
     $methodNew->setReturnType($method->getReturnType());
     $methodNew->setBody(implode("\n", [
-        sprintf('if (null === ($filtered = $this->filter->' . $methodName . '(%s))) {', $arguments),
-        '    throw new InvalidArgumentException($this->flushMessage(...func_get_args())',
-        '        ?? array_merge([ \'Invalid ' . $filterName . ' passed: %s\' ], func_get_args())',
-        '    );',
+        sprintf('if (null === ( $filtered = $this->filter->' . $methodName . '(%s) )) {', $arguments),
+        '    throw $this->flushThrowable()',
+        '        ?? new InvalidArgumentException($this->flushMessage(...func_get_args())',
+        '            ?? array_merge([ \'Invalid ' . $filterName . ' passed: %s\' ], func_get_args())',
+        '        );',
         '}',
         '',
         'return $filtered;',

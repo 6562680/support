@@ -13,7 +13,6 @@ use Gzhegow\Support\Str;
 use Gzhegow\Support\Uri;
 use Gzhegow\Support\Php;
 use Gzhegow\Support\Curl;
-use Gzhegow\Support\Func;
 use Gzhegow\Support\Math;
 use Gzhegow\Support\Path;
 use Gzhegow\Support\Preg;
@@ -57,8 +56,6 @@ class SupportFactory implements SupportFactoryInterface
         return $this->containerGet(Arr::class)
             ?? new Arr(
                 $this->newFilter(),
-                $this->newNum(),
-                $this->newPhp(),
                 $this->newStr()
             );
     }
@@ -181,15 +178,6 @@ class SupportFactory implements SupportFactoryInterface
     }
 
     /**
-     * @return Func
-     */
-    public function newFunc() : Func
-    {
-        return $this->containerGet(Func::class)
-            ?? new Func();
-    }
-
-    /**
      * @return Loader
      */
     public function newLoader() : Loader
@@ -232,8 +220,7 @@ class SupportFactory implements SupportFactoryInterface
     {
         return $this->containerGet(Num::class)
             ?? new Num(
-                $this->newFilter(),
-                $this->newPhp()
+                $this->newFilter()
             );
     }
 
@@ -244,6 +231,7 @@ class SupportFactory implements SupportFactoryInterface
     {
         return $this->containerGet(Path::class)
             ?? new Path(
+                $this->newFilter(),
                 $this->newPhp(),
                 $this->newStr()
             );

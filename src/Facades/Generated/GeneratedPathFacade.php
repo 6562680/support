@@ -10,6 +10,7 @@
 
 namespace Gzhegow\Support\Facades\Generated;
 
+use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Path;
 
 abstract class GeneratedPathFacade
@@ -41,6 +42,26 @@ abstract class GeneratedPathFacade
     }
 
     /**
+     * @param string $separator
+     *
+     * @return Path
+     */
+    public static function setSeparator(string $separator)
+    {
+        return static::getInstance()->setSeparator($separator);
+    }
+
+    /**
+     * @param string[] $delimiters
+     *
+     * @return Path
+     */
+    public static function setDelimiters(array $delimiters)
+    {
+        return static::getInstance()->setDelimiters($delimiters);
+    }
+
+    /**
      * @param string|string[] $delimiters
      *
      * @return Path
@@ -51,24 +72,23 @@ abstract class GeneratedPathFacade
     }
 
     /**
-     * @param string $string
+     * @param string $path
      *
      * @return string
      */
-    public static function optimize(string $string): string
+    public static function optimize(string $path): string
     {
-        return static::getInstance()->optimize($string);
+        return static::getInstance()->optimize($path);
     }
 
     /**
-     * @param string     $string
-     * @param null|array $replacements
+     * @param string $path
      *
      * @return string
      */
-    public static function pregOptimize(string $string, array &$replacements = null): string
+    public static function normalize(string $path): string
     {
-        return static::getInstance()->pregOptimize($string, $replacements);
+        return static::getInstance()->normalize($path);
     }
 
     /**
@@ -89,16 +109,6 @@ abstract class GeneratedPathFacade
     public static function join(...$strvals): string
     {
         return static::getInstance()->join(...$strvals);
-    }
-
-    /**
-     * @param string|string[] ...$strvals
-     *
-     * @return string
-     */
-    public static function normalize(...$strvals): string
-    {
-        return static::getInstance()->normalize(...$strvals);
     }
 
     /**
@@ -143,6 +153,16 @@ abstract class GeneratedPathFacade
     public static function relative(string $path, string $base = ''): ?string
     {
         return static::getInstance()->relative($path, $base);
+    }
+
+    /**
+     * @param string|array ...$strings
+     *
+     * @return array
+     */
+    public static function protocol(...$strings): array
+    {
+        return static::getInstance()->protocol(...$strings);
     }
 
     /**

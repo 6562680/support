@@ -313,6 +313,31 @@ class Loader
 
 
     /**
+     * @param string $path
+     *
+     * @return string
+     */
+    public function pathOptimize(string $path) : string
+    {
+        $result = $this->path->optimize($path);
+
+        return $result;
+    }
+
+    /**
+     * @param string $path
+     *
+     * @return string
+     */
+    public function pathNormalize(string $path) : string
+    {
+        $result = $this->path->normalize($path);
+
+        return $result;
+    }
+
+
+    /**
      * @param string|string[]|array ...$parts
      *
      * @return array
@@ -341,18 +366,6 @@ class Loader
      *
      * @return string
      */
-    public function pathNormalize(...$parts) : string
-    {
-        $result = $this->path->normalize(...$parts);
-
-        return $result;
-    }
-
-    /**
-     * @param string|string[]|array ...$parts
-     *
-     * @return string
-     */
     public function pathConcat(...$parts) : string
     {
         $result = $this->path->concat(...$parts);
@@ -362,40 +375,28 @@ class Loader
 
 
     /**
-     * @param string|object $classOrObject
-     * @param int           $levels
+     * @param string $path
+     * @param int    $levels
      *
      * @return null|string
      */
-    public function pathDirname($classOrObject, int $levels = 0) : ?string
+    public function pathDirname(string $path, int $levels = 0) : ?string
     {
-        if (null === ( $class = $this->classval($classOrObject) )) {
-            throw new InvalidArgumentException(
-                [ 'Class should be valid class name or object: %s', $classOrObject ]
-            );
-        }
-
-        $result = $this->path->dirname($class, $levels);
+        $result = $this->path->dirname($path, $levels);
 
         return $result;
     }
 
     /**
-     * @param string|object $classOrObject
-     * @param null|string   $suffix
-     * @param int           $levels
+     * @param string      $path
+     * @param null|string $suffix
+     * @param int         $levels
      *
      * @return null|string
      */
-    public function pathBasename($classOrObject, string $suffix = null, int $levels = 0) : ?string
+    public function pathBasename(string $path, string $suffix = null, int $levels = 0) : ?string
     {
-        if (null === ( $class = $this->classval($classOrObject) )) {
-            throw new InvalidArgumentException(
-                [ 'Class should be valid class name or object: %s', $classOrObject ]
-            );
-        }
-
-        $result = $this->path->basename($class, $suffix, $levels);
+        $result = $this->path->basename($path, $suffix, $levels);
 
         return $result;
     }

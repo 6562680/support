@@ -3,17 +3,45 @@
 namespace Gzhegow\Support\Tests;
 
 use Gzhegow\Support\Php;
+use Gzhegow\Support\Filter;
 use Gzhegow\Support\Exceptions\Exception;
 use Gzhegow\Support\Domain\SupportFactory;
 use Gzhegow\Support\Exceptions\LogicException;
 use Gzhegow\Support\Exceptions\RuntimeException;
+use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 class ExceptionTest extends AbstractTestCase
 {
+    public function getFilter() : Filter
+    {
+        return ( new SupportFactory() )->newFilter();
+    }
+
     public function getPhp() : Php
     {
         return ( new SupportFactory() )->newPhp();
+    }
+
+
+    public function testFilter()
+    {
+        $this->assertException(InvalidArgumentException::class, function () {
+            $filter = $this->getFilter();
+            $filter->assert()->assertPositive(-1);
+        });
+
+        $this->assertException(InvalidArgumentException::class, function () {
+            $filter = $this->getFilter();
+            $filter->assert([ 'Hello, %s', 'World' ])
+                ->assertPositive(-1);
+        });
+
+        $this->assertException(RuntimeException::class, function () {
+            $filter = $this->getFilter();
+            $filter->assert(new RuntimeException([ 'Hello, %s', 'World' ]))
+                ->assertPositive(-1);
+        });
     }
 
 

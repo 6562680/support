@@ -71,9 +71,9 @@ class FsTest extends AbstractTestCase
         $ds = DIRECTORY_SEPARATOR;
 
         $this->assertEquals([ 'aa', 'aa', 'aa', 'aa' ], $fs->pathSplit('aa/aa\\aa/aa'));
-        $this->assertEquals([ "${ds}", 'aa', 'aa', 'aa', 'aa' ], $fs->pathSplit('/aa/aa\\aa/aa\\'));
-        $this->assertEquals([ "${ds}${ds}", 'aa', 'aa', 'aa', 'aa' ], $fs->pathSplit('//aa/aa\\aa/aa\\'));
-        $this->assertEquals([ "${ds}${ds}${ds}", 'aa', 'aa', 'aa', 'aa' ], $fs->pathSplit('/\\/aa/aa\\aa/aa\\'));
+        $this->assertEquals([ "${ds}aa", 'aa', 'aa', 'aa' ], $fs->pathSplit('/aa/aa\\aa/aa\\'));
+        $this->assertEquals([ "${ds}${ds}aa", 'aa', 'aa', 'aa' ], $fs->pathSplit('//aa/aa\\aa/aa\\'));
+        $this->assertEquals([ "${ds}${ds}${ds}aa", 'aa', 'aa', 'aa' ], $fs->pathSplit('/\\/aa/aa\\aa/aa\\'));
     }
 
     public function testPathJoin()
@@ -90,42 +90,17 @@ class FsTest extends AbstractTestCase
         $this->assertEquals('', $fs->pathJoin('', [ '' ]));
         $this->assertEquals(",${ds},", $fs->pathJoin(',', [ ',' ]));
 
-        $this->assertEquals("${ds}/", $fs->pathJoin('/', [ '/' ]));
+        $this->assertEquals("${ds}", $fs->pathJoin('/', [ '/' ]));
 
         $this->assertEquals("a${ds}a", $fs->pathJoin('a', [ 'a' ]));
         $this->assertEquals(",a${ds},a", $fs->pathJoin(',a', [ ',a' ]));
 
-        $this->assertEquals("${ds}a${ds}/a", $fs->pathJoin('/a', [ '/a' ]));
-        $this->assertEquals("${ds}/a", $fs->pathJoin('/', [ '/a' ]));
+        $this->assertEquals("${ds}a${ds}a", $fs->pathJoin('/a', [ '/a' ]));
+        $this->assertEquals("${ds}a", $fs->pathJoin('/', [ '/a' ]));
 
         $parts = [ '', ',', "${ds}", 'a', ',a', "${ds}a", [ '', ',', "${ds}", 'a', ',a', "${ds}a" ] ];
 
         $this->assertEquals(",${ds}a${ds},a${ds}a${ds},${ds}a${ds},a${ds}a", $fs->pathJoin(...$parts));
-    }
-
-    public function testPathNormalize()
-    {
-        $fs = $this->getFs();
-        $ds = DIRECTORY_SEPARATOR;
-
-        $this->assertEquals('', $fs->pathNormalize(''));
-        $this->assertEquals(',', $fs->pathNormalize(','));
-        $this->assertEquals("${ds}", $fs->pathNormalize('/'));
-        $this->assertEquals('a', $fs->pathNormalize('a'));
-        $this->assertEquals(',a', $fs->pathNormalize(',a'));
-        $this->assertEquals("${ds}a", $fs->pathNormalize('/a'));
-        $this->assertEquals('', $fs->pathNormalize('', [ '' ]));
-        $this->assertEquals(",${ds},", $fs->pathNormalize(',', [ ',' ]));
-        $this->assertEquals("${ds}", $fs->pathNormalize('/', [ '/' ]));
-        $this->assertEquals("a${ds}a", $fs->pathNormalize('a', [ 'a' ]));
-        $this->assertEquals(",a${ds},a", $fs->pathNormalize(',a', [ ',a' ]));
-        $this->assertEquals("${ds}a${ds}a", $fs->pathNormalize('/a', [ '/a' ]));
-
-        $this->assertEquals("${ds}a", $fs->pathNormalize('/', [ '/a' ]));
-
-        $parts = [ '', ',', "${ds}", 'a', ',a', "${ds}a", [ '', ',', "${ds}", 'a', ',a', "${ds}a" ] ];
-
-        $this->assertEquals(",${ds}a${ds},a${ds}a${ds},${ds}a${ds},a${ds}a", $fs->pathNormalize(...$parts));
     }
 
     public function testPathConcat()

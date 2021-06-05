@@ -4,7 +4,6 @@ namespace Gzhegow\Support\Exceptions\Traits;
 
 use Gzhegow\Support\Php;
 use Gzhegow\Support\Debug;
-use Gzhegow\Support\Filter;
 
 
 /**
@@ -16,10 +15,6 @@ trait ExceptionTrait
      * @var Debug
      */
     protected $debug;
-    /**
-     * @var Filter
-     */
-    protected $filter;
     /**
      * @var Php
      */
@@ -56,24 +51,6 @@ trait ExceptionTrait
     protected function newDebug() : Debug
     {
         return new Debug();
-    }
-
-    /**
-     * @return Filter
-     */
-    protected function newFilter() : Filter
-    {
-        return new Filter();
-    }
-
-    /**
-     * @return Php
-     */
-    protected function newPhp() : Php
-    {
-        return new Php(
-            $this->newFilter()
-        );
     }
 
 
@@ -162,13 +139,13 @@ trait ExceptionTrait
     protected function parse($message, $payload = null) : void
     {
         $this->debug = $this->newDebug();
-        $this->filter = $this->newFilter();
-        $this->php = $this->newPhp();
 
-        $placeholders = $this->php->listval($message);
-        $text = array_shift($placeholders);
+        $placeholders = is_array($message)
+            ? $message
+            : [ $message ];
 
-        if (null === $this->filter->filterWordOrNumber($text)) {
+        $text = strval(array_shift($placeholders));
+        if ('' === $text) {
             throw new \InvalidArgumentException('Message Text should be string/number', null, $this);
         }
 

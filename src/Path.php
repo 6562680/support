@@ -3,11 +3,18 @@
 namespace Gzhegow\Support;
 
 
+use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+
+
 /**
  * Path
  */
 class Path
 {
+    /**
+     * @var Filter
+     */
+    protected $filter;
     /**
      * @var Php
      */
@@ -16,7 +23,6 @@ class Path
      * @var Str
      */
     protected $str;
-
 
     /**
      * @var string
@@ -31,16 +37,19 @@ class Path
     /**
      * Constructor
      *
-     * @param Php $php
-     * @param Str $str
+     * @param Filter $filter
+     * @param Php    $php
+     * @param Str    $str
      */
     public function __construct(
+        Filter $filter,
         Php $php,
         Str $str
     )
     {
-        $this->str = $str;
+        $this->filter = $filter;
         $this->php = $php;
+        $this->str = $str;
     }
 
 
@@ -77,48 +86,89 @@ class Path
 
 
     /**
-     * @param string|string[] $delimiters
+     * @param string $separator
      *
      * @return static
      */
-    public function using(...$delimiters)
+    public function setSeparator(string $separator)
     {
-        $delimiters = $this->str->theWordvals($delimiters, true);
+        $this->separator = $separator;
 
-        $this->separator = $delimiters[ 0 ];
-        $this->delimiters = $delimiters;
+        return $this;
+    }
+
+    /**
+     * @param string[] $delimiters
+     *
+     * @return static
+     */
+    public function setDelimiters(array $delimiters)
+    {
+        $delimitersWord = $this->str->theWordvals($delimiters, true);
+        if (! $delimitersWord) {
+            throw new InvalidArgumentException(
+                [ 'At least one delimiter should be passed: %s', $delimiters ]
+            );
+        }
+
+        $this->separator = $delimitersWord[ 0 ];
+        $this->delimiters = $delimitersWord;
 
         return $this;
     }
 
 
     /**
-     * @param string $string
+     * @param string|string[] $delimiters
+     *
+     * @return static
+     */
+    public function using(...$delimiters)
+    {
+        $this->setDelimiters($delimiters);
+
+        return $this;
+    }
+
+
+    /**
+     * @param string $path
      *
      * @return string
      */
-    public function optimize(string $string) : string
+    public function optimize(string $path) : string
     {
-        $result = str_replace($this->delimiters, $this->separator, $string);
+        $result = str_replace($this->delimiters, $this->separator, $path);
 
         return $result;
     }
 
     /**
-     * @param string     $string
-     * @param null|array $replacements
+     * @param string $path
      *
      * @return string
      */
-    public function pregOptimize(string $string, array &$replacements = null) : string
+    public function normalize(string $path) : string
     {
-        $pattern = '(' . implode('|', array_map('preg_quote', $this->delimiters)) . ')';
+        $path = $this->optimize($path);
 
-        $result = preg_replace_callback($pattern, function ($m) use (&$replacements) {
-            $replacements[] = $m[ 0 ];
+        $strvals[] = '';
+        $items = [];
+        foreach ( explode($this->separator, $path) as $part ) {
+            if ('.' == $part) {
+                continue;
+            }
 
-            return $this->separator;
-        }, $string);
+            if ('..' == $part) {
+                array_pop($items);
+
+                continue;
+            }
+
+            $items[] = $part;
+        }
+
+        $result = implode($this->separator, $items);
 
         return $result;
     }
@@ -131,24 +181,30 @@ class Path
      */
     public function split(...$strvals) : array
     {
-        $strvals[] = '';
+        $delimiters = implode('', $this->delimiters);
 
-        $list = $this->str->strvalsSkip($strvals);
+        // network: \\c\\documents
+        // path: dir;./dir;~/dir;/dir
+        // url: ftp://web;//web
+        [ $protocol, $list ] = $this->protocol(...$strvals);
 
-        $first = array_shift($list);
-        $first = $this->optimize($first);
+        $split = $this->str->explode($this->delimiters, $list);
 
-        $trim = ltrim($first, $this->separator);
-        $prefix = str_repeat($this->separator, mb_strlen($first) - mb_strlen($trim));
-
-        $split = $this->str->explode($this->delimiters, $first, $list);
-        $split = array_filter($split, 'strlen');
-
-        if ('' !== $prefix) {
-            array_unshift($split, $prefix);
+        foreach ( $split as $idx => $e ) {
+            $split[ $idx ] = trim($e, $delimiters);
         }
 
-        $result = array_values($split);
+        $split = array_filter($split, 'strlen');
+
+        if ('' !== $protocol) {
+            $first = array_shift($split);
+            $first = $protocol . $first;
+            array_unshift($split, $first);
+        }
+
+        $result = $split
+            ? array_values($split)
+            : [ '' ];
 
         return $result;
     }
@@ -160,49 +216,21 @@ class Path
      */
     public function join(...$strvals) : string
     {
-        $strvals[] = '';
+        $delimiters = implode('', $this->delimiters);
 
-        $list = $this->str->strvalsSkip($strvals);
+        // network: \\c\\documents
+        // path: dir;./dir;~/dir;/dir
+        // url: ftp://web;//web
+        [ $protocol, $list ] = $this->protocol(...$strvals);
 
-        $first = array_shift($list);
-        $first = $this->optimize($first);
-
-        $trim = ltrim($first, $this->separator);
-        $prefix = str_repeat($this->separator, mb_strlen($first) - mb_strlen($trim));
-
-        $result = $this->str->joinSkip($this->separator, $first, $list);
-
-        if ('' !== $prefix) {
-            $result = $prefix . $result;
+        foreach ( $list as $idx => $l ) {
+            $list[ $idx ] = ltrim($l, $delimiters);
         }
 
-        return $result;
-    }
+        $result = $this->str->joinSkip($this->separator, $list);
 
-    /**
-     * @param string|string[] ...$strvals
-     *
-     * @return string
-     */
-    public function normalize(...$strvals) : string
-    {
-        $strvals[] = '';
-
-        $list = $this->str->strvalsSkip($strvals);
-
-        $first = array_shift($list);
-        $first = $this->optimize($first);
-
-        $trim = ltrim($first, $this->separator);
-        $prefix = str_repeat($this->separator, mb_strlen($first) - mb_strlen($trim));
-
-        $split = $this->str->explode($this->delimiters, $first, $list);
-        $split = array_filter($split, 'strlen');
-
-        $result = $this->str->joinSkip($this->separator, $split);
-
-        if ('' !== $prefix) {
-            $result = $prefix . $result;
+        if ('' !== $protocol) {
+            $result = $protocol . $result;
         }
 
         return $result;
@@ -216,7 +244,7 @@ class Path
      */
     public function concat(...$strvals) : string
     {
-        $words = $this->str->strvalsSkip($strvals);
+        $words = $this->str->strvals($strvals);
         $words = array_filter($words, 'strlen');
 
         $result = array_shift($words);
@@ -262,16 +290,16 @@ class Path
      */
     public function dirname(string $path, int $levels = null) : ?string
     {
-        $levels = max(1, $levels ?? 1);
+        $levels = $levels ?? 1;
 
-        $split = $this->split($path);
-        $len = count($split);
+        $explode = $this->split($path);
 
-        $levels = min($len, $levels);
+        $levelsTotal = count($explode);
+        $levels = max(1, min($levels, $levelsTotal));
 
-        $result = $this->normalize(
-            array_splice($split, 0, $len - $levels)
-        );
+        $result = array_splice($explode, 0, $levelsTotal - $levels);
+
+        $result = $this->join($result);
 
         return $result;
     }
@@ -285,20 +313,21 @@ class Path
      */
     public function basename(string $path, string $suffix = null, int $levels = null) : ?string
     {
-        $levels = max(0, $levels ?? 0);
+        $levels = $levels ?? 0;
+        $levels = max(0, $levels);
 
-        $split = $this->split($path);
-        $last = array_pop($split);
+        $explode = $this->split($path);
+        $last = array_pop($explode);
 
         $result = [];
 
         if ($levels) {
-            $result[] = array_slice($split, -1 * $levels);
+            $result[] = array_slice($explode, -1 * $levels);
         }
 
         $result[] = basename($last, $suffix);
 
-        $result = $this->normalize($result);
+        $result = $this->join($result);
 
         return $result;
     }
@@ -326,5 +355,32 @@ class Path
         $result = ltrim($result, $this->separator);
 
         return $result;
+    }
+
+
+    /**
+     * @param string|array ...$strings
+     *
+     * @return array
+     */
+    public function protocol(...$strings) : array
+    {
+        $list = $this->str->theStrvals($strings);
+
+        $delimiters = implode('', $this->delimiters);
+
+        $first = null !== key($list)
+            ? reset($list)
+            : '';
+
+        $implode = $this->optimize($first);
+        $implodeTrim = ltrim($implode, $delimiters);
+
+        $protocol = '';
+        if ($count = ( mb_strlen($implode) - mb_strlen($implodeTrim) )) {
+            $protocol = str_repeat($this->separator, $count);
+        }
+
+        return [ $protocol, $list ];
     }
 }

@@ -153,9 +153,9 @@ class Str
      */
     public function replace($strings, $replacements, $subjects, int $limit = null, int &$count = null) // : string|string[]
     {
-        $searchArray = $this->strvals($strings);
-        $replaceArray = $this->strvals($replacements);
-        $subjectArray = $this->strvals($subjects);
+        $searchArray = $this->theStrvals($strings);
+        $replaceArray = $this->theStrvals($replacements);
+        $subjectArray = $this->theStrvals($subjects);
 
         if ([] === $searchArray) return $subjects;
         if ([] === $replaceArray) return $subjects;
@@ -232,9 +232,9 @@ class Str
      */
     public function ireplace($strings, $replacements, $subjects, int $limit = null, int &$count = null) // : string|string[]
     {
-        $searchArray = $this->strvals($strings);
-        $replaceArray = $this->strvals($replacements);
-        $subjectArray = $this->strvals($subjects);
+        $searchArray = $this->theStrvals($strings);
+        $replaceArray = $this->theStrvals($replacements);
+        $subjectArray = $this->theStrvals($subjects);
 
         if ([] === $searchArray) return $subjects;
         if ([] === $replaceArray) return $subjects;
@@ -737,7 +737,7 @@ class Str
      */
     public function implode(string $delimiter, ...$strings) : string
     {
-        $result = $this->strvals($strings);
+        $result = $this->theStrvals($strings);
 
         if ('' !== $delimiter) {
             foreach ( $result as $idx => $val ) {
@@ -760,7 +760,7 @@ class Str
      */
     public function implodeSkip(string $delimiter, ...$strings) : string
     {
-        $result = $this->strvalsSkip($strings);
+        $result = $this->strvals($strings);
 
         if ('' !== $delimiter) {
             foreach ( $result as $idx => $val ) {
@@ -788,7 +788,7 @@ class Str
      */
     public function join(string $delimiter, ...$strings) : string
     {
-        $result = $this->strvals($strings);
+        $result = $this->theStrvals($strings);
         $result = array_filter($result, 'strlen');
 
         if ('' !== $delimiter) {
@@ -812,7 +812,7 @@ class Str
      */
     public function joinSkip(string $delimiter, ...$strings) : string
     {
-        $result = $this->strvalsSkip($strings);
+        $result = $this->strvals($strings);
         $result = array_filter($result, 'strlen');
 
         if ('' !== $delimiter) {
@@ -852,7 +852,8 @@ class Str
         $lastDelimiter = $lastDelimiter ?? $delimiter;
         $wrapper = $wrapper ?? '';
 
-        $result = $this->wordvals($strings);
+        $result = $this->theWordvals($strings);
+        $result = array_filter($result, 'strlen');
 
         $last = null;
         if (null !== $lastDelimiter) {
@@ -893,7 +894,8 @@ class Str
         $lastDelimiter = $lastDelimiter ?? $delimiter;
         $wrapper = $wrapper ?? '';
 
-        $result = $this->wordvalsSkip($strings);
+        $result = $this->wordvals($strings);
+        $result = array_filter($result, 'strlen');
 
         $last = null;
         if (null !== $lastDelimiter) {
@@ -985,15 +987,16 @@ class Str
      */
     public function compact($strings, $delimiters = null, int $limit = null) : string
     {
-        $strings = $this->strvalsSkip($strings);
+        $list = $this->strvals($strings);
+        $list = array_filter($list, 'strlen');
 
         if (null !== $delimiters) {
-            $strings = $this->explode($delimiters, $strings);
+            $list = $this->explode($delimiters, $list);
         }
 
         $result = [];
-        foreach ( $strings as $word ) {
-            $result[] = $this->prefix($word, $limit);
+        foreach ( $list as $string ) {
+            $result[] = $this->prefix($string, $limit);
         }
 
         $result = implode('', $result);
@@ -1144,14 +1147,12 @@ class Str
     /**
      * @param mixed $value
      *
-     * @return string
+     * @return null|string
      */
-    public function strval($value) : string
+    public function strval($value) : ?string
     {
         if (null === $this->filter->filterStrval($value)) {
-            throw new InvalidArgumentException(
-                [ 'Value should be convertable to strval: %s', $value ]
-            );
+            return null;
         }
 
         $result = strval($value);
@@ -1162,14 +1163,12 @@ class Str
     /**
      * @param mixed $value
      *
-     * @return string
+     * @return null|string
      */
-    public function wordval($value) : string
+    public function wordval($value) : ?string
     {
         if (null === $this->filter->filterWordval($value)) {
-            throw new InvalidArgumentException(
-                [ 'Value should be convertable to wordval: %s', $value ]
-            );
+            return null;
         }
 
         $result = strval($value);
@@ -1179,70 +1178,37 @@ class Str
 
 
     /**
-     * @param string|string[]|array $strings
-     * @param null|bool             $uniq
-     * @param null|string|array     $message
-     * @param mixed                 ...$arguments
+     * @param mixed $value
      *
-     * @return string[]
+     * @return string
      */
-    public function strvals($strings, $uniq = null, $message = null, ...$arguments) : array
+    public function theStrval($value) : string
     {
-        $result = [];
-
-        $strings = is_array($strings)
-            ? $strings
-            : [ $strings ];
-
-        if ($hasMessage = ( null !== $message )) {
-            $this->filter->assert($message, ...$arguments);
-        }
-
-        array_walk_recursive($strings, function ($string) use (&$result) {
-            if (null === ( $strval = $this->strval($string) )) {
-                throw new InvalidArgumentException($this->filter->assert()->flushMessage($string)
-                    ?? [ 'Each item should be stringable: %s', $string ],
-                );
-            }
-
-            $result[] = $strval;
-        });
-
-        if ($hasMessage) {
-            $this->filter->assert()->flushMessage();
-        }
-
-        if ($uniq ?? false) {
-            $arr = [];
-            foreach ( $result as $i ) {
-                $arr[ $i ] = true;
-            }
-            $result = array_keys($arr);
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param string|string[]|array $strings
-     * @param null|bool             $uniq
-     * @param null|string|array     $message
-     * @param mixed                 ...$arguments
-     *
-     * @return string[]
-     */
-    public function theStrvals($strings, $uniq = null, $message = null, ...$arguments) : array
-    {
-        $result = $this->strvals($strings, $uniq, $message, ...$arguments);
-
-        if (! count($result)) {
+        if (null === ( $strval = $this->strval($value) )) {
             throw new InvalidArgumentException(
-                [ 'At least one string should be provided: %s', $strings ],
+                [ 'Value should be convertable to strval: %s', $value ],
             );
         }
 
-        return $result;
+        return $strval;
     }
+
+    /**
+     * @param mixed $value
+     *
+     * @return string
+     */
+    public function theWordval($value) : string
+    {
+        if (null === ( $wordval = $this->wordval($value) )) {
+            throw new InvalidArgumentException(
+                [ 'Value should be convertable to wordval: %s', $value ],
+            );
+        }
+
+        return $wordval;
+    }
+
 
     /**
      * @param string|string[]|array $strings
@@ -1250,7 +1216,7 @@ class Str
      *
      * @return string[]
      */
-    public function strvalsSkip($strings, $uniq = null) : array
+    public function strvals($strings, $uniq = null) : array
     {
         $result = [];
 
@@ -1276,98 +1242,12 @@ class Str
     }
 
     /**
-     * @param string|string[]|array $strings
-     * @param null|bool             $uniq
-     *
-     * @return string[]
-     */
-    public function theStrvalsSkip($strings, $uniq = null) : array
-    {
-        $result = $this->strvalsSkip($strings, $uniq);
-
-        if (! count($result)) {
-            throw new InvalidArgumentException(
-                [ 'At least one string should be provided: %s', $strings ],
-            );
-        }
-
-        return $result;
-    }
-
-
-    /**
-     * @param string|string[]|array $words
-     * @param null|bool             $uniq
-     * @param null|string|array     $message
-     * @param mixed                 ...$arguments
-     *
-     * @return string[]
-     */
-    public function wordvals($words, $uniq = null, $message = null, ...$arguments) : array
-    {
-        $result = [];
-
-        $words = is_array($words)
-            ? $words
-            : [ $words ];
-
-        if ($hasMessage = ( null !== $message )) {
-            $this->filter->assert($message, ...$arguments);
-        }
-
-        array_walk_recursive($words, function ($word) use (&$result) {
-            if (null === ( $wordval = $this->wordval($word) )) {
-                throw new InvalidArgumentException($this->filter->assert()->flushMessage($word)
-                    ?? [ 'Each word should be stringable and not empty: %s', $word ],
-                );
-            }
-
-            $result[] = $wordval;
-        });
-
-        if ($hasMessage) {
-            $this->filter->assert()->flushMessage();
-        }
-
-        if ($uniq ?? false) {
-            $arr = [];
-            foreach ( $result as $i ) {
-                $arr[ $i ] = true;
-            }
-            $result = array_keys($arr);
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param string|string[]|array $words
-     * @param null|bool             $uniq
-     * @param null|string|array     $message
-     * @param mixed                 ...$arguments
-     *
-     * @return string[]
-     */
-    public function theWordvals($words, $uniq = null, $message = null, ...$arguments) : array
-    {
-        $result = $this->wordvals($words, $uniq, $message, ...$arguments);
-
-        if (! count($result)) {
-            throw new InvalidArgumentException(
-                [ 'At least one word should be provided: %s', $words ],
-            );
-        }
-
-        return $result;
-    }
-
-    /**
      * @param string|string[]|array $words
      * @param null|bool             $uniq
      *
      * @return string[]
      */
-    public function wordvalsSkip($words, $uniq = null) : array
+    public function wordvals($words, $uniq = null) : array
     {
         $result = [];
 
@@ -1392,20 +1272,60 @@ class Str
         return $result;
     }
 
+
+    /**
+     * @param string|string[]|array $strings
+     * @param null|bool             $uniq
+     *
+     * @return string[]
+     */
+    public function theStrvals($strings, $uniq = null) : array
+    {
+        $result = [];
+
+        $strings = is_array($strings)
+            ? $strings
+            : [ $strings ];
+
+        array_walk_recursive($strings, function ($string) use (&$result) {
+            $result[] = $this->theStrval($string);
+        });
+
+        if ($uniq ?? false) {
+            $arr = [];
+            foreach ( $result as $i ) {
+                $arr[ $i ] = true;
+            }
+            $result = array_keys($arr);
+        }
+
+        return $result;
+    }
+
     /**
      * @param string|string[]|array $words
      * @param null|bool             $uniq
      *
-     * @return array
+     * @return string[]
      */
-    public function theWordvalsSkip($words, $uniq = null) : array
+    public function theWordvals($words, $uniq = null) : array
     {
-        $result = $this->wordvalsSkip($words, $uniq);
+        $result = [];
 
-        if (! count($result)) {
-            throw new InvalidArgumentException(
-                [ 'At least one word should be provided: %s', $words ],
-            );
+        $words = is_array($words)
+            ? $words
+            : [ $words ];
+
+        array_walk_recursive($words, function ($word) use (&$result) {
+            $result[] = $this->theWordval($word);
+        });
+
+        if ($uniq ?? false) {
+            $arr = [];
+            foreach ( $result as $i ) {
+                $arr[ $i ] = true;
+            }
+            $result = array_keys($arr);
         }
 
         return $result;
@@ -1456,6 +1376,7 @@ class Str
 
         return $result;
     }
+
 
     /**
      * @return string

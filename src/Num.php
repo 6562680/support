@@ -14,39 +14,30 @@ class Num
      * @var Filter
      */
     protected $filter;
-    /**
-     * @var Php
-     */
-    protected $php;
 
 
     /**
      * Constructor
      *
      * @param Filter $filter
-     * @param Php    $php
      */
     public function __construct(
-        Filter $filter,
-        Php $php
+        Filter $filter
     )
     {
         $this->filter = $filter;
-        $this->php = $php;
     }
 
 
     /**
      * @param mixed $value
      *
-     * @return int
+     * @return null|int
      */
-    public function intval($value) : int
+    public function intval($value) : ?int
     {
         if (null === $this->filter->filterIntval($value)) {
-            throw new InvalidArgumentException(
-                [ 'Value should be convertable to intval: %s', $value ]
-            );
+            return null;
         }
 
         $result = intval($value);
@@ -57,14 +48,12 @@ class Num
     /**
      * @param mixed $value
      *
-     * @return float
+     * @return null|float
      */
-    public function floatval($value) : float
+    public function floatval($value) : ?float
     {
         if (null === $this->filter->filterFloatval($value)) {
-            throw new InvalidArgumentException(
-                [ 'Value should be convertable to floatval: %s', $value ]
-            );
+            return null;
         }
 
         $result = floatval($value);
@@ -75,14 +64,12 @@ class Num
     /**
      * @param mixed $value
      *
-     * @return int|float
+     * @return null|int|float
      */
-    public function numval($value) // : int|float
+    public function numval($value) // : ?int|float
     {
         if (null === $this->filter->filterNumval($value)) {
-            throw new InvalidArgumentException(
-                [ 'Value should be convertable to numval: %s', $value ]
-            );
+            return null;
         }
 
         return null
@@ -92,70 +79,53 @@ class Num
 
 
     /**
-     * @param int|array         $integers
-     * @param null|bool         $uniq
-     * @param null|string|array $message
-     * @param mixed             ...$arguments
+     * @param mixed $value
      *
-     * @return int[]
+     * @return int
      */
-    public function intvals($integers, $uniq = null, $message = null, ...$arguments) : array
+    public function theIntval($value) : int
     {
-        $result = [];
-
-        $integers = is_array($integers)
-            ? $integers
-            : [ $integers ];
-
-        if ($hasMessage = ( null !== $message )) {
-            $this->filter->assert($message, $arguments);
-        }
-
-        array_walk_recursive($integers, function ($integer) use (&$result) {
-            if (null === ( $intval = $this->intval($integer) )) {
-                throw new InvalidArgumentException($this->filter->assert()->flushMessage($integer)
-                    ?? [ 'Each item should be convertable to integer: %s', $integer ],
-                );
-            }
-
-            $result[] = $intval;
-        });
-
-        if ($hasMessage) {
-            $this->filter->assert()->flushMessage();
-        }
-
-        if ($uniq ?? false) {
-            $arr = [];
-            foreach ( $result as $i ) {
-                $arr[ $i ] = true;
-            }
-            $result = array_keys($arr);
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param int|array         $integers
-     * @param null|bool         $uniq
-     * @param null|string|array $message
-     * @param mixed             ...$arguments
-     *
-     * @return int[]
-     */
-    public function theIntvals($integers, $uniq = null, $message = null, array ...$arguments) : array
-    {
-        $result = $this->intvals($integers, $uniq, $message, ...$arguments);
-
-        if (! count($result)) {
+        if (null === ( $intval = $this->intval($value) )) {
             throw new InvalidArgumentException(
-                [ 'At least one integer should be provided: %s', $integers ],
+                [ 'Value should be convertable to intval: %s', $value ],
             );
         }
 
-        return $result;
+        return $intval;
     }
+
+    /**
+     * @param mixed $value
+     *
+     * @return float
+     */
+    public function theFloatval($value) : float
+    {
+        if (null === ( $floatval = $this->floatval($value) )) {
+            throw new InvalidArgumentException(
+                [ 'Value should be convertable to floatval: %s', $value ],
+            );
+        }
+
+        return $floatval;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return int|float
+     */
+    public function theNumval($value) // : int|float
+    {
+        if (null === ( $numval = $this->numval($value) )) {
+            throw new InvalidArgumentException(
+                [ 'Value should be convertable to numval: %s', $value ],
+            );
+        }
+
+        return $numval;
+    }
+
 
     /**
      * @param int|array $integers
@@ -163,7 +133,7 @@ class Num
      *
      * @return int[]
      */
-    public function intvalsSkip($integers, $uniq = null) : array
+    public function intvals($integers, $uniq = null) : array
     {
         $result = [];
 
@@ -189,98 +159,12 @@ class Num
     }
 
     /**
-     * @param int|array $integers
-     * @param null|bool $uniq
-     *
-     * @return int[]
-     */
-    public function theIntvalsSkip($integers, $uniq = null) : array
-    {
-        $result = $this->intvalsSkip($integers, $uniq);
-
-        if (! count($result)) {
-            throw new InvalidArgumentException(
-                [ 'At least one integer should be provided: %s', $integers ],
-            );
-        }
-
-        return $result;
-    }
-
-
-    /**
-     * @param float|array       $floats
-     * @param null|bool         $uniq
-     * @param null|string|array $message
-     * @param mixed             ...$arguments
-     *
-     * @return float[]
-     */
-    public function floatvals($floats, $uniq = null, $message = null, ...$arguments) : array
-    {
-        $result = [];
-
-        $floats = is_array($floats)
-            ? $floats
-            : [ $floats ];
-
-        if ($hasMessage = ( null !== $message )) {
-            $this->filter->assert($message, ...$arguments);
-        }
-
-        array_walk_recursive($floats, function ($float) use (&$result) {
-            if (null === ( $floatval = $this->floatval($float) )) {
-                throw new InvalidArgumentException($this->filter->assert()->flushMessage($float)
-                    ?? [ 'Each item should be floatable: %s', $float ],
-                );
-            }
-
-            $result[] = $floatval;
-        });
-
-        if ($hasMessage) {
-            $this->filter->assert()->flushMessage();
-        }
-
-        if ($uniq ?? false) {
-            $arr = [];
-            foreach ( $result as $i ) {
-                $arr[ $i ] = true;
-            }
-            $result = array_keys($arr);
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param float|array       $floats
-     * @param null|bool         $uniq
-     * @param null|string|array $message
-     * @param mixed             ...$arguments
-     *
-     * @return float[]
-     */
-    public function theFloatvals($floats, $uniq = null, $message = null, array ...$arguments) : array
-    {
-        $result = $this->floatvals($floats, $uniq, $message, ...$arguments);
-
-        if (! count($result)) {
-            throw new InvalidArgumentException(
-                [ 'At least one float should be provided: %s', $floats ],
-            );
-        }
-
-        return $result;
-    }
-
-    /**
      * @param float|array $floats
      * @param null|bool   $uniq
      *
      * @return float[]
      */
-    public function floatvalsSkip($floats, $uniq = null) : array
+    public function floatvals($floats, $uniq = null) : array
     {
         $result = [];
 
@@ -306,98 +190,12 @@ class Num
     }
 
     /**
-     * @param float|array $floats
-     * @param null|bool   $uniq
-     *
-     * @return float[]
-     */
-    public function theFloatvalsSkip($floats, $uniq = null) : array
-    {
-        $result = $this->floatvalsSkip($floats, $uniq);
-
-        if (! count($result)) {
-            throw new InvalidArgumentException(
-                [ 'At least one float should be provided: %s', $floats ],
-            );
-        }
-
-        return $result;
-    }
-
-
-    /**
-     * @param int|float|string|array $numbers
-     * @param null|bool              $uniq
-     * @param null|string|array      $message
-     * @param mixed                  ...$arguments
-     *
-     * @return int[]|float[]|string[]
-     */
-    public function numvals($numbers, $uniq = null, $message = null, ...$arguments) : array
-    {
-        $result = [];
-
-        $numbers = is_array($numbers)
-            ? $numbers
-            : [ $numbers ];
-
-        if ($hasMessage = ( null !== $message )) {
-            $this->filter->assert($message, ...$arguments);
-        }
-
-        array_walk_recursive($numbers, function ($number) use (&$result) {
-            if (null === ( $numval = $this->numval($number) )) {
-                throw new InvalidArgumentException($this->filter->assert()->flushMessage($number)
-                    ?? [ 'Each item should be numerable: %s', $number ],
-                );
-            }
-
-            $result[] = $numval;
-        });
-
-        if ($hasMessage) {
-            $this->filter->assert()->flushMessage();
-        }
-
-        if ($uniq ?? false) {
-            $arr = [];
-            foreach ( $result as $i ) {
-                $arr[ $i ] = true;
-            }
-            $result = array_keys($arr);
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param int|float|string|array $numbers
-     * @param null|bool              $uniq
-     * @param null|string|array      $message
-     * @param mixed                  ...$arguments
-     *
-     * @return int[]|float[]|string[]
-     */
-    public function theNumvals($numbers, $uniq = null, $message = null, array ...$arguments) : array
-    {
-        $result = $this->numvals($numbers, $uniq, $message, ...$arguments);
-
-        if (! count($result)) {
-            throw new InvalidArgumentException(
-                [ 'At least one number should be provided: %s', $numbers ],
-            );
-        }
-
-        return $result;
-    }
-
-    /**
      * @param int|float|string|array $numbers
      * @param null|bool              $uniq
      *
      * @return int[]|float[]|string[]
      */
-    public function numvalsSkip($numbers, $uniq = null) : array
+    public function numvals($numbers, $uniq = null) : array
     {
         $result = [];
 
@@ -422,20 +220,89 @@ class Num
         return $result;
     }
 
+
     /**
-     * @param int|float|string|array $numbers
+     * @param int|array $intvals
+     * @param null|bool $uniq
+     *
+     * @return int[]
+     */
+    public function theIntvals($intvals, $uniq = null) : array
+    {
+        $result = [];
+
+        $intvals = is_array($intvals)
+            ? $intvals
+            : [ $intvals ];
+
+        array_walk_recursive($intvals, function ($integer) use (&$result) {
+            $result[] = $this->theIntval($integer);
+        });
+
+        if ($uniq ?? false) {
+            $arr = [];
+            foreach ( $result as $i ) {
+                $arr[ $i ] = true;
+            }
+            $result = array_keys($arr);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param float|array $floatvals
+     * @param null|bool   $uniq
+     *
+     * @return float[]
+     */
+    public function theFloatvals($floatvals, $uniq = null) : array
+    {
+        $result = [];
+
+        $floatvals = is_array($floatvals)
+            ? $floatvals
+            : [ $floatvals ];
+
+        array_walk_recursive($floatvals, function ($float) use (&$result) {
+            $result[] = $this->theFloatval($float);
+        });
+
+        if ($uniq ?? false) {
+            $arr = [];
+            foreach ( $result as $i ) {
+                $arr[ $i ] = true;
+            }
+            $result = array_keys($arr);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param int|float|string|array $numvals
      * @param null|bool              $uniq
      *
      * @return int[]|float[]|string[]
      */
-    public function theNumvalsSkip($numbers, $uniq = null) : array
+    public function theNumvals($numvals, $uniq = null) : array
     {
-        $result = $this->numvalsSkip($numbers, $uniq);
+        $result = [];
 
-        if (! count($result)) {
-            throw new InvalidArgumentException(
-                [ 'At least one number should be provided: %s', $numbers ],
-            );
+        $numvals = is_array($numvals)
+            ? $numvals
+            : [ $numvals ];
+
+        array_walk_recursive($numvals, function ($number) use (&$result) {
+            $result[] = $this->theNumval($number);
+        });
+
+        if ($uniq ?? false) {
+            $arr = [];
+            foreach ( $result as $i ) {
+                $arr[ $i ] = true;
+            }
+            $result = array_keys($arr);
         }
 
         return $result;

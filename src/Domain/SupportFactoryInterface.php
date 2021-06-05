@@ -16,7 +16,6 @@ use Gzhegow\Support\Math;
 use Gzhegow\Support\Path;
 use Gzhegow\Support\Preg;
 use Gzhegow\Support\Curl;
-use Gzhegow\Support\Func;
 use Gzhegow\Support\Debug;
 use Gzhegow\Support\Loader;
 use Gzhegow\Support\Filter;
@@ -79,11 +78,6 @@ interface SupportFactoryInterface
      * @return Fs
      */
     public function newFs() : Fs;
-
-    /**
-     * @return Func
-     */
-    public function newFunc() : Func;
 
     /**
      * @return Loader

@@ -18,16 +18,6 @@ use Gzhegow\Support\Php;
 abstract class GeneratedPhpFacade
 {
     /**
-     * @param object $object
-     *
-     * @return array
-     */
-    public static function getPublicVars(object $object): array
-    {
-        return static::getInstance()->getPublicVars($object);
-    }
-
-    /**
      * @param mixed &$value
      *
      * @return bool
@@ -46,6 +36,30 @@ abstract class GeneratedPhpFacade
     public static function isNotBlank(&$value): bool
     {
         return static::getInstance()->isNotBlank($value);
+    }
+
+    /**
+     * @param \Closure $func
+     * @param string   $returnType
+     *
+     * @return bool
+     */
+    public static function isFactory(\Closure $func, string $returnType): bool
+    {
+        return static::getInstance()->isFactory($func, $returnType);
+    }
+
+    /**
+     * проверяет возвращаемый тип у замыкания
+     *
+     * @param \Closure $func
+     * @param string   $returnType
+     *
+     * @return null|\Closure
+     */
+    public static function filterFactory(\Closure $func, string $returnType): ?\Closure
+    {
+        return static::getInstance()->filterFactory($func, $returnType);
     }
 
     /**
@@ -91,14 +105,14 @@ abstract class GeneratedPhpFacade
     }
 
     /**
-     * @param string $name
-     * @param null   $value
+     * @param \Closure $func
+     * @param string   $returnType
      *
-     * @return null|string
+     * @return \Closure
      */
-    public static function const(string $name, $value = null): ?string
+    public static function assertFactory(\Closure $func, string $returnType): \Closure
     {
-        return static::getInstance()->const($name, $value);
+        return static::getInstance()->assertFactory($func, $returnType);
     }
 
     /**
@@ -113,6 +127,46 @@ abstract class GeneratedPhpFacade
     public static function hash($value): string
     {
         return static::getInstance()->hash($value);
+    }
+
+    /**
+     * @param object $object
+     *
+     * @return array
+     */
+    public static function objKeys(object $object): array
+    {
+        return static::getInstance()->objKeys($object);
+    }
+
+    /**
+     * @param object $object
+     *
+     * @return array
+     */
+    public static function objVars(object $object): array
+    {
+        return static::getInstance()->objVars($object);
+    }
+
+    /**
+     * @param object $object
+     *
+     * @return array
+     */
+    public static function objKeysPublic(object $object): array
+    {
+        return static::getInstance()->objKeysPublic($object);
+    }
+
+    /**
+     * @param object $object
+     *
+     * @return array
+     */
+    public static function objVarsPublic(object $object): array
+    {
+        return static::getInstance()->objVarsPublic($object);
     }
 
     /**
@@ -154,13 +208,13 @@ abstract class GeneratedPhpFacade
     /**
      * Превращает каждый аргумент с помощью enumval
      *
-     * @param mixed ...$enumlists
+     * @param mixed ...$enums
      *
      * @return array
      */
-    public static function enumvals(...$enumlists): array
+    public static function enumvals(...$enums): array
     {
-        return static::getInstance()->enumvals(...$enumlists);
+        return static::getInstance()->enumvals(...$enums);
     }
 
     /**
@@ -293,6 +347,94 @@ abstract class GeneratedPhpFacade
     public static function sleep(...$sleeps)
     {
         return static::getInstance()->sleep(...$sleeps);
+    }
+
+    /**
+     * выполняет функцию как шаг array_filter
+     *
+     * @param null|callable $func
+     * @param               $arg
+     * @param array         $arguments
+     *
+     * @return bool|array
+     */
+    public static function filter(?callable $func, $arg, ...$arguments): bool
+    {
+        return static::getInstance()->filter($func, $arg, ...$arguments);
+    }
+
+    /**
+     * выполняет функцию как шаг array_map
+     *
+     * @param null|callable $func
+     * @param               $arg
+     * @param array         $arguments
+     *
+     * @return mixed
+     */
+    public static function map(?callable $func, $arg, ...$arguments)
+    {
+        return static::getInstance()->map($func, $arg, ...$arguments);
+    }
+
+    /**
+     * выполняет функцию как шаг array_reduce
+     *
+     * @param null|callable $func
+     * @param               $arg
+     * @param null          $carry
+     * @param array         $arguments
+     *
+     * @return mixed
+     */
+    public static function reduce(?callable $func, $arg, $carry = null, ...$arguments)
+    {
+        return static::getInstance()->reduce($func, $arg, $carry, ...$arguments);
+    }
+
+    /**
+     * bind
+     * копирует тело функции и присваивает аргументы на их места в переданном порядке
+     * bind('is_array', [], 1, 2) -> Closure of (function is_array($var = []))
+     *
+     * @param callable $func
+     * @param mixed    ...$arguments
+     *
+     * @return \Closure
+     */
+    public static function bind(callable $func, ...$arguments): \Closure
+    {
+        return static::getInstance()->bind($func, ...$arguments);
+    }
+
+    /**
+     * call
+     * шорткат для call_user_func с рефлексией, чтобы передать в функцию ожидаемое число аргументов
+     * для \Closure не имеет смысла, а для string callable вполне
+     *
+     * @param callable $func
+     * @param array    $arguments
+     *
+     * @return mixed
+     */
+    public static function call(callable $func, ...$arguments)
+    {
+        return static::getInstance()->call($func, ...$arguments);
+    }
+
+    /**
+     * apply
+     * шорткат для call_user_func_array с рефлексией, чтобы передать в функцию ожидаемое число аргументов
+     * для \Closure не имеет смысла, а для string callable вполне
+     *
+     * @param callable $func
+     * @param array    $arguments
+     *
+     * @return mixed
+     */
+    public static function apply(callable $func, array $arguments)
+    {
+        return static::getInstance()->apply($func, $arguments);
     }
 
     /**

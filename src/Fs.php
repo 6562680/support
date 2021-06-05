@@ -621,6 +621,31 @@ class Fs
 
 
     /**
+     * @param string $path
+     *
+     * @return string
+     */
+    public function pathOptimize(string $path) : string
+    {
+        $result = $this->path->optimize($path);
+
+        return $result;
+    }
+
+    /**
+     * @param string $path
+     *
+     * @return string
+     */
+    public function pathNormalize(string $path) : string
+    {
+        $result = $this->path->normalize($path);
+
+        return $result;
+    }
+
+
+    /**
      * @param string|string[]|array ...$parts
      *
      * @return array
@@ -640,18 +665,6 @@ class Fs
     public function pathJoin(...$parts) : string
     {
         $result = $this->path->join(...$parts);
-
-        return $result;
-    }
-
-    /**
-     * @param string|string[]|array ...$parts
-     *
-     * @return string
-     */
-    public function pathNormalize(...$parts) : string
-    {
-        $result = $this->path->normalize(...$parts);
 
         return $result;
     }
@@ -1080,7 +1093,6 @@ class Fs
 
         return $result;
     }
-
 
     /**
      * @param string                       $contentA

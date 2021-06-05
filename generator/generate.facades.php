@@ -18,7 +18,6 @@ $facades = [
     'FilterFacade'   => [ null, \Gzhegow\Support\Filter::class ],
     'FormatFacade'   => [ null, \Gzhegow\Support\Format::class ],
     'FsFacade'       => [ null, \Gzhegow\Support\Fs::class ],
-    'FuncFacade'     => [ null, \Gzhegow\Support\Func::class ],
     'LoaderFacade'   => [ null, \Gzhegow\Support\Loader::class ],
     'MathFacade'     => [ null, \Gzhegow\Support\Math::class ],
     'NetFacade'      => [ null, \Gzhegow\Support\Net::class ],

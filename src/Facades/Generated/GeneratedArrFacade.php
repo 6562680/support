@@ -107,9 +107,9 @@ abstract class GeneratedArrFacade
      *
      * @return array
      */
-    public static function path($keys, $separators = '.'): array
+    public static function fullpath($keys, $separators = '.'): array
     {
-        return static::getInstance()->path($keys, $separators);
+        return static::getInstance()->fullpath($keys, $separators);
     }
 
     /**
@@ -124,35 +124,14 @@ abstract class GeneratedArrFacade
     }
 
     /**
-     * @param mixed $value
-     *
-     * @return string
-     */
-    public static function indexval($value): string
-    {
-        return static::getInstance()->indexval($value);
-    }
-
-    /**
      * @param string|string[]|array $separators
      * @param string|string[]|array ...$keys
      *
      * @return string
      */
-    public static function indexkey($separators = '.', ...$keys): string
+    public static function index($separators = '.', ...$keys): string
     {
-        return static::getInstance()->indexkey($separators, ...$keys);
-    }
-
-    /**
-     * @param string|string[]|array $separators
-     * @param string|string[]|array ...$keys
-     *
-     * @return string
-     */
-    public static function indexkeySkip($separators = '.', ...$keys): string
-    {
-        return static::getInstance()->indexkeySkip($separators, ...$keys);
+        return static::getInstance()->index($separators, ...$keys);
     }
 
     /**
@@ -347,10 +326,21 @@ abstract class GeneratedArrFacade
      * @param mixed $value
      *
      * @return null|array
+     * @noinspection PhpExpressionAlwaysNullInspection
      */
     public static function arrval($value): ?array
     {
         return static::getInstance()->arrval($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return array
+     */
+    public static function theArrval($value): array
+    {
+        return static::getInstance()->theArrval($value);
     }
 
     /**
@@ -364,51 +354,35 @@ abstract class GeneratedArrFacade
     }
 
     /**
-     * @param int|string|array  $keys
-     * @param null|bool         $uniq
-     * @param null|string|array $message
-     * @param mixed             ...$arguments
+     * @param mixed $value
      *
-     * @return string[]
+     * @return null|int|float
      */
-    public static function keyvals($keys, $uniq = null, $message = null, ...$arguments): array
+    public static function theKeyval($value)
     {
-        return static::getInstance()->keyvals($keys, $uniq, $message, ...$arguments);
-    }
-
-    /**
-     * @param int|string|array  $keys
-     * @param null|bool         $uniq
-     * @param null|string|array $message
-     * @param mixed             ...$arguments
-     *
-     * @return string[]
-     */
-    public static function theKeyvals($keys, $uniq = null, $message = null, ...$arguments): array
-    {
-        return static::getInstance()->theKeyvals($keys, $uniq, $message, ...$arguments);
+        return static::getInstance()->theKeyval($value);
     }
 
     /**
      * @param int|string|array $keys
      * @param null|bool        $uniq
      *
-     * @return array
+     * @return string[]
      */
-    public static function keyvalsSkip($keys, $uniq = null): array
+    public static function keyvals($keys, $uniq = null): array
     {
-        return static::getInstance()->keyvalsSkip($keys, $uniq);
+        return static::getInstance()->keyvals($keys, $uniq);
     }
 
     /**
      * @param int|string|array $keys
      * @param null|bool        $uniq
      *
-     * @return array
+     * @return string[]
      */
-    public static function theKeyvalsSkip($keys, $uniq = null): array
+    public static function theKeyvals($keys, $uniq = null): array
     {
-        return static::getInstance()->theKeyvalsSkip($keys, $uniq);
+        return static::getInstance()->theKeyvals($keys, $uniq);
     }
 
     /**

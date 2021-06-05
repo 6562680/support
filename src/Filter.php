@@ -129,8 +129,18 @@ class Filter
             return $value;
         }
 
-        if (false !== ( $result = filter_var($value, FILTER_VALIDATE_INT) )) {
-            return $result;
+        if (false !== filter_var($value, FILTER_VALIDATE_INT)) {
+            return $value;
+        }
+
+        if (null !== $this->filterFloat($value)) {
+            return intval($value) == $value
+                ? $value : null;
+        }
+
+        if (false !== filter_var($value, FILTER_VALIDATE_FLOAT)) {
+            return intval($value) == $value
+                ? $value : null;
         }
 
         return null;
@@ -147,8 +157,18 @@ class Filter
             return $value;
         }
 
-        if (false !== ( $result = filter_var($value, FILTER_VALIDATE_FLOAT) )) {
-            return $result;
+        if (false !== filter_var($value, FILTER_VALIDATE_FLOAT)) {
+            return $value;
+        }
+
+        if (null !== $this->filterInt($value)) {
+            return floatval($value) == $value
+                ? $value : null;
+        }
+
+        if (false !== filter_var($value, FILTER_VALIDATE_INT)) {
+            return floatval($value) == $value
+                ? $value : null;
         }
 
         return null;

@@ -161,6 +161,26 @@ abstract class GeneratedLoaderFacade
     }
 
     /**
+     * @param string $path
+     *
+     * @return string
+     */
+    public static function pathOptimize(string $path): string
+    {
+        return static::getInstance()->pathOptimize($path);
+    }
+
+    /**
+     * @param string $path
+     *
+     * @return string
+     */
+    public static function pathNormalize(string $path): string
+    {
+        return static::getInstance()->pathNormalize($path);
+    }
+
+    /**
      * @param string|string[]|array ...$parts
      *
      * @return array
@@ -185,42 +205,32 @@ abstract class GeneratedLoaderFacade
      *
      * @return string
      */
-    public static function pathNormalize(...$parts): string
-    {
-        return static::getInstance()->pathNormalize(...$parts);
-    }
-
-    /**
-     * @param string|string[]|array ...$parts
-     *
-     * @return string
-     */
     public static function pathConcat(...$parts): string
     {
         return static::getInstance()->pathConcat(...$parts);
     }
 
     /**
-     * @param string|object $classOrObject
-     * @param int           $levels
+     * @param string $path
+     * @param int    $levels
      *
      * @return null|string
      */
-    public static function pathDirname($classOrObject, int $levels = 0): ?string
+    public static function pathDirname(string $path, int $levels = 0): ?string
     {
-        return static::getInstance()->pathDirname($classOrObject, $levels);
+        return static::getInstance()->pathDirname($path, $levels);
     }
 
     /**
-     * @param string|object $classOrObject
-     * @param null|string   $suffix
-     * @param int           $levels
+     * @param string      $path
+     * @param null|string $suffix
+     * @param int         $levels
      *
      * @return null|string
      */
-    public static function pathBasename($classOrObject, string $suffix = null, int $levels = 0): ?string
+    public static function pathBasename(string $path, string $suffix = null, int $levels = 0): ?string
     {
-        return static::getInstance()->pathBasename($classOrObject, $suffix, $levels);
+        return static::getInstance()->pathBasename($path, $suffix, $levels);
     }
 
     /**

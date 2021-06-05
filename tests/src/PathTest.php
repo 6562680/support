@@ -22,9 +22,9 @@ class PathTest extends AbstractTestCase
         $path->using('/', '\\');
 
         $this->assertEquals([ 'aa', 'aa', 'aa', 'aa' ], $path->split('aa/aa\\aa/aa'));
-        $this->assertEquals([ "${ds}", 'aa', 'aa', 'aa', 'aa' ], $path->split('/aa/aa\\aa/aa\\'));
-        $this->assertEquals([ "${ds}${ds}", 'aa', 'aa', 'aa', 'aa' ], $path->split('//aa/aa\\aa/aa\\'));
-        $this->assertEquals([ "${ds}${ds}${ds}", 'aa', 'aa', 'aa', 'aa' ], $path->split('/\\/aa/aa\\aa/aa\\'));
+        $this->assertEquals([ "${ds}aa", 'aa', 'aa', 'aa' ], $path->split('/aa/aa\\aa/aa\\'));
+        $this->assertEquals([ "${ds}${ds}aa", 'aa', 'aa', 'aa' ], $path->split('//aa/aa\\aa/aa\\'));
+        $this->assertEquals([ "${ds}${ds}${ds}aa", 'aa', 'aa', 'aa' ], $path->split('/\\/aa/aa\\aa/aa\\'));
     }
 
     public function testJoin()
@@ -52,33 +52,6 @@ class PathTest extends AbstractTestCase
         $parts = [ '', ',', "${ds}", 'a', ',a', "${ds}a", [ '', ',', "${ds}", 'a', ',a', "${ds}a" ] ];
 
         $this->assertEquals(",${ds}a${ds},a${ds}a${ds},${ds}a${ds},a${ds}a", $path->join(...$parts));
-    }
-
-    public function testNormalize()
-    {
-        $path = $this->getPath();
-        $ds = '/';
-
-        $path->using('/', '\\');
-
-        $this->assertEquals('', $path->normalize(''));
-        $this->assertEquals(',', $path->normalize(','));
-        $this->assertEquals("${ds}", $path->normalize('/'));
-        $this->assertEquals('a', $path->normalize('a'));
-        $this->assertEquals(',a', $path->normalize(',a'));
-        $this->assertEquals("${ds}a", $path->normalize('/a'));
-        $this->assertEquals('', $path->normalize('', [ '' ]));
-        $this->assertEquals(",${ds},", $path->normalize(',', [ ',' ]));
-        $this->assertEquals("${ds}", $path->normalize('/', [ '/' ]));
-        $this->assertEquals("a${ds}a", $path->normalize('a', [ 'a' ]));
-        $this->assertEquals(",a${ds},a", $path->normalize(',a', [ ',a' ]));
-        $this->assertEquals("${ds}a${ds}a", $path->normalize('/a', [ '/a' ]));
-
-        $this->assertEquals("${ds}a", $path->normalize('/', [ '/a' ]));
-
-        $parts = [ '', ',', "${ds}", 'a', ',a', "${ds}a", [ '', ',', "${ds}", 'a', ',a', "${ds}a" ] ];
-
-        $this->assertEquals(",${ds}a${ds},a${ds}a${ds},${ds}a${ds},a${ds}a", $path->normalize(...$parts));
     }
 
     public function testConcat()

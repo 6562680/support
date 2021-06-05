@@ -405,6 +405,26 @@ abstract class GeneratedFsFacade
     }
 
     /**
+     * @param string $path
+     *
+     * @return string
+     */
+    public static function pathOptimize(string $path): string
+    {
+        return static::getInstance()->pathOptimize($path);
+    }
+
+    /**
+     * @param string $path
+     *
+     * @return string
+     */
+    public static function pathNormalize(string $path): string
+    {
+        return static::getInstance()->pathNormalize($path);
+    }
+
+    /**
      * @param string|string[]|array ...$parts
      *
      * @return array
@@ -422,16 +442,6 @@ abstract class GeneratedFsFacade
     public static function pathJoin(...$parts): string
     {
         return static::getInstance()->pathJoin(...$parts);
-    }
-
-    /**
-     * @param string|string[]|array ...$parts
-     *
-     * @return string
-     */
-    public static function pathNormalize(...$parts): string
-    {
-        return static::getInstance()->pathNormalize(...$parts);
     }
 
     /**

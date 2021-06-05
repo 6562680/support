@@ -81,15 +81,16 @@ abstract class GeneratedMathFacade
     }
 
     /**
-     * Получает минус из первого символа если он там есть
+     * Получает значение по модулю от числа
      *
      * @param int|float|string $number
+     * @param string           $minus
      *
-     * @return string[]
+     * @return string
      */
-    public static function bcabs($number): array
+    public static function bcabs($number, &$minus = null): string
     {
-        return static::getInstance()->bcabs($number);
+        return static::getInstance()->bcabs($number, $minus);
     }
 
     /**
@@ -132,43 +133,89 @@ abstract class GeneratedMathFacade
     /**
      * @param int|float|string $number
      *
-     * @return string
+     * @return null|string
      */
-    public static function bcnumval($number): string
+    public static function bcnumval($number): ?string
     {
         return static::getInstance()->bcnumval($number);
     }
 
     /**
+     * @param mixed $value
+     *
+     * @return string
+     */
+    public static function theBcnumval($value): string
+    {
+        return static::getInstance()->theBcnumval($value);
+    }
+
+    /**
+     * @param string|string[]|array $strings
+     * @param null|bool             $uniq
+     *
+     * @return string[]
+     */
+    public static function bcnumvals($strings, $uniq = null): array
+    {
+        return static::getInstance()->bcnumvals($strings, $uniq);
+    }
+
+    /**
+     * @param string|string[]|array $strings
+     * @param null|bool             $uniq
+     *
+     * @return string[]
+     */
+    public static function theBcnumvals($strings, $uniq = null): array
+    {
+        return static::getInstance()->theBcnumvals($strings, $uniq);
+    }
+
+    /**
      * Округление по "правилу денег" (проверка потерянной копейки)
      * Округлит 1.00000001 до 1.01 (если нужно два знака после запятой)
-     * Как правило клиенту выставляется цена на копейку больше, а со счета компании списывается на копейку меньше
-     * Когда наоборот - это мое уважение
+     * Как правило, клиенту выставляется цена на копейку больше, а со счета компании списывается на копейку меньше
      *
      * @param int|float $value
-     * @param null|int  $decimals
+     * @param null|int  $scale
      *
      * @return int|float
      */
-    public static function moneyround($value, int $decimals = null)
+    public static function moneyround($value, int $scale = null)
     {
-        return static::getInstance()->moneyround($value, $decimals);
+        return static::getInstance()->moneyround($value, $scale);
     }
 
     /**
      * Разбивает сумму между получателями
-     * Если разделить 100 на 3 получается 33.33, 33.33, и 33.34
+     * Если разделить 100 на 3 получается 33.33, 33.33, и 33.33 и 0.01 в периоде
      * Функция позволяет разбить исходное число на три, не потеряв дробную часть
      *
      * @param int|float       $sum
      * @param int|float|array $rates
-     * @param null|int        $decimals
+     * @param null|int        $scale
      *
      * @return int[]|float[]
      */
-    public static function moneyshare($sum, $rates, int $decimals = null): array
+    public static function moneyshare($sum, $rates, int $scale = null): array
     {
-        return static::getInstance()->moneyshare($sum, $rates, $decimals);
+        return static::getInstance()->moneyshare($sum, $rates, $scale);
+    }
+
+    /**
+     * Рассчитывает соотношение долей между собой
+     * Нулевые соотношения получают пропорционально их количества - чем нулей больше, тем меньше каждому
+     * В то же время нули получают тем больше, чем больше не-нулей
+     *
+     * @param int|float|array $rates
+     * @param null|bool       $zero
+     *
+     * @return array
+     */
+    public static function correlation($rates, bool $zero = null): array
+    {
+        return static::getInstance()->correlation($rates, $zero);
     }
 
     /**
@@ -180,7 +227,7 @@ abstract class GeneratedMathFacade
      * 5x + 10x + 50x = ((5 + 10 + 50) - 20) = 45
      * [ 3, 7, 35 ] + [ , , 20 ]
      * 3x + 7x = 35
-     * [ 13.5, 31.5, 20 ] -> round to decimals...
+     * [ 13.5, 31.5, 20 ] -> round...
      * [ 14, 31, 20 ]
      *
      * @param int|float            $sum
@@ -193,20 +240,6 @@ abstract class GeneratedMathFacade
     public static function balance($sum, array $rates, array $freezes = null, int $decimals = null): array
     {
         return static::getInstance()->balance($sum, $rates, $freezes, $decimals);
-    }
-
-    /**
-     * Рассчитывает соотношение балансировки - чем больше у получателя было тем больше ему достанется
-     * Учитывает получателей у которых было значение 0, в этом случае им достанется определенный минимум
-     * Очень капиталистическая функция :(
-     *
-     * @param int|float|array $rates
-     *
-     * @return array
-     */
-    public static function balanceRatios(...$rates): array
-    {
-        return static::getInstance()->balanceRatios(...$rates);
     }
 
     /**
