@@ -225,10 +225,10 @@ class Filter
         }
 
         if (floatval($value) >= 0) {
-            return null;
+            return $value;
         }
 
-        return $value;
+        return null;
     }
 
     /**
@@ -261,10 +261,10 @@ class Filter
         }
 
         if (floatval($value) <= 0) {
-            return null;
+            return $value;
         }
 
-        return $value;
+        return null;
     }
 
 
