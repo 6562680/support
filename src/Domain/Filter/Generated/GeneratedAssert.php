@@ -205,12 +205,12 @@ abstract class GeneratedAssert
      *
      * @return int|float|string
      */
-    public function assertNonPositive($value)
+    public function assertNonNegative($value)
     {
-        if (null === ( $filtered = $this->filter->filterNonPositive($value) )) {
+        if (null === ( $filtered = $this->filter->filterNonNegative($value) )) {
             throw $this->flushThrowable()
                 ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid NonPositive passed: %s' ], func_get_args())
+                    ?? array_merge([ 'Invalid NonNegative passed: %s' ], func_get_args())
                 );
         }
 
@@ -239,12 +239,12 @@ abstract class GeneratedAssert
      *
      * @return int|float|string
      */
-    public function assertNonNegative($value)
+    public function assertNonPositive($value)
     {
-        if (null === ( $filtered = $this->filter->filterNonNegative($value) )) {
+        if (null === ( $filtered = $this->filter->filterNonPositive($value) )) {
             throw $this->flushThrowable()
                 ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid NonNegative passed: %s' ], func_get_args())
+                    ?? array_merge([ 'Invalid NonPositive passed: %s' ], func_get_args())
                 );
         }
 

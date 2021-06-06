@@ -206,11 +206,11 @@ class Filter
             return null;
         }
 
-        if (floatval($value) <= 0) {
-            return null;
+        if (floatval($value) > 0) {
+            return $value;
         }
 
-        return $value;
+        return null;
     }
 
     /**
@@ -218,25 +218,7 @@ class Filter
      *
      * @return null|int|float|string
      */
-    public function filterNonPositive($value) // : ?int|float|string
-    {
-        if (null === $this->filterNumval($value)) {
-            return null;
-        }
-
-        if (floatval($value) < 0) {
-            return null;
-        }
-
-        return $value;
-    }
-
-    /**
-     * @param int|float|string|mixed $value
-     *
-     * @return null|int|float|string
-     */
-    public function filterNegative($value) // : ?int|float|string
+    public function filterNonNegative($value) // : ?int|float|string
     {
         if (null === $this->filterNumval($value)) {
             return null;
@@ -254,13 +236,31 @@ class Filter
      *
      * @return null|int|float|string
      */
-    public function filterNonNegative($value) // : ?int|float|string
+    public function filterNegative($value) // : ?int|float|string
     {
         if (null === $this->filterNumval($value)) {
             return null;
         }
 
-        if (floatval($value) > 0) {
+        if (floatval($value) < 0) {
+            return $value;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int|float|string
+     */
+    public function filterNonPositive($value) // : ?int|float|string
+    {
+        if (null === $this->filterNumval($value)) {
+            return null;
+        }
+
+        if (floatval($value) <= 0) {
             return null;
         }
 

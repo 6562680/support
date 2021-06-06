@@ -134,9 +134,9 @@ abstract class GeneratedType
      *
      * @return bool
      */
-    public function isNonPositive($value): bool
+    public function isNonNegative($value): bool
     {
-        return null !== $this->filter->filterNonPositive($value);
+        return null !== $this->filter->filterNonNegative($value);
     }
 
     /**
@@ -154,9 +154,9 @@ abstract class GeneratedType
      *
      * @return bool
      */
-    public function isNonNegative($value): bool
+    public function isNonPositive($value): bool
     {
-        return null !== $this->filter->filterNonNegative($value);
+        return null !== $this->filter->filterNonPositive($value);
     }
 
     /**

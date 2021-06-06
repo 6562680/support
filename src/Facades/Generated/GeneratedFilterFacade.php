@@ -121,9 +121,9 @@ abstract class GeneratedFilterFacade
      *
      * @return null|int|float|string
      */
-    public static function filterNonPositive($value)
+    public static function filterNonNegative($value)
     {
-        return static::getInstance()->filterNonPositive($value);
+        return static::getInstance()->filterNonNegative($value);
     }
 
     /**
@@ -141,9 +141,9 @@ abstract class GeneratedFilterFacade
      *
      * @return null|int|float|string
      */
-    public static function filterNonNegative($value)
+    public static function filterNonPositive($value)
     {
-        return static::getInstance()->filterNonNegative($value);
+        return static::getInstance()->filterNonPositive($value);
     }
 
     /**
