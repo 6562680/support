@@ -2,7 +2,7 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Domain\Arr\ArrExpandVal;
+use Gzhegow\Support\Domain\Arr\ValueObjects\ExpandValue;
 use Gzhegow\Support\Domain\Arr\WalkIterator;
 use Gzhegow\Support\Domain\Arr\CrawlIterator;
 use Gzhegow\Support\Exceptions\Logic\OutOfRangeException;
@@ -77,27 +77,13 @@ class Arr
      * @param int        $priority
      * @param null|int   $idxInt
      *
-     * @return ArrExpandVal
+     * @return \Gzhegow\Support\Domain\Arr\ValueObjects\ExpandValue
      */
-    protected function newArrExpandVal($value, $idx, int $ordering, int $priority = 0, int $idxInt = null) : ArrExpandVal
+    protected function newExpandValue($value, $idx, int $ordering, int $priority = 0, int $idxInt = null) : ExpandValue
     {
-        return new ArrExpandVal($value, $idx, $ordering, $priority, $idxInt);
+        return new ExpandValue($value, $idx, $ordering, $priority, $idxInt);
     }
 
-
-    /**
-     * @param string|array $path
-     * @param array        $src
-     * @param null|mixed   $default
-     *
-     * @return mixed
-     */
-    public function get($path, array &$src, $default = "\0") // : mixed
-    {
-        $result = $this->getRef($path, $src, $default);
-
-        return $result;
-    }
 
     /**
      * @param string|array $path
@@ -121,6 +107,19 @@ class Arr
         throw new OutOfRangeException([ 'Index not found: %s', $path ]);
     }
 
+    /**
+     * @param string|array $path
+     * @param array        $src
+     * @param null|mixed   $default
+     *
+     * @return mixed
+     */
+    public function get($path, array &$src, $default = "\0") // : mixed
+    {
+        $result = $this->getRef($path, $src, $default);
+
+        return $result;
+    }
 
     /**
      * @param string|array $path
@@ -688,15 +687,15 @@ class Arr
         $inputs[] = $dst;
         $exists = [];
         foreach ( $inputs as $input ) {
-            foreach ( $input as $idx => $val ) {
-                if (is_string($idx)) {
-                    if (isset($exists[ $idx ])) {
+            foreach ( $input as $index => $val ) {
+                if (is_string($index)) {
+                    if (isset($exists[ $index ])) {
                         throw new InvalidArgumentException(
-                            'Duplicate string key: ' . $idx
+                            'Duplicate string key: ' . $index
                         );
                     }
 
-                    $exists[ $idx ] = true;
+                    $exists[ $index ] = true;
                 }
             }
         }
@@ -706,66 +705,67 @@ class Arr
         foreach ( $expands as $expand ) {
             $pos = 0;
             $lastIntIdx = -INF;
-            foreach ( $expand as $idx => $val ) {
-                $intIdx = is_int($idx)
-                    ? $idx
+            foreach ( $expand as $index => $val ) {
+                $indexInteger = is_int($index)
+                    ? $index
                     : $lastIntIdx;
 
-                $values[] = $this->newArrExpandVal($val, $idx, $pos++, $isNew = 1, $intIdx);
+                $values[] = $this->newExpandValue($val, $index, $pos++, $isNew = 1, $indexInteger);
 
-                $lastIntIdx = $intIdx;
+                $lastIntIdx = $indexInteger;
             }
         }
 
         $pos = 0;
         $lastIntIdx = -INF;
-        foreach ( $dst as $idx => $val ) {
-            $intIdx = is_int($idx)
-                ? $idx
+        foreach ( $dst as $index => $val ) {
+            $indexInteger = is_int($index)
+                ? $index
                 : $lastIntIdx;
 
-            $values[] = $this->newArrExpandVal($val, $idx, $pos++, $isNew = 0, $intIdx);
+            $values[] = $this->newExpandValue($val, $index, $pos++, $isNew = 0, $indexInteger);
 
-            $lastIntIdx = $intIdx;
+            $lastIntIdx = $indexInteger;
         }
 
-        $funcSorter = function (ArrExpandVal $a, ArrExpandVal $b) : int {
+        $funcSorter = function (ExpandValue $a, ExpandValue $b) : int {
             return null
-                ?? ( $a->getIdxInt() - $b->getIdxInt() ?: null )
+                ?? ( $a->getIndexInteger() - $b->getIndexInteger() ?: null )
                 ?? ( $b->getPriority() - $a->getPriority() ?: null )
-                ?? ( $a->getOrdering() - $b->getOrdering() ?: null )
-                ?? strnatcasecmp($a->getIdxStr(), $b->getIdxStr());
+                ?? ( $a->getPosition() - $b->getPosition() ?: null )
+                ?? strnatcasecmp($a->getIndexString(), $b->getIndexString());
         };
         usort($values, $funcSorter);
 
         $conflicts = [];
         foreach ( $values as $val ) {
-            $conflicts[ $val->getIdxInt() ][] = $val;
+            $conflicts[ $val->getIndexInteger() ][] = $val;
         }
 
         $result = [];
 
         $increment = 0;
-        $intIdxPrev = key($conflicts);
-        foreach ( array_keys($conflicts) as $intIdx ) {
-            $increment = max(0, $increment - ( $intIdx - $intIdxPrev ));
+        $indexIntegerPrev = key($conflicts);
+        foreach ( array_keys($conflicts) as $indexInteger ) {
+            $increment = max(0, $increment - ( $indexInteger - $indexIntegerPrev ));
 
-            foreach ( $conflicts[ $intIdx ] as $val ) {
-                $newIdxInt = $intIdx + $increment;
-                $newIdxStr = null;
+            foreach ( $conflicts[ $indexInteger ] as $val ) {
+                $newIndexInteger = $indexInteger + $increment;
+                $newIndexString = null;
 
-                $idx = $val->getIdx();
-                if (is_int($idx)) {
+                $index = $val->getIndex();
+
+                if (is_int($index)) {
                     $increment++;
 
                 } else {
-                    $newIdxStr = $idx;
+                    $newIndexString = $index;
                 }
 
-                $result[ $newIdxStr ?? $newIdxInt ] = $val->getValue();
+                $result[ $newIndexString ?? $newIndexInteger ] = $val->getValue();
             }
 
-            $intIdxPrev = $intIdx;
+            $indexIntegerPrev = $indexInteger;
         }
 
         return $result;
@@ -776,7 +776,6 @@ class Arr
      * @param mixed $value
      *
      * @return null|array
-     * @noinspection PhpExpressionAlwaysNullInspection
      */
     public function arrval($value) : ?array
     {
@@ -810,6 +809,8 @@ class Arr
             }
             catch ( \Throwable $e ) {
             }
+
+            /** @noinspection PhpExpressionAlwaysNullInspection */
 
             return $result;
         }

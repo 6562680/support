@@ -411,6 +411,10 @@ class Math
                 [ 'At least one rate should be passed: %s', $rates ]
             );
         }
+        foreach ( $ratesNum as $r ) {
+            $this->filter->assert([ 'Each rate should be positive: %s', $r ])
+                ->assertPositive($r);
+        }
 
         $result = [];
 
@@ -421,10 +425,9 @@ class Math
             throw new OutOfBoundsException('Sum of rates should be positive');
         }
 
-        $mod = 0;
         $dec = 1;
         $safe = false;
-        if (null === $scale) {
+        if (isset($scale)) {
             $scale = max($scale, 0);
             $dec = 1 / pow(10, $scale);
 
@@ -433,6 +436,7 @@ class Math
 
         $quota = $sum / $ratesSum;
 
+        $mod = 0;
         foreach ( $ratesIndexes as $i ) {
             if (! $safe) {
                 $result[ $i ] = $quota * $ratesNum[ $i ];
@@ -462,7 +466,7 @@ class Math
      * @param int|float|array $rates
      * @param null|bool       $zero
      *
-     * @return array
+     * @return float[]
      */
     public function correlation($rates, bool $zero = null) : array
     {
@@ -475,6 +479,10 @@ class Math
             throw new InvalidArgumentException(
                 [ 'At least one rate should be passed: %s', $rates ]
             );
+        }
+        foreach ( $ratesNum as $r ) {
+            $this->filter->assert([ 'Each rate should be positive: %s', $r ])
+                ->assertPositive($r);
         }
 
         $ratesIndexes = array_keys($ratesNum);

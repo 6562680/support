@@ -2,6 +2,11 @@
 
 namespace Gzhegow\Support;
 
+use Gzhegow\Support\Domain\Str\Slugger;
+use Gzhegow\Support\Domain\Str\Inflector;
+use Gzhegow\Support\Exceptions\RuntimeException;
+use Gzhegow\Support\Domain\Str\SluggerInterface;
+use Gzhegow\Support\Domain\Str\InflectorInterface;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
@@ -10,11 +15,11 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
  */
 class Str
 {
-    const CASE_REPLACER = "\0";
-
     /** @php internal */
     const MB_CASE_LOWER = MB_CASE_UPPER;
     const MB_CASE_UPPER = MB_CASE_LOWER;
+
+    const REPLACER = "\0";
 
     const THE_MB_CASE_LIST = [
         self::MB_CASE_LOWER => true,
@@ -29,6 +34,17 @@ class Str
 
 
     /**
+     * @var SluggerInterface
+     */
+    protected $slugger;
+
+    /**
+     * @var InflectorInterface
+     */
+    protected $inflector;
+
+
+    /**
      * Constructor
      *
      * @param Filter $filter
@@ -38,6 +54,43 @@ class Str
     )
     {
         $this->filter = $filter;
+    }
+
+
+    /**
+     * @param null|SluggerInterface $slugger
+     *
+     * @return SluggerInterface
+     */
+    public function slugger(SluggerInterface $slugger = null) : SluggerInterface
+    {
+        if ($slugger) {
+            $this->slugger = $slugger;
+        }
+
+        if (! $this->slugger) {
+            $this->slugger = new Slugger();
+        }
+
+        return $this->slugger;
+    }
+
+    /**
+     * @param null|InflectorInterface $inflector
+     *
+     * @return InflectorInterface
+     */
+    public function inflector(InflectorInterface $inflector = null) : InflectorInterface
+    {
+        if ($inflector) {
+            $this->inflector = $inflector;
+        }
+
+        if (! $this->inflector) {
+            $this->inflector = new Inflector();
+        }
+
+        return $this->inflector;
     }
 
 
@@ -133,7 +186,7 @@ class Str
     public function split(string $string, int $len = null) : array
     {
         $result = $string !== ''
-            ? str_split($string, $len)
+            ? mb_str_split($string, $len ?? 1)
             : [];
 
         return $result;
@@ -916,7 +969,6 @@ class Str
     }
 
 
-
     /**
      * урезает английское слово(-а) до префикса из нескольких букв - когда имя индекса в бд слишком длинное
      *
@@ -1053,76 +1105,17 @@ class Str
 
 
     /**
-     * snake_case
-     *
-     * @param string $value
-     * @param string $delimiter
-     *
-     * @return string
-     */
-    public function snake(string $value, string $delimiter = '_') : string
-    {
-        $result = $this->case($value, $delimiter);
-
-        return $result;
-    }
-
-    /**
-     * Usnake_Case
-     *
-     * @param string $value
-     *
-     * @param string $delimiter
-     *
-     * @return string
-     */
-    public function usnake(string $value, string $delimiter = '_') : string
-    {
-        $result = $this->case($value, $delimiter, MB_CASE_UPPER);
-
-        return $result;
-    }
-
-
-    /**
-     * kebab-case
-     *
-     * @param string $value
-     *
-     * @return string
-     */
-    public function kebab(string $value) : string
-    {
-        $result = $this->snake($value, '-');
-
-        return $result;
-    }
-
-    /**
-     * Ukebab-Case
-     *
-     * @param string $value
-     *
-     * @return string
-     */
-    public function ukebab(string $value) : string
-    {
-        $result = $this->usnake($value, '-');
-
-        return $result;
-    }
-
-
-    /**
      * camelCase
      *
-     * @param string $value
+     * @param string      $value
+     * @param string      $separator
+     * @param null|string $delimiters
      *
      * @return string
      */
-    public function camel(string $value) : string
+    public function camel(string $value, string $separator = '', string $delimiters = null) : string
     {
-        $result = $this->pascal($value);
+        $result = $this->caseSwitch($value, $separator, $delimiters, MB_CASE_UPPER);
 
         $result = mb_convert_case($value[ 0 ], MB_CASE_LOWER, 'UTF-8') . mb_substr($result, 1);
 
@@ -1132,13 +1125,75 @@ class Str
     /**
      * PascalCase
      *
-     * @param string $value
+     * @param string      $value
+     * @param string      $separator
+     * @param null|string $delimiters
      *
      * @return string
      */
-    public function pascal(string $value) : string
+    public function pascal(string $value, string $separator = '', string $delimiters = null) : string
     {
-        $result = $this->usnake($value, '');
+        $result = $this->caseSwitch($value, $separator, $delimiters, MB_CASE_UPPER);
+
+        return $result;
+    }
+
+    /**
+     * snake_case
+     *
+     * @param string      $value
+     * @param string      $separator
+     * @param null|string $delimiters
+     *
+     * @return string
+     */
+    public function snake(string $value, string $separator = '_', string $delimiters = null) : string
+    {
+        $result = $this->caseSwitch($value, $separator, $delimiters);
+
+        return $result;
+    }
+
+
+    /**
+     * @param string      $string
+     * @param null|string $delimiter
+     * @param null|string $locale
+     *
+     * @return string
+     */
+    public function slug(string $string, string $delimiter = null, string $locale = null) : string
+    {
+        $result = $this->slugger()->slug($string, $delimiter, $locale);
+
+        return $result;
+    }
+
+
+    /**
+     * @param string   $singular
+     * @param null|int $offset
+     * @param null|int $limit
+     *
+     * @return string|array
+     */
+    public function pluralize(string $singular, int $offset = null, int $limit = null) // : ?string|array
+    {
+        $result = $this->inflector()->pluralize($singular, $offset, $limit);
+
+        return $result;
+    }
+
+    /**
+     * @param string   $plural
+     * @param null|int $offset
+     * @param null|int $limit
+     *
+     * @return string|array
+     */
+    public function singularize(string $plural, int $offset = null, int $limit = null) // : ?string|array
+    {
+        $result = $this->inflector()->singularize($plural, $offset, $limit);
 
         return $result;
     }
@@ -1333,46 +1388,49 @@ class Str
 
 
     /**
-     * @param string     $value
-     * @param string     $delimiter
-     * @param string|int $mbCase
+     * @param string      $value
+     * @param string      $separator
+     * @param null|string $delimiters
+     * @param string|int  $mbCase
      *
      * @return string
      */
-    protected function case(string $value, string $delimiter = '_', string $mbCase = MB_CASE_LOWER) : string
+    protected function caseSwitch(string $value, string $separator, string $delimiters = null,
+        string $mbCase = MB_CASE_LOWER
+    ) : string
     {
+        if (! isset(static::THE_MB_CASE_LIST[ $mbCase ])) {
+            throw new InvalidArgumentException(
+                [ 'Unknown MbCase passed: %s', $mbCase ]
+            );
+        }
+
         if ('' === $value) {
             return $value;
         }
 
-        if (! isset(static::THE_MB_CASE_LIST[ $mbCase ])) {
-            throw new InvalidArgumentException('Unknown MbCase passed', $mbCase);
+        $delimiters = $delimiters ?? '_-';
+        $delimiters = $separator . $delimiters;
+
+        $result = trim($value);
+        $result = preg_replace('/\s+/', static::REPLACER, $result);
+
+        $delimitersArray = $this->split($delimiters);
+
+        $result = ''
+            . mb_convert_case(mb_substr($result, 0, 1), $mbCase, 'UTF-8')
+            . preg_replace('/\p{Lu}/', static::REPLACER . '$0', mb_substr($result, 1));
+
+        $resultArray = $this->explode([ static::REPLACER, $delimitersArray ], $result);
+        $resultArray = array_filter($resultArray, 'strlen');
+
+        foreach ( $resultArray as $idx => $r ) {
+            $resultArray[ $idx ] = ''
+                . mb_convert_case(mb_substr($r, 0, 1), $mbCase, 'UTF-8')
+                . mb_substr($r, 1);
         }
 
-        $result = $value;
-
-        $replacements = [];
-        foreach ( array_merge([ $delimiter ], [ '_', '-' ]) as $str ) {
-            $replacements[ $str ] = true;
-        }
-
-        $left = mb_substr($result, 0, 1);
-        $right = mb_substr($result, 1);
-
-        $regexDelimiters = preg_quote(implode('', array_keys($replacements)), '/');
-
-        $right = preg_replace('/[\s' . $regexDelimiters . ']*(\p{Lu})/', $delimiter . '$1', $right);
-        $right = preg_replace_callback('/[\s' . $regexDelimiters . ']+(\p{L})/',
-            function ($m) use ($mbCase) {
-                return static::CASE_REPLACER . mb_convert_case($m[ 1 ], $mbCase, 'UTF-8');
-            },
-            $right
-        );
-
-        $result = mb_convert_case($left, $mbCase, 'UTF-8') . $right;
-
-        $result = str_replace(array_keys($replacements), '', $result);
-        $result = str_replace(static::CASE_REPLACER, $delimiter, $result);
+        $result = implode($separator, $resultArray);
 
         return $result;
     }

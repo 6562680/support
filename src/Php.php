@@ -988,27 +988,4 @@ class Php
 
         return $result;
     }
-
-
-    /**
-     * @param null|\Throwable $e
-     * @param null|int        $limit
-     *
-     * @return array
-     */
-    public function throwableMessages(\Throwable $e, int $limit = -1)
-    {
-        $messages = [];
-
-        $parent = $e;
-        while ( null !== $parent ) {
-            $messages[ get_class($parent) ][] = $parent->getMessage();
-
-            if (! $limit--) break;
-
-            $parent = $parent->getPrevious();
-        }
-
-        return $messages;
-    }
 }

@@ -4,7 +4,8 @@ namespace Gzhegow\Support;
 
 use Gzhegow\Support\Domain\Filter\Type;
 use Gzhegow\Support\Domain\Filter\Assert;
-use Gzhegow\Support\Domain\Filter\InvokableInfoVal;
+use Gzhegow\Support\Domain\SupportFactory;
+use Gzhegow\Support\Domain\Filter\ValueObjects\InvokableInfo;
 use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
 
 
@@ -17,7 +18,6 @@ class Filter
      * @var Assert
      */
     protected $assert;
-
     /**
      * @var Type
      */
@@ -29,7 +29,9 @@ class Filter
      */
     public function __construct()
     {
-        $this->assert = new Assert($this);
+        $factory = new SupportFactory();
+
+        $this->assert = new Assert($factory->newDebug(), $this,);
         $this->type = new Type($this);
     }
 
@@ -648,11 +650,11 @@ class Filter
 
     /**
      * @param string|array|\Closure|callable|mixed $callable
-     * @param null|InvokableInfoVal                $invokableInfo
+     * @param null|InvokableInfo                   $invokableInfo
      *
      * @return null|string|array|\Closure|callable
      */
-    public function filterCallable($callable, InvokableInfoVal &$invokableInfo = null) // : ?string|array|\Closure
+    public function filterCallable($callable, InvokableInfo &$invokableInfo = null) // : ?string|array|\Closure
     {
         if (0
             || ( null !== $this->filterClosure($callable, $invokableInfo) )
@@ -667,11 +669,11 @@ class Filter
 
     /**
      * @param string|array|callable|mixed $callableString
-     * @param null|InvokableInfoVal       $invokableInfo
+     * @param null|InvokableInfo          $invokableInfo
      *
      * @return null|string|array|callable
      */
-    public function filterCallableString($callableString, InvokableInfoVal &$invokableInfo = null) // : ?string|array
+    public function filterCallableString($callableString, InvokableInfo &$invokableInfo = null) // : ?string|array
     {
         if (! is_array($callableString)
             && ( 0
@@ -687,13 +689,13 @@ class Filter
 
     /**
      * @param string|callable|mixed $callableString
-     * @param null|InvokableInfoVal $invokableInfo
+     * @param null|InvokableInfo    $invokableInfo
      *
      * @return null|string|callable
      */
-    public function filterCallableStringFunction($callableString, InvokableInfoVal &$invokableInfo = null) : ?string
+    public function filterCallableStringFunction($callableString, InvokableInfo &$invokableInfo = null) : ?string
     {
-        $invokableInfo = $invokableInfo ?? new InvokableInfoVal();
+        $invokableInfo = $invokableInfo ?? new InvokableInfo();
 
         if (( null !== $this->filterWord($callableString) )
             && function_exists($callableString)
@@ -709,11 +711,11 @@ class Filter
 
     /**
      * @param string|callable|mixed $callableString
-     * @param null|InvokableInfoVal $invokableInfo
+     * @param null|InvokableInfo    $invokableInfo
      *
      * @return null|string|callable
      */
-    public function filterCallableStringStatic($callableString, InvokableInfoVal &$invokableInfo = null) : ?string
+    public function filterCallableStringStatic($callableString, InvokableInfo &$invokableInfo = null) : ?string
     {
         if (! ( null !== $this->filterWord($callableString) )
             && ( 1 === substr_count($callableString, '::') )
@@ -732,12 +734,12 @@ class Filter
 
 
     /**
-     * @param array|callable|mixed  $callableArray
-     * @param null|InvokableInfoVal $invokableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfo   $invokableInfo
      *
      * @return null|array|callable
      */
-    public function filterCallableArray($callableArray, InvokableInfoVal &$invokableInfo = null) : ?array
+    public function filterCallableArray($callableArray, InvokableInfo &$invokableInfo = null) : ?array
     {
         if (is_array($callableArray)
             && ( 0
@@ -752,14 +754,14 @@ class Filter
     }
 
     /**
-     * @param array|callable|mixed  $callableArray
-     * @param null|InvokableInfoVal $invokableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfo   $invokableInfo
      *
      * @return null|array|callable
      */
-    public function filterCallableArrayStatic($callableArray, InvokableInfoVal &$invokableInfo = null) : ?array
+    public function filterCallableArrayStatic($callableArray, InvokableInfo &$invokableInfo = null) : ?array
     {
-        $invokableInfo = $invokableInfo ?? new InvokableInfoVal();
+        $invokableInfo = $invokableInfo ?? new InvokableInfo();
 
         if (is_array($callableArray)
             && isset($callableArray[ 0 ]) && ( null !== $this->filterWord($callableArray[ 0 ]) )
@@ -777,14 +779,14 @@ class Filter
     }
 
     /**
-     * @param array|callable|mixed  $callableArray
-     * @param null|InvokableInfoVal $invokableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfo   $invokableInfo
      *
      * @return null|array|callable
      */
-    public function filterCallableArrayPublic($callableArray, InvokableInfoVal &$invokableInfo = null) : ?array
+    public function filterCallableArrayPublic($callableArray, InvokableInfo &$invokableInfo = null) : ?array
     {
-        $invokableInfo = $invokableInfo ?? new InvokableInfoVal();
+        $invokableInfo = $invokableInfo ?? new InvokableInfo();
 
         if (is_array($callableArray)
             && isset($callableArray[ 0 ]) && is_object($callableArray[ 0 ])
@@ -804,14 +806,14 @@ class Filter
 
 
     /**
-     * @param \Closure|mixed        $closure
-     * @param null|InvokableInfoVal $invokableInfo
+     * @param \Closure|mixed     $closure
+     * @param null|InvokableInfo $invokableInfo
      *
      * @return null|\Closure
      */
-    public function filterClosure($closure, InvokableInfoVal &$invokableInfo = null) : ?\Closure
+    public function filterClosure($closure, InvokableInfo &$invokableInfo = null) : ?\Closure
     {
-        $invokableInfo = $invokableInfo ?? new InvokableInfoVal();
+        $invokableInfo = $invokableInfo ?? new InvokableInfo();
 
         if (is_object($closure) && ( get_class($closure) === \Closure::class )) {
             $invokableInfo->closure = $closure;
@@ -851,19 +853,19 @@ class Filter
     }
 
     /**
-     * @param array|mixed           $methodArray
-     * @param null|InvokableInfoVal $invokableInfo
+     * @param array|mixed        $methodArray
+     * @param null|InvokableInfo $invokableInfo
      *
      * @return null|array
      */
-    public function filterMethodArrayReflection($methodArray, InvokableInfoVal &$invokableInfo = null) : ?array
+    public function filterMethodArrayReflection($methodArray, InvokableInfo &$invokableInfo = null) : ?array
     {
         [ $objectOrClass, $method ] = $this->filterMethodArray($methodArray);
 
         try {
             $rm = new \ReflectionMethod($objectOrClass, $method);
 
-            $invokableInfo = $invokableInfo ?? new InvokableInfoVal();
+            $invokableInfo = $invokableInfo ?? new InvokableInfo();
             $invokableInfo->method = $rm->getName();
 
             if (is_object($objectOrClass)) {
@@ -883,12 +885,12 @@ class Filter
 
 
     /**
-     * @param string|mixed          $handler
-     * @param null|InvokableInfoVal $invokableInfo
+     * @param string|mixed       $handler
+     * @param null|InvokableInfo $invokableInfo
      *
      * @return null|string|callable
      */
-    public function filterHandler($handler, InvokableInfoVal &$invokableInfo = null) : ?string
+    public function filterHandler($handler, InvokableInfo &$invokableInfo = null) : ?string
     {
         if (! ( null !== $this->filterWord($handler) )
             && ( 1 === substr_count($handler, '@') )
@@ -901,7 +903,7 @@ class Filter
         try {
             $rm = new \ReflectionMethod($class, $method);
 
-            $invokableInfo = $invokableInfo ?? new InvokableInfoVal();
+            $invokableInfo = $invokableInfo ?? new InvokableInfo();
             $invokableInfo->class = $class;
             $invokableInfo->method = $method;
 
@@ -960,6 +962,63 @@ class Filter
         }
 
         return null;
+    }
+
+
+    /**
+     * @param object|mixed $value
+     *
+     * @return null|object
+     */
+    public function filterThrowable($value) // : ?object
+    {
+        return ( is_object($value)
+            && $value instanceof \Throwable
+        )
+            ? $value
+            : null;
+    }
+
+    /**
+     * @param object|mixed $value
+     *
+     * @return null|object
+     */
+    public function filterException($value) // : ?object
+    {
+        return ( is_object($value)
+            && $value instanceof \Exception
+        )
+            ? $value
+            : null;
+    }
+
+    /**
+     * @param object|mixed $value
+     *
+     * @return null|object
+     */
+    public function filterRuntimeException($value) // : ?object
+    {
+        return ( is_object($value)
+            && $value instanceof \RuntimeException
+        )
+            ? $value
+            : null;
+    }
+
+    /**
+     * @param object|mixed $value
+     *
+     * @return null|object
+     */
+    public function filterLogicException($value) // : ?object
+    {
+        return ( is_object($value)
+            && $value instanceof \LogicException
+        )
+            ? $value
+            : null;
     }
 
 
@@ -1184,9 +1243,7 @@ class Filter
      */
     public function assert($message = null, ...$arguments) : Assert
     {
-        if (null !== $message) {
-            $this->assert->message($message, ...$arguments);
-        }
+        $this->assert->withError($message, ...$arguments);
 
         return $this->assert;
     }

@@ -11,8 +11,8 @@
 namespace Gzhegow\Support\Facades\Generated;
 
 use Gzhegow\Support\Arr;
-use Gzhegow\Support\Domain\Arr\ArrExpandVal;
 use Gzhegow\Support\Domain\Arr\CrawlIterator;
+use Gzhegow\Support\Domain\Arr\ValueObjects\ExpandValue;
 use Gzhegow\Support\Domain\Arr\WalkIterator;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\Logic\OutOfRangeException;
@@ -27,9 +27,9 @@ abstract class GeneratedArrFacade
      *
      * @return mixed
      */
-    public static function get($path, array &$src, $default = "\x00")
+    public static function getRef($path, array &$src, $default = "\x00")
     {
-        return static::getInstance()->get($path, $src, $default);
+        return static::getInstance()->getRef($path, $src, $default);
     }
 
     /**
@@ -39,9 +39,9 @@ abstract class GeneratedArrFacade
      *
      * @return mixed
      */
-    public static function getRef($path, array &$src, $default = "\x00")
+    public static function get($path, array &$src, $default = "\x00")
     {
-        return static::getInstance()->getRef($path, $src, $default);
+        return static::getInstance()->get($path, $src, $default);
     }
 
     /**
@@ -326,7 +326,6 @@ abstract class GeneratedArrFacade
      * @param mixed $value
      *
      * @return null|array
-     * @noinspection PhpExpressionAlwaysNullInspection
      */
     public static function arrval($value): ?array
     {

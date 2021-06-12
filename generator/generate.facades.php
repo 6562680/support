@@ -58,7 +58,7 @@ foreach ( $facades as $facade => $from ) {
     $phpFile->addNamespace($namespace);
 
     $namespace->addUse($originalClass);
-    foreach ( $generator->classUses($fromClass) as $use ) {
+    foreach ( $generator->loaderClassUses($fromClass) as $use ) {
         $namespace->addUse($use);
     }
 
@@ -74,7 +74,7 @@ foreach ( $facades as $facade => $from ) {
         }
 
         $methodName = $method->getName();
-        if (null !== $generator->str_starts($methodName, '__')) {
+        if (null !== $generator->strStarts($methodName, '__')) {
             continue;
         }
 

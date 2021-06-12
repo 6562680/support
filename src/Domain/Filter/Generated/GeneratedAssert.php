@@ -10,18 +10,21 @@
 
 namespace Gzhegow\Support\Domain\Filter\Generated;
 
-use Gzhegow\Support\Domain\Filter\InvokableInfoVal;
+use Gzhegow\Support\Domain\Filter\ValueObjects\InvokableInfo;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Filter;
 
+/**
+ * Gzhegow_Support_Generator_AssertBlueprint
+ */
 abstract class GeneratedAssert
 {
-    /**
-     * @var Filter
-     */
-    public $filter;
+    /** @var Filter */
+    protected $filter;
 
     /**
+     * Constructor
+     *
      * @param Filter $filter
      */
     public function __construct(Filter $filter)
@@ -31,21 +34,52 @@ abstract class GeneratedAssert
 
     /**
      * @param string $customFilter
-     * @param mixed ...$arguments
+     * @param mixed  ...$arguments
      *
      * @return null|mixed
      */
     public function call(string $customFilter, ...$arguments)
     {
-        if (null === ( $filtered = $this->filter->call($customFilter, ...$arguments) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...$arguments)
-                    ?? array_merge([ 'Invalid ' . $customFilter . ' passed: %s' ], $arguments)
-                );
+        if (\null === ( $filtered = $this->filter->call($customFilter, ...$arguments) )) {
+            throw $this->throwableOr(
+                new \InvalidArgumentException(
+                    $this->messageOr('Invalid ' . $customFilter . ' passed: %s', ...$arguments)
+                )
+            );
         }
 
         return $filtered;
     }
+
+    /**
+     * @param string|array $text
+     * @param mixed        ...$arguments
+     *
+     * @return null|string|array
+     */
+    abstract public function message($text, ...$arguments);
+
+    /**
+     * @param string|array $text
+     * @param mixed        ...$arguments
+     *
+     * @return null|string|array
+     */
+    abstract public function messageOr($text, ...$arguments);
+
+    /**
+     * @param null|\Throwable $throwable
+     *
+     * @return null|\RuntimeException
+     */
+    abstract public function throwable(\Throwable $throwable = null);
+
+    /**
+     * @param null|\Throwable $throwable
+     *
+     * @return null|\RuntimeException
+     */
+    abstract public function throwableOr(\Throwable $throwable = null);
 
     /**
      * @param bool|mixed $value
@@ -55,10 +89,11 @@ abstract class GeneratedAssert
     public function assertBool($value): ?bool
     {
         if (null === ( $filtered = $this->filter->filterBool($value) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid Bool passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid Bool passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -72,10 +107,11 @@ abstract class GeneratedAssert
     public function assertInt($value): ?int
     {
         if (null === ( $filtered = $this->filter->filterInt($value) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid Int passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid Int passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -89,10 +125,11 @@ abstract class GeneratedAssert
     public function assertFloat($value): ?float
     {
         if (null === ( $filtered = $this->filter->filterFloat($value) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid Float passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid Float passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -106,10 +143,11 @@ abstract class GeneratedAssert
     public function assertNan($value): ?float
     {
         if (null === ( $filtered = $this->filter->filterNan($value) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid Nan passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid Nan passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -123,10 +161,11 @@ abstract class GeneratedAssert
     public function assertNumber($value)
     {
         if (null === ( $filtered = $this->filter->filterNumber($value) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid Number passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid Number passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -140,10 +179,11 @@ abstract class GeneratedAssert
     public function assertIntval($value): ?int
     {
         if (null === ( $filtered = $this->filter->filterIntval($value) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid Intval passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid Intval passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -157,10 +197,11 @@ abstract class GeneratedAssert
     public function assertFloatval($value): ?float
     {
         if (null === ( $filtered = $this->filter->filterFloatval($value) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid Floatval passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid Floatval passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -174,10 +215,11 @@ abstract class GeneratedAssert
     public function assertNumval($value)
     {
         if (null === ( $filtered = $this->filter->filterNumval($value) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid Numval passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid Numval passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -191,10 +233,11 @@ abstract class GeneratedAssert
     public function assertPositive($value)
     {
         if (null === ( $filtered = $this->filter->filterPositive($value) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid Positive passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid Positive passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -208,10 +251,11 @@ abstract class GeneratedAssert
     public function assertNonNegative($value)
     {
         if (null === ( $filtered = $this->filter->filterNonNegative($value) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid NonNegative passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid NonNegative passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -225,10 +269,11 @@ abstract class GeneratedAssert
     public function assertNegative($value)
     {
         if (null === ( $filtered = $this->filter->filterNegative($value) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid Negative passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid Negative passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -242,10 +287,11 @@ abstract class GeneratedAssert
     public function assertNonPositive($value)
     {
         if (null === ( $filtered = $this->filter->filterNonPositive($value) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid NonPositive passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid NonPositive passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -259,10 +305,11 @@ abstract class GeneratedAssert
     public function assertString($value): ?string
     {
         if (null === ( $filtered = $this->filter->filterString($value) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid String passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid String passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -276,10 +323,11 @@ abstract class GeneratedAssert
     public function assertWord($value): ?string
     {
         if (null === ( $filtered = $this->filter->filterWord($value) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid Word passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid Word passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -293,10 +341,11 @@ abstract class GeneratedAssert
     public function assertStringOrInt($value)
     {
         if (null === ( $filtered = $this->filter->filterStringOrInt($value) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid StringOrInt passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid StringOrInt passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -310,10 +359,11 @@ abstract class GeneratedAssert
     public function assertWordOrInt($value)
     {
         if (null === ( $filtered = $this->filter->filterWordOrInt($value) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid WordOrInt passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid WordOrInt passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -327,10 +377,11 @@ abstract class GeneratedAssert
     public function assertStringOrNumber($value)
     {
         if (null === ( $filtered = $this->filter->filterStringOrNumber($value) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid StringOrNumber passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid StringOrNumber passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -344,10 +395,11 @@ abstract class GeneratedAssert
     public function assertWordOrNumber($value)
     {
         if (null === ( $filtered = $this->filter->filterWordOrNumber($value) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid WordOrNumber passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid WordOrNumber passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -361,10 +413,11 @@ abstract class GeneratedAssert
     public function assertStrval($value): ?string
     {
         if (null === ( $filtered = $this->filter->filterStrval($value) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid Strval passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid Strval passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -378,10 +431,11 @@ abstract class GeneratedAssert
     public function assertWordval($value): ?string
     {
         if (null === ( $filtered = $this->filter->filterWordval($value) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid Wordval passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid Wordval passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -397,10 +451,11 @@ abstract class GeneratedAssert
     public function assertKey($value)
     {
         if (null === ( $filtered = $this->filter->filterKey($value) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid Key passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid Key passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -415,10 +470,11 @@ abstract class GeneratedAssert
     public function assertArray($array, callable $of = null): ?array
     {
         if (null === ( $filtered = $this->filter->filterArray($array,$of) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid Array passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid Array passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -433,10 +489,11 @@ abstract class GeneratedAssert
     public function assertList($list, callable $of = null): ?array
     {
         if (null === ( $filtered = $this->filter->filterList($list,$of) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid List passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid List passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -451,10 +508,11 @@ abstract class GeneratedAssert
     public function assertDict($dict, callable $of = null): ?array
     {
         if (null === ( $filtered = $this->filter->filterDict($dict,$of) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid Dict passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid Dict passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -469,10 +527,11 @@ abstract class GeneratedAssert
     public function assertAssoc($assoc, callable $of = null): ?array
     {
         if (null === ( $filtered = $this->filter->filterAssoc($assoc,$of) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid Assoc passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid Assoc passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -486,10 +545,11 @@ abstract class GeneratedAssert
     public function assertPlainArray($array): ?array
     {
         if (null === ( $filtered = $this->filter->filterPlainArray($array) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid PlainArray passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid PlainArray passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -503,10 +563,11 @@ abstract class GeneratedAssert
     public function assertArrval($value)
     {
         if (null === ( $filtered = $this->filter->filterArrval($value) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid Arrval passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid Arrval passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -520,10 +581,11 @@ abstract class GeneratedAssert
     public function assertLink($value): ?string
     {
         if (null === ( $filtered = $this->filter->filterLink($value) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid Link passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid Link passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -537,10 +599,11 @@ abstract class GeneratedAssert
     public function assertUrl($value): ?string
     {
         if (null === ( $filtered = $this->filter->filterUrl($value) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid Url passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid Url passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -548,17 +611,18 @@ abstract class GeneratedAssert
 
     /**
      * @param string|array|\Closure|callable|mixed $callable
-     * @param null|InvokableInfoVal                $invokableInfo
+     * @param null|InvokableInfo                   $invokableInfo
      *
      * @return string|array|\Closure|callable
      */
-    public function assertCallable($callable, InvokableInfoVal &$invokableInfo = null)
+    public function assertCallable($callable, InvokableInfo &$invokableInfo = null)
     {
         if (null === ( $filtered = $this->filter->filterCallable($callable,$invokableInfo) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid Callable passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid Callable passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -566,17 +630,18 @@ abstract class GeneratedAssert
 
     /**
      * @param string|array|callable|mixed $callableString
-     * @param null|InvokableInfoVal       $invokableInfo
+     * @param null|InvokableInfo          $invokableInfo
      *
      * @return string|array|callable
      */
-    public function assertCallableString($callableString, InvokableInfoVal &$invokableInfo = null)
+    public function assertCallableString($callableString, InvokableInfo &$invokableInfo = null)
     {
         if (null === ( $filtered = $this->filter->filterCallableString($callableString,$invokableInfo) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid CallableString passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid CallableString passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -584,17 +649,18 @@ abstract class GeneratedAssert
 
     /**
      * @param string|callable|mixed $callableString
-     * @param null|InvokableInfoVal $invokableInfo
+     * @param null|InvokableInfo    $invokableInfo
      *
      * @return string|callable
      */
-    public function assertCallableStringFunction($callableString, InvokableInfoVal &$invokableInfo = null): ?string
+    public function assertCallableStringFunction($callableString, InvokableInfo &$invokableInfo = null): ?string
     {
         if (null === ( $filtered = $this->filter->filterCallableStringFunction($callableString,$invokableInfo) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid CallableStringFunction passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid CallableStringFunction passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -602,89 +668,94 @@ abstract class GeneratedAssert
 
     /**
      * @param string|callable|mixed $callableString
-     * @param null|InvokableInfoVal $invokableInfo
+     * @param null|InvokableInfo    $invokableInfo
      *
      * @return string|callable
      */
-    public function assertCallableStringStatic($callableString, InvokableInfoVal &$invokableInfo = null): ?string
+    public function assertCallableStringStatic($callableString, InvokableInfo &$invokableInfo = null): ?string
     {
         if (null === ( $filtered = $this->filter->filterCallableStringStatic($callableString,$invokableInfo) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid CallableStringStatic passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid CallableStringStatic passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
     }
 
     /**
-     * @param array|callable|mixed  $callableArray
-     * @param null|InvokableInfoVal $invokableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfo   $invokableInfo
      *
      * @return array|callable
      */
-    public function assertCallableArray($callableArray, InvokableInfoVal &$invokableInfo = null): ?array
+    public function assertCallableArray($callableArray, InvokableInfo &$invokableInfo = null): ?array
     {
         if (null === ( $filtered = $this->filter->filterCallableArray($callableArray,$invokableInfo) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid CallableArray passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid CallableArray passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
     }
 
     /**
-     * @param array|callable|mixed  $callableArray
-     * @param null|InvokableInfoVal $invokableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfo   $invokableInfo
      *
      * @return array|callable
      */
-    public function assertCallableArrayStatic($callableArray, InvokableInfoVal &$invokableInfo = null): ?array
+    public function assertCallableArrayStatic($callableArray, InvokableInfo &$invokableInfo = null): ?array
     {
         if (null === ( $filtered = $this->filter->filterCallableArrayStatic($callableArray,$invokableInfo) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid CallableArrayStatic passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid CallableArrayStatic passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
     }
 
     /**
-     * @param array|callable|mixed  $callableArray
-     * @param null|InvokableInfoVal $invokableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfo   $invokableInfo
      *
      * @return array|callable
      */
-    public function assertCallableArrayPublic($callableArray, InvokableInfoVal &$invokableInfo = null): ?array
+    public function assertCallableArrayPublic($callableArray, InvokableInfo &$invokableInfo = null): ?array
     {
         if (null === ( $filtered = $this->filter->filterCallableArrayPublic($callableArray,$invokableInfo) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid CallableArrayPublic passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid CallableArrayPublic passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
     }
 
     /**
-     * @param \Closure|mixed        $closure
-     * @param null|InvokableInfoVal $invokableInfo
+     * @param \Closure|mixed     $closure
+     * @param null|InvokableInfo $invokableInfo
      *
      * @return \Closure
      */
-    public function assertClosure($closure, InvokableInfoVal &$invokableInfo = null): ?\Closure
+    public function assertClosure($closure, InvokableInfo &$invokableInfo = null): ?\Closure
     {
         if (null === ( $filtered = $this->filter->filterClosure($closure,$invokableInfo) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid Closure passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid Closure passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -698,46 +769,49 @@ abstract class GeneratedAssert
     public function assertMethodArray($methodArray): ?array
     {
         if (null === ( $filtered = $this->filter->filterMethodArray($methodArray) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid MethodArray passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid MethodArray passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
     }
 
     /**
-     * @param array|mixed           $methodArray
-     * @param null|InvokableInfoVal $invokableInfo
+     * @param array|mixed        $methodArray
+     * @param null|InvokableInfo $invokableInfo
      *
      * @return array
      */
-    public function assertMethodArrayReflection($methodArray, InvokableInfoVal &$invokableInfo = null): ?array
+    public function assertMethodArrayReflection($methodArray, InvokableInfo &$invokableInfo = null): ?array
     {
         if (null === ( $filtered = $this->filter->filterMethodArrayReflection($methodArray,$invokableInfo) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid MethodArrayReflection passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid MethodArrayReflection passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
     }
 
     /**
-     * @param string|mixed          $handler
-     * @param null|InvokableInfoVal $invokableInfo
+     * @param string|mixed       $handler
+     * @param null|InvokableInfo $invokableInfo
      *
      * @return string|callable
      */
-    public function assertHandler($handler, InvokableInfoVal &$invokableInfo = null): ?string
+    public function assertHandler($handler, InvokableInfo &$invokableInfo = null): ?string
     {
         if (null === ( $filtered = $this->filter->filterHandler($handler,$invokableInfo) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid Handler passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid Handler passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -751,10 +825,11 @@ abstract class GeneratedAssert
     public function assertClass($class): ?string
     {
         if (null === ( $filtered = $this->filter->filterClass($class) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid Class passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid Class passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -768,10 +843,83 @@ abstract class GeneratedAssert
     public function assertClassName($className): ?string
     {
         if (null === ( $filtered = $this->filter->filterClassName($className) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid ClassName passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid ClassName passed: %s', func_get_args() ]
+                ))
+            );
+        }
+
+        return $filtered;
+    }
+
+    /**
+     * @param object|mixed $value
+     *
+     * @return object
+     */
+    public function assertThrowable($value)
+    {
+        if (null === ( $filtered = $this->filter->filterThrowable($value) )) {
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid Throwable passed: %s', func_get_args() ]
+                ))
+            );
+        }
+
+        return $filtered;
+    }
+
+    /**
+     * @param object|mixed $value
+     *
+     * @return object
+     */
+    public function assertException($value)
+    {
+        if (null === ( $filtered = $this->filter->filterException($value) )) {
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid Exception passed: %s', func_get_args() ]
+                ))
+            );
+        }
+
+        return $filtered;
+    }
+
+    /**
+     * @param object|mixed $value
+     *
+     * @return object
+     */
+    public function assertRuntimeException($value)
+    {
+        if (null === ( $filtered = $this->filter->filterRuntimeException($value) )) {
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid RuntimeException passed: %s', func_get_args() ]
+                ))
+            );
+        }
+
+        return $filtered;
+    }
+
+    /**
+     * @param object|mixed $value
+     *
+     * @return object
+     */
+    public function assertLogicException($value)
+    {
+        if (null === ( $filtered = $this->filter->filterLogicException($value) )) {
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid LogicException passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -785,10 +933,11 @@ abstract class GeneratedAssert
     public function assertStdClass($value)
     {
         if (null === ( $filtered = $this->filter->filterStdClass($value) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid StdClass passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid StdClass passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -802,10 +951,11 @@ abstract class GeneratedAssert
     public function assertFileInfo($value): ?\SplFileInfo
     {
         if (null === ( $filtered = $this->filter->filterFileInfo($value) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid FileInfo passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid FileInfo passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -819,10 +969,11 @@ abstract class GeneratedAssert
     public function assertFileObject($value): ?\SplFileObject
     {
         if (null === ( $filtered = $this->filter->filterFileObject($value) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid FileObject passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid FileObject passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -836,10 +987,11 @@ abstract class GeneratedAssert
     public function assertReflectionClass($value): ?\ReflectionClass
     {
         if (null === ( $filtered = $this->filter->filterReflectionClass($value) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid ReflectionClass passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid ReflectionClass passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -853,10 +1005,11 @@ abstract class GeneratedAssert
     public function assertReflectionFunction($value): ?\ReflectionFunction
     {
         if (null === ( $filtered = $this->filter->filterReflectionFunction($value) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid ReflectionFunction passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid ReflectionFunction passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -870,10 +1023,11 @@ abstract class GeneratedAssert
     public function assertReflectionMethod($value): ?\ReflectionMethod
     {
         if (null === ( $filtered = $this->filter->filterReflectionMethod($value) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid ReflectionMethod passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid ReflectionMethod passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -887,10 +1041,11 @@ abstract class GeneratedAssert
     public function assertReflectionProperty($value): ?\ReflectionProperty
     {
         if (null === ( $filtered = $this->filter->filterReflectionProperty($value) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid ReflectionProperty passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid ReflectionProperty passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -904,10 +1059,11 @@ abstract class GeneratedAssert
     public function assertReflectionParameter($value): ?\ReflectionParameter
     {
         if (null === ( $filtered = $this->filter->filterReflectionParameter($value) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid ReflectionParameter passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid ReflectionParameter passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -921,10 +1077,11 @@ abstract class GeneratedAssert
     public function assertReflectionType($value): ?\ReflectionType
     {
         if (null === ( $filtered = $this->filter->filterReflectionType($value) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid ReflectionType passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid ReflectionType passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -938,10 +1095,11 @@ abstract class GeneratedAssert
     public function assertResource($h)
     {
         if (null === ( $filtered = $this->filter->filterResource($h) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid Resource passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid Resource passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -955,10 +1113,11 @@ abstract class GeneratedAssert
     public function assertOpenedResource($h)
     {
         if (null === ( $filtered = $this->filter->filterOpenedResource($h) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid OpenedResource passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid OpenedResource passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -972,10 +1131,11 @@ abstract class GeneratedAssert
     public function assertClosedResource($h)
     {
         if (null === ( $filtered = $this->filter->filterClosedResource($h) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid ClosedResource passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid ClosedResource passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -989,10 +1149,11 @@ abstract class GeneratedAssert
     public function assertReadableResource($h)
     {
         if (null === ( $filtered = $this->filter->filterReadableResource($h) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid ReadableResource passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid ReadableResource passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
@@ -1006,19 +1167,13 @@ abstract class GeneratedAssert
     public function assertWritableResource($h)
     {
         if (null === ( $filtered = $this->filter->filterWritableResource($h) )) {
-            throw $this->flushThrowable()
-                ?? new InvalidArgumentException($this->flushMessage(...func_get_args())
-                    ?? array_merge([ 'Invalid WritableResource passed: %s' ], func_get_args())
-                );
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid WritableResource passed: %s', func_get_args() ]
+                ))
+            );
         }
 
         return $filtered;
     }
-
-    /**
-     * @param mixed ...$arguments
-     *
-     * @return null|string|array
-     */
-    abstract public function flushMessage(...$arguments);
 }

@@ -11,9 +11,62 @@
 namespace Gzhegow\Support\Facades\Generated;
 
 use Gzhegow\Support\Debug;
+use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 abstract class GeneratedDebugFacade
 {
+    /**
+     * @param string|array|mixed $message
+     * @param mixed              ...$arguments
+     *
+     * @return null|array
+     */
+    public static function messageVal($message, ...$arguments): ?array
+    {
+        return static::getInstance()->messageVal($message, ...$arguments);
+    }
+
+    /**
+     * @param string|array|mixed $message
+     * @param mixed              ...$arguments
+     *
+     * @return array
+     */
+    public static function theMessageVal($message, ...$arguments): array
+    {
+        return static::getInstance()->theMessageVal($message, ...$arguments);
+    }
+
+    /**
+     * @param null|array|\Throwable|mixed $trace
+     * @param int                         $limit
+     * @param int                         $options
+     *
+     * @return null|array
+     */
+    public static function traceVal(
+        $trace = null,
+        int $limit = 0,
+        int $options = Gzhegow\Support\DEBUG_BACKTRACE_PROVIDE_OBJECT
+    ): ?array {
+        return static::getInstance()->traceVal($trace, $limit, $options);
+    }
+
+    /**
+     * @param null|array|\Throwable|mixed $trace
+     * @param int                         $limit
+     * @param int                         $options
+     *
+     * @return array
+     */
+    public static function theTraceVal(
+        $trace = null,
+        int $limit = 0,
+        int $options = Gzhegow\Support\DEBUG_BACKTRACE_PROVIDE_OBJECT
+    ): array {
+        return static::getInstance()->theTraceVal($trace, $limit, $options);
+    }
+
     /**
      * Выводит любой тип для дебага и отчета в исключениях
      *
@@ -37,30 +90,38 @@ abstract class GeneratedDebugFacade
     }
 
     /**
-     * Заменяет любое число пробелов в тексте на один
-     *
-     * @param string $content
-     *
-     * @return string
-     */
-    public static function dom(string $content): string
-    {
-        return static::getInstance()->dom($content);
-    }
-
-    /**
      * Извлекает определенные колонки из debug_backtrace()/$throwable->getTrace()
      * может соединить их через разделитель в строку
      *
-     * @param array       $trace
-     * @param array       $columns
-     * @param null|string $implode
+     * @param null|array|\Throwable $trace
+     * @param null|string|array     $columns
+     * @param null|string           $implode
+     * @param null|int              $limit
+     * @param null|int              $options
      *
      * @return array
      */
-    public static function trace(array $trace, array $columns = [], string $implode = null): array
+    public static function traceReport(
+        $trace,
+        $columns = null,
+        string $implode = null,
+        int $limit = null,
+        int $options = null
+    ): array {
+        return static::getInstance()->traceReport($trace, $columns, $implode, $limit, $options);
+    }
+
+    /**
+     * Рекурсивно собирает из дерева исключений сообщения в список
+     *
+     * @param null|\Throwable $e
+     * @param null|int        $limit
+     *
+     * @return array
+     */
+    public static function throwableMessages(\Throwable $e, int $limit = -1)
     {
-        return static::getInstance()->trace($trace, $columns, $implode);
+        return static::getInstance()->throwableMessages($e, $limit);
     }
 
     /**
@@ -99,6 +160,18 @@ abstract class GeneratedDebugFacade
     public static function varExport($arg, bool $return = null): ?string
     {
         return static::getInstance()->varExport($arg, $return);
+    }
+
+    /**
+     * Заменяет любое число пробелов в тексте на один
+     *
+     * @param string $content
+     *
+     * @return string
+     */
+    public static function dom(string $content): string
+    {
+        return static::getInstance()->dom($content);
     }
 
     /**

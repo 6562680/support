@@ -1,9 +1,16 @@
 <?php
 
+use Gzhegow\Support\Filter;
+
+
 defined('__ROOT__') or define('__ROOT__', __DIR__ . '/..');
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+
+/**
+ * Gzhegow_Support_Generator
+ */
 class Gzhegow_Support_Generator
 {
     /**
@@ -13,7 +20,7 @@ class Gzhegow_Support_Generator
      *
      * @return null|string
      */
-    public function str_starts(string $str, string $needle = null, bool $ignoreCase = true) : ?string
+    public function strStarts(string $str, string $needle = null, bool $ignoreCase = true) : ?string
     {
         $needle = $needle ?? '';
 
@@ -36,7 +43,7 @@ class Gzhegow_Support_Generator
      *
      * @return array
      */
-    public function classUses(string $class) : array
+    public function loaderClassUses(string $class) : array
     {
         $uses = [];
 
@@ -53,16 +60,126 @@ class Gzhegow_Support_Generator
         while ( ! feof($h) ) {
             $line = trim(fgets($h));
 
-            if (null !== ( $cut = $this->str_starts($line, 'use ') )) {
+            if (null !== ( $cut = $this->strStarts($line, 'use ') )) {
                 $uses[] = rtrim($cut, ';');
             }
 
-            if (null !== $this->str_starts($line, 'class ')) {
+            if (null !== $this->strStarts($line, 'class ')) {
                 break;
             }
         }
         fclose($h);
 
         return $uses;
+    }
+}
+
+
+/**
+ * Gzhegow_Support_Generator_AssertBlueprint
+ */
+abstract class Gzhegow_Support_Generator_AssertBlueprint
+{
+    /**
+     * @var Filter
+     */
+    protected $filter;
+
+
+    /**
+     * Constructor
+     *
+     * @param Filter $filter
+     */
+    public function __construct(Filter $filter)
+    {
+        $this->filter = $filter;
+    }
+
+
+    /**
+     * @param string $customFilter
+     * @param mixed  ...$arguments
+     *
+     * @return null|mixed
+     */
+    public function call(string $customFilter, ...$arguments)
+    {
+        if (null === ( $filtered = $this->filter->call($customFilter, ...$arguments) )) {
+            throw $this->throwableOr(
+                new InvalidArgumentException(
+                    $this->messageOr('Invalid ' . $customFilter . ' passed: %s', ...$arguments)
+                )
+            );
+        }
+
+        return $filtered;
+    }
+
+
+    /**
+     * @param string|array $text
+     * @param mixed        ...$arguments
+     *
+     * @return null|string|array
+     */
+    abstract public function message($text, ...$arguments); // : ?string|array
+
+    /**
+     * @param string|array $text
+     * @param mixed        ...$arguments
+     *
+     * @return null|string|array
+     */
+    abstract public function messageOr($text, ...$arguments); // : ?string|array
+
+
+    /**
+     * @param null|\Throwable $throwable
+     *
+     * @return null|\RuntimeException
+     */
+    abstract public function throwable(\Throwable $throwable = null); // : ?\Throwable;
+
+    /**
+     * @param null|\Throwable $throwable
+     *
+     * @return null|\RuntimeException
+     */
+    abstract public function throwableOr(\Throwable $throwable = null); // : ?\Throwable
+}
+
+
+/**
+ * Gzhegow_Support_Generator_TypeBlueprint
+ */
+abstract class Gzhegow_Support_Generator_TypeBlueprint
+{
+    /**
+     * @var Filter
+     */
+    protected $filter;
+
+
+    /**
+     * Constructor
+     *
+     * @param Filter $filter
+     */
+    public function __construct(Filter $filter)
+    {
+        $this->filter = $filter;
+    }
+
+
+    /**
+     * @param string $customFilter
+     * @param mixed  ...$arguments
+     *
+     * @return null|mixed
+     */
+    public function call(string $customFilter, ...$arguments)
+    {
+        return null !== $this->filter->call($customFilter, ...$arguments);
     }
 }

@@ -3,6 +3,7 @@
 namespace Gzhegow\Support\Tests;
 
 use Gzhegow\Support\Php;
+use Gzhegow\Support\Debug;
 use Gzhegow\Support\Filter;
 use Gzhegow\Support\Exceptions\Exception;
 use Gzhegow\Support\Domain\SupportFactory;
@@ -13,6 +14,11 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 class ExceptionTest extends AbstractTestCase
 {
+    public function getDebug() : Debug
+    {
+        return ( new SupportFactory() )->newDebug();
+    }
+
     public function getFilter() : Filter
     {
         return ( new SupportFactory() )->newFilter();
@@ -112,7 +118,7 @@ class ExceptionTest extends AbstractTestCase
 
     public function testExceptionNesting()
     {
-        $php = $this->getPhp();
+        $debug = $this->getDebug();
 
         $this->expectException(Exception::class);
 
@@ -132,7 +138,7 @@ class ExceptionTest extends AbstractTestCase
                     1 => "hello: 1, 1.1",
                     2 => "hello: 1",
                 ],
-            ], $php->throwableMessages($e));
+            ], $debug->throwableMessages($e));
 
             throw $e;
         }

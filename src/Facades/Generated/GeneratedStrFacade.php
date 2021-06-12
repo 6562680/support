@@ -10,11 +10,36 @@
 
 namespace Gzhegow\Support\Facades\Generated;
 
+use Gzhegow\Support\Domain\Str\Inflector;
+use Gzhegow\Support\Domain\Str\InflectorInterface;
+use Gzhegow\Support\Domain\Str\Slugger;
+use Gzhegow\Support\Domain\Str\SluggerInterface;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Str;
 
 abstract class GeneratedStrFacade
 {
+    /**
+     * @param null|SluggerInterface $slugger
+     *
+     * @return SluggerInterface
+     */
+    public static function slugger(SluggerInterface $slugger = null): SluggerInterface
+    {
+        return static::getInstance()->slugger($slugger);
+    }
+
+    /**
+     * @param null|InflectorInterface $inflector
+     *
+     * @return InflectorInterface
+     */
+    public static function inflector(InflectorInterface $inflector = null): InflectorInterface
+    {
+        return static::getInstance()->inflector($inflector);
+    }
+
     /**
      * стандартная функция возвращает false, если не найдено, false при вычитании приравнивается к 0
      * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для битового сдвига
@@ -464,78 +489,81 @@ abstract class GeneratedStrFacade
     }
 
     /**
-     * snake_case
-     *
-     * @param string $value
-     * @param string $delimiter
-     *
-     * @return string
-     */
-    public static function snake(string $value, string $delimiter = '_'): string
-    {
-        return static::getInstance()->snake($value, $delimiter);
-    }
-
-    /**
-     * Usnake_Case
-     *
-     * @param string $value
-     *
-     * @param string $delimiter
-     *
-     * @return string
-     */
-    public static function usnake(string $value, string $delimiter = '_'): string
-    {
-        return static::getInstance()->usnake($value, $delimiter);
-    }
-
-    /**
-     * kebab-case
-     *
-     * @param string $value
-     *
-     * @return string
-     */
-    public static function kebab(string $value): string
-    {
-        return static::getInstance()->kebab($value);
-    }
-
-    /**
-     * Ukebab-Case
-     *
-     * @param string $value
-     *
-     * @return string
-     */
-    public static function ukebab(string $value): string
-    {
-        return static::getInstance()->ukebab($value);
-    }
-
-    /**
      * camelCase
      *
-     * @param string $value
+     * @param string      $value
+     * @param string      $separator
+     * @param null|string $delimiters
      *
      * @return string
      */
-    public static function camel(string $value): string
+    public static function camel(string $value, string $separator = '', string $delimiters = null): string
     {
-        return static::getInstance()->camel($value);
+        return static::getInstance()->camel($value, $separator, $delimiters);
     }
 
     /**
      * PascalCase
      *
-     * @param string $value
+     * @param string      $value
+     * @param string      $separator
+     * @param null|string $delimiters
      *
      * @return string
      */
-    public static function pascal(string $value): string
+    public static function pascal(string $value, string $separator = '', string $delimiters = null): string
     {
-        return static::getInstance()->pascal($value);
+        return static::getInstance()->pascal($value, $separator, $delimiters);
+    }
+
+    /**
+     * snake_case
+     *
+     * @param string      $value
+     * @param string      $separator
+     * @param null|string $delimiters
+     *
+     * @return string
+     */
+    public static function snake(string $value, string $separator = '_', string $delimiters = null): string
+    {
+        return static::getInstance()->snake($value, $separator, $delimiters);
+    }
+
+    /**
+     * @param string      $string
+     * @param null|string $delimiter
+     * @param null|string $locale
+     *
+     * @return string
+     */
+    public static function slug(string $string, string $delimiter = null, string $locale = null): string
+    {
+        return static::getInstance()->slug($string, $delimiter, $locale);
+    }
+
+    /**
+     * @param string   $singular
+     * @param null|int $offset
+     * @param null|int $limit
+     *
+     * @return string|array
+     */
+    public static function pluralize(string $singular, int $offset = null, int $limit = null)
+    {
+        return static::getInstance()->pluralize($singular, $offset, $limit);
+    }
+
+    /**
+     * @param string   $plural
+     * @param null|int $offset
+     * @param null|int $limit
+     *
+     * @return string|array
+     */
+    public static function singularize(string $plural, int $offset = null, int $limit = null)
+    {
+        return static::getInstance()->singularize($plural, $offset, $limit);
     }
 
     /**

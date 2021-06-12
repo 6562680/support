@@ -2,8 +2,9 @@
 
 namespace Gzhegow\Support\Domain\Filter;
 
+use Gzhegow\Support\Debug;
+use Gzhegow\Support\Filter;
 use Gzhegow\Support\Domain\Filter\Generated\GeneratedAssert;
-use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
@@ -12,7 +13,13 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 class Assert extends GeneratedAssert
 {
     /**
-     * @var string|array
+     * @var Debug
+     */
+    protected $debug;
+
+
+    /**
+     * @var array
      */
     protected $message;
     /**
@@ -22,75 +29,98 @@ class Assert extends GeneratedAssert
 
 
     /**
-     * @param string|array|\Throwable $message
+     * Constructor
+     *
+     * @param Debug  $debug
+     * @param Filter $filter
+     */
+    public function __construct(
+        Debug $debug,
+        Filter $filter
+    )
+    {
+        $this->debug = $debug;
+
+        parent::__construct($filter);
+    }
+
+
+    /**
+     * @param string|array|\Throwable $error
      * @param mixed                   ...$arguments
      *
      * @return static
      */
-    public function message($message, ...$arguments)
+    public function withError($error, ...$arguments)
     {
-        if (is_object($message) && is_a($message, \Throwable::class)) {
-            $this->throwable = $message;
-
-        } elseif (is_string($message) || is_array($message)) {
-            if ('' === $message) {
-                throw new InvalidArgumentException('Message should be non-empty string');
-            }
-
-            if ($arguments) {
-                $array = is_array($message)
-                    ? $message
-                    : [ $message ];
-
-                $message = array_merge($array, $arguments);
-            }
-
-            $this->message = $message;
-
-        } else {
-            throw new InvalidArgumentException('Message should be array or string');
-        }
+        $this->message = $this->debug->messageVal($error, ...$arguments);
+        $this->throwable = $this->filter->filterThrowable($error);
 
         return $this;
     }
 
 
     /**
-     * @param mixed ...$arguments
+     * @param string|array $text
+     * @param mixed        ...$arguments
      *
      * @return null|string|array
      */
-    public function flushMessage(...$arguments)
+    public function message($text, ...$arguments) // : ?string|array
     {
-        if (! isset($this->message)) {
-            return null;
-        }
-
-        $message = $this->message;
+        $message = null
+            ?? ( func_num_args() ? $this->debug->messageVal($text, ...$arguments) : null )
+            ?? $this->message;
 
         $this->message = null;
-
-        if ($arguments) {
-            $array = is_array($message)
-                ? $message
-                : [ $message ];
-
-            $message = array_merge($array, $arguments);
-        }
 
         return $message;
     }
 
     /**
-     * @return \RuntimeException
+     * @param string|array $text
+     * @param mixed        ...$arguments
+     *
+     * @return null|string|array
      */
-    public function flushThrowable()
+    public function messageOr($text, ...$arguments) // : ?string|array
     {
-        if (! isset($this->throwable)) {
-            return null;
-        }
+        $message = null
+            ?? $this->message
+            ?? ( func_num_args() ? $this->debug->messageVal($text, ...$arguments) : null );
 
-        $throwable = $this->throwable;
+        $this->message = null;
+
+        return $message;
+    }
+
+
+    /**
+     * @param null|\Throwable $throwable
+     *
+     * @return null|\Throwable
+     */
+    public function throwable(\Throwable $throwable = null) : ?\Throwable
+    {
+        $throwable = null
+            ?? ( func_num_args() ? $throwable : null )
+            ?? $this->throwable;
+
+        $this->throwable = null;
+
+        return $throwable;
+    }
+
+    /**
+     * @param null|\Throwable $throwable
+     *
+     * @return null|\Throwable
+     */
+    public function throwableOr(\Throwable $throwable = null) : ?\Throwable
+    {
+        $throwable = null
+            ?? $this->throwable
+            ?? ( func_num_args() ? $throwable : null );
 
         $this->throwable = null;
 

@@ -1,12 +1,12 @@
 <?php
 
-namespace Gzhegow\Support\Domain\Filter;
+namespace Gzhegow\Support\Domain\Filter\ValueObjects;
 
 
 /**
- * InvokableInfoVal
+ * InvokableInfo
  */
-class InvokableInfoVal
+class InvokableInfo
 {
     /**
      * @var callable

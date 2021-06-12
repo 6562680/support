@@ -10,17 +10,20 @@
 
 namespace Gzhegow\Support\Domain\Filter\Generated;
 
-use Gzhegow\Support\Domain\Filter\InvokableInfoVal;
+use Gzhegow\Support\Domain\Filter\ValueObjects\InvokableInfo;
 use Gzhegow\Support\Filter;
 
+/**
+ * Gzhegow_Support_Generator_TypeBlueprint
+ */
 abstract class GeneratedType
 {
-    /**
-     * @var Filter
-     */
-    public $filter;
+    /** @var Filter */
+    protected $filter;
 
     /**
+     * Constructor
+     *
      * @param Filter $filter
      */
     public function __construct(Filter $filter)
@@ -30,13 +33,13 @@ abstract class GeneratedType
 
     /**
      * @param string $customFilter
-     * @param mixed ...$arguments
+     * @param mixed  ...$arguments
      *
-     * @return bool
+     * @return null|mixed
      */
-    public function call(string $customFilter, ...$arguments): bool
+    public function call(string $customFilter, ...$arguments)
     {
-        return null !== $this->filter->call($customFilter, ...$arguments);
+        return \null !== $this->filter->call($customFilter, ...$arguments);
     }
 
     /**
@@ -337,88 +340,88 @@ abstract class GeneratedType
 
     /**
      * @param string|array|\Closure|callable|mixed $callable
-     * @param null|InvokableInfoVal                $invokableInfo
+     * @param null|InvokableInfo                   $invokableInfo
      *
      * @return bool
      */
-    public function isCallable($callable, InvokableInfoVal &$invokableInfo = null): bool
+    public function isCallable($callable, InvokableInfo &$invokableInfo = null): bool
     {
         return null !== $this->filter->filterCallable($callable, $invokableInfo);
     }
 
     /**
      * @param string|array|callable|mixed $callableString
-     * @param null|InvokableInfoVal       $invokableInfo
+     * @param null|InvokableInfo          $invokableInfo
      *
      * @return bool
      */
-    public function isCallableString($callableString, InvokableInfoVal &$invokableInfo = null): bool
+    public function isCallableString($callableString, InvokableInfo &$invokableInfo = null): bool
     {
         return null !== $this->filter->filterCallableString($callableString, $invokableInfo);
     }
 
     /**
      * @param string|callable|mixed $callableString
-     * @param null|InvokableInfoVal $invokableInfo
+     * @param null|InvokableInfo    $invokableInfo
      *
      * @return bool
      */
-    public function isCallableStringFunction($callableString, InvokableInfoVal &$invokableInfo = null): ?bool
+    public function isCallableStringFunction($callableString, InvokableInfo &$invokableInfo = null): ?bool
     {
         return null !== $this->filter->filterCallableStringFunction($callableString, $invokableInfo);
     }
 
     /**
      * @param string|callable|mixed $callableString
-     * @param null|InvokableInfoVal $invokableInfo
+     * @param null|InvokableInfo    $invokableInfo
      *
      * @return bool
      */
-    public function isCallableStringStatic($callableString, InvokableInfoVal &$invokableInfo = null): ?bool
+    public function isCallableStringStatic($callableString, InvokableInfo &$invokableInfo = null): ?bool
     {
         return null !== $this->filter->filterCallableStringStatic($callableString, $invokableInfo);
     }
 
     /**
-     * @param array|callable|mixed  $callableArray
-     * @param null|InvokableInfoVal $invokableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfo   $invokableInfo
      *
      * @return bool
      */
-    public function isCallableArray($callableArray, InvokableInfoVal &$invokableInfo = null): ?bool
+    public function isCallableArray($callableArray, InvokableInfo &$invokableInfo = null): ?bool
     {
         return null !== $this->filter->filterCallableArray($callableArray, $invokableInfo);
     }
 
     /**
-     * @param array|callable|mixed  $callableArray
-     * @param null|InvokableInfoVal $invokableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfo   $invokableInfo
      *
      * @return bool
      */
-    public function isCallableArrayStatic($callableArray, InvokableInfoVal &$invokableInfo = null): ?bool
+    public function isCallableArrayStatic($callableArray, InvokableInfo &$invokableInfo = null): ?bool
     {
         return null !== $this->filter->filterCallableArrayStatic($callableArray, $invokableInfo);
     }
 
     /**
-     * @param array|callable|mixed  $callableArray
-     * @param null|InvokableInfoVal $invokableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfo   $invokableInfo
      *
      * @return bool
      */
-    public function isCallableArrayPublic($callableArray, InvokableInfoVal &$invokableInfo = null): ?bool
+    public function isCallableArrayPublic($callableArray, InvokableInfo &$invokableInfo = null): ?bool
     {
         return null !== $this->filter->filterCallableArrayPublic($callableArray, $invokableInfo);
     }
 
     /**
-     * @param \Closure|mixed        $closure
-     * @param null|InvokableInfoVal $invokableInfo
+     * @param \Closure|mixed     $closure
+     * @param null|InvokableInfo $invokableInfo
      *
      * @return bool
      */
-    public function isClosure($closure, InvokableInfoVal &$invokableInfo = null): ?bool
+    public function isClosure($closure, InvokableInfo &$invokableInfo = null): ?bool
     {
         return null !== $this->filter->filterClosure($closure, $invokableInfo);
     }
@@ -434,23 +437,23 @@ abstract class GeneratedType
     }
 
     /**
-     * @param array|mixed           $methodArray
-     * @param null|InvokableInfoVal $invokableInfo
+     * @param array|mixed        $methodArray
+     * @param null|InvokableInfo $invokableInfo
      *
      * @return bool
      */
-    public function isMethodArrayReflection($methodArray, InvokableInfoVal &$invokableInfo = null): ?bool
+    public function isMethodArrayReflection($methodArray, InvokableInfo &$invokableInfo = null): ?bool
     {
         return null !== $this->filter->filterMethodArrayReflection($methodArray, $invokableInfo);
     }
 
     /**
-     * @param string|mixed          $handler
-     * @param null|InvokableInfoVal $invokableInfo
+     * @param string|mixed       $handler
+     * @param null|InvokableInfo $invokableInfo
      *
      * @return bool
      */
-    public function isHandler($handler, InvokableInfoVal &$invokableInfo = null): ?bool
+    public function isHandler($handler, InvokableInfo &$invokableInfo = null): ?bool
     {
         return null !== $this->filter->filterHandler($handler, $invokableInfo);
     }
@@ -473,6 +476,46 @@ abstract class GeneratedType
     public function isClassName($className): ?bool
     {
         return null !== $this->filter->filterClassName($className);
+    }
+
+    /**
+     * @param object|mixed $value
+     *
+     * @return bool
+     */
+    public function isThrowable($value): bool
+    {
+        return null !== $this->filter->filterThrowable($value);
+    }
+
+    /**
+     * @param object|mixed $value
+     *
+     * @return bool
+     */
+    public function isException($value): bool
+    {
+        return null !== $this->filter->filterException($value);
+    }
+
+    /**
+     * @param object|mixed $value
+     *
+     * @return bool
+     */
+    public function isRuntimeException($value): bool
+    {
+        return null !== $this->filter->filterRuntimeException($value);
+    }
+
+    /**
+     * @param object|mixed $value
+     *
+     * @return bool
+     */
+    public function isLogicException($value): bool
+    {
+        return null !== $this->filter->filterLogicException($value);
     }
 
     /**

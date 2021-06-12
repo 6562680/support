@@ -74,7 +74,7 @@ trait ExceptionTrait
                 ? $key . ':' . $index[ $key ]++
                 : $key;
 
-            $trace[ $key ] = $this->debug->trace($step);
+            $trace[ $key ] = $this->debug->traceReport($step);
         }
 
         return $trace;

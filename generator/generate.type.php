@@ -25,50 +25,12 @@ $phpFile->setComment(implode("\n", [
 $namespace = new \Nette\PhpGenerator\PhpNamespace('Gzhegow\\Support\\Domain\\Filter\\Generated');
 $phpFile->addNamespace($namespace);
 $namespace->addUse(\Gzhegow\Support\Filter::class, 'Filter');
-$namespace->addUse(\Gzhegow\Support\Domain\Filter\InvokableInfoVal::class, 'InvokableInfoVal');
+$namespace->addUse(\Gzhegow\Support\Domain\Filter\ValueObjects\InvokableInfo::class, 'InvokableInfo');
 
 // class
-$moduleType = new \Nette\PhpGenerator\ClassType('GeneratedType');
+$moduleType = \Nette\PhpGenerator\ClassType::withBodiesFrom(Gzhegow_Support_Generator_TypeBlueprint::class);
+$moduleType->setName('GeneratedType');
 $moduleType->setAbstract();
-
-// add dependencies
-$property = new \Nette\PhpGenerator\Property('filter');
-$property->setComment(implode("\n", [
-    '',
-    '@var Filter',
-    '',
-]));
-$moduleType->addMember($property);
-
-$method = new \Nette\PhpGenerator\Method('__construct');
-$method->setComment(implode("\n", [
-    '',
-    '@param Filter $filter',
-    '',
-]));
-$method->setBody('$this->filter = $filter;');
-$method->setPublic();
-$method->addParameter('filter')->setType(Filter::class);
-$moduleType->addMember($method);
-
-// add methods
-$method = new \Nette\PhpGenerator\Method('call');
-$method->setPublic();
-$method->addParameter('customFilter')->setType('string');
-$method->addParameter('arguments');
-$method->setVariadic();
-$method->setReturnType('bool');
-$method->setComment(implode("\n", [
-    '',
-    '@param string $customFilter',
-    '@param mixed ...$arguments',
-    '',
-    '@return bool',
-]));
-$method->setBody(implode("\n", [
-    'return null !== $this->filter->call($customFilter, ...$arguments);',
-]));
-$moduleType->addMember($method);
 
 // copy methods
 $moduleCopy = \Nette\PhpGenerator\ClassType::from(Filter::class);
@@ -92,7 +54,7 @@ foreach ( $moduleCopy->getMethods() as $method ) {
     $methodParameters = $method->getParameters();
     $methodComment = $method->getComment();
 
-    $methodNameNew = 'is' . ( $filterName = $generator->str_starts($methodName, 'filter') );
+    $methodNameNew = 'is' . ( $filterName = $generator->strStarts($methodName, 'filter') );
 
     $lines = explode("\n", $methodComment);
     foreach ( $lines as $i => $line ) {

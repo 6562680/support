@@ -466,17 +466,6 @@ abstract class GeneratedPhpFacade
     }
 
     /**
-     * @param null|\Throwable $e
-     * @param null|int        $limit
-     *
-     * @return array
-     */
-    public static function throwableMessages(\Throwable $e, int $limit = -1)
-    {
-        return static::getInstance()->throwableMessages($e, $limit);
-    }
-
-    /**
      * @return Php
      */
     abstract public static function getInstance(): Php;

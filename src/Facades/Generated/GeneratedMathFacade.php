@@ -211,7 +211,7 @@ abstract class GeneratedMathFacade
      * @param int|float|array $rates
      * @param null|bool       $zero
      *
-     * @return array
+     * @return float[]
      */
     public static function correlation($rates, bool $zero = null): array
     {
