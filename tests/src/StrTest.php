@@ -733,11 +733,8 @@ class StrTest extends AbstractTestCase
     {
         $str = $this->getStr();
 
-        static::assertEquals('privet-mir', $str->slug('привет мир'));
-
-        ( function_exists('transliterator_transliterate') )
-            ? static::assertEquals('Workspace-settings', $str->slug('Wôrķšƥáçè ~~sèťtïñğš~~'))
-            : static::assertEquals('Works-ace-se-tings', $str->slug('Wôrķšƥáçè ~~sèťtïñğš~~'));
+        static::assertEquals('Privet-Mir', $str->slug('Привет Мир'));
+        static::assertEquals('Workspace-settings', $str->slug('Wôrķšƥáçè ~~sèťtïñğš~~'));
     }
 
 

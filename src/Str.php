@@ -69,7 +69,7 @@ class Str
         }
 
         if (! $this->slugger) {
-            $this->slugger = new Slugger();
+            $this->slugger = new Slugger($this);
         }
 
         return $this->slugger;
@@ -1441,43 +1441,18 @@ class Str
      */
     protected function vowels() : string
     {
-        $vowels = [];
+        $list = [
+            'a' => 'aàáâãāăȧäảåǎȁąạḁẚầấẫẩằắẵẳǡǟǻậặæǽǣая',
+            'e' => 'eèéêẽēĕėëẻěȅȇẹȩęḙḛềếễểḕḗệḝеёє',
+            'i' => 'iìíîĩīĭïỉǐịįȉȋḭḯиыії',
+            'o' => 'oòóôõōŏȯöỏőǒȍȏơǫọøồốỗổȱȫȭṍṏṑṓờớỡởợǭộǿœо',
+            'u' => 'uùúûũūŭüủůűǔȕȗưụṳųṷṵṹṻǖǜǘǖǚừứữửựуюў',
+        ];
 
-        // latin
-        $vowels[ 'a' ] = 'aàáâãāăȧäảåǎȁąạḁẚầấẫẩằắẵẳǡǟǻậặæǽǣ';
-        $vowels[ 'e' ] = 'eèéêẽēĕėëẻěȅȇẹȩęḙḛềếễểḕḗệḝ';
-        $vowels[ 'i' ] = 'iìíîĩīĭıïỉǐịįȉȋḭḯ';
-        $vowels[ 'o' ] = 'oòóôõōŏȯöỏőǒȍȏơǫọøồốỗổȱȫȭṍṏṑṓờớỡởợǭộǿœ';
-        $vowels[ 'u' ] = 'uùúûũūŭüủůűǔȕȗưụṳųṷṵṹṻǖǜǘǖǚừứữửự';
-        $vowels[ 'A' ] = 'AÀÁÂÃĀĂȦÄẢÅǍȀȂĄẠḀẦẤẪẨẰẮẴẲǠǞǺẬẶÆǼǢ';
-        $vowels[ 'E' ] = 'EÈÉÊẼĒĔĖËẺĚȄȆẸȨĘḘḚỀẾỄỂḔḖỆḜ';
-        $vowels[ 'I' ] = 'IÌÍÎĨĪĬİÏỈǏỊĮȈȊḬḮ';
-        $vowels[ 'O' ] = 'OÒÓÔÕŌŎȮÖỎŐǑȌȎƠǪỌØỒỐỖỔȰȪȬṌṐṒỜỚỠỞỢǬỘǾŒ';
-        $vowels[ 'U' ] = 'UÙÚÛŨŪŬÜỦŮŰǓȔȖƯỤṲŲṶṴṸṺǛǗǕǙỪỨỮỬỰ';
-
-        // ru
-        $vowels[ 'a' ] .= 'ая';
-        $vowels[ 'e' ] .= 'её';
-        $vowels[ 'i' ] .= 'иы';
-        $vowels[ 'o' ] .= 'о';
-        $vowels[ 'u' ] .= 'ую';
-        $vowels[ 'A' ] .= 'АЯ';
-        $vowels[ 'E' ] .= 'ЕЁ';
-        $vowels[ 'I' ] .= 'ИЫ';
-        $vowels[ 'O' ] .= 'О';
-        $vowels[ 'U' ] .= 'УЮ';
-
-        // ua
-        $vowels[ 'e' ] .= 'є';
-        $vowels[ 'i' ] .= 'ії';
-        $vowels[ 'E' ] .= 'Є';
-        $vowels[ 'I' ] .= 'ІЇ';
-
-        // by
-        $vowels[ 'u' ] .= 'ў';
-        $vowels[ 'U' ] .= 'Ў';
-
-        $vowels = implode('', $vowels);
+        $vowels = '';
+        foreach ( $list as $l ) {
+            $vowels .= mb_strtolower($l) . mb_strtoupper($l);
+        }
 
         return $vowels;
     }
