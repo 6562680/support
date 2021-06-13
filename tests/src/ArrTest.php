@@ -16,7 +16,6 @@ class ArrTest extends AbstractTestCase
         return ( new SupportFactory() )->newArr();
     }
 
-
     public function testGet()
     {
         $arr = $this->getArr();
@@ -106,7 +105,6 @@ class ArrTest extends AbstractTestCase
             $arr->get([ 'hello', 'world' ], $array);
         });
     }
-
 
     public function testGetRef()
     {
@@ -198,7 +196,6 @@ class ArrTest extends AbstractTestCase
         });
     }
 
-
     public function testHas()
     {
         $arr = $this->getArr();
@@ -250,7 +247,6 @@ class ArrTest extends AbstractTestCase
         $this->assertEquals(false, $arr->has([ 'hello.world' ], $array));
         $this->assertEquals(false, $arr->has([ 'hello', 'world' ], $array));
     }
-
 
     public function testSet()
     {
@@ -311,7 +307,6 @@ class ArrTest extends AbstractTestCase
             $arr->set($dst, [], 1);
         });
     }
-
 
     public function testDel()
     {
@@ -482,7 +477,6 @@ class ArrTest extends AbstractTestCase
         });
     }
 
-
     public function testDelete()
     {
         $arr = $this->getArr();
@@ -581,7 +575,6 @@ class ArrTest extends AbstractTestCase
         $this->assertEquals(false, $arr->delete($copy, [ 'hello', 'world' ]));
     }
 
-
     public function testPut()
     {
         $arr = $this->getArr();
@@ -662,14 +655,12 @@ class ArrTest extends AbstractTestCase
         });
     }
 
-
     public function testClear()
     {
         $arr = $this->getArr();
 
         $this->assertEquals([ 1 => null ], $arr->clear([ 1 => 1 ]));
     }
-
 
     public function testOnly()
     {
@@ -698,7 +689,6 @@ class ArrTest extends AbstractTestCase
         $this->assertEquals([ 2 => 1 ], $arr->drop([ 1 => 1, 2 => 1 ], [ 1 ]));
     }
 
-
     public function testCombine()
     {
         $arr = $this->getArr();
@@ -712,7 +702,6 @@ class ArrTest extends AbstractTestCase
         $this->assertEquals([ 1 => 1, 2 => 1, 3 => 1 ], $arr->combine([ 1, 2, 3 ], 1));
         $this->assertEquals([ 1 => 1, 2 => 2, 3 => null ], $arr->combine([ 1, 2, 3 ], [ 1, 2 ]));
     }
-
 
     public function testZip()
     {
@@ -763,7 +752,6 @@ class ArrTest extends AbstractTestCase
         ], $arr->group($ids, function ($v) { return $v > 2 ? 'upper' : 'lower'; }));
     }
 
-
     public function testFullpath()
     {
         $arr = $this->getArr();
@@ -799,7 +787,6 @@ class ArrTest extends AbstractTestCase
             $arr->fullpath([ null ], ':');
         });
     }
-
 
     public function testKey()
     {
@@ -837,7 +824,6 @@ class ArrTest extends AbstractTestCase
         });
     }
 
-
     public function testIndexKey()
     {
         $arr = $this->getArr();
@@ -869,7 +855,6 @@ class ArrTest extends AbstractTestCase
             $arr->index([ null ], '.');
         });
     }
-
 
     public function testDot()
     {
@@ -919,48 +904,67 @@ class ArrTest extends AbstractTestCase
         $arr = $this->getArr();
 
         $array = [
-            'hello'       => null,
-            'world'       => [],
-            'hello.world' => [
-                'hello'       => null,
-                'world'       => [],
-                'hello.world' => [
-                    null,
-                ],
+            0   => $a1 = null,
+            ''  => $a2 = null,
+            'a' => $a3 = null,
+            'b' => $a4 = [],
+            'c' => $a5 = new \StdClass(),
+            'd' => $a6 = [
+                0   => $aa1 = null,
+                ''  => $aa2 = null,
+                'a' => $aa3 = null,
+                'b' => $aa4 = [],
+                'c' => $aa5 = new \StdClass(),
+                'd' => $aa6 = new \ArrayObject([
+                    0   => $aaa1 = null,
+                    ''  => $aaa2 = null,
+                    'a' => $aaa3 = null,
+                    'b' => $aaa4 = [],
+                    'c' => $aaa5 = new \StdClass(),
+                ]),
             ],
         ];
 
-        $pathes = [];
+        $fullpathes = [];
         $values = [];
-        foreach ( $arr->walk($array) as $fullpath => $item ) {
-            $pathes[] = $fullpath;
-            $values[] = $item;
+        foreach ( $arr->walk($array, \RecursiveIteratorIterator::CHILD_FIRST) as $fullpath => $value ) {
+            $fullpathes[] = $fullpath;
+            $values[] = $value;
         }
 
         $this->assertEquals([
-            [ 'hello' ],
-            [ 'world' ],
-            [ 'hello.world' ],
-            [ 'hello.world', 'hello' ],
-            [ 'hello.world', 'world' ],
-            [ 'hello.world', 'hello.world' ],
-            [ 'hello.world', 'hello.world', 0 ],
-        ], $pathes);
+            [ 0 ],
+            [ '' ],
+            [ 'a' ],
+            [ 'b' ],
+            [ 'c' ],
+
+            [ 'd', 0 ],
+            [ 'd', '' ],
+            [ 'd', 'a' ],
+            [ 'd', 'b' ],
+            [ 'd', 'c' ],
+            [ 'd', 'd' ],
+
+            [ 'd' ],
+        ], $fullpathes);
 
         $this->assertEquals([
-            null,
-            [],
-            [
-                'hello'       => null,
-                'world'       => [],
-                'hello.world' => [
-                    0 => null,
-                ],
-            ],
-            null,
-            [],
-            [ 0 => null ],
-            null,
+            $a1,
+            $a2,
+            $a3,
+            $a4,
+            $a5,
+
+
+            $aa1,
+            $aa2,
+            $aa3,
+            $aa4,
+            $aa5,
+            $aa6,
+
+            $a6,
         ], $values);
     }
 
@@ -969,43 +973,169 @@ class ArrTest extends AbstractTestCase
         $arr = $this->getArr();
 
         $array = [
-            'hello'       => null,
-            'world'       => [],
-            'hello.world' => $it = new \ArrayIterator([
-                'hello'       => null,
-                'world'       => [],
-                'hello.world' => [
-                    null,
-                ],
-            ]),
+            0   => $a1 = null,
+            ''  => $a2 = null,
+            'a' => $a3 = null,
+            'b' => $a4 = [],
+            'c' => $a5 = new \StdClass(),
+            'd' => $a6 = [
+                0   => $aa1 = null,
+                ''  => $aa2 = null,
+                'a' => $aa3 = null,
+                'b' => $aa4 = [],
+                'c' => $aa5 = new \StdClass(),
+                'd' => $aa6 = new \ArrayObject([
+                    0   => $aaa1 = null,
+                    ''  => $aaa2 = null,
+                    'a' => $aaa3 = null,
+                    'b' => $aaa4 = [],
+                    'c' => $aaa5 = new \StdClass(),
+                ]),
+            ],
         ];
 
-        $pathes = [];
+        $fullpathes = [];
         $values = [];
-        foreach ( $arr->crawl($array) as $fullpath => $item ) {
-            $pathes[] = $fullpath;
-            $values[] = $item;
+        foreach ( $arr->crawl($array, \RecursiveIteratorIterator::SELF_FIRST) as $fullpath => $value ) {
+            $fullpathes[] = $fullpath;
+            $values[] = $value;
         }
 
         $this->assertEquals([
-            [ 'hello' ],
-            [ 'world' ],
-            [ 'hello.world' ],
-            [ 'hello.world', 'hello' ],
-            [ 'hello.world', 'world' ],
-            [ 'hello.world', 'hello.world' ],
-            [ 'hello.world', 'hello.world', 0 ],
-        ], $pathes);
+            [ 0 ],
+            [ '' ],
+            [ 'a' ],
+            [ 'b' ],
+            [ 'c' ],
+            [ 'd' ],
+
+            [ 'd', 0 ],
+            [ 'd', '' ],
+            [ 'd', 'a' ],
+            [ 'd', 'b' ],
+            [ 'd', 'c' ],
+            [ 'd', 'd' ],
+
+            [ 'd', 'd', 0 ],
+            [ 'd', 'd', '' ],
+            [ 'd', 'd', 'a' ],
+            [ 'd', 'd', 'b' ],
+            [ 'd', 'd', 'c' ],
+        ], $fullpathes);
 
         $this->assertEquals([
-            null,
-            [],
-            $it,
-            null,
-            [],
-            [ 0 => null ],
-            null,
+            $a1,
+            $a2,
+            $a3,
+            $a4,
+            $a5,
+            $a6,
+
+            $aa1,
+            $aa2,
+            $aa3,
+            $aa4,
+            $aa5,
+            $aa6,
+
+            $aaa1,
+            $aaa2,
+            $aaa3,
+            $aaa4,
+            $aaa5,
         ], $values);
+    }
+
+
+    public function testWalkRecursive()
+    {
+        $arr = $this->getArr();
+
+        $array = [
+            0   => $a1 = null,
+            ''  => $a2 = null,
+            'a' => $a3 = null,
+            'b' => $a4 = [],
+            'c' => $a5 = new \StdClass(),
+            'd' => $a6 = [
+                0   => $aa1 = null,
+                ''  => $aa2 = null,
+                'a' => $aa3 = null,
+                'b' => $aa4 = [],
+                'c' => $aa5 = new \StdClass(),
+                'd' => $aa6 = new \ArrayObject([
+                    0   => $aaa1 = null,
+                    ''  => $aaa2 = null,
+                    'a' => $aaa3 = null,
+                    'b' => $aaa4 = [],
+                    'c' => $aaa5 = new \StdClass(),
+                ]),
+            ],
+        ];
+
+        $fullpathes = [];
+        $values = [];
+        $arr->walk_recursive($array, function (&$value, $fullpath) use (&$fullpathes, &$values) {
+            $fullpathes[] = $fullpath;
+            $values[] = $value;
+        });
+
+        $this->assertEquals([
+            [ 0 ],
+            [ '' ],
+            [ 'a' ],
+            [ 'b' ],
+            [ 'c' ],
+            [ 'd' ],
+
+            [ 'd', 0 ],
+            [ 'd', '' ],
+            [ 'd', 'a' ],
+            [ 'd', 'b' ],
+            [ 'd', 'c' ],
+            [ 'd', 'd' ],
+        ], $fullpathes);
+
+        $this->assertEquals([
+            $a1,
+            $a2,
+            $a3,
+            $a4,
+            $a5,
+            $a6,
+
+            $aa1,
+            $aa2,
+            $aa3,
+            $aa4,
+            $aa5,
+            $aa6,
+        ], $values);
+
+        $fullpathes = [];
+        $arr->walk_recursive($array, function (&$value, $fullpath) use (&$fullpathes) {
+            $value = 123;
+
+            $fullpathes[] = $fullpath;
+        });
+
+        $this->assertEquals([
+            [ 0 ],
+            [ '' ],
+            [ 'a' ],
+            [ 'b' ],
+            [ 'c' ],
+            [ 'd' ],
+        ], $fullpathes);
+
+        $this->assertEquals([
+            0   => 123,
+            ""  => 123,
+            "a" => 123,
+            "b" => 123,
+            "c" => 123,
+            "d" => 123,
+        ], $array);
     }
 
 

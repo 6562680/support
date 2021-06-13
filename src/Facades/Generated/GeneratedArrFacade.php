@@ -273,25 +273,38 @@ abstract class GeneratedArrFacade
     }
 
     /**
-     * @param array $array
-     * @param int   $flags
+     * @param array    $array
+     * @param null|int $mode
      *
      * @return \Generator
      */
-    public static function walk(array $array, int $flags = 0): \Generator
+    public static function walk(array $array, int $mode = null): \Generator
     {
-        yield from static::getInstance()->walk($array, $flags);
+        yield from static::getInstance()->walk($array, $mode);
     }
 
     /**
      * @param iterable $iterable
-     * @param int      $flags
+     * @param null|int $mode
+     * @param null|int $flags
      *
      * @return \Generator
      */
-    public static function crawl(iterable $iterable, int $flags = 0): \Generator
+    public static function crawl(iterable $iterable, int $mode = null, int $flags = null): \Generator
     {
-        yield from static::getInstance()->crawl($iterable, $flags);
+        yield from static::getInstance()->crawl($iterable, $mode, $flags);
+    }
+
+    /**
+     * @param array      $array
+     * @param callable   $callback
+     * @param null|mixed $arg
+     *
+     * @return Arr
+     */
+    public static function walk_recursive(array &$array, $callback, $arg = null)
+    {
+        return static::getInstance()->walk_recursive($array, $callback, $arg);
     }
 
     /**

@@ -268,101 +268,93 @@ class Math
 
 
     /**
-     * @param int|float|string $number
-     *
-     * @return null|string
+     * рандомайзер от-до, принимаюший на вход целые или дробные числа
      */
-    public function bcnumval($number) : ?string
+    public function rand($from, $to = null) : string
     {
-        $isValue = ( '' !== $number );
-        $isType = $isValue && ( is_string($number) || is_float($number) || is_int($number) );
+        if (! isset($to)) $to = $from;
 
-        if (! ( $isType && $isValue )) {
-            return null;
+        if (! Type::is_numerable($from)) {
+            throw new \InvalidArgumentException('Argument 1 should be numeric');
         }
 
-        $result = implode('.', explode(',', $number, 2));
-        $result = str_replace(' ', '', $result);
-
-        if (! ctype_digit(str_replace('.', '', $result))) {
-            return null;
+        if (! Type::is_numerable($to)) {
+            throw new \InvalidArgumentException('Argument 2 should be numeric');
         }
 
-        return $result;
+        $len = max(strlen($this->frac($from)), strlen($this->frac($to)));
+        $mult = bcpow(10, $len);
+        $result = mt_rand(bcmul($from, $mult
+            ?: 1), bcmul($to, $mult
+            ?: 1));
+
+        return bcdiv($result, $mult
+            ?: 1, $len);
     }
 
     /**
-     * @param mixed $value
-     *
-     * @return string
+     * преобразовывает массив из чисел в массив промежутков между ними
+     * [5,'6{=delimiter}7',8] => [[$min,5],[5,6],[6,7],[7,8],[8,$max]]
+     * [5,'6-7',8] => [[$min,5],[5,6],[6,7],[7,8],[8,$max]]
      */
-    public function theBcnumval($value) : string
-    {
-        if (null === ( $bcnumval = $this->bcnumval($value) )) {
-            throw new InvalidArgumentException(
-                [ 'Value should be convertable to bcnumval: %s', $value ],
-            );
-        }
-
-        return $bcnumval;
-    }
-
-
-    /**
-     * @param string|string[]|array $strings
-     * @param null|bool             $uniq
-     *
-     * @return string[]
-     */
-    public function bcnumvals($strings, $uniq = null) : array
+    public function range(array $array, float $min = null, float $max = null, string $delimiter = '...', bool $preserve_keys = null) : array
     {
         $result = [];
 
-        $strings = is_array($strings)
-            ? $strings
-            : [ $strings ];
-
-        array_walk_recursive($strings, function ($string) use (&$result) {
-            $result[] = $this->bcnumval($string);
-        });
-
-        if ($uniq ?? false) {
-            $arr = [];
-            foreach ( $result as $i ) {
-                $arr[ $i ] = true;
-            }
-            $result = array_keys($arr);
+        if ('-' === $delimiter) {
+            throw new \InvalidArgumentException('Math minus `-` should not be used as delimiter');
         }
 
-        return $result;
-    }
+        $min = $min ?? 0; // you can pass NULL to use -INF
+        $preserve_keys = $preserve_keys ?? false;
 
-    /**
-     * @param string|string[]|array $strings
-     * @param null|bool             $uniq
-     *
-     * @return string[]
-     */
-    public function theBcnumvals($strings, $uniq = null) : array
-    {
-        $result = [];
+        // convert to array of int saving keys
+        $registry = [];
+        $ranges = [];
+        foreach ( $array as $i => $val ) {
+            $breakpoints = array_filter(explode($delimiter, $val));
 
-        $strings = is_array($strings)
-            ? $strings
-            : [ $strings ];
-
-        array_walk_recursive($strings, function ($string) use (&$result) {
-            $result[] = $this->theBcnumval($string);
-        });
-
-        if ($uniq ?? false) {
-            $arr = [];
-            foreach ( $result as $i ) {
-                $arr[ $i ] = true;
+            $nonNumeric = Arr::first($breakpoints, function ($val) {
+                return ! Type::is_numerable($val);
+            });
+            if ($nonNumeric) {
+                throw new \InvalidArgumentException('Argument in range should be numerable: ' . $nonNumeric);
             }
-            $result = array_keys($arr);
+
+            $breakpoints = array_map('floatval', $breakpoints);
+
+            $ii = 0;
+            foreach ( $breakpoints as $breakpoint ) {
+                if (isset($registry[ $breakpoint ])) continue;
+
+                $registry[ $breakpoint ] = true;
+                $ranges[] = [ $i, $ii++, $breakpoint ];
+            }
         }
 
+        // sort numerically
+        usort($ranges, function ($a, $b) {
+            return $a[ 2 ] - $b[ 2 ];
+        });
+
+        // build ranges
+        $last = $min;
+        $last_ii = null;
+        for ( $i = 0, $len = count($ranges); $i <= $len; $i++ ) {
+            if (! isset($ranges[ $i ])) {
+                $ii = null;
+            } elseif (! $preserve_keys) $ii = null;
+            else {
+                $ii = implode('.', [ $ranges[ $i ][ 0 ], $ranges[ $i ][ 1 ] ]);
+                $last_ii = implode('.', [ ++$ranges[ $i ][ 0 ], 0 ]);
+            }
+            $ii = $ii ?? $last_ii ?? count($result);
+
+            $result[ $ii ] = [ $last, $ranges[ $i ][ 2 ] ?? $max ?? INF ];
+            $last = $ranges[ $i ][ 2 ] ?? $min ?? -INF;
+        }
+
+        // result
         return $result;
     }
 
@@ -694,6 +686,106 @@ class Math
             foreach ( $zeroIndexes as $i ) {
                 $result[ $i ] = $zeroSum / count($zeroIndexes);
             }
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * @param int|float|string $number
+     *
+     * @return null|string
+     */
+    public function bcnumval($number) : ?string
+    {
+        $isValue = ( '' !== $number );
+        $isType = $isValue && ( is_string($number) || is_float($number) || is_int($number) );
+
+        if (! ( $isType && $isValue )) {
+            return null;
+        }
+
+        $result = implode('.', explode(',', $number, 2));
+        $result = str_replace(' ', '', $result);
+
+        if (! ctype_digit(str_replace('.', '', $result))) {
+            return null;
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return string
+     */
+    public function theBcnumval($value) : string
+    {
+        if (null === ( $bcnumval = $this->bcnumval($value) )) {
+            throw new InvalidArgumentException(
+                [ 'Value should be convertable to bcnumval: %s', $value ],
+            );
+        }
+
+        return $bcnumval;
+    }
+
+
+    /**
+     * @param string|string[]|array $strings
+     * @param null|bool             $uniq
+     *
+     * @return string[]
+     */
+    public function bcnumvals($strings, $uniq = null) : array
+    {
+        $result = [];
+
+        $strings = is_array($strings)
+            ? $strings
+            : [ $strings ];
+
+        array_walk_recursive($strings, function ($string) use (&$result) {
+            $result[] = $this->bcnumval($string);
+        });
+
+        if ($uniq ?? false) {
+            $arr = [];
+            foreach ( $result as $i ) {
+                $arr[ $i ] = true;
+            }
+            $result = array_keys($arr);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string|string[]|array $strings
+     * @param null|bool             $uniq
+     *
+     * @return string[]
+     */
+    public function theBcnumvals($strings, $uniq = null) : array
+    {
+        $result = [];
+
+        $strings = is_array($strings)
+            ? $strings
+            : [ $strings ];
+
+        array_walk_recursive($strings, function ($string) use (&$result) {
+            $result[] = $this->theBcnumval($string);
+        });
+
+        if ($uniq ?? false) {
+            $arr = [];
+            foreach ( $result as $i ) {
+                $arr[ $i ] = true;
+            }
+            $result = array_keys($arr);
         }
 
         return $result;

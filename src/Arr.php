@@ -2,9 +2,9 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Domain\Arr\ValueObjects\ExpandValue;
 use Gzhegow\Support\Domain\Arr\WalkIterator;
 use Gzhegow\Support\Domain\Arr\CrawlIterator;
+use Gzhegow\Support\Domain\Arr\ValueObjects\ExpandValue;
 use Gzhegow\Support\Exceptions\Logic\OutOfRangeException;
 use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
@@ -622,17 +622,75 @@ class Arr
 
 
     /**
-     * @param array $array
-     * @param int   $flags
+     * @param array    $array
+     * @param null|int $mode
      *
      * @return \Generator
      */
-    public function walk(array $array, int $flags = 0) : \Generator
+    public function walk(array $array, int $mode = null) : \Generator
     {
-        $it = $this->newWalkIterator($array, $flags);
+        $modes = [
+            \RecursiveIteratorIterator::LEAVES_ONLY => true,
+            \RecursiveIteratorIterator::SELF_FIRST  => true,
+            \RecursiveIteratorIterator::CHILD_FIRST => true,
+        ];
 
-        foreach ( $it as $fullpath => $val ) {
-            yield $fullpath => $val;
+        $mode = isset($modes[ $mode ])
+            ? $mode : \RecursiveIteratorIterator::LEAVES_ONLY;
+
+        $queue = [ $array ];
+        $tree = [ [] ];
+
+        $index = 0;
+        $branches = [];
+        $leaves = [];
+        $pathes = [];
+        while ( null !== key($queue) ) {
+            $current = array_shift($queue);
+            $path = array_shift($tree);
+
+            $hasChildren = ( is_array($current) && [] !== $current );
+
+            if ([] !== $path) {
+                $pathes[ $index ] = $path;
+
+                ( $hasChildren )
+                    ? ( $branches[ $index ] = $current )
+                    : ( $leaves[ $index ] = $current );
+            }
+
+            if ($hasChildren) {
+                foreach ( $current as $k => $v ) {
+                    $fullpath = $path;
+                    $fullpath[] = $k;
+
+                    $queue[] = $v;
+                    $tree[] = $fullpath;
+                }
+            }
+
+            $index++;
+        }
+
+        for ( $i = 0; $i < $index; $i++ ) {
+            $hasLeaf = array_key_exists($i, $leaves);
+            $hasBranch = ! $hasLeaf
+                && ( $mode === \RecursiveIteratorIterator::SELF_FIRST )
+                && array_key_exists($i, $branches);
+
+            if ($hasLeaf) {
+                yield $pathes[ $i ] => $leaves[ $i ];
+            }
+
+            if ($hasBranch) {
+                yield $pathes[ $i ] => $branches[ $i ];
+            }
+        }
+
+        if ($mode === \RecursiveIteratorIterator::CHILD_FIRST) {
+            foreach ( array_reverse(array_keys($branches)) as $i ) {
+                yield $pathes[ $i ] => $branches[ $i ];
+            }
         }
 
         return $this;
@@ -640,16 +698,70 @@ class Arr
 
     /**
      * @param iterable $iterable
-     * @param int      $flags
+     * @param null|int $mode
+     * @param null|int $flags
      *
      * @return \Generator
      */
-    public function crawl(iterable $iterable, int $flags = 0) : \Generator
+    public function crawl(iterable $iterable, int $mode = null, int $flags = null) : \Generator
     {
-        $it = $this->newCrawlIterator($iterable, $flags);
+        $mode = $mode ?? \RecursiveIteratorIterator::LEAVES_ONLY;
+        $flags = $flags ?? 0;
 
-        foreach ( $it as $fullpath => $val ) {
-            yield $fullpath => $val;
+        $it = new \RecursiveArrayIterator($iterable, $flags);
+        $iit = new \RecursiveIteratorIterator($it, $mode, $flags);
+
+        foreach ( $iit as $key => $value ) {
+            $fullpath = [];
+
+            for ( $i = 0; $i < $iit->getDepth(); $i++ ) {
+                $fullpath[] = $iit->getSubIterator($i)->key();
+            }
+
+            $fullpath[] = $iit->getInnerIterator()->key();
+
+            yield $fullpath => $value;
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * @param array      $array
+     * @param callable   $callback
+     * @param null|mixed $arg
+     *
+     * @return static
+     */
+    public function walk_recursive(array &$array, $callback, $arg = null)
+    {
+        $queue = [];
+        $pathes = [];
+
+        $queue[] =& $array;
+        $pathes[] = [];
+
+        while ( null !== ( $key = key($queue) ) ) {
+            next($queue);
+
+            if ([] !== $pathes[ $key ]) {
+                ( 3 === func_num_args() )
+                    ? $callback($queue[ $key ], $pathes[ $key ], $arg)
+                    : $callback($queue[ $key ], $pathes[ $key ]);
+            }
+
+            $hasChildren = ( is_array($queue[ $key ]) && [] !== $queue[ $key ] );
+
+            if ($hasChildren) {
+                foreach ( array_keys($queue[ $key ]) as $k ) {
+                    $fullpath = $pathes[ $key ];
+                    $fullpath[] = $k;
+
+                    $queue[] =& $queue[ $key ][ $k ];
+                    $pathes[] = $fullpath;
+                }
+            }
         }
 
         return $this;

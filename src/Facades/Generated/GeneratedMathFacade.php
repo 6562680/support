@@ -131,6 +131,99 @@ abstract class GeneratedMathFacade
     }
 
     /**
+     * рандомайзер от-до, принимаюший на вход целые или дробные числа
+     */
+    public static function rand($from, $to = null): string
+    {
+        return static::getInstance()->rand($from, $to);
+    }
+
+    /**
+     * преобразовывает массив из чисел в массив промежутков между ними
+     * [5,'6{=delimiter}7',8] => [[$min,5],[5,6],[6,7],[7,8],[8,$max]]
+     * [5,'6-7',8] => [[$min,5],[5,6],[6,7],[7,8],[8,$max]]
+     */
+    public static function range(
+        array $array,
+        float $min = null,
+        float $max = null,
+        string $delimiter = '...',
+        bool $preserve_keys = null
+    ): array {
+        return static::getInstance()->range($array, $min, $max, $delimiter, $preserve_keys);
+    }
+
+    /**
+     * Округление по "правилу денег" (проверка потерянной копейки)
+     * Округлит 1.00000001 до 1.01 (если нужно два знака после запятой)
+     * Как правило, клиенту выставляется цена на копейку больше, а со счета компании списывается на копейку меньше
+     *
+     * @param int|float $value
+     * @param null|int  $scale
+     *
+     * @return int|float
+     */
+    public static function moneyround($value, int $scale = null)
+    {
+        return static::getInstance()->moneyround($value, $scale);
+    }
+
+    /**
+     * Разбивает сумму между получателями
+     * Если разделить 100 на 3 получается 33.33, 33.33, и 33.33 и 0.01 в периоде
+     * Функция позволяет разбить исходное число на три, не потеряв дробную часть
+     *
+     * @param int|float       $sum
+     * @param int|float|array $rates
+     * @param null|int        $scale
+     *
+     * @return int[]|float[]
+     */
+    public static function moneyshare($sum, $rates, int $scale = null): array
+    {
+        return static::getInstance()->moneyshare($sum, $rates, $scale);
+    }
+
+    /**
+     * Балансирует общую сумму между получателями учитывая заранее известные ("замороженные") значения
+     * Заберет у тех, у кого много, раздаст тем, кому мало, недостающее выдаст из суммы
+     * Очень социалистическая функция :)
+     *
+     * [ 5, 10, 50 ] -> [ , , 20 ]
+     * 5x + 10x + 50x = ((5 + 10 + 50) - 20) = 45
+     * [ 3, 7, 35 ] + [ , , 20 ]
+     * 3x + 7x = 35
+     * [ 13.5, 31.5, 20 ] -> round...
+     * [ 14, 31, 20 ]
+     *
+     * @param int|float            $sum
+     * @param int|float|array      $rates
+     * @param null|int|float|array $freezes
+     * @param null|int             $scale
+     *
+     * @return array
+     */
+    public static function balance($sum, array $rates, array $freezes = null, int $scale = null): array
+    {
+        return static::getInstance()->balance($sum, $rates, $freezes, $scale);
+    }
+
+    /**
+     * Рассчитывает соотношение долей между собой
+     * Нулевые соотношения получают пропорционально их количества - чем нулей больше, тем меньше каждому
+     * В то же время нули получают тем больше, чем больше не-нулей
+     *
+     * @param int|float|array $rates
+     * @param null|bool       $zero
+     *
+     * @return float[]
+     */
+    public static function correlation($rates, bool $zero = null): array
+    {
+        return static::getInstance()->correlation($rates, $zero);
+    }
+
+    /**
      * @param int|float|string $number
      *
      * @return null|string
@@ -170,76 +263,6 @@ abstract class GeneratedMathFacade
     public static function theBcnumvals($strings, $uniq = null): array
     {
         return static::getInstance()->theBcnumvals($strings, $uniq);
-    }
-
-    /**
-     * Округление по "правилу денег" (проверка потерянной копейки)
-     * Округлит 1.00000001 до 1.01 (если нужно два знака после запятой)
-     * Как правило, клиенту выставляется цена на копейку больше, а со счета компании списывается на копейку меньше
-     *
-     * @param int|float $value
-     * @param null|int  $scale
-     *
-     * @return int|float
-     */
-    public static function moneyround($value, int $scale = null)
-    {
-        return static::getInstance()->moneyround($value, $scale);
-    }
-
-    /**
-     * Разбивает сумму между получателями
-     * Если разделить 100 на 3 получается 33.33, 33.33, и 33.33 и 0.01 в периоде
-     * Функция позволяет разбить исходное число на три, не потеряв дробную часть
-     *
-     * @param int|float       $sum
-     * @param int|float|array $rates
-     * @param null|int        $scale
-     *
-     * @return int[]|float[]
-     */
-    public static function moneyshare($sum, $rates, int $scale = null): array
-    {
-        return static::getInstance()->moneyshare($sum, $rates, $scale);
-    }
-
-    /**
-     * Рассчитывает соотношение долей между собой
-     * Нулевые соотношения получают пропорционально их количества - чем нулей больше, тем меньше каждому
-     * В то же время нули получают тем больше, чем больше не-нулей
-     *
-     * @param int|float|array $rates
-     * @param null|bool       $zero
-     *
-     * @return float[]
-     */
-    public static function correlation($rates, bool $zero = null): array
-    {
-        return static::getInstance()->correlation($rates, $zero);
-    }
-
-    /**
-     * Балансирует общую сумму между получателями учитывая заранее известные ("замороженные") значения
-     * Заберет у тех, у кого много, раздаст тем, кому мало, недостающее выдаст из суммы
-     * Очень социалистическая функция :)
-     *
-     * [ 5, 10, 50 ] -> [ , , 20 ]
-     * 5x + 10x + 50x = ((5 + 10 + 50) - 20) = 45
-     * [ 3, 7, 35 ] + [ , , 20 ]
-     * 3x + 7x = 35
-     * [ 13.5, 31.5, 20 ] -> round...
-     * [ 14, 31, 20 ]
-     *
-     * @param int|float            $sum
-     * @param int|float|array      $rates
-     * @param null|int|float|array $freezes
-     * @param null|int             $decimals
-     *
-     * @return array
-     */
-    public static function balance($sum, array $rates, array $freezes = null, int $decimals = null): array
-    {
-        return static::getInstance()->balance($sum, $rates, $freezes, $decimals);
     }
 
     /**
