@@ -45,13 +45,14 @@ class Math
      */
     public function ratio($value, $sum = null) : float
     {
-        $value = $this->num->theNumval($value);
-
-        if (null !== $sum) {
-            $sum = $this->num->theNumval($sum);
-        }
-
         $sum = $sum ?? 1;
+
+        $value = $this->num->theNumval($value);
+        $sum = $this->num->theNumval($sum);
+
+        $this->filter
+            ->assert('Sum should be positive: %s', $sum)
+            ->assertPositive($sum);
 
         $result = min(1,
             max(-1, $value / $sum)
@@ -68,13 +69,14 @@ class Math
      */
     public function percent($value, $sum = null) : float
     {
-        $value = $this->num->theNumval($value);
-
-        if (null !== $sum) {
-            $sum = $this->num->theNumval($sum);
-        }
-
         $sum = $sum ?? 1;
+
+        $value = $this->num->theNumval($value);
+        $sum = $this->num->theNumval($sum);
+
+        $this->filter
+            ->assert('Sum should be positive: %s', $sum)
+            ->assertPositive($sum);
 
         $result = $value / $sum * 100;
 
@@ -190,6 +192,10 @@ class Math
         $result = $this->theBcnumval($number);
 
         if ($hasDecimals = false !== strpos($number, '.')) {
+            $this->filter
+                ->assert('Precision should be non-negative: %s', $precision)
+                ->assertNonNegative($precision);
+
             [ , $minus ] = $this->bcabs($number);
 
             $result = $minus
@@ -219,14 +225,14 @@ class Math
 
         if ($hasDecimals = false !== strpos($number, '.')) {
             if (preg_match('~\.[0]+$~', $number)) {
-                $result = $this->bcround($number, 0);
+                $result = $this->bcround($number);
 
             } else {
                 $this->bcabs($number, $minus);
 
                 $result = $minus
-                    ? bcsub($number, 0, 0)
-                    : bcadd($number, 1, 0);
+                    ? bcsub($number, 0)
+                    : bcadd($number, 1);
             }
         }
 
@@ -246,14 +252,14 @@ class Math
 
         if ($hasDecimals = false !== strpos($number, '.')) {
             if (preg_match('~\.[0]+$~', $number)) {
-                $result = $this->bcround($number, 0);
+                $result = $this->bcround($number);
 
             } else {
                 $this->bcabs($number, $minus);
 
                 $result = $minus
-                    ? bcsub($number, 1, 0)
-                    : bcadd($number, 0, 0);
+                    ? bcsub($number, 1)
+                    : bcadd($number, 0);
             }
         }
 
@@ -373,9 +379,13 @@ class Math
      */
     public function moneyround($value, int $scale = null)
     {
+        $scale = $scale ?? 0;
+
         $value = $this->num->theNumval($value);
 
-        $scale = $scale ?? 0;
+        $this->filter
+            ->assert('Scale should be non-negative: %s', $scale)
+            ->assertNonNegative($scale);
 
         $result = round($value, $scale);
         $sign = null
@@ -402,132 +412,66 @@ class Math
      */
     public function moneyshare($sum, $rates, int $scale = null) : array
     {
-        $this->filter->assert('Sum should be number: %s', $sum)
-            ->assertNumval($sum);
+        $sum = $this->num->theNumval($sum);
 
         $ratesNum = $this->num->theNumvals($rates);
+
+        $this->filter
+            ->assert('Sum should be non-negative: %s', $sum)
+            ->assertNonNegative($sum);
+
         if (! $ratesNum) {
             throw new InvalidArgumentException(
                 [ 'At least one rate should be passed: %s', $rates ]
             );
         }
+
         foreach ( $ratesNum as $r ) {
-            $this->filter->assert([ 'Each rate should be positive: %s', $r ])
-                ->assertPositive($r);
-        }
-
-        $result = [];
-
-        $ratesIndexes = array_keys($ratesNum);
-        $ratesSum = array_sum($ratesNum);
-
-        if ($ratesSum <= 0) {
-            throw new OutOfBoundsException('Sum of rates should be positive');
+            $this->filter
+                ->assert([ 'Each rate should be non-negative: %s', $r ])
+                ->assertNonNegative($r);
         }
 
         $dec = 1;
         $safe = false;
         if (isset($scale)) {
-            $scale = max($scale, 0);
-            $dec = 1 / pow(10, $scale);
-
             $safe = true;
+
+            $this->filter
+                ->assert('Scale should be non-negative: %s', $scale)
+                ->assertNonNegative($scale);
+
+            $dec = 1 / pow(10, $scale);
         }
+
+        $result = [];
+
+        $ratesIndexes = array_keys($ratesNum);
+        $ratesSum = array_sum($ratesNum);
+
+        $this->filter
+            ->assert('RatesSum should be positive: %s', $ratesSum)
+            ->assertPositive($ratesSum);
 
         $quota = $sum / $ratesSum;
 
         $mod = 0;
         foreach ( $ratesIndexes as $i ) {
+            $val = $quota * $ratesNum[ $i ];
+
             if (! $safe) {
-                $result[ $i ] = $quota * $ratesNum[ $i ];
+                $result[ $i ] = $val;
 
             } else {
-                $val = $quota * $ratesNum[ $i ];
                 $floor = floor($val / $dec) * $dec;
+                $mod += $val - $floor;
 
                 $result[ $i ] = $floor;
-                $mod += $val - $floor;
             }
         }
 
         if ($safe) {
             $result[] = round($mod / $dec) * $dec;
-        }
-
-        return $result;
-    }
-
-
-    /**
-     * Рассчитывает соотношение долей между собой
-     * Нулевые соотношения получают пропорционально их количества - чем нулей больше, тем меньше каждому
-     * В то же время нули получают тем больше, чем больше не-нулей
-     *
-     * @param int|float|array $rates
-     * @param null|bool       $zero
-     *
-     * @return float[]
-     */
-    public function correlation($rates, bool $zero = null) : array
-    {
-        $zero = $zero ?? false;
-
-        $result = [];
-
-        $ratesNum = $this->num->theNumvals($rates);
-        if (! $ratesNum) {
-            throw new InvalidArgumentException(
-                [ 'At least one rate should be passed: %s', $rates ]
-            );
-        }
-        foreach ( $ratesNum as $r ) {
-            $this->filter->assert([ 'Each rate should be positive: %s', $r ])
-                ->assertPositive($r);
-        }
-
-        $ratesIndexes = array_keys($ratesNum);
-        $ratesSum = array_sum($ratesNum);
-
-        $valuesIndexes = [];
-        $zeroIndexes = [];
-
-        $cmp = [];
-        $cmpLen = 0;
-        foreach ( $ratesIndexes as $i ) {
-            if (! $ratesNum[ $i ]) {
-                $zeroIndexes[ $i ] = true;
-
-            } else {
-                $valuesIndexes[ $i ] = true;
-
-                $cmp[] = $ratesNum[ $i ];
-                $cmpLen++;
-            }
-        }
-
-        $zeroRate = 1;
-        if (count($cmp)) {
-            $minRate = min(...$cmp);
-            $maxRate = max(...$cmp);
-
-            if ($maxRate) {
-                $zeroRate = $minRate / $maxRate;
-            }
-        }
-
-        foreach ( $valuesIndexes as $i ) {
-            $result[ $i ] = $zero
-                ? ( $ratesNum[ $i ] / $ratesSum ) * ( 1 - ( $zeroRate / $cmpLen ) )
-                : ( $ratesNum[ $i ] / $ratesSum );
-        }
-        $resultSum = array_sum($result);
-
-        if ($zero) {
-            $zeroSum = 1 - $resultSum;
-
-            foreach ( $zeroIndexes as $i ) {
-                $result[ $i ] = $zeroSum / count($zeroIndexes);
-            }
         }
 
         return $result;
@@ -549,44 +493,54 @@ class Math
      * @param int|float            $sum
      * @param int|float|array      $rates
      * @param null|int|float|array $freezes
-     * @param null|int             $decimals
+     * @param null|int             $scale
      *
      * @return array
      */
-    public function balance($sum, array $rates, array $freezes = null, int $decimals = null) : array
+    public function balance($sum, array $rates, array $freezes = null, int $scale = null) : array
     {
-        $this->filter->assert('Sum should be number: %s', $sum)
-            ->assertNumval($sum);
-
-        $this->filter->assert('Sum should be positive: %s', $sum)
-            ->assertPositive($sum);
+        $sum = $this->num->theNumval($sum);
 
         $ratesNum = $this->num->theNumvals($rates);
         $freezesNum = $this->num->theNumvals($freezes);
 
-        $keysRates = array_keys($ratesNum);
-        $keysFreezes = array_keys($freezesNum);
+        $this->filter
+            ->assert('Sum should be non-negative: %s', $sum)
+            ->assertNonNegative($sum);
+
+        if (! $ratesNum) {
+            throw new InvalidArgumentException(
+                [ 'At least one rate should be passed: %s', $rates ]
+            );
+        }
+
+        foreach ( $ratesNum as $r ) {
+            $this->filter
+                ->assert([ 'Each rate should be non-negative: %s', $r ])
+                ->assertNonNegative($r);
+        }
+
+        $dec = 1;
+        $safe = false;
+        if (isset($scale)) {
+            $safe = true;
+
+            $this->filter
+                ->assert('Scale should be non-negative: %s', $scale)
+                ->assertNonNegative($scale);
+
+            $dec = 1 / pow(10, $scale);
+        }
 
         $sumRates = array_sum($ratesNum);
         $sumFreezes = array_sum($freezesNum);
-
-        $this->filter->assert('SumRates should be positive: %s', $sumRates)
-            ->assertPositive($sumRates);
 
         if ($sumFreezes > $sum) {
             throw new OutOfBoundsException('SumFreezes should be smaller than sum', [ $sumFreezes, $sum ]);
         }
 
-        $mod = 0;
-        $dec = 1;
-        $safe = false;
-        if (null === $decimals) {
-            $decimals = max($decimals, 0);
-            $dec = 1 / pow(10, $decimals);
-
-            $safe = true;
-        }
-
+        $keysRates = array_keys($ratesNum);
+        $keysFreezes = array_keys($freezesNum);
         $keysResult = array_unique($keysRates, $keysFreezes);
 
         $result = array_fill(0, max($keysResult) + 1, 0);
@@ -649,17 +603,97 @@ class Math
             $result[ $i ] = $src[ $i ];
         }
 
+        $mod = 0;
         if ($safe) {
             foreach ( $keysResult as $i ) {
-                $value = $result[ $i ];
-                $floor = floor($value / $dec) * $dec;
+                $val = $result[ $i ];
 
-                $mod += $value - $floor;
+                $floor = floor($val / $dec) * $dec;
+                $mod += $val - $floor;
 
                 $result[ $i ] = $floor;
             }
 
             $result[] = round($mod / $dec) * $dec;
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * Рассчитывает соотношение долей между собой
+     * Нулевые соотношения получают пропорционально их количества - чем нулей больше, тем меньше каждому
+     * В то же время нули получают тем больше, чем больше не-нулей
+     *
+     * @param int|float|array $rates
+     * @param null|bool       $zero
+     *
+     * @return float[]
+     */
+    public function correlation($rates, bool $zero = null) : array
+    {
+        $zero = $zero ?? false;
+
+        $ratesNum = $this->num->theNumvals($rates);
+
+        if (! $ratesNum) {
+            throw new InvalidArgumentException(
+                [ 'At least one rate should be passed: %s', $rates ]
+            );
+        }
+
+        foreach ( $ratesNum as $r ) {
+            $this->filter
+                ->assert([ 'Each rate should be non-negative: %s', $r ])
+                ->assertNonNegative($r);
+        }
+
+        $result = [];
+
+        $ratesIndexes = array_keys($ratesNum);
+        $ratesSum = array_sum($ratesNum);
+
+        $valuesIndexes = [];
+        $zeroIndexes = [];
+
+        $cmp = [];
+        $cmpLen = 0;
+        foreach ( $ratesIndexes as $i ) {
+            if (! $ratesNum[ $i ]) {
+                $zeroIndexes[ $i ] = true;
+
+            } else {
+                $valuesIndexes[ $i ] = true;
+
+                $cmp[] = $ratesNum[ $i ];
+                $cmpLen++;
+            }
+        }
+
+        $zeroRate = 1;
+        if (count($cmp)) {
+            $minRate = min(...$cmp);
+            $maxRate = max(...$cmp);
+
+            if ($maxRate) {
+                $zeroRate = $minRate / $maxRate;
+            }
+        }
+
+        foreach ( $valuesIndexes as $i ) {
+            $result[ $i ] = $zero
+                ? ( $ratesNum[ $i ] / $ratesSum ) * ( 1 - ( $zeroRate / $cmpLen ) )
+                : ( $ratesNum[ $i ] / $ratesSum );
+        }
+        $resultSum = array_sum($result);
+
+        if ($zero) {
+            $zeroSum = 1 - $resultSum;
+
+            foreach ( $zeroIndexes as $i ) {
+                $result[ $i ] = $zeroSum / count($zeroIndexes);
+            }
         }
 
         return $result;
