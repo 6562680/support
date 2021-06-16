@@ -11,33 +11,10 @@
 namespace Gzhegow\Support\Facades\Generated;
 
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
-use Gzhegow\Support\Exceptions\Runtime\OutOfBoundsException;
 use Gzhegow\Support\Math;
 
 abstract class GeneratedMathFacade
 {
-    /**
-     * @param int|float      $value
-     * @param null|int|float $sum
-     *
-     * @return float
-     */
-    public static function ratio($value, $sum = null): float
-    {
-        return static::getInstance()->ratio($value, $sum);
-    }
-
-    /**
-     * @param int|float      $value
-     * @param null|int|float $sum
-     *
-     * @return float
-     */
-    public static function percent($value, $sum = null): float
-    {
-        return static::getInstance()->percent($value, $sum);
-    }
-
     /**
      * @param int|float ...$values
      *
@@ -107,18 +84,6 @@ abstract class GeneratedMathFacade
     }
 
     /**
-     * Округляет в большую сторону
-     *
-     * @param int|float|string $number
-     *
-     * @return string
-     */
-    public static function bcceil(string $number)
-    {
-        return static::getInstance()->bcceil($number);
-    }
-
-    /**
      * Округляет в меньшую сторону
      *
      * @param int|float|string $number
@@ -131,26 +96,57 @@ abstract class GeneratedMathFacade
     }
 
     /**
-     * рандомайзер от-до, принимаюший на вход целые или дробные числа
+     * Округляет в большую сторону
+     *
+     * @param int|float|string $number
+     *
+     * @return string
      */
-    public static function rand($from, $to = null): string
+    public static function bcceil($number): string
     {
-        return static::getInstance()->rand($from, $to);
+        return static::getInstance()->bcceil($number);
     }
 
     /**
-     * преобразовывает массив из чисел в массив промежутков между ними
-     * [5,'6{=delimiter}7',8] => [[$min,5],[5,6],[6,7],[7,8],[8,$max]]
-     * [5,'6-7',8] => [[$min,5],[5,6],[6,7],[7,8],[8,$max]]
+     * Дробная часть числа
+     *
+     * @param int|float|string|array $numbers
+     *
+     * @return int
      */
-    public static function range(
-        array $array,
-        float $min = null,
-        float $max = null,
-        string $delimiter = '...',
-        bool $preserve_keys = null
-    ): array {
-        return static::getInstance()->range($array, $min, $max, $delimiter, $preserve_keys);
+    public static function bcdecimals(...$numbers): int
+    {
+        return static::getInstance()->bcdecimals(...$numbers);
+    }
+
+    /**
+     * @param int|float ...$numbers
+     *
+     * @return string
+     */
+    public static function bcsum(...$numbers): string
+    {
+        return static::getInstance()->bcsum(...$numbers);
+    }
+
+    /**
+     * @param int|float ...$numbers
+     *
+     * @return string
+     */
+    public static function bcavg(...$numbers): string
+    {
+        return static::getInstance()->bcavg(...$numbers);
+    }
+
+    /**
+     * @param int|float ...$numbers
+     *
+     * @return string
+     */
+    public static function bcmedian(...$numbers): string
+    {
+        return static::getInstance()->bcmedian(...$numbers);
     }
 
     /**
@@ -158,69 +154,29 @@ abstract class GeneratedMathFacade
      * Округлит 1.00000001 до 1.01 (если нужно два знака после запятой)
      * Как правило, клиенту выставляется цена на копейку больше, а со счета компании списывается на копейку меньше
      *
-     * @param int|float $value
-     * @param null|int  $scale
+     * @param int|float|string $number
+     * @param null|int         $scale
      *
-     * @return int|float
+     * @return string
      */
-    public static function moneyround($value, int $scale = null)
+    public static function bcmoneyfloor($number, int $scale = null): string
     {
-        return static::getInstance()->moneyround($value, $scale);
+        return static::getInstance()->bcmoneyfloor($number, $scale);
     }
 
     /**
-     * Разбивает сумму между получателями
-     * Если разделить 100 на 3 получается 33.33, 33.33, и 33.33 и 0.01 в периоде
-     * Функция позволяет разбить исходное число на три, не потеряв дробную часть
+     * Округление по "правилу денег" (проверка потерянной копейки)
+     * Округлит 1.00000001 до 1.01 (если нужно два знака после запятой)
+     * Как правило, клиенту выставляется цена на копейку больше, а со счета компании списывается на копейку меньше
      *
-     * @param int|float       $sum
-     * @param int|float|array $rates
-     * @param null|int        $scale
+     * @param int|float|string $number
+     * @param null|int         $scale
      *
-     * @return int[]|float[]
+     * @return string
      */
-    public static function moneyshare($sum, $rates, int $scale = null): array
+    public static function bcmoneyceil($number, int $scale = null): string
     {
-        return static::getInstance()->moneyshare($sum, $rates, $scale);
-    }
-
-    /**
-     * Балансирует общую сумму между получателями учитывая заранее известные ("замороженные") значения
-     * Заберет у тех, у кого много, раздаст тем, кому мало, недостающее выдаст из суммы
-     * Очень социалистическая функция :)
-     *
-     * [ 5, 10, 50 ] -> [ , , 20 ]
-     * 5x + 10x + 50x = ((5 + 10 + 50) - 20) = 45
-     * [ 3, 7, 35 ] + [ , , 20 ]
-     * 3x + 7x = 35
-     * [ 13.5, 31.5, 20 ] -> round...
-     * [ 14, 31, 20 ]
-     *
-     * @param int|float            $sum
-     * @param int|float|array      $rates
-     * @param null|int|float|array $freezes
-     * @param null|int             $scale
-     *
-     * @return array
-     */
-    public static function balance($sum, array $rates, array $freezes = null, int $scale = null): array
-    {
-        return static::getInstance()->balance($sum, $rates, $freezes, $scale);
-    }
-
-    /**
-     * Рассчитывает соотношение долей между собой
-     * Нулевые соотношения получают пропорционально их количества - чем нулей больше, тем меньше каждому
-     * В то же время нули получают тем больше, чем больше не-нулей
-     *
-     * @param int|float|array $rates
-     * @param null|bool       $zero
-     *
-     * @return float[]
-     */
-    public static function correlation($rates, bool $zero = null): array
-    {
-        return static::getInstance()->correlation($rates, $zero);
+        return static::getInstance()->bcmoneyceil($number, $scale);
     }
 
     /**

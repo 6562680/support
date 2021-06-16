@@ -2,7 +2,6 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Exceptions\Runtime\OutOfBoundsException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
@@ -38,60 +37,13 @@ class Math
 
 
     /**
-     * @param int|float      $value
-     * @param null|int|float $sum
-     *
-     * @return float
-     */
-    public function ratio($value, $sum = null) : float
-    {
-        $sum = $sum ?? 1;
-
-        $value = $this->num->theNumval($value);
-        $sum = $this->num->theNumval($sum);
-
-        $this->filter
-            ->assert('Sum should be positive: %s', $sum)
-            ->assertPositive($sum);
-
-        $result = min(1,
-            max(-1, $value / $sum)
-        );
-
-        return $result;
-    }
-
-    /**
-     * @param int|float      $value
-     * @param null|int|float $sum
-     *
-     * @return float
-     */
-    public function percent($value, $sum = null) : float
-    {
-        $sum = $sum ?? 1;
-
-        $value = $this->num->theNumval($value);
-        $sum = $this->num->theNumval($sum);
-
-        $this->filter
-            ->assert('Sum should be positive: %s', $sum)
-            ->assertPositive($sum);
-
-        $result = $value / $sum * 100;
-
-        return $result;
-    }
-
-
-    /**
      * @param int|float ...$values
      *
      * @return int|float
      */
     public function sum(...$values) // : int|float
     {
-        $list = $this->num->theNumvals($values);
+        $list = $this->num->theNumvals(...$values);
 
         $result = array_sum($list);
 
@@ -105,7 +57,7 @@ class Math
      */
     public function avg(...$values) : float
     {
-        $list = $this->num->theNumvals($values);
+        $list = $this->num->theNumvals(...$values);
 
         $sum = $this->sum($list);
         $len = count($list);
@@ -124,15 +76,17 @@ class Math
      */
     public function median(...$values) // : int|float|string
     {
-        $list = $this->num->theNumvals($values);
+        $list = $this->num->theNumvals(...$values);
 
         sort($list);
+
+        $list = array_values($list);
 
         $idx = count($list) / 2;
 
         $median = is_int($idx)
             ? ( ( $list[ $idx ] + $list[ $idx + 1 ] ) / 2 )
-            : ( $list[ round($idx) ] );
+            : ( $list[ round($idx) - 1 ] );
 
         return $median;
     }
@@ -189,51 +143,26 @@ class Math
      */
     public function bcround($number, $precision = 0) : string
     {
-        $result = $this->theBcnumval($number);
+        $result = $bcnumval = $this->theBcnumval($number);
 
-        if ($hasDecimals = false !== strpos($number, '.')) {
+        $hasDecimals = false !== strpos($bcnumval, '.');
+
+        if ($hasDecimals) {
             $this->filter
                 ->assert('Precision should be non-negative: %s', $precision)
                 ->assertNonNegative($precision);
 
-            [ , $minus ] = $this->bcabs($number);
+            $this->bcabs($bcnumval, $minus);
 
             $result = $minus
-                ? bcsub($number,
+                ? bcsub($bcnumval,
                     '0.' . str_repeat('0', $precision) . '5',
                     $precision
                 )
-                : bcadd($number,
+                : bcadd($bcnumval,
                     '0.' . str_repeat('0', $precision) . '5',
                     $precision
                 );
-        }
-
-        return $result;
-    }
-
-    /**
-     * Округляет в большую сторону
-     *
-     * @param int|float|string $number
-     *
-     * @return string
-     */
-    public function bcceil(string $number)
-    {
-        $result = $this->theBcnumval($number);
-
-        if ($hasDecimals = false !== strpos($number, '.')) {
-            if (preg_match('~\.[0]+$~', $number)) {
-                $result = $this->bcround($number);
-
-            } else {
-                $this->bcabs($number, $minus);
-
-                $result = $minus
-                    ? bcsub($number, 0)
-                    : bcadd($number, 1);
-            }
         }
 
         return $result;
@@ -248,18 +177,55 @@ class Math
      */
     public function bcfloor($number) : string
     {
-        $result = $this->theBcnumval($number);
+        $result = $bcnumval = $this->theBcnumval($number);
 
-        if ($hasDecimals = false !== strpos($number, '.')) {
-            if (preg_match('~\.[0]+$~', $number)) {
-                $result = $this->bcround($number);
+        $scale = 0;
+
+        $hasDecimals = false !== strpos($bcnumval, '.');
+        $hasDecimalsOnlyZeros = $hasDecimals && preg_match('~\.[0]+$~', $bcnumval);
+
+        if ($hasDecimals) {
+            if ($hasDecimalsOnlyZeros) {
+                $result = $this->bcround($bcnumval, $scale);
 
             } else {
-                $this->bcabs($number, $minus);
+                $this->bcabs($bcnumval, $minus);
 
                 $result = $minus
-                    ? bcsub($number, 1)
-                    : bcadd($number, 0);
+                    ? bcsub($bcnumval, 1, $scale)
+                    : bcadd($bcnumval, 0, $scale);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Округляет в большую сторону
+     *
+     * @param int|float|string $number
+     *
+     * @return string
+     */
+    public function bcceil($number) : string
+    {
+        $result = $bcnumval = $this->theBcnumval($number);
+
+        $scale = 0;
+
+        $hasDecimals = false !== strpos($bcnumval, '.');
+        $hasDecimalsOnlyZeros = $hasDecimals && preg_match('~\.[0]+$~', $bcnumval);
+
+        if ($hasDecimals) {
+            if ($hasDecimalsOnlyZeros) {
+                $result = $this->bcround($bcnumval, $scale);
+
+            } else {
+                $this->bcabs($bcnumval, $minus);
+
+                $result = $minus
+                    ? bcsub($bcnumval, 0, $scale)
+                    : bcadd($bcnumval, 1, $scale);
             }
         }
 
@@ -268,94 +234,84 @@ class Math
 
 
     /**
-     * рандомайзер от-до, принимаюший на вход целые или дробные числа
+     * Дробная часть числа
+     *
+     * @param int|float|string|array $numbers
+     *
+     * @return int
      */
-    public function rand($from, $to = null) : string
+    public function bcdecimals(...$numbers) : int
     {
-        if (! isset($to)) $to = $from;
+        $list = $this->theBcnumvals(...$numbers);
 
-        if (! Type::is_numerable($from)) {
-            throw new \InvalidArgumentException('Argument 1 should be numeric');
+        $decimals = 0;
+        foreach ( $list as $l ) {
+            $decimals = max($decimals, strlen($this->bcfrac($l)));
         }
 
-        if (! Type::is_numerable($to)) {
-            throw new \InvalidArgumentException('Argument 2 should be numeric');
+        return $decimals;
+    }
+
+
+    /**
+     * @param int|float ...$numbers
+     *
+     * @return string
+     */
+    public function bcsum(...$numbers) : string
+    {
+        $list = $this->theBcnumvals(...$numbers);
+        $decimals = $this->bcdecimals($list);
+
+        $result = '0';
+        foreach ( $list as $l ) {
+            $result = bcadd($result, $l, $decimals);
         }
 
-        $len = max(strlen($this->frac($from)), strlen($this->frac($to)));
-        $mult = bcpow(10, $len);
-        $result = mt_rand(bcmul($from, $mult
-            ?: 1), bcmul($to, $mult
-            ?: 1));
-
-        return bcdiv($result, $mult
-            ?: 1, $len);
+        return $result;
     }
 
     /**
-     * преобразовывает массив из чисел в массив промежутков между ними
-     * [5,'6{=delimiter}7',8] => [[$min,5],[5,6],[6,7],[7,8],[8,$max]]
-     * [5,'6-7',8] => [[$min,5],[5,6],[6,7],[7,8],[8,$max]]
+     * @param int|float ...$numbers
+     *
+     * @return string
      */
-    public function range(array $array, float $min = null, float $max = null, string $delimiter = '...', bool $preserve_keys = null) : array
+    public function bcavg(...$numbers) : string
     {
-        $result = [];
+        $list = $this->theBcnumvals(...$numbers);
+        $decimals = $this->bcdecimals($list);
 
-        if ('-' === $delimiter) {
-            throw new \InvalidArgumentException('Math minus `-` should not be used as delimiter');
-        }
+        $sum = $this->bcsum($list);
+        $len = count($list);
 
-        $min = $min ?? 0; // you can pass NULL to use -INF
-        $preserve_keys = $preserve_keys ?? false;
+        $avg = $len
+            ? bcdiv($sum, $len, $decimals)
+            : '0';
 
-        // convert to array of int saving keys
-        $registry = [];
-        $ranges = [];
-        foreach ( $array as $i => $val ) {
-            $breakpoints = array_filter(explode($delimiter, $val));
+        return $avg;
+    }
 
-            $nonNumeric = Arr::first($breakpoints, function ($val) {
-                return ! Type::is_numerable($val);
-            });
-            if ($nonNumeric) {
-                throw new \InvalidArgumentException('Argument in range should be numerable: ' . $nonNumeric);
-            }
+    /**
+     * @param int|float ...$numbers
+     *
+     * @return string
+     */
+    public function bcmedian(...$numbers) : string
+    {
+        $list = $this->theBcnumvals(...$numbers);
+        $decimals = $this->bcdecimals($list);
 
-            $breakpoints = array_map('floatval', $breakpoints);
+        natsort($list);
 
-            $ii = 0;
-            foreach ( $breakpoints as $breakpoint ) {
-                if (isset($registry[ $breakpoint ])) continue;
+        $list = array_values($list);
 
-                $registry[ $breakpoint ] = true;
-                $ranges[] = [ $i, $ii++, $breakpoint ];
-            }
-        }
+        $index = count($list) / 2;
 
-        // sort numerically
-        usort($ranges, function ($a, $b) {
-            return $a[ 2 ] - $b[ 2 ];
-        });
+        $median = ! is_float($index)
+            ? bcdiv(bcadd($list[ $index ], $list[ $index + 1 ], $decimals), 2, $decimals)
+            : $list[ round($index) - 1 ];
 
-        // build ranges
-        $last = $min;
-        $last_ii = null;
-        for ( $i = 0, $len = count($ranges); $i <= $len; $i++ ) {
-            if (! isset($ranges[ $i ])) {
-                $ii = null;
-            } elseif (! $preserve_keys) $ii = null;
-            else {
-                $ii = implode('.', [ $ranges[ $i ][ 0 ], $ranges[ $i ][ 1 ] ]);
-                $last_ii = implode('.', [ ++$ranges[ $i ][ 0 ], 0 ]);
-            }
-            $ii = $ii ?? $last_ii ?? count($result);
-
-            $result[ $ii ] = [ $last, $ranges[ $i ][ 2 ] ?? $max ?? INF ];
-            $last = $ranges[ $i ][ 2 ] ?? $min ?? -INF;
-        }
-
-        // result
-        return $result;
+        return $median;
     }
 
 
@@ -364,327 +320,78 @@ class Math
      * Округлит 1.00000001 до 1.01 (если нужно два знака после запятой)
      * Как правило, клиенту выставляется цена на копейку больше, а со счета компании списывается на копейку меньше
      *
-     * @param int|float $value
-     * @param null|int  $scale
+     * @param int|float|string $number
+     * @param null|int         $scale
      *
-     * @return int|float
+     * @return string
      */
-    public function moneyround($value, int $scale = null)
+    public function bcmoneyfloor($number, int $scale = null) : string
     {
         $scale = $scale ?? 0;
-
-        $value = $this->num->theNumval($value);
 
         $this->filter
             ->assert('Scale should be non-negative: %s', $scale)
             ->assertNonNegative($scale);
 
-        $result = round($value, $scale);
-        $sign = null
-            ?? ( $value > 0 ? 1 : null )
-            ?? ( $value < 0 ? -1 : null );
+        $result = $bcnumval = $this->theBcnumval($number);
 
-        $result += $value !== $result
-            ? $sign * ( 1 / pow(10, $scale) )
-            : 0;
+        $hasDecimals = false !== strpos($bcnumval, '.');
+        $hasDecimalsOnlyZeros = $hasDecimals && preg_match('~\.[0]+$~', $bcnumval);
 
-        return $result;
-    }
-
-    /**
-     * Разбивает сумму между получателями
-     * Если разделить 100 на 3 получается 33.33, 33.33, и 33.33 и 0.01 в периоде
-     * Функция позволяет разбить исходное число на три, не потеряв дробную часть
-     *
-     * @param int|float       $sum
-     * @param int|float|array $rates
-     * @param null|int        $scale
-     *
-     * @return int[]|float[]
-     */
-    public function moneyshare($sum, $rates, int $scale = null) : array
-    {
-        $sum = $this->num->theNumval($sum);
-
-        $ratesNum = $this->num->theNumvals($rates);
-
-        $this->filter
-            ->assert('Sum should be non-negative: %s', $sum)
-            ->assertNonNegative($sum);
-
-        if (! $ratesNum) {
-            throw new InvalidArgumentException(
-                [ 'At least one rate should be passed: %s', $rates ]
-            );
-        }
-
-        foreach ( $ratesNum as $r ) {
-            $this->filter
-                ->assert([ 'Each rate should be non-negative: %s', $r ])
-                ->assertNonNegative($r);
-        }
-
-        $dec = 1;
-        $safe = false;
-        if (isset($scale)) {
-            $safe = true;
-
-            $this->filter
-                ->assert('Scale should be non-negative: %s', $scale)
-                ->assertNonNegative($scale);
-
-            $dec = 1 / pow(10, $scale);
-        }
-
-        $result = [];
-
-        $ratesIndexes = array_keys($ratesNum);
-        $ratesSum = array_sum($ratesNum);
-
-        $this->filter
-            ->assert('RatesSum should be positive: %s', $ratesSum)
-            ->assertPositive($ratesSum);
-
-        $quota = $sum / $ratesSum;
-
-        $mod = 0;
-        foreach ( $ratesIndexes as $i ) {
-            $val = $quota * $ratesNum[ $i ];
-
-            if (! $safe) {
-                $result[ $i ] = $val;
+        if ($hasDecimals) {
+            if ($hasDecimalsOnlyZeros) {
+                $result = $this->bcround($bcnumval);
 
             } else {
-                $floor = floor($val / $dec) * $dec;
-                $mod += $val - $floor;
+                $this->bcabs($bcnumval, $minus);
 
-                $result[ $i ] = $floor;
+                $result = $minus
+                    ? bcadd($bcnumval, 0, $scale)
+                    : bcsub($bcnumval, 0, $scale);
             }
-        }
-
-        if ($safe) {
-            $result[] = round($mod / $dec) * $dec;
         }
 
         return $result;
     }
 
-
     /**
-     * Балансирует общую сумму между получателями учитывая заранее известные ("замороженные") значения
-     * Заберет у тех, у кого много, раздаст тем, кому мало, недостающее выдаст из суммы
-     * Очень социалистическая функция :)
+     * Округление по "правилу денег" (проверка потерянной копейки)
+     * Округлит 1.00000001 до 1.01 (если нужно два знака после запятой)
+     * Как правило, клиенту выставляется цена на копейку больше, а со счета компании списывается на копейку меньше
      *
-     * [ 5, 10, 50 ] -> [ , , 20 ]
-     * 5x + 10x + 50x = ((5 + 10 + 50) - 20) = 45
-     * [ 3, 7, 35 ] + [ , , 20 ]
-     * 3x + 7x = 35
-     * [ 13.5, 31.5, 20 ] -> round...
-     * [ 14, 31, 20 ]
+     * @param int|float|string $number
+     * @param null|int         $scale
      *
-     * @param int|float            $sum
-     * @param int|float|array      $rates
-     * @param null|int|float|array $freezes
-     * @param null|int             $scale
-     *
-     * @return array
+     * @return string
      */
-    public function balance($sum, array $rates, array $freezes = null, int $scale = null) : array
+    public function bcmoneyceil($number, int $scale = null) : string
     {
-        $sum = $this->num->theNumval($sum);
-
-        $ratesNum = $this->num->theNumvals($rates);
-        $freezesNum = $this->num->theNumvals($freezes);
+        $scale = $scale ?? 0;
 
         $this->filter
-            ->assert('Sum should be non-negative: %s', $sum)
-            ->assertNonNegative($sum);
+            ->assert('Scale should be non-negative: %s', $scale)
+            ->assertNonNegative($scale);
 
-        if (! $ratesNum) {
-            throw new InvalidArgumentException(
-                [ 'At least one rate should be passed: %s', $rates ]
-            );
-        }
+        $result = $bcnumval = $this->num->theNumval($number);
 
-        foreach ( $ratesNum as $r ) {
-            $this->filter
-                ->assert([ 'Each rate should be non-negative: %s', $r ])
-                ->assertNonNegative($r);
-        }
+        $hasDecimals = false !== strpos($bcnumval, '.');
+        $hasDecimalsOnlyZeros = $hasDecimals && preg_match('~\.[0]+$~', $bcnumval);
 
-        $dec = 1;
-        $safe = false;
-        if (isset($scale)) {
-            $safe = true;
-
-            $this->filter
-                ->assert('Scale should be non-negative: %s', $scale)
-                ->assertNonNegative($scale);
-
-            $dec = 1 / pow(10, $scale);
-        }
-
-        $sumRates = array_sum($ratesNum);
-        $sumFreezes = array_sum($freezesNum);
-
-        if ($sumFreezes > $sum) {
-            throw new OutOfBoundsException('SumFreezes should be smaller than sum', [ $sumFreezes, $sum ]);
-        }
-
-        $keysRates = array_keys($ratesNum);
-        $keysFreezes = array_keys($freezesNum);
-        $keysResult = array_unique($keysRates, $keysFreezes);
-
-        $result = array_fill(0, max($keysResult) + 1, 0);
-
-        $keysAll = $keysResult;
-
-        $src = [];
-        $diff = [];
-        foreach ( $keysAll as $k ) {
-            $rate = $ratesNum[ $k ] ?? 0;
-            $freeze = $freezesNum[ $k ] ?? 0;
-
-            $src[ $k ] = ( $rate / $sumRates ) * $sum;
-            $diff[ $k ] = $src[ $k ] - $freeze;
-        }
-
-        $keysShare = array_diff($keysResult, $keysFreezes);
-
-        foreach ( $keysFreezes as $i ) {
-            if ($diff[ $i ] > 0) {
-                $shareRates = [];
-                foreach ( $keysShare as $k ) {
-                    $shareRates[ $k ] = $src[ $k ];
-                }
-
-                $ratios = $this->correlation($shareRates);
-
-                foreach ( $keysShare as $ii ) {
-                    $value = $ratios[ $ii ] * $diff[ $i ];
-
-                    $src[ $i ] -= $value;
-                    $src[ $ii ] += $value;
-                }
-
-                $src[ $i ] = $freezesNum[ $i ];
-            }
-        }
-
-        $shareRates = [];
-        foreach ( $keysShare as $k ) {
-            $shareRates[ $k ] = $src[ $k ];
-        }
-
-        $sumShare = array_sum($shareRates);
-
-        foreach ( $keysFreezes as $i ) {
-            if ($diff[ $i ] < 0) {
-                foreach ( $keysShare as $ii ) {
-                    $val = $src[ $ii ] - $src[ $ii ] * ( ( $sumShare + $diff[ $i ] ) / $sumShare );
-
-                    $src[ $ii ] -= $val;
-                    $src[ $i ] += $val;
-                }
-
-                $sumShare += $diff[ $i ];
-            }
-        }
-
-        foreach ( $keysResult as $i ) {
-            $result[ $i ] = $src[ $i ];
-        }
-
-        $mod = 0;
-        if ($safe) {
-            foreach ( $keysResult as $i ) {
-                $val = $result[ $i ];
-
-                $floor = floor($val / $dec) * $dec;
-                $mod += $val - $floor;
-
-                $result[ $i ] = $floor;
-            }
-
-            $result[] = round($mod / $dec) * $dec;
-        }
-
-        return $result;
-    }
-
-
-    /**
-     * Рассчитывает соотношение долей между собой
-     * Нулевые соотношения получают пропорционально их количества - чем нулей больше, тем меньше каждому
-     * В то же время нули получают тем больше, чем больше не-нулей
-     *
-     * @param int|float|array $rates
-     * @param null|bool       $zero
-     *
-     * @return float[]
-     */
-    public function correlation($rates, bool $zero = null) : array
-    {
-        $zero = $zero ?? false;
-
-        $ratesNum = $this->num->theNumvals($rates);
-
-        if (! $ratesNum) {
-            throw new InvalidArgumentException(
-                [ 'At least one rate should be passed: %s', $rates ]
-            );
-        }
-
-        foreach ( $ratesNum as $r ) {
-            $this->filter
-                ->assert([ 'Each rate should be non-negative: %s', $r ])
-                ->assertNonNegative($r);
-        }
-
-        $result = [];
-
-        $ratesIndexes = array_keys($ratesNum);
-        $ratesSum = array_sum($ratesNum);
-
-        $valuesIndexes = [];
-        $zeroIndexes = [];
-
-        $cmp = [];
-        $cmpLen = 0;
-        foreach ( $ratesIndexes as $i ) {
-            if (! $ratesNum[ $i ]) {
-                $zeroIndexes[ $i ] = true;
+        if ($hasDecimals) {
+            if ($hasDecimalsOnlyZeros) {
+                $result = $this->bcround($bcnumval);
 
             } else {
-                $valuesIndexes[ $i ] = true;
+                $this->bcabs($bcnumval, $minus);
 
-                $cmp[] = $ratesNum[ $i ];
-                $cmpLen++;
-            }
-        }
+                $decimals = strlen($this->bcfrac($bcnumval));
+                $bonus = bccomp($bcnumval, bcadd($bcnumval, 0, $scale), $decimals)
+                    ? 1 / pow(10, $scale)
+                    : 0;
 
-        $zeroRate = 1;
-        if (count($cmp)) {
-            $minRate = min(...$cmp);
-            $maxRate = max(...$cmp);
-
-            if ($maxRate) {
-                $zeroRate = $minRate / $maxRate;
-            }
-        }
-
-        foreach ( $valuesIndexes as $i ) {
-            $result[ $i ] = $zero
-                ? ( $ratesNum[ $i ] / $ratesSum ) * ( 1 - ( $zeroRate / $cmpLen ) )
-                : ( $ratesNum[ $i ] / $ratesSum );
-        }
-        $resultSum = array_sum($result);
-
-        if ($zero) {
-            $zeroSum = 1 - $resultSum;
-
-            foreach ( $zeroIndexes as $i ) {
-                $result[ $i ] = $zeroSum / count($zeroIndexes);
+                $result = $minus
+                    ? bcsub($bcnumval, $bonus, $scale)
+                    : bcadd($bcnumval, $bonus, $scale);
             }
         }
 
@@ -699,18 +406,29 @@ class Math
      */
     public function bcnumval($number) : ?string
     {
-        $isValue = ( '' !== $number );
-        $isType = $isValue && ( is_string($number) || is_float($number) || is_int($number) );
-
-        if (! ( $isType && $isValue )) {
+        if (! ( is_string($number) || is_float($number) || is_int($number) )) {
             return null;
         }
 
-        $result = implode('.', explode(',', $number, 2));
-        $result = str_replace(' ', '', $result);
-
-        if (! ctype_digit(str_replace('.', '', $result))) {
+        if ('' === $number) {
             return null;
+        }
+
+        $result = $number;
+
+        if (! is_numeric($number)) {
+            $number = str_replace([ ' ', ',' ], '.', $number);
+
+            if (! is_numeric($number)) {
+                return null;
+            }
+
+            $ctype = str_replace([ '-', '.' ], '', $number);
+            if (! ctype_digit($ctype)) {
+                return null;
+            }
+
+            $result = $number;
         }
 
         return $result;
@@ -790,4 +508,446 @@ class Math
 
         return $result;
     }
+
+
+    // /**
+    //  * @param int|float      $value
+    //  * @param null|int|float $sum
+    //  *
+    //  * @return float
+    //  */
+    // public function ratio($value, $sum = null) : float
+    // {
+    //     $sum = $sum ?? 1;
+    //
+    //     $value = $this->num->theNumval($value);
+    //     $sum = $this->num->theNumval($sum);
+    //
+    //     $this->filter
+    //         ->assert('Sum should be positive: %s', $sum)
+    //         ->assertPositive($sum);
+    //
+    //     $result = min(1,
+    //         max(-1, $value / $sum)
+    //     );
+    //
+    //     return $result;
+    // }
+
+    // /**
+    //  * @param int|float      $value
+    //  * @param null|int|float $sum
+    //  *
+    //  * @return float
+    //  */
+    // public function percent($value, $sum = null) : float
+    // {
+    //     $sum = $sum ?? 1;
+    //
+    //     $value = $this->num->theNumval($value);
+    //     $sum = $this->num->theNumval($sum);
+    //
+    //     $this->filter
+    //         ->assert('Sum should be positive: %s', $sum)
+    //         ->assertPositive($sum);
+    //
+    //     $result = $value / $sum * 100;
+    //
+    //     return $result;
+    // }
+
+
+    // /**
+    //  * Разбивает сумму между получателями
+    //  * Если разделить 100 на 3 получается 33.33, 33.33, и 33.33 и 0.01 в периоде
+    //  * Функция позволяет разбить исходное число на три, не потеряв дробную часть
+    //  *
+    //  * @param int|float|string       $sum
+    //  * @param int|float|string|array $rates
+    //  * @param null|int               $scale
+    //  *
+    //  * @return int[]|float[]
+    //  */
+    // public function moneyshare($sum, $rates, int $scale = null) : array
+    // {
+    //     $sum = $this->num->theNumval($sum);
+    //     $rates = $this->num->theNumvals($rates);
+    //
+    //     $this->filter
+    //         ->assert('Sum should be non-negative: %s', $sum)
+    //         ->assertNonNegative($sum);
+    //
+    //     if (! $rates) {
+    //         throw new InvalidArgumentException(
+    //             [ 'At least one rate should be passed: %s', $rates ]
+    //         );
+    //     }
+    //
+    //     foreach ( $rates as $r ) {
+    //         $this->filter
+    //             ->assert([ 'Each rate should be non-negative: %s', $r ])
+    //             ->assertNonNegative($r);
+    //     }
+    //
+    //     $dec = 1;
+    //     $safe = false;
+    //     if (isset($scale)) {
+    //         $safe = true;
+    //
+    //         $this->filter
+    //             ->assert('Scale should be non-negative: %s', $scale)
+    //             ->assertNonNegative($scale);
+    //
+    //         $dec = 1 / pow(10, $scale);
+    //     }
+    //
+    //     $result = [];
+    //
+    //     $ratesIndexes = array_keys($rates);
+    //     $ratesSum = '0';
+    //     foreach ( $rates as $r ) {
+    //         $ratesSum = bcadd($ratesSum, $r, $scale);
+    //     }
+    //
+    //     $this->filter
+    //         ->assert('RatesSum should be positive: %s', $ratesSum)
+    //         ->assertPositive($ratesSum);
+    //
+    //     $quota = bcdiv($sum, $ratesSum, $scale);
+    //
+    //     $mod = 0;
+    //     foreach ( $ratesIndexes as $i ) {
+    //         $val = $quota * $ratesNum[ $i ];
+    //
+    //         if (! $safe) {
+    //             $result[ $i ] = $val;
+    //
+    //         } else {
+    //             $floor = floor($val / $dec) * $dec;
+    //             $mod += $val - $floor;
+    //
+    //             $result[ $i ] = $floor;
+    //         }
+    //     }
+    //
+    //     if ($safe) {
+    //         $result[ 0 ] = round($mod / $dec) * $dec;
+    //     }
+    //
+    //     return $result;
+    // }
+
+
+    // /**
+    //  * Балансирует общую сумму между получателями учитывая заранее известные ("замороженные") значения
+    //  * Заберет у тех, у кого много, раздаст тем, кому мало, недостающее выдаст из суммы
+    //  * Очень социалистическая функция :)
+    //  *
+    //  * [ 5, 10, 50 ] -> [ , , 20 ]
+    //  * 5x + 10x + 50x = ((5 + 10 + 50) - 20) = 45
+    //  * [ 3, 7, 35 ] + [ , , 20 ]
+    //  * 3x + 7x = 35
+    //  * [ 13.5, 31.5, 20 ] -> round...
+    //  * [ 14, 31, 20 ]
+    //  *
+    //  * @param int|float            $sum
+    //  * @param int|float|array      $rates
+    //  * @param null|int|float|array $freezes
+    //  * @param null|int             $scale
+    //  *
+    //  * @return array
+    //  */
+    // public function balance($sum, array $rates, array $freezes = null, int $scale = null) : array
+    // {
+    //     $sum = $this->num->theNumval($sum);
+    //
+    //     $ratesNum = $this->num->theNumvals($rates);
+    //     $freezesNum = $this->num->theNumvals($freezes);
+    //
+    //     $this->filter
+    //         ->assert('Sum should be non-negative: %s', $sum)
+    //         ->assertNonNegative($sum);
+    //
+    //     if (! $ratesNum) {
+    //         throw new InvalidArgumentException(
+    //             [ 'At least one rate should be passed: %s', $rates ]
+    //         );
+    //     }
+    //
+    //     foreach ( $ratesNum as $r ) {
+    //         $this->filter
+    //             ->assert([ 'Each rate should be non-negative: %s', $r ])
+    //             ->assertNonNegative($r);
+    //     }
+    //
+    //     $dec = 1;
+    //     $safe = false;
+    //     if (isset($scale)) {
+    //         $safe = true;
+    //
+    //         $this->filter
+    //             ->assert('Scale should be non-negative: %s', $scale)
+    //             ->assertNonNegative($scale);
+    //
+    //         $dec = 1 / pow(10, $scale);
+    //     }
+    //
+    //     $sumRates = array_sum($ratesNum);
+    //     $sumFreezes = array_sum($freezesNum);
+    //
+    //     if ($sumFreezes > $sum) {
+    //         throw new OutOfBoundsException('SumFreezes should be smaller than sum', [ $sumFreezes, $sum ]);
+    //     }
+    //
+    //     $keysRates = array_keys($ratesNum);
+    //     $keysFreezes = array_keys($freezesNum);
+    //     $keysResult = array_unique($keysRates, $keysFreezes);
+    //
+    //     $result = array_fill(0, max($keysResult) + 1, 0);
+    //
+    //     $keysAll = $keysResult;
+    //
+    //     $src = [];
+    //     $diff = [];
+    //     foreach ( $keysAll as $k ) {
+    //         $rate = $ratesNum[ $k ] ?? 0;
+    //         $freeze = $freezesNum[ $k ] ?? 0;
+    //
+    //         $src[ $k ] = ( $rate / $sumRates ) * $sum;
+    //         $diff[ $k ] = $src[ $k ] - $freeze;
+    //     }
+    //
+    //     $keysShare = array_diff($keysResult, $keysFreezes);
+    //
+    //     foreach ( $keysFreezes as $i ) {
+    //         if ($diff[ $i ] > 0) {
+    //             $shareRates = [];
+    //             foreach ( $keysShare as $k ) {
+    //                 $shareRates[ $k ] = $src[ $k ];
+    //             }
+    //
+    //             $ratios = $this->correlation($shareRates);
+    //
+    //             foreach ( $keysShare as $ii ) {
+    //                 $value = $ratios[ $ii ] * $diff[ $i ];
+    //
+    //                 $src[ $i ] -= $value;
+    //                 $src[ $ii ] += $value;
+    //             }
+    //
+    //             $src[ $i ] = $freezesNum[ $i ];
+    //         }
+    //     }
+    //
+    //     $shareRates = [];
+    //     foreach ( $keysShare as $k ) {
+    //         $shareRates[ $k ] = $src[ $k ];
+    //     }
+    //
+    //     $sumShare = array_sum($shareRates);
+    //
+    //     foreach ( $keysFreezes as $i ) {
+    //         if ($diff[ $i ] < 0) {
+    //             foreach ( $keysShare as $ii ) {
+    //                 $val = $src[ $ii ] - $src[ $ii ] * ( ( $sumShare + $diff[ $i ] ) / $sumShare );
+    //
+    //                 $src[ $ii ] -= $val;
+    //                 $src[ $i ] += $val;
+    //             }
+    //
+    //             $sumShare += $diff[ $i ];
+    //         }
+    //     }
+    //
+    //     foreach ( $keysResult as $i ) {
+    //         $result[ $i ] = $src[ $i ];
+    //     }
+    //
+    //     $mod = 0;
+    //     if ($safe) {
+    //         foreach ( $keysResult as $i ) {
+    //             $val = $result[ $i ];
+    //
+    //             $floor = floor($val / $dec) * $dec;
+    //             $mod += $val - $floor;
+    //
+    //             $result[ $i ] = $floor;
+    //         }
+    //
+    //         $result[] = round($mod / $dec) * $dec;
+    //     }
+    //
+    //     return $result;
+    // }
+
+
+    // /**
+    //  * Рассчитывает соотношение долей между собой
+    //  * Нулевые соотношения получают пропорционально их количества - чем нулей больше, тем меньше каждому
+    //  * В то же время нули получают тем больше, чем больше не-нулей
+    //  *
+    //  * @param int|float|array $rates
+    //  * @param null|bool       $zero
+    //  *
+    //  * @return float[]
+    //  */
+    // public function correlation($rates, bool $zero = null) : array
+    // {
+    //     $zero = $zero ?? false;
+    //
+    //     $ratesNum = $this->num->theNumvals($rates);
+    //
+    //     if (! $ratesNum) {
+    //         throw new InvalidArgumentException(
+    //             [ 'At least one rate should be passed: %s', $rates ]
+    //         );
+    //     }
+    //
+    //     foreach ( $ratesNum as $r ) {
+    //         $this->filter
+    //             ->assert([ 'Each rate should be non-negative: %s', $r ])
+    //             ->assertNonNegative($r);
+    //     }
+    //
+    //     $result = [];
+    //
+    //     $ratesIndexes = array_keys($ratesNum);
+    //     $ratesSum = array_sum($ratesNum);
+    //
+    //     $valuesIndexes = [];
+    //     $zeroIndexes = [];
+    //
+    //     $cmp = [];
+    //     $cmpLen = 0;
+    //     foreach ( $ratesIndexes as $i ) {
+    //         if (! $ratesNum[ $i ]) {
+    //             $zeroIndexes[ $i ] = true;
+    //
+    //         } else {
+    //             $valuesIndexes[ $i ] = true;
+    //
+    //             $cmp[] = $ratesNum[ $i ];
+    //             $cmpLen++;
+    //         }
+    //     }
+    //
+    //     $zeroRate = 1;
+    //     if (count($cmp)) {
+    //         $minRate = min(...$cmp);
+    //         $maxRate = max(...$cmp);
+    //
+    //         if ($maxRate) {
+    //             $zeroRate = $minRate / $maxRate;
+    //         }
+    //     }
+    //
+    //     foreach ( $valuesIndexes as $i ) {
+    //         $result[ $i ] = $zero
+    //             ? ( $ratesNum[ $i ] / $ratesSum ) * ( 1 - ( $zeroRate / $cmpLen ) )
+    //             : ( $ratesNum[ $i ] / $ratesSum );
+    //     }
+    //     $resultSum = array_sum($result);
+    //
+    //     if ($zero) {
+    //         $zeroSum = 1 - $resultSum;
+    //
+    //         foreach ( $zeroIndexes as $i ) {
+    //             $result[ $i ] = $zeroSum / count($zeroIndexes);
+    //         }
+    //     }
+    //
+    //     return $result;
+    // }
+
+
+    // /**
+    //  * рандомайзер от-до, принимаюший на вход целые или дробные числа
+    //  */
+    // public function rand($from, $to = null) : string
+    // {
+    //     if (! isset($to)) $to = $from;
+    //
+    //     if (! Type::is_numerable($from)) {
+    //         throw new \InvalidArgumentException('Argument 1 should be numeric');
+    //     }
+    //
+    //     if (! Type::is_numerable($to)) {
+    //         throw new \InvalidArgumentException('Argument 2 should be numeric');
+    //     }
+    //
+    //     $len = max(strlen($this->frac($from)), strlen($this->frac($to)));
+    //     $mult = bcpow(10, $len);
+    //     $result = mt_rand(bcmul($from, $mult
+    //         ?: 1), bcmul($to, $mult
+    //         ?: 1));
+    //
+    //     return bcdiv($result, $mult
+    //         ?: 1, $len);
+    // }
+
+    // /**
+    //  * преобразовывает массив из чисел в массив промежутков между ними
+    //  * [5,'6{=delimiter}7',8] => [[$min,5],[5,6],[6,7],[7,8],[8,$max]]
+    //  * [5,'6-7',8] => [[$min,5],[5,6],[6,7],[7,8],[8,$max]]
+    //  */
+    // public function range(array $array, float $min = null, float $max = null, string $delimiter = '...', bool $preserve_keys = null) : array
+    // {
+    //     $result = [];
+    //
+    //     if ('-' === $delimiter) {
+    //         throw new \InvalidArgumentException('Math minus `-` should not be used as delimiter');
+    //     }
+    //
+    //     $min = $min ?? 0; // you can pass NULL to use -INF
+    //     $preserve_keys = $preserve_keys ?? false;
+    //
+    //     // convert to array of int saving keys
+    //     $registry = [];
+    //     $ranges = [];
+    //     foreach ( $array as $i => $val ) {
+    //         $breakpoints = array_filter(explode($delimiter, $val));
+    //
+    //         $nonNumeric = Arr::first($breakpoints, function ($val) {
+    //             return ! Type::is_numerable($val);
+    //         });
+    //         if ($nonNumeric) {
+    //             throw new \InvalidArgumentException('Argument in range should be numerable: ' . $nonNumeric);
+    //         }
+    //
+    //         $breakpoints = array_map('floatval', $breakpoints);
+    //
+    //         $ii = 0;
+    //         foreach ( $breakpoints as $breakpoint ) {
+    //             if (isset($registry[ $breakpoint ])) continue;
+    //
+    //             $registry[ $breakpoint ] = true;
+    //             $ranges[] = [ $i, $ii++, $breakpoint ];
+    //         }
+    //     }
+    //
+    //     // sort numerically
+    //     usort($ranges, function ($a, $b) {
+    //         return $a[ 2 ] - $b[ 2 ];
+    //     });
+    //
+    //     // build ranges
+    //     $last = $min;
+    //     $last_ii = null;
+    //     for ( $i = 0, $len = count($ranges); $i <= $len; $i++ ) {
+    //         if (! isset($ranges[ $i ])) {
+    //             $ii = null;
+    //         } elseif (! $preserve_keys) $ii = null;
+    //         else {
+    //             $ii = implode('.', [ $ranges[ $i ][ 0 ], $ranges[ $i ][ 1 ] ]);
+    //             $last_ii = implode('.', [ ++$ranges[ $i ][ 0 ], 0 ]);
+    //         }
+    //         $ii = $ii ?? $last_ii ?? count($result);
+    //
+    //         $result[ $ii ] = [ $last, $ranges[ $i ][ 2 ] ?? $max ?? INF ];
+    //         $last = $ranges[ $i ][ 2 ] ?? $min ?? -INF;
+    //     }
+    //
+    //     // result
+    //     return $result;
+    // }
 }
