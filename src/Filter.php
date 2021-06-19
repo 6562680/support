@@ -5,8 +5,8 @@ namespace Gzhegow\Support;
 use Gzhegow\Support\Domain\Filter\Type;
 use Gzhegow\Support\Domain\Filter\Assert;
 use Gzhegow\Support\Domain\SupportFactory;
-use Gzhegow\Support\Domain\Filter\ValueObjects\InvokableInfo;
 use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
+use Gzhegow\Support\Domain\Filter\ValueObjects\InvokableInfo;
 
 
 /**
@@ -23,16 +23,20 @@ class Filter
      */
     protected $type;
 
+    /**
+     * @var null|SupportFactory
+     */
+    protected $factory;
+
 
     /**
      * Constructor
+     *
+     * @param null|SupportFactory $factory
      */
-    public function __construct()
+    public function __construct(SupportFactory $factory = null)
     {
-        $factory = new SupportFactory();
-
-        $this->assert = new Assert($factory->newDebug(), $this,);
-        $this->type = new Type($this);
+        $this->factory = $factory;
     }
 
 
@@ -42,6 +46,45 @@ class Filter
     public function getCustomFilters() : array
     {
         return static::$customFilters;
+    }
+
+
+    /**
+     * @param string   $filter
+     * @param \Closure $callable
+     *
+     * @return static
+     */
+    public function addCustomFilter(string $filter, \Closure $callable)
+    {
+        if (null !== $this->findCustomFilter($filter)) {
+            throw new UnderflowException('FilterService is already defined: ' . $filter);
+        }
+
+        $filterLower = strtolower($filter);
+
+        static::$customFilters[ $filterLower ] = $callable;
+
+        return $this;
+    }
+
+    /**
+     * @param string   $filter
+     * @param \Closure $callable
+     *
+     * @return static
+     */
+    public function replaceCustomFilter(string $filter, \Closure $callable)
+    {
+        if (null === $this->findCustomFilter($filter)) {
+            throw new UnderflowException('FilterService is not defined: ' . $filter);
+        }
+
+        $filterLower = strtolower($filter);
+
+        static::$customFilters[ $filterLower ] = $callable;
+
+        return $this;
     }
 
 
@@ -58,7 +101,6 @@ class Filter
 
         return null;
     }
-
 
     /**
      * @param int|mixed $value
@@ -107,7 +149,7 @@ class Filter
      *
      * @return null|int|float
      */
-    public function filterNumber($value) // : ?null|int|float
+    public function filterNum($value) // : ?null|int|float
     {
         $result = ( 0
             || ( null !== $this->filterInt($value) )
@@ -183,7 +225,7 @@ class Filter
      */
     public function filterNumval($value) // : ?int|float
     {
-        if (null !== $this->filterNumber($value)) {
+        if (null !== $this->filterNum($value)) {
             return $value;
         }
 
@@ -191,6 +233,24 @@ class Filter
             return null
                 ?? $this->filterIntval($value)
                 ?? $this->filterFloatval($value);
+        }
+
+        return null;
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int|float|string
+     */
+    public function filterNumericval($value) // : ?int|float|string
+    {
+        if (null !== $this->filterNum($value)) {
+            return $value;
+        }
+
+        if (is_numeric($value)) {
+            return $value;
         }
 
         return null;
@@ -204,7 +264,7 @@ class Filter
      */
     public function filterPositive($value) // : ?int|float|string
     {
-        if (null === $this->filterNumval($value)) {
+        if (null === $this->filterNumericval($value)) {
             return null;
         }
 
@@ -222,7 +282,7 @@ class Filter
      */
     public function filterNonNegative($value) // : ?int|float|string
     {
-        if (null === $this->filterNumval($value)) {
+        if (null === $this->filterNumericval($value)) {
             return null;
         }
 
@@ -240,7 +300,7 @@ class Filter
      */
     public function filterNegative($value) // : ?int|float|string
     {
-        if (null === $this->filterNumval($value)) {
+        if (null === $this->filterNumericval($value)) {
             return null;
         }
 
@@ -258,7 +318,7 @@ class Filter
      */
     public function filterNonPositive($value) // : ?int|float|string
     {
-        if (null === $this->filterNumval($value)) {
+        if (null === $this->filterNumericval($value)) {
             return null;
         }
 
@@ -338,10 +398,10 @@ class Filter
      *
      * @return null|int|float|string
      */
-    public function filterStringOrNumber($value) // : ?null|int|float|string
+    public function filterStringOrNum($value) // : ?null|int|float|string
     {
         $result = ( is_string($value)
-            || ( null !== $this->filterNumber($value) )
+            || ( null !== $this->filterNum($value) )
         )
             ? $value
             : null;
@@ -354,11 +414,11 @@ class Filter
      *
      * @return null|int|float|string
      */
-    public function filterWordOrNumber($value) // : ?null|int|float|string
+    public function filterWordOrNum($value) // : ?null|int|float|string
     {
         $result = ( 0
             || ( null !== $this->filterWord($value) )
-            || ( null !== $this->filterNumber($value) )
+            || ( null !== $this->filterNum($value) )
         );
 
         return $result
@@ -386,7 +446,7 @@ class Filter
             return null; // becomes 'Array' and causes data lost
         }
 
-        if (null !== $this->filterStringOrNumber($value)) {
+        if (null !== $this->filterStringOrNum($value)) {
             return $value;
         }
 
@@ -586,7 +646,6 @@ class Filter
         return $array;
     }
 
-
     /**
      * @param mixed $value
      *
@@ -732,7 +791,6 @@ class Filter
         return null;
     }
 
-
     /**
      * @param array|callable|mixed $callableArray
      * @param null|InvokableInfo   $invokableInfo
@@ -804,7 +862,6 @@ class Filter
         return null;
     }
 
-
     /**
      * @param \Closure|mixed     $closure
      * @param null|InvokableInfo $invokableInfo
@@ -824,7 +881,6 @@ class Filter
 
         return null;
     }
-
 
     /**
      * @param array|mixed $methodArray
@@ -882,7 +938,6 @@ class Filter
 
         return $methodArray;
     }
-
 
     /**
      * @param string|mixed       $handler
@@ -1044,7 +1099,7 @@ class Filter
      */
     public function filterFileInfo($value) : ?\SplFileInfo
     {
-        return ( is_object($value) && is_a($value, \SplFileInfo::class) )
+        return is_a($value, \SplFileInfo::class)
             ? $value
             : null;
     }
@@ -1056,7 +1111,7 @@ class Filter
      */
     public function filterFileObject($value) : ?\SplFileObject
     {
-        return ( is_object($value) && is_a($value, \SplFileObject::class) )
+        return is_a($value, \SplFileObject::class)
             ? $value
             : null;
     }
@@ -1069,7 +1124,7 @@ class Filter
      */
     public function filterReflectionClass($value) : ?\ReflectionClass
     {
-        return ( is_object($value) && is_a($value, \ReflectionClass::class) )
+        return is_a($value, \ReflectionClass::class)
             ? $value
             : null;
     }
@@ -1081,7 +1136,7 @@ class Filter
      */
     public function filterReflectionFunction($value) : ?\ReflectionFunction
     {
-        return ( is_object($value) && is_a($value, \ReflectionFunction::class) )
+        return is_a($value, \ReflectionFunction::class)
             ? $value
             : null;
     }
@@ -1093,7 +1148,7 @@ class Filter
      */
     public function filterReflectionMethod($value) : ?\ReflectionMethod
     {
-        return ( is_object($value) && is_a($value, \ReflectionMethod::class) )
+        return is_a($value, \ReflectionMethod::class)
             ? $value
             : null;
     }
@@ -1105,7 +1160,7 @@ class Filter
      */
     public function filterReflectionProperty($value) : ?\ReflectionProperty
     {
-        return ( is_object($value) && is_a($value, \ReflectionProperty::class) )
+        return is_a($value, \ReflectionProperty::class)
             ? $value
             : null;
     }
@@ -1117,7 +1172,7 @@ class Filter
      */
     public function filterReflectionParameter($value) : ?\ReflectionParameter
     {
-        return ( is_object($value) && is_a($value, \ReflectionParameter::class) )
+        return is_a($value, \ReflectionParameter::class)
             ? $value
             : null;
     }
@@ -1129,7 +1184,7 @@ class Filter
      */
     public function filterReflectionType($value) : ?\ReflectionType
     {
-        return ( is_object($value) && is_a($value, \ReflectionType::class) )
+        return is_a($value, \ReflectionType::class)
             ? $value
             : null;
     }
@@ -1170,7 +1225,6 @@ class Filter
             ? $h
             : null;
     }
-
 
     /**
      * @param resource|mixed $h
@@ -1216,26 +1270,6 @@ class Filter
 
 
     /**
-     * @param string   $filter
-     * @param \Closure $callable
-     *
-     * @return static
-     */
-    public function addCustomFilter(string $filter, \Closure $callable)
-    {
-        if (null !== $this->findCustomFilter($filter)) {
-            throw new UnderflowException('FilterService is already defined: ' . $filter);
-        }
-
-        $filterLower = strtolower($filter);
-
-        static::$customFilters[ $filterLower ] = $callable;
-
-        return $this;
-    }
-
-
-    /**
      * @param null|string|array $message
      * @param mixed             ...$arguments
      *
@@ -1243,6 +1277,11 @@ class Filter
      */
     public function assert($message = null, ...$arguments) : Assert
     {
+        if (! isset($this->assert)) {
+            $this->factory = $this->factory ?? new SupportFactory();
+            $this->assert = $this->factory->newAssert($this);
+        }
+
         $this->assert->withError($message, ...$arguments);
 
         return $this->assert;
@@ -1253,6 +1292,11 @@ class Filter
      */
     public function type() : Type
     {
+        if (! isset($this->type)) {
+            $this->factory = $this->factory ?? new SupportFactory();
+            $this->type = $this->factory->newType($this);
+        }
+
         return $this->type;
     }
 
@@ -1298,25 +1342,6 @@ class Filter
         return $closure;
     }
 
-
-    /**
-     * @param string   $filter
-     * @param \Closure $callable
-     *
-     * @return static
-     */
-    public function replaceCustomFilter(string $filter, \Closure $callable)
-    {
-        if (null === $this->findCustomFilter($filter)) {
-            throw new UnderflowException('FilterService is not defined: ' . $filter);
-        }
-
-        $filterLower = strtolower($filter);
-
-        static::$customFilters[ $filterLower ] = $callable;
-
-        return $this;
-    }
 
     /**
      * @param string $filter

@@ -10,6 +10,10 @@ use Gzhegow\Support\Exceptions\RuntimeException;
  */
 class Inflector implements InflectorInterface
 {
+    const SYMFONY_ENGLISH_INFLECTOR = '\Symfony\Component\String\Inflector\EnglishInflector';
+    const SYMFONY_INFLECTOR         = '\Symfony\Component\String\Inflector\InflectorInterface';
+
+
     /**
      * @var \Symfony\Component\String\Inflector\InflectorInterface $symfonyInflector
      */
@@ -17,9 +21,9 @@ class Inflector implements InflectorInterface
 
 
     /**
-     * @param null|\Symfony\Component\String\Slugger\SluggerInterface $symfonyInflector
+     * @param \Symfony\Component\String\Inflector\InflectorInterface $symfonyInflector
      *
-     * @return \Symfony\Component\String\Slugger\SluggerInterface
+     * @return \Symfony\Component\String\Inflector\InflectorInterface
      */
     public function symfonyInflector($symfonyInflector = null)
     {
@@ -28,19 +32,19 @@ class Inflector implements InflectorInterface
         ];
 
         if ($symfonyInflector) {
-            if (! interface_exists($interface = 'Symfony\Component\String\Inflector\InflectorInterface')) {
+            if (! interface_exists(static::SYMFONY_INFLECTOR)) {
                 throw new RuntimeException([ 'Please, run following: %s', $commands ]);
             }
 
-            if (! is_a($symfonyInflector, $interface)) {
-                throw new RuntimeException([ 'Slugger should implements %s: %s', $interface, $symfonyInflector ]);
+            if (! is_a($symfonyInflector, static::SYMFONY_INFLECTOR)) {
+                throw new RuntimeException([ 'Slugger should implements %s: %s', static::SYMFONY_INFLECTOR, $symfonyInflector ]);
             }
 
             $this->symfonyInflector = $symfonyInflector;
         }
 
         if (! $this->symfonyInflector) {
-            if (! class_exists($class = 'Symfony\Component\String\Inflector\EnglishInflector')) {
+            if (! class_exists($class = static::SYMFONY_ENGLISH_INFLECTOR)) {
                 throw new RuntimeException([ 'Please, run following: %s', $commands ]);
             }
 
@@ -58,12 +62,12 @@ class Inflector implements InflectorInterface
      *
      * @return null|string|array
      */
-    public function pluralize(string $singular, int $offset = null, int $limit = null) // : ?string|array
+    public function pluralize(string $singular, $limit = null, $offset = 0) : ?array
     {
         $result = null;
 
         try {
-            $result = $this->pluralizeSymfonyInflector($singular, $offset, $limit);
+            $result = $this->pluralizeSymfonyInflector($singular, $limit, $offset);
         }
         catch ( \Throwable $e ) {
         }
@@ -78,12 +82,12 @@ class Inflector implements InflectorInterface
      *
      * @return null|string|array
      */
-    public function singularize(string $plural, int $offset = null, int $limit = null) // : ?string|array
+    public function singularize(string $plural, $limit = null, $offset = 0) : ?array
     {
         $result = null;
 
         try {
-            $result = $this->singularizeSymfonyInflector($plural, $offset, $limit);
+            $result = $this->singularizeSymfonyInflector($plural, $limit, $offset);
         }
         catch ( \Throwable $e ) {
         }
@@ -94,23 +98,30 @@ class Inflector implements InflectorInterface
 
     /**
      * @param string   $singular
-     * @param null|int $offset
      * @param null|int $limit
+     * @param null|int $offset
      *
-     * @return null|string
+     * @return null|array
      */
-    protected function pluralizeSymfonyInflector(string $singular, int $offset = null, int $limit = null) // : string|array
+    protected function pluralizeSymfonyInflector(string $singular, $limit = null, $offset = 0) : ?array
     {
-        if (! interface_exists($interface = 'Symfony\Component\String\Inflector\InflectorInterface')) {
+        if (! interface_exists($interface = static::SYMFONY_INFLECTOR)) {
             return null;
         }
 
-        $result = $this->symfonyInflector()->pluralize($singular);
+        $limit = $limit ?? 0;
+        $offset = intval($offset ?? 0);
 
-        $result = null
-            ?? ( isset($limit) ? array_slice($result, max(0, $offset ?? 0), $limit) : null )
-            ?? ( isset($offset) ? $result[ $offset ?? 0 ] : null )
-            ?? $result;
+        $array = $this->symfonyInflector()->pluralize($singular);
+
+        $result = [];
+        foreach ( $array as $i => $string ) {
+            if ($i < $offset) continue;
+
+            $result[ $i ] = $string;
+
+            if (! --$limit) break;
+        }
 
         return $result;
     }
@@ -120,20 +131,27 @@ class Inflector implements InflectorInterface
      * @param null|int $offset
      * @param null|int $limit
      *
-     * @return null|string|array
+     * @return null|array
      */
-    protected function singularizeSymfonyInflector(string $plural, int $offset = null, int $limit = null) // : string|array
+    protected function singularizeSymfonyInflector(string $plural, $limit = null, $offset = 0) : ?array
     {
-        if (! interface_exists($interface = 'Symfony\Component\String\Inflector\InflectorInterface')) {
+        if (! interface_exists($interface = static::SYMFONY_INFLECTOR)) {
             return null;
         }
 
-        $result = $this->symfonyInflector()->singularize($plural);
+        $limit = $limit ?? 0;
+        $offset = intval($offset ?? 0);
 
-        $result = null
-            ?? ( isset($limit) ? array_slice($result, max(0, $offset ?? 0), $limit) : null )
-            ?? ( isset($offset) ? $result[ $offset ?? 0 ] : null )
-            ?? $result;
+        $array = $this->symfonyInflector()->singularize($plural);
+
+        $result = [];
+        foreach ( $array as $i => $string ) {
+            if ($i < $offset) continue;
+
+            $result[ $i ] = $string;
+
+            if (! --$limit) break;
+        }
 
         return $result;
     }

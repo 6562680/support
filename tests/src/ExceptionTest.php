@@ -143,4 +143,57 @@ class ExceptionTest extends AbstractTestCase
             throw $e;
         }
     }
+
+
+    public function testExceptionPipeline()
+    {
+        $self = null;
+        $inc = 0;
+
+        $pipe = function ($exception, $carry) use (&$self, &$inc) {
+            $this->assertEquals($self, $exception);
+            $this->assertEquals($inc, $carry);
+
+            return ++$inc;
+        };
+
+        $parent = new Exception('Parent');
+        $self = new Exception('Child', $payload = new \StdClass(), $pipe, $parent);
+
+        try {
+            throw $self;
+        }
+        catch ( Exception $e ) {
+            $result = $self->process(0);
+        }
+
+        $this->assertEquals(1, $inc);
+        $this->assertEquals(1, $result);
+        $this->assertEquals($parent, $e->getPrevious());
+
+        $self = new Exception('Child', $payload = new \StdClass(), $parent, $pipe);
+
+        try {
+            throw $self;
+        }
+        catch ( Exception $e ) {
+            $result = $self->process($inc);
+        }
+
+        $this->assertEquals(2, $inc);
+        $this->assertEquals(2, $result);
+        $this->assertEquals($parent, $e->getPrevious());
+    }
+
+    public function testExceptionPipelineBad()
+    {
+        $this->assertException(\InvalidArgumentException::class, function () {
+            $previous = new Exception('Parent');
+
+            throw new Exception('Child', $payload = new \StdClass(),
+                $previous,
+                $previous
+            );
+        });
+    }
 }

@@ -125,7 +125,7 @@ class Criteria
      */
     public function isInNumber($needle, array $src, bool $coalesce = null) : bool
     {
-        if (null === $this->filter->filterNumber($needle)) {
+        if (null === $this->filter->filterNum($needle)) {
             throw new InvalidArgumentException('Needle should be number');
         }
 
@@ -226,7 +226,7 @@ class Criteria
      */
     public function isBetweenNumber($needle, array $src, bool $coalesce = null) : bool
     {
-        if (null === $this->filter->filterNumber($needle)) {
+        if (null === $this->filter->filterNum($needle)) {
             throw new InvalidArgumentException('Needle should be number');
         }
 
@@ -235,7 +235,7 @@ class Criteria
         $srcNumbers = [];
         foreach ( $src as $i => $val ) {
             $num = null
-                ?? ( ( null !== $this->filter->filterNumber($src[ $i ]) ) ? $src[ $i ] : null )
+                ?? ( ( null !== $this->filter->filterNum($src[ $i ]) ) ? $src[ $i ] : null )
                 ?? ( $coalesce ? floatval($src[ $i ]) : null )
                 ?? null;
 
@@ -271,7 +271,7 @@ class Criteria
         foreach ( $src as $i => $val ) {
             $date = null
                 ?? ( $this->calendar->isDateTime($src[ $i ]) ? $src[ $i ] : null )
-                ?? ( $coalesce ? $this->calendar->theDate($src[ $i ]) : null )
+                ?? ( $coalesce ? $this->calendar->theDateVal($src[ $i ]) : null )
                 ?? null;
 
             if (null !== $date) {
@@ -308,7 +308,7 @@ class Criteria
         if (is_array($needle)) {
             return $this->satisfyArray($src, $needle, $operator);
 
-        } elseif (null !== $this->filter->filterNumber($needle)) {
+        } elseif (null !== $this->filter->filterNum($needle)) {
             if ($operator === static::OPERATOR_GT) return 1 === $this->cmp->cmpnum($needle, $src, $coalesce);
             if ($operator === static::OPERATOR_LT) return -1 === $this->cmp->cmpnum($needle, $src, $coalesce);
             if ($operator === static::OPERATOR_GTE) return -1 !== $this->cmp->cmpnum($needle, $src, $coalesce);
@@ -367,7 +367,7 @@ class Criteria
 
         $coalesce = $coalesce ?? false;
 
-        if (null !== $this->filter->filterNumber($needle)) {
+        if (null !== $this->filter->filterNum($needle)) {
             if ($operator === static::OPERATOR_IN) return $this->isInNumber($needle, $arr, $coalesce);
             if ($operator === static::OPERATOR_NIN) return ! $this->isInNumber($needle, $arr, $coalesce);
 

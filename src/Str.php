@@ -1172,28 +1172,28 @@ class Str
 
     /**
      * @param string   $singular
-     * @param null|int $offset
      * @param null|int $limit
+     * @param int      $offset
      *
-     * @return string|array
+     * @return null|string|array
      */
-    public function pluralize(string $singular, int $offset = null, int $limit = null) // : ?string|array
+    public function pluralize(string $singular, $limit = null, $offset = 0) // : ?string|array
     {
-        $result = $this->inflector()->pluralize($singular, $offset, $limit);
+        $result = $this->inflector()->pluralize($singular, $limit, $offset);
 
         return $result;
     }
 
     /**
      * @param string   $plural
-     * @param null|int $offset
      * @param null|int $limit
+     * @param int      $offset
      *
-     * @return string|array
+     * @return null|string|array
      */
-    public function singularize(string $plural, int $offset = null, int $limit = null) // : ?string|array
+    public function singularize(string $plural, $limit = null, $offset = 0) // : ?string|array
     {
-        $result = $this->inflector()->singularize($plural, $offset, $limit);
+        $result = $this->inflector()->singularize($plural, $limit, $offset);
 
         return $result;
     }

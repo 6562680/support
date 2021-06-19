@@ -10,19 +10,19 @@ interface InflectorInterface
 {
     /**
      * @param string   $singular
-     * @param null|int $offset
      * @param null|int $limit
+     * @param int      $offset
      *
      * @return null|string|array
      */
-    public function pluralize(string $singular, int $offset = null, int $limit = null);
+    public function pluralize(string $singular, $limit = null, $offset = 0);
 
     /**
      * @param string   $plural
-     * @param null|int $offset
      * @param null|int $limit
+     * @param int      $offset
      *
      * @return null|string|array
      */
-    public function singularize(string $plural, int $offset = null, int $limit = null);
+    public function singularize(string $plural, $limit = null, $offset = 0);
 }

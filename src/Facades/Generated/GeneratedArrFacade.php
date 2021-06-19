@@ -56,13 +56,13 @@ abstract class GeneratedArrFacade
     }
 
     /**
-     * @param array        $dst
+     * @param null|array   $dst
      * @param string|array $path
      * @param mixed        $value
      *
      * @return Arr
      */
-    public static function set(array &$dst, $path, $value)
+    public static function set(?array &$dst, $path, $value)
     {
         return static::getInstance()->set($dst, $path, $value);
     }
@@ -90,13 +90,13 @@ abstract class GeneratedArrFacade
     }
 
     /**
-     * @param array        $dst
+     * @param null|array   $dst
      * @param string|array $path
      * @param mixed        $value
      *
      * @return mixed
      */
-    public static function put(array &$dst, $path, $value)
+    public static function put(?array &$dst, $path, $value)
     {
         return static::getInstance()->put($dst, $path, $value);
     }
@@ -107,9 +107,9 @@ abstract class GeneratedArrFacade
      *
      * @return array
      */
-    public static function fullpath($keys, $separators = '.'): array
+    public static function path($keys, $separators = '.'): array
     {
-        return static::getInstance()->fullpath($keys, $separators);
+        return static::getInstance()->path($keys, $separators);
     }
 
     /**
@@ -118,9 +118,9 @@ abstract class GeneratedArrFacade
      *
      * @return string
      */
-    public static function key($keys, $separators = '.'): string
+    public static function pathkey($keys, $separators = '.'): string
     {
-        return static::getInstance()->key($keys, $separators);
+        return static::getInstance()->pathkey($keys, $separators);
     }
 
     /**
@@ -305,6 +305,18 @@ abstract class GeneratedArrFacade
     public static function walk_recursive(array &$array, $callback, $arg = null)
     {
         return static::getInstance()->walk_recursive($array, $callback, $arg);
+    }
+
+    /**
+     * @param array      $iterable
+     * @param callable   $callback
+     * @param null|mixed $arg
+     *
+     * @return Arr
+     */
+    public static function crawl_recursive(iterable $iterable, $callback, $arg = null)
+    {
+        return static::getInstance()->crawl_recursive($iterable, $callback, $arg);
     }
 
     /**

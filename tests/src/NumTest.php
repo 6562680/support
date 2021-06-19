@@ -179,29 +179,29 @@ class NumTest extends AbstractTestCase
     {
         $num = $this->getNum();
 
-        $this->assertEquals([ 1 ], $num->theNumvals(1));
-        $this->assertEquals([ 1 ], $num->theNumvals(1.0));
-        $this->assertEquals([ 1.1 ], $num->theNumvals(1.1));
-        $this->assertEquals([ '1' ], $num->theNumvals('1'));
-        $this->assertEquals([ '1.0' ], $num->theNumvals('1.0'));
-        $this->assertEquals([ '1.1' ], $num->theNumvals('1.1'));
-        $this->assertEquals([], $num->theNumvals([]));
+        $this->assertEquals([ 1 ], $num->theNumericvals(1));
+        $this->assertEquals([ 1 ], $num->theNumericvals(1.0));
+        $this->assertEquals([ 1.1 ], $num->theNumericvals(1.1));
+        $this->assertEquals([ '1' ], $num->theNumericvals('1'));
+        $this->assertEquals([ '1.0' ], $num->theNumericvals('1.0'));
+        $this->assertEquals([ '1.1' ], $num->theNumericvals('1.1'));
+        $this->assertEquals([], $num->theNumericvals([]));
 
-        $this->assertEquals([ 1 ], $num->theNumvals([ 1 ]));
-        $this->assertEquals([ 1 ], $num->theNumvals([ 1.0 ]));
-        $this->assertEquals([ 1.1 ], $num->theNumvals([ 1.1 ]));
-        $this->assertEquals([ '1' ], $num->theNumvals([ '1' ]));
-        $this->assertEquals([ '1.0' ], $num->theNumvals([ '1.0' ]));
-        $this->assertEquals([ '1.1' ], $num->theNumvals([ '1.1' ]));
-        $this->assertEquals([], $num->theNumvals([ [] ]));
+        $this->assertEquals([ 1 ], $num->theNumericvals([ 1 ]));
+        $this->assertEquals([ 1 ], $num->theNumericvals([ 1.0 ]));
+        $this->assertEquals([ 1.1 ], $num->theNumericvals([ 1.1 ]));
+        $this->assertEquals([ '1' ], $num->theNumericvals([ '1' ]));
+        $this->assertEquals([ '1.0' ], $num->theNumericvals([ '1.0' ]));
+        $this->assertEquals([ '1.1' ], $num->theNumericvals([ '1.1' ]));
+        $this->assertEquals([], $num->theNumericvals([ [] ]));
 
-        $this->assertEquals([ '1' ], $num->theNumvals([ [ 1 ] ]));
-        $this->assertEquals([ '1' ], $num->theNumvals([ [ 1.0 ] ]));
-        $this->assertEquals([ '1.1' ], $num->theNumvals([ [ 1.1 ] ]));
-        $this->assertEquals([ '1' ], $num->theNumvals([ [ '1' ] ]));
-        $this->assertEquals([ '1.0' ], $num->theNumvals([ [ '1.0' ] ]));
-        $this->assertEquals([ '1.1' ], $num->theNumvals([ [ '1.1' ] ]));
-        $this->assertEquals([], $num->theNumvals([ [ [] ] ]));
+        $this->assertEquals([ '1' ], $num->theNumericvals([ [ 1 ] ]));
+        $this->assertEquals([ '1' ], $num->theNumericvals([ [ 1.0 ] ]));
+        $this->assertEquals([ '1.1' ], $num->theNumericvals([ [ 1.1 ] ]));
+        $this->assertEquals([ '1' ], $num->theNumericvals([ [ '1' ] ]));
+        $this->assertEquals([ '1.0' ], $num->theNumericvals([ [ '1.0' ] ]));
+        $this->assertEquals([ '1.1' ], $num->theNumericvals([ [ '1.1' ] ]));
+        $this->assertEquals([], $num->theNumericvals([ [ [] ] ]));
     }
 
     public function testTheNumvalsBad()
@@ -209,51 +209,51 @@ class NumTest extends AbstractTestCase
         $num = $this->getNum();
 
         $this->assertException(InvalidArgumentException::class, function () use ($num) {
-            $num->theNumvals(null);
+            $num->theNumericvals(null);
         });
         $this->assertException(InvalidArgumentException::class, function () use ($num) {
-            $num->theNumvals(false);
+            $num->theNumericvals(false);
         });
         $this->assertException(InvalidArgumentException::class, function () use ($num) {
-            $num->theNumvals('');
+            $num->theNumericvals('');
         });
         $this->assertException(InvalidArgumentException::class, function () use ($num) {
-            $num->theNumvals('hello');
+            $num->theNumericvals('hello');
         });
         $this->assertException(InvalidArgumentException::class, function () use ($num) {
-            $num->theNumvals([ new \StdClass() ]);
-        });
-
-        $this->assertException(InvalidArgumentException::class, function () use ($num) {
-            $num->theNumvals([ null ]);
-        });
-        $this->assertException(InvalidArgumentException::class, function () use ($num) {
-            $num->theNumvals([ false ]);
-        });
-        $this->assertException(InvalidArgumentException::class, function () use ($num) {
-            $num->theNumvals([ '' ]);
-        });
-        $this->assertException(InvalidArgumentException::class, function () use ($num) {
-            $num->theNumvals([ 'hello' ]);
-        });
-        $this->assertException(InvalidArgumentException::class, function () use ($num) {
-            $num->theNumvals([ new \StdClass() ]);
+            $num->theNumericvals([ new \StdClass() ]);
         });
 
         $this->assertException(InvalidArgumentException::class, function () use ($num) {
-            $num->theNumvals([ [ null ] ]);
+            $num->theNumericvals([ null ]);
         });
         $this->assertException(InvalidArgumentException::class, function () use ($num) {
-            $num->theNumvals([ [ false ] ]);
+            $num->theNumericvals([ false ]);
         });
         $this->assertException(InvalidArgumentException::class, function () use ($num) {
-            $num->theNumvals([ [ '' ] ]);
+            $num->theNumericvals([ '' ]);
         });
         $this->assertException(InvalidArgumentException::class, function () use ($num) {
-            $num->theNumvals([ [ 'hello' ] ]);
+            $num->theNumericvals([ 'hello' ]);
         });
         $this->assertException(InvalidArgumentException::class, function () use ($num) {
-            $num->theNumvals([ [ new \StdClass() ] ]);
+            $num->theNumericvals([ new \StdClass() ]);
+        });
+
+        $this->assertException(InvalidArgumentException::class, function () use ($num) {
+            $num->theNumericvals([ [ null ] ]);
+        });
+        $this->assertException(InvalidArgumentException::class, function () use ($num) {
+            $num->theNumericvals([ [ false ] ]);
+        });
+        $this->assertException(InvalidArgumentException::class, function () use ($num) {
+            $num->theNumericvals([ [ '' ] ]);
+        });
+        $this->assertException(InvalidArgumentException::class, function () use ($num) {
+            $num->theNumericvals([ [ 'hello' ] ]);
+        });
+        $this->assertException(InvalidArgumentException::class, function () use ($num) {
+            $num->theNumericvals([ [ new \StdClass() ] ]);
         });
     }
 }

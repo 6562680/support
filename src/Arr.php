@@ -48,29 +48,6 @@ class Arr
 
 
     /**
-     * @param array $array
-     * @param int   $flags
-     *
-     * @return WalkIterator
-     */
-    protected function newWalkIterator(array $array, int $flags = 0)
-    {
-        return new WalkIterator($array, $flags);
-    }
-
-    /**
-     * @param iterable $iterable
-     * @param int      $flags
-     *
-     * @return CrawlIterator
-     */
-    protected function newCrawlIterator(iterable $iterable, int $flags = 0)
-    {
-        return new CrawlIterator($iterable, $flags);
-    }
-
-
-    /**
      * @param mixed      $value
      * @param int|string $idx
      * @param int        $ordering
@@ -136,13 +113,13 @@ class Arr
 
 
     /**
-     * @param array        $dst
+     * @param null|array   $dst
      * @param string|array $path
      * @param mixed        $value
      *
      * @return Arr
      */
-    public function set(array &$dst, $path, $value)
+    public function set(?array &$dst, $path, $value)
     {
         $this->put($dst, $path, $value);
 
@@ -175,7 +152,7 @@ class Arr
     {
         $result = false;
 
-        $fullpath = $this->fullpath($path);
+        $fullpath = $this->path($path);
 
         $ref =& $src;
 
@@ -217,15 +194,15 @@ class Arr
 
 
     /**
-     * @param array        $dst
+     * @param null|array   $dst
      * @param string|array $path
      * @param mixed        $value
      *
      * @return mixed
      */
-    public function &put(array &$dst, $path, $value) // : mixed
+    public function &put(?array &$dst, $path, $value) // : mixed
     {
-        $fullpath = $this->fullpath($path);
+        $fullpath = $this->path($path);
 
         if (null === key($fullpath)) {
             throw new InvalidArgumentException([ 'Empty path passed: %s', $path ]);
@@ -254,7 +231,7 @@ class Arr
      *
      * @return array
      */
-    public function fullpath($keys, $separators = '.') : array
+    public function path($keys, $separators = '.') : array
     {
         $keys = $this->theKeyvals($keys);
 
@@ -269,7 +246,7 @@ class Arr
      *
      * @return string
      */
-    public function key($keys, $separators = '.') : string
+    public function pathkey($keys, $separators = '.') : string
     {
         $keys = $this->theKeyvals($keys);
 
@@ -279,6 +256,7 @@ class Arr
 
         return $result;
     }
+
 
     /**
      * @param string|string[]|array $separators
@@ -547,7 +525,7 @@ class Arr
 
         foreach ( $generator as $fullpath => $value ) {
             if (! is_iterable($value)) {
-                $result[ $this->key($fullpath, $separators) ] = $value;
+                $result[ $this->pathkey($fullpath, $separators) ] = $value;
             }
         }
 
@@ -567,26 +545,27 @@ class Arr
     {
         $result = [];
 
-        $generator = $this->crawl($iterable, \RecursiveIteratorIterator::SELF_FIRST);
+        $nodes = [];
+        foreach ( $this->crawl($iterable) as $fullpath => $value ) {
+            $path = [];
+            while ( is_string($current = current($fullpath)) ) {
+                $path[] = $current;
 
-        foreach ( $generator as $fullpath => $value ) {
-            if ([] === $value) {
-                $result[ $this->key($fullpath, $separators) ] = $value;
+                array_shift($fullpath);
+            }
 
-            } elseif (! is_iterable($value)) {
-                end($fullpath);
-                $lastKey = key($fullpath);
+            $nodeKey = $this->pathkey($path);
 
-                if (! is_int($fullpath[ $lastKey ])) {
-                    $result[ $this->key($fullpath, $separators) ] = $value;
+            ( count($fullpath) )
+                ? ( $this->set($nodes[ $nodeKey ], $fullpath, $value) )
+                : ( $result[ $nodeKey ] = $value );
+        }
 
-                } else {
-                    $last = array_pop($fullpath);
-
-                    $fullpath
-                        ? ( $result[ $this->key($fullpath, $separators) ][ $last ] = $value )
-                        : ( $result[ $last ] = $value );
-                }
+        foreach ( $nodes as $nodeKey => $array ) {
+            foreach ( $array as $idx => $node ) {
+                ( $nodeKey === '' )
+                    ? $result[ $idx ] = $node
+                    : $result[ $nodeKey ][ $idx ] = $node;
             }
         }
 
@@ -604,7 +583,7 @@ class Arr
         $result = [];
 
         foreach ( $data as $key => $value ) {
-            $path = $this->fullpath($key, $separators);
+            $path = $this->path($key, $separators);
 
             $ref =& $result;
             while ( null !== key($path) ) {
@@ -745,13 +724,18 @@ class Arr
         while ( null !== ( $key = key($queue) ) ) {
             next($queue);
 
+            $processChildren = true;
+
             if ([] !== $pathes[ $key ]) {
-                ( 3 === func_num_args() )
+                $processChildren = ( 3 === func_num_args() )
                     ? $callback($queue[ $key ], $pathes[ $key ], $arg)
                     : $callback($queue[ $key ], $pathes[ $key ]);
+
+                $processChildren = boolval($processChildren ?? true);
             }
 
-            $hasChildren = ( is_array($queue[ $key ]) && [] !== $queue[ $key ] );
+            $hasChildren = $processChildren
+                && ( is_array($queue[ $key ]) && [] !== $queue[ $key ] );
 
             if ($hasChildren) {
                 foreach ( array_keys($queue[ $key ]) as $k ) {
@@ -759,6 +743,51 @@ class Arr
                     $fullpath[] = $k;
 
                     $queue[] =& $queue[ $key ][ $k ];
+                    $pathes[] = $fullpath;
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param array      $iterable
+     * @param callable   $callback
+     * @param null|mixed $arg
+     *
+     * @return static
+     */
+    public function crawl_recursive(iterable $iterable, $callback, $arg = null)
+    {
+        $queue = [];
+        $pathes = [];
+
+        $queue[] = $iterable;
+        $pathes[] = [];
+
+        while ( null !== ( $key = key($queue) ) ) {
+            next($queue);
+
+            $processChildren = true;
+
+            if ([] !== $pathes[ $key ]) {
+                $processChildren = ( 3 === func_num_args() )
+                    ? $callback($queue[ $key ], $pathes[ $key ], $arg)
+                    : $callback($queue[ $key ], $pathes[ $key ]);
+
+                $processChildren = boolval($processChildren ?? true);
+            }
+
+            $hasChildren = $processChildren
+                && ( is_iterable($queue[ $key ]) && [] !== $queue[ $key ] );
+
+            if ($hasChildren) {
+                foreach ( $queue[ $key ] as $k => $v ) {
+                    $fullpath = $pathes[ $key ];
+                    $fullpath[] = $k;
+
+                    $queue[] = $queue[ $key ][ $k ];
                     $pathes[] = $fullpath;
                 }
             }
@@ -1052,7 +1081,7 @@ class Arr
     {
         $error = static::ERROR_FETCHREF_EMPTY_KEY;
 
-        $fullpath = $this->fullpath($path);
+        $fullpath = $this->path($path);
 
         $ref =& $source;
         while ( null !== key($fullpath) ) {

@@ -113,32 +113,68 @@ class Php
     /**
      * проверяет возвращаемый тип у замыкания
      *
-     * @param \Closure $func
-     * @param string   $returnType
+     * @param \Closure        $factory
+     * @param string|callable $returnType
      *
      * @return null|\Closure
      */
-    public function filterFactory(\Closure $func, string $returnType) : ?\Closure
+    public function filterFactory(\Closure $factory, $returnType) : ?\Closure
     {
-        $rf = $this->newReflectionFunction($func);
+        $reflectionFunction = $this->newReflectionFunction($factory);
 
-        $rt = $rf->getReturnType();
+        $reflectionType = $reflectionFunction->getReturnType();
 
-        if (null === $rt) {
-            return null;
-        }
+        // factory requires a type
+        $types = [];
+        if ($reflectionType) {
+            $types = ( is_a($reflectionType, 'ReflectionUnionType') )
+                ? $reflectionType->getTypes()
+                : [ $reflectionType ];
 
-        if (class_exists('ReflectionNamedType') && is_a($rt, 'ReflectionNamedType')) {
-            if ($rt->getName() !== $returnType) {
-                return null;
+        } else {
+            $lines = array_map('trim', explode("\n", $reflectionFunction->getDocComment()));
+
+            foreach ( $lines as $line ) {
+                if (0 === strpos($line, $needle = '* @return ')) {
+                    $line = substr($line, strlen($needle));
+
+                    $types = explode(' ', $line)[ 0 ];
+                    $types = explode('|', $types);
+                }
             }
         }
 
-        if (class_exists('ReflectionUnionType') && is_a($rt, 'ReflectionUnionType')) {
+        // factory returns only one type
+        if (count($types) > 1) {
             return null;
         }
 
-        return $func;
+        $type = reset($types);
+
+        $returnTypeCallback = is_callable($returnType)
+            ? $this->bind($returnType, $type)
+            : function ($type) use ($returnType) {
+                if (is_a($type, 'ReflectionType')) {
+                    if (is_a($type, 'ReflectionNamedType')) {
+                        return false
+                            || ( $type->isBuiltin() && ( $type->getName() !== $returnType ) )
+                            || ( is_a($type->getName(), $returnType) );
+
+                    } elseif ($type->allowsNull()) {
+                        return 'null' === $returnType;
+                    }
+                } else {
+                    return $type === $returnType;
+                }
+
+                return false;
+            };
+
+        $result = $returnTypeCallback($type)
+            ? $factory
+            : null;
+
+        return $result;
     }
 
 
@@ -209,10 +245,12 @@ class Php
      *
      * @return \Closure
      */
-    public function assertFactory(\Closure $func, string $returnType) : \Closure
+    public function assertFactory(\Closure $func, $returnType) : \Closure
     {
         if (null === $this->filterFactory($func, $returnType)) {
-            throw new InvalidArgumentException('\Closure should have returnType ' . $returnType);
+            throw new InvalidArgumentException(
+                [ '\Closure has invalid return type: %s', $returnType ]
+            );
         }
 
         return $func;
@@ -390,7 +428,7 @@ class Php
                 $value = null
                     ?? ( true === $valOrBool ? $valOrKey : null )
                     ?? $this->filter->filterWord($valOrKey)
-                    ?? $this->filter->filterWordOrNumber($valOrBool)
+                    ?? $this->filter->filterWordOrNum($valOrBool)
                     ?? $this->filter->filterInt($valOrKey);
 
                 if (null === $value) {

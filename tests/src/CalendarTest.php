@@ -18,10 +18,10 @@ class CalendarTest extends AbstractTestCase
     {
         $calendar = $this->getCalendar();
 
-        $today1 = $calendar->today();
-        $today2 = $calendar->today();
+        $nowSame1 = $calendar->nowSame();
+        $nowSame2 = $calendar->nowSame();
 
-        $this->assertEquals(true, $calendar->isSame($today1, $today2));
+        $this->assertEquals(true, $calendar->isSame($nowSame1, $nowSame2));
     }
 
 
@@ -30,9 +30,9 @@ class CalendarTest extends AbstractTestCase
         $calendar = $this->getCalendar();
 
         $now = $calendar->now();
-        $today = $calendar->today();
+        $nowSame = $calendar->nowSame();
 
-        $this->assertEquals(true, $calendar->isBefore($now, $today));
+        $this->assertEquals(true, $calendar->isBefore($now, $nowSame));
     }
 
     public function testIsBeforeOrSame()
@@ -40,11 +40,11 @@ class CalendarTest extends AbstractTestCase
         $calendar = $this->getCalendar();
 
         $now = $calendar->now();
-        $today1 = $calendar->today();
-        $today2 = $calendar->today();
+        $nowSame1 = $calendar->nowSame();
+        $nowSame2 = $calendar->nowSame();
 
-        $this->assertEquals(true, $calendar->isBeforeOrSame($now, $today1));
-        $this->assertEquals(true, $calendar->isBeforeOrSame($today1, $today2));
+        $this->assertEquals(true, $calendar->isBeforeOrSame($now, $nowSame1));
+        $this->assertEquals(true, $calendar->isBeforeOrSame($nowSame1, $nowSame2));
     }
 
 
@@ -53,9 +53,9 @@ class CalendarTest extends AbstractTestCase
         $calendar = $this->getCalendar();
 
         $now = $calendar->now();
-        $today = $calendar->today();
+        $nowSame = $calendar->nowSame();
 
-        $this->assertEquals(true, $calendar->isAfter($today, $now));
+        $this->assertEquals(true, $calendar->isAfter($nowSame, $now));
     }
 
     public function testIsAfterOrSame()
@@ -63,11 +63,11 @@ class CalendarTest extends AbstractTestCase
         $calendar = $this->getCalendar();
 
         $now = $calendar->now();
-        $today1 = $calendar->today();
-        $today2 = $calendar->today();
+        $nowSame1 = $calendar->nowSame();
+        $nowSame2 = $calendar->nowSame();
 
-        $this->assertEquals(true, $calendar->isAfterOrSame($today1, $now));
-        $this->assertEquals(true, $calendar->isAfterOrSame($today1, $today2));
+        $this->assertEquals(true, $calendar->isAfterOrSame($nowSame1, $now));
+        $this->assertEquals(true, $calendar->isAfterOrSame($nowSame1, $nowSame2));
     }
 
 
@@ -114,8 +114,8 @@ class CalendarTest extends AbstractTestCase
     {
         $calendar = $this->getCalendar();
 
-        $now1 = $calendar->today();
-        $now2 = $calendar->today();
+        $now1 = $calendar->nowSame();
+        $now2 = $calendar->nowSame();
         $now2->add(new \DateInterval('P1D'));
 
         $this->assertEquals(-86400, $calendar->diff($now1, $now2));
@@ -129,18 +129,18 @@ class CalendarTest extends AbstractTestCase
         $dateTime = new \DateTime();
         $dateTimezone = new \DateTimeZone('America/Los_Angeles');
 
-        $this->assertEquals(1, $calendar->dateval(1)->getTimestamp());
-        $this->assertEquals(1, $calendar->dateval(1.0)->getTimestamp());
-        $this->assertEquals('1.100000', $calendar->dateval(1.1)->format('U.u'));
-        $this->assertEquals(1, $calendar->dateval('1')->getTimestamp());
-        $this->assertEquals(1, $calendar->dateval('1.0')->getTimestamp());
-        $this->assertEquals('1.100000', $calendar->dateval('1.1')->format('U.u'));
+        $this->assertEquals(1, $calendar->dateVal(1)->getTimestamp());
+        $this->assertEquals(1, $calendar->dateVal(1.0)->getTimestamp());
+        $this->assertEquals('1.100000', $calendar->dateVal(1.1)->format('U.u'));
+        $this->assertEquals(1, $calendar->dateVal('1')->getTimestamp());
+        $this->assertEquals(1, $calendar->dateVal('1.0')->getTimestamp());
+        $this->assertEquals('1.100000', $calendar->dateVal('1.1')->format('U.u'));
 
         $this->assertEquals(
             date_create('now', $dateTimezone)
                 ->format('Ymd'),
 
-            $calendar->dateval('now', $dateTimezone)->format('Ymd')
+            $calendar->dateVal('now', $dateTimezone)->format('Ymd')
         );
 
         $this->assertEquals(
@@ -148,17 +148,17 @@ class CalendarTest extends AbstractTestCase
                 ->add(new \DateInterval('PT86400S'))
                 ->format('Ymd'),
 
-            $calendar->dateval('+1 day', $dateTimezone)->format('Ymd')
+            $calendar->dateVal('+1 day', $dateTimezone)->format('Ymd')
         );
 
         $this->assertEquals(
             date_create_from_format('Y-m-d H:i:s', '2020-01-01 00:00:00', $dateTimezone)
                 ->format('Ymd'),
 
-            $calendar->dateval('2020-01-01 00:00:00', $dateTimezone)->format('Ymd')
+            $calendar->dateVal('2020-01-01 00:00:00', $dateTimezone)->format('Ymd')
         );
 
-        $this->assertEquals($dateTime, $calendar->dateval($dateTime));
+        $this->assertEquals($dateTime, $calendar->dateVal($dateTime));
     }
 
     public function testTimezoneval()
@@ -167,20 +167,20 @@ class CalendarTest extends AbstractTestCase
 
         $calendar->setDefaultTimezone('UTC');
 
-        $this->assertEquals('Africa/Algiers', $calendar->timezoneval(1)->getName());
-        $this->assertEquals('Africa/Algiers', $calendar->timezoneval(2.0)->getName());
-        $this->assertEquals('Africa/Addis_Ababa', $calendar->timezoneval(3.1)->getName());
-        $this->assertEquals('Atlantic/Madeira', $calendar->timezoneval('-1')->getName());
-        $this->assertEquals('America/Pangnirtung', $calendar->timezoneval('-2.0')->getName());
-        $this->assertEquals('America/Blanc-Sablon', $calendar->timezoneval('-3.1')->getName());
-        $this->assertEquals('America/Blanc-Sablon', $calendar->timezoneval('America/Blanc-Sablon')->getName());
+        $this->assertEquals('Africa/Algiers', $calendar->timezoneVal(1)->getName());
+        $this->assertEquals('Africa/Algiers', $calendar->timezoneVal(2.0)->getName());
+        $this->assertEquals('Africa/Addis_Ababa', $calendar->timezoneVal(3.1)->getName());
+        $this->assertEquals('Atlantic/Madeira', $calendar->timezoneVal('-1')->getName());
+        $this->assertEquals('America/Pangnirtung', $calendar->timezoneVal('-2.0')->getName());
+        $this->assertEquals('America/Blanc-Sablon', $calendar->timezoneVal('-3.1')->getName());
+        $this->assertEquals('America/Blanc-Sablon', $calendar->timezoneVal('America/Blanc-Sablon')->getName());
     }
 
     public function testInterval()
     {
         $calendar = $this->getCalendar();
 
-        $this->assertEquals(1, $calendar->interval(1, 'day')->d);
+        $this->assertEquals(1, $calendar->intervalVal(1, 'day')->d);
     }
 
 
@@ -202,11 +202,11 @@ class CalendarTest extends AbstractTestCase
         $calendar = $this->getCalendar();
 
         $now = date_create();
-        $today1 = $calendar->today();
-        $today2 = $calendar->today();
+        $nowSame1 = $calendar->nowSame();
+        $nowSame2 = $calendar->nowSame();
 
-        $this->assertGreaterThan($now, $today1);
-        $this->assertGreaterThan($now, $today2);
-        $this->assertEquals($today1, $today2);
+        $this->assertGreaterThan($now, $nowSame1);
+        $this->assertGreaterThan($now, $nowSame2);
+        $this->assertEquals($nowSame1, $nowSame2);
     }
 }

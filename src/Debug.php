@@ -73,7 +73,7 @@ class Debug
         if (is_null($trace)) {
             $trace = debug_backtrace($options, $limit);
 
-        } elseif (is_object($trace) && is_a($trace, \Throwable::class)) {
+        } elseif (is_a($trace, \Throwable::class)) {
             $trace = $trace->getTrace();
 
         } elseif (is_array($trace)) {

@@ -597,6 +597,136 @@ class Fs
 
 
     /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return string
+     */
+    public function thePathvalFileExists($pathOrSpl) : string
+    {
+        if (null === ( $pathvalFileExists = $this->pathvalFileExists($pathOrSpl) )) {
+            throw new InvalidArgumentException(
+                [ 'Value should be convertable to path and file should exists: %s', $pathOrSpl ],
+            );
+        }
+
+        return $pathvalFileExists;
+    }
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return string
+     */
+    public function thePathvalFile($pathOrSpl) : string
+    {
+        if (null === ( $pathvalFile = $this->pathvalFile($pathOrSpl) )) {
+            throw new InvalidArgumentException(
+                [ 'Value should be convertable to path and be file: %s', $pathOrSpl ],
+            );
+        }
+
+        return $pathvalFile;
+    }
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return string
+     */
+    public function thePathvalDir($pathOrSpl) : string
+    {
+        if (null === ( $pathvalDir = $this->pathvalDir($pathOrSpl) )) {
+            throw new InvalidArgumentException(
+                [ 'Value should be convertable to path and be directory: %s', $pathOrSpl ],
+            );
+        }
+
+        return $pathvalDir;
+    }
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return string
+     */
+    public function thePathvalLink($pathOrSpl) : string
+    {
+        if (null === ( $pathvalLink = $this->pathvalLink($pathOrSpl) )) {
+            throw new InvalidArgumentException(
+                [ 'Value should be convertable to path and be symlink/hardlink: %s', $pathOrSpl ],
+            );
+        }
+
+        return $pathvalLink;
+    }
+
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return \SplFileInfo
+     */
+    public function theSplvalFileExists($pathOrSpl) : \SplFileInfo
+    {
+        if (null === ( $splvalFileExists = $this->splvalFileExists($pathOrSpl) )) {
+            throw new InvalidArgumentException(
+                [ 'Value should be convertable to \SplFileInfo and file should exists: %s', $pathOrSpl ],
+            );
+        }
+
+        return $splvalFileExists;
+    }
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return \SplFileInfo
+     */
+    public function theSplvalFile($pathOrSpl) : \SplFileInfo
+    {
+        if (null === ( $splvalFile = $this->splvalFile($pathOrSpl) )) {
+            throw new InvalidArgumentException(
+                [ 'Value should be convertable to \SplFileInfo and be file: %s', $pathOrSpl ],
+            );
+        }
+
+        return $splvalFile;
+    }
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return \SplFileInfo
+     */
+    public function theSplvalDir($pathOrSpl) : \SplFileInfo
+    {
+        if (null === ( $splvalDir = $this->splvalDir($pathOrSpl) )) {
+            throw new InvalidArgumentException(
+                [ 'Value should be convertable to \SplFileInfo and be directory: %s', $pathOrSpl ],
+            );
+        }
+
+        return $splvalDir;
+    }
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return \SplFileInfo
+     */
+    public function theSplvalLink($pathOrSpl) : \SplFileInfo
+    {
+        if (null === ( $splvalLink = $this->splvalLink($pathOrSpl) )) {
+            throw new InvalidArgumentException(
+                [ 'Value should be convertable to \SplFileInfo and be symlink/hardlink: %s', $pathOrSpl ],
+            );
+        }
+
+        return $splvalLink;
+    }
+
+
+    /**
      * @param string $root
      *
      * @return static
@@ -1238,7 +1368,7 @@ class Fs
             return $h;
         }
 
-        if (null !== ( $content = $this->filter->filterStringOrNumber($readable) )) {
+        if (null !== ( $content = $this->filter->filterStringOrNum($readable) )) {
             $h = fopen('php://temp', 'w+');
             fwrite($h, $content);
             rewind($h);

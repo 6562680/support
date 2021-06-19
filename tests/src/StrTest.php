@@ -743,6 +743,9 @@ class StrTest extends AbstractTestCase
         $str = $this->getStr();
 
         static::assertEquals([ 'worlds' ], $str->pluralize('world'));
+        static::assertEquals([ 'persons', 'people' ], $str->pluralize('person'));
+        static::assertEquals([ 'persons' ], $str->pluralize('person', 1));
+        static::assertEquals([ 1 => 'people' ], $str->pluralize('person', 1, 1));
     }
 
     public function testSingularize()
@@ -750,6 +753,7 @@ class StrTest extends AbstractTestCase
         $str = $this->getStr();
 
         static::assertEquals([ 'world' ], $str->singularize('worlds'));
+        static::assertEquals([ 'person' ], $str->singularize('people'));
     }
 
 

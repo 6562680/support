@@ -38,7 +38,7 @@ class Format
      */
     public function fileSize($size) : string
     {
-        if (null === ( $numval = $this->num->numval($size) )) {
+        if (null === ( $numval = $this->num->numericval($size) )) {
             throw new InvalidArgumentException(
                 [ 'Filesize should be int or float: %s', $size ]
             );

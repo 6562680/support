@@ -48,6 +48,16 @@ abstract class GeneratedNumFacade
     /**
      * @param mixed $value
      *
+     * @return null|int|float
+     */
+    public static function numericval($value)
+    {
+        return static::getInstance()->numericval($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
      * @return int
      */
     public static function theIntval($value): int
@@ -76,6 +86,16 @@ abstract class GeneratedNumFacade
     }
 
     /**
+     * @param mixed $value
+     *
+     * @return int|float|string
+     */
+    public static function theNumericval($value)
+    {
+        return static::getInstance()->theNumericval($value);
+    }
+
+    /**
      * @param int|array $integers
      * @param null|bool $uniq
      *
@@ -101,11 +121,22 @@ abstract class GeneratedNumFacade
      * @param int|float|string|array $numbers
      * @param null|bool              $uniq
      *
-     * @return int[]|float[]|string[]
+     * @return int[]|float[]
      */
     public static function numvals($numbers, $uniq = null): array
     {
         return static::getInstance()->numvals($numbers, $uniq);
+    }
+
+    /**
+     * @param int|float|string|array $numbers
+     * @param null|bool              $uniq
+     *
+     * @return int[]|float[]|string[]
+     */
+    public static function numericvals($numbers, $uniq = null): array
+    {
+        return static::getInstance()->numericvals($numbers, $uniq);
     }
 
     /**
@@ -131,14 +162,25 @@ abstract class GeneratedNumFacade
     }
 
     /**
+     * @param float|array $numbervals
+     * @param null|bool   $uniq
+     *
+     * @return int[]|float[]
+     */
+    public static function theNumvals($numbervals, $uniq = null): array
+    {
+        return static::getInstance()->theNumvals($numbervals, $uniq);
+    }
+
+    /**
      * @param int|float|string|array $numvals
      * @param null|bool              $uniq
      *
      * @return int[]|float[]|string[]
      */
-    public static function theNumvals($numvals, $uniq = null): array
+    public static function theNumericvals($numvals, $uniq = null): array
     {
-        return static::getInstance()->theNumvals($numvals, $uniq);
+        return static::getInstance()->theNumericvals($numvals, $uniq);
     }
 
     /**

@@ -158,12 +158,12 @@ abstract class GeneratedAssert
      *
      * @return int|float
      */
-    public function assertNumber($value)
+    public function assertNum($value)
     {
-        if (null === ( $filtered = $this->filter->filterNumber($value) )) {
+        if (null === ( $filtered = $this->filter->filterNum($value) )) {
             throw $this->throwableOr(
                 new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid Number passed: %s', func_get_args() ]
+                    [ 'Invalid Num passed: %s', func_get_args() ]
                 ))
             );
         }
@@ -218,6 +218,24 @@ abstract class GeneratedAssert
             throw $this->throwableOr(
                 new InvalidArgumentException($this->messageOr(
                     [ 'Invalid Numval passed: %s', func_get_args() ]
+                ))
+            );
+        }
+
+        return $filtered;
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return int|float|string
+     */
+    public function assertNumericval($value)
+    {
+        if (null === ( $filtered = $this->filter->filterNumericval($value) )) {
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid Numericval passed: %s', func_get_args() ]
                 ))
             );
         }
@@ -374,12 +392,12 @@ abstract class GeneratedAssert
      *
      * @return int|float|string
      */
-    public function assertStringOrNumber($value)
+    public function assertStringOrNum($value)
     {
-        if (null === ( $filtered = $this->filter->filterStringOrNumber($value) )) {
+        if (null === ( $filtered = $this->filter->filterStringOrNum($value) )) {
             throw $this->throwableOr(
                 new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid StringOrNumber passed: %s', func_get_args() ]
+                    [ 'Invalid StringOrNum passed: %s', func_get_args() ]
                 ))
             );
         }
@@ -392,12 +410,12 @@ abstract class GeneratedAssert
      *
      * @return int|float|string
      */
-    public function assertWordOrNumber($value)
+    public function assertWordOrNum($value)
     {
-        if (null === ( $filtered = $this->filter->filterWordOrNumber($value) )) {
+        if (null === ( $filtered = $this->filter->filterWordOrNum($value) )) {
             throw $this->throwableOr(
                 new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid WordOrNumber passed: %s', func_get_args() ]
+                    [ 'Invalid WordOrNum passed: %s', func_get_args() ]
                 ))
             );
         }

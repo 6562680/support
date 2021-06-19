@@ -59,7 +59,11 @@ class Calendar
     /**
      * @var \DateTime
      */
-    protected $today;
+    protected $now;
+    /**
+     * @var \DateTimeImmutable
+     */
+    protected $moment;
 
     /**
      * @var \DateTimeZone
@@ -99,10 +103,22 @@ class Calendar
         return $this->defaultTimezone;
     }
 
+    /**
+     * @param string|\DateTimeZone $timezone
+     *
+     * @return static
+     */
+    public function setDefaultTimezone($timezone)
+    {
+        $this->defaultTimezone = $this->theTimezoneVal($timezone);
+
+        return $this;
+    }
+
 
     /**
-     * @param int|float|string|\DateTime $a
-     * @param int|float|string|\DateTime $b
+     * @param int|float|string|\DateTimeInterface|mixed $a
+     * @param int|float|string|\DateTimeInterface|mixed $b
      *
      * @return bool
      */
@@ -110,11 +126,11 @@ class Calendar
     {
         if ($a === $b) return true;
 
-        $parsedA = $this->dateval($a);
-        $parsedB = $this->dateval($b);
+        $parsedA = $this->dateVal($a);
+        $parsedB = $this->dateVal($b);
 
-        $isDateA = is_object($parsedA) && is_a($parsedA, \DateTime::class);
-        $isDateB = is_object($parsedB) && is_a($parsedB, \DateTime::class);
+        $isDateA = is_a($parsedA, \DateTime::class);
+        $isDateB = is_a($parsedB, \DateTime::class);
 
         if ($isDateB - $isDateA) {
             $result = false;
@@ -139,8 +155,8 @@ class Calendar
 
 
     /**
-     * @param int|float|string|\DateTime $a
-     * @param int|float|string|\DateTime $b
+     * @param int|float|string|\DateTimeInterface|mixed $a
+     * @param int|float|string|\DateTimeInterface|mixed $b
      *
      * @return bool
      */
@@ -148,11 +164,11 @@ class Calendar
     {
         if ($a === $b) return false;
 
-        $parsedA = $this->dateval($a);
-        $parsedB = $this->dateval($b);
+        $parsedA = $this->dateVal($a);
+        $parsedB = $this->dateVal($b);
 
-        $isDateA = is_object($parsedA) && is_a($parsedA, \DateTime::class);
-        $isDateB = is_object($parsedB) && is_a($parsedB, \DateTime::class);
+        $isDateA = is_a($parsedA, \DateTime::class);
+        $isDateB = is_a($parsedB, \DateTime::class);
 
         if ($cmp = ( $isDateB - $isDateA )) {
             $result = $cmp < 0;
@@ -176,8 +192,8 @@ class Calendar
     }
 
     /**
-     * @param int|float|string|\DateTime $a
-     * @param int|float|string|\DateTime $b
+     * @param int|float|string|\DateTimeInterface|mixed $a
+     * @param int|float|string|\DateTimeInterface|mixed $b
      *
      * @return bool
      */
@@ -185,11 +201,11 @@ class Calendar
     {
         if ($a === $b) return true;
 
-        $parsedA = $this->dateval($a);
-        $parsedB = $this->dateval($b);
+        $parsedA = $this->dateVal($a);
+        $parsedB = $this->dateVal($b);
 
-        $isDateA = is_object($parsedA) && is_a($parsedA, \DateTime::class);
-        $isDateB = is_object($parsedB) && is_a($parsedB, \DateTime::class);
+        $isDateA = is_a($parsedA, \DateTime::class);
+        $isDateB = is_a($parsedB, \DateTime::class);
 
         if ($cmp = ( $isDateB - $isDateA )) {
             $result = $cmp < 0;
@@ -217,8 +233,8 @@ class Calendar
 
 
     /**
-     * @param int|float|string|\DateTime $a
-     * @param int|float|string|\DateTime $b
+     * @param int|float|string|\DateTimeInterface|mixed $a
+     * @param int|float|string|\DateTimeInterface|mixed $b
      *
      * @return bool
      */
@@ -226,11 +242,11 @@ class Calendar
     {
         if ($a === $b) return false;
 
-        $parsedA = $this->dateval($a);
-        $parsedB = $this->dateval($b);
+        $parsedA = $this->dateVal($a);
+        $parsedB = $this->dateVal($b);
 
-        $isDateA = is_object($parsedA) && is_a($parsedA, \DateTime::class);
-        $isDateB = is_object($parsedB) && is_a($parsedB, \DateTime::class);
+        $isDateA = is_a($parsedA, \DateTime::class);
+        $isDateB = is_a($parsedB, \DateTime::class);
 
         if ($cmp = ( $isDateB - $isDateA )) {
             $result = $cmp > 0;
@@ -254,8 +270,8 @@ class Calendar
     }
 
     /**
-     * @param int|float|string|\DateTime $a
-     * @param int|float|string|\DateTime $b
+     * @param int|float|string|\DateTimeInterface|mixed $a
+     * @param int|float|string|\DateTimeInterface|mixed $b
      *
      * @return bool
      */
@@ -263,8 +279,8 @@ class Calendar
     {
         if ($a === $b) return true;
 
-        $parsedA = $this->dateval($a);
-        $parsedB = $this->dateval($b);
+        $parsedA = $this->dateVal($a);
+        $parsedB = $this->dateVal($b);
 
         $isDateA = $this->isDateTime($parsedA);
         $isDateB = $this->isDateTime($parsedB);
@@ -295,14 +311,14 @@ class Calendar
 
 
     /**
-     * @param int|float|string|\DateTime       $date
-     * @param int|float|string|\DateTime|array $dates
+     * @param int|float|string|\DateTimeInterface|mixed $date
+     * @param int|float|string|\DateTimeInterface|array $dates
      *
      * @return bool
      */
     public function isBetween($date, ...$dates) : bool
     {
-        $date = $this->theDate($date);
+        $date = $this->theDateVal($date);
         $dates = $this->theDatevals($dates, true);
 
         $min = min($dates);
@@ -316,8 +332,8 @@ class Calendar
     }
 
     /**
-     * @param int[]|float[]|string[]|\DateTime[] $dates
-     * @param int[]|float[]|string[]|\DateTime[] $datesWith
+     * @param int[]|float[]|string[]|\DateTimeInterface[] $dates
+     * @param int[]|float[]|string[]|\DateTimeInterface[] $datesWith
      *
      * @return bool
      */
@@ -341,7 +357,27 @@ class Calendar
 
 
     /**
-     * @param int|float|string|\DateTime $date
+     * @param int|float|string|\DateTimeInterface|mixed $date
+     *
+     * @return bool
+     */
+    public function isDateTimeInterface($date) : bool
+    {
+        return null !== $this->filterDateTimeInterface($date);
+    }
+
+    /**
+     * @param int|float|string|\DateTimeInterface|mixed $date
+     *
+     * @return bool
+     */
+    public function isDateTimeImmutable($date) : bool
+    {
+        return null !== $this->filterDateTimeImmutable($date);
+    }
+
+    /**
+     * @param int|float|string|\DateTimeInterface|mixed $date
      *
      * @return bool
      */
@@ -360,15 +396,35 @@ class Calendar
         return null !== $this->filterDateTimeZone($timezone);
     }
 
-
     /**
-     * @param int|float|string|\DateTime $date
+     * @param string|\DateInterval $interval
      *
      * @return bool
      */
-    public function isDateval($date) : bool
+    public function isDateInterval($interval) : bool
     {
-        return null !== $this->filterDateval($date);
+        return null !== $this->filterDateInterval($interval);
+    }
+
+
+    /**
+     * @param int|float|string|\DateTimeInterface|mixed $date
+     *
+     * @return bool
+     */
+    public function isIDate($date) : bool
+    {
+        return null !== $this->filterIDate($date);
+    }
+
+    /**
+     * @param int|float|string|\DateTimeInterface|mixed $date
+     *
+     * @return bool
+     */
+    public function isDate($date) : bool
+    {
+        return null !== $this->filterDate($date);
     }
 
     /**
@@ -376,9 +432,9 @@ class Calendar
      *
      * @return bool
      */
-    public function isTimezoneval($timezone) : bool
+    public function isTimezone($timezone) : bool
     {
-        return null !== $this->filterTimezoneval($timezone);
+        return null !== $this->filterTimezone($timezone);
     }
 
     /**
@@ -393,13 +449,13 @@ class Calendar
 
 
     /**
-     * @param \DateTime $date
+     * @param \DateTimeInterface|mixed $date
      *
-     * @return null|\DateTime
+     * @return null|\DateTimeInterface
      */
-    public function filterDateTime($date) : ?\DateTime
+    public function filterDateTimeInterface($date) : ?\DateTimeInterface
     {
-        $result = is_object($date) && is_a($date, \DateTime::class)
+        $result = is_a($date, \DateTimeInterface::class)
             ? $date
             : null;
 
@@ -407,13 +463,41 @@ class Calendar
     }
 
     /**
-     * @param \DateTimeZone $timezone
+     * @param \DateTimeImmutable|mixed $date
+     *
+     * @return null|\DateTimeImmutable
+     */
+    public function filterDateTimeImmutable($date) : ?\DateTimeImmutable
+    {
+        $result = is_a($date, \DateTimeImmutable::class)
+            ? $date
+            : null;
+
+        return $result;
+    }
+
+    /**
+     * @param \DateTime|mixed $date
+     *
+     * @return null|\DateTime
+     */
+    public function filterDateTime($date) : ?\DateTime
+    {
+        $result = is_a($date, \DateTime::class)
+            ? $date
+            : null;
+
+        return $result;
+    }
+
+    /**
+     * @param \DateTimeZone|mixed $timezone
      *
      * @return null|\DateTimeZone
      */
     public function filterDateTimeZone($timezone) : ?\DateTimeZone
     {
-        $result = is_object($timezone) && is_a($timezone, \DateTimeZone::class)
+        $result = is_a($timezone, \DateTimeZone::class)
             ? $timezone
             : null;
 
@@ -421,13 +505,13 @@ class Calendar
     }
 
     /**
-     * @param \DateInterval $interval
+     * @param \DateInterval|mixed $interval
      *
      * @return null|\DateInterval
      */
     public function filterDateInterval($interval) : ?\DateInterval
     {
-        $result = is_object($interval) && is_a($interval, \DateInterval::class)
+        $result = is_a($interval, \DateInterval::class)
             ? $interval
             : null;
 
@@ -436,14 +520,27 @@ class Calendar
 
 
     /**
-     * @param int|float|string|\DateTime $date
-     * @param null|\DateTimeZone         $timezone
+     * @param int|float|string|\DateTimeInterface|mixed $date
+     *
+     * @return null|int|float|string|\DateTimeImmutable
+     */
+    public function filterIDate($date) // : ?int|float|string|\DateTimeInterface|mixed
+    {
+        if (null === $this->iDateVal($date)) {
+            return null;
+        }
+
+        return $date;
+    }
+
+    /**
+     * @param int|float|string|\DateTimeInterface|mixed $date
      *
      * @return null|int|float|string|\DateTime
      */
-    public function filterDateval($date, $timezone = null) // : ?int|float|string|\DateTime
+    public function filterDate($date) // : ?int|float|string|\DateTime
     {
-        if (null === $this->dateval($date, $timezone)) {
+        if (null === $this->dateVal($date)) {
             return null;
         }
 
@@ -455,9 +552,9 @@ class Calendar
      *
      * @return null|string|\DateTimeZone
      */
-    public function filterTimezoneval($timezone) // : ?string|\DateTimeZone
+    public function filterTimezone($timezone) // : ?string|\DateTimeZone
     {
-        if (null === $this->timezoneval($timezone)) {
+        if (null === $this->timezoneVal($timezone)) {
             return null;
         }
 
@@ -471,7 +568,7 @@ class Calendar
      */
     public function filterInterval($interval) // : ?string|\DateTimeZone
     {
-        if (null === $this->interval($interval)) {
+        if (null === $this->intervalVal($interval)) {
             return null;
         }
 
@@ -480,7 +577,35 @@ class Calendar
 
 
     /**
-     * @param \DateTime $date
+     * @param \DateTime|mixed $date
+     *
+     * @return \DateTimeInterface
+     */
+    public function assertDateTimeInterface($date) : \DateTimeInterface
+    {
+        if (null === ( $filtered = $this->filterDateTime($date) )) {
+            throw new InvalidArgumentException([ 'Invalid DateTime passed: %s', $date ]);
+        }
+
+        return $filtered;
+    }
+
+    /**
+     * @param \DateTime|mixed $date
+     *
+     * @return \DateTime
+     */
+    public function assertDateTimeImmutable($date) : \DateTime
+    {
+        if (null === ( $filtered = $this->filterDateTime($date) )) {
+            throw new InvalidArgumentException([ 'Invalid DateTime passed: %s', $date ]);
+        }
+
+        return $filtered;
+    }
+
+    /**
+     * @param \DateTime|mixed $date
      *
      * @return \DateTime
      */
@@ -494,7 +619,7 @@ class Calendar
     }
 
     /**
-     * @param \DateTimeZone $timezone
+     * @param \DateTimeZone|mixed $timezone
      *
      * @return \DateTimeZone
      */
@@ -508,7 +633,7 @@ class Calendar
     }
 
     /**
-     * @param \DateInterval $interval
+     * @param \DateInterval|mixed $interval
      *
      * @return \DateInterval
      */
@@ -523,14 +648,27 @@ class Calendar
 
 
     /**
-     * @param int|float|string|\DateTime $date
-     * @param null|string|\DateTimeZone  $timezone
+     * @param int|float|string|\DateTimeInterface|mixed $date
+     *
+     * @return int|float|string|\DateTimeImmutable
+     */
+    public function assertIDate($date) // : int|float|string|\DateTimeImmutable
+    {
+        if (null === ( $filtered = $this->filterIDate($date) )) {
+            throw new InvalidArgumentException([ 'Invalid Dateval passed: %s', $date ]);
+        }
+
+        return $filtered;
+    }
+
+    /**
+     * @param int|float|string|\DateTimeInterface|mixed $date
      *
      * @return int|float|string|\DateTime
      */
-    public function assertDateval($date, $timezone = null) : \DateTime
+    public function assertDate($date) // : int|float|string|\DateTime
     {
-        if (null === ( $filtered = $this->filterDateval($date, $timezone) )) {
+        if (null === ( $filtered = $this->filterDate($date) )) {
             throw new InvalidArgumentException([ 'Invalid Dateval passed: %s', $date ]);
         }
 
@@ -542,9 +680,9 @@ class Calendar
      *
      * @return string|\DateTimeZone
      */
-    public function assertTimezoneval($timezone) : \DateTimeZone
+    public function assertTimezone($timezone) // : string|\DateTimeZone
     {
-        if (null === ( $filtered = $this->filterTimezoneval($timezone) )) {
+        if (null === ( $filtered = $this->filterTimezone($timezone) )) {
             throw new InvalidArgumentException([ 'Invalid Timezoneval passed: %s', $timezone ]);
         }
 
@@ -556,7 +694,7 @@ class Calendar
      *
      * @return string|\DateInterval
      */
-    public function assertInterval($interval) : \DateInterval
+    public function assertInterval($interval) // : string|\DateInterval
     {
         if (null === ( $filtered = $this->filterInterval($interval) )) {
             throw new InvalidArgumentException([ 'Invalid Interval passed: %s', $interval ]);
@@ -567,69 +705,48 @@ class Calendar
 
 
     /**
-     * @param string|\DateTimeZone $timezone
+     * @param int|float|string|\DateTimeInterface|mixed $date
+     * @param null|\DateTimeZone                        $timezone
      *
-     * @return static
+     * @return null|\DateTimeImmutable
      */
-    public function setDefaultTimezone($timezone)
+    public function iDateVal($date, $timezone = null) : ?\DateTimeImmutable
     {
-        $this->defaultTimezone = $this->theTimezone($timezone);
+        if (! $iDateVal = $this->tryIDateFromInstance($date, $timezone)) {
+            $dateVal = null
+                ?? $this->tryDateFromInstance($date, $timezone)
+                ?? $this->tryDateFromInt($date, $timezone)
+                ?? $this->tryDateFromFloat($date, $timezone)
+                ?? $this->tryDateFromString($date, $timezone);
 
-        return $this;
-    }
+            if ($iDateVal) {
+                $iDateVal = \DateTimeImmutable::createFromMutable($dateVal);
+            }
+        }
 
-
-    /**
-     * @param int|float|string|\DateTime $date
-     * @param string|\DateInterval       $interval
-     * @param null|string                $unit
-     *
-     * @return \DateTime
-     */
-    public function add($date, $interval, $unit = null) : \DateTime
-    {
-        $date = $this->theDate($date);
-        $interval = null
-            ?? $this->interval($interval)
-            ?? $this->parseInterval($interval, $unit);
-
-        $interval = $this->theInterval($interval);
-
-        $date->add($interval);
-
-        return $date;
+        return $iDateVal;
     }
 
     /**
-     * @param int|float|string|\DateTime $dateA
-     * @param int|float|string|\DateTime $dateB
-     *
-     * @return float
-     */
-    public function diff($dateA, $dateB) : float
-    {
-        $dateA = $this->theDate($dateA);
-        $dateB = $this->theDate($dateB);
-
-        $diff = (float) $dateA->format('U.u') - (float) $dateB->format('U.u');
-
-        return $diff;
-    }
-
-
-    /**
-     * @param int|float|string|\DateTime $date
-     * @param null|\DateTimeZone         $timezone
+     * @param int|float|string|\DateTimeInterface|mixed $date
+     * @param null|\DateTimeZone                        $timezone
      *
      * @return null|\DateTime
      */
-    public function dateval($date, $timezone = null) : ?\DateTime
+    public function dateVal($date, $timezone = null) : ?\DateTime
     {
-        return null
-            ?? $this->tryDateFromInstance($date, $timezone)
-            ?? $this->tryDateFromInt($date, $timezone)
-            ?? $this->tryDateFromFloat($date, $timezone)
-            ?? $this->tryDateFromString($date, $timezone);
+        if ($iDateVal = $this->tryIDateFromInstance($date, $timezone)) {
+            $dateVal = \DateTime::createFromImmutable($iDateVal);
+
+        } else {
+            $dateVal = null
+                ?? $this->tryDateFromInstance($date, $timezone)
+                ?? $this->tryDateFromInt($date, $timezone)
+                ?? $this->tryDateFromFloat($date, $timezone)
+                ?? $this->tryDateFromString($date, $timezone);
+        }
+
+        return $dateVal;
     }
 
     /**
@@ -639,7 +756,7 @@ class Calendar
      *
      * @return null|\DateTimeZone
      */
-    public function timezoneval($timezone, bool $isDst = null, int $utcOffset = null) : ?\DateTimeZone
+    public function timezoneVal($timezone, bool $isDst = null, int $utcOffset = null) : ?\DateTimeZone
     {
         return null
             ?? $this->tryTimezoneFromInstance($timezone)
@@ -653,7 +770,7 @@ class Calendar
      *
      * @return null|\DateInterval
      */
-    public function interval($interval, $unit = null) : ?\DateInterval
+    public function intervalVal($interval, $unit = null) : ?\DateInterval
     {
         return null
             ?? $this->tryIntervalFromInstance($interval)
@@ -663,14 +780,29 @@ class Calendar
 
 
     /**
-     * @param int|float|string|\DateTime $date
-     * @param null|\DateTimeZone         $timezone
+     * @param int|float|string|\DateTimeInterface|mixed $date
+     * @param null|\DateTimeZone                        $timezone
+     *
+     * @return \DateTimeImmutable
+     */
+    public function theIDateVal($date, $timezone = null) : \DateTimeImmutable
+    {
+        if (null === ( $result = $this->iDateVal($date, $timezone) )) {
+            throw new InvalidArgumentException([ 'Invalid IDate passed: %s', $date ]);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param int|float|string|\DateTimeInterface|mixed $date
+     * @param null|\DateTimeZone                        $timezone
      *
      * @return \DateTime
      */
-    public function theDate($date, $timezone = null) : \DateTime
+    public function theDateVal($date, $timezone = null) : \DateTime
     {
-        if (null === ( $result = $this->dateval($date, $timezone) )) {
+        if (null === ( $result = $this->dateVal($date, $timezone) )) {
             throw new InvalidArgumentException([ 'Invalid DateTime passed: %s', $date ]);
         }
 
@@ -684,9 +816,9 @@ class Calendar
      *
      * @return \DateTimeZone
      */
-    public function theTimezone($timezone, bool $isDst = null, int $utcOffset = null) : \DateTimeZone
+    public function theTimezoneVal($timezone, bool $isDst = null, int $utcOffset = null) : \DateTimeZone
     {
-        if (null === ( $result = $this->timezoneval($timezone, $isDst, $utcOffset) )) {
+        if (null === ( $result = $this->timezoneVal($timezone, $isDst, $utcOffset) )) {
             throw new InvalidArgumentException(
                 [ 'Invalid DateTimeZone passed: %s [ %s / %s ]', $timezone, $isDst, $utcOffset ]
             );
@@ -701,9 +833,9 @@ class Calendar
      *
      * @return \DateInterval
      */
-    public function theInterval($interval, string $unit = null) : \DateInterval
+    public function theIntervalVal($interval, string $unit = null) : \DateInterval
     {
-        if (null === ( $result = $this->interval($interval, $unit) )) {
+        if (null === ( $result = $this->intervalVal($interval, $unit) )) {
             throw new InvalidArgumentException([ 'Invalid DateInterval passed: %s', $interval ]);
         }
 
@@ -712,15 +844,67 @@ class Calendar
 
 
     /**
-     * @param string      $format
-     * @param string      $date
-     * @param null|string $instantTimezone
+     * @param int|float|string|\DateTimeInterface|mixed $date
+     * @param string|\DateInterval                      $interval
+     * @param null|string                               $unit
      *
      * @return \DateTime
      */
-    public function dateParse(string $format, string $date, $instantTimezone = null) : \DateTime
+    public function add($date, $interval, $unit = null) : \DateTimeInterface
     {
-        $result = $this->parseDateval($format, $date, $instantTimezone);
+        $date = $this->theDateVal($date);
+
+        $date->add($this->theIntervalVal($interval, $unit));
+
+        return $date;
+    }
+
+
+    /**
+     * @param int|float|string|\DateTimeInterface|mixed $dateA
+     * @param int|float|string|\DateTimeInterface|mixed $dateB
+     *
+     * @return float
+     */
+    public function diff($dateA, $dateB) : float
+    {
+        $dateA = $this->theDateVal($dateA);
+        $dateB = $this->theDateVal($dateB);
+
+        $diff = (float) $dateA->format('U.u') - (float) $dateB->format('U.u');
+
+        return $diff;
+    }
+
+
+    /**
+     * @param string      $format
+     * @param string      $date
+     * @param null|string $timezoneInitial
+     *
+     * @return \DateTimeImmutable
+     */
+    public function iDateParse(string $format, string $date, $timezoneInitial = null) : \DateTimeImmutable
+    {
+        $result = $this->parseIDate($format, $date, $timezoneInitial);
+
+        if (null === $result) {
+            throw new InvalidArgumentException([ 'Invalid iDate passed: %s [ %s ]', $format, $date ]);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string      $format
+     * @param string      $date
+     * @param null|string $timezoneInitial
+     *
+     * @return \DateTime
+     */
+    public function dateParse(string $format, string $date, $timezoneInitial = null) : \DateTime
+    {
+        $result = $this->parseDate($format, $date, $timezoneInitial);
 
         if (null === $result) {
             throw new InvalidArgumentException([ 'Invalid Date passed: %s [ %s ]', $format, $date ]);
@@ -738,7 +922,7 @@ class Calendar
      */
     public function timezoneParse(string $interval, bool $isDst = null, int $utcOffset = null) : \DateTimeZone
     {
-        $result = $this->parseTimezoneval($interval, $isDst, $utcOffset);
+        $result = $this->parseTimezone($interval, $isDst, $utcOffset);
 
         if (null === $result) {
             throw new InvalidArgumentException([ 'Invalid DateTimeZone passed: %s', $interval ]);
@@ -775,9 +959,9 @@ class Calendar
         $timezone = $timezone
             ?? $this->getDefaultTimezone();
 
-        $dateTimeZone = $this->theTimezone($timezone);
-
-        $now = date_create('now', $dateTimeZone);
+        $now = date_create('now',
+            $dateTimeZone = $this->theTimezoneVal($timezone)
+        );
 
         return $now;
     }
@@ -785,43 +969,102 @@ class Calendar
     /**
      * @param null|string|\DateTimeZone $timezone
      *
-     * @return \DateTime
+     * @return \DateTimeImmutable
      */
-    public function today($timezone = null) : \DateTime
+    public function iNow($timezone = null) : \DateTimeImmutable
     {
         $timezone = $timezone
             ?? $this->getDefaultTimezone();
 
-        $dateTimeZone = $this->theTimezone($timezone);
+        $now = date_create_immutable('now',
+            $dateTimeZone = $this->theTimezoneVal($timezone)
+        );
 
-        if (! $this->today) {
-            $today = date_create('now', $dateTimeZone);
+        return $now;
+    }
 
-            $this->today = $today;
 
-        } else {
-            $today = clone $this->today;
+    /**
+     * @param null|string|\DateTimeZone $timezone
+     *
+     * @return \DateTime
+     */
+    public function nowSame($timezone = null) : \DateTime
+    {
+        $timezone = $timezone
+            ?? $this->getDefaultTimezone();
 
-            $today->setTimezone($dateTimeZone);
+        $dateTimeZone = $this->theTimezoneVal($timezone);
+
+        $now = $this->now
+            ? ( clone $this->now )->setTimezone($dateTimeZone)
+            : date_create('now', $dateTimeZone);
+
+        if (! $this->now) {
+            $this->now = $now;
         }
 
-        return $today;
+        return $now;
+    }
+
+    /**
+     * @param null|string|\DateTimeZone $timezone
+     *
+     * @return \DateTimeImmutable
+     */
+    public function iNowSame($timezone = null) : \DateTimeImmutable
+    {
+        $timezone = $timezone
+            ?? $this->getDefaultTimezone();
+
+        $dateTimeZone = $this->theTimezoneVal($timezone);
+
+        $moment = $this->moment
+            ? $this->moment->setTimezone($dateTimeZone)
+            : date_create_immutable('now', $dateTimeZone);
+
+        if (! $this->moment) {
+            $this->moment = $moment;
+        }
+
+        return $moment;
     }
 
 
     /**
      * @param string      $format
      * @param string      $date
-     * @param null|string $instantTimezone
+     * @param null|string $timezoneInitial
      *
      * @return null|\DateTime
      */
-    public function parseDateval(string $format, string $date, $instantTimezone = null) : ?\DateTime
+    public function parseIDate(string $format, string $date, $timezoneInitial = null) : ?\DateTimeImmutable
     {
         if ('' === $format) return null;
         if ('' === $date) return null;
 
-        $dateTime = date_create_from_format($format, $date, $instantTimezone);
+        $iDateTime = date_create_immutable_from_format($format, $date, $timezoneInitial);
+
+        if (false === $iDateTime) {
+            return null;
+        }
+
+        return $iDateTime;
+    }
+
+    /**
+     * @param string      $format
+     * @param string      $date
+     * @param null|string $timezoneInitial
+     *
+     * @return null|\DateTime
+     */
+    public function parseDate(string $format, string $date, $timezoneInitial = null) : ?\DateTime
+    {
+        if ('' === $format) return null;
+        if ('' === $date) return null;
+
+        $dateTime = date_create_from_format($format, $date, $timezoneInitial);
 
         if (false === $dateTime) {
             return null;
@@ -837,9 +1080,9 @@ class Calendar
      *
      * @return null|\DateTimeZone
      */
-    public function parseTimezoneval($timezone, bool $isDst = null, int $utcOffset = null) : ?\DateTimeZone
+    public function parseTimezone($timezone, bool $isDst = null, int $utcOffset = null) : ?\DateTimeZone
     {
-        if (null === ( $dateTimeZone = $this->timezoneval($timezone, $isDst, $utcOffset) )) {
+        if (null === ( $dateTimeZone = $this->timezoneVal($timezone, $isDst, $utcOffset) )) {
             return null;
         }
 
@@ -854,7 +1097,7 @@ class Calendar
      */
     public function parseInterval($interval, string $unit = null) : ?\DateInterval
     {
-        if (null === ( $dateInterval = $this->interval($interval, $unit) )) {
+        if (null === ( $dateInterval = $this->intervalVal($interval, $unit) )) {
             return null;
         }
 
@@ -863,84 +1106,12 @@ class Calendar
 
 
     /**
-     * @param int|float|string|\DateTime|array $dates
-     * @param null|bool                        $uniq
-     * @param null|string|array                $message
-     * @param mixed                            ...$arguments
+     * @param int|float|string|\DateTimeInterface|array $dates
+     * @param null|bool                                 $uniq
      *
-     * @return string[]
+     * @return \DateTimeInterface[]
      */
-    public function datevals($dates, $uniq = null, $message = null, ...$arguments) : array
-    {
-        $result = [];
-
-        $dates = is_array($dates)
-            ? $dates
-            : [ $dates ];
-
-        if ($hasMessage = ( null !== $message )) {
-            $this->filter->assert($message, ...$arguments);
-        }
-
-        $input = [];
-        array_walk_recursive($dates, function ($date) use (&$input, &$result) {
-            if (null === ( $dateval = $this->dateval($date) )) {
-                throw new InvalidArgumentException($this->filter->assert()->flushMessage($date)
-                    ?? [ 'Each item should be convertable to date: %s', $date ],
-                );
-            }
-
-            $input[] = $date;
-            $result[] = $dateval;
-        });
-
-        if ($hasMessage) {
-            $this->filter->assert()->flushMessage();
-        }
-
-        if ($uniq ?? false) {
-            $input = $this->php->distinct($input);
-
-            foreach ( $result as $idx => $val ) {
-                if (! isset($input[ $idx ])) {
-                    unset($result[ $idx ]);
-                }
-            }
-
-            $result = array_values($result);
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param int|float|string|\DateTime|array $dates
-     * @param null|bool                        $uniq
-     * @param null|string|array                $message
-     * @param mixed                            ...$arguments
-     *
-     * @return string[]
-     */
-    public function theDatevals($dates, $uniq = null, $message = null, ...$arguments) : array
-    {
-        $result = $this->datevals($dates, $uniq, $message, ...$arguments);
-
-        if (! count($result)) {
-            throw new InvalidArgumentException(
-                [ 'At least one date should be provided: %s', $dates ],
-            );
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param int|float|string|\DateTime|array $dates
-     * @param null|bool                        $uniq
-     *
-     * @return string[]
-     */
-    public function datevalsSkip($dates, $uniq = null) : array
+    public function datevals($dates, $uniq = null) : array
     {
         $result = [];
 
@@ -950,7 +1121,7 @@ class Calendar
 
         $input = [];
         array_walk_recursive($dates, function ($date) use (&$input, &$result) {
-            if (null !== ( $dateval = $this->dateval($date) )) {
+            if (null !== ( $dateval = $this->dateVal($date) )) {
                 $input[] = $date;
                 $result[] = $dateval;
             }
@@ -972,19 +1143,111 @@ class Calendar
     }
 
     /**
-     * @param int|float|string|\DateTime|array $dates
-     * @param null|bool                        $uniq
+     * @param int|float|string|\DateTimeInterface|array $dates
+     * @param null|bool                                 $uniq
      *
-     * @return string[]
+     * @return \DateTimeInterface[]
      */
-    public function theDatevalsSkip($dates, $uniq = null) : array
+    public function theDatevals($dates, $uniq = null) : array
     {
-        $result = $this->datevalsSkip($dates, $uniq);
+        $result = [];
 
-        if (! count($result)) {
-            throw new InvalidArgumentException(
-                [ 'At least one date should be provided: %s', $dates ],
-            );
+        $dates = is_array($dates)
+            ? $dates
+            : [ $dates ];
+
+        $input = [];
+        array_walk_recursive($dates, function ($date) use (&$input, &$result) {
+            $theDate = $this->theDateVal($date);
+
+            $input[] = $date;
+            $result[] = $theDate;
+        });
+
+        if ($uniq ?? false) {
+            $input = $this->php->distinct($input);
+
+            foreach ( $result as $idx => $val ) {
+                if (! isset($input[ $idx ])) {
+                    unset($result[ $idx ]);
+                }
+            }
+
+            $result = array_values($result);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param int|float|string|\DateTimeInterface|array $dates
+     * @param null|bool                                 $uniq
+     *
+     * @return \DateTimeImmutable[]
+     */
+    public function iDatevals($dates, $uniq = null) : array
+    {
+        $result = [];
+
+        $dates = is_array($dates)
+            ? $dates
+            : [ $dates ];
+
+        $input = [];
+        array_walk_recursive($dates, function ($date) use (&$input, &$result) {
+            if (null !== ( $dateval = $this->iDateVal($date) )) {
+                $input[] = $date;
+                $result[] = $dateval;
+            }
+        });
+
+        if ($uniq ?? false) {
+            $input = $this->php->distinct($input);
+
+            foreach ( $result as $idx => $val ) {
+                if (! isset($input[ $idx ])) {
+                    unset($result[ $idx ]);
+                }
+            }
+
+            $result = array_values($result);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param int|float|string|\DateTimeInterface|array $dates
+     * @param null|bool                                 $uniq
+     *
+     * @return \DateTimeImmutable[]
+     */
+    public function theIDatevals($dates, $uniq = null) : array
+    {
+        $result = [];
+
+        $dates = is_array($dates)
+            ? $dates
+            : [ $dates ];
+
+        $input = [];
+        array_walk_recursive($dates, function ($date) use (&$input, &$result) {
+            $theDate = $this->theIDateVal($date);
+
+            $input[] = $date;
+            $result[] = $theDate;
+        });
+
+        if ($uniq ?? false) {
+            $input = $this->php->distinct($input);
+
+            foreach ( $result as $idx => $val ) {
+                if (! isset($input[ $idx ])) {
+                    unset($result[ $idx ]);
+                }
+            }
+
+            $result = array_values($result);
         }
 
         return $result;
@@ -995,11 +1258,27 @@ class Calendar
      * @param \DateTime                 $instance
      * @param null|string|\DateTimeZone $timezone
      *
+     * @return \DateTimeImmutable
+     */
+    protected function tryIDateFromInstance($instance, $timezone = null) : ?\DateTimeImmutable
+    {
+        if (! is_a($instance, \DateTimeImmutable::class)) return null;
+
+        if ($timezone) {
+            $instance = $instance->setTimezone($timezone);
+        }
+
+        return $instance;
+    }
+
+    /**
+     * @param \DateTime                 $instance
+     * @param null|string|\DateTimeZone $timezone
+     *
      * @return \DateTime
      */
     protected function tryDateFromInstance($instance, $timezone = null) : ?\DateTime
     {
-        if (! is_object($instance)) return null;
         if (! is_a($instance, \DateTime::class)) return null;
 
         if ($timezone) {
@@ -1019,9 +1298,10 @@ class Calendar
     {
         if (! is_int($int)) return null;
 
-        $timezone = $timezone ?? $this->getDefaultTimezone();
+        $timezone = $timezone
+            ?? $this->getDefaultTimezone();
 
-        $dateTimeZone = $this->theTimezone($timezone);
+        $dateTimeZone = $this->theTimezoneVal($timezone);
 
         $dateTime = $this->now($dateTimeZone);
 
@@ -1049,9 +1329,10 @@ class Calendar
     {
         if (! is_float($float)) return null;
 
-        $timezone = $timezone ?? $this->getDefaultTimezone();
+        $timezone = $timezone
+            ?? $this->getDefaultTimezone();
 
-        $dateTimeZone = $this->theTimezone($timezone);
+        $dateTimeZone = $this->theTimezoneVal($timezone);
 
         [ $int, $microseconds ] = explode('.', sprintf('%f', $float)) + [ null, null ];
 
@@ -1108,9 +1389,10 @@ class Calendar
         if ('' === $numeric) return null;
         if (! is_numeric($numeric)) return null;
 
-        $timezone = $timezone ?? $this->getDefaultTimezone();
+        $timezone = $timezone
+            ?? $this->getDefaultTimezone();
 
-        $dateTimeZone = $this->theTimezone($timezone);
+        $dateTimeZone = $this->theTimezoneVal($timezone);
 
         if (null !== ( $int = $this->num->intval($numeric) )) {
             $dateTime = $this->tryDateFromInt($int, $dateTimeZone);
@@ -1148,12 +1430,13 @@ class Calendar
             return null;
         }
 
-        $timezone = $timezone ?? $this->getDefaultTimezone();
+        $timezone = $timezone
+            ?? $this->getDefaultTimezone();
 
-        $dateTimeZone = $this->theTimezone($timezone);
+        $dateTimeZone = $this->theTimezoneVal($timezone);
 
         $dateTime = $this->tryDateFromInt(
-            strtotime($datestring, $this->today($dateTimeZone)->getTimestamp()),
+            strtotime($datestring, $this->nowSame($dateTimeZone)->getTimestamp()),
             $dateTimeZone
         );
 
@@ -1171,20 +1454,21 @@ class Calendar
         if (! is_string($format)) return null;
         if ('' === $format) return null;
 
-        $timezone = $timezone ?? $this->getDefaultTimezone();
+        $timezone = $timezone
+            ?? $this->getDefaultTimezone();
 
-        $dateTimeZone = $this->theTimezone($timezone);
+        $dateTimeZone = $this->theTimezoneVal($timezone);
 
         // be aware - timezone will bind instantly here
         foreach ( static::$formatsNoTimezone as $formatNoTimezone => $enabled ) {
-            if ($dateTime = $this->parseDateval($formatNoTimezone, $format, $dateTimeZone)) {
+            if ($dateTime = $this->parseDate($formatNoTimezone, $format, $dateTimeZone)) {
                 return $dateTime;
             }
         }
 
         // be careful - timezone will be changed here
         foreach ( static::$formatsTimezone as $formatTimezone => $enabled ) {
-            if ($dateTime = $this->parseDateval($formatTimezone, $format)) {
+            if ($dateTime = $this->parseDate($formatTimezone, $format)) {
                 $dateTime->setTimezone($dateTimeZone);
 
                 return $dateTime;
@@ -1202,7 +1486,6 @@ class Calendar
      */
     protected function tryTimezoneFromInstance($instance) : ?\DateTimeZone
     {
-        if (! is_object($instance)) return null;
         if (! is_a($instance, \DateTimeZone::class)) return null;
 
         return $instance;
@@ -1216,7 +1499,7 @@ class Calendar
      */
     protected function tryTimezoneFromNumval($numval, bool $isDst = null) : ?\DateTimeZone
     {
-        if (null === ( $numval = $this->num->numval($numval) )) {
+        if (null === ( $numval = $this->num->numericval($numval) )) {
             return null;
         }
 
@@ -1224,10 +1507,10 @@ class Calendar
 
         $dateTimeZone = $this->getDefaultTimezone();
 
-        $dateDefault = $this->theDate('now');
+        $dateDefault = $this->theDateVal('now');
         $dateDefaultAbbreviation = strtolower($dateDefault->format('T'));
 
-        $dateTimeUtc = $this->theDate('now', new \DateTimeZone('UTC'));
+        $dateTimeUtc = $this->theDateVal('now', new \DateTimeZone('UTC'));
         $dateDefaultUtcOffset = $dateTimeZone->getOffset($dateTimeUtc) + ( $numvalRound * 3600 );
 
         $timezones = [];
@@ -1304,7 +1587,7 @@ class Calendar
         // if ('' === $number) return null;
         if (! is_numeric($numeric)) return null;
 
-        if (null !== ( $numval = $this->num->numval($numeric) )) {
+        if (null !== ( $numval = $this->num->numericval($numeric) )) {
             $dateTimeZone = $this->tryTimezoneFromNumval($numval, $isDst);
 
             return $dateTimeZone;
@@ -1354,7 +1637,6 @@ class Calendar
     }
 
 
-
     /**
      * @param \DateInterval $instance
      *
@@ -1362,7 +1644,6 @@ class Calendar
      */
     protected function tryIntervalFromInstance($instance) : ?\DateInterval
     {
-        if (! is_object($instance)) return null;
         if (! is_a($instance, \DateInterval::class)) return null;
 
         return $instance;
@@ -1444,8 +1725,51 @@ class Calendar
         if ('' === $string) return null;
 
         $dateInterval = null
-            ?? $this->tryIntervalFromStringNumeric($string, $unit)
-            ?? $this->tryIntervalFromStringPattern($string);
+            ?? $this->tryIntervalFromStringPattern($string)
+            ?? $this->tryIntervalFromStringDatestring($string)
+            ?? $this->tryIntervalFromStringNumeric($string, $unit);
+
+        return $dateInterval;
+    }
+
+    /**
+     * @param string $pattern
+     *
+     * @return \DateInterval
+     */
+    protected function tryIntervalFromStringPattern($pattern) : ?\DateInterval
+    {
+        if (! is_string($pattern)) return null;
+        if ('' === $pattern) return null;
+        if (is_numeric($pattern)) return null;
+
+        try {
+            $dateInterval = new \DateInterval($pattern);
+        }
+        catch ( \Exception $e ) {
+            return null;
+        }
+
+        return $dateInterval;
+    }
+
+    /**
+     * @param string $datestring
+     *
+     * @return \DateInterval
+     */
+    protected function tryIntervalFromStringDatestring($datestring) : ?\DateInterval
+    {
+        if (! is_string($datestring)) return null;
+        if ('' === $datestring) return null;
+        if (false === strtotime($datestring, time())) return null;
+
+        try {
+            $dateInterval = date_create('now')->diff(date_create($datestring));
+        }
+        catch ( \Exception $e ) {
+            return null;
+        }
 
         return $dateInterval;
     }
@@ -1469,27 +1793,6 @@ class Calendar
         }
 
         return null;
-    }
-
-    /**
-     * @param string $pattern
-     *
-     * @return \DateInterval
-     */
-    protected function tryIntervalFromStringPattern($pattern) : ?\DateInterval
-    {
-        if (! is_string($pattern)) return null;
-        if ('' === $pattern) return null;
-        if (is_numeric($pattern)) return null;
-
-        try {
-            $dateInterval = new \DateInterval($pattern);
-        }
-        catch ( \Exception $e ) {
-            return null;
-        }
-
-        return $dateInterval;
     }
 
 

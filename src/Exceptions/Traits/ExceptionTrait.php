@@ -2,7 +2,6 @@
 
 namespace Gzhegow\Support\Exceptions\Traits;
 
-use Gzhegow\Support\Php;
 use Gzhegow\Support\Debug;
 
 
@@ -15,10 +14,11 @@ trait ExceptionTrait
      * @var Debug
      */
     protected $debug;
+
     /**
-     * @var Php
+     * @var string
      */
-    protected $php;
+    protected $name;
 
     /**
      * @var string
@@ -30,27 +30,50 @@ trait ExceptionTrait
     protected $payload;
 
     /**
-     * @var string
+     * @var array
      */
-    protected $name;
-
+    protected $report;
     /**
      * @var array
      */
     protected $reportTrace;
 
     /**
-     * @var array
+     * @var callable[]
      */
-    protected $report;
+    protected $pipeline = [];
 
 
     /**
-     * @return Debug
+     * @param mixed ...$arguments
+     *
+     * @return static
      */
-    protected function newDebug() : Debug
+    public function handle(...$arguments)
     {
-        return new Debug();
+        array_map(function ($callback) use ($arguments) {
+            $callback($this, ...$arguments);
+        }, $this->pipeline);
+
+        return $this;
+    }
+
+    /**
+     * @param mixed $carry
+     * @param mixed ...$arguments
+     *
+     * @return mixed
+     */
+    public function process($carry, ...$arguments)
+    {
+        $result = array_reduce($this->pipeline,
+            function ($carry, $callback) use ($arguments) {
+                return $callback($this, $carry, ...$arguments);
+            },
+            $carry
+        );
+
+        return $result;
     }
 
 
@@ -82,6 +105,24 @@ trait ExceptionTrait
 
 
     /**
+     * @return Debug
+     */
+    protected function newDebug() : Debug
+    {
+        return new Debug();
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getName() : string
+    {
+        return $this->name;
+    }
+
+
+    /**
      * @return string
      */
     public function getText() : string
@@ -95,15 +136,6 @@ trait ExceptionTrait
     public function getPayload()
     {
         return $this->payload;
-    }
-
-
-    /**
-     * @return string
-     */
-    public function getName() : string
-    {
-        return $this->name;
     }
 
 
@@ -131,22 +163,50 @@ trait ExceptionTrait
 
 
     /**
+     * @return callable[]
+     */
+    public function getPipeline() : array
+    {
+        return $this->pipeline;
+    }
+
+
+    /**
+     * @param callable $pipe
+     *
+     * @return $this
+     */
+    public function pipe(callable $pipe)
+    {
+        $this->pipeline[] = $pipe;
+
+        return $this;
+    }
+
+
+    /**
      * @param string|array $message
      * @param null         $payload
+     * @param mixed        ...$arguments
      *
-     * @return void
+     * @return array
      */
-    protected function parse($message, $payload = null) : void
+    protected function parse($message, $payload = null, ...$arguments) : array
     {
         $this->debug = $this->newDebug();
+
+        $this->name = str_replace('\\', '.', get_class($this));
 
         $placeholders = is_array($message)
             ? $message
             : [ $message ];
 
         $text = strval(array_shift($placeholders));
+
         if ('' === $text) {
-            throw new \InvalidArgumentException('Message Text should be string/number', null, $this);
+            throw new \InvalidArgumentException(
+                'Message Text should be string/number', null, $this
+            );
         }
 
         if ($placeholders) {
@@ -165,9 +225,40 @@ trait ExceptionTrait
         }
 
         $this->text = $text;
+
+        $previous = null;
+        foreach ( $arguments as $idx => $argument ) {
+            if (is_a($argument, \Throwable::class)) {
+                if ($previous) {
+                    throw new \InvalidArgumentException(
+                        'Only one throwable could be passed as Previous', null, $this
+                    );
+                }
+
+                $previous = $argument;
+
+            } elseif (is_callable($argument)) {
+                $this->pipeline[] = $argument;
+
+            } else continue;
+
+            unset($arguments[ $idx ]);
+        }
+
+        if ($arguments) {
+            $payload = is_array($payload)
+                ? $payload
+                : [ $payload ];
+
+            $payload = array_merge($payload, $arguments);
+        }
         $this->payload = $payload;
 
-        $this->name = str_replace('\\', '.', get_class($this));
+        return [
+            $message = $this->text,
+            $code = crc32($this->name),
+            $previous,
+        ];
     }
 
 

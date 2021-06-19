@@ -387,6 +387,86 @@ abstract class GeneratedFsFacade
     }
 
     /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return string
+     */
+    public static function thePathvalFileExists($pathOrSpl): string
+    {
+        return static::getInstance()->thePathvalFileExists($pathOrSpl);
+    }
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return string
+     */
+    public static function thePathvalFile($pathOrSpl): string
+    {
+        return static::getInstance()->thePathvalFile($pathOrSpl);
+    }
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return string
+     */
+    public static function thePathvalDir($pathOrSpl): string
+    {
+        return static::getInstance()->thePathvalDir($pathOrSpl);
+    }
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return string
+     */
+    public static function thePathvalLink($pathOrSpl): string
+    {
+        return static::getInstance()->thePathvalLink($pathOrSpl);
+    }
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return \SplFileInfo
+     */
+    public static function theSplvalFileExists($pathOrSpl): \SplFileInfo
+    {
+        return static::getInstance()->theSplvalFileExists($pathOrSpl);
+    }
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return \SplFileInfo
+     */
+    public static function theSplvalFile($pathOrSpl): \SplFileInfo
+    {
+        return static::getInstance()->theSplvalFile($pathOrSpl);
+    }
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return \SplFileInfo
+     */
+    public static function theSplvalDir($pathOrSpl): \SplFileInfo
+    {
+        return static::getInstance()->theSplvalDir($pathOrSpl);
+    }
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return \SplFileInfo
+     */
+    public static function theSplvalLink($pathOrSpl): \SplFileInfo
+    {
+        return static::getInstance()->theSplvalLink($pathOrSpl);
+    }
+
+    /**
      * @param string $root
      *
      * @return Fs

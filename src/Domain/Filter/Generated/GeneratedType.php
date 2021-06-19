@@ -87,9 +87,9 @@ abstract class GeneratedType
      *
      * @return bool
      */
-    public function isNumber($value): bool
+    public function isNum($value): bool
     {
-        return null !== $this->filter->filterNumber($value);
+        return null !== $this->filter->filterNum($value);
     }
 
     /**
@@ -120,6 +120,16 @@ abstract class GeneratedType
     public function isNumval($value): bool
     {
         return null !== $this->filter->filterNumval($value);
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return bool
+     */
+    public function isNumericval($value): bool
+    {
+        return null !== $this->filter->filterNumericval($value);
     }
 
     /**
@@ -207,9 +217,9 @@ abstract class GeneratedType
      *
      * @return bool
      */
-    public function isStringOrNumber($value): bool
+    public function isStringOrNum($value): bool
     {
-        return null !== $this->filter->filterStringOrNumber($value);
+        return null !== $this->filter->filterStringOrNum($value);
     }
 
     /**
@@ -217,9 +227,9 @@ abstract class GeneratedType
      *
      * @return bool
      */
-    public function isWordOrNumber($value): bool
+    public function isWordOrNum($value): bool
     {
-        return null !== $this->filter->filterWordOrNumber($value);
+        return null !== $this->filter->filterWordOrNum($value);
     }
 
     /**

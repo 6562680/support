@@ -63,7 +63,7 @@ class Cmp
     public function cmpnum($a, $b, bool $coalesce = null) : int
     {
         if (! ( ( $a === null )
-            || ( null !== $this->filter->filterNumber($a) )
+            || ( null !== $this->filter->filterNum($a) )
         )) {
             throw new InvalidArgumentException('A should be number');
         }
@@ -74,14 +74,14 @@ class Cmp
 
         $bNumber = null
             ?? ( ( null === $b ) ? $b : null )
-            ?? ( ( null !== $this->filter->filterNumber($b) ) ? $b : null )
+            ?? ( ( null !== $this->filter->filterNum($b) ) ? $b : null )
             ?? ( $coalesce ? floatval($b) : null );
 
         $isA = false;
         $isB = false;
         if (1
-            && ( $isA = ( null !== $this->filter->filterNumber($a) ) )
-            && ( $isB = ( null !== $this->filter->filterNumber($bNumber) ) )
+            && ( $isA = ( null !== $this->filter->filterNum($a) ) )
+            && ( $isB = ( null !== $this->filter->filterNum($bNumber) ) )
         ) {
             $result = null
                 ?? ( $a < $b ? -1 : null )
@@ -191,8 +191,8 @@ class Cmp
 
         $bDate = null
             ?? ( ( null === $b ) ? $b : null )
-            ?? ( ( null !== ( $dt = $this->calendar->filterDateval($b) ) ) ? $dt : null )
-            ?? ( $coalesce ? $this->calendar->theDate($b) : null );
+            ?? ( ( null !== ( $dt = $this->calendar->filterDate($b) ) ) ? $dt : null )
+            ?? ( $coalesce ? $this->calendar->theDateVal($b) : null );
 
         $isA = false;
         $isB = false;

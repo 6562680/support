@@ -17,14 +17,14 @@ class LogicException extends \LogicException
     /**
      * Constructor
      *
-     * @param string|array   $message
-     * @param mixed          $payload
-     * @param Throwable|null $previous
+     * @param string|array $message
+     * @param mixed        $payload
+     * @param mixed        ...$arguments
      */
-    public function __construct($message, $payload = null, Throwable $previous = null)
+    public function __construct($message, $payload = null, ...$arguments)
     {
-        $this->parse($message, $payload);
+        [ $message, $code, $previous ] = $this->parse($message, $payload, ...$arguments);
 
-        parent::__construct($this->text, -1, $previous);
+        parent::__construct($message, $code, $previous);
     }
 }

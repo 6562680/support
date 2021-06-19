@@ -24,8 +24,18 @@ abstract class GeneratedCalendarFacade
     }
 
     /**
-     * @param int|float|string|\DateTime $a
-     * @param int|float|string|\DateTime $b
+     * @param string|\DateTimeZone $timezone
+     *
+     * @return Calendar
+     */
+    public static function setDefaultTimezone($timezone)
+    {
+        return static::getInstance()->setDefaultTimezone($timezone);
+    }
+
+    /**
+     * @param int|float|string|\DateTimeInterface|mixed $a
+     * @param int|float|string|\DateTimeInterface|mixed $b
      *
      * @return bool
      */
@@ -35,8 +45,8 @@ abstract class GeneratedCalendarFacade
     }
 
     /**
-     * @param int|float|string|\DateTime $a
-     * @param int|float|string|\DateTime $b
+     * @param int|float|string|\DateTimeInterface|mixed $a
+     * @param int|float|string|\DateTimeInterface|mixed $b
      *
      * @return bool
      */
@@ -46,8 +56,8 @@ abstract class GeneratedCalendarFacade
     }
 
     /**
-     * @param int|float|string|\DateTime $a
-     * @param int|float|string|\DateTime $b
+     * @param int|float|string|\DateTimeInterface|mixed $a
+     * @param int|float|string|\DateTimeInterface|mixed $b
      *
      * @return bool
      */
@@ -57,8 +67,8 @@ abstract class GeneratedCalendarFacade
     }
 
     /**
-     * @param int|float|string|\DateTime $a
-     * @param int|float|string|\DateTime $b
+     * @param int|float|string|\DateTimeInterface|mixed $a
+     * @param int|float|string|\DateTimeInterface|mixed $b
      *
      * @return bool
      */
@@ -68,8 +78,8 @@ abstract class GeneratedCalendarFacade
     }
 
     /**
-     * @param int|float|string|\DateTime $a
-     * @param int|float|string|\DateTime $b
+     * @param int|float|string|\DateTimeInterface|mixed $a
+     * @param int|float|string|\DateTimeInterface|mixed $b
      *
      * @return bool
      */
@@ -79,8 +89,8 @@ abstract class GeneratedCalendarFacade
     }
 
     /**
-     * @param int|float|string|\DateTime       $date
-     * @param int|float|string|\DateTime|array $dates
+     * @param int|float|string|\DateTimeInterface|mixed $date
+     * @param int|float|string|\DateTimeInterface|array $dates
      *
      * @return bool
      */
@@ -90,8 +100,8 @@ abstract class GeneratedCalendarFacade
     }
 
     /**
-     * @param int[]|float[]|string[]|\DateTime[] $dates
-     * @param int[]|float[]|string[]|\DateTime[] $datesWith
+     * @param int[]|float[]|string[]|\DateTimeInterface[] $dates
+     * @param int[]|float[]|string[]|\DateTimeInterface[] $datesWith
      *
      * @return bool
      */
@@ -101,7 +111,27 @@ abstract class GeneratedCalendarFacade
     }
 
     /**
-     * @param int|float|string|\DateTime $date
+     * @param int|float|string|\DateTimeInterface|mixed $date
+     *
+     * @return bool
+     */
+    public static function isDateTimeInterface($date): bool
+    {
+        return static::getInstance()->isDateTimeInterface($date);
+    }
+
+    /**
+     * @param int|float|string|\DateTimeInterface|mixed $date
+     *
+     * @return bool
+     */
+    public static function isDateTimeImmutable($date): bool
+    {
+        return static::getInstance()->isDateTimeImmutable($date);
+    }
+
+    /**
+     * @param int|float|string|\DateTimeInterface|mixed $date
      *
      * @return bool
      */
@@ -121,13 +151,33 @@ abstract class GeneratedCalendarFacade
     }
 
     /**
-     * @param int|float|string|\DateTime $date
+     * @param string|\DateInterval $interval
      *
      * @return bool
      */
-    public static function isDateval($date): bool
+    public static function isDateInterval($interval): bool
     {
-        return static::getInstance()->isDateval($date);
+        return static::getInstance()->isDateInterval($interval);
+    }
+
+    /**
+     * @param int|float|string|\DateTimeInterface|mixed $date
+     *
+     * @return bool
+     */
+    public static function isIDate($date): bool
+    {
+        return static::getInstance()->isIDate($date);
+    }
+
+    /**
+     * @param int|float|string|\DateTimeInterface|mixed $date
+     *
+     * @return bool
+     */
+    public static function isDate($date): bool
+    {
+        return static::getInstance()->isDate($date);
     }
 
     /**
@@ -135,9 +185,9 @@ abstract class GeneratedCalendarFacade
      *
      * @return bool
      */
-    public static function isTimezoneval($timezone): bool
+    public static function isTimezone($timezone): bool
     {
-        return static::getInstance()->isTimezoneval($timezone);
+        return static::getInstance()->isTimezone($timezone);
     }
 
     /**
@@ -151,7 +201,27 @@ abstract class GeneratedCalendarFacade
     }
 
     /**
-     * @param \DateTime $date
+     * @param \DateTimeInterface|mixed $date
+     *
+     * @return null|\DateTimeInterface
+     */
+    public static function filterDateTimeInterface($date): ?\DateTimeInterface
+    {
+        return static::getInstance()->filterDateTimeInterface($date);
+    }
+
+    /**
+     * @param \DateTimeImmutable|mixed $date
+     *
+     * @return null|\DateTimeImmutable
+     */
+    public static function filterDateTimeImmutable($date): ?\DateTimeImmutable
+    {
+        return static::getInstance()->filterDateTimeImmutable($date);
+    }
+
+    /**
+     * @param \DateTime|mixed $date
      *
      * @return null|\DateTime
      */
@@ -161,7 +231,7 @@ abstract class GeneratedCalendarFacade
     }
 
     /**
-     * @param \DateTimeZone $timezone
+     * @param \DateTimeZone|mixed $timezone
      *
      * @return null|\DateTimeZone
      */
@@ -171,7 +241,7 @@ abstract class GeneratedCalendarFacade
     }
 
     /**
-     * @param \DateInterval $interval
+     * @param \DateInterval|mixed $interval
      *
      * @return null|\DateInterval
      */
@@ -181,14 +251,23 @@ abstract class GeneratedCalendarFacade
     }
 
     /**
-     * @param int|float|string|\DateTime $date
-     * @param null|\DateTimeZone         $timezone
+     * @param int|float|string|\DateTimeInterface|mixed $date
+     *
+     * @return null|int|float|string|\DateTimeImmutable
+     */
+    public static function filterIDate($date)
+    {
+        return static::getInstance()->filterIDate($date);
+    }
+
+    /**
+     * @param int|float|string|\DateTimeInterface|mixed $date
      *
      * @return null|int|float|string|\DateTime
      */
-    public static function filterDateval($date, $timezone = null)
+    public static function filterDate($date)
     {
-        return static::getInstance()->filterDateval($date, $timezone);
+        return static::getInstance()->filterDate($date);
     }
 
     /**
@@ -196,9 +275,9 @@ abstract class GeneratedCalendarFacade
      *
      * @return null|string|\DateTimeZone
      */
-    public static function filterTimezoneval($timezone)
+    public static function filterTimezone($timezone)
     {
-        return static::getInstance()->filterTimezoneval($timezone);
+        return static::getInstance()->filterTimezone($timezone);
     }
 
     /**
@@ -212,7 +291,27 @@ abstract class GeneratedCalendarFacade
     }
 
     /**
-     * @param \DateTime $date
+     * @param \DateTime|mixed $date
+     *
+     * @return \DateTimeInterface
+     */
+    public static function assertDateTimeInterface($date): \DateTimeInterface
+    {
+        return static::getInstance()->assertDateTimeInterface($date);
+    }
+
+    /**
+     * @param \DateTime|mixed $date
+     *
+     * @return \DateTime
+     */
+    public static function assertDateTimeImmutable($date): \DateTime
+    {
+        return static::getInstance()->assertDateTimeImmutable($date);
+    }
+
+    /**
+     * @param \DateTime|mixed $date
      *
      * @return \DateTime
      */
@@ -222,7 +321,7 @@ abstract class GeneratedCalendarFacade
     }
 
     /**
-     * @param \DateTimeZone $timezone
+     * @param \DateTimeZone|mixed $timezone
      *
      * @return \DateTimeZone
      */
@@ -232,7 +331,7 @@ abstract class GeneratedCalendarFacade
     }
 
     /**
-     * @param \DateInterval $interval
+     * @param \DateInterval|mixed $interval
      *
      * @return \DateInterval
      */
@@ -242,14 +341,23 @@ abstract class GeneratedCalendarFacade
     }
 
     /**
-     * @param int|float|string|\DateTime $date
-     * @param null|string|\DateTimeZone  $timezone
+     * @param int|float|string|\DateTimeInterface|mixed $date
+     *
+     * @return int|float|string|\DateTimeImmutable
+     */
+    public static function assertIDate($date)
+    {
+        return static::getInstance()->assertIDate($date);
+    }
+
+    /**
+     * @param int|float|string|\DateTimeInterface|mixed $date
      *
      * @return int|float|string|\DateTime
      */
-    public static function assertDateval($date, $timezone = null): \DateTime
+    public static function assertDate($date)
     {
-        return static::getInstance()->assertDateval($date, $timezone);
+        return static::getInstance()->assertDate($date);
     }
 
     /**
@@ -257,9 +365,9 @@ abstract class GeneratedCalendarFacade
      *
      * @return string|\DateTimeZone
      */
-    public static function assertTimezoneval($timezone): \DateTimeZone
+    public static function assertTimezone($timezone)
     {
-        return static::getInstance()->assertTimezoneval($timezone);
+        return static::getInstance()->assertTimezone($timezone);
     }
 
     /**
@@ -267,53 +375,31 @@ abstract class GeneratedCalendarFacade
      *
      * @return string|\DateInterval
      */
-    public static function assertInterval($interval): \DateInterval
+    public static function assertInterval($interval)
     {
         return static::getInstance()->assertInterval($interval);
     }
 
     /**
-     * @param string|\DateTimeZone $timezone
+     * @param int|float|string|\DateTimeInterface|mixed $date
+     * @param null|\DateTimeZone                        $timezone
      *
-     * @return Calendar
+     * @return null|\DateTimeImmutable
      */
-    public static function setDefaultTimezone($timezone)
+    public static function iDateVal($date, $timezone = null): ?\DateTimeImmutable
     {
-        return static::getInstance()->setDefaultTimezone($timezone);
+        return static::getInstance()->iDateVal($date, $timezone);
     }
 
     /**
-     * @param int|float|string|\DateTime $date
-     * @param string|\DateInterval       $interval
-     * @param null|string                $unit
-     *
-     * @return \DateTime
-     */
-    public static function add($date, $interval, $unit = null): \DateTime
-    {
-        return static::getInstance()->add($date, $interval, $unit);
-    }
-
-    /**
-     * @param int|float|string|\DateTime $dateA
-     * @param int|float|string|\DateTime $dateB
-     *
-     * @return float
-     */
-    public static function diff($dateA, $dateB): float
-    {
-        return static::getInstance()->diff($dateA, $dateB);
-    }
-
-    /**
-     * @param int|float|string|\DateTime $date
-     * @param null|\DateTimeZone         $timezone
+     * @param int|float|string|\DateTimeInterface|mixed $date
+     * @param null|\DateTimeZone                        $timezone
      *
      * @return null|\DateTime
      */
-    public static function dateval($date, $timezone = null): ?\DateTime
+    public static function dateVal($date, $timezone = null): ?\DateTime
     {
-        return static::getInstance()->dateval($date, $timezone);
+        return static::getInstance()->dateVal($date, $timezone);
     }
 
     /**
@@ -323,9 +409,9 @@ abstract class GeneratedCalendarFacade
      *
      * @return null|\DateTimeZone
      */
-    public static function timezoneval($timezone, bool $isDst = null, int $utcOffset = null): ?\DateTimeZone
+    public static function timezoneVal($timezone, bool $isDst = null, int $utcOffset = null): ?\DateTimeZone
     {
-        return static::getInstance()->timezoneval($timezone, $isDst, $utcOffset);
+        return static::getInstance()->timezoneVal($timezone, $isDst, $utcOffset);
     }
 
     /**
@@ -334,20 +420,31 @@ abstract class GeneratedCalendarFacade
      *
      * @return null|\DateInterval
      */
-    public static function interval($interval, $unit = null): ?\DateInterval
+    public static function intervalVal($interval, $unit = null): ?\DateInterval
     {
-        return static::getInstance()->interval($interval, $unit);
+        return static::getInstance()->intervalVal($interval, $unit);
     }
 
     /**
-     * @param int|float|string|\DateTime $date
-     * @param null|\DateTimeZone         $timezone
+     * @param int|float|string|\DateTimeInterface|mixed $date
+     * @param null|\DateTimeZone                        $timezone
+     *
+     * @return \DateTimeImmutable
+     */
+    public static function theIDateVal($date, $timezone = null): \DateTimeImmutable
+    {
+        return static::getInstance()->theIDateVal($date, $timezone);
+    }
+
+    /**
+     * @param int|float|string|\DateTimeInterface|mixed $date
+     * @param null|\DateTimeZone                        $timezone
      *
      * @return \DateTime
      */
-    public static function theDate($date, $timezone = null): \DateTime
+    public static function theDateVal($date, $timezone = null): \DateTime
     {
-        return static::getInstance()->theDate($date, $timezone);
+        return static::getInstance()->theDateVal($date, $timezone);
     }
 
     /**
@@ -357,9 +454,9 @@ abstract class GeneratedCalendarFacade
      *
      * @return \DateTimeZone
      */
-    public static function theTimezone($timezone, bool $isDst = null, int $utcOffset = null): \DateTimeZone
+    public static function theTimezoneVal($timezone, bool $isDst = null, int $utcOffset = null): \DateTimeZone
     {
-        return static::getInstance()->theTimezone($timezone, $isDst, $utcOffset);
+        return static::getInstance()->theTimezoneVal($timezone, $isDst, $utcOffset);
     }
 
     /**
@@ -368,21 +465,56 @@ abstract class GeneratedCalendarFacade
      *
      * @return \DateInterval
      */
-    public static function theInterval($interval, string $unit = null): \DateInterval
+    public static function theIntervalVal($interval, string $unit = null): \DateInterval
     {
-        return static::getInstance()->theInterval($interval, $unit);
+        return static::getInstance()->theIntervalVal($interval, $unit);
+    }
+
+    /**
+     * @param int|float|string|\DateTimeInterface|mixed $date
+     * @param string|\DateInterval                      $interval
+     * @param null|string                               $unit
+     *
+     * @return \DateTime
+     */
+    public static function add($date, $interval, $unit = null): \DateTimeInterface
+    {
+        return static::getInstance()->add($date, $interval, $unit);
+    }
+
+    /**
+     * @param int|float|string|\DateTimeInterface|mixed $dateA
+     * @param int|float|string|\DateTimeInterface|mixed $dateB
+     *
+     * @return float
+     */
+    public static function diff($dateA, $dateB): float
+    {
+        return static::getInstance()->diff($dateA, $dateB);
     }
 
     /**
      * @param string      $format
      * @param string      $date
-     * @param null|string $instantTimezone
+     * @param null|string $timezoneInitial
+     *
+     * @return \DateTimeImmutable
+     */
+    public static function iDateParse(string $format, string $date, $timezoneInitial = null): \DateTimeImmutable
+    {
+        return static::getInstance()->iDateParse($format, $date, $timezoneInitial);
+    }
+
+    /**
+     * @param string      $format
+     * @param string      $date
+     * @param null|string $timezoneInitial
      *
      * @return \DateTime
      */
-    public static function dateParse(string $format, string $date, $instantTimezone = null): \DateTime
+    public static function dateParse(string $format, string $date, $timezoneInitial = null): \DateTime
     {
-        return static::getInstance()->dateParse($format, $date, $instantTimezone);
+        return static::getInstance()->dateParse($format, $date, $timezoneInitial);
     }
 
     /**
@@ -421,23 +553,55 @@ abstract class GeneratedCalendarFacade
     /**
      * @param null|string|\DateTimeZone $timezone
      *
+     * @return \DateTimeImmutable
+     */
+    public static function iNow($timezone = null): \DateTimeImmutable
+    {
+        return static::getInstance()->iNow($timezone);
+    }
+
+    /**
+     * @param null|string|\DateTimeZone $timezone
+     *
      * @return \DateTime
      */
-    public static function today($timezone = null): \DateTime
+    public static function nowSame($timezone = null): \DateTime
     {
-        return static::getInstance()->today($timezone);
+        return static::getInstance()->nowSame($timezone);
+    }
+
+    /**
+     * @param null|string|\DateTimeZone $timezone
+     *
+     * @return \DateTimeImmutable
+     */
+    public static function iNowSame($timezone = null): \DateTimeImmutable
+    {
+        return static::getInstance()->iNowSame($timezone);
     }
 
     /**
      * @param string      $format
      * @param string      $date
-     * @param null|string $instantTimezone
+     * @param null|string $timezoneInitial
      *
      * @return null|\DateTime
      */
-    public static function parseDateval(string $format, string $date, $instantTimezone = null): ?\DateTime
+    public static function parseIDate(string $format, string $date, $timezoneInitial = null): ?\DateTimeImmutable
     {
-        return static::getInstance()->parseDateval($format, $date, $instantTimezone);
+        return static::getInstance()->parseIDate($format, $date, $timezoneInitial);
+    }
+
+    /**
+     * @param string      $format
+     * @param string      $date
+     * @param null|string $timezoneInitial
+     *
+     * @return null|\DateTime
+     */
+    public static function parseDate(string $format, string $date, $timezoneInitial = null): ?\DateTime
+    {
+        return static::getInstance()->parseDate($format, $date, $timezoneInitial);
     }
 
     /**
@@ -447,9 +611,9 @@ abstract class GeneratedCalendarFacade
      *
      * @return null|\DateTimeZone
      */
-    public static function parseTimezoneval($timezone, bool $isDst = null, int $utcOffset = null): ?\DateTimeZone
+    public static function parseTimezone($timezone, bool $isDst = null, int $utcOffset = null): ?\DateTimeZone
     {
-        return static::getInstance()->parseTimezoneval($timezone, $isDst, $utcOffset);
+        return static::getInstance()->parseTimezone($timezone, $isDst, $utcOffset);
     }
 
     /**
@@ -464,51 +628,47 @@ abstract class GeneratedCalendarFacade
     }
 
     /**
-     * @param int|float|string|\DateTime|array $dates
-     * @param null|bool                        $uniq
-     * @param null|string|array                $message
-     * @param mixed                            ...$arguments
+     * @param int|float|string|\DateTimeInterface|array $dates
+     * @param null|bool                                 $uniq
      *
-     * @return string[]
+     * @return \DateTimeInterface[]
      */
-    public static function datevals($dates, $uniq = null, $message = null, ...$arguments): array
+    public static function datevals($dates, $uniq = null): array
     {
-        return static::getInstance()->datevals($dates, $uniq, $message, ...$arguments);
+        return static::getInstance()->datevals($dates, $uniq);
     }
 
     /**
-     * @param int|float|string|\DateTime|array $dates
-     * @param null|bool                        $uniq
-     * @param null|string|array                $message
-     * @param mixed                            ...$arguments
+     * @param int|float|string|\DateTimeInterface|array $dates
+     * @param null|bool                                 $uniq
      *
-     * @return string[]
+     * @return \DateTimeInterface[]
      */
-    public static function theDatevals($dates, $uniq = null, $message = null, ...$arguments): array
+    public static function theDatevals($dates, $uniq = null): array
     {
-        return static::getInstance()->theDatevals($dates, $uniq, $message, ...$arguments);
+        return static::getInstance()->theDatevals($dates, $uniq);
     }
 
     /**
-     * @param int|float|string|\DateTime|array $dates
-     * @param null|bool                        $uniq
+     * @param int|float|string|\DateTimeInterface|array $dates
+     * @param null|bool                                 $uniq
      *
-     * @return string[]
+     * @return \DateTimeImmutable[]
      */
-    public static function datevalsSkip($dates, $uniq = null): array
+    public static function iDatevals($dates, $uniq = null): array
     {
-        return static::getInstance()->datevalsSkip($dates, $uniq);
+        return static::getInstance()->iDatevals($dates, $uniq);
     }
 
     /**
-     * @param int|float|string|\DateTime|array $dates
-     * @param null|bool                        $uniq
+     * @param int|float|string|\DateTimeInterface|array $dates
+     * @param null|bool                                 $uniq
      *
-     * @return string[]
+     * @return \DateTimeImmutable[]
      */
-    public static function theDatevalsSkip($dates, $uniq = null): array
+    public static function theIDatevals($dates, $uniq = null): array
     {
-        return static::getInstance()->theDatevalsSkip($dates, $uniq);
+        return static::getInstance()->theIDatevals($dates, $uniq);
     }
 
     /**

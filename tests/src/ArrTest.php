@@ -16,6 +16,7 @@ class ArrTest extends AbstractTestCase
         return ( new SupportFactory() )->newArr();
     }
 
+
     public function testGet()
     {
         $arr = $this->getArr();
@@ -62,7 +63,7 @@ class ArrTest extends AbstractTestCase
         $this->assertEquals(1, $arr->get([ 'foo', 'foo', '0' ], $array));
     }
 
-    public function testBadGet()
+    public function testGetBad()
     {
         $arr = $this->getArr();
 
@@ -105,6 +106,7 @@ class ArrTest extends AbstractTestCase
             $arr->get([ 'hello', 'world' ], $array);
         });
     }
+
 
     public function testGetRef()
     {
@@ -152,7 +154,7 @@ class ArrTest extends AbstractTestCase
         $this->assertEquals(1, $arr->getRef([ 'foo', 'foo', '0' ], $array));
     }
 
-    public function testBadGetRef()
+    public function testGetRefBad()
     {
         $arr = $this->getArr();
 
@@ -195,6 +197,7 @@ class ArrTest extends AbstractTestCase
             $arr->getRef([ 'hello', 'world' ], $array);
         });
     }
+
 
     public function testHas()
     {
@@ -248,6 +251,7 @@ class ArrTest extends AbstractTestCase
         $this->assertEquals(false, $arr->has([ 'hello', 'world' ], $array));
     }
 
+
     public function testSet()
     {
         $arr = $this->getArr();
@@ -293,7 +297,7 @@ class ArrTest extends AbstractTestCase
         $this->assertEquals([ 'hello' => [ 'world' => [ 'hello' => [ 'world' => 1 ] ] ] ], $dst);
     }
 
-    public function testBadSet()
+    public function testSetBad()
     {
         $arr = $this->getArr();
 
@@ -307,6 +311,7 @@ class ArrTest extends AbstractTestCase
             $arr->set($dst, [], 1);
         });
     }
+
 
     public function testDel()
     {
@@ -428,7 +433,7 @@ class ArrTest extends AbstractTestCase
         $this->assertEquals($expect, $arr->del($copy, [ 'foo', 'foo', '0' ]));
     }
 
-    public function testBadDel()
+    public function testDelBad()
     {
         $arr = $this->getArr();
 
@@ -476,6 +481,7 @@ class ArrTest extends AbstractTestCase
             $arr->del($copy, [ 'hello', 'world' ]);
         });
     }
+
 
     public function testDelete()
     {
@@ -575,6 +581,7 @@ class ArrTest extends AbstractTestCase
         $this->assertEquals(false, $arr->delete($copy, [ 'hello', 'world' ]));
     }
 
+
     public function testPut()
     {
         $arr = $this->getArr();
@@ -640,7 +647,7 @@ class ArrTest extends AbstractTestCase
         unset($ref);
     }
 
-    public function testBadPut()
+    public function testPutBad()
     {
         $arr = $this->getArr();
 
@@ -655,12 +662,14 @@ class ArrTest extends AbstractTestCase
         });
     }
 
+
     public function testClear()
     {
         $arr = $this->getArr();
 
         $this->assertEquals([ 1 => null ], $arr->clear([ 1 => 1 ]));
     }
+
 
     public function testOnly()
     {
@@ -689,6 +698,7 @@ class ArrTest extends AbstractTestCase
         $this->assertEquals([ 2 => 1 ], $arr->drop([ 1 => 1, 2 => 1 ], [ 1 ]));
     }
 
+
     public function testCombine()
     {
         $arr = $this->getArr();
@@ -702,6 +712,7 @@ class ArrTest extends AbstractTestCase
         $this->assertEquals([ 1 => 1, 2 => 1, 3 => 1 ], $arr->combine([ 1, 2, 3 ], 1));
         $this->assertEquals([ 1 => 1, 2 => 2, 3 => null ], $arr->combine([ 1, 2, 3 ], [ 1, 2 ]));
     }
+
 
     public function testZip()
     {
@@ -752,79 +763,82 @@ class ArrTest extends AbstractTestCase
         ], $arr->group($ids, function ($v) { return $v > 2 ? 'upper' : 'lower'; }));
     }
 
-    public function testFullpath()
+
+    public function testPath()
     {
         $arr = $this->getArr();
 
-        $this->assertEquals([ '' ], $arr->fullpath('', ':'));
-        $this->assertEquals([ 'hello' ], $arr->fullpath('hello', ':'));
-        $this->assertEquals([ 'hello', 'world' ], $arr->fullpath('hello:world', ':'));
-        $this->assertEquals([], $arr->fullpath([], ':'));
-        $this->assertEquals([ '' ], $arr->fullpath([ '' ], ':'));
-        $this->assertEquals([ '', '' ], $arr->fullpath([ '', '' ], ':'));
-        $this->assertEquals([ 'hello' ], $arr->fullpath([ 'hello' ], ':'));
-        $this->assertEquals([ 'hello', 'world' ], $arr->fullpath([ 'hello:world' ], ':'));
-        $this->assertEquals([ 'hello', 'world' ], $arr->fullpath([ 'hello', 'world' ], ':'));
+        $this->assertEquals([ '' ], $arr->path('', ':'));
+        $this->assertEquals([ 'hello' ], $arr->path('hello', ':'));
+        $this->assertEquals([ 'hello', 'world' ], $arr->path('hello:world', ':'));
+        $this->assertEquals([], $arr->path([], ':'));
+        $this->assertEquals([ '' ], $arr->path([ '' ], ':'));
+        $this->assertEquals([ '', '' ], $arr->path([ '', '' ], ':'));
+        $this->assertEquals([ 'hello' ], $arr->path([ 'hello' ], ':'));
+        $this->assertEquals([ 'hello', 'world' ], $arr->path([ 'hello:world' ], ':'));
+        $this->assertEquals([ 'hello', 'world' ], $arr->path([ 'hello', 'world' ], ':'));
         $this->assertEquals(
             [ 'hello', 'world', 'hello', 'world' ],
-            $arr->fullpath([ 'hello', 'world', 'hello:world' ], ':')
+            $arr->path([ 'hello', 'world', 'hello:world' ], ':')
         );
         $this->assertEquals(
             [ 'hello', 'world', 'hello', 'world' ],
-            $arr->fullpath([ 'hello', 'world', [ 'hello:world' ] ], ':')
+            $arr->path([ 'hello', 'world', [ 'hello:world' ] ], ':')
         );
     }
 
-    public function testBadFullpath()
+    public function testPathBad()
     {
         $arr = $this->getArr();
 
         $this->assertException(InvalidArgumentException::class, function () use ($arr) {
-            $arr->fullpath(null, ':');
+            $arr->path(null, ':');
         });
 
         $this->assertException(InvalidArgumentException::class, function () use ($arr) {
-            $arr->fullpath([ null ], ':');
+            $arr->path([ null ], ':');
         });
     }
 
-    public function testKey()
+
+    public function testPathkey()
     {
         $arr = $this->getArr();
 
-        $this->assertEquals('', $arr->key('', ':'));
-        $this->assertEquals('hello', $arr->key('hello', ':'));
-        $this->assertEquals('hello:world', $arr->key('hello:world', ':'));
-        $this->assertEquals('', $arr->key([], ':'));
-        $this->assertEquals('', $arr->key([ '' ], ':'));
-        $this->assertEquals('', '', $arr->key([ '', '' ], ':'));
-        $this->assertEquals('hello', $arr->key([ 'hello' ], ':'));
-        $this->assertEquals('hello:world', $arr->key([ 'hello:world' ], ':'));
-        $this->assertEquals('hello:world', $arr->key([ 'hello', 'world' ], ':'));
+        $this->assertEquals('', $arr->pathkey('', ':'));
+        $this->assertEquals('hello', $arr->pathkey('hello', ':'));
+        $this->assertEquals('hello:world', $arr->pathkey('hello:world', ':'));
+        $this->assertEquals('', $arr->pathkey([], ':'));
+        $this->assertEquals('', $arr->pathkey([ '' ], ':'));
+        $this->assertEquals('', '', $arr->pathkey([ '', '' ], ':'));
+        $this->assertEquals('hello', $arr->pathkey([ 'hello' ], ':'));
+        $this->assertEquals('hello:world', $arr->pathkey([ 'hello:world' ], ':'));
+        $this->assertEquals('hello:world', $arr->pathkey([ 'hello', 'world' ], ':'));
         $this->assertEquals(
             'hello:world:hello:world',
-            $arr->key([ 'hello', 'world', 'hello:world' ], ':')
+            $arr->pathkey([ 'hello', 'world', 'hello:world' ], ':')
         );
         $this->assertEquals(
             'hello:world:hello:world',
-            $arr->key([ 'hello', 'world', [ 'hello:world' ] ], ':')
+            $arr->pathkey([ 'hello', 'world', [ 'hello:world' ] ], ':')
         );
     }
 
-    public function testBadKey()
+    public function testPathkeyBad()
     {
         $arr = $this->getArr();
 
         $this->assertException(InvalidArgumentException::class, function () use ($arr) {
-            $arr->key('.', null);
+            $arr->pathkey('.', null);
         });
 
         $this->assertException(InvalidArgumentException::class, function () use ($arr) {
-            $arr->key('.', [ null ]);
+            $arr->pathkey('.', [ null ]);
         });
     }
 
-    public function testIndexKey()
+
+    public function testIndex()
     {
         $arr = $this->getArr();
 
@@ -843,7 +857,7 @@ class ArrTest extends AbstractTestCase
         $this->assertEquals('hello.world.hello.world', $arr->index('.', [ 'hello', 'world', [ 'hello.world' ] ]));
     }
 
-    public function testBadIndexKey()
+    public function testIndexBad()
     {
         $arr = $this->getArr();
 
@@ -855,6 +869,7 @@ class ArrTest extends AbstractTestCase
             $arr->index([ null ], '.');
         });
     }
+
 
     public function testDot()
     {
@@ -876,12 +891,28 @@ class ArrTest extends AbstractTestCase
 
         $array = [ 1, [ 2, [ 3, [ 4 ] ] ] ];
 
-        $this->assertEquals([
-            0       => 1,
-            1       => [ 2 ],
-            '1.1'   => [ 3 ],
-            '1.1.1' => [ 4 ],
-        ], $arr->dotarr($array));
+        $this->assertEquals($array, $arr->dotarr($array));
+
+        $array = [
+            'category1' => [
+                'category1.1' => [
+                    'error1',
+                    [ 'error2' ],
+                    [ 'error3', 'argument1' ],
+                    [ 'error4', 'argument1', 'arrayArgument2' => [ 'argument2.1' ] ],
+                ],
+            ],
+        ];
+        $expected = [
+            "category1.category1.1" => [
+                'error1',
+                [ 'error2' ],
+                [ 'error3', 'argument1' ],
+                [ 'error4', 'argument1', 'arrayArgument2' => [ 'argument2.1' ] ],
+            ],
+        ];
+
+        $this->assertEquals($expected, $arr->dotarr($array));
     }
 
     public function testUndot()
@@ -1136,6 +1167,84 @@ class ArrTest extends AbstractTestCase
             "c" => 123,
             "d" => 123,
         ], $array);
+    }
+
+    public function testCrawlRecursive()
+    {
+        $arr = $this->getArr();
+
+        $array = [
+            0   => $a1 = null,
+            ''  => $a2 = null,
+            'a' => $a3 = null,
+            'b' => $a4 = [],
+            'c' => $a5 = new \StdClass(),
+            'd' => $a6 = [
+                0   => $aa1 = null,
+                ''  => $aa2 = null,
+                'a' => $aa3 = null,
+                'b' => $aa4 = [],
+                'c' => $aa5 = new \StdClass(),
+                'd' => $aa6 = new \ArrayObject([
+                    0   => $aaa1 = null,
+                    ''  => $aaa2 = null,
+                    'a' => $aaa3 = null,
+                    'b' => $aaa4 = [],
+                    'c' => $aaa5 = new \StdClass(),
+                ]),
+            ],
+        ];
+
+        $fullpathes = [];
+        $values = [];
+        $arr->crawl_recursive($array, function (&$value, $fullpath) use (&$fullpathes, &$values) {
+            $fullpathes[] = $fullpath;
+            $values[] = $value;
+        });
+
+        $this->assertEquals([
+            [ 0 ],
+            [ '' ],
+            [ 'a' ],
+            [ 'b' ],
+            [ 'c' ],
+            [ 'd' ],
+
+            [ 'd', 0 ],
+            [ 'd', '' ],
+            [ 'd', 'a' ],
+            [ 'd', 'b' ],
+            [ 'd', 'c' ],
+            [ 'd', 'd' ],
+
+            [ 'd', 'd', 0 ],
+            [ 'd', 'd', '' ],
+            [ 'd', 'd', 'a' ],
+            [ 'd', 'd', 'b' ],
+            [ 'd', 'd', 'c' ],
+        ], $fullpathes);
+
+        $this->assertEquals([
+            $a1,
+            $a2,
+            $a3,
+            $a4,
+            $a5,
+            $a6,
+
+            $aa1,
+            $aa2,
+            $aa3,
+            $aa4,
+            $aa5,
+            $aa6,
+
+            $aaa1,
+            $aaa2,
+            $aaa3,
+            $aaa4,
+            $aaa5,
+        ], $values);
     }
 
 

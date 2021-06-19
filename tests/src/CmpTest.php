@@ -25,9 +25,9 @@ class CmpTest extends AbstractTestCase
         $calendar = $this->getCalendar();
         $cmp = $this->getCmp();
 
-        $dt[] = $dt1 = $calendar->theDate(50);
-        $dt[] = $dt3 = $calendar->theDate(200);
-        $dt[] = $dt2 = $calendar->theDate(100);
+        $dt[] = $dt1 = $calendar->theDateVal(50);
+        $dt[] = $dt3 = $calendar->theDateVal(200);
+        $dt[] = $dt2 = $calendar->theDateVal(100);
 
         usort($dt, [ $cmp, 'cmpdate' ]);
 

@@ -28,6 +28,28 @@ abstract class GeneratedFilterFacade
     }
 
     /**
+     * @param string   $filter
+     * @param \Closure $callable
+     *
+     * @return Filter
+     */
+    public static function addCustomFilter(string $filter, \Closure $callable)
+    {
+        return static::getInstance()->addCustomFilter($filter, $callable);
+    }
+
+    /**
+     * @param string   $filter
+     * @param \Closure $callable
+     *
+     * @return Filter
+     */
+    public static function replaceCustomFilter(string $filter, \Closure $callable)
+    {
+        return static::getInstance()->replaceCustomFilter($filter, $callable);
+    }
+
+    /**
      * @param bool|mixed $value
      *
      * @return null|bool
@@ -72,9 +94,9 @@ abstract class GeneratedFilterFacade
      *
      * @return null|int|float
      */
-    public static function filterNumber($value)
+    public static function filterNum($value)
     {
-        return static::getInstance()->filterNumber($value);
+        return static::getInstance()->filterNum($value);
     }
 
     /**
@@ -105,6 +127,16 @@ abstract class GeneratedFilterFacade
     public static function filterNumval($value)
     {
         return static::getInstance()->filterNumval($value);
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int|float|string
+     */
+    public static function filterNumericval($value)
+    {
+        return static::getInstance()->filterNumericval($value);
     }
 
     /**
@@ -192,9 +224,9 @@ abstract class GeneratedFilterFacade
      *
      * @return null|int|float|string
      */
-    public static function filterStringOrNumber($value)
+    public static function filterStringOrNum($value)
     {
-        return static::getInstance()->filterStringOrNumber($value);
+        return static::getInstance()->filterStringOrNum($value);
     }
 
     /**
@@ -202,9 +234,9 @@ abstract class GeneratedFilterFacade
      *
      * @return null|int|float|string
      */
-    public static function filterWordOrNumber($value)
+    public static function filterWordOrNum($value)
     {
-        return static::getInstance()->filterWordOrNumber($value);
+        return static::getInstance()->filterWordOrNum($value);
     }
 
     /**
@@ -644,17 +676,6 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param string   $filter
-     * @param \Closure $callable
-     *
-     * @return Filter
-     */
-    public static function addCustomFilter(string $filter, \Closure $callable)
-    {
-        return static::getInstance()->addCustomFilter($filter, $callable);
-    }
-
-    /**
      * @param null|string|array $message
      * @param mixed             ...$arguments
      *
@@ -693,17 +714,6 @@ abstract class GeneratedFilterFacade
     public static function bind(string $filter, ...$arguments): \Closure
     {
         return static::getInstance()->bind($filter, ...$arguments);
-    }
-
-    /**
-     * @param string   $filter
-     * @param \Closure $callable
-     *
-     * @return Filter
-     */
-    public static function replaceCustomFilter(string $filter, \Closure $callable)
-    {
-        return static::getInstance()->replaceCustomFilter($filter, $callable);
     }
 
     /**

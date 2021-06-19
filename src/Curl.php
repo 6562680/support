@@ -163,7 +163,7 @@ class Curl
      */
     public function filterCurl($ch) // : ?resource|\CurlHandle
     {
-        if (is_object($ch) && class_exists('CurlHandle') && is_a($ch, 'CurlHandle')) {
+        if (is_a($ch, 'CurlHandle')) {
             return $ch;
 
         } elseif (null !== $this->filter->filterOpenedResource($ch)) {

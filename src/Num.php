@@ -77,6 +77,20 @@ class Num
             ?? $this->floatval($value);
     }
 
+    /**
+     * @param mixed $value
+     *
+     * @return null|int|float
+     */
+    public function numericval($value) // : ?int|float
+    {
+        if (null === $this->filter->filterNumericval($value)) {
+            return null;
+        }
+
+        return $value;
+    }
+
 
     /**
      * @param mixed $value
@@ -117,7 +131,23 @@ class Num
      */
     public function theNumval($value) // : int|float
     {
-        if (null === ( $numval = $this->numval($value) )) {
+        if (null === ( $numberval = $this->numval($value) )) {
+            throw new InvalidArgumentException(
+                [ 'Value should be convertable to int or float: %s', $value ],
+            );
+        }
+
+        return $numberval;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return int|float|string
+     */
+    public function theNumericval($value) // : int|float|string
+    {
+        if (null === ( $numval = $this->numericval($value) )) {
             throw new InvalidArgumentException(
                 [ 'Value should be convertable to numval: %s', $value ],
             );
@@ -193,7 +223,7 @@ class Num
      * @param int|float|string|array $numbers
      * @param null|bool              $uniq
      *
-     * @return int[]|float[]|string[]
+     * @return int[]|float[]
      */
     public function numvals($numbers, $uniq = null) : array
     {
@@ -205,6 +235,37 @@ class Num
 
         array_walk_recursive($numbers, function ($number) use (&$result) {
             if (null !== ( $numval = $this->numval($number) )) {
+                $result[] = $numval;
+            }
+        });
+
+        if ($uniq ?? false) {
+            $arr = [];
+            foreach ( $result as $i ) {
+                $arr[ $i ] = true;
+            }
+            $result = array_keys($arr);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param int|float|string|array $numbers
+     * @param null|bool              $uniq
+     *
+     * @return int[]|float[]|string[]
+     */
+    public function numericvals($numbers, $uniq = null) : array
+    {
+        $result = [];
+
+        $numbers = is_array($numbers)
+            ? $numbers
+            : [ $numbers ];
+
+        array_walk_recursive($numbers, function ($number) use (&$result) {
+            if (null !== ( $numval = $this->numericval($number) )) {
                 $result[] = $numval;
             }
         });
@@ -280,12 +341,41 @@ class Num
     }
 
     /**
+     * @param float|array $numbervals
+     * @param null|bool   $uniq
+     *
+     * @return int[]|float[]
+     */
+    public function theNumvals($numbervals, $uniq = null) : array
+    {
+        $result = [];
+
+        $numbervals = is_array($numbervals)
+            ? $numbervals
+            : [ $numbervals ];
+
+        array_walk_recursive($numbervals, function ($number) use (&$result) {
+            $result[] = $this->theNumval($number);
+        });
+
+        if ($uniq ?? false) {
+            $arr = [];
+            foreach ( $result as $i ) {
+                $arr[ $i ] = true;
+            }
+            $result = array_keys($arr);
+        }
+
+        return $result;
+    }
+
+    /**
      * @param int|float|string|array $numvals
      * @param null|bool              $uniq
      *
      * @return int[]|float[]|string[]
      */
-    public function theNumvals($numvals, $uniq = null) : array
+    public function theNumericvals($numvals, $uniq = null) : array
     {
         $result = [];
 
@@ -294,7 +384,7 @@ class Num
             : [ $numvals ];
 
         array_walk_recursive($numvals, function ($number) use (&$result) {
-            $result[] = $this->theNumval($number);
+            $result[] = $this->theNumericval($number);
         });
 
         if ($uniq ?? false) {

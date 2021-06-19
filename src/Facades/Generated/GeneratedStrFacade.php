@@ -544,26 +544,26 @@ abstract class GeneratedStrFacade
 
     /**
      * @param string   $singular
-     * @param null|int $offset
      * @param null|int $limit
+     * @param int      $offset
      *
-     * @return string|array
+     * @return null|string|array
      */
-    public static function pluralize(string $singular, int $offset = null, int $limit = null)
+    public static function pluralize(string $singular, $limit = null, $offset = 0)
     {
-        return static::getInstance()->pluralize($singular, $offset, $limit);
+        return static::getInstance()->pluralize($singular, $limit, $offset);
     }
 
     /**
      * @param string   $plural
-     * @param null|int $offset
      * @param null|int $limit
+     * @param int      $offset
      *
-     * @return string|array
+     * @return null|string|array
      */
-    public static function singularize(string $plural, int $offset = null, int $limit = null)
+    public static function singularize(string $plural, $limit = null, $offset = 0)
     {
-        return static::getInstance()->singularize($plural, $offset, $limit);
+        return static::getInstance()->singularize($plural, $limit, $offset);
     }
 
     /**

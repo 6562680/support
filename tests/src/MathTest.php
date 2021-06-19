@@ -45,6 +45,31 @@ class MathTest extends AbstractTestCase
     }
 
 
+    public function testBcmax()
+    {
+        $math = $this->getMath();
+
+        $values = [];
+        $values[] = '10.1';
+        $values[] = '100';
+        $values[] = '0.10';
+
+        $this->assertEquals('100', $math->bcmax($values));
+    }
+
+    public function testBcmin()
+    {
+        $math = $this->getMath();
+
+        $values = [];
+        $values[] = '10.1';
+        $values[] = '100';
+        $values[] = '0.10';
+
+        $this->assertEquals('0.10', $math->bcmin($values));
+    }
+
+
     public function testBcsum()
     {
         $math = $this->getMath();
@@ -70,6 +95,36 @@ class MathTest extends AbstractTestCase
     }
 
     public function testBcmedian()
+    {
+        $math = $this->getMath();
+
+        $values = [];
+        $values[] = '0.666666666666666666666';
+        $values[] = '0.444444444444444444444';
+        $values[] = '0.555555555555555555555';
+
+        $this->assertEquals('0.555555555555555555555', $math->bcmedian($values));
+    }
+
+
+    public function testBcratio()
+    {
+        $math = $this->getMath();
+
+        $this->assertEquals('0.01', $math->bcratio('1', '100', 2));
+        $this->assertEquals('1.01', $math->bcratio('101', '100', 2));
+    }
+
+    public function testBcpercent()
+    {
+        $math = $this->getMath();
+
+        $this->assertEquals('2', $math->bcpercent('1', '50', 2));
+        $this->assertEquals('202', $math->bcpercent('101', '50', 2));
+    }
+
+
+    public function testBcrand()
     {
         $math = $this->getMath();
 

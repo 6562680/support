@@ -52,14 +52,14 @@ abstract class GeneratedPhpFacade
     /**
      * проверяет возвращаемый тип у замыкания
      *
-     * @param \Closure $func
-     * @param string   $returnType
+     * @param \Closure        $factory
+     * @param string|callable $returnType
      *
      * @return null|\Closure
      */
-    public static function filterFactory(\Closure $func, string $returnType): ?\Closure
+    public static function filterFactory(\Closure $factory, $returnType): ?\Closure
     {
-        return static::getInstance()->filterFactory($func, $returnType);
+        return static::getInstance()->filterFactory($factory, $returnType);
     }
 
     /**
@@ -110,7 +110,7 @@ abstract class GeneratedPhpFacade
      *
      * @return \Closure
      */
-    public static function assertFactory(\Closure $func, string $returnType): \Closure
+    public static function assertFactory(\Closure $func, $returnType): \Closure
     {
         return static::getInstance()->assertFactory($func, $returnType);
     }

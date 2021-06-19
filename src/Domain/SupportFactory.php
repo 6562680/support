@@ -24,6 +24,8 @@ use Gzhegow\Support\Calendar;
 use Gzhegow\Support\Criteria;
 use Gzhegow\Support\Profiler;
 use Psr\Container\ContainerInterface;
+use Gzhegow\Support\Domain\Filter\Type;
+use Gzhegow\Support\Domain\Filter\Assert;
 
 
 /**
@@ -292,6 +294,34 @@ class SupportFactory implements SupportFactoryInterface
                 $this->newFilter(),
                 $this->newPhp(),
                 $this->newStr()
+            );
+    }
+
+
+    /**
+     * @param null|Filter $filter
+     *
+     * @return Assert
+     */
+    public function newAssert(Filter $filter = null) : Assert
+    {
+        return $this->containerGet(Assert::class)
+            ?? new Assert(
+                $this->newDebug(),
+                $filter ?? $this->newFilter()
+            );
+    }
+
+    /**
+     * @param null|Filter $filter
+     *
+     * @return Type
+     */
+    public function newType(Filter $filter = null) : Type
+    {
+        return $this->containerGet(Type::class)
+            ?? new Type(
+                $filter ?? $this->newFilter()
             );
     }
 
