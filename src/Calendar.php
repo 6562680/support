@@ -719,7 +719,7 @@ class Calendar
                 ?? $this->tryDateFromFloat($date, $timezone)
                 ?? $this->tryDateFromString($date, $timezone);
 
-            if ($iDateVal) {
+            if ($dateVal) {
                 $iDateVal = \DateTimeImmutable::createFromMutable($dateVal);
             }
         }
