@@ -2,17 +2,19 @@
 
 namespace Gzhegow\Support\Exceptions;
 
-use Throwable;
 use Gzhegow\Support\Exceptions\Domain\ExceptionTrait;
-use Gzhegow\Support\Exceptions\Domain\ExceptionInterface;
 
 
 /**
  * RuntimeException
  */
 class RuntimeException extends \RuntimeException
-    implements ExceptionInterface
 {
+    const THE_CODE_LIST = [
+        RuntimeException::class => -1,
+    ];
+
+
     use ExceptionTrait;
 
 
@@ -25,7 +27,9 @@ class RuntimeException extends \RuntimeException
      */
     public function __construct($message, $payload = null, ...$arguments)
     {
-        [ $message, $code, $previous ] = $this->parse($message, $payload, ...$arguments);
+        $code = $this->loadCode();
+
+        [ $message, $previous ] = $this->parse($message, $payload, ...$arguments);
 
         parent::__construct($message, $code, $previous);
     }
@@ -36,25 +40,31 @@ class RuntimeException extends \RuntimeException
      */
     protected function loadCode() : int
     {
-        if (! isset($this->code)) {
+        if (0 === ( $code = $this->code )) {
             $class = get_class($this);
+            $name = str_replace('\\', '.', $class);
 
-            $parentCodes = defined('parent::' . ( $const = 'THE_CODE_LIST' ))
-                ? parent::$$const
-                : [];
+            $parentCodes = [];
+            $current = $class;
+            while ( true ) {
+                if (! defined($constName = $current . '::THE_CODE_LIST')) break;
+
+                $parentCodes += constant($constName);
+                $current = get_parent_class($current);
+            }
 
             $codes = array_replace(
                 $parentCodes,
-                self::THE_CODE_LIST
+                static::THE_CODE_LIST
             );
 
             $code = null
                 ?? $codes[ $class ]
-                ?? crc32($this->name);
+                ?? crc32($name);
 
-            $this->code = $code;
+            $this->name = $name;
         }
 
-        return $this->code;
+        return $code;
     }
 }

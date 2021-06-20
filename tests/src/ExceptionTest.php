@@ -9,6 +9,8 @@ use Gzhegow\Support\Exceptions\Exception;
 use Gzhegow\Support\Domain\SupportFactory;
 use Gzhegow\Support\Exceptions\LogicException;
 use Gzhegow\Support\Exceptions\RuntimeException;
+use Gzhegow\Support\Tests\Exceptions\MyException;
+use Gzhegow\Support\Tests\Exceptions\MyChildException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
@@ -59,8 +61,12 @@ class ExceptionTest extends AbstractTestCase
             throw $e = new Exception('hello', [ 'world' ]);
         }
         catch ( Exception $e ) {
-            static::assertEquals(str_replace('\\', '.', get_class($e)), $e->getName());
+            $nameExpected = str_replace('\\', '.', get_class($e));
+            $codeExpected = -1;
+
             static::assertEquals('hello', $e->getMessage());
+            static::assertEquals($codeExpected, $e->getCode());
+            static::assertEquals($nameExpected, $e->getName());
             static::assertEquals([ 'world' ], $e->getPayload());
 
             throw $e;
@@ -75,8 +81,12 @@ class ExceptionTest extends AbstractTestCase
             throw $e = new LogicException('hello', [ 'world' ]);
         }
         catch ( LogicException $e ) {
-            static::assertEquals(str_replace('\\', '.', get_class($e)), $e->getName());
+            $nameExpected = str_replace('\\', '.', get_class($e));
+            $codeExpected = -1;
+
             static::assertEquals('hello', $e->getMessage());
+            static::assertEquals($codeExpected, $e->getCode());
+            static::assertEquals($nameExpected, $e->getName());
             static::assertEquals([ 'world' ], $e->getPayload());
 
             throw $e;
@@ -91,8 +101,53 @@ class ExceptionTest extends AbstractTestCase
             throw $e = new RuntimeException('hello', [ 'world' ]);
         }
         catch ( RuntimeException $e ) {
-            static::assertEquals(str_replace('\\', '.', get_class($e)), $e->getName());
+            $nameExpected = str_replace('\\', '.', get_class($e));
+            $codeExpected = -1;
+
             static::assertEquals('hello', $e->getMessage());
+            static::assertEquals($codeExpected, $e->getCode());
+            static::assertEquals($nameExpected, $e->getName());
+            static::assertEquals([ 'world' ], $e->getPayload());
+
+            throw $e;
+        }
+    }
+
+
+    public function testMyException()
+    {
+        $this->expectException(Exception::class);
+
+        try {
+            throw $e = new MyException('hello', [ 'world' ]);
+        }
+        catch ( Exception $e ) {
+            $nameExpected = str_replace('\\', '.', get_class($e));
+            $codeExpected = 1;
+
+            static::assertEquals('hello', $e->getMessage());
+            static::assertEquals($codeExpected, $e->getCode());
+            static::assertEquals($nameExpected, $e->getName());
+            static::assertEquals([ 'world' ], $e->getPayload());
+
+            throw $e;
+        }
+    }
+
+    public function testMyChildException()
+    {
+        $this->expectException(Exception::class);
+
+        try {
+            throw $e = new MyChildException('hello', [ 'world' ]);
+        }
+        catch ( Exception $e ) {
+            $nameExpected = str_replace('\\', '.', get_class($e));
+            $codeExpected = 2;
+
+            static::assertEquals('hello', $e->getMessage());
+            static::assertEquals($codeExpected, $e->getCode());
+            static::assertEquals($nameExpected, $e->getName());
             static::assertEquals([ 'world' ], $e->getPayload());
 
             throw $e;

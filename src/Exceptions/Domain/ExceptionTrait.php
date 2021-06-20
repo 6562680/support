@@ -193,10 +193,6 @@ trait ExceptionTrait
      */
     protected function parse($message, $payload = null, ...$arguments) : array
     {
-        $name = str_replace('\\', '.', get_class($this));
-
-        $code = $this->loadCode();
-
         [
             $message,
             $original,
@@ -208,15 +204,13 @@ trait ExceptionTrait
             $arguments,
         ] = $this->parseArguments(...$arguments);
 
-        $this->name = $name;
-
         $this->text = $original;
         $this->payload = $payload;
         $this->arguments = $arguments;
 
         $this->pipeline = $pipes;
 
-        return [ $message, $code, $previous ];
+        return [ $message, $previous ];
     }
 
 
