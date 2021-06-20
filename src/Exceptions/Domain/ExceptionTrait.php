@@ -1,6 +1,6 @@
 <?php
 
-namespace Gzhegow\Support\Exceptions\Traits;
+namespace Gzhegow\Support\Exceptions\Domain;
 
 use Gzhegow\Support\Debug;
 
@@ -11,11 +11,6 @@ use Gzhegow\Support\Debug;
 trait ExceptionTrait
 {
     /**
-     * @var Debug
-     */
-    protected $debug;
-
-    /**
      * @var string
      */
     protected $name;
@@ -24,10 +19,20 @@ trait ExceptionTrait
      * @var string
      */
     protected $text;
+
     /**
      * @var mixed
      */
     protected $payload;
+    /**
+     * @var array
+     */
+    protected $arguments = [];
+
+    /**
+     * @var callable[]
+     */
+    protected $pipeline = [];
 
     /**
      * @var array
@@ -37,11 +42,6 @@ trait ExceptionTrait
      * @var array
      */
     protected $reportTrace;
-
-    /**
-     * @var callable[]
-     */
-    protected $pipeline = [];
 
 
     /**
@@ -82,6 +82,8 @@ trait ExceptionTrait
      */
     protected function loadReportTrace() : array
     {
+        $debug = $this->newDebug();
+
         $trace = [];
 
         $index = [];
@@ -97,7 +99,7 @@ trait ExceptionTrait
                 ? $key . ':' . $index[ $key ]++
                 : $key;
 
-            $trace[ $key ] = $this->debug->traceReport($step);
+            $trace[ $key ] = $debug->traceReport($step);
         }
 
         return $trace;
@@ -120,7 +122,6 @@ trait ExceptionTrait
     {
         return $this->name;
     }
-
 
     /**
      * @return string
@@ -170,7 +171,6 @@ trait ExceptionTrait
         return $this->pipeline;
     }
 
-
     /**
      * @param callable $pipe
      *
@@ -186,47 +186,91 @@ trait ExceptionTrait
 
     /**
      * @param string|array $message
-     * @param null         $payload
+     * @param mixed        $payload
      * @param mixed        ...$arguments
      *
      * @return array
      */
     protected function parse($message, $payload = null, ...$arguments) : array
     {
-        $this->debug = $this->newDebug();
+        $name = str_replace('\\', '.', get_class($this));
 
-        $this->name = str_replace('\\', '.', get_class($this));
+        $code = $this->loadCode();
+
+        [
+            $message,
+            $original,
+        ] = $this->parseMessage($message);
+
+        [
+            $previous,
+            $pipes,
+            $arguments,
+        ] = $this->parseArguments(...$arguments);
+
+        $this->name = $name;
+
+        $this->text = $original;
+        $this->payload = $payload;
+        $this->arguments = $arguments;
+
+        $this->pipeline = $pipes;
+
+        return [ $message, $code, $previous ];
+    }
+
+
+    /**
+     * @param string|array $message
+     *
+     * @return array
+     */
+    protected function parseMessage($message) : array
+    {
+        $debug = $this->newDebug();
 
         $placeholders = is_array($message)
             ? $message
             : [ $message ];
 
-        $text = strval(array_shift($placeholders));
+        $original = strval(array_shift($placeholders));
 
-        if ('' === $text) {
+        if ('' === $original) {
             throw new \InvalidArgumentException(
-                'Message Text should be string/number', null, $this
+                'Text should be word', null, $this
             );
         }
 
+        $text = $original;
+
         if ($placeholders) {
-            $placeholders = $this->debug->args($placeholders);
+            $placeholders = $debug->args($placeholders);
 
             foreach ( array_keys($placeholders) as $idx ) {
-                $placeholders[ $idx ] = $this->debug->printR($placeholders[ $idx ], 1);
+                $placeholders[ $idx ] = $debug->printR($placeholders[ $idx ], 1);
             }
 
-            $text = vsprintf($text,
+            $text = vsprintf($original,
                 array_slice($placeholders, 0, substr_count(
-                    str_replace('%%', "\0", $text),
+                    str_replace('%%', "\0", $original),
                     '%'
                 ))
             );
         }
 
-        $this->text = $text;
+        return [ $text, $original ];
+    }
 
+    /**
+     * @param mixed ...$arguments
+     *
+     * @return array
+     */
+    protected function parseArguments(...$arguments) : array
+    {
         $previous = null;
+        $pipes = [];
+
         foreach ( $arguments as $idx => $argument ) {
             if (is_a($argument, \Throwable::class)) {
                 if ($previous) {
@@ -238,27 +282,16 @@ trait ExceptionTrait
                 $previous = $argument;
 
             } elseif (is_callable($argument)) {
-                $this->pipeline[] = $argument;
+                $pipes[] = $argument;
 
-            } else continue;
+            } else {
+                continue;
+            }
 
             unset($arguments[ $idx ]);
         }
 
-        if ($arguments) {
-            $payload = is_array($payload)
-                ? $payload
-                : [ $payload ];
-
-            $payload = array_merge($payload, $arguments);
-        }
-        $this->payload = $payload;
-
-        return [
-            $message = $this->text,
-            $code = crc32($this->name),
-            $previous,
-        ];
+        return [ $previous, $pipes, $arguments ];
     }
 
 
@@ -266,4 +299,10 @@ trait ExceptionTrait
      * @return array
      */
     abstract public function getTrace();
+
+
+    /**
+     * @return mixed
+     */
+    abstract public function loadCode() : int;
 }
