@@ -62,9 +62,55 @@ class Path
     {
         $instance = clone $this;
 
-        $instance->using(...$delimiters);
+        $instance->with(...$delimiters);
 
         return $instance;
+    }
+
+    /**
+     * @param string|string[] $delimiters
+     *
+     * @return static
+     */
+    public function with(...$delimiters)
+    {
+        $this->withDelimiters($delimiters);
+
+        return $this;
+    }
+
+
+    /**
+     * @param string $separator
+     *
+     * @return static
+     */
+    public function withSeparator(string $separator)
+    {
+        $this->separator = $separator;
+
+        return $this;
+    }
+
+    /**
+     * @param string[] $delimiters
+     *
+     * @return static
+     */
+    public function withDelimiters(array $delimiters)
+    {
+        $delimitersWord = $this->str->theWordvals($delimiters, true);
+
+        if (! $delimitersWord) {
+            throw new InvalidArgumentException(
+                [ 'At least one delimiter should be passed: %s', $delimiters ]
+            );
+        }
+
+        $this->separator = $delimitersWord[ 0 ];
+        $this->delimiters = $delimitersWord;
+
+        return $this;
     }
 
 
@@ -82,52 +128,6 @@ class Path
     public function getDelimiters() : array
     {
         return $this->delimiters;
-    }
-
-
-    /**
-     * @param string $separator
-     *
-     * @return static
-     */
-    public function setSeparator(string $separator)
-    {
-        $this->separator = $separator;
-
-        return $this;
-    }
-
-    /**
-     * @param string[] $delimiters
-     *
-     * @return static
-     */
-    public function setDelimiters(array $delimiters)
-    {
-        $delimitersWord = $this->str->theWordvals($delimiters, true);
-        if (! $delimitersWord) {
-            throw new InvalidArgumentException(
-                [ 'At least one delimiter should be passed: %s', $delimiters ]
-            );
-        }
-
-        $this->separator = $delimitersWord[ 0 ];
-        $this->delimiters = $delimitersWord;
-
-        return $this;
-    }
-
-
-    /**
-     * @param string|string[] $delimiters
-     *
-     * @return static
-     */
-    public function using(...$delimiters)
-    {
-        $this->setDelimiters($delimiters);
-
-        return $this;
     }
 
 

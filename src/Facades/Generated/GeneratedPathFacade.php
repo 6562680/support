@@ -26,6 +26,36 @@ abstract class GeneratedPathFacade
     }
 
     /**
+     * @param string|string[] $delimiters
+     *
+     * @return Path
+     */
+    public static function with(...$delimiters)
+    {
+        return static::getInstance()->with(...$delimiters);
+    }
+
+    /**
+     * @param string $separator
+     *
+     * @return Path
+     */
+    public static function withSeparator(string $separator)
+    {
+        return static::getInstance()->withSeparator($separator);
+    }
+
+    /**
+     * @param string[] $delimiters
+     *
+     * @return Path
+     */
+    public static function withDelimiters(array $delimiters)
+    {
+        return static::getInstance()->withDelimiters($delimiters);
+    }
+
+    /**
      * @return string
      */
     public static function getSeparator(): string
@@ -39,36 +69,6 @@ abstract class GeneratedPathFacade
     public static function getDelimiters(): array
     {
         return static::getInstance()->getDelimiters();
-    }
-
-    /**
-     * @param string $separator
-     *
-     * @return Path
-     */
-    public static function setSeparator(string $separator)
-    {
-        return static::getInstance()->setSeparator($separator);
-    }
-
-    /**
-     * @param string[] $delimiters
-     *
-     * @return Path
-     */
-    public static function setDelimiters(array $delimiters)
-    {
-        return static::getInstance()->setDelimiters($delimiters);
-    }
-
-    /**
-     * @param string|string[] $delimiters
-     *
-     * @return Path
-     */
-    public static function using(...$delimiters)
-    {
-        return static::getInstance()->using(...$delimiters);
     }
 
     /**

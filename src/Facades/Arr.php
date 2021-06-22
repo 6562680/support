@@ -16,17 +16,37 @@ class Arr extends GeneratedArrFacade
     /**
      * Constructor
      */
-    protected function __construct()
+    final private function __construct()
     {
-        throw new BadMethodCallException('Class should be used statically: ' . __CLASS__);
+        throw new BadMethodCallException(
+            [ 'Facade should be used statically: %s', static::class ]
+        );
     }
 
+
+    /**
+     * @param _Arr $instance
+     *
+     * @return void
+     */
+    public static function withInstance(_Arr $instance) : void
+    {
+        static::$instance[ static::class ] = $instance;
+    }
 
     /**
      * @return _Arr
      */
     public static function getInstance() : _Arr
     {
-        return ( new SupportFactory() )->newArr();
+        return static::$instance[ static::class ] = null
+            ?? static::$instance[ static::class ]
+            ?? ( new SupportFactory() )->newArr();
     }
+
+
+    /**
+     * @var _Arr[]
+     */
+    protected static $instance = [];
 }

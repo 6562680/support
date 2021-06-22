@@ -16,17 +16,37 @@ class Curl extends GeneratedCurlFacade
     /**
      * Constructor
      */
-    protected function __construct()
+    final private function __construct()
     {
-        throw new BadMethodCallException('Class should be used statically: ' . __CLASS__);
+        throw new BadMethodCallException(
+            [ 'Facade should be used statically: %s', static::class ]
+        );
     }
 
+
+    /**
+     * @param _Curl $instance
+     *
+     * @return void
+     */
+    public static function withInstance(_Curl $instance) : void
+    {
+        static::$instance[ static::class ] = $instance;
+    }
 
     /**
      * @return _Curl
      */
     public static function getInstance() : _Curl
     {
-        return ( new SupportFactory() )->newCurl();
+        return static::$instance[ static::class ] = null
+            ?? static::$instance[ static::class ]
+            ?? ( new SupportFactory() )->newCurl();
     }
+
+
+    /**
+     * @var _Curl[]
+     */
+    protected static $instance = [];
 }

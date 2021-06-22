@@ -57,7 +57,6 @@ class Php
      * @param mixed &$value
      *
      * @return bool
-     * @noinspection PhpParameterByRefIsNotUsedAsReferenceInspection
      */
     public function isBlank(&$value) : bool
     {
@@ -211,7 +210,6 @@ class Php
      * @param mixed &$value
      *
      * @return mixed
-     * @noinspection PhpParameterByRefIsNotUsedAsReferenceInspection
      */
     public function assertIsset(&$value) // : mixed
     {

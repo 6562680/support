@@ -2,8 +2,8 @@
 
 namespace Gzhegow\Support\Facades;
 
-use Gzhegow\Support\Domain\SupportFactory;
 use Gzhegow\Support\Profiler as _Profiler;
+use Gzhegow\Support\Domain\SupportFactory;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 use Gzhegow\Support\Facades\Generated\GeneratedProfilerFacade;
 
@@ -16,17 +16,37 @@ class Profiler extends GeneratedProfilerFacade
     /**
      * Constructor
      */
-    protected function __construct()
+    final private function __construct()
     {
-        throw new BadMethodCallException('Class should be used statically: ' . __CLASS__);
+        throw new BadMethodCallException(
+            [ 'Facade should be used statically: %s', static::class ]
+        );
     }
 
+
+    /**
+     * @param _Profiler $instance
+     *
+     * @return void
+     */
+    public static function withInstance(_Profiler $instance) : void
+    {
+        static::$instance[ static::class ] = $instance;
+    }
 
     /**
      * @return _Profiler
      */
     public static function getInstance() : _Profiler
     {
-        return ( new SupportFactory() )->newProfiler();
+        return static::$instance[ static::class ] = null
+            ?? static::$instance[ static::class ]
+            ?? ( new SupportFactory() )->newProfiler();
     }
+
+
+    /**
+     * @var _Profiler[]
+     */
+    protected static $instance = [];
 }

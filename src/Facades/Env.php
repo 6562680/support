@@ -16,17 +16,37 @@ class Env extends GeneratedEnvFacade
     /**
      * Constructor
      */
-    protected function __construct()
+    final private function __construct()
     {
-        throw new BadMethodCallException('Class should be used statically: ' . __CLASS__);
+        throw new BadMethodCallException(
+            [ 'Facade should be used statically: %s', static::class ]
+        );
     }
 
+
+    /**
+     * @param _Env $instance
+     *
+     * @return void
+     */
+    public static function withInstance(_Env $instance) : void
+    {
+        static::$instance[ static::class ] = $instance;
+    }
 
     /**
      * @return _Env
      */
     public static function getInstance() : _Env
     {
-        return ( new SupportFactory() )->newEnv();
+        return static::$instance[ static::class ] = null
+            ?? static::$instance[ static::class ]
+            ?? ( new SupportFactory() )->newEnv();
     }
+
+
+    /**
+     * @var _Env[]
+     */
+    protected static $instance = [];
 }

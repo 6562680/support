@@ -21,7 +21,6 @@ abstract class GeneratedPhpFacade
      * @param mixed &$value
      *
      * @return bool
-     * @noinspection PhpParameterByRefIsNotUsedAsReferenceInspection
      */
     public static function isBlank(&$value): bool
     {
@@ -86,7 +85,6 @@ abstract class GeneratedPhpFacade
      * @param mixed &$value
      *
      * @return mixed
-     * @noinspection PhpParameterByRefIsNotUsedAsReferenceInspection
      */
     public static function assertIsset(&$value)
     {

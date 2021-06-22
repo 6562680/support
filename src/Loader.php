@@ -46,7 +46,7 @@ class Loader
         $this->path = $path;
         $this->str = $str;
 
-        $path->using('\\', '/');
+        $path->with('\\', '/');
     }
 
 

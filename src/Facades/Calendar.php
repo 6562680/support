@@ -16,17 +16,37 @@ class Calendar extends GeneratedCalendarFacade
     /**
      * Constructor
      */
-    protected function __construct()
+    final private function __construct()
     {
-        throw new BadMethodCallException('Class should be used statically: ' . __CLASS__);
+        throw new BadMethodCallException(
+            [ 'Facade should be used statically: %s', static::class ]
+        );
     }
 
+
+    /**
+     * @param _Calendar $instance
+     *
+     * @return void
+     */
+    public static function withInstance(_Calendar $instance) : void
+    {
+        static::$instance[ static::class ] = $instance;
+    }
 
     /**
      * @return _Calendar
      */
     public static function getInstance() : _Calendar
     {
-        return ( new SupportFactory() )->newCalendar();
+        return static::$instance[ static::class ] = null
+            ?? static::$instance[ static::class ]
+            ?? ( new SupportFactory() )->newCalendar();
     }
+
+
+    /**
+     * @var _Calendar[]
+     */
+    protected static $instance = [];
 }

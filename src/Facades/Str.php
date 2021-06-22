@@ -16,17 +16,37 @@ class Str extends GeneratedStrFacade
     /**
      * Constructor
      */
-    protected function __construct()
+    final private function __construct()
     {
-        throw new BadMethodCallException('Class should be used statically: ' . __CLASS__);
+        throw new BadMethodCallException(
+            [ 'Facade should be used statically: %s', static::class ]
+        );
     }
 
+
+    /**
+     * @param _Str $instance
+     *
+     * @return void
+     */
+    public static function withInstance(_Str $instance) : void
+    {
+        static::$instance[ static::class ] = $instance;
+    }
 
     /**
      * @return _Str
      */
     public static function getInstance() : _Str
     {
-        return ( new SupportFactory() )->newStr();
+        return static::$instance[ static::class ] = null
+            ?? static::$instance[ static::class ]
+            ?? ( new SupportFactory() )->newStr();
     }
+
+
+    /**
+     * @var _Str[]
+     */
+    protected static $instance = [];
 }

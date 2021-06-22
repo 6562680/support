@@ -16,17 +16,37 @@ class Debug extends GeneratedDebugFacade
     /**
      * Constructor
      */
-    protected function __construct()
+    final private function __construct()
     {
-        throw new BadMethodCallException('Class should be used statically: ' . __CLASS__);
+        throw new BadMethodCallException(
+            [ 'Facade should be used statically: %s', static::class ]
+        );
     }
 
+
+    /**
+     * @param _Debug $instance
+     *
+     * @return void
+     */
+    public static function withInstance(_Debug $instance) : void
+    {
+        static::$instance[ static::class ] = $instance;
+    }
 
     /**
      * @return _Debug
      */
     public static function getInstance() : _Debug
     {
-        return ( new SupportFactory() )->newDebug();
+        return static::$instance[ static::class ] = null
+            ?? static::$instance[ static::class ]
+            ?? ( new SupportFactory() )->newDebug();
     }
+
+
+    /**
+     * @var _Debug[]
+     */
+    protected static $instance = [];
 }

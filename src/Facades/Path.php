@@ -16,17 +16,37 @@ class Path extends GeneratedPathFacade
     /**
      * Constructor
      */
-    protected function __construct()
+    final private function __construct()
     {
-        throw new BadMethodCallException('Class should be used statically: ' . __CLASS__);
+        throw new BadMethodCallException(
+            [ 'Facade should be used statically: %s', static::class ]
+        );
     }
 
+
+    /**
+     * @param _Path $instance
+     *
+     * @return void
+     */
+    public static function withInstance(_Path $instance) : void
+    {
+        static::$instance[ static::class ] = $instance;
+    }
 
     /**
      * @return _Path
      */
     public static function getInstance() : _Path
     {
-        return ( new SupportFactory() )->newPath();
+        return static::$instance[ static::class ] = null
+            ?? static::$instance[ static::class ]
+            ?? ( new SupportFactory() )->newPath();
     }
+
+
+    /**
+     * @var _Path[]
+     */
+    protected static $instance = [];
 }

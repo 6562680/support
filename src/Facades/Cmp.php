@@ -16,17 +16,37 @@ class Cmp extends GeneratedCmpFacade
     /**
      * Constructor
      */
-    protected function __construct()
+    final private function __construct()
     {
-        throw new BadMethodCallException('Class should be used statically: ' . __CLASS__);
+        throw new BadMethodCallException(
+            [ 'Facade should be used statically: %s', static::class ]
+        );
     }
 
+
+    /**
+     * @param _Cmp $instance
+     *
+     * @return void
+     */
+    public static function withInstance(_Cmp $instance) : void
+    {
+        static::$instance[ static::class ] = $instance;
+    }
 
     /**
      * @return _Cmp
      */
     public static function getInstance() : _Cmp
     {
-        return ( new SupportFactory() )->newCmp();
+        return static::$instance[ static::class ] = null
+            ?? static::$instance[ static::class ]
+            ?? ( new SupportFactory() )->newCmp();
     }
+
+
+    /**
+     * @var _Cmp[]
+     */
+    protected static $instance = [];
 }

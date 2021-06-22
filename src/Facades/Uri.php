@@ -16,17 +16,37 @@ class Uri extends GeneratedUriFacade
     /**
      * Constructor
      */
-    protected function __construct()
+    final private function __construct()
     {
-        throw new BadMethodCallException('Class should be used statically: ' . __CLASS__);
+        throw new BadMethodCallException(
+            [ 'Facade should be used statically: %s', static::class ]
+        );
     }
 
+
+    /**
+     * @param _Uri $instance
+     *
+     * @return void
+     */
+    public static function withInstance(_Uri $instance) : void
+    {
+        static::$instance[ static::class ] = $instance;
+    }
 
     /**
      * @return _Uri
      */
     public static function getInstance() : _Uri
     {
-        return ( new SupportFactory() )->newUri();
+        return static::$instance[ static::class ] = null
+            ?? static::$instance[ static::class ]
+            ?? ( new SupportFactory() )->newUri();
     }
+
+
+    /**
+     * @var _Uri[]
+     */
+    protected static $instance = [];
 }

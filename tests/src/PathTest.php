@@ -19,7 +19,7 @@ class PathTest extends AbstractTestCase
         $path = $this->getPath();
         $ds = '/';
 
-        $path->using('/', '\\');
+        $path->with('/', '\\');
 
         $this->assertEquals([ 'aa', 'aa', 'aa', 'aa' ], $path->split('aa/aa\\aa/aa'));
         $this->assertEquals([ "${ds}aa", 'aa', 'aa', 'aa' ], $path->split('/aa/aa\\aa/aa\\'));
@@ -32,7 +32,7 @@ class PathTest extends AbstractTestCase
         $path = $this->getPath();
         $ds = '/';
 
-        $path->using('/', '\\');
+        $path->with('/', '\\');
 
         $this->assertEquals('', $path->join(''));
         $this->assertEquals(',', $path->join(','));
@@ -59,7 +59,7 @@ class PathTest extends AbstractTestCase
         $path = $this->getPath();
         $ds = '/';
 
-        $path->using('/', '\\');
+        $path->with('/', '\\');
 
         $this->assertEquals("1${ds}2${ds}3", $path->concat('1/2/3', ''));
         $this->assertEquals("1${ds}2${ds}3", $path->concat('1/2/3', '/'));
@@ -91,7 +91,7 @@ class PathTest extends AbstractTestCase
         $path = $this->getPath();
         $ds = '/';
 
-        $path->using('/', '\\');
+        $path->with('/', '\\');
 
         $a = __CLASS__;
         $b = 'A\\B/C\\D';
@@ -109,7 +109,7 @@ class PathTest extends AbstractTestCase
         $path = $this->getPath();
         $ds = '/';
 
-        $path->using('/', '\\');
+        $path->with('/', '\\');
 
         $a = __CLASS__;
         $b = 'A\\B/C\\D';
@@ -127,7 +127,7 @@ class PathTest extends AbstractTestCase
         $path = $this->getPath();
         $ds = '/';
 
-        $path->using('/', '\\');
+        $path->with('/', '\\');
 
         $a = __CLASS__;
         $b = 'A\\B/C\\D';

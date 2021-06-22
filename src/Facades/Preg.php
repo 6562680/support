@@ -16,17 +16,37 @@ class Preg extends GeneratedPregFacade
     /**
      * Constructor
      */
-    protected function __construct()
+    final private function __construct()
     {
-        throw new BadMethodCallException('Class should be used statically: ' . __CLASS__);
+        throw new BadMethodCallException(
+            [ 'Facade should be used statically: %s', static::class ]
+        );
     }
 
+
+    /**
+     * @param _Preg $instance
+     *
+     * @return void
+     */
+    public static function withInstance(_Preg $instance) : void
+    {
+        static::$instance[ static::class ] = $instance;
+    }
 
     /**
      * @return _Preg
      */
     public static function getInstance() : _Preg
     {
-        return ( new SupportFactory() )->newPreg();
+        return static::$instance[ static::class ] = null
+            ?? static::$instance[ static::class ]
+            ?? ( new SupportFactory() )->newPreg();
     }
+
+
+    /**
+     * @var _Preg[]
+     */
+    protected static $instance = [];
 }

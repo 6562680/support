@@ -16,17 +16,37 @@ class Format extends GeneratedFormatFacade
     /**
      * Constructor
      */
-    protected function __construct()
+    final private function __construct()
     {
-        throw new BadMethodCallException('Class should be used statically: ' . __CLASS__);
+        throw new BadMethodCallException(
+            [ 'Facade should be used statically: %s', static::class ]
+        );
     }
 
+
+    /**
+     * @param _Format $instance
+     *
+     * @return void
+     */
+    public static function withInstance(_Format $instance) : void
+    {
+        static::$instance[ static::class ] = $instance;
+    }
 
     /**
      * @return _Format
      */
     public static function getInstance() : _Format
     {
-        return ( new SupportFactory() )->newFormat();
+        return static::$instance[ static::class ] = null
+            ?? static::$instance[ static::class ]
+            ?? ( new SupportFactory() )->newFormat();
     }
+
+
+    /**
+     * @var _Format[]
+     */
+    protected static $instance = [];
 }

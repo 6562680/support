@@ -54,7 +54,7 @@ class Fs
         $this->path = $path;
         $this->php = $php;
 
-        $path->using(DIRECTORY_SEPARATOR, '/', '\\');
+        $path->with(DIRECTORY_SEPARATOR, '/', '\\');
     }
 
 

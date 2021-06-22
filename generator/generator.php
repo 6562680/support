@@ -1,6 +1,9 @@
 <?php
 
 use Gzhegow\Support\Filter;
+use Gzhegow\Support\Arr as _Arr;
+use Gzhegow\Support\Domain\SupportFactory;
+use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 
 
 defined('__ROOT__') or define('__ROOT__', __DIR__ . '/..');

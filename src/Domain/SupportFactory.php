@@ -31,7 +31,9 @@ use Gzhegow\Support\Domain\Filter\Assert;
 /**
  * SupportFactory
  */
-class SupportFactory implements SupportFactoryInterface
+class SupportFactory implements
+    SupportFactoryInterface,
+    ContainerInterface
 {
     /**
      * @var null|ContainerInterface
@@ -55,7 +57,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newArr() : Arr
     {
-        return $this->containerGet(Arr::class)
+        return $this->get(Arr::class)
             ?? new Arr(
                 $this->newFilter(),
                 $this->newStr()
@@ -67,7 +69,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newCalendar() : Calendar
     {
-        return $this->containerGet(Calendar::class)
+        return $this->get(Calendar::class)
             ?? new Calendar(
                 $this->newFilter(),
                 $this->newNum(),
@@ -81,7 +83,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newCli() : Cli
     {
-        return $this->containerGet(Cli::class)
+        return $this->get(Cli::class)
             ?? new Cli(
                 $this->newEnv(),
                 $this->newFs(),
@@ -94,7 +96,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newCmp() : Cmp
     {
-        return $this->containerGet(Cmp::class)
+        return $this->get(Cmp::class)
             ?? new Cmp(
                 $this->newCalendar(),
                 $this->newFilter()
@@ -106,7 +108,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newCriteria() : Criteria
     {
-        return $this->containerGet(Criteria::class)
+        return $this->get(Criteria::class)
             ?? new Criteria(
                 $this->newCalendar(),
                 $this->newCmp(),
@@ -120,7 +122,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newCurl() : Curl
     {
-        return $this->containerGet(Curl::class)
+        return $this->get(Curl::class)
             ?? new Curl(
                 $this->newArr(),
                 $this->newFilter(),
@@ -133,7 +135,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newDebug() : Debug
     {
-        return $this->containerGet(Debug::class)
+        return $this->get(Debug::class)
             ?? new Debug();
     }
 
@@ -142,7 +144,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newEnv() : Env
     {
-        return $this->containerGet(Env::class)
+        return $this->get(Env::class)
             ?? new Env();
     }
 
@@ -151,7 +153,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newFilter() : Filter
     {
-        return $this->containerGet(Filter::class)
+        return $this->get(Filter::class)
             ?? new Filter();
     }
 
@@ -160,7 +162,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newFormat() : Format
     {
-        return $this->containerGet(Filter::class)
+        return $this->get(Filter::class)
             ?? new Format(
                 $this->newNum()
             );
@@ -171,7 +173,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newFs() : Fs
     {
-        return $this->containerGet(Fs::class)
+        return $this->get(Fs::class)
             ?? new Fs(
                 $this->newFilter(),
                 $this->newPath(),
@@ -184,7 +186,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newLoader() : Loader
     {
-        return $this->containerGet(Loader::class)
+        return $this->get(Loader::class)
             ?? new Loader(
                 $this->newFilter(),
                 $this->newPath(),
@@ -197,7 +199,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newMath() : Math
     {
-        return $this->containerGet(Math::class)
+        return $this->get(Math::class)
             ?? new Math(
                 $this->newFilter(),
                 $this->newNum()
@@ -209,7 +211,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newNet() : Net
     {
-        return $this->containerGet(Net::class)
+        return $this->get(Net::class)
             ?? new Net(
                 $this->newStr()
             );
@@ -220,7 +222,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newNum() : Num
     {
-        return $this->containerGet(Num::class)
+        return $this->get(Num::class)
             ?? new Num(
                 $this->newFilter()
             );
@@ -231,7 +233,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newPath() : Path
     {
-        return $this->containerGet(Path::class)
+        return $this->get(Path::class)
             ?? new Path(
                 $this->newFilter(),
                 $this->newPhp(),
@@ -244,7 +246,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newPhp() : Php
     {
-        return $this->containerGet(Php::class)
+        return $this->get(Php::class)
             ?? new Php(
                 $this->newFilter()
             );
@@ -255,7 +257,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newPreg() : Preg
     {
-        return $this->containerGet(Preg::class)
+        return $this->get(Preg::class)
             ?? new Preg(
                 $this->newStr()
             );
@@ -266,7 +268,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newProfiler() : Profiler
     {
-        return $this->containerGet(Profiler::class)
+        return $this->get(Profiler::class)
             ?? new Profiler(
                 $this->newCalendar()
             );
@@ -277,7 +279,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newStr() : Str
     {
-        return $this->containerGet(Str::class)
+        return $this->get(Str::class)
             ?? new Str(
                 $this->newFilter()
             );
@@ -288,7 +290,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newUri() : Uri
     {
-        return $this->containerGet(Uri::class)
+        return $this->get(Uri::class)
             ?? new Uri(
                 $this->newArr(),
                 $this->newFilter(),
@@ -305,10 +307,10 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newAssert(Filter $filter = null) : Assert
     {
-        return $this->containerGet(Assert::class)
+        return $this->get(Assert::class)
             ?? new Assert(
-                $this->newDebug(),
-                $filter ?? $this->newFilter()
+                $debug = $this->newDebug(),
+                $filter = $filter ?? $this->newFilter()
             );
     }
 
@@ -319,9 +321,9 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newType(Filter $filter = null) : Type
     {
-        return $this->containerGet(Type::class)
+        return $this->get(Type::class)
             ?? new Type(
-                $filter ?? $this->newFilter()
+                $filter = $filter ?? $this->newFilter()
             );
     }
 
@@ -331,10 +333,20 @@ class SupportFactory implements SupportFactoryInterface
      *
      * @return null|mixed
      */
-    protected function containerGet(string $id)
+    public function get(string $id)
     {
-        return $this->container
+        return $this->has($id)
             ? $this->container->get($id)
             : null;
+    }
+
+    /**
+     * @param string $id
+     *
+     * @return bool
+     */
+    public function has(string $id)
+    {
+        return $this->container && $this->container->has($id);
     }
 }

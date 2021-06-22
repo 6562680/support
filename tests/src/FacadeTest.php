@@ -75,10 +75,17 @@ class FacadeTest extends AbstractTestCase
 
                 $facadeMethods[ $m->getName() ] = true;
             }
-            unset($facadeMethods[ 'getInstance' ]);
+            unset($facadeMethods[ '__construct' ]);
             unset($facadeMethods[ '__callStatic' ]);
+            unset($facadeMethods[ 'getInstance' ]);
+            unset($facadeMethods[ 'withInstance' ]);
 
             $this->assertEquals($objMethods, $facadeMethods);
+
+            $method = 'getInstance';
+            $instance1 = $facadeClass::{$method}();
+            $instance2 = $facadeClass::{$method}();
+            $this->assertEquals($instance1, $instance2);
         }
     }
 }

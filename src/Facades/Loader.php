@@ -2,8 +2,8 @@
 
 namespace Gzhegow\Support\Facades;
 
-use Gzhegow\Support\Domain\SupportFactory;
 use Gzhegow\Support\Loader as _Loader;
+use Gzhegow\Support\Domain\SupportFactory;
 use Gzhegow\Support\Facades\Generated\GeneratedLoaderFacade;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 
@@ -16,17 +16,37 @@ class Loader extends GeneratedLoaderFacade
     /**
      * Constructor
      */
-    protected function __construct()
+    final private function __construct()
     {
-        throw new BadMethodCallException('Class should be used statically: ' . __CLASS__);
+        throw new BadMethodCallException(
+            [ 'Facade should be used statically: %s', static::class ]
+        );
     }
 
+
+    /**
+     * @param _Loader $instance
+     *
+     * @return void
+     */
+    public static function withInstance(_Loader $instance) : void
+    {
+        static::$instance[ static::class ] = $instance;
+    }
 
     /**
      * @return _Loader
      */
     public static function getInstance() : _Loader
     {
-        return ( new SupportFactory() )->newLoader();
+        return static::$instance[ static::class ] = null
+            ?? static::$instance[ static::class ]
+            ?? ( new SupportFactory() )->newLoader();
     }
+
+
+    /**
+     * @var _Loader[]
+     */
+    protected static $instance = [];
 }

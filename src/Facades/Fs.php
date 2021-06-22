@@ -16,17 +16,37 @@ class Fs extends GeneratedFsFacade
     /**
      * Constructor
      */
-    protected function __construct()
+    final private function __construct()
     {
-        throw new BadMethodCallException('Class should be used statically: ' . __CLASS__);
+        throw new BadMethodCallException(
+            [ 'Facade should be used statically: %s', static::class ]
+        );
     }
 
+
+    /**
+     * @param _Fs $instance
+     *
+     * @return void
+     */
+    public static function withInstance(_Fs $instance) : void
+    {
+        static::$instance[ static::class ] = $instance;
+    }
 
     /**
      * @return _Fs
      */
     public static function getInstance() : _Fs
     {
-        return ( new SupportFactory() )->newFs();
+        return static::$instance[ static::class ] = null
+            ?? static::$instance[ static::class ]
+            ?? ( new SupportFactory() )->newFs();
     }
+
+
+    /**
+     * @var _Fs[]
+     */
+    protected static $instance = [];
 }
