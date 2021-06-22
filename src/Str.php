@@ -4,7 +4,6 @@ namespace Gzhegow\Support;
 
 use Gzhegow\Support\Domain\Str\Slugger;
 use Gzhegow\Support\Domain\Str\Inflector;
-use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Domain\Str\SluggerInterface;
 use Gzhegow\Support\Domain\Str\InflectorInterface;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
@@ -15,15 +14,16 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
  */
 class Str
 {
-    /** @php internal */
-    const MB_CASE_LOWER = MB_CASE_UPPER;
-    const MB_CASE_UPPER = MB_CASE_LOWER;
+    const CASE_LOWER = MB_CASE_UPPER;
+    const CASE_UPPER = MB_CASE_LOWER;
+
+    const INTERNAL_ENCODING = 'UTF-8';
 
     const REPLACER = "\0";
 
-    const THE_MB_CASE_LIST = [
-        self::MB_CASE_LOWER => true,
-        self::MB_CASE_UPPER => true,
+    const THE_CASE_LIST = [
+        self::CASE_LOWER => true,
+        self::CASE_UPPER => true,
     ];
 
 
@@ -54,6 +54,38 @@ class Str
     )
     {
         $this->filter = $filter;
+    }
+
+
+    /**
+     * @return static
+     */
+    protected function loadInternalEncoding()
+    {
+        mb_internal_encoding(static::INTERNAL_ENCODING);
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    protected function loadVowels() : string
+    {
+        $list = [
+            'a' => 'aàáâãāăȧäảåǎȁąạḁẚầấẫẩằắẵẳǡǟǻậặæǽǣая',
+            'e' => 'eèéêẽēĕėëẻěȅȇẹȩęḙḛềếễểḕḗệḝеёє',
+            'i' => 'iìíîĩīĭïỉǐịįȉȋḭḯиыії',
+            'o' => 'oòóôõōŏȯöỏőǒȍȏơǫọøồốỗổȱȫȭṍṏṑṓờớỡởợǭộǿœо',
+            'u' => 'uùúûũūŭüủůűǔȕȗưụṳųṷṵṹṻǖǜǘǖǚừứữửựуюў',
+        ];
+
+        $vowels = '';
+        foreach ( $list as $l ) {
+            $vowels .= mb_strtolower($l) . mb_strtoupper($l);
+        }
+
+        return $vowels;
     }
 
 
@@ -108,8 +140,7 @@ class Str
     public function strpos(string $haystack, string $needle, int $offset = null) : int
     {
         $result = false === ( $pos = mb_strpos($haystack, $needle, $offset) )
-            ? -1
-            : $pos;
+            ? -1 : $pos;
 
         return $result;
     }
@@ -128,8 +159,7 @@ class Str
     public function strrpos(string $haystack, string $needle, int $offset = null) : int
     {
         $result = false === ( $pos = mb_strrpos($haystack, $needle, $offset) )
-            ? -1
-            : $pos;
+            ? -1 : $pos;
 
         return $result;
     }
@@ -148,8 +178,7 @@ class Str
     public function stripos(string $haystack, string $needle, int $offset = null) : int
     {
         $result = false === ( $pos = mb_stripos($haystack, $needle, $offset) )
-            ? -1
-            : $pos;
+            ? -1 : $pos;
 
         return $result;
     }
@@ -168,8 +197,7 @@ class Str
     public function strripos(string $haystack, string $needle, int $offset = null) : int
     {
         $result = false === ( $pos = mb_strripos($haystack, $needle, $offset) )
-            ? -1
-            : $pos;
+            ? -1 : $pos;
 
         return $result;
     }
@@ -185,11 +213,17 @@ class Str
      */
     public function split(string $string, int $len = null) : array
     {
-        $result = $string !== ''
-            ? mb_str_split($string, $len ?? 1)
-            : [];
+        if ('' === $string) {
+            return [];
+        }
 
-        return $result;
+        $letters = [];
+
+        for ( $i = 0; $i < mb_strlen($string); $i += $len ) {
+            $letters[] = mb_substr($string, $i, $len);
+        }
+
+        return $letters;
     }
 
 
@@ -707,8 +741,8 @@ class Str
 
 
     /**
-     * @param string|string[]|array $delimiters
-     * @param string|string[]|array ...$strings
+     * @param string|array $delimiters
+     * @param string|array ...$strings
      *
      * @return array
      */
@@ -747,9 +781,9 @@ class Str
     /**
      * рекурсивно разрывает строку в многоуровневый массив
      *
-     * @param string|string[]|array $delimiters
-     * @param string                $string
-     * @param int|null              $limit
+     * @param string|array $delimiters
+     * @param string       $string
+     * @param int|null     $limit
      *
      * @return array
      */
@@ -783,8 +817,8 @@ class Str
     /**
      * '1, 2, 3', включая пустые строки, исключение если нельзя привести к строке
      *
-     * @param string                $delimiter
-     * @param string|string[]|array ...$strings
+     * @param string       $delimiter
+     * @param string|array ...$strings
      *
      * @return string
      */
@@ -806,8 +840,8 @@ class Str
     /**
      * '1, 2, 3', включая пустые строки, пропускает если нельзя привести к строке
      *
-     * @param string                $delimiter
-     * @param string|string[]|array ...$strings
+     * @param string       $delimiter
+     * @param string|array ...$strings
      *
      * @return string
      */
@@ -834,8 +868,8 @@ class Str
     /**
      * '1, 2, 3', пропускает пустые строки, исключение если нельзя привести к строке
      *
-     * @param string                $delimiter
-     * @param string|string[]|array ...$strings
+     * @param string       $delimiter
+     * @param string|array ...$strings
      *
      * @return string
      */
@@ -858,8 +892,8 @@ class Str
     /**
      * '1, 2, 3', пропускает пустые строки, пропускает если нельзя привести к строке
      *
-     * @param string                $delimiter
-     * @param string|string[]|array ...$strings
+     * @param string       $delimiter
+     * @param string|array ...$strings
      *
      * @return string
      */
@@ -887,10 +921,10 @@ class Str
     /**
      * "`1`, `2` or `3`", всегда пропускает пустые строки, исключение если нельзя привести к строке
      *
-     * @param string|string[]|array $strings
-     * @param null|string           $delimiter
-     * @param null|string           $lastDelimiter
-     * @param null|string           $wrapper
+     * @param string|array $strings
+     * @param null|string  $delimiter
+     * @param null|string  $lastDelimiter
+     * @param null|string  $wrapper
      *
      * @return string
      */
@@ -929,10 +963,10 @@ class Str
     /**
      * "`1`, `2` or `3`", всегда пропускает пустые строки, пропускает если нельзя привести к строке
      *
-     * @param string|string[]|array $strings
-     * @param null|string           $delimiter
-     * @param null|string           $wrapper
-     * @param null|string           $lastDelimiter
+     * @param string|array $strings
+     * @param null|string  $delimiter
+     * @param null|string  $wrapper
+     * @param null|string  $lastDelimiter
      *
      * @return string
      */
@@ -991,7 +1025,7 @@ class Str
 
         if (0 === $len) return '';
 
-        $vowels = $this->vowels();
+        $vowels = $this->loadVowels();
 
         $sourceConsonants = [];
         $sourceVowels = [];
@@ -1031,9 +1065,9 @@ class Str
     /**
      * применяет prefix() ко всем строкам, затем соединяет результаты, чтобы урезать итоговый размер строки
      *
-     * @param string|string[]|array      $strings
-     * @param null|string|string[]|array $delimiters
-     * @param null|int                   $limit
+     * @param string|array      $strings
+     * @param null|string|array $delimiters
+     * @param null|int          $limit
      *
      * @return string
      */
@@ -1107,17 +1141,23 @@ class Str
     /**
      * camelCase
      *
-     * @param string      $value
-     * @param string      $separator
-     * @param null|string $delimiters
+     * @param string|array $strings
+     * @param null|string  $separator
+     * @param null|string  $delimiters
      *
      * @return string
      */
-    public function camel(string $value, string $separator = '', string $delimiters = null) : string
+    public function camel($strings, string $separator = null, string $delimiters = null) : string
     {
-        $result = $this->caseSwitch($value, $separator, $delimiters, MB_CASE_UPPER);
+        $separator = $separator ?? '';
 
-        $result = mb_convert_case($value[ 0 ], MB_CASE_LOWER, 'UTF-8') . mb_substr($result, 1);
+        $implode = implode($separator, $this->wordvals($strings));
+
+        $result = $this->caseSwitch(static::CASE_UPPER,
+            $implode, $separator, $delimiters
+        );
+
+        $result = mb_convert_case($implode[ 0 ], MB_CASE_LOWER) . mb_substr($result, 1);
 
         return $result;
     }
@@ -1125,15 +1165,17 @@ class Str
     /**
      * PascalCase
      *
-     * @param string      $value
-     * @param string      $separator
-     * @param null|string $delimiters
+     * @param string|array $strings
+     * @param null|string  $separator
+     * @param null|string  $delimiters
      *
      * @return string
      */
-    public function pascal(string $value, string $separator = '', string $delimiters = null) : string
+    public function pascal($strings, string $separator = null, string $delimiters = null) : string
     {
-        $result = $this->caseSwitch($value, $separator, $delimiters, MB_CASE_UPPER);
+        $result = $this->caseSwitch(static::CASE_UPPER,
+            $strings, $separator, $delimiters
+        );
 
         return $result;
     }
@@ -1141,15 +1183,19 @@ class Str
     /**
      * snake_case
      *
-     * @param string      $value
-     * @param string      $separator
-     * @param null|string $delimiters
+     * @param string|array $strings
+     * @param null|string  $separator
+     * @param null|string  $delimiters
      *
      * @return string
      */
-    public function snake(string $value, string $separator = '_', string $delimiters = null) : string
+    public function snake($strings, string $separator = null, string $delimiters = null) : string
     {
-        $result = $this->caseSwitch($value, $separator, $delimiters);
+        $separator = $separator ?? '_';
+
+        $result = $this->caseSwitch(static::CASE_LOWER,
+            $strings, $separator, $delimiters
+        );
 
         return $result;
     }
@@ -1266,8 +1312,8 @@ class Str
 
 
     /**
-     * @param string|string[]|array $strings
-     * @param null|bool             $uniq
+     * @param string|array $strings
+     * @param null|bool    $uniq
      *
      * @return string[]
      */
@@ -1297,8 +1343,8 @@ class Str
     }
 
     /**
-     * @param string|string[]|array $words
-     * @param null|bool             $uniq
+     * @param string|array $words
+     * @param null|bool    $uniq
      *
      * @return string[]
      */
@@ -1329,8 +1375,8 @@ class Str
 
 
     /**
-     * @param string|string[]|array $strings
-     * @param null|bool             $uniq
+     * @param string|array $strings
+     * @param null|bool    $uniq
      *
      * @return string[]
      */
@@ -1358,8 +1404,8 @@ class Str
     }
 
     /**
-     * @param string|string[]|array $words
-     * @param null|bool             $uniq
+     * @param string|array $words
+     * @param null|bool    $uniq
      *
      * @return string[]
      */
@@ -1388,72 +1434,53 @@ class Str
 
 
     /**
-     * @param string      $value
-     * @param string      $separator
-     * @param null|string $delimiters
-     * @param string|int  $mbCase
+     * @param string|int   $case
+     * @param string|array $strings
+     * @param null|string  $separator
+     * @param null|string  $delimiters
      *
      * @return string
      */
-    protected function caseSwitch(string $value, string $separator, string $delimiters = null,
-        string $mbCase = MB_CASE_LOWER
+    protected function caseSwitch(string $case,
+        $strings, string $separator = null, string $delimiters = null
     ) : string
     {
-        if (! isset(static::THE_MB_CASE_LIST[ $mbCase ])) {
+        $case = $case ?? static::CASE_LOWER;
+        $separator = $separator ?? '';
+        $delimiters = $delimiters ?? '_-';
+
+        if (! isset(static::THE_CASE_LIST[ $case ])) {
             throw new InvalidArgumentException(
-                [ 'Unknown MbCase passed: %s', $mbCase ]
+                [ 'Unknown case passed: %s', $case ]
             );
         }
 
-        if ('' === $value) {
-            return $value;
+        $implode = implode($separator, $this->wordvals($strings));
+
+        $result = trim($implode);
+        if ('' === $result) {
+            return $result;
         }
 
-        $delimiters = $delimiters ?? '_-';
-        $delimiters = $separator . $delimiters;
-
-        $result = trim($value);
         $result = preg_replace('/\s+/', static::REPLACER, $result);
 
-        $delimitersArray = $this->split($delimiters);
+        $separatorsArray = $this->split($separator . $delimiters);
 
         $result = ''
-            . mb_convert_case(mb_substr($result, 0, 1), $mbCase, 'UTF-8')
+            . mb_convert_case(mb_substr($result, 0, 1), $case)
             . preg_replace('/\p{Lu}/', static::REPLACER . '$0', mb_substr($result, 1));
 
-        $resultArray = $this->explode([ static::REPLACER, $delimitersArray ], $result);
+        $resultArray = $this->explode([ static::REPLACER, $separatorsArray ], $result);
         $resultArray = array_filter($resultArray, 'strlen');
 
         foreach ( $resultArray as $idx => $r ) {
             $resultArray[ $idx ] = ''
-                . mb_convert_case(mb_substr($r, 0, 1), $mbCase, 'UTF-8')
+                . mb_convert_case(mb_substr($r, 0, 1), $case)
                 . mb_substr($r, 1);
         }
 
         $result = implode($separator, $resultArray);
 
         return $result;
-    }
-
-
-    /**
-     * @return string
-     */
-    protected function vowels() : string
-    {
-        $list = [
-            'a' => 'aàáâãāăȧäảåǎȁąạḁẚầấẫẩằắẵẳǡǟǻậặæǽǣая',
-            'e' => 'eèéêẽēĕėëẻěȅȇẹȩęḙḛềếễểḕḗệḝеёє',
-            'i' => 'iìíîĩīĭïỉǐịįȉȋḭḯиыії',
-            'o' => 'oòóôõōŏȯöỏőǒȍȏơǫọøồốỗổȱȫȭṍṏṑṓờớỡởợǭộǿœо',
-            'u' => 'uùúûũūŭüủůűǔȕȗưụṳųṷṵṹṻǖǜǘǖǚừứữửựуюў',
-        ];
-
-        $vowels = '';
-        foreach ( $list as $l ) {
-            $vowels .= mb_strtolower($l) . mb_strtoupper($l);
-        }
-
-        return $vowels;
     }
 }

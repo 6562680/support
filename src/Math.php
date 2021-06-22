@@ -63,6 +63,7 @@ class Math
         return $instance;
     }
 
+
     /**
      * @param null|int $scale
      * @param null|int $scaleMax
@@ -91,6 +92,17 @@ class Math
     }
 
     /**
+     * @return static
+     */
+    public function withoutScale()
+    {
+        $this->scale = null;
+
+        return $this;
+    }
+
+
+    /**
      * @param int $scaleMax
      *
      * @return static
@@ -98,17 +110,6 @@ class Math
     public function withScaleMax(int $scaleMax)
     {
         $this->scaleMax = $scaleMax;
-
-        return $this;
-    }
-
-
-    /**
-     * @return static
-     */
-    public function withoutScale()
-    {
-        $this->scale = null;
 
         return $this;
     }
@@ -348,80 +349,6 @@ class Math
         }
 
         return $scaleVal;
-    }
-
-
-    /**
-     * @param int|float|string|mixed $number
-     *
-     * @return null|string
-     */
-    public function bcval($number) : ?string
-    {
-        if (! ( is_string($number) || is_float($number) || is_int($number) )) {
-            return null;
-        }
-
-        if ('' === $number) {
-            return null;
-
-        } elseif (is_int($number)) {
-            $bcval = $number;
-
-        } else {
-            if (is_float($number)) {
-                $frac = '';
-
-                if (false !== ( $pos = strchr($number, '.') )) {
-                    $frac = substr($pos, 1);
-                }
-
-                $bcval = sprintf('%.' . strlen($frac) . 'f', $number);
-
-            } elseif (is_numeric($number)) {
-                $bcval = $number;
-
-            } else {
-                $bcval = str_replace(' ', '', $number);
-                $bcval = str_replace([ '.', ',' ], '.', $bcval, $cnt);
-
-                if ($cnt > 1) {
-                    return null;
-                }
-
-                if (strrpos($bcval, '-')) {
-                    return null;
-                }
-
-                $ctype = str_replace([ '-', '.' ], '', $bcval);
-                if (! ctype_digit($ctype)) {
-                    return null;
-                }
-            }
-
-            if (false !== strpos($bcval, '.')) {
-                $bcval = rtrim($bcval, '0');
-                $bcval = rtrim($bcval, '.');
-            }
-        }
-
-        return $bcval;
-    }
-
-    /**
-     * @param int|float|string|mixed $value
-     *
-     * @return string
-     */
-    public function theBcval($value) : string
-    {
-        if (null === ( $bcval = $this->bcval($value) )) {
-            throw new InvalidArgumentException(
-                [ 'Value should be convertable to bcnumval: %s', $value ],
-            );
-        }
-
-        return $bcval;
     }
 
 
@@ -1077,7 +1004,6 @@ class Math
         );
     }
 
-
     /**
      * @param int|float|string|mixed $val
      * @param int|float|string|mixed $exp
@@ -1477,6 +1403,101 @@ class Math
             . $this->bcceil($this->bcabs($number), $scale);
 
         return $result;
+    }
+
+
+    /**
+     * @param int|float|string|mixed $number
+     *
+     * @return null|string
+     */
+    public function bcval($number) : ?string
+    {
+        if (! ( is_string($number) || is_float($number) || is_int($number) )) {
+            return null;
+        }
+
+        if ('' === $number) {
+            return null;
+
+        } elseif (is_int($number)) {
+            $bcval = $number;
+
+        } else {
+
+            $isFloat = is_float($number);
+            if ($isFloat || is_numeric($number)) {
+                $fraclen = null;
+
+                $floatstr = $isFloat
+                    ? strval($number)
+                    : $number;
+
+                $isPosExp = ( false !== strripos($floatstr, 'e') );
+                if ($isPosExp) {
+                    [ $floatstr, $exponent ] = preg_split('/[E](?=[+-])/', $floatstr) + [ null, null ];
+
+                    if (null !== $exponent) {
+                        $fraclen = '-' === $exponent[ 0 ]
+                            ? intval(substr($exponent, 1))
+                            : 0;
+                    }
+                }
+
+                $isPosDot = ( false !== ( $posDot = strrpos($floatstr, '.') ) );
+                if ($isPosDot) {
+                    is_null($fraclen)
+                        ? $fraclen = strlen(substr($floatstr, $posDot + 1))
+                        : $fraclen += strlen(substr($floatstr, $posDot + 1));
+                }
+
+                $bcval = null !== $fraclen
+                    ? sprintf('%.' . $fraclen . 'f', $number)
+                    : sprintf('%.0f', $number);
+
+            } else {
+                // ! is_numeric
+
+                $bcval = str_replace(' ', '', $number);
+                $bcval = str_replace([ '.', ',' ], '.', $bcval, $cnt);
+
+                if ($cnt > 1) {
+                    return null;
+                }
+
+                if (strrpos($bcval, '-')) {
+                    return null;
+                }
+
+                $ctype = str_replace([ '-', '.' ], '', $bcval);
+                if (! ctype_digit($ctype)) {
+                    return null;
+                }
+            }
+
+            if (false !== strpos($bcval, '.')) {
+                $bcval = rtrim($bcval, '0');
+                $bcval = rtrim($bcval, '.');
+            }
+        }
+
+        return $bcval;
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return string
+     */
+    public function theBcval($value) : string
+    {
+        if (null === ( $bcval = $this->bcval($value) )) {
+            throw new InvalidArgumentException(
+                [ 'Value should be convertable to bcnumval: %s', $value ],
+            );
+        }
+
+        return $bcval;
     }
 
 

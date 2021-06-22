@@ -14,6 +14,48 @@ class MathTest extends AbstractTestCase
     }
 
 
+    public function testBcval()
+    {
+        $math = $this->getMath();
+
+        // $this->assertEquals('0', $math->bcval(0));
+        // $this->assertEquals('0', $math->bcval(0.0));
+        // $this->assertEquals('0.1', $math->bcval(.1));
+        // $this->assertEquals('0.1', $math->bcval(0.1));
+        // $this->assertEquals('1', $math->bcval(1));
+        // $this->assertEquals('1', $math->bcval(1.0));
+        // $this->assertEquals('1.1', $math->bcval(1.1));
+        // $this->assertEquals('110000', $math->bcval(1.1e5));
+        // $this->assertEquals('110000', $math->bcval(1.1e+5));
+        // $this->assertEquals('110000', $math->bcval(1.1E5));
+        // $this->assertEquals('110000', $math->bcval(1.1E+5));
+        // $this->assertEquals('110000000000000', $math->bcval(1.1e14));
+        // $this->assertEquals('110000000000000', $math->bcval(1.1e+14));
+        // $this->assertEquals('110000000000000', $math->bcval(1.1E14));
+        // $this->assertEquals('110000000000000', $math->bcval(1.1E+14));
+        $this->assertEquals('0.00001', $math->bcval(1.1e-5));
+        $this->assertEquals('0.00001', $math->bcval(1.1E-5));
+
+        // $this->assertEquals('0', $math->bcval('0'));
+        // $this->assertEquals('0', $math->bcval('0.0'));
+        // $this->assertEquals('0.1', $math->bcval('.1'));
+        // $this->assertEquals('0.1', $math->bcval('0.1'));
+        // $this->assertEquals('1', $math->bcval('1'));
+        // $this->assertEquals('1', $math->bcval('1.0'));
+        // $this->assertEquals('1.1', $math->bcval('1.1'));
+        // $this->assertEquals('110000', $math->bcval('1.1e5'));
+        // $this->assertEquals('110000', $math->bcval('1.1e+5'));
+        // $this->assertEquals('110000', $math->bcval('1.1E5'));
+        // $this->assertEquals('110000', $math->bcval('1.1E+5'));
+        // $this->assertEquals('110000000000000', $math->bcval('1.1e14'));
+        // $this->assertEquals('110000000000000', $math->bcval('1.1e+14'));
+        // $this->assertEquals('110000000000000', $math->bcval('1.1E14'));
+        // $this->assertEquals('110000000000000', $math->bcval('1.1E+14'));
+        // $this->assertEquals('', $math->bcval('1.1e-5')); // error
+        // $this->assertEquals('', $math->bcval('1.1E-5')); // error
+    }
+
+
     public function testRound()
     {
         $math = $this->getMath();
