@@ -87,7 +87,7 @@ abstract class GeneratedMathFacade
     /**
      * @param int|float|string|mixed $value
      *
-     * @return null|int|float|string
+     * @return bool
      */
     public static function isPositive($value): bool
     {
@@ -97,7 +97,7 @@ abstract class GeneratedMathFacade
     /**
      * @param int|float|string|mixed $value
      *
-     * @return null|int|float|string
+     * @return bool
      */
     public static function isNonNegative($value): bool
     {
@@ -107,7 +107,7 @@ abstract class GeneratedMathFacade
     /**
      * @param int|float|string|mixed $value
      *
-     * @return null|int|float|string
+     * @return bool
      */
     public static function isNegative($value): bool
     {
@@ -117,7 +117,7 @@ abstract class GeneratedMathFacade
     /**
      * @param int|float|string|mixed $value
      *
-     * @return null|int|float|string
+     * @return bool
      */
     public static function isNonPositive($value): bool
     {
@@ -167,7 +167,7 @@ abstract class GeneratedMathFacade
     /**
      * @param int|float|string|mixed $value
      *
-     * @return null|int|float|string
+     * @return int|float|string
      */
     public static function assertPositive($value)
     {
@@ -177,7 +177,7 @@ abstract class GeneratedMathFacade
     /**
      * @param int|float|string|mixed $value
      *
-     * @return null|int|float|string
+     * @return int|float|string
      */
     public static function assertNonNegative($value)
     {
@@ -187,7 +187,7 @@ abstract class GeneratedMathFacade
     /**
      * @param int|float|string|mixed $value
      *
-     * @return null|int|float|string
+     * @return int|float|string
      */
     public static function assertNegative($value)
     {
@@ -197,7 +197,7 @@ abstract class GeneratedMathFacade
     /**
      * @param int|float|string|mixed $value
      *
-     * @return null|int|float|string
+     * @return int|float|string
      */
     public static function assertNonPositive($value)
     {
@@ -287,8 +287,8 @@ abstract class GeneratedMathFacade
     /**
      * Округляет в меньшую сторону
      *
-     * @param int|float|string|mixed $number
-     * @param null|int               $scale
+     * @param int|float|mixed $number
+     * @param null|int        $scale
      *
      * @return int|float
      */
@@ -300,8 +300,8 @@ abstract class GeneratedMathFacade
     /**
      * Округляет в большую сторону
      *
-     * @param int|float|string|mixed $number
-     * @param null|int               $scale
+     * @param int|float|mixed $number
+     * @param null|int        $scale
      *
      * @return int|float
      */
@@ -445,9 +445,9 @@ abstract class GeneratedMathFacade
     }
 
     /**
-     * @param int|float|string $a
-     * @param int|float|string $b
-     * @param null|int         $scale
+     * @param int|float|string|mixed $a
+     * @param int|float|string|mixed $b
+     * @param null|int               $scale
      *
      * @return string
      */
@@ -457,9 +457,9 @@ abstract class GeneratedMathFacade
     }
 
     /**
-     * @param int|float|string $a
-     * @param int|float|string $b
-     * @param null|int         $scale
+     * @param int|float|string|mixed $a
+     * @param int|float|string|mixed $b
+     * @param null|int               $scale
      *
      * @return string
      */
@@ -469,9 +469,9 @@ abstract class GeneratedMathFacade
     }
 
     /**
-     * @param int|float|string $a
-     * @param int|float|string $b
-     * @param null|int         $scale
+     * @param int|float|string|mixed $a
+     * @param int|float|string|mixed $b
+     * @param null|int               $scale
      *
      * @return string
      */
@@ -481,9 +481,9 @@ abstract class GeneratedMathFacade
     }
 
     /**
-     * @param int|float|string $a
-     * @param int|float|string $b
-     * @param null|int         $scale
+     * @param int|float|string|mixed $a
+     * @param int|float|string|mixed $b
+     * @param null|int               $scale
      *
      * @return string
      */
@@ -493,9 +493,9 @@ abstract class GeneratedMathFacade
     }
 
     /**
-     * @param int|float|string $a
-     * @param int|float|string $b
-     * @param null|int         $scale
+     * @param int|float|string|mixed $a
+     * @param int|float|string|mixed $b
+     * @param null|int               $scale
      *
      * @return string
      */
@@ -505,9 +505,9 @@ abstract class GeneratedMathFacade
     }
 
     /**
-     * @param int|float|string $val
-     * @param int|float|string $exp
-     * @param null|int         $scale
+     * @param int|float|string|mixed $val
+     * @param int|float|string|mixed $exp
+     * @param null|int               $scale
      *
      * @return string
      */
@@ -647,9 +647,9 @@ abstract class GeneratedMathFacade
     }
 
     /**
-     * @param int|float|string      $value
-     * @param null|int|float|string $sum
-     * @param null|int              $scale
+     * @param int|float|string|mixed      $value
+     * @param null|int|float|string|mixed $sum
+     * @param null|int                    $scale
      *
      * @return float
      */
@@ -659,9 +659,9 @@ abstract class GeneratedMathFacade
     }
 
     /**
-     * @param int|float|string      $from
-     * @param null|int|float|string $to
-     * @param null|int              $scale
+     * @param int|float|string|mixed      $from
+     * @param null|int|float|string|mixed $to
+     * @param null|int                    $scale
      *
      * @return string
      */
@@ -700,8 +700,8 @@ abstract class GeneratedMathFacade
     }
 
     /**
-     * @param string|string[]|array $strings
-     * @param null|bool             $uniq
+     * @param string|array $strings
+     * @param null|bool    $uniq
      *
      * @return string[]
      */
@@ -711,8 +711,8 @@ abstract class GeneratedMathFacade
     }
 
     /**
-     * @param string|string[]|array $strings
-     * @param null|bool             $uniq
+     * @param string|array $strings
+     * @param null|bool    $uniq
      *
      * @return string[]
      */
@@ -726,7 +726,7 @@ abstract class GeneratedMathFacade
      * Если разделить 100 на 3 получается 33.33, 33.33, и 33.33 и 0.01 в периоде
      * Функция позволяет разбить исходное число на три, дробная часть от каждого деления достанется первому
      *
-     * @param int|float|string       $sum
+     * @param int|float|string|mixed $sum
      * @param int|float|string|array $rates
      * @param null|int               $scale
      *
