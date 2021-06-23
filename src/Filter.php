@@ -258,6 +258,152 @@ class Filter
 
 
     /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int|float
+     */
+    public function filterPositiveVal($value) // : ?int|float
+    {
+        if (null === $this->filterNumval($value)) {
+            return null;
+        }
+
+        if ($value > 0) {
+            return $value;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int|float
+     */
+    public function filterNonNegativeVal($value) // : ?int|float
+    {
+        if (null === $this->filterNumval($value)) {
+            return null;
+        }
+
+        if ($value >= 0) {
+            return $value;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int|float
+     */
+    public function filterNegativeVal($value) // : ?int|float
+    {
+        if (null === $this->filterNumval($value)) {
+            return null;
+        }
+
+        if ($value < 0) {
+            return $value;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int|float
+     */
+    public function filterNonPositiveVal($value) // : ?int|float
+    {
+        if (null === $this->filterNumval($value)) {
+            return null;
+        }
+
+        if ($value <= 0) {
+            return $value;
+        }
+
+        return null;
+    }
+
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int
+     */
+    public function filterPositiveIntval($value) : ?int
+    {
+        if (null === $this->filterIntval($value)) {
+            return null;
+        }
+
+        if ($value > 0) {
+            return $value;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int
+     */
+    public function filterNonNegativeIntval($value) : ?int
+    {
+        if (null === $this->filterIntval($value)) {
+            return null;
+        }
+
+        if ($value >= 0) {
+            return $value;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int
+     */
+    public function filterNegativeIntval($value) : ?int
+    {
+        if (null === $this->filterIntval($value)) {
+            return null;
+        }
+
+        if ($value < 0) {
+            return $value;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int
+     */
+    public function filterNonPositiveIntval($value) : ?int
+    {
+        if (null === $this->filterIntval($value)) {
+            return null;
+        }
+
+        if ($value <= 0) {
+            return $value;
+        }
+
+        return null;
+    }
+
+
+    /**
      * @param string|mixed $value
      *
      * @return null|string

@@ -41,7 +41,7 @@ class Num
         }
 
         if ($numval > 0) {
-            return $value;
+            return $numval;
         }
 
         return null;
@@ -59,7 +59,7 @@ class Num
         }
 
         if ($numval >= 0) {
-            return $value;
+            return $numval;
         }
 
         return null;
@@ -77,7 +77,7 @@ class Num
         }
 
         if ($numval < 0) {
-            return $value;
+            return $numval;
         }
 
         return null;
@@ -95,7 +95,7 @@ class Num
         }
 
         if ($numval <= 0) {
-            return $value;
+            return $numval;
         }
 
         return null;
@@ -179,7 +179,7 @@ class Num
         }
 
         if ($intval > 0) {
-            return $value;
+            return $intval;
         }
 
         return null;
@@ -197,7 +197,7 @@ class Num
         }
 
         if ($intval >= 0) {
-            return $value;
+            return $intval;
         }
 
         return null;
@@ -215,7 +215,7 @@ class Num
         }
 
         if ($intval < 0) {
-            return $value;
+            return $intval;
         }
 
         return null;
@@ -233,7 +233,7 @@ class Num
         }
 
         if ($intval <= 0) {
-            return $value;
+            return $intval;
         }
 
         return null;

@@ -133,6 +133,86 @@ abstract class GeneratedType
     }
 
     /**
+     * @param int|float|string|mixed $value
+     *
+     * @return bool
+     */
+    public function isPositiveVal($value): bool
+    {
+        return null !== $this->filter->filterPositiveVal($value);
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return bool
+     */
+    public function isNonNegativeVal($value): bool
+    {
+        return null !== $this->filter->filterNonNegativeVal($value);
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return bool
+     */
+    public function isNegativeVal($value): bool
+    {
+        return null !== $this->filter->filterNegativeVal($value);
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return bool
+     */
+    public function isNonPositiveVal($value): bool
+    {
+        return null !== $this->filter->filterNonPositiveVal($value);
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return bool
+     */
+    public function isPositiveIntval($value): ?bool
+    {
+        return null !== $this->filter->filterPositiveIntval($value);
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return bool
+     */
+    public function isNonNegativeIntval($value): ?bool
+    {
+        return null !== $this->filter->filterNonNegativeIntval($value);
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return bool
+     */
+    public function isNegativeIntval($value): ?bool
+    {
+        return null !== $this->filter->filterNegativeIntval($value);
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return bool
+     */
+    public function isNonPositiveIntval($value): ?bool
+    {
+        return null !== $this->filter->filterNonPositiveIntval($value);
+    }
+
+    /**
      * @param string|mixed $value
      *
      * @return bool

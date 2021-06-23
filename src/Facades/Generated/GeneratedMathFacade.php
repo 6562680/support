@@ -10,10 +10,10 @@
 
 namespace Gzhegow\Support\Facades\Generated;
 
+use Gzhegow\Support\Domain\Math\Bcval;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\Runtime\OutOfBoundsException;
-use Gzhegow\Support\Exceptions\Runtime\UnexpectedValueException;
 use Gzhegow\Support\Math;
 
 abstract class GeneratedMathFacade
@@ -69,6 +69,16 @@ abstract class GeneratedMathFacade
     }
 
     /**
+     * @param string $value
+     *
+     * @return Bcval
+     */
+    public static function newBcval(string $value): Bcval
+    {
+        return static::getInstance()->newBcval($value);
+    }
+
+    /**
      * @return int
      */
     public static function getScale(): int
@@ -85,88 +95,88 @@ abstract class GeneratedMathFacade
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|float|string|Bcval|mixed $value
      *
-     * @return null|int|float|string
+     * @return null|Bcval
      */
-    public static function bcPositiveVal($value): ?string
+    public static function bcPositiveVal($value): ?Bcval
     {
         return static::getInstance()->bcPositiveVal($value);
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|float|string|Bcval|mixed $value
      *
-     * @return null|int|float|string
+     * @return null|Bcval
      */
-    public static function bcNonNegativeVal($value): ?string
+    public static function bcNonNegativeVal($value): ?Bcval
     {
         return static::getInstance()->bcNonNegativeVal($value);
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|float|string|Bcval|mixed $value
      *
-     * @return null|int|float|string
+     * @return null|Bcval
      */
-    public static function bcNegativeVal($value): ?string
+    public static function bcNegativeVal($value): ?Bcval
     {
         return static::getInstance()->bcNegativeVal($value);
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|float|string|Bcval|mixed $value
      *
-     * @return null|int|float|string
+     * @return null|Bcval
      */
-    public static function bcNonPositiveVal($value): ?string
+    public static function bcNonPositiveVal($value): ?Bcval
     {
         return static::getInstance()->bcNonPositiveVal($value);
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|float|string|Bcval|mixed $value
      *
-     * @return int|float|string
+     * @return Bcval
      */
-    public static function theBcPositiveVal($value): string
+    public static function theBcPositiveVal($value): Bcval
     {
         return static::getInstance()->theBcPositiveVal($value);
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|float|string|Bcval|mixed $value
      *
-     * @return int|float|string
+     * @return Bcval
      */
-    public static function theBcNonNegativeVal($value): string
+    public static function theBcNonNegativeVal($value): Bcval
     {
         return static::getInstance()->theBcNonNegativeVal($value);
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|float|string|Bcval|mixed $value
      *
-     * @return int|float|string
+     * @return Bcval
      */
-    public static function theBcNegativeVal($value): string
+    public static function theBcNegativeVal($value): Bcval
     {
         return static::getInstance()->theBcNegativeVal($value);
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|float|string|Bcval|mixed $value
      *
-     * @return int|float|string
+     * @return Bcval
      */
-    public static function theBcNonPositiveVal($value): string
+    public static function theBcNonPositiveVal($value): Bcval
     {
         return static::getInstance()->theBcNonPositiveVal($value);
     }
 
     /**
-     * @param int|mixed              $scale
-     * @param int|float|string|mixed ...$numbers
+     * @param int|mixed                    $scale
+     * @param int|float|string|Bcval|mixed ...$numbers
      *
      * @return null|int
      */
@@ -176,8 +186,8 @@ abstract class GeneratedMathFacade
     }
 
     /**
-     * @param int|mixed              $scale
-     * @param int|float|string|mixed ...$numbers
+     * @param int|mixed                    $scale
+     * @param int|float|string|Bcval|mixed ...$numbers
      *
      * @return int
      */
@@ -187,21 +197,21 @@ abstract class GeneratedMathFacade
     }
 
     /**
-     * @param int|float|string|mixed $number
+     * @param int|float|string|Bcval|mixed $number
      *
-     * @return null|string
+     * @return null|Bcval
      */
-    public static function bcval($number): ?string
+    public static function bcval($number): ?Bcval
     {
         return static::getInstance()->bcval($number);
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|float|string|Bcval|mixed $value
      *
-     * @return string
+     * @return Bcval
      */
-    public static function theBcval($value): string
+    public static function theBcval($value): Bcval
     {
         return static::getInstance()->theBcval($value);
     }
@@ -210,7 +220,7 @@ abstract class GeneratedMathFacade
      * @param string|array $strings
      * @param null|bool    $uniq
      *
-     * @return string[]
+     * @return Bcval[]
      */
     public static function bcvals($strings, $uniq = null): array
     {
@@ -221,7 +231,7 @@ abstract class GeneratedMathFacade
      * @param string|array $strings
      * @param null|bool    $uniq
      *
-     * @return string[]
+     * @return Bcval[]
      */
     public static function theBcvals($strings, $uniq = null): array
     {
@@ -229,10 +239,10 @@ abstract class GeneratedMathFacade
     }
 
     /**
-     * @param int|float|string|mixed $number
-     * @param null|int               $decimals
-     * @param null|string            $decimalSeparator
-     * @param null|string            $thousandSeparator
+     * @param int|float|string|Bcval|mixed $number
+     * @param null|int                     $decimals
+     * @param null|string                  $decimalSeparator
+     * @param null|string                  $thousandSeparator
      *
      * @return string
      */
@@ -260,7 +270,7 @@ abstract class GeneratedMathFacade
     /**
      * Возвращает дробную часть числа
      *
-     * @param int|float|string|mixed $number
+     * @param int|float|string|Bcval|mixed $number
      *
      * @return string
      */
@@ -272,8 +282,8 @@ abstract class GeneratedMathFacade
     /**
      * Определяет максимальное число знаков после запятой из переданных чисел
      *
-     * @param int|float|string|array $numbers
-     * @param null|int               $scaleMax
+     * @param int|float|string|Bcval|array $numbers
+     * @param null|int                     $scaleMax
      *
      * @return int
      */
@@ -456,83 +466,106 @@ abstract class GeneratedMathFacade
     }
 
     /**
-     * @param int|float|string|mixed $a
-     * @param int|float|string|mixed $b
-     * @param null|int               $scale
+     * @param int|float|string|Bcval|mixed $a
+     * @param int|float|string|Bcval|mixed $b
+     * @param null|int                     $scale
      *
-     * @return string
+     * @return int
      */
-    public static function bccomp($a, $b, int $scale = null)
+    public static function bccomp($a, $b, int $scale = null): int
     {
         return static::getInstance()->bccomp($a, $b, $scale);
     }
 
     /**
-     * @param int|float|string|mixed $a
-     * @param int|float|string|mixed $b
-     * @param null|int               $scale
+     * @param int|float|string|Bcval|mixed $a
+     * @param int|float|string|Bcval|mixed $b
+     * @param null|int                     $scale
      *
-     * @return string
+     * @return Bcval
      */
-    public static function bcadd($a, $b, int $scale = null)
+    public static function bcadd($a, $b, int $scale = null): Bcval
     {
         return static::getInstance()->bcadd($a, $b, $scale);
     }
 
     /**
-     * @param int|float|string|mixed $a
-     * @param int|float|string|mixed $b
-     * @param null|int               $scale
+     * @param int|float|string|Bcval|mixed $a
+     * @param int|float|string|Bcval|mixed $b
+     * @param null|int                     $scale
      *
-     * @return string
+     * @return Bcval
      */
-    public static function bcsub($a, $b, int $scale = null)
+    public static function bcsub($a, $b, int $scale = null): Bcval
     {
         return static::getInstance()->bcsub($a, $b, $scale);
     }
 
     /**
-     * @param int|float|string|mixed $a
-     * @param int|float|string|mixed $b
-     * @param null|int               $scale
+     * @param int|float|string|Bcval|mixed $a
+     * @param int|float|string|Bcval|mixed $b
+     * @param null|int                     $scale
      *
-     * @return string
+     * @return Bcval
      */
-    public static function bcmul($a, $b, int $scale = null)
+    public static function bcmul($a, $b, int $scale = null): Bcval
     {
         return static::getInstance()->bcmul($a, $b, $scale);
     }
 
     /**
-     * @param int|float|string|mixed $a
-     * @param int|float|string|mixed $b
-     * @param null|int               $scale
+     * @param int|float|string|Bcval|mixed $a
+     * @param int|float|string|Bcval|mixed $b
+     * @param null|int                     $scale
      *
-     * @return string
+     * @return Bcval
      */
-    public static function bcdiv($a, $b, int $scale = null)
+    public static function bcmod($a, $b, int $scale = null)
+    {
+        return static::getInstance()->bcmod($a, $b, $scale);
+    }
+
+    /**
+     * @param int|float|string|Bcval|mixed $a
+     * @param int|float|string|Bcval|mixed $b
+     * @param null|int                     $scale
+     *
+     * @return Bcval
+     */
+    public static function bcdiv($a, $b, int $scale = null): Bcval
     {
         return static::getInstance()->bcdiv($a, $b, $scale);
     }
 
     /**
-     * @param int|float|string|mixed $val
-     * @param int|float|string|mixed $exp
-     * @param null|int               $scale
+     * @param int|float|string|Bcval|mixed $val
+     * @param int|float|string|Bcval|mixed $exp
+     * @param null|int                     $scale
      *
-     * @return string
+     * @return Bcval
      */
-    public static function bcpow($val, $exp, int $scale = null)
+    public static function bcpow($val, $exp, int $scale = null): Bcval
     {
         return static::getInstance()->bcpow($val, $exp, $scale);
     }
 
     /**
+     * @param int|float|string|Bcval|mixed $val
+     * @param null|int                     $scale
+     *
+     * @return Bcval
+     */
+    public static function bcsqrt($val, int $scale = null): Bcval
+    {
+        return static::getInstance()->bcsqrt($val, $scale);
+    }
+
+    /**
      * Получает минуса или пустой строки если число отрицательное
      *
-     * @param int|float|string|mixed $number
+     * @param int|float|string|Bcval|mixed $number
      *
-     * @return string
+     * @return Bcval
      */
     public static function bcminus($number): string
     {
@@ -542,7 +575,7 @@ abstract class GeneratedMathFacade
     /**
      * Получает значение по модулю от числа
      *
-     * @param int|float|string|mixed $number
+     * @param int|float|string|Bcval|mixed $number
      *
      * @return string
      */
@@ -554,12 +587,12 @@ abstract class GeneratedMathFacade
     /**
      * Округление
      *
-     * @param int|float|string|mixed $number
-     * @param null|int               $scale
+     * @param int|float|string|Bcval|mixed $number
+     * @param null|int                     $scale
      *
-     * @return string
+     * @return Bcval
      */
-    public static function bcround($number, int $scale = null): string
+    public static function bcround($number, int $scale = null): Bcval
     {
         return static::getInstance()->bcround($number, $scale);
     }
@@ -567,12 +600,12 @@ abstract class GeneratedMathFacade
     /**
      * Округляет в меньшую сторону
      *
-     * @param int|float|string|mixed $number
-     * @param null|int               $scale
+     * @param int|float|string|Bcval|mixed $number
+     * @param null|int                     $scale
      *
-     * @return string
+     * @return Bcval
      */
-    public static function bcfloor($number, int $scale = null): string
+    public static function bcfloor($number, int $scale = null): Bcval
     {
         return static::getInstance()->bcfloor($number, $scale);
     }
@@ -580,67 +613,67 @@ abstract class GeneratedMathFacade
     /**
      * Округляет в большую сторону
      *
-     * @param int|float|string|mixed $number
-     * @param null|int               $scale
+     * @param int|float|string|Bcval|mixed $number
+     * @param null|int                     $scale
      *
-     * @return string
+     * @return Bcval
      */
-    public static function bcceil($number, int $scale = null): string
+    public static function bcceil($number, int $scale = null): Bcval
     {
         return static::getInstance()->bcceil($number, $scale);
     }
 
     /**
-     * @param int|float|string|array $numbers
-     * @param null|int               $scale
+     * @param int|float|string|Bcval|array $numbers
+     * @param null|int                     $scale
      *
-     * @return null|string
+     * @return null|Bcval
      */
-    public static function bcmax($numbers, int $scale = null): ?string
+    public static function bcmax($numbers, int $scale = null): ?Bcval
     {
         return static::getInstance()->bcmax($numbers, $scale);
     }
 
     /**
-     * @param int|float|string|array $numbers
-     * @param null|int               $scale
+     * @param int|float|string|Bcval|array $numbers
+     * @param null|int                     $scale
      *
-     * @return null|string
+     * @return null|Bcval
      */
-    public static function bcmin($numbers, int $scale = null): ?string
+    public static function bcmin($numbers, int $scale = null): ?Bcval
     {
         return static::getInstance()->bcmin($numbers, $scale);
     }
 
     /**
-     * @param int|float|string|array $numbers
-     * @param null|int               $scale
+     * @param int|float|string|Bcval|array $numbers
+     * @param null|int                     $scale
      *
-     * @return string
+     * @return Bcval
      */
-    public static function bcsum($numbers, int $scale = null): string
+    public static function bcsum($numbers, int $scale = null): Bcval
     {
         return static::getInstance()->bcsum($numbers, $scale);
     }
 
     /**
-     * @param int|float|string|array $numbers
-     * @param null|int               $scale
+     * @param int|float|string|Bcval|array $numbers
+     * @param null|int                     $scale
      *
-     * @return string
+     * @return Bcval
      */
-    public static function bcavg($numbers, int $scale = null): string
+    public static function bcavg($numbers, int $scale = null): Bcval
     {
         return static::getInstance()->bcavg($numbers, $scale);
     }
 
     /**
-     * @param int|float|string|array $numbers
-     * @param null|int               $scale
+     * @param int|float|string|Bcval|array $numbers
+     * @param null|int                     $scale
      *
-     * @return null|string
+     * @return null|Bcval
      */
-    public static function bcmedian($numbers, int $scale = null): ?string
+    public static function bcmedian($numbers, int $scale = null): ?Bcval
     {
         return static::getInstance()->bcmedian($numbers, $scale);
     }
@@ -650,33 +683,33 @@ abstract class GeneratedMathFacade
      * @param null|int|float $sum
      * @param null|int       $scale
      *
-     * @return float
+     * @return Bcval
      */
-    public static function bcratio($value, $sum = null, int $scale = null): float
+    public static function bcratio($value, $sum = null, int $scale = null): Bcval
     {
         return static::getInstance()->bcratio($value, $sum, $scale);
     }
 
     /**
-     * @param int|float|string|mixed      $value
-     * @param null|int|float|string|mixed $sum
-     * @param null|int                    $scale
+     * @param int|float|string|Bcval|mixed      $value
+     * @param null|int|float|string|Bcval|mixed $sum
+     * @param null|int                          $scale
      *
-     * @return float
+     * @return Bcval
      */
-    public static function bcpercent($value, $sum = null, int $scale = null): float
+    public static function bcpercent($value, $sum = null, int $scale = null): Bcval
     {
         return static::getInstance()->bcpercent($value, $sum, $scale);
     }
 
     /**
-     * @param int|float|string|mixed      $from
-     * @param null|int|float|string|mixed $to
-     * @param null|int                    $scale
+     * @param int|float|string|Bcval|mixed      $from
+     * @param null|int|float|string|Bcval|mixed $to
+     * @param null|int                          $scale
      *
-     * @return string
+     * @return Bcval
      */
-    public static function bcrand($from, $to = null, int $scale = null): string
+    public static function bcrand($from, $to = null, int $scale = null): Bcval
     {
         return static::getInstance()->bcrand($from, $to, $scale);
     }
@@ -686,12 +719,12 @@ abstract class GeneratedMathFacade
      * Урежет дробную часть
      * Обычный floor отбрасывает всю и уменьшает число на единицу даже если отрицательное
      *
-     * @param int|float|string|mixed $number
-     * @param null|int               $scale
+     * @param int|float|string|Bcval|mixed $number
+     * @param null|int                     $scale
      *
-     * @return string
+     * @return Bcval
      */
-    public static function bcmoneyfloor($number, int $scale = null): string
+    public static function bcmoneyfloor($number, int $scale = null): Bcval
     {
         return static::getInstance()->bcmoneyfloor($number, $scale);
     }
@@ -700,12 +733,12 @@ abstract class GeneratedMathFacade
      * Увеличение по "правилу денег"
      * Округлит 1.00000001 до 1.01 (если нужно два знака после запятой)
      *
-     * @param int|float|string|mixed $number
-     * @param null|int               $scale
+     * @param int|float|string|Bcval|mixed $number
+     * @param null|int                     $scale
      *
-     * @return string
+     * @return Bcval
      */
-    public static function bcmoneyceil($number, int $scale = null): string
+    public static function bcmoneyceil($number, int $scale = null): Bcval
     {
         return static::getInstance()->bcmoneyceil($number, $scale);
     }
@@ -715,11 +748,11 @@ abstract class GeneratedMathFacade
      * Если разделить 100 на 3 получается 33.33, 33.33, и 33.33 и 0.01 в периоде
      * Функция позволяет разбить исходное число на три, дробная часть от каждого деления достанется первому
      *
-     * @param int|float|string|mixed $sum
-     * @param int|float|string|array $rates
-     * @param null|int               $scale
+     * @param int|float|string|Bcval|mixed $sum
+     * @param int|float|string|Bcval|array $rates
+     * @param null|int                     $scale
      *
-     * @return int[]|float[]
+     * @return Bcval[]
      */
     public static function bcmoneyshare($sum, $rates, int $scale = null): array
     {

@@ -2,10 +2,10 @@
 
 namespace Gzhegow\Support;
 
+use Gzhegow\Support\Domain\Math\Bcval;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 use Gzhegow\Support\Exceptions\Runtime\OutOfBoundsException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
-use Gzhegow\Support\Exceptions\Runtime\UnexpectedValueException;
 
 
 /**
@@ -93,6 +93,8 @@ class Math
      */
     public function withScale(int $scale)
     {
+        $this->num->theNonNegativeIntval($scale);
+
         $this->scale = $scale;
 
         return $this;
@@ -116,9 +118,24 @@ class Math
      */
     public function withScaleMax(int $scaleMax)
     {
+        $this->num->theNonNegativeIntval($scaleMax);
+
         $this->scaleMax = $scaleMax;
 
         return $this;
+    }
+
+
+    /**
+     * @param string $value
+     *
+     * @return Bcval
+     */
+    public function newBcval(string $value) : Bcval
+    {
+        $bcval = new Bcval($value);
+
+        return $bcval;
     }
 
 
@@ -140,11 +157,11 @@ class Math
 
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|float|string|Bcval|mixed $value
      *
-     * @return null|int|float|string
+     * @return null|Bcval
      */
-    public function bcPositiveVal($value) : ?string
+    public function bcPositiveVal($value) : ?Bcval
     {
         if (null === ( $bcval = $this->bcval($value) )) {
             return null;
@@ -159,11 +176,11 @@ class Math
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|float|string|Bcval|mixed $value
      *
-     * @return null|int|float|string
+     * @return null|Bcval
      */
-    public function bcNonNegativeVal($value) : ?string
+    public function bcNonNegativeVal($value) : ?Bcval
     {
         if (null === ( $bcval = $this->bcval($value) )) {
             return null;
@@ -178,11 +195,11 @@ class Math
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|float|string|Bcval|mixed $value
      *
-     * @return null|int|float|string
+     * @return null|Bcval
      */
-    public function bcNegativeVal($value) : ?string
+    public function bcNegativeVal($value) : ?Bcval
     {
         if (null === ( $bcval = $this->bcval($value) )) {
             return null;
@@ -197,11 +214,11 @@ class Math
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|float|string|Bcval|mixed $value
      *
-     * @return null|int|float|string
+     * @return null|Bcval
      */
-    public function bcNonPositiveVal($value) : ?string
+    public function bcNonPositiveVal($value) : ?Bcval
     {
         if (null === ( $bcval = $this->bcval($value) )) {
             return null;
@@ -217,11 +234,11 @@ class Math
 
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|float|string|Bcval|mixed $value
      *
-     * @return int|float|string
+     * @return Bcval
      */
-    public function theBcPositiveVal($value) : string
+    public function theBcPositiveVal($value) : Bcval
     {
         if (null === ( $bcPositiveVal = $this->bcPositiveVal($value) )) {
             throw new InvalidArgumentException(
@@ -233,11 +250,11 @@ class Math
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|float|string|Bcval|mixed $value
      *
-     * @return int|float|string
+     * @return Bcval
      */
-    public function theBcNonNegativeVal($value) : string
+    public function theBcNonNegativeVal($value) : Bcval
     {
         if (null === ( $bcNonNegativeVal = $this->bcNonNegativeVal($value) )) {
             throw new InvalidArgumentException(
@@ -249,11 +266,11 @@ class Math
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|float|string|Bcval|mixed $value
      *
-     * @return int|float|string
+     * @return Bcval
      */
-    public function theBcNegativeVal($value) : string
+    public function theBcNegativeVal($value) : Bcval
     {
         if (null === ( $bcNegativeVal = $this->bcNegativeVal($value) )) {
             throw new InvalidArgumentException(
@@ -265,11 +282,11 @@ class Math
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|float|string|Bcval|mixed $value
      *
-     * @return int|float|string
+     * @return Bcval
      */
-    public function theBcNonPositiveVal($value) : string
+    public function theBcNonPositiveVal($value) : Bcval
     {
         if (null === ( $bcNonPositiveVal = $this->bcNonPositiveVal($value) )) {
             throw new InvalidArgumentException(
@@ -282,8 +299,8 @@ class Math
 
 
     /**
-     * @param int|mixed              $scale
-     * @param int|float|string|mixed ...$numbers
+     * @param int|mixed                    $scale
+     * @param int|float|string|Bcval|mixed ...$numbers
      *
      * @return null|int
      */
@@ -301,8 +318,8 @@ class Math
     }
 
     /**
-     * @param int|mixed              $scale
-     * @param int|float|string|mixed ...$numbers
+     * @param int|mixed                    $scale
+     * @param int|float|string|Bcval|mixed ...$numbers
      *
      * @return int
      */
@@ -319,21 +336,26 @@ class Math
 
 
     /**
-     * @param int|float|string|mixed $number
+     * @param int|float|string|Bcval|mixed $number
      *
-     * @return null|string
+     * @return null|Bcval
      */
-    public function bcval($number) : ?string
+    // public function bcval($number) : ?string
+    public function bcval($number) : ?Bcval
     {
-        if (! ( is_string($number) || is_int($number) || is_float($number) )) {
-            return null;
+        if (is_a($number, Bcval::class)) {
+            return $number;
         }
 
         if (is_int($number)) {
-            return strval($number);
+            return $this->newBcval($number);
         }
 
         if ('' === $number) {
+            return null;
+        }
+
+        if (! ( is_string($number) || is_float($number) )) {
             return null;
         }
 
@@ -359,15 +381,17 @@ class Math
             $bcval = rtrim($bcval, '.');
         }
 
+        $bcval = $this->newBcval($bcval);
+
         return $bcval;
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|float|string|Bcval|mixed $value
      *
-     * @return string
+     * @return Bcval
      */
-    public function theBcval($value) : string
+    public function theBcval($value) : Bcval
     {
         if (null === ( $bcval = $this->bcval($value) )) {
             throw new InvalidArgumentException(
@@ -383,7 +407,7 @@ class Math
      * @param string|array $strings
      * @param null|bool    $uniq
      *
-     * @return string[]
+     * @return Bcval[]
      */
     public function bcvals($strings, $uniq = null) : array
     {
@@ -400,7 +424,7 @@ class Math
         if ($uniq ?? false) {
             $arr = [];
             foreach ( $result as $i ) {
-                $arr[ $i ] = true;
+                $arr[ strval($i) ] = true;
             }
             $result = array_keys($arr);
         }
@@ -412,7 +436,7 @@ class Math
      * @param string|array $strings
      * @param null|bool    $uniq
      *
-     * @return string[]
+     * @return Bcval[]
      */
     public function theBcvals($strings, $uniq = null) : array
     {
@@ -429,7 +453,7 @@ class Math
         if ($uniq ?? false) {
             $arr = [];
             foreach ( $result as $i ) {
-                $arr[ $i ] = true;
+                $arr[ strval($i) ] = true;
             }
             $result = array_keys($arr);
         }
@@ -439,10 +463,10 @@ class Math
 
 
     /**
-     * @param int|float|string|mixed $number
-     * @param null|int               $decimals
-     * @param null|string            $decimalSeparator
-     * @param null|string            $thousandSeparator
+     * @param int|float|string|Bcval|mixed $number
+     * @param null|int                     $decimals
+     * @param null|string                  $decimalSeparator
+     * @param null|string                  $thousandSeparator
      *
      * @return string
      */
@@ -506,7 +530,7 @@ class Math
     /**
      * Возвращает дробную часть числа
      *
-     * @param int|float|string|mixed $number
+     * @param int|float|string|Bcval|mixed $number
      *
      * @return string
      */
@@ -526,14 +550,14 @@ class Math
     /**
      * Определяет максимальное число знаков после запятой из переданных чисел
      *
-     * @param int|float|string|array $numbers
-     * @param null|int               $scaleMax
+     * @param int|float|string|Bcval|array $numbers
+     * @param null|int                     $scaleMax
      *
      * @return int
      */
     public function fraclen($numbers, int $scaleMax = null) : int
     {
-        $scaleMax = $scaleMax ?? $this->scaleMax ?? 0;
+        $scaleMax = $this->num->theNonNegativeIntval($scaleMax ?? $this->scaleMax ?? 0);
 
         $bcvals = $this->theBcvals($numbers);
 
@@ -545,15 +569,11 @@ class Math
         $max = max($scales);
 
         if ($max > $scaleMax) {
-            throw new UnexpectedValueException(
-                [
-                    'Fractional length `%s` is bigger than allowed maximum %s'
-                    . ' - '
-                    . 'Change business logic (possible periodic float passed)',
-                    $max,
-                    $scaleMax,
-                ]
-            );
+            trigger_error(sprintf(
+                'Fractional length `%s` is bigger than allowed maximum: %s. '
+                . 'Maybe you should change business logic?',
+                $max, $scaleMax,
+            ));
         }
 
         return $max;
@@ -596,7 +616,10 @@ class Math
         $result = $numval;
 
         if (intval($numval) !== $numval) {
-            $fmod = floatval($this->bcadd($numval, 0, $scale));
+            $fmod = floatval(strval(
+                $this->bcadd($numval, 0, $scale)
+            ));
+
             $bonus = $numval != $fmod
                 ? ( 1 / pow(10, $scale) )
                 : 0;
@@ -626,7 +649,10 @@ class Math
         $result = $numval;
 
         if (intval($numval) !== $numval) {
-            $fmod = floatval($this->bcadd($numval, 0, $scale));
+            $fmod = floatval(strval(
+                $this->bcadd($numval, 0, $scale)
+            ));
+
             $bonus = $numval != $fmod
                 ? ( 1 / pow(10, $scale) )
                 : 0;
@@ -1049,13 +1075,13 @@ class Math
 
 
     /**
-     * @param int|float|string|mixed $a
-     * @param int|float|string|mixed $b
-     * @param null|int               $scale
+     * @param int|float|string|Bcval|mixed $a
+     * @param int|float|string|Bcval|mixed $b
+     * @param null|int                     $scale
      *
-     * @return string
+     * @return int
      */
-    public function bccomp($a, $b, int $scale = null)
+    public function bccomp($a, $b, int $scale = null) : int
     {
         return bccomp(
             $this->theBcval($a),
@@ -1064,46 +1090,51 @@ class Math
         );
     }
 
+
     /**
-     * @param int|float|string|mixed $a
-     * @param int|float|string|mixed $b
-     * @param null|int               $scale
+     * @param int|float|string|Bcval|mixed $a
+     * @param int|float|string|Bcval|mixed $b
+     * @param null|int                     $scale
      *
-     * @return string
+     * @return Bcval
      */
-    public function bcadd($a, $b, int $scale = null)
+    public function bcadd($a, $b, int $scale = null) : Bcval
     {
-        return bcadd(
-            $this->theBcval($a),
-            $this->theBcval($b),
-            $this->theScaleVal($scale, $a, $b)
+        return $this->newBcval(
+            bcadd(
+                $this->theBcval($a),
+                $this->theBcval($b),
+                $this->theScaleVal($scale, $a, $b)
+            )
         );
     }
 
     /**
-     * @param int|float|string|mixed $a
-     * @param int|float|string|mixed $b
-     * @param null|int               $scale
+     * @param int|float|string|Bcval|mixed $a
+     * @param int|float|string|Bcval|mixed $b
+     * @param null|int                     $scale
      *
-     * @return string
+     * @return Bcval
      */
-    public function bcsub($a, $b, int $scale = null)
+    public function bcsub($a, $b, int $scale = null) : Bcval
     {
-        return bcsub(
-            $this->theBcval($a),
-            $this->theBcval($b),
-            $this->theScaleVal($scale, $a, $b)
+        return $this->newBcval(
+            bcsub(
+                $this->theBcval($a),
+                $this->theBcval($b),
+                $this->theScaleVal($scale, $a, $b)
+            )
         );
     }
 
     /**
-     * @param int|float|string|mixed $a
-     * @param int|float|string|mixed $b
-     * @param null|int               $scale
+     * @param int|float|string|Bcval|mixed $a
+     * @param int|float|string|Bcval|mixed $b
+     * @param null|int                     $scale
      *
-     * @return string
+     * @return Bcval
      */
-    public function bcmul($a, $b, int $scale = null)
+    public function bcmul($a, $b, int $scale = null) : Bcval
     {
         $scale = $scale ?? $this->scale;
 
@@ -1115,21 +1146,42 @@ class Math
             }
         }
 
-        return bcmul(
-            $this->theBcval($a),
-            $this->theBcval($b),
-            $this->theScaleVal($scale, $a, $b)
+        return $this->newBcval(
+            bcmul(
+                $this->theBcval($a),
+                $this->theBcval($b),
+                $this->theScaleVal($scale, $a, $b)
+            )
+        );
+    }
+
+
+    /**
+     * @param int|float|string|Bcval|mixed $a
+     * @param int|float|string|Bcval|mixed $b
+     * @param null|int                     $scale
+     *
+     * @return Bcval
+     */
+    public function bcmod($a, $b, int $scale = null)
+    {
+        return $this->newBcval(
+            bcdiv(
+                $this->theBcval($a),
+                $this->theBcval($b),
+                $this->theScaleVal($scale, $a, $b)
+            )
         );
     }
 
     /**
-     * @param int|float|string|mixed $a
-     * @param int|float|string|mixed $b
-     * @param null|int               $scale
+     * @param int|float|string|Bcval|mixed $a
+     * @param int|float|string|Bcval|mixed $b
+     * @param null|int                     $scale
      *
-     * @return string
+     * @return Bcval
      */
-    public function bcdiv($a, $b, int $scale = null)
+    public function bcdiv($a, $b, int $scale = null) : Bcval
     {
         $scale = $scale ?? $this->scale;
 
@@ -1139,36 +1191,65 @@ class Math
             );
         }
 
-        return bcdiv(
-            $this->theBcval($a),
-            $this->theBcval($b),
-            $this->theScaleVal($scale, $a, $b)
+        return $this->newBcval(
+            bcdiv(
+                $this->theBcval($a),
+                $this->theBcval($b),
+                $this->theScaleVal($scale, $a, $b)
+            )
         );
     }
 
+
     /**
-     * @param int|float|string|mixed $val
-     * @param int|float|string|mixed $exp
-     * @param null|int               $scale
+     * @param int|float|string|Bcval|mixed $val
+     * @param int|float|string|Bcval|mixed $exp
+     * @param null|int                     $scale
      *
-     * @return string
+     * @return Bcval
      */
-    public function bcpow($val, $exp, int $scale = null)
+    public function bcpow($val, $exp, int $scale = null) : Bcval
     {
         $scale = $scale ?? $this->scale;
 
         if (is_null($scale)) {
             if ($scaleRequired = $this->fraclen($val) || $this->fraclen($exp)) {
                 throw new BadMethodCallException(
-                    [ 'You should pass `scale` cause of you exponentiate fractional number: [ %s, %s ]', $val, $exp ]
+                    [ 'You should pass `scale` cause of you exponentiate fractionals: [ %s, %s ]', $val, $exp ]
                 );
             }
         }
 
-        return bcpow(
-            $this->theBcval($val),
-            $this->theBcval($exp),
-            $this->theScaleVal($scale, $val, $exp)
+        return $this->newBcval(
+            bcpow(
+                $this->theBcval($val),
+                $this->theBcval($exp),
+                $this->theScaleVal($scale, $val, $exp)
+            )
+        );
+    }
+
+    /**
+     * @param int|float|string|Bcval|mixed $val
+     * @param null|int                     $scale
+     *
+     * @return Bcval
+     */
+    public function bcsqrt($val, int $scale = null) : Bcval
+    {
+        $scale = $scale ?? $this->scale;
+
+        if (is_null($scale)) {
+            throw new BadMethodCallException(
+                [ 'You should pass `scale` cause of you making square root: [ %s ]', $val ]
+            );
+        }
+
+        return $this->newBcval(
+            bcsqrt(
+                $this->theBcval($val),
+                $this->scaleVal($scale, $val)
+            )
         );
     }
 
@@ -1176,17 +1257,22 @@ class Math
     /**
      * Получает минуса или пустой строки если число отрицательное
      *
-     * @param int|float|string|mixed $number
+     * @param int|float|string|Bcval|mixed $number
      *
-     * @return string
+     * @return Bcval
      */
     public function bcminus($number) : string
     {
-        $result = $this->theBcval($number);
+        $bcval = $this->theBcval($number);
 
-        $minus = strpos($result, '-') === 0
-            ? '-'
-            : '';
+        if (! $bcval->hasMinus()) {
+            $minus = strpos($bcval, '-') === 0
+                ? '-' : '';
+
+            $bcval->withMinus($minus);
+        }
+
+        $minus = $bcval->getMinus();
 
         return $minus;
     }
@@ -1194,21 +1280,28 @@ class Math
     /**
      * Получает значение по модулю от числа
      *
-     * @param int|float|string|mixed $number
+     * @param int|float|string|Bcval|mixed $number
      *
      * @return string
      */
     public function bcabs($number) : string
     {
-        $result = $this->theBcval($number);
+        $bcval = $this->theBcval($number);
 
-        $minus = strpos($result, '-') === 0
-            ? '-'
-            : '';
+        if (! $bcval->hasAbs()) {
+            $minus = strpos($bcval, '-') === 0
+                ? '-'
+                : '';
 
-        $abs = $minus
-            ? substr($result, 1)
-            : $result;
+            $abs = $minus
+                ? substr($bcval, 1)
+                : $bcval;
+
+            $bcval->withMinus($minus);
+            $bcval->withAbs($abs);
+        }
+
+        $abs = $bcval->getAbs();
 
         return $abs;
     }
@@ -1217,43 +1310,43 @@ class Math
     /**
      * Округление
      *
-     * @param int|float|string|mixed $number
-     * @param null|int               $scale
+     * @param int|float|string|Bcval|mixed $number
+     * @param null|int                     $scale
      *
-     * @return string
+     * @return Bcval
      */
-    public function bcround($number, int $scale = null) : string
+    public function bcround($number, int $scale = null) : Bcval
     {
         $scale = $this->theScaleVal($scale ?? 0);
 
         $bcval = $this->theBcval($number);
 
-        $result = $bcval;
+        $bcround = $bcval;
 
         if ($hasDecimals = false !== strpos($bcval, '.')) {
-            $result = $this->bcminus($bcval)
+            $bcround = $this->bcminus($bcval)
                 ? $this->bcsub($bcval, '0.' . str_repeat('0', $scale) . '5', $scale)
                 : $this->bcadd($bcval, '0.' . str_repeat('0', $scale) . '5', $scale);
         }
 
-        return $result;
+        return $bcround;
     }
 
     /**
      * Округляет в меньшую сторону
      *
-     * @param int|float|string|mixed $number
-     * @param null|int               $scale
+     * @param int|float|string|Bcval|mixed $number
+     * @param null|int                     $scale
      *
-     * @return string
+     * @return Bcval
      */
-    public function bcfloor($number, int $scale = null) : string
+    public function bcfloor($number, int $scale = null) : Bcval
     {
         $scale = $this->theScaleVal($scale ?? 0);
 
         $bcval = $this->theBcval($number);
 
-        $result = $bcval;
+        $bcfloor = $bcval;
 
         if ($hasDecimals = false !== strpos($bcval, '.')) {
             $fmod = $this->bcadd($bcval, 0, $scale);
@@ -1261,29 +1354,29 @@ class Math
                 ? ( 1 / pow(10, $scale) )
                 : 0;
 
-            $result = ( -1 === $this->bccomp($bcval, 0) )
+            $bcfloor = ( -1 === $this->bccomp($bcval, 0) )
                 ? $this->bcsub($fmod, $bonus, $scale)
                 : $fmod;
         }
 
-        return $result;
+        return $bcfloor;
     }
 
     /**
      * Округляет в большую сторону
      *
-     * @param int|float|string|mixed $number
-     * @param null|int               $scale
+     * @param int|float|string|Bcval|mixed $number
+     * @param null|int                     $scale
      *
-     * @return string
+     * @return Bcval
      */
-    public function bcceil($number, int $scale = null) : string
+    public function bcceil($number, int $scale = null) : Bcval
     {
         $scale = $this->theScaleVal($scale ?? 0);
 
         $bcval = $this->theBcval($number);
 
-        $result = $bcval;
+        $bcceil = $bcval;
 
         if ($hasDecimals = false !== strpos($bcval, '.')) {
             $fmod = $this->bcadd($bcval, 0, $scale);
@@ -1291,117 +1384,121 @@ class Math
                 ? ( 1 / pow(10, $scale) )
                 : 0;
 
-            $result = ( -1 === $this->bccomp($bcval, 0) )
+            $bcceil = ( -1 === $this->bccomp($bcval, 0) )
                 ? $fmod
                 : $this->bcadd($fmod, $bonus, $scale);
         }
 
-        return $result;
+        return $bcceil;
     }
 
 
     /**
-     * @param int|float|string|array $numbers
-     * @param null|int               $scale
+     * @param int|float|string|Bcval|array $numbers
+     * @param null|int                     $scale
      *
-     * @return null|string
+     * @return null|Bcval
      */
-    public function bcmax($numbers, int $scale = null) : ?string
+    public function bcmax($numbers, int $scale = null) : ?Bcval
     {
         $bcvals = $this->theBcvals($numbers);
 
-        $result = null;
+        $bcmax = null;
 
         if ($bcvals) {
             natsort($bcvals);
 
-            $result = end($bcvals);
+            $bcmax = end($bcvals);
 
-            $result = $this->bcadd($result, 0, $scale);
+            $bcmax = $this->bcadd($bcmax, 0, $scale);
         }
 
-        return $result;
+        return $bcmax;
     }
 
     /**
-     * @param int|float|string|array $numbers
-     * @param null|int               $scale
+     * @param int|float|string|Bcval|array $numbers
+     * @param null|int                     $scale
      *
-     * @return null|string
+     * @return null|Bcval
      */
-    public function bcmin($numbers, int $scale = null) : ?string
+    public function bcmin($numbers, int $scale = null) : ?Bcval
     {
         $bcvals = $this->theBcvals($numbers);
 
-        $result = null;
+        $bcmin = null;
 
         if ($bcvals) {
             natsort($bcvals);
 
-            $result = reset($bcvals);
+            $bcmin = reset($bcvals);
 
-            $result = $this->bcadd($result, 0, $scale);
+            $bcmin = $this->bcadd($bcmin, 0, $scale);
         }
 
-        return $result;
+        return $bcmin;
     }
 
 
     /**
-     * @param int|float|string|array $numbers
-     * @param null|int               $scale
+     * @param int|float|string|Bcval|array $numbers
+     * @param null|int                     $scale
      *
-     * @return string
+     * @return Bcval
      */
-    public function bcsum($numbers, int $scale = null) : string
+    public function bcsum($numbers, int $scale = null) : Bcval
     {
         $bcvals = $this->theBcvals($numbers);
 
-        $result = '0';
+        $bcsum = '0';
 
         if ($bcvals) {
             foreach ( $bcvals as $l ) {
-                $result = $this->bcadd($result, $l); // scale will be calculated
+                $bcsum = $this->bcadd($bcsum, $l); // scale will be calculated
             }
 
-            $result = $this->bcadd($result, 0, $scale);
+            $bcsum = $this->bcadd($bcsum, 0, $scale);
         }
 
-        return $result;
+        $bcsum = $this->theBcval($bcsum);
+
+        return $bcsum;
     }
 
     /**
-     * @param int|float|string|array $numbers
-     * @param null|int               $scale
+     * @param int|float|string|Bcval|array $numbers
+     * @param null|int                     $scale
      *
-     * @return string
+     * @return Bcval
      */
-    public function bcavg($numbers, int $scale = null) : string
+    public function bcavg($numbers, int $scale = null) : Bcval
     {
         $bcvals = $this->theBcvals($numbers);
 
-        $avg = '0.0';
+        $bcavg = '0.0';
 
         if ($bcvals) {
             $sum = $this->bcsum($bcvals); // scale will be calculated
 
-            $avg = $this->bcdiv($sum, count($bcvals), $scale);
+            $bcavg = $this->bcdiv($sum, count($bcvals), $scale);
         }
 
-        return $avg;
+        $bcavg = $this->theBcval($bcavg);
+
+        return $bcavg;
     }
 
     /**
-     * @param int|float|string|array $numbers
-     * @param null|int               $scale
+     * @param int|float|string|Bcval|array $numbers
+     * @param null|int                     $scale
      *
-     * @return null|string
+     * @return null|Bcval
      */
-    public function bcmedian($numbers, int $scale = null) : ?string
+    public function bcmedian($numbers, int $scale = null) : ?Bcval
     {
         $bcvals = $this->theBcvals($numbers);
 
-        $median = null;
+        $bcmedian = null;
 
         if ($bcvals) {
             natsort($bcvals);
@@ -1411,16 +1508,16 @@ class Math
             $medianIndex = count($bcvals) / 2;
 
             if (is_float($medianIndex)) {
-                $median = $bcvals[ round($medianIndex) - 1 ];
+                $bcmedian = $bcvals[ round($medianIndex) - 1 ];
 
             } else {
-                $median = $this->bcadd($bcvals[ $medianIndex ], $bcvals[ $medianIndex + 1 ]); // scale will be calculated
+                $bcmedian = $this->bcadd($bcvals[ $medianIndex ], $bcvals[ $medianIndex + 1 ]); // scale will be calculated
 
-                $median = $this->bcdiv($median, 2, $scale);
+                $bcmedian = $this->bcdiv($bcmedian, 2, $scale);
             }
         }
 
-        return $median;
+        return $bcmedian;
     }
 
 
@@ -1429,9 +1526,9 @@ class Math
      * @param null|int|float $sum
      * @param null|int       $scale
      *
-     * @return float
+     * @return Bcval
      */
-    public function bcratio($value, $sum = null, int $scale = null) : float
+    public function bcratio($value, $sum = null, int $scale = null) : Bcval
     {
         $sum = $sum ?? '1';
 
@@ -1461,13 +1558,13 @@ class Math
     }
 
     /**
-     * @param int|float|string|mixed      $value
-     * @param null|int|float|string|mixed $sum
-     * @param null|int                    $scale
+     * @param int|float|string|Bcval|mixed      $value
+     * @param null|int|float|string|Bcval|mixed $sum
+     * @param null|int                          $scale
      *
-     * @return float
+     * @return Bcval
      */
-    public function bcpercent($value, $sum = null, int $scale = null) : float
+    public function bcpercent($value, $sum = null, int $scale = null) : Bcval
     {
         $ratio = $this->bcratio($value, $sum, $scale);
 
@@ -1478,13 +1575,13 @@ class Math
 
 
     /**
-     * @param int|float|string|mixed      $from
-     * @param null|int|float|string|mixed $to
-     * @param null|int                    $scale
+     * @param int|float|string|Bcval|mixed      $from
+     * @param null|int|float|string|Bcval|mixed $to
+     * @param null|int                          $scale
      *
-     * @return string
+     * @return Bcval
      */
-    public function bcrand($from, $to = null, int $scale = null) : string
+    public function bcrand($from, $to = null, int $scale = null) : Bcval
     {
         $to = $to ?? $from;
 
@@ -1517,12 +1614,12 @@ class Math
      * Урежет дробную часть
      * Обычный floor отбрасывает всю и уменьшает число на единицу даже если отрицательное
      *
-     * @param int|float|string|mixed $number
-     * @param null|int               $scale
+     * @param int|float|string|Bcval|mixed $number
+     * @param null|int                     $scale
      *
-     * @return string
+     * @return Bcval
      */
-    public function bcmoneyfloor($number, int $scale = null) : string
+    public function bcmoneyfloor($number, int $scale = null) : Bcval
     {
         $scale = $this->theScaleVal($scale ?? 0);
 
@@ -1535,17 +1632,18 @@ class Math
      * Увеличение по "правилу денег"
      * Округлит 1.00000001 до 1.01 (если нужно два знака после запятой)
      *
-     * @param int|float|string|mixed $number
-     * @param null|int               $scale
+     * @param int|float|string|Bcval|mixed $number
+     * @param null|int                     $scale
      *
-     * @return string
+     * @return Bcval
      */
-    public function bcmoneyceil($number, int $scale = null) : string
+    public function bcmoneyceil($number, int $scale = null) : Bcval
     {
         $scale = $this->theScaleVal($scale ?? 0);
 
-        $result = $this->bcminus($number)
-            . $this->bcceil($this->bcabs($number), $scale);
+        $result = $this->bcceil($this->bcabs($number), $scale);
+
+        $result->withMinus($this->bcminus($number));
 
         return $result;
     }
@@ -1555,11 +1653,11 @@ class Math
      * Если разделить 100 на 3 получается 33.33, 33.33, и 33.33 и 0.01 в периоде
      * Функция позволяет разбить исходное число на три, дробная часть от каждого деления достанется первому
      *
-     * @param int|float|string|mixed $sum
-     * @param int|float|string|array $rates
-     * @param null|int               $scale
+     * @param int|float|string|Bcval|mixed $sum
+     * @param int|float|string|Bcval|array $rates
+     * @param null|int                     $scale
      *
-     * @return int[]|float[]
+     * @return Bcval[]
      */
     public function bcmoneyshare($sum, $rates, int $scale = null) : array
     {
@@ -1612,12 +1710,12 @@ class Math
     /**
      * @param float|mixed $number
      *
-     * @return null|string
+     * @return null|Bcval
      */
-    protected function bcvalInt($number) : ?string
+    protected function bcvalInt($number) : ?Bcval
     {
         if (is_int($number)) {
-            return strval($number);
+            return $this->newBcval($number);
         }
 
         if (! is_string($number)) {
@@ -1633,20 +1731,20 @@ class Math
             return null;
         }
 
-        $bcval = $intstr;
+        $bcval = $this->newBcval($intstr);
 
         return $bcval;
     }
 
     /**
-     * @param int|float|string|mixed $number
+     * @param int|float|string|Bcval|mixed $number
      *
-     * @return null|string
+     * @return null|Bcval
      */
-    protected function bcvalNumeric($number) : ?string
+    protected function bcvalNumeric($number) : ?Bcval
     {
         if (is_int($number)) {
-            return strval($number);
+            return $this->newBcval($number);
         }
 
         if (null === ( $number = $this->num->numericval($number) )) {
@@ -1660,6 +1758,8 @@ class Math
                 ?? ( ( '' === $trim ) ? '0' : null )
                 ?? ( '.' === $trim[ 0 ] ? '0' . $trim : null )
                 ?? $trim;
+
+            $bcval = $this->newBcval($bcval);
 
             return $bcval;
         }
@@ -1681,6 +1781,8 @@ class Math
         $bcval = $fraclen
             ? sprintf('%.' . $fraclen . 'f', $number)
             : sprintf('%.0f', $number);
+
+        $bcval = $this->newBcval($bcval);
 
         return $bcval;
     }

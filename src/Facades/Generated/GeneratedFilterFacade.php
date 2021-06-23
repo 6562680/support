@@ -140,6 +140,86 @@ abstract class GeneratedFilterFacade
     }
 
     /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int|float
+     */
+    public static function filterPositiveVal($value)
+    {
+        return static::getInstance()->filterPositiveVal($value);
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int|float
+     */
+    public static function filterNonNegativeVal($value)
+    {
+        return static::getInstance()->filterNonNegativeVal($value);
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int|float
+     */
+    public static function filterNegativeVal($value)
+    {
+        return static::getInstance()->filterNegativeVal($value);
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int|float
+     */
+    public static function filterNonPositiveVal($value)
+    {
+        return static::getInstance()->filterNonPositiveVal($value);
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int
+     */
+    public static function filterPositiveIntval($value): ?int
+    {
+        return static::getInstance()->filterPositiveIntval($value);
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int
+     */
+    public static function filterNonNegativeIntval($value): ?int
+    {
+        return static::getInstance()->filterNonNegativeIntval($value);
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int
+     */
+    public static function filterNegativeIntval($value): ?int
+    {
+        return static::getInstance()->filterNegativeIntval($value);
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int
+     */
+    public static function filterNonPositiveIntval($value): ?int
+    {
+        return static::getInstance()->filterNonPositiveIntval($value);
+    }
+
+    /**
      * @param string|mixed $value
      *
      * @return null|string

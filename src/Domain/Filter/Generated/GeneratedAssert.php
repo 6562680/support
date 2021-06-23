@@ -244,6 +244,150 @@ abstract class GeneratedAssert
     }
 
     /**
+     * @param int|float|string|mixed $value
+     *
+     * @return int|float
+     */
+    public function assertPositiveVal($value)
+    {
+        if (null === ( $filtered = $this->filter->filterPositiveVal($value) )) {
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid PositiveVal passed: %s', func_get_args() ]
+                ))
+            );
+        }
+
+        return $filtered;
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return int|float
+     */
+    public function assertNonNegativeVal($value)
+    {
+        if (null === ( $filtered = $this->filter->filterNonNegativeVal($value) )) {
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid NonNegativeVal passed: %s', func_get_args() ]
+                ))
+            );
+        }
+
+        return $filtered;
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return int|float
+     */
+    public function assertNegativeVal($value)
+    {
+        if (null === ( $filtered = $this->filter->filterNegativeVal($value) )) {
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid NegativeVal passed: %s', func_get_args() ]
+                ))
+            );
+        }
+
+        return $filtered;
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return int|float
+     */
+    public function assertNonPositiveVal($value)
+    {
+        if (null === ( $filtered = $this->filter->filterNonPositiveVal($value) )) {
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid NonPositiveVal passed: %s', func_get_args() ]
+                ))
+            );
+        }
+
+        return $filtered;
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return int
+     */
+    public function assertPositiveIntval($value): ?int
+    {
+        if (null === ( $filtered = $this->filter->filterPositiveIntval($value) )) {
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid PositiveIntval passed: %s', func_get_args() ]
+                ))
+            );
+        }
+
+        return $filtered;
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return int
+     */
+    public function assertNonNegativeIntval($value): ?int
+    {
+        if (null === ( $filtered = $this->filter->filterNonNegativeIntval($value) )) {
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid NonNegativeIntval passed: %s', func_get_args() ]
+                ))
+            );
+        }
+
+        return $filtered;
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return int
+     */
+    public function assertNegativeIntval($value): ?int
+    {
+        if (null === ( $filtered = $this->filter->filterNegativeIntval($value) )) {
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid NegativeIntval passed: %s', func_get_args() ]
+                ))
+            );
+        }
+
+        return $filtered;
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return int
+     */
+    public function assertNonPositiveIntval($value): ?int
+    {
+        if (null === ( $filtered = $this->filter->filterNonPositiveIntval($value) )) {
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid NonPositiveIntval passed: %s', func_get_args() ]
+                ))
+            );
+        }
+
+        return $filtered;
+    }
+
+    /**
      * @param string|mixed $value
      *
      * @return string
