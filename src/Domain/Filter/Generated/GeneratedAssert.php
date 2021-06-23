@@ -244,78 +244,6 @@ abstract class GeneratedAssert
     }
 
     /**
-     * @param int|float|string|mixed $value
-     *
-     * @return int|float|string
-     */
-    public function assertPositive($value)
-    {
-        if (null === ( $filtered = $this->filter->filterPositive($value) )) {
-            throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid Positive passed: %s', func_get_args() ]
-                ))
-            );
-        }
-
-        return $filtered;
-    }
-
-    /**
-     * @param int|float|string|mixed $value
-     *
-     * @return int|float|string
-     */
-    public function assertNonNegative($value)
-    {
-        if (null === ( $filtered = $this->filter->filterNonNegative($value) )) {
-            throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid NonNegative passed: %s', func_get_args() ]
-                ))
-            );
-        }
-
-        return $filtered;
-    }
-
-    /**
-     * @param int|float|string|mixed $value
-     *
-     * @return int|float|string
-     */
-    public function assertNegative($value)
-    {
-        if (null === ( $filtered = $this->filter->filterNegative($value) )) {
-            throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid Negative passed: %s', func_get_args() ]
-                ))
-            );
-        }
-
-        return $filtered;
-    }
-
-    /**
-     * @param int|float|string|mixed $value
-     *
-     * @return int|float|string
-     */
-    public function assertNonPositive($value)
-    {
-        if (null === ( $filtered = $this->filter->filterNonPositive($value) )) {
-            throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid NonPositive passed: %s', func_get_args() ]
-                ))
-            );
-        }
-
-        return $filtered;
-    }
-
-    /**
      * @param string|mixed $value
      *
      * @return string
@@ -452,6 +380,24 @@ abstract class GeneratedAssert
             throw $this->throwableOr(
                 new InvalidArgumentException($this->messageOr(
                     [ 'Invalid Wordval passed: %s', func_get_args() ]
+                ))
+            );
+        }
+
+        return $filtered;
+    }
+
+    /**
+     * @param string|mixed $value
+     *
+     * @return string
+     */
+    public function assertTrimval($value): ?string
+    {
+        if (null === ( $filtered = $this->filter->filterTrimval($value) )) {
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid Trimval passed: %s', func_get_args() ]
                 ))
             );
         }

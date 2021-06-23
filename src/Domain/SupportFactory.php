@@ -202,7 +202,8 @@ class SupportFactory implements
         return $this->get(Math::class)
             ?? new Math(
                 $this->newFilter(),
-                $this->newNum()
+                $this->newNum(),
+                $this->newStr()
             );
     }
 

@@ -30,6 +30,282 @@ class Num
 
 
     /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int|float
+     */
+    public function positiveVal($value) // : ?int|float
+    {
+        if (null === ( $numval = $this->numval($value) )) {
+            return null;
+        }
+
+        if ($numval > 0) {
+            return $value;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int|float
+     */
+    public function nonNegativeVal($value) // : ?int|float
+    {
+        if (null === ( $numval = $this->numval($value) )) {
+            return null;
+        }
+
+        if ($numval >= 0) {
+            return $value;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int|float
+     */
+    public function negativeVal($value) // : ?int|float
+    {
+        if (null === ( $numval = $this->numval($value) )) {
+            return null;
+        }
+
+        if ($numval < 0) {
+            return $value;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int|float
+     */
+    public function nonPositiveVal($value) // : ?int|float
+    {
+        if (null === ( $numval = $this->numval($value) )) {
+            return null;
+        }
+
+        if ($numval <= 0) {
+            return $value;
+        }
+
+        return null;
+    }
+
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return int|float
+     */
+    public function thePositiveVal($value) // : int|float
+    {
+        if (null === ( $positiveVal = $this->positiveVal($value) )) {
+            throw new InvalidArgumentException(
+                [ 'Value should be positive: %s', $value ],
+            );
+        }
+
+        return $positiveVal;
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return int|float
+     */
+    public function theNonNegativeVal($value) // : int|float
+    {
+        if (null === ( $nonNegativeVal = $this->nonNegativeVal($value) )) {
+            throw new InvalidArgumentException(
+                [ 'Value should be non-negative: %s', $value ],
+            );
+        }
+
+        return $nonNegativeVal;
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return int|float
+     */
+    public function theNegativeVal($value) // : int|float
+    {
+        if (null === ( $negativeVal = $this->negativeVal($value) )) {
+            throw new InvalidArgumentException(
+                [ 'Value should be negative: %s', $value ],
+            );
+        }
+
+        return $negativeVal;
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return int|float
+     */
+    public function theNonPositiveVal($value) // : int|float
+    {
+        if (null === ( $nonPositiveVal = $this->nonPositiveVal($value) )) {
+            throw new InvalidArgumentException(
+                [ 'Value should be non-positive: %s', $value ],
+            );
+        }
+
+        return $nonPositiveVal;
+    }
+
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int
+     */
+    public function positiveIntval($value) : ?int
+    {
+        if (null === ( $intval = $this->intval($value) )) {
+            return null;
+        }
+
+        if ($intval > 0) {
+            return $value;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int
+     */
+    public function nonNegativeIntval($value) : ?int
+    {
+        if (null === ( $intval = $this->intval($value) )) {
+            return null;
+        }
+
+        if ($intval >= 0) {
+            return $value;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int
+     */
+    public function negativeIntval($value) : ?int
+    {
+        if (null === ( $intval = $this->intval($value) )) {
+            return null;
+        }
+
+        if ($intval < 0) {
+            return $value;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int
+     */
+    public function nonPositiveIntval($value) : ?int
+    {
+        if (null === ( $intval = $this->intval($value) )) {
+            return null;
+        }
+
+        if ($intval <= 0) {
+            return $value;
+        }
+
+        return null;
+    }
+
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return int
+     */
+    public function thePositiveIntval($value) : int
+    {
+        if (null === ( $positiveIntval = $this->positiveIntval($value) )) {
+            throw new InvalidArgumentException(
+                [ 'Value should be positive intval: %s', $value ],
+            );
+        }
+
+        return $positiveIntval;
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return int
+     */
+    public function theNonNegativeIntval($value) : int
+    {
+        if (null === ( $nonNegativeIntval = $this->nonNegativeIntval($value) )) {
+            throw new InvalidArgumentException(
+                [ 'Value should be non-negative intval: %s', $value ],
+            );
+        }
+
+        return $nonNegativeIntval;
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return int
+     */
+    public function theNegativeIntval($value) : int
+    {
+        if (null === ( $negativeIntval = $this->negativeIntval($value) )) {
+            throw new InvalidArgumentException(
+                [ 'Value should be negative intval: %s', $value ],
+            );
+        }
+
+        return $negativeIntval;
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return int
+     */
+    public function theNonPositiveIntval($value) : int
+    {
+        if (null === ( $nonPositiveIntval = $this->nonPositiveIntval($value) )) {
+            throw new InvalidArgumentException(
+                [ 'Value should be non-positive intval: %s', $value ],
+            );
+        }
+
+        return $nonPositiveIntval;
+    }
+
+
+    /**
      * @param mixed $value
      *
      * @return null|int
@@ -80,15 +356,15 @@ class Num
     /**
      * @param mixed $value
      *
-     * @return null|int|float
+     * @return null|string
      */
-    public function numericval($value) // : ?int|float
+    public function numericval($value) : ?string
     {
         if (null === $this->filter->filterNumericval($value)) {
             return null;
         }
 
-        return $value;
+        return strval($value);
     }
 
 
@@ -143,9 +419,9 @@ class Num
     /**
      * @param mixed $value
      *
-     * @return int|float|string
+     * @return string
      */
-    public function theNumericval($value) // : int|float|string
+    public function theNumericval($value) : string
     {
         if (null === ( $numval = $this->numericval($value) )) {
             throw new InvalidArgumentException(
@@ -254,7 +530,7 @@ class Num
      * @param int|float|string|array $numbers
      * @param null|bool              $uniq
      *
-     * @return int[]|float[]|string[]
+     * @return string[]
      */
     public function numericvals($numbers, $uniq = null) : array
     {
@@ -373,7 +649,7 @@ class Num
      * @param int|float|string|array $numvals
      * @param null|bool              $uniq
      *
-     * @return int[]|float[]|string[]
+     * @return string[]
      */
     public function theNumericvals($numvals, $uniq = null) : array
     {

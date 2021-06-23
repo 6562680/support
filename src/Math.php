@@ -21,6 +21,10 @@ class Math
      * @var Num
      */
     protected $num;
+    /**
+     * @var Str
+     */
+    protected $str;
 
     /**
      * @var int
@@ -37,14 +41,17 @@ class Math
      *
      * @param Filter $filter
      * @param Num    $num
+     * @param Str    $str
      */
     public function __construct(
         Filter $filter,
-        Num $num
+        Num $num,
+        Str $str
     )
     {
         $this->filter = $filter;
         $this->num = $num;
+        $this->str = $str;
     }
 
 
@@ -135,50 +142,9 @@ class Math
     /**
      * @param int|float|string|mixed $value
      *
-     * @return bool
-     */
-    public function isPositive($value) : bool
-    {
-        return null !== $this->filterPositive($value);
-    }
-
-    /**
-     * @param int|float|string|mixed $value
-     *
-     * @return bool
-     */
-    public function isNonNegative($value) : bool
-    {
-        return null !== $this->filterNonNegative($value);
-    }
-
-    /**
-     * @param int|float|string|mixed $value
-     *
-     * @return bool
-     */
-    public function isNegative($value) : bool
-    {
-        return null !== $this->filterNegative($value);
-    }
-
-    /**
-     * @param int|float|string|mixed $value
-     *
-     * @return bool
-     */
-    public function isNonPositive($value) : bool
-    {
-        return null !== $this->filterNonPositive($value);
-    }
-
-
-    /**
-     * @param int|float|string|mixed $value
-     *
      * @return null|int|float|string
      */
-    public function filterPositive($value) // : ?int|float|string
+    public function bcPositiveVal($value) : ?string
     {
         if (null === ( $bcval = $this->bcval($value) )) {
             return null;
@@ -186,7 +152,7 @@ class Math
 
         // scale will be calculated
         if (1 === $this->bccomp($bcval, 0)) {
-            return $value;
+            return $bcval;
         }
 
         return null;
@@ -197,7 +163,7 @@ class Math
      *
      * @return null|int|float|string
      */
-    public function filterNonNegative($value) // : ?int|float|string
+    public function bcNonNegativeVal($value) : ?string
     {
         if (null === ( $bcval = $this->bcval($value) )) {
             return null;
@@ -205,7 +171,7 @@ class Math
 
         // scale will be calculated
         if (-1 !== $this->bccomp($bcval, 0)) {
-            return $value;
+            return $bcval;
         }
 
         return null;
@@ -216,7 +182,7 @@ class Math
      *
      * @return null|int|float|string
      */
-    public function filterNegative($value) // : ?int|float|string
+    public function bcNegativeVal($value) : ?string
     {
         if (null === ( $bcval = $this->bcval($value) )) {
             return null;
@@ -224,7 +190,7 @@ class Math
 
         // scale will be calculated
         if (-1 === $this->bccomp($bcval, 0)) {
-            return $value;
+            return $bcval;
         }
 
         return null;
@@ -235,7 +201,7 @@ class Math
      *
      * @return null|int|float|string
      */
-    public function filterNonPositive($value) // : ?int|float|string
+    public function bcNonPositiveVal($value) : ?string
     {
         if (null === ( $bcval = $this->bcval($value) )) {
             return null;
@@ -243,7 +209,7 @@ class Math
 
         // scale will be calculated
         if (1 !== $this->bccomp($bcval, 0)) {
-            return $value;
+            return $bcval;
         }
 
         return null;
@@ -255,15 +221,15 @@ class Math
      *
      * @return int|float|string
      */
-    public function assertPositive($value) // : int|float|string
+    public function theBcPositiveVal($value) : string
     {
-        if (null === $this->filterPositive($value)) {
+        if (null === ( $bcPositiveVal = $this->bcPositiveVal($value) )) {
             throw new InvalidArgumentException(
-                [ 'Invalid Positive passed: %s', $value ]
+                [ 'Value should be positive bcval: %s', $value ],
             );
         }
 
-        return $value;
+        return $bcPositiveVal;
     }
 
     /**
@@ -271,15 +237,15 @@ class Math
      *
      * @return int|float|string
      */
-    public function assertNonNegative($value) // : int|float|string
+    public function theBcNonNegativeVal($value) : string
     {
-        if (null === $this->filterNonNegative($value)) {
+        if (null === ( $bcNonNegativeVal = $this->bcNonNegativeVal($value) )) {
             throw new InvalidArgumentException(
-                [ 'Invalid NonNegative passed: %s', $value ]
+                [ 'Value should be non-negative bcval: %s', $value ],
             );
         }
 
-        return $value;
+        return $bcNonNegativeVal;
     }
 
     /**
@@ -287,15 +253,15 @@ class Math
      *
      * @return int|float|string
      */
-    public function assertNegative($value) // : int|float|string
+    public function theBcNegativeVal($value) : string
     {
-        if (null === $this->filterNegative($value)) {
+        if (null === ( $bcNegativeVal = $this->bcNegativeVal($value) )) {
             throw new InvalidArgumentException(
-                [ 'Invalid Negative passed: %s', $value ]
+                [ 'Value should be negative bcval: %s', $value ],
             );
         }
 
-        return $value;
+        return $bcNegativeVal;
     }
 
     /**
@@ -303,15 +269,15 @@ class Math
      *
      * @return int|float|string
      */
-    public function assertNonPositive($value) // : int|float|string
+    public function theBcNonPositiveVal($value) : string
     {
-        if (null === $this->filterNonPositive($value)) {
+        if (null === ( $bcNonPositiveVal = $this->bcNonPositiveVal($value) )) {
             throw new InvalidArgumentException(
-                [ 'Invalid NonPositive passed: %s', $value ]
+                [ 'Value should be non-positive bcval: %s', $value ],
             );
         }
 
-        return $value;
+        return $bcNonPositiveVal;
     }
 
 
@@ -327,7 +293,7 @@ class Math
             $scaleVal = $this->fraclen($numbers);
         }
 
-        if (null === $this->filter->filterNonNegative($scaleVal)) {
+        if (null === $this->num->nonNegativeIntval($scaleVal)) {
             return null;
         }
 
@@ -349,6 +315,191 @@ class Math
         }
 
         return $scaleVal;
+    }
+
+
+    /**
+     * @param int|float|string|mixed $number
+     *
+     * @return null|string
+     */
+    public function bcval($number) : ?string
+    {
+        if (! ( is_string($number) || is_int($number) || is_float($number) )) {
+            return null;
+        }
+
+        if (is_int($number)) {
+            return strval($number);
+        }
+
+        if ('' === $number) {
+            return null;
+        }
+
+        $bcval = null
+            ?? $this->bcvalInt($number)
+            ?? $this->bcvalNumeric($number);
+
+        if (is_null($bcval)) {
+            try {
+                $number = $this->numberParse($number);
+
+                $bcval = null
+                    ?? $this->bcvalInt($number)
+                    ?? $this->bcvalNumeric($number);
+            }
+            catch ( InvalidArgumentException $e ) {
+                return null;
+            }
+        }
+
+        if (false !== strpos($bcval, '.')) {
+            $bcval = rtrim($bcval, '0');
+            $bcval = rtrim($bcval, '.');
+        }
+
+        return $bcval;
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return string
+     */
+    public function theBcval($value) : string
+    {
+        if (null === ( $bcval = $this->bcval($value) )) {
+            throw new InvalidArgumentException(
+                [ 'Value should be convertable to bcnumval: %s', $value ],
+            );
+        }
+
+        return $bcval;
+    }
+
+
+    /**
+     * @param string|array $strings
+     * @param null|bool    $uniq
+     *
+     * @return string[]
+     */
+    public function bcvals($strings, $uniq = null) : array
+    {
+        $result = [];
+
+        $strings = is_array($strings)
+            ? $strings
+            : [ $strings ];
+
+        array_walk_recursive($strings, function ($string) use (&$result) {
+            $result[] = $this->bcval($string);
+        });
+
+        if ($uniq ?? false) {
+            $arr = [];
+            foreach ( $result as $i ) {
+                $arr[ $i ] = true;
+            }
+            $result = array_keys($arr);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string|array $strings
+     * @param null|bool    $uniq
+     *
+     * @return string[]
+     */
+    public function theBcvals($strings, $uniq = null) : array
+    {
+        $result = [];
+
+        $strings = is_array($strings)
+            ? $strings
+            : [ $strings ];
+
+        array_walk_recursive($strings, function ($string) use (&$result) {
+            $result[] = $this->theBcval($string);
+        });
+
+        if ($uniq ?? false) {
+            $arr = [];
+            foreach ( $result as $i ) {
+                $arr[ $i ] = true;
+            }
+            $result = array_keys($arr);
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * @param int|float|string|mixed $number
+     * @param null|int               $decimals
+     * @param null|string            $decimalSeparator
+     * @param null|string            $thousandSeparator
+     *
+     * @return string
+     */
+    public function numberFormat($number, int $decimals = null, string $decimalSeparator = null, string $thousandSeparator = null)
+    {
+        if (null === $this->filter->filterNumericval($number)) {
+            throw new InvalidArgumentException([ 'Value should be numeric: %s', $number ]);
+        }
+
+        $decimals = $decimals ?? 0;
+        $decimalSeparator = $decimalSeparator ?? '.';
+        $thousandSeparator = $thousandSeparator ?? '';
+
+        $numberFormat = number_format($number, $decimals, $decimalSeparator, $thousandSeparator);
+
+        return $numberFormat;
+    }
+
+    /**
+     * @param string|mixed $number
+     * @param string|array $decimalsSeparators
+     * @param string|array $thousandsSeparators
+     *
+     * @return string
+     */
+    public function numberParse($number, $decimalsSeparators = null, $thousandsSeparators = null) : string
+    {
+        $number = $this->str->theTrimval($number);
+
+        $decimalsSeparators = $this->str->theStrvals($decimalsSeparators ?? '.');
+        $thousandsSeparators = $this->str->theStrvals($thousandsSeparators ?? ',');
+
+        $trims = $this->str->getTrims();
+
+        $parsed = str_replace($this->str->split($trims), '', $number);
+        $parsed = str_replace($thousandsSeparators, '', $parsed);
+
+        $array = $this->str->explode($decimalsSeparators, $parsed);
+        if (count($array) > 2) {
+            throw new InvalidArgumentException(
+                [ 'NAN: contains two or more decimal separators: %s', $number ]
+            );
+        }
+        $parsed = implode('.', $array);
+
+        if (strrpos($parsed, '-')) {
+            throw new InvalidArgumentException(
+                [ 'NAN: contains minus not at first position: %s', $number ]
+            );
+        }
+
+        $ctype = str_replace([ '-', '.' ], '', $parsed);
+        if (! ctype_digit($ctype)) {
+            [ 'NAN: contains something except numbers and symbols `-`,`.`: %s', $number ];
+        }
+
+        return $parsed;
     }
 
 
@@ -678,9 +829,7 @@ class Math
         }
 
         foreach ( $ratesNum as $r ) {
-            $this->filter
-                ->assert([ 'Each rate should be non-negative: %s', $r ])
-                ->assertNonNegative($r);
+            $this->num->theNonNegativeVal($r);
         }
 
         $ratesIndexes = array_keys($ratesNum);
@@ -715,9 +864,7 @@ class Math
         }
 
         foreach ( $ratesNum as $r ) {
-            $this->filter
-                ->assert([ 'Each rate should be non-negative: %s', $r ])
-                ->assertNonNegative($r);
+            $this->num->theNonNegativeVal($r);
         }
 
         $ratesIndexes = array_keys($ratesNum);
@@ -795,9 +942,7 @@ class Math
         $ratesNeedleNum = array_filter($ratesNeedleNum, 'strlen');
         $ratesFreezesNum = array_filter($ratesFreezesNum, 'strlen');
 
-        $this->filter
-            ->assert('Sum should be non-negative: %s', $sum)
-            ->assertNonNegative($sum);
+        $this->num->theNonNegativeVal($sum);
 
         if (! $ratesNeedleNum) {
             throw new InvalidArgumentException(
@@ -806,9 +951,7 @@ class Math
         }
 
         foreach ( $ratesNeedleNum as $r ) {
-            $this->filter
-                ->assert('Each rate should be non-negative: %s', $r)
-                ->assertNonNegative($r);
+            $this->num->theNonNegativeVal($r);
         }
 
         $sumRates = array_sum($ratesNeedleNum);
@@ -920,7 +1063,6 @@ class Math
             $this->theScaleVal($scale, $a, $b)
         );
     }
-
 
     /**
      * @param int|float|string|mixed $a
@@ -1119,7 +1261,7 @@ class Math
                 ? ( 1 / pow(10, $scale) )
                 : 0;
 
-            $result = $this->isNegative($bcval)
+            $result = ( -1 === $this->bccomp($bcval, 0) )
                 ? $this->bcsub($fmod, $bonus, $scale)
                 : $fmod;
         }
@@ -1149,7 +1291,7 @@ class Math
                 ? ( 1 / pow(10, $scale) )
                 : 0;
 
-            $result = $this->isNegative($bcval)
+            $result = ( -1 === $this->bccomp($bcval, 0) )
                 ? $fmod
                 : $this->bcadd($fmod, $bonus, $scale);
         }
@@ -1304,7 +1446,10 @@ class Math
             );
         }
 
-        if ($this->isNegative($value) !== $this->isNegative($sum)) {
+        $valueNegative = ( -1 === $this->bccomp($value, 0) );
+        $sumNegative = ( -1 === $this->bccomp($sum, 0) );
+
+        if ($valueNegative !== $sumNegative) {
             throw new InvalidArgumentException(
                 [ 'Both sum and value should be greater or less than zero: %s', $sum ]
             );
@@ -1405,161 +1550,6 @@ class Math
         return $result;
     }
 
-
-    /**
-     * @param int|float|string|mixed $number
-     *
-     * @return null|string
-     */
-    public function bcval($number) : ?string
-    {
-        if (! ( is_string($number) || is_float($number) || is_int($number) )) {
-            return null;
-        }
-
-        if ('' === $number) {
-            return null;
-
-        } elseif (is_int($number)) {
-            $bcval = $number;
-
-        } else {
-
-            $isFloat = is_float($number);
-            if ($isFloat || is_numeric($number)) {
-                $fraclen = null;
-
-                $floatstr = $isFloat
-                    ? strval($number)
-                    : $number;
-
-                $isPosExp = ( false !== strripos($floatstr, 'e') );
-                if ($isPosExp) {
-                    [ $floatstr, $exponent ] = preg_split('/[E](?=[+-])/', $floatstr) + [ null, null ];
-
-                    if (null !== $exponent) {
-                        $fraclen = '-' === $exponent[ 0 ]
-                            ? intval(substr($exponent, 1))
-                            : 0;
-                    }
-                }
-
-                $isPosDot = ( false !== ( $posDot = strrpos($floatstr, '.') ) );
-                if ($isPosDot) {
-                    is_null($fraclen)
-                        ? $fraclen = strlen(substr($floatstr, $posDot + 1))
-                        : $fraclen += strlen(substr($floatstr, $posDot + 1));
-                }
-
-                $bcval = null !== $fraclen
-                    ? sprintf('%.' . $fraclen . 'f', $number)
-                    : sprintf('%.0f', $number);
-
-            } else {
-                // ! is_numeric
-
-                $bcval = str_replace(' ', '', $number);
-                $bcval = str_replace([ '.', ',' ], '.', $bcval, $cnt);
-
-                if ($cnt > 1) {
-                    return null;
-                }
-
-                if (strrpos($bcval, '-')) {
-                    return null;
-                }
-
-                $ctype = str_replace([ '-', '.' ], '', $bcval);
-                if (! ctype_digit($ctype)) {
-                    return null;
-                }
-            }
-
-            if (false !== strpos($bcval, '.')) {
-                $bcval = rtrim($bcval, '0');
-                $bcval = rtrim($bcval, '.');
-            }
-        }
-
-        return $bcval;
-    }
-
-    /**
-     * @param int|float|string|mixed $value
-     *
-     * @return string
-     */
-    public function theBcval($value) : string
-    {
-        if (null === ( $bcval = $this->bcval($value) )) {
-            throw new InvalidArgumentException(
-                [ 'Value should be convertable to bcnumval: %s', $value ],
-            );
-        }
-
-        return $bcval;
-    }
-
-
-    /**
-     * @param string|array $strings
-     * @param null|bool    $uniq
-     *
-     * @return string[]
-     */
-    public function bcvals($strings, $uniq = null) : array
-    {
-        $result = [];
-
-        $strings = is_array($strings)
-            ? $strings
-            : [ $strings ];
-
-        array_walk_recursive($strings, function ($string) use (&$result) {
-            $result[] = $this->bcval($string);
-        });
-
-        if ($uniq ?? false) {
-            $arr = [];
-            foreach ( $result as $i ) {
-                $arr[ $i ] = true;
-            }
-            $result = array_keys($arr);
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param string|array $strings
-     * @param null|bool    $uniq
-     *
-     * @return string[]
-     */
-    public function theBcvals($strings, $uniq = null) : array
-    {
-        $result = [];
-
-        $strings = is_array($strings)
-            ? $strings
-            : [ $strings ];
-
-        array_walk_recursive($strings, function ($string) use (&$result) {
-            $result[] = $this->theBcval($string);
-        });
-
-        if ($uniq ?? false) {
-            $arr = [];
-            foreach ( $result as $i ) {
-                $arr[ $i ] = true;
-            }
-            $result = array_keys($arr);
-        }
-
-        return $result;
-    }
-
-
     /**
      * Разбивает сумму между получателями
      * Если разделить 100 на 3 получается 33.33, 33.33, и 33.33 и 0.01 в периоде
@@ -1582,10 +1572,10 @@ class Math
             );
         }
 
-        $this->assertNonNegative($sum);
+        $this->theBcNonNegativeVal($sum);
 
         foreach ( $rates as $r ) {
-            $this->assertNonNegative($r);
+            $this->theBcNonNegativeVal($r);
         }
 
         $result = [];
@@ -1596,7 +1586,7 @@ class Math
             $ratesSum = $this->bcadd($ratesSum, $r); // scale will be calculated
         }
 
-        $this->assertPositive($ratesSum);
+        $this->theBcPositiveVal($ratesSum);
 
         foreach ( $ratesIndexes as $i ) {
             $val = $rates[ $i ];
@@ -1616,5 +1606,82 @@ class Math
         $result[ 0 ] = $this->bcadd($result[ 0 ], $mod); // scale will be calculated
 
         return $result;
+    }
+
+
+    /**
+     * @param float|mixed $number
+     *
+     * @return null|string
+     */
+    protected function bcvalInt($number) : ?string
+    {
+        if (is_int($number)) {
+            return strval($number);
+        }
+
+        if (! is_string($number)) {
+            return null;
+        }
+
+        $intstr = strval($number);
+
+        if (0
+            || ( false !== stripos($intstr, 'e') )
+            || ( false !== strpos($intstr, '.') )
+        ) {
+            return null;
+        }
+
+        $bcval = $intstr;
+
+        return $bcval;
+    }
+
+    /**
+     * @param int|float|string|mixed $number
+     *
+     * @return null|string
+     */
+    protected function bcvalNumeric($number) : ?string
+    {
+        if (is_int($number)) {
+            return strval($number);
+        }
+
+        if (null === ( $number = $this->num->numericval($number) )) {
+            return null;
+        }
+
+        if (false === strripos($number, 'e')) {
+            $trim = ltrim($number, '0');
+
+            $bcval = null
+                ?? ( ( '' === $trim ) ? '0' : null )
+                ?? ( '.' === $trim[ 0 ] ? '0' . $trim : null )
+                ?? $trim;
+
+            return $bcval;
+        }
+
+        [ $floatstr, $exponent ] = preg_split('/e/i', $number) + [ null, null ];
+
+        $fraclen = -1 * intval(ltrim($exponent, '+'));
+
+        if (false !== strpos($floatstr, '.')) {
+            [ 1 => $frac ] = explode('.', $floatstr);
+
+            $add = strlen(rtrim($frac, '0'));
+
+            $fraclen = $fraclen + $add;
+        }
+
+        $fraclen = max(0, $fraclen);
+
+        $bcval = $fraclen
+            ? sprintf('%.' . $fraclen . 'f', $number)
+            : sprintf('%.0f', $number);
+
+        return $bcval;
     }
 }

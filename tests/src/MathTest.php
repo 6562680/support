@@ -18,41 +18,119 @@ class MathTest extends AbstractTestCase
     {
         $math = $this->getMath();
 
-        // $this->assertEquals('0', $math->bcval(0));
-        // $this->assertEquals('0', $math->bcval(0.0));
-        // $this->assertEquals('0.1', $math->bcval(.1));
-        // $this->assertEquals('0.1', $math->bcval(0.1));
-        // $this->assertEquals('1', $math->bcval(1));
-        // $this->assertEquals('1', $math->bcval(1.0));
-        // $this->assertEquals('1.1', $math->bcval(1.1));
-        // $this->assertEquals('110000', $math->bcval(1.1e5));
-        // $this->assertEquals('110000', $math->bcval(1.1e+5));
-        // $this->assertEquals('110000', $math->bcval(1.1E5));
-        // $this->assertEquals('110000', $math->bcval(1.1E+5));
-        // $this->assertEquals('110000000000000', $math->bcval(1.1e14));
-        // $this->assertEquals('110000000000000', $math->bcval(1.1e+14));
-        // $this->assertEquals('110000000000000', $math->bcval(1.1E14));
-        // $this->assertEquals('110000000000000', $math->bcval(1.1E+14));
-        $this->assertEquals('0.00001', $math->bcval(1.1e-5));
-        $this->assertEquals('0.00001', $math->bcval(1.1E-5));
+        $this->assertEquals('0', $math->bcval(0));
 
-        // $this->assertEquals('0', $math->bcval('0'));
-        // $this->assertEquals('0', $math->bcval('0.0'));
-        // $this->assertEquals('0.1', $math->bcval('.1'));
-        // $this->assertEquals('0.1', $math->bcval('0.1'));
-        // $this->assertEquals('1', $math->bcval('1'));
-        // $this->assertEquals('1', $math->bcval('1.0'));
-        // $this->assertEquals('1.1', $math->bcval('1.1'));
-        // $this->assertEquals('110000', $math->bcval('1.1e5'));
-        // $this->assertEquals('110000', $math->bcval('1.1e+5'));
-        // $this->assertEquals('110000', $math->bcval('1.1E5'));
-        // $this->assertEquals('110000', $math->bcval('1.1E+5'));
-        // $this->assertEquals('110000000000000', $math->bcval('1.1e14'));
-        // $this->assertEquals('110000000000000', $math->bcval('1.1e+14'));
-        // $this->assertEquals('110000000000000', $math->bcval('1.1E14'));
-        // $this->assertEquals('110000000000000', $math->bcval('1.1E+14'));
-        // $this->assertEquals('', $math->bcval('1.1e-5')); // error
-        // $this->assertEquals('', $math->bcval('1.1E-5')); // error
+        $this->assertEquals('0', $math->bcval(0e5));
+        $this->assertEquals('0', $math->bcval(0e+5));
+        $this->assertEquals('0', $math->bcval(0e-5));
+        $this->assertEquals('0', $math->bcval(0E5));
+        $this->assertEquals('0', $math->bcval(0E+5));
+        $this->assertEquals('0', $math->bcval(0E-5));
+
+        $this->assertEquals('0', $math->bcval(0.0));
+        $this->assertEquals('0', $math->bcval(0.0e5));
+        $this->assertEquals('0', $math->bcval(0.0e+5));
+        $this->assertEquals('0', $math->bcval(0.0e-5));
+        $this->assertEquals('0', $math->bcval(0.0E5));
+        $this->assertEquals('0', $math->bcval(0.0E+5));
+        $this->assertEquals('0', $math->bcval(0.0E-5));
+
+        $this->assertEquals('0.1', $math->bcval(.1));
+        $this->assertEquals('10000', $math->bcval(.1e5));
+        $this->assertEquals('10000000000000', $math->bcval(.1e14));
+        $this->assertEquals('0.000001', $math->bcval(.1e-5));
+
+        $this->assertEquals('0.1', $math->bcval(0.1));
+        $this->assertEquals('10000', $math->bcval(0.1e5));
+        $this->assertEquals('10000000000000', $math->bcval(0.1e14));
+        $this->assertEquals('0.000001', $math->bcval(0.1e-5));
+
+        $this->assertEquals('0.01', $math->bcval(0.01));
+        $this->assertEquals('1000', $math->bcval(0.01e5));
+        $this->assertEquals('1000000000000', $math->bcval(0.01e14));
+        $this->assertEquals('0.0000001', $math->bcval(0.01e-5));
+
+        $this->assertEquals('1', $math->bcval(1));
+        $this->assertEquals('100000', $math->bcval(1e5));
+        $this->assertEquals('100000000000000', $math->bcval(1e14));
+        $this->assertEquals('0.00001', $math->bcval(1e-5));
+
+        $this->assertEquals('1', $math->bcval(1.0));
+        $this->assertEquals('100000', $math->bcval(1.0e5));
+        $this->assertEquals('100000000000000', $math->bcval(1.0e14));
+        $this->assertEquals('0.00001', $math->bcval(1.0e-5));
+
+        $this->assertEquals('1.1', $math->bcval(1.1));
+        $this->assertEquals('110000', $math->bcval(1.1e5));
+        $this->assertEquals('110000000000000', $math->bcval(1.1e14));
+        $this->assertEquals('0.000011', $math->bcval(1.1e-5));
+
+        $this->assertEquals('1.01', $math->bcval(1.01));
+        $this->assertEquals('101000', $math->bcval(1.01e5));
+        $this->assertEquals('101000000000000', $math->bcval(1.01e14));
+        $this->assertEquals('0.0000101', $math->bcval(1.01e-5));
+
+        $this->assertEquals('10.01', $math->bcval(10.01));
+        $this->assertEquals('1001000', $math->bcval(10.01e5));
+        $this->assertEquals('1001000000000000', $math->bcval(10.01e14));
+        $this->assertEquals('0.0001001', $math->bcval(10.01e-5));
+
+        $this->assertEquals('0', $math->bcval('0'));
+
+        $this->assertEquals('0', $math->bcval('0e5'));
+        $this->assertEquals('0', $math->bcval('0e+5'));
+        $this->assertEquals('0', $math->bcval('0e-5'));
+        $this->assertEquals('0', $math->bcval('0E5'));
+        $this->assertEquals('0', $math->bcval('0E+5'));
+        $this->assertEquals('0', $math->bcval('0E-5'));
+
+        $this->assertEquals('0', $math->bcval('0.0'));
+        $this->assertEquals('0', $math->bcval('0.0e5'));
+        $this->assertEquals('0', $math->bcval('0.0e+5'));
+        $this->assertEquals('0', $math->bcval('0.0e-5'));
+        $this->assertEquals('0', $math->bcval('0.0E5'));
+        $this->assertEquals('0', $math->bcval('0.0E+5'));
+        $this->assertEquals('0', $math->bcval('0.0E-5'));
+
+        $this->assertEquals('0.1', $math->bcval('.1'));
+        $this->assertEquals('10000', $math->bcval('.1e5')); // error
+        $this->assertEquals('10000000000000', $math->bcval('.1e14')); // error
+        $this->assertEquals('0.000001', $math->bcval('.1e-5')); // error
+
+        $this->assertEquals('0.1', $math->bcval('0.1'));
+        $this->assertEquals('10000', $math->bcval('0.1e5'));
+        $this->assertEquals('10000000000000', $math->bcval('0.1e14'));
+        $this->assertEquals('0.000001', $math->bcval('0.1e-5'));
+
+        $this->assertEquals('0.01', $math->bcval('0.01'));
+        $this->assertEquals('1000', $math->bcval('0.01e5'));
+        $this->assertEquals('1000000000000', $math->bcval('0.01e14'));
+        $this->assertEquals('0.0000001', $math->bcval('0.01e-5'));
+
+        $this->assertEquals('1', $math->bcval('1'));
+        $this->assertEquals('100000', $math->bcval('1e5'));
+        $this->assertEquals('100000000000000', $math->bcval('1e14'));
+        $this->assertEquals('0.00001', $math->bcval('1e-5'));
+
+        $this->assertEquals('1', $math->bcval('1.0'));
+        $this->assertEquals('100000', $math->bcval('1.0e5'));
+        $this->assertEquals('100000000000000', $math->bcval('1.0e14'));
+        $this->assertEquals('0.00001', $math->bcval('1.0e-5'));
+
+        $this->assertEquals('1.1', $math->bcval('1.1'));
+        $this->assertEquals('110000', $math->bcval('1.1e5'));
+        $this->assertEquals('110000000000000', $math->bcval('1.1e14'));
+        $this->assertEquals('0.000011', $math->bcval('1.1e-5'));
+
+        $this->assertEquals('1.01', $math->bcval('1.01'));
+        $this->assertEquals('101000', $math->bcval('1.01e5'));
+        $this->assertEquals('101000000000000', $math->bcval('1.01e14'));
+        $this->assertEquals('0.0000101', $math->bcval('1.01e-5'));
+
+        $this->assertEquals('10.01', $math->bcval('10.01'));
+        $this->assertEquals('1001000', $math->bcval('10.01e5'));
+        $this->assertEquals('1001000000000000', $math->bcval('10.01e14'));
+        $this->assertEquals('0.0001001', $math->bcval('10.01e-5')); // error
     }
 
 

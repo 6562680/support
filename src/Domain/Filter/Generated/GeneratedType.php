@@ -133,46 +133,6 @@ abstract class GeneratedType
     }
 
     /**
-     * @param int|float|string|mixed $value
-     *
-     * @return bool
-     */
-    public function isPositive($value): bool
-    {
-        return null !== $this->filter->filterPositive($value);
-    }
-
-    /**
-     * @param int|float|string|mixed $value
-     *
-     * @return bool
-     */
-    public function isNonNegative($value): bool
-    {
-        return null !== $this->filter->filterNonNegative($value);
-    }
-
-    /**
-     * @param int|float|string|mixed $value
-     *
-     * @return bool
-     */
-    public function isNegative($value): bool
-    {
-        return null !== $this->filter->filterNegative($value);
-    }
-
-    /**
-     * @param int|float|string|mixed $value
-     *
-     * @return bool
-     */
-    public function isNonPositive($value): bool
-    {
-        return null !== $this->filter->filterNonPositive($value);
-    }
-
-    /**
      * @param string|mixed $value
      *
      * @return bool
@@ -250,6 +210,16 @@ abstract class GeneratedType
     public function isWordval($value): ?bool
     {
         return null !== $this->filter->filterWordval($value);
+    }
+
+    /**
+     * @param string|mixed $value
+     *
+     * @return bool
+     */
+    public function isTrimval($value): ?bool
+    {
+        return null !== $this->filter->filterTrimval($value);
     }
 
     /**

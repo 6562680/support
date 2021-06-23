@@ -653,79 +653,79 @@ class StrTest extends AbstractTestCase
     {
         $str = $this->getStr();
 
-        static::assertEquals('helloworld', $str->camel('helloworld'));
-        static::assertEquals('helloWorld', $str->camel('HelloWorld'));
-        static::assertEquals('helloWorld', $str->camel('hello-world'));
-        static::assertEquals('helloWorld', $str->camel('hello_world'));
-        static::assertEquals('helloWorld', $str->camel('Hello-World'));
-        static::assertEquals('helloWorld', $str->camel('Hello World'));
-        static::assertEquals('helloWorld', $str->camel('Hello_World'));
-        static::assertEquals('hello.world', $str->camel('hello.world'));
-        static::assertEquals('hello.World', $str->camel('Hello.World'));
-        static::assertEquals('helloworld.foo', $str->camel('helloworld.foo'));
-        static::assertEquals('helloWorld.foo', $str->camel('HelloWorld.foo'));
-        static::assertEquals('helloWorld.foo', $str->camel('hello world.foo'));
-        static::assertEquals('helloWorld.foo', $str->camel('hello-world.foo'));
-        static::assertEquals('helloWorld.foo', $str->camel('hello_world.foo'));
-        static::assertEquals('helloWorld.foo', $str->camel('Hello-World.foo'));
-        static::assertEquals('helloWorld.foo', $str->camel('Hello World.foo'));
-        static::assertEquals('helloWorld.foo', $str->camel('Hello_World.foo'));
+        $this->assertEquals('helloworld', $str->camel('helloworld'));
+        $this->assertEquals('helloWorld', $str->camel('HelloWorld'));
+        $this->assertEquals('helloWorld', $str->camel('hello-world'));
+        $this->assertEquals('helloWorld', $str->camel('hello_world'));
+        $this->assertEquals('helloWorld', $str->camel('Hello-World'));
+        $this->assertEquals('helloWorld', $str->camel('Hello World'));
+        $this->assertEquals('helloWorld', $str->camel('Hello_World'));
+        $this->assertEquals('hello.world', $str->camel('hello.world'));
+        $this->assertEquals('hello.World', $str->camel('Hello.World'));
+        $this->assertEquals('helloworld.foo', $str->camel('helloworld.foo'));
+        $this->assertEquals('helloWorld.foo', $str->camel('HelloWorld.foo'));
+        $this->assertEquals('helloWorld.foo', $str->camel('hello world.foo'));
+        $this->assertEquals('helloWorld.foo', $str->camel('hello-world.foo'));
+        $this->assertEquals('helloWorld.foo', $str->camel('hello_world.foo'));
+        $this->assertEquals('helloWorld.foo', $str->camel('Hello-World.foo'));
+        $this->assertEquals('helloWorld.foo', $str->camel('Hello World.foo'));
+        $this->assertEquals('helloWorld.foo', $str->camel('Hello_World.foo'));
     }
 
     public function testPascal()
     {
         $str = $this->getStr();
 
-        static::assertEquals('Helloworld', $str->pascal('helloworld'));
-        static::assertEquals('HelloWorld', $str->pascal('HelloWorld'));
-        static::assertEquals('HelloWorld', $str->pascal('hello-world'));
-        static::assertEquals('HelloWorld', $str->pascal('hello_world'));
-        static::assertEquals('HelloWorld', $str->pascal('Hello-World'));
-        static::assertEquals('HelloWorld', $str->pascal('Hello World'));
-        static::assertEquals('HelloWorld', $str->pascal('Hello_World'));
-        static::assertEquals('Hello.world', $str->pascal('hello.world'));
-        static::assertEquals('Hello.World', $str->pascal('Hello.World'));
-        static::assertEquals('Helloworld.foo', $str->pascal('helloworld.foo'));
-        static::assertEquals('HelloWorld.foo', $str->pascal('HelloWorld.foo'));
-        static::assertEquals('HelloWorld.foo', $str->pascal('hello world.foo'));
-        static::assertEquals('HelloWorld.foo', $str->pascal('hello-world.foo'));
-        static::assertEquals('HelloWorld.foo', $str->pascal('hello_world.foo'));
-        static::assertEquals('HelloWorld.foo', $str->pascal('Hello-World.foo'));
-        static::assertEquals('HelloWorld.foo', $str->pascal('Hello World.foo'));
-        static::assertEquals('HelloWorld.foo', $str->pascal('Hello_World.foo'));
+        $this->assertEquals('Helloworld', $str->pascal('helloworld'));
+        $this->assertEquals('HelloWorld', $str->pascal('HelloWorld'));
+        $this->assertEquals('HelloWorld', $str->pascal('hello-world'));
+        $this->assertEquals('HelloWorld', $str->pascal('hello_world'));
+        $this->assertEquals('HelloWorld', $str->pascal('Hello-World'));
+        $this->assertEquals('HelloWorld', $str->pascal('Hello World'));
+        $this->assertEquals('HelloWorld', $str->pascal('Hello_World'));
+        $this->assertEquals('Hello.world', $str->pascal('hello.world'));
+        $this->assertEquals('Hello.World', $str->pascal('Hello.World'));
+        $this->assertEquals('Helloworld.foo', $str->pascal('helloworld.foo'));
+        $this->assertEquals('HelloWorld.foo', $str->pascal('HelloWorld.foo'));
+        $this->assertEquals('HelloWorld.foo', $str->pascal('hello world.foo'));
+        $this->assertEquals('HelloWorld.foo', $str->pascal('hello-world.foo'));
+        $this->assertEquals('HelloWorld.foo', $str->pascal('hello_world.foo'));
+        $this->assertEquals('HelloWorld.foo', $str->pascal('Hello-World.foo'));
+        $this->assertEquals('HelloWorld.foo', $str->pascal('Hello World.foo'));
+        $this->assertEquals('HelloWorld.foo', $str->pascal('Hello_World.foo'));
     }
 
     public function testSnake()
     {
         $str = $this->getStr();
 
-        static::assertEquals('helloworld', $str->snake('helloworld'));
-        static::assertEquals('hello_world', $str->snake('HelloWorld'));
-        static::assertEquals('hello_world', $str->snake('hello-world'));
-        static::assertEquals('hello_world', $str->snake('hello_world'));
-        static::assertEquals('hello_world', $str->snake('Hello-World'));
-        static::assertEquals('hello_world', $str->snake('Hello World'));
-        static::assertEquals('hello_world', $str->snake('Hello_World'));
-        static::assertEquals('hello.world', $str->snake('hello.world'));
-        static::assertEquals('hello._world', $str->snake('Hello.World'));
-        static::assertEquals('helloworld.foo', $str->snake('helloworld.foo'));
-        static::assertEquals('hello_world.foo', $str->snake('HelloWorld.foo'));
-        static::assertEquals('hello_world.foo', $str->snake('hello world.foo'));
-        static::assertEquals('hello_world.foo', $str->snake('hello-world.foo'));
-        static::assertEquals('hello_world.foo', $str->snake('hello_world.foo'));
-        static::assertEquals('hello_world.foo', $str->snake('Hello-World.foo'));
-        static::assertEquals('hello_world.foo', $str->snake('Hello World.foo'));
-        static::assertEquals('hello_world.foo', $str->snake('Hello_World.foo'));
-        static::assertEquals('hello.world', $str->snake('hello.world', '.'));
-        static::assertEquals('hello.world', $str->snake('Hello.World', '.'));
-        static::assertEquals('helloworld.foo', $str->snake('helloworld.foo', '.'));
-        static::assertEquals('hello.world.foo', $str->snake('HelloWorld.foo', '.'));
-        static::assertEquals('hello.world.foo', $str->snake('hello world.foo', '.'));
-        static::assertEquals('hello.world.foo', $str->snake('hello-world.foo', '.'));
-        static::assertEquals('hello.world.foo', $str->snake('hello_world.foo', '.'));
-        static::assertEquals('hello.world.foo', $str->snake('Hello-World.foo', '.'));
-        static::assertEquals('hello.world.foo', $str->snake('Hello World.foo', '.'));
-        static::assertEquals('hello.world.foo', $str->snake('Hello_World.foo', '.'));
+        $this->assertEquals('helloworld', $str->snake('helloworld'));
+        $this->assertEquals('hello_world', $str->snake('HelloWorld'));
+        $this->assertEquals('hello_world', $str->snake('hello-world'));
+        $this->assertEquals('hello_world', $str->snake('hello_world'));
+        $this->assertEquals('hello_world', $str->snake('Hello-World'));
+        $this->assertEquals('hello_world', $str->snake('Hello World'));
+        $this->assertEquals('hello_world', $str->snake('Hello_World'));
+        $this->assertEquals('hello.world', $str->snake('hello.world'));
+        $this->assertEquals('hello._world', $str->snake('Hello.World'));
+        $this->assertEquals('helloworld.foo', $str->snake('helloworld.foo'));
+        $this->assertEquals('hello_world.foo', $str->snake('HelloWorld.foo'));
+        $this->assertEquals('hello_world.foo', $str->snake('hello world.foo'));
+        $this->assertEquals('hello_world.foo', $str->snake('hello-world.foo'));
+        $this->assertEquals('hello_world.foo', $str->snake('hello_world.foo'));
+        $this->assertEquals('hello_world.foo', $str->snake('Hello-World.foo'));
+        $this->assertEquals('hello_world.foo', $str->snake('Hello World.foo'));
+        $this->assertEquals('hello_world.foo', $str->snake('Hello_World.foo'));
+        $this->assertEquals('hello.world', $str->snake('hello.world', '.'));
+        $this->assertEquals('hello.world', $str->snake('Hello.World', '.'));
+        $this->assertEquals('helloworld.foo', $str->snake('helloworld.foo', '.'));
+        $this->assertEquals('hello.world.foo', $str->snake('HelloWorld.foo', '.'));
+        $this->assertEquals('hello.world.foo', $str->snake('hello world.foo', '.'));
+        $this->assertEquals('hello.world.foo', $str->snake('hello-world.foo', '.'));
+        $this->assertEquals('hello.world.foo', $str->snake('hello_world.foo', '.'));
+        $this->assertEquals('hello.world.foo', $str->snake('Hello-World.foo', '.'));
+        $this->assertEquals('hello.world.foo', $str->snake('Hello World.foo', '.'));
+        $this->assertEquals('hello.world.foo', $str->snake('Hello_World.foo', '.'));
     }
 
 
@@ -733,8 +733,8 @@ class StrTest extends AbstractTestCase
     {
         $str = $this->getStr();
 
-        static::assertEquals('Privet-Mir', $str->slug('Привет Мир'));
-        static::assertEquals('Workspace-settings', $str->slug('Wôrķšƥáçè ~~sèťtïñğš~~'));
+        $this->assertEquals('Privet-Mir', $str->slug('Привет Мир'));
+        $this->assertEquals('Workspace-settings', $str->slug('Wôrķšƥáçè ~~sèťtïñğš~~'));
     }
 
 
@@ -742,18 +742,18 @@ class StrTest extends AbstractTestCase
     {
         $str = $this->getStr();
 
-        static::assertEquals([ 'worlds' ], $str->pluralize('world'));
-        static::assertEquals([ 'persons', 'people' ], $str->pluralize('person'));
-        static::assertEquals([ 'persons' ], $str->pluralize('person', 1));
-        static::assertEquals([ 1 => 'people' ], $str->pluralize('person', 1, 1));
+        $this->assertEquals([ 'worlds' ], $str->pluralize('world'));
+        $this->assertEquals([ 'persons', 'people' ], $str->pluralize('person'));
+        $this->assertEquals([ 'persons' ], $str->pluralize('person', 1));
+        $this->assertEquals([ 1 => 'people' ], $str->pluralize('person', 1, 1));
     }
 
     public function testSingularize()
     {
         $str = $this->getStr();
 
-        static::assertEquals([ 'world' ], $str->singularize('worlds'));
-        static::assertEquals([ 'person' ], $str->singularize('people'));
+        $this->assertEquals([ 'world' ], $str->singularize('worlds'));
+        $this->assertEquals([ 'person' ], $str->singularize('people'));
     }
 
 

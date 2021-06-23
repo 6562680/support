@@ -140,46 +140,6 @@ abstract class GeneratedFilterFacade
     }
 
     /**
-     * @param int|float|string|mixed $value
-     *
-     * @return null|int|float|string
-     */
-    public static function filterPositive($value)
-    {
-        return static::getInstance()->filterPositive($value);
-    }
-
-    /**
-     * @param int|float|string|mixed $value
-     *
-     * @return null|int|float|string
-     */
-    public static function filterNonNegative($value)
-    {
-        return static::getInstance()->filterNonNegative($value);
-    }
-
-    /**
-     * @param int|float|string|mixed $value
-     *
-     * @return null|int|float|string
-     */
-    public static function filterNegative($value)
-    {
-        return static::getInstance()->filterNegative($value);
-    }
-
-    /**
-     * @param int|float|string|mixed $value
-     *
-     * @return null|int|float|string
-     */
-    public static function filterNonPositive($value)
-    {
-        return static::getInstance()->filterNonPositive($value);
-    }
-
-    /**
      * @param string|mixed $value
      *
      * @return null|string
@@ -257,6 +217,16 @@ abstract class GeneratedFilterFacade
     public static function filterWordval($value): ?string
     {
         return static::getInstance()->filterWordval($value);
+    }
+
+    /**
+     * @param string|mixed $value
+     *
+     * @return null|string
+     */
+    public static function filterTrimval($value): ?string
+    {
+        return static::getInstance()->filterTrimval($value);
     }
 
     /**

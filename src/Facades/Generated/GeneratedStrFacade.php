@@ -15,11 +15,26 @@ use Gzhegow\Support\Domain\Str\InflectorInterface;
 use Gzhegow\Support\Domain\Str\Slugger;
 use Gzhegow\Support\Domain\Str\SluggerInterface;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
-use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Str;
 
 abstract class GeneratedStrFacade
 {
+    /**
+     * @return string
+     */
+    public static function getTrims(): string
+    {
+        return static::getInstance()->getTrims();
+    }
+
+    /**
+     * @return string
+     */
+    public static function getVowels(): string
+    {
+        return static::getInstance()->getVowels();
+    }
+
     /**
      * @param null|SluggerInterface $slugger
      *
@@ -325,8 +340,8 @@ abstract class GeneratedStrFacade
     }
 
     /**
-     * @param string|string[]|array $delimiters
-     * @param string|string[]|array ...$strings
+     * @param string|array $delimiters
+     * @param string|array ...$strings
      *
      * @return array
      */
@@ -338,9 +353,9 @@ abstract class GeneratedStrFacade
     /**
      * рекурсивно разрывает строку в многоуровневый массив
      *
-     * @param string|string[]|array $delimiters
-     * @param string                $string
-     * @param int|null              $limit
+     * @param string|array $delimiters
+     * @param string       $string
+     * @param int|null     $limit
      *
      * @return array
      */
@@ -352,8 +367,8 @@ abstract class GeneratedStrFacade
     /**
      * '1, 2, 3', включая пустые строки, исключение если нельзя привести к строке
      *
-     * @param string                $delimiter
-     * @param string|string[]|array ...$strings
+     * @param string       $delimiter
+     * @param string|array ...$strings
      *
      * @return string
      */
@@ -365,8 +380,8 @@ abstract class GeneratedStrFacade
     /**
      * '1, 2, 3', включая пустые строки, пропускает если нельзя привести к строке
      *
-     * @param string                $delimiter
-     * @param string|string[]|array ...$strings
+     * @param string       $delimiter
+     * @param string|array ...$strings
      *
      * @return string
      */
@@ -378,8 +393,8 @@ abstract class GeneratedStrFacade
     /**
      * '1, 2, 3', пропускает пустые строки, исключение если нельзя привести к строке
      *
-     * @param string                $delimiter
-     * @param string|string[]|array ...$strings
+     * @param string       $delimiter
+     * @param string|array ...$strings
      *
      * @return string
      */
@@ -391,8 +406,8 @@ abstract class GeneratedStrFacade
     /**
      * '1, 2, 3', пропускает пустые строки, пропускает если нельзя привести к строке
      *
-     * @param string                $delimiter
-     * @param string|string[]|array ...$strings
+     * @param string       $delimiter
+     * @param string|array ...$strings
      *
      * @return string
      */
@@ -404,10 +419,10 @@ abstract class GeneratedStrFacade
     /**
      * "`1`, `2` or `3`", всегда пропускает пустые строки, исключение если нельзя привести к строке
      *
-     * @param string|string[]|array $strings
-     * @param null|string           $delimiter
-     * @param null|string           $lastDelimiter
-     * @param null|string           $wrapper
+     * @param string|array $strings
+     * @param null|string  $delimiter
+     * @param null|string  $lastDelimiter
+     * @param null|string  $wrapper
      *
      * @return string
      */
@@ -423,10 +438,10 @@ abstract class GeneratedStrFacade
     /**
      * "`1`, `2` or `3`", всегда пропускает пустые строки, пропускает если нельзя привести к строке
      *
-     * @param string|string[]|array $strings
-     * @param null|string           $delimiter
-     * @param null|string           $wrapper
-     * @param null|string           $lastDelimiter
+     * @param string|array $strings
+     * @param null|string  $delimiter
+     * @param null|string  $wrapper
+     * @param null|string  $lastDelimiter
      *
      * @return string
      */
@@ -455,9 +470,9 @@ abstract class GeneratedStrFacade
     /**
      * применяет prefix() ко всем строкам, затем соединяет результаты, чтобы урезать итоговый размер строки
      *
-     * @param string|string[]|array      $strings
-     * @param null|string|string[]|array $delimiters
-     * @param null|int                   $limit
+     * @param string|array      $strings
+     * @param null|string|array $delimiters
+     * @param null|int          $limit
      *
      * @return string
      */
@@ -491,43 +506,43 @@ abstract class GeneratedStrFacade
     /**
      * camelCase
      *
-     * @param string      $value
-     * @param string      $separator
-     * @param null|string $delimiters
+     * @param string|array $strings
+     * @param null|string  $separator
+     * @param null|string  $delimiters
      *
      * @return string
      */
-    public static function camel(string $value, string $separator = '', string $delimiters = null): string
+    public static function camel($strings, string $separator = null, string $delimiters = null): string
     {
-        return static::getInstance()->camel($value, $separator, $delimiters);
+        return static::getInstance()->camel($strings, $separator, $delimiters);
     }
 
     /**
      * PascalCase
      *
-     * @param string      $value
-     * @param string      $separator
-     * @param null|string $delimiters
+     * @param string|array $strings
+     * @param null|string  $separator
+     * @param null|string  $delimiters
      *
      * @return string
      */
-    public static function pascal(string $value, string $separator = '', string $delimiters = null): string
+    public static function pascal($strings, string $separator = null, string $delimiters = null): string
     {
-        return static::getInstance()->pascal($value, $separator, $delimiters);
+        return static::getInstance()->pascal($strings, $separator, $delimiters);
     }
 
     /**
      * snake_case
      *
-     * @param string      $value
-     * @param string      $separator
-     * @param null|string $delimiters
+     * @param string|array $strings
+     * @param null|string  $separator
+     * @param null|string  $delimiters
      *
      * @return string
      */
-    public static function snake(string $value, string $separator = '_', string $delimiters = null): string
+    public static function snake($strings, string $separator = null, string $delimiters = null): string
     {
-        return static::getInstance()->snake($value, $separator, $delimiters);
+        return static::getInstance()->snake($strings, $separator, $delimiters);
     }
 
     /**
@@ -589,6 +604,16 @@ abstract class GeneratedStrFacade
     /**
      * @param mixed $value
      *
+     * @return null|string
+     */
+    public static function trimval($value): ?string
+    {
+        return static::getInstance()->trimval($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
      * @return string
      */
     public static function theStrval($value): string
@@ -607,8 +632,18 @@ abstract class GeneratedStrFacade
     }
 
     /**
-     * @param string|string[]|array $strings
-     * @param null|bool             $uniq
+     * @param mixed $value
+     *
+     * @return string
+     */
+    public static function theTrimval($value): string
+    {
+        return static::getInstance()->theTrimval($value);
+    }
+
+    /**
+     * @param string|array $strings
+     * @param null|bool    $uniq
      *
      * @return string[]
      */
@@ -618,8 +653,8 @@ abstract class GeneratedStrFacade
     }
 
     /**
-     * @param string|string[]|array $words
-     * @param null|bool             $uniq
+     * @param string|array $words
+     * @param null|bool    $uniq
      *
      * @return string[]
      */
@@ -629,8 +664,19 @@ abstract class GeneratedStrFacade
     }
 
     /**
-     * @param string|string[]|array $strings
-     * @param null|bool             $uniq
+     * @param string|array $trims
+     * @param null|bool    $uniq
+     *
+     * @return string[]
+     */
+    public static function trimvals($trims, $uniq = null): array
+    {
+        return static::getInstance()->trimvals($trims, $uniq);
+    }
+
+    /**
+     * @param string|array $strings
+     * @param null|bool    $uniq
      *
      * @return string[]
      */
@@ -640,14 +686,25 @@ abstract class GeneratedStrFacade
     }
 
     /**
-     * @param string|string[]|array $words
-     * @param null|bool             $uniq
+     * @param string|array $words
+     * @param null|bool    $uniq
      *
      * @return string[]
      */
     public static function theWordvals($words, $uniq = null): array
     {
         return static::getInstance()->theWordvals($words, $uniq);
+    }
+
+    /**
+     * @param string|array $trims
+     * @param null|bool    $uniq
+     *
+     * @return string[]
+     */
+    public static function theTrimvals($trims, $uniq = null): array
+    {
+        return static::getInstance()->theTrimvals($trims, $uniq);
     }
 
     /**

@@ -258,79 +258,6 @@ class Filter
 
 
     /**
-     * @param int|float|string|mixed $value
-     *
-     * @return null|int|float|string
-     */
-    public function filterPositive($value) // : ?int|float|string
-    {
-        if (null === $this->filterNumericval($value)) {
-            return null;
-        }
-
-        if (floatval($value) > 0) {
-            return $value;
-        }
-
-        return null;
-    }
-
-    /**
-     * @param int|float|string|mixed $value
-     *
-     * @return null|int|float|string
-     */
-    public function filterNonNegative($value) // : ?int|float|string
-    {
-        if (null === $this->filterNumericval($value)) {
-            return null;
-        }
-
-        if (floatval($value) >= 0) {
-            return $value;
-        }
-
-        return null;
-    }
-
-    /**
-     * @param int|float|string|mixed $value
-     *
-     * @return null|int|float|string
-     */
-    public function filterNegative($value) // : ?int|float|string
-    {
-        if (null === $this->filterNumericval($value)) {
-            return null;
-        }
-
-        if (floatval($value) < 0) {
-            return $value;
-        }
-
-        return null;
-    }
-
-    /**
-     * @param int|float|string|mixed $value
-     *
-     * @return null|int|float|string
-     */
-    public function filterNonPositive($value) // : ?int|float|string
-    {
-        if (null === $this->filterNumericval($value)) {
-            return null;
-        }
-
-        if (floatval($value) <= 0) {
-            return $value;
-        }
-
-        return null;
-    }
-
-
-    /**
      * @param string|mixed $value
      *
      * @return null|string
@@ -474,6 +401,30 @@ class Filter
         }
 
         if (null === $this->filterStrval($value)) {
+            return null;
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param string|mixed $value
+     *
+     * @return null|string
+     */
+    public function filterTrimval($value) : ?string
+    {
+        if ('' === $value) {
+            return null;
+        }
+
+        if (null === $this->filterStrval($value)) {
+            return null;
+        }
+
+        $trim = trim($value);
+
+        if ('' === $trim) {
             return null;
         }
 

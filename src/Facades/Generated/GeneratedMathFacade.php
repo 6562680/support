@@ -51,6 +51,14 @@ abstract class GeneratedMathFacade
     }
 
     /**
+     * @return Math
+     */
+    public static function withoutScale()
+    {
+        return static::getInstance()->withoutScale();
+    }
+
+    /**
      * @param int $scaleMax
      *
      * @return Math
@@ -58,14 +66,6 @@ abstract class GeneratedMathFacade
     public static function withScaleMax(int $scaleMax)
     {
         return static::getInstance()->withScaleMax($scaleMax);
-    }
-
-    /**
-     * @return Math
-     */
-    public static function withoutScale()
-    {
-        return static::getInstance()->withoutScale();
     }
 
     /**
@@ -87,41 +87,11 @@ abstract class GeneratedMathFacade
     /**
      * @param int|float|string|mixed $value
      *
-     * @return bool
+     * @return null|int|float|string
      */
-    public static function isPositive($value): bool
+    public static function bcPositiveVal($value): ?string
     {
-        return static::getInstance()->isPositive($value);
-    }
-
-    /**
-     * @param int|float|string|mixed $value
-     *
-     * @return bool
-     */
-    public static function isNonNegative($value): bool
-    {
-        return static::getInstance()->isNonNegative($value);
-    }
-
-    /**
-     * @param int|float|string|mixed $value
-     *
-     * @return bool
-     */
-    public static function isNegative($value): bool
-    {
-        return static::getInstance()->isNegative($value);
-    }
-
-    /**
-     * @param int|float|string|mixed $value
-     *
-     * @return bool
-     */
-    public static function isNonPositive($value): bool
-    {
-        return static::getInstance()->isNonPositive($value);
+        return static::getInstance()->bcPositiveVal($value);
     }
 
     /**
@@ -129,9 +99,9 @@ abstract class GeneratedMathFacade
      *
      * @return null|int|float|string
      */
-    public static function filterPositive($value)
+    public static function bcNonNegativeVal($value): ?string
     {
-        return static::getInstance()->filterPositive($value);
+        return static::getInstance()->bcNonNegativeVal($value);
     }
 
     /**
@@ -139,9 +109,9 @@ abstract class GeneratedMathFacade
      *
      * @return null|int|float|string
      */
-    public static function filterNonNegative($value)
+    public static function bcNegativeVal($value): ?string
     {
-        return static::getInstance()->filterNonNegative($value);
+        return static::getInstance()->bcNegativeVal($value);
     }
 
     /**
@@ -149,19 +119,9 @@ abstract class GeneratedMathFacade
      *
      * @return null|int|float|string
      */
-    public static function filterNegative($value)
+    public static function bcNonPositiveVal($value): ?string
     {
-        return static::getInstance()->filterNegative($value);
-    }
-
-    /**
-     * @param int|float|string|mixed $value
-     *
-     * @return null|int|float|string
-     */
-    public static function filterNonPositive($value)
-    {
-        return static::getInstance()->filterNonPositive($value);
+        return static::getInstance()->bcNonPositiveVal($value);
     }
 
     /**
@@ -169,9 +129,9 @@ abstract class GeneratedMathFacade
      *
      * @return int|float|string
      */
-    public static function assertPositive($value)
+    public static function theBcPositiveVal($value): string
     {
-        return static::getInstance()->assertPositive($value);
+        return static::getInstance()->theBcPositiveVal($value);
     }
 
     /**
@@ -179,9 +139,9 @@ abstract class GeneratedMathFacade
      *
      * @return int|float|string
      */
-    public static function assertNonNegative($value)
+    public static function theBcNonNegativeVal($value): string
     {
-        return static::getInstance()->assertNonNegative($value);
+        return static::getInstance()->theBcNonNegativeVal($value);
     }
 
     /**
@@ -189,9 +149,9 @@ abstract class GeneratedMathFacade
      *
      * @return int|float|string
      */
-    public static function assertNegative($value)
+    public static function theBcNegativeVal($value): string
     {
-        return static::getInstance()->assertNegative($value);
+        return static::getInstance()->theBcNegativeVal($value);
     }
 
     /**
@@ -199,9 +159,9 @@ abstract class GeneratedMathFacade
      *
      * @return int|float|string
      */
-    public static function assertNonPositive($value)
+    public static function theBcNonPositiveVal($value): string
     {
-        return static::getInstance()->assertNonPositive($value);
+        return static::getInstance()->theBcNonPositiveVal($value);
     }
 
     /**
@@ -244,6 +204,57 @@ abstract class GeneratedMathFacade
     public static function theBcval($value): string
     {
         return static::getInstance()->theBcval($value);
+    }
+
+    /**
+     * @param string|array $strings
+     * @param null|bool    $uniq
+     *
+     * @return string[]
+     */
+    public static function bcvals($strings, $uniq = null): array
+    {
+        return static::getInstance()->bcvals($strings, $uniq);
+    }
+
+    /**
+     * @param string|array $strings
+     * @param null|bool    $uniq
+     *
+     * @return string[]
+     */
+    public static function theBcvals($strings, $uniq = null): array
+    {
+        return static::getInstance()->theBcvals($strings, $uniq);
+    }
+
+    /**
+     * @param int|float|string|mixed $number
+     * @param null|int               $decimals
+     * @param null|string            $decimalSeparator
+     * @param null|string            $thousandSeparator
+     *
+     * @return string
+     */
+    public static function numberFormat(
+        $number,
+        int $decimals = null,
+        string $decimalSeparator = null,
+        string $thousandSeparator = null
+    ) {
+        return static::getInstance()->numberFormat($number, $decimals, $decimalSeparator, $thousandSeparator);
+    }
+
+    /**
+     * @param string|mixed $number
+     * @param string|array $decimalsSeparators
+     * @param string|array $thousandsSeparators
+     *
+     * @return string
+     */
+    public static function numberParse($number, $decimalsSeparators = null, $thousandsSeparators = null): string
+    {
+        return static::getInstance()->numberParse($number, $decimalsSeparators, $thousandsSeparators);
     }
 
     /**
@@ -697,28 +708,6 @@ abstract class GeneratedMathFacade
     public static function bcmoneyceil($number, int $scale = null): string
     {
         return static::getInstance()->bcmoneyceil($number, $scale);
-    }
-
-    /**
-     * @param string|array $strings
-     * @param null|bool    $uniq
-     *
-     * @return string[]
-     */
-    public static function bcvals($strings, $uniq = null): array
-    {
-        return static::getInstance()->bcvals($strings, $uniq);
-    }
-
-    /**
-     * @param string|array $strings
-     * @param null|bool    $uniq
-     *
-     * @return string[]
-     */
-    public static function theBcvals($strings, $uniq = null): array
-    {
-        return static::getInstance()->theBcvals($strings, $uniq);
     }
 
     /**

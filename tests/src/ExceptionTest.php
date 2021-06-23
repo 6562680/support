@@ -35,20 +35,21 @@ class ExceptionTest extends AbstractTestCase
     public function testFilter()
     {
         $this->assertException(InvalidArgumentException::class, function () {
-            $filter = $this->getFilter();
-            $filter->assert()->assertPositive(-1);
+            $this->getFilter()
+                ->assert()
+                ->assertWordval('');
         });
 
         $this->assertException(InvalidArgumentException::class, function () {
-            $filter = $this->getFilter();
-            $filter->assert([ 'Hello, %s', 'World' ])
-                ->assertPositive(-1);
+            $this->getFilter()
+                ->assert([ 'Hello, %s', 'World' ])
+                ->assertWordval('');
         });
 
         $this->assertException(RuntimeException::class, function () {
-            $filter = $this->getFilter();
-            $filter->assert(new RuntimeException([ 'Hello, %s', 'World' ]))
-                ->assertPositive(-1);
+            $this->getFilter()
+                ->assert(new RuntimeException([ 'Hello, %s', 'World' ]))
+                ->assertWordval('');
         });
     }
 

@@ -14,8 +14,8 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
  */
 class Str
 {
-    const CASE_LOWER = MB_CASE_UPPER;
-    const CASE_UPPER = MB_CASE_LOWER;
+    const CASE_LOWER = MB_CASE_LOWER;
+    const CASE_UPPER = MB_CASE_UPPER;
 
     const INTERNAL_ENCODING = 'UTF-8';
 
@@ -67,10 +67,19 @@ class Str
         return $this;
     }
 
+
     /**
      * @return string
      */
-    protected function loadVowels() : string
+    public function getTrims() : string
+    {
+        return " \t\n\r\0\x0B";
+    }
+
+    /**
+     * @return string
+     */
+    public function getVowels() : string
     {
         $list = [
             'a' => 'aàáâãāăȧäảåǎȁąạḁẚầấẫẩằắẵẳǡǟǻậặæǽǣая',
@@ -213,8 +222,14 @@ class Str
      */
     public function split(string $string, int $len = null) : array
     {
+        $len = $len ?? 1;
+
         if ('' === $string) {
             return [];
+        }
+
+        if ($len < 1) {
+            throw new InvalidArgumentException([ 'Len should integer greater than 0: %s', $len ]);
         }
 
         $letters = [];
@@ -1025,7 +1040,7 @@ class Str
 
         if (0 === $len) return '';
 
-        $vowels = $this->loadVowels();
+        $vowels = $this->getVowels();
 
         $sourceConsonants = [];
         $sourceVowels = [];
@@ -1277,6 +1292,22 @@ class Str
         return $result;
     }
 
+    /**
+     * @param mixed $value
+     *
+     * @return null|string
+     */
+    public function trimval($value) : ?string
+    {
+        if (null === $this->filter->filterTrimval($value)) {
+            return null;
+        }
+
+        $result = trim($value);
+
+        return $result;
+    }
+
 
     /**
      * @param mixed $value
@@ -1308,6 +1339,22 @@ class Str
         }
 
         return $wordval;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return string
+     */
+    public function theTrimval($value) : string
+    {
+        if (null === ( $trimval = $this->trimval($value) )) {
+            throw new InvalidArgumentException(
+                [ 'Value should be convertable to trimval: %s', $value ],
+            );
+        }
+
+        return $trimval;
     }
 
 
@@ -1373,6 +1420,37 @@ class Str
         return $result;
     }
 
+    /**
+     * @param string|array $trims
+     * @param null|bool    $uniq
+     *
+     * @return string[]
+     */
+    public function trimvals($trims, $uniq = null) : array
+    {
+        $result = [];
+
+        $trims = is_array($trims)
+            ? $trims
+            : [ $trims ];
+
+        array_walk_recursive($trims, function ($trim) use (&$result) {
+            if (null !== ( $trimval = $this->trimval($trim) )) {
+                $result[] = $trimval;
+            }
+        });
+
+        if ($uniq ?? false) {
+            $arr = [];
+            foreach ( $result as $i ) {
+                $arr[ $i ] = true;
+            }
+            $result = array_keys($arr);
+        }
+
+        return $result;
+    }
+
 
     /**
      * @param string|array $strings
@@ -1419,6 +1497,35 @@ class Str
 
         array_walk_recursive($words, function ($word) use (&$result) {
             $result[] = $this->theWordval($word);
+        });
+
+        if ($uniq ?? false) {
+            $arr = [];
+            foreach ( $result as $i ) {
+                $arr[ $i ] = true;
+            }
+            $result = array_keys($arr);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string|array $trims
+     * @param null|bool    $uniq
+     *
+     * @return string[]
+     */
+    public function theTrimvals($trims, $uniq = null) : array
+    {
+        $result = [];
+
+        $trims = is_array($trims)
+            ? $trims
+            : [ $trims ];
+
+        array_walk_recursive($trims, function ($trim) use (&$result) {
+            $result[] = $this->theTrimval($trim);
         });
 
         if ($uniq ?? false) {
