@@ -14,33 +14,6 @@ class PhpTest extends AbstractTestCase
     }
 
 
-    public function testListval()
-    {
-        $php = $this->getPhp();
-
-        $this->assertEquals([ null ], $php->listval(null));
-        $this->assertEquals([ null ], $php->listval([ null ]));
-        $this->assertEquals([ null, null ], $php->listval([ null, [ null ] ]));
-
-        $this->assertEquals([ null, null ], $php->listval(null, null));
-        $this->assertEquals([ null, null ], $php->listval([ null ], [ null ]));
-        $this->assertEquals([ null, null, null, null ], $php->listval([ null, [ null ] ], [ null, [ null ] ]));
-    }
-
-    public function testListvals()
-    {
-        $php = $this->getPhp();
-
-        $this->assertEquals([ [ null ] ], $php->listvals(null));
-        $this->assertEquals([ [ null ] ], $php->listvals([ null ]));
-        $this->assertEquals([ [ null, null ] ], $php->listvals([ null, [ null ] ]));
-
-        $this->assertEquals([ [ null ], [ null ] ], $php->listvals(null, null));
-        $this->assertEquals([ [ null ], [ null ] ], $php->listvals([ null ], [ null ]));
-        $this->assertEquals([ [ null, null ], [ null, null ] ], $php->listvals([ null, [ null ] ], [ null, [ null ] ]));
-    }
-
-
     public function testEnumval()
     {
         $php = $this->getPhp();
@@ -68,5 +41,27 @@ class PhpTest extends AbstractTestCase
             [ 0, 'a', 0.0 ],
             [ 0, 'a', 0.0 ],
         ], $php->enumvals($map, $map));
+    }
+
+
+    public function testListval()
+    {
+        $php = $this->getPhp();
+
+        $this->assertEquals([], $php->listval(null));
+        $this->assertEquals([], $php->listval(null, null));
+        $this->assertEquals([], $php->listval([ null ]));
+        $this->assertEquals([], $php->listval([ null, null ]));
+        $this->assertEquals([ [ null ] ], $php->listval([ null, [ null ] ]));
+
+        $this->assertEquals([ [ 'a' => null ] ], $php->listval([ 'a' => null ]));
+        $this->assertEquals([ [ 'a' => null ], [ 'a' => null ] ], $php->listval([ 'a' => null ], [ 'a' => null ]));
+        $this->assertEquals([ [ 'a' => null ], [ 'a' => null ] ], $php->listval([ [ 'a' => null ], [ 'a' => null ] ]));
+
+        $this->assertEquals([ 1 ], $php->listval(1));
+        $this->assertEquals([ 1, 1 ], $php->listval(1, 1));
+        $this->assertEquals([ 1 ], $php->listval([ 1 ]));
+        $this->assertEquals([ 1, 1 ], $php->listval([ 1, 1 ]));
+        $this->assertEquals([ 1, [ 1 ] ], $php->listval([ 1, [ 1 ] ]));
     }
 }

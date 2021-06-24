@@ -670,6 +670,8 @@ class StrTest extends AbstractTestCase
         $this->assertEquals('helloWorld.foo', $str->camel('Hello-World.foo'));
         $this->assertEquals('helloWorld.foo', $str->camel('Hello World.foo'));
         $this->assertEquals('helloWorld.foo', $str->camel('Hello_World.foo'));
+
+        $this->assertEquals('helloId', $str->camel([ 'hello', 'id' ]));
     }
 
     public function testPascal()
@@ -693,6 +695,8 @@ class StrTest extends AbstractTestCase
         $this->assertEquals('HelloWorld.foo', $str->pascal('Hello-World.foo'));
         $this->assertEquals('HelloWorld.foo', $str->pascal('Hello World.foo'));
         $this->assertEquals('HelloWorld.foo', $str->pascal('Hello_World.foo'));
+
+        $this->assertEquals('HelloId', $str->pascal([ 'hello', 'id' ]));
     }
 
     public function testSnake()
@@ -716,6 +720,7 @@ class StrTest extends AbstractTestCase
         $this->assertEquals('hello_world.foo', $str->snake('Hello-World.foo'));
         $this->assertEquals('hello_world.foo', $str->snake('Hello World.foo'));
         $this->assertEquals('hello_world.foo', $str->snake('Hello_World.foo'));
+
         $this->assertEquals('hello.world', $str->snake('hello.world', '.'));
         $this->assertEquals('hello.world', $str->snake('Hello.World', '.'));
         $this->assertEquals('helloworld.foo', $str->snake('helloworld.foo', '.'));
@@ -726,6 +731,9 @@ class StrTest extends AbstractTestCase
         $this->assertEquals('hello.world.foo', $str->snake('Hello-World.foo', '.'));
         $this->assertEquals('hello.world.foo', $str->snake('Hello World.foo', '.'));
         $this->assertEquals('hello.world.foo', $str->snake('Hello_World.foo', '.'));
+
+        $this->assertEquals('hello_id', $str->snake([ 'hello', 'id' ]));
+        $this->assertEquals('hello.id', $str->snake([ 'hello', 'id' ], '.'));
     }
 
 

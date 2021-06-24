@@ -604,7 +604,7 @@ class Filter
     public function filterArray($array, callable $of = null) : ?array
     {
         if (! is_array($array)) return null;
-        if (! $array) return null;
+        if (! $array) return $array;
 
         foreach ( $array as &$val ) {
             if ($of && ! $of($val)) {
@@ -625,7 +625,7 @@ class Filter
     public function filterList($list, callable $of = null) : ?array
     {
         if (! is_iterable($list)) return null;
-        if (! $list) return null; // empty array is a list
+        if (! $list) return $list; // empty array is a list
 
         // contains string key? not a list
         foreach ( $list as $key => &$val ) {
@@ -651,7 +651,7 @@ class Filter
     public function filterDict($dict, callable $of = null) : ?array
     {
         if (! is_array($dict)) return null;
-        if (! $dict) return null; // empty array is a dict
+        if (! $dict) return $dict; // empty array is a dict
 
         foreach ( $dict as $key => &$val ) {
             if (null === $this->filterWord($key)) {
@@ -676,7 +676,7 @@ class Filter
     public function filterAssoc($assoc, callable $of = null) : ?array
     {
         if (! is_array($assoc)) return null;
-        if (! $assoc) return null; // empty array is an assoc
+        if (! $assoc) return $assoc; // empty array is an assoc
 
         // contains simulateonsly string/int key? is an assoc
         $hasStr = false;

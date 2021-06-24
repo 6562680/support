@@ -114,6 +114,50 @@ abstract class GeneratedPhpFacade
     }
 
     /**
+     * Превращает enum-список любой вложенности (значения могут быть в ключах или в полях) в список уникальных значений
+     *
+     * @param mixed ...$items
+     *
+     * @return array
+     */
+    public static function enumval(...$items): array
+    {
+        return static::getInstance()->enumval(...$items);
+    }
+
+    /**
+     * Превращает каждый аргумент с помощью enumval
+     *
+     * @param mixed ...$enums
+     *
+     * @return array
+     */
+    public static function enumvals(...$enums): array
+    {
+        return static::getInstance()->enumvals(...$enums);
+    }
+
+    /**
+     * @param mixed ...$items
+     *
+     * @return array
+     */
+    public static function listval(...$items): array
+    {
+        return static::getInstance()->listval(...$items);
+    }
+
+    /**
+     * @param mixed ...$lists
+     *
+     * @return array
+     */
+    public static function listvals(...$lists): array
+    {
+        return static::getInstance()->listvals(...$lists);
+    }
+
+    /**
      * возвращает строчный идентификатор значения любой переменной в виде строки для дальнейшего сравнения
      * идентификаторы могут быть позже использованы другими обьектами
      * поэтому его актуальность до тех пор, пока конкретный обьект существует
@@ -168,54 +212,6 @@ abstract class GeneratedPhpFacade
     }
 
     /**
-     * Превращает примитивы и массивы любой вложенности в одноуровневый список
-     *
-     * @param mixed ...$items
-     *
-     * @return array
-     */
-    public static function listval(...$items): array
-    {
-        return static::getInstance()->listval(...$items);
-    }
-
-    /**
-     * Превращает каждый аргумент из примитивов и массивов любой вложенности в список списков
-     *
-     * @param mixed ...$lists
-     *
-     * @return array
-     */
-    public static function listvals(...$lists): array
-    {
-        return static::getInstance()->listvals(...$lists);
-    }
-
-    /**
-     * Превращает enum-список любой вложенности (значения могут быть в ключах или в полях) в список уникальных значений
-     *
-     * @param mixed ...$items
-     *
-     * @return array
-     */
-    public static function enumval(...$items): array
-    {
-        return static::getInstance()->enumval(...$items);
-    }
-
-    /**
-     * Превращает каждый аргумент с помощью enumval
-     *
-     * @param mixed ...$enums
-     *
-     * @return array
-     */
-    public static function enumvals(...$enums): array
-    {
-        return static::getInstance()->enumvals(...$enums);
-    }
-
-    /**
      * @param mixed ...$arguments
      *
      * @return array
@@ -223,26 +219,6 @@ abstract class GeneratedPhpFacade
     public static function kwargs(...$arguments): array
     {
         return static::getInstance()->kwargs(...$arguments);
-    }
-
-    /**
-     * @param mixed ...$arguments
-     *
-     * @return array
-     */
-    public static function kwargsDistinct(...$arguments): array
-    {
-        return static::getInstance()->kwargsDistinct(...$arguments);
-    }
-
-    /**
-     * @param mixed ...$arguments
-     *
-     * @return array
-     */
-    public static function theKwargs(...$arguments): array
-    {
-        return static::getInstance()->theKwargs(...$arguments);
     }
 
     /**
@@ -260,9 +236,9 @@ abstract class GeneratedPhpFacade
      *
      * @return array
      */
-    public static function kwargsFlattenDistinct(...$arguments): array
+    public static function kwparams(...$arguments): array
     {
-        return static::getInstance()->kwargsFlattenDistinct(...$arguments);
+        return static::getInstance()->kwparams(...$arguments);
     }
 
     /**
@@ -270,21 +246,29 @@ abstract class GeneratedPhpFacade
      *
      * @return array
      */
-    public static function theKwargsFlatten(...$arguments): array
+    public static function theKwparams(...$arguments): array
     {
-        return static::getInstance()->theKwargsFlatten(...$arguments);
+        return static::getInstance()->theKwparams(...$arguments);
     }
 
     /**
-     * Превращает примитивы и массивы любой вложенности в одноуровневый список
-     *
-     * @param mixed ...$items
+     * @param mixed ...$arguments
      *
      * @return array
      */
-    public static function collect(...$items): array
+    public static function kwparamsFlatten(...$arguments): array
     {
-        return static::getInstance()->collect(...$items);
+        return static::getInstance()->kwparamsFlatten(...$arguments);
+    }
+
+    /**
+     * @param mixed ...$arguments
+     *
+     * @return array
+     */
+    public static function theKwparamsFlatten(...$arguments): array
+    {
+        return static::getInstance()->theKwparamsFlatten(...$arguments);
     }
 
     /**

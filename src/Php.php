@@ -256,6 +256,121 @@ class Php
 
 
     /**
+     * Превращает enum-список любой вложенности (значения могут быть в ключах или в полях) в список уникальных значений
+     *
+     * @param mixed ...$items
+     *
+     * @return array
+     */
+    public function enumval(...$items) : array
+    {
+        $result = [];
+
+        array_walk_recursive($items, function ($item, $key) use (&$result) {
+            $map = [];
+
+            if (is_iterable($item)) {
+                foreach ( $item as $itemKey => $itemVal ) {
+                    $map[ $itemKey ] = $itemVal;
+                }
+            } else {
+                $map[ $key ] = $item;
+            }
+
+            foreach ( $map as $valOrKey => $valOrBool ) {
+                $isIgnore = null === $valOrBool
+                    || false === $valOrBool
+                    || '' === $valOrBool;
+
+                if ($isIgnore) {
+                    continue;
+                }
+
+                $value = null
+                    ?? ( true === $valOrBool ? $valOrKey : null )
+                    ?? $this->filter->filterWord($valOrKey)
+                    ?? $this->filter->filterWordOrNum($valOrBool)
+                    ?? $this->filter->filterInt($valOrKey);
+
+                if (null === $value) {
+                    continue;
+                }
+
+                $result[ $this->hash($value) ] = $value;
+            }
+        });
+
+        $result = array_values($result);
+
+        return $result;
+    }
+
+    /**
+     * Превращает каждый аргумент с помощью enumval
+     *
+     * @param mixed ...$enums
+     *
+     * @return array
+     */
+    public function enumvals(...$enums) : array
+    {
+        $result = [];
+
+        foreach ( $enums as $idx => $map ) {
+            $result[ $idx ] = $this->enumval($map);
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * @param mixed ...$items
+     *
+     * @return array
+     */
+    public function listval(...$items) : array
+    {
+        $result = [];
+
+        $flatten = [];
+        foreach ( $items as $idx => $item ) {
+            if (null !== $this->filter->filterList($item)) {
+                foreach ( $item as $val ) {
+                    $flatten[] = $val;
+                }
+            } else {
+                $flatten[] = $item;
+            }
+        }
+
+        foreach ( $flatten as $val ) {
+            if (! is_null($val)) {
+                $result[] = $val;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param mixed ...$lists
+     *
+     * @return array
+     */
+    public function listvals(...$lists) : array
+    {
+        $result = [];
+
+        foreach ( $lists as $idx => $list ) {
+            $result[ $idx ] = $this->listval($list);
+        }
+
+        return $result;
+    }
+
+
+    /**
      * возвращает строчный идентификатор значения любой переменной в виде строки для дальнейшего сравнения
      * идентификаторы могут быть позже использованы другими обьектами
      * поэтому его актуальность до тех пор, пока конкретный обьект существует
@@ -327,7 +442,6 @@ class Php
         } )->call($object);
     }
 
-
     /**
      * @param object $object
      *
@@ -346,118 +460,6 @@ class Php
     public function objVarsPublic(object $object) : array
     {
         return get_object_vars($object);
-    }
-
-
-    /**
-     * Превращает примитивы и массивы любой вложенности в одноуровневый список
-     *
-     * @param mixed ...$items
-     *
-     * @return array
-     */
-    public function listval(...$items) : array
-    {
-        $result = [];
-
-        array_walk_recursive($items, function ($item) use (&$result) {
-            if (is_iterable($item)) {
-                foreach ( $item as $val ) {
-                    $result[] = $val;
-                }
-            } else {
-                $result[] = $item;
-            }
-        });
-
-        return $result;
-    }
-
-    /**
-     * Превращает каждый аргумент из примитивов и массивов любой вложенности в список списков
-     *
-     * @param mixed ...$lists
-     *
-     * @return array
-     */
-    public function listvals(...$lists) : array
-    {
-        $result = [];
-
-        foreach ( $lists as $idx => $list ) {
-            $result[ $idx ] = $this->listval($list);
-        }
-
-        return $result;
-    }
-
-
-    /**
-     * Превращает enum-список любой вложенности (значения могут быть в ключах или в полях) в список уникальных значений
-     *
-     * @param mixed ...$items
-     *
-     * @return array
-     */
-    public function enumval(...$items) : array
-    {
-        $result = [];
-
-        array_walk_recursive($items, function ($item, $key) use (&$result) {
-            $map = [];
-
-            if (is_iterable($item)) {
-                foreach ( $item as $itemKey => $itemVal ) {
-                    $map[ $itemKey ] = $itemVal;
-                }
-            } else {
-                $map[ $key ] = $item;
-            }
-
-            foreach ( $map as $valOrKey => $valOrBool ) {
-                $isIgnore = null === $valOrBool
-                    || false === $valOrBool
-                    || '' === $valOrBool;
-
-                if ($isIgnore) {
-                    continue;
-                }
-
-                $value = null
-                    ?? ( true === $valOrBool ? $valOrKey : null )
-                    ?? $this->filter->filterWord($valOrKey)
-                    ?? $this->filter->filterWordOrNum($valOrBool)
-                    ?? $this->filter->filterInt($valOrKey);
-
-                if (null === $value) {
-                    continue;
-                }
-
-                $result[ $this->hash($value) ] = $value;
-            }
-        });
-
-        $result = array_values($result);
-
-        return $result;
-    }
-
-    /**
-     * Превращает каждый аргумент с помощью enumval
-     *
-     * @param mixed ...$enums
-     *
-     * @return array
-     */
-    public function enumvals(...$enums) : array
-    {
-        $result = [];
-
-        foreach ( $enums as $idx => $map ) {
-            $result[ $idx ] = $this->enumval($map);
-        }
-
-        return $result;
     }
 
 
@@ -491,12 +493,32 @@ class Php
      *
      * @return array
      */
-    public function kwargsDistinct(...$arguments) : array
+    public function kwargsFlatten(...$arguments) : array
     {
         $kwargs = [];
         $args = [];
 
-        foreach ( $arguments as $argument ) {
+        array_walk_recursive($arguments, function ($val, $key) use (&$kwargs, &$args) {
+            is_int($key)
+                ? ( $args[] = $val )
+                : ( $kwargs[ $key ] = $val );
+        });
+
+        return [ $kwargs, $args ];
+    }
+
+
+    /**
+     * @param mixed ...$arguments
+     *
+     * @return array
+     */
+    public function kwparams(...$arguments) : array
+    {
+        $kwargs = [];
+        $args = [];
+
+        foreach ( $arguments as $idx => $argument ) {
             if (is_array($argument)) {
                 foreach ( $argument as $key => $val ) {
                     is_int($key)
@@ -504,7 +526,7 @@ class Php
                         : ( $kwargs[ $key ] = $val );
                 }
             } else {
-                $args[] = $argument;
+                $args[ $idx ] = $argument;
             }
         }
 
@@ -516,7 +538,7 @@ class Php
      *
      * @return array
      */
-    public function theKwargs(...$arguments) : array
+    public function theKwparams(...$arguments) : array
     {
         $kwargs = [];
         $args = [];
@@ -554,26 +576,7 @@ class Php
      *
      * @return array
      */
-    public function kwargsFlatten(...$arguments) : array
-    {
-        $kwargs = [];
-        $args = [];
-
-        array_walk_recursive($arguments, function ($val, $key) use (&$kwargs, &$args) {
-            is_int($key)
-                ? ( $args[] = $val )
-                : ( $kwargs[ $key ] = $val );
-        });
-
-        return [ $kwargs, $args ];
-    }
-
-    /**
-     * @param mixed ...$arguments
-     *
-     * @return array
-     */
-    public function kwargsFlattenDistinct(...$arguments) : array
+    public function kwparamsFlatten(...$arguments) : array
     {
         $kwargs = [];
         $args = [];
@@ -592,7 +595,7 @@ class Php
      *
      * @return array
      */
-    public function theKwargsFlatten(...$arguments) : array
+    public function theKwparamsFlatten(...$arguments) : array
     {
         $kwargs = [];
         $args = [];
@@ -618,30 +621,6 @@ class Php
         return [ $kwargs, $args ];
     }
 
-
-    /**
-     * Превращает примитивы и массивы любой вложенности в одноуровневый список
-     *
-     * @param mixed ...$items
-     *
-     * @return array
-     */
-    public function collect(...$items) : array
-    {
-        $result = [];
-
-        foreach ( $items as $idx => $item ) {
-            if (is_iterable($item)) {
-                foreach ( $item as $val ) {
-                    $result[ $idx ][] = $val;
-                }
-            } else {
-                $result[ $idx ][] = $item;
-            }
-        }
-
-        return $result;
-    }
 
     /**
      * @param mixed ...$values

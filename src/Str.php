@@ -99,6 +99,286 @@ class Str
 
 
     /**
+     * @param mixed $value
+     *
+     * @return null|string
+     */
+    public function strval($value) : ?string
+    {
+        if (null === $this->filter->filterStrval($value)) {
+            return null;
+        }
+
+        $result = strval($value);
+
+        return $result;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|string
+     */
+    public function wordval($value) : ?string
+    {
+        if (null === $this->filter->filterWordval($value)) {
+            return null;
+        }
+
+        $result = strval($value);
+
+        return $result;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|string
+     */
+    public function trimval($value) : ?string
+    {
+        if (null === $this->filter->filterTrimval($value)) {
+            return null;
+        }
+
+        $result = trim($value);
+
+        return $result;
+    }
+
+
+    /**
+     * @param mixed $value
+     *
+     * @return string
+     */
+    public function theStrval($value) : string
+    {
+        if (null === ( $strval = $this->strval($value) )) {
+            throw new InvalidArgumentException(
+                [ 'Value should be convertable to strval: %s', $value ],
+            );
+        }
+
+        return $strval;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return string
+     */
+    public function theWordval($value) : string
+    {
+        if (null === ( $wordval = $this->wordval($value) )) {
+            throw new InvalidArgumentException(
+                [ 'Value should be convertable to wordval: %s', $value ],
+            );
+        }
+
+        return $wordval;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return string
+     */
+    public function theTrimval($value) : string
+    {
+        if (null === ( $trimval = $this->trimval($value) )) {
+            throw new InvalidArgumentException(
+                [ 'Value should be convertable to trimval: %s', $value ],
+            );
+        }
+
+        return $trimval;
+    }
+
+
+    /**
+     * @param string|array $strings
+     * @param null|bool    $uniq
+     *
+     * @return string[]
+     */
+    public function strvals($strings, $uniq = null) : array
+    {
+        $result = [];
+
+        $strings = is_array($strings)
+            ? $strings
+            : [ $strings ];
+
+        array_walk_recursive($strings, function ($string) use (&$result) {
+            if (null !== ( $strval = $this->strval($string) )) {
+                $result[] = $strval;
+            }
+        });
+
+        if ($uniq ?? false) {
+            $arr = [];
+            foreach ( $result as $i ) {
+                $arr[ $i ] = true;
+            }
+            $result = array_keys($arr);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string|array $words
+     * @param null|bool    $uniq
+     *
+     * @return string[]
+     */
+    public function wordvals($words, $uniq = null) : array
+    {
+        $result = [];
+
+        $words = is_array($words)
+            ? $words
+            : [ $words ];
+
+        array_walk_recursive($words, function ($word) use (&$result) {
+            if (null !== ( $wordval = $this->wordval($word) )) {
+                $result[] = $wordval;
+            }
+        });
+
+        if ($uniq ?? false) {
+            $arr = [];
+            foreach ( $result as $i ) {
+                $arr[ $i ] = true;
+            }
+            $result = array_keys($arr);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string|array $trims
+     * @param null|bool    $uniq
+     *
+     * @return string[]
+     */
+    public function trimvals($trims, $uniq = null) : array
+    {
+        $result = [];
+
+        $trims = is_array($trims)
+            ? $trims
+            : [ $trims ];
+
+        array_walk_recursive($trims, function ($trim) use (&$result) {
+            if (null !== ( $trimval = $this->trimval($trim) )) {
+                $result[] = $trimval;
+            }
+        });
+
+        if ($uniq ?? false) {
+            $arr = [];
+            foreach ( $result as $i ) {
+                $arr[ $i ] = true;
+            }
+            $result = array_keys($arr);
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * @param string|array $strings
+     * @param null|bool    $uniq
+     *
+     * @return string[]
+     */
+    public function theStrvals($strings, $uniq = null) : array
+    {
+        $result = [];
+
+        $strings = is_array($strings)
+            ? $strings
+            : [ $strings ];
+
+        array_walk_recursive($strings, function ($string) use (&$result) {
+            $result[] = $this->theStrval($string);
+        });
+
+        if ($uniq ?? false) {
+            $arr = [];
+            foreach ( $result as $i ) {
+                $arr[ $i ] = true;
+            }
+            $result = array_keys($arr);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string|array $words
+     * @param null|bool    $uniq
+     *
+     * @return string[]
+     */
+    public function theWordvals($words, $uniq = null) : array
+    {
+        $result = [];
+
+        $words = is_array($words)
+            ? $words
+            : [ $words ];
+
+        array_walk_recursive($words, function ($word) use (&$result) {
+            $result[] = $this->theWordval($word);
+        });
+
+        if ($uniq ?? false) {
+            $arr = [];
+            foreach ( $result as $i ) {
+                $arr[ $i ] = true;
+            }
+            $result = array_keys($arr);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string|array $trims
+     * @param null|bool    $uniq
+     *
+     * @return string[]
+     */
+    public function theTrimvals($trims, $uniq = null) : array
+    {
+        $result = [];
+
+        $trims = is_array($trims)
+            ? $trims
+            : [ $trims ];
+
+        array_walk_recursive($trims, function ($trim) use (&$result) {
+            $result[] = $this->theTrimval($trim);
+        });
+
+        if ($uniq ?? false) {
+            $arr = [];
+            foreach ( $result as $i ) {
+                $arr[ $i ] = true;
+            }
+            $result = array_keys($arr);
+        }
+
+        return $result;
+    }
+
+
+    /**
      * @param null|SluggerInterface $slugger
      *
      * @return SluggerInterface
@@ -1166,13 +1446,17 @@ class Str
     {
         $separator = $separator ?? '';
 
-        $implode = implode($separator, $this->wordvals($strings));
+        if (! $strings = $this->wordvals($strings)) {
+            return '';
+        }
+
+        $implode = implode(static::REPLACER, $strings);
 
         $result = $this->caseSwitch(static::CASE_UPPER,
             $implode, $separator, $delimiters
         );
 
-        $result = mb_convert_case($implode[ 0 ], MB_CASE_LOWER) . mb_substr($result, 1);
+        $result = mb_convert_case($result[ 0 ], MB_CASE_LOWER) . mb_substr($result, 1);
 
         return $result;
     }
@@ -1188,8 +1472,14 @@ class Str
      */
     public function pascal($strings, string $separator = null, string $delimiters = null) : string
     {
+        if (! $strings = $this->wordvals($strings)) {
+            return '';
+        }
+
+        $implode = implode(static::REPLACER, $strings);
+
         $result = $this->caseSwitch(static::CASE_UPPER,
-            $strings, $separator, $delimiters
+            $implode, $separator, $delimiters
         );
 
         return $result;
@@ -1208,8 +1498,14 @@ class Str
     {
         $separator = $separator ?? '_';
 
+        if (! $strings = $this->wordvals($strings)) {
+            return '';
+        }
+
+        $implode = implode(static::REPLACER, $strings);
+
         $result = $this->caseSwitch(static::CASE_LOWER,
-            $strings, $separator, $delimiters
+            $implode, $separator, $delimiters
         );
 
         return $result;
@@ -1261,295 +1557,15 @@ class Str
 
 
     /**
-     * @param mixed $value
-     *
-     * @return null|string
-     */
-    public function strval($value) : ?string
-    {
-        if (null === $this->filter->filterStrval($value)) {
-            return null;
-        }
-
-        $result = strval($value);
-
-        return $result;
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|string
-     */
-    public function wordval($value) : ?string
-    {
-        if (null === $this->filter->filterWordval($value)) {
-            return null;
-        }
-
-        $result = strval($value);
-
-        return $result;
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|string
-     */
-    public function trimval($value) : ?string
-    {
-        if (null === $this->filter->filterTrimval($value)) {
-            return null;
-        }
-
-        $result = trim($value);
-
-        return $result;
-    }
-
-
-    /**
-     * @param mixed $value
-     *
-     * @return string
-     */
-    public function theStrval($value) : string
-    {
-        if (null === ( $strval = $this->strval($value) )) {
-            throw new InvalidArgumentException(
-                [ 'Value should be convertable to strval: %s', $value ],
-            );
-        }
-
-        return $strval;
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return string
-     */
-    public function theWordval($value) : string
-    {
-        if (null === ( $wordval = $this->wordval($value) )) {
-            throw new InvalidArgumentException(
-                [ 'Value should be convertable to wordval: %s', $value ],
-            );
-        }
-
-        return $wordval;
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return string
-     */
-    public function theTrimval($value) : string
-    {
-        if (null === ( $trimval = $this->trimval($value) )) {
-            throw new InvalidArgumentException(
-                [ 'Value should be convertable to trimval: %s', $value ],
-            );
-        }
-
-        return $trimval;
-    }
-
-
-    /**
-     * @param string|array $strings
-     * @param null|bool    $uniq
-     *
-     * @return string[]
-     */
-    public function strvals($strings, $uniq = null) : array
-    {
-        $result = [];
-
-        $strings = is_array($strings)
-            ? $strings
-            : [ $strings ];
-
-        array_walk_recursive($strings, function ($string) use (&$result) {
-            if (null !== ( $strval = $this->strval($string) )) {
-                $result[] = $strval;
-            }
-        });
-
-        if ($uniq ?? false) {
-            $arr = [];
-            foreach ( $result as $i ) {
-                $arr[ $i ] = true;
-            }
-            $result = array_keys($arr);
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param string|array $words
-     * @param null|bool    $uniq
-     *
-     * @return string[]
-     */
-    public function wordvals($words, $uniq = null) : array
-    {
-        $result = [];
-
-        $words = is_array($words)
-            ? $words
-            : [ $words ];
-
-        array_walk_recursive($words, function ($word) use (&$result) {
-            if (null !== ( $wordval = $this->wordval($word) )) {
-                $result[] = $wordval;
-            }
-        });
-
-        if ($uniq ?? false) {
-            $arr = [];
-            foreach ( $result as $i ) {
-                $arr[ $i ] = true;
-            }
-            $result = array_keys($arr);
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param string|array $trims
-     * @param null|bool    $uniq
-     *
-     * @return string[]
-     */
-    public function trimvals($trims, $uniq = null) : array
-    {
-        $result = [];
-
-        $trims = is_array($trims)
-            ? $trims
-            : [ $trims ];
-
-        array_walk_recursive($trims, function ($trim) use (&$result) {
-            if (null !== ( $trimval = $this->trimval($trim) )) {
-                $result[] = $trimval;
-            }
-        });
-
-        if ($uniq ?? false) {
-            $arr = [];
-            foreach ( $result as $i ) {
-                $arr[ $i ] = true;
-            }
-            $result = array_keys($arr);
-        }
-
-        return $result;
-    }
-
-
-    /**
-     * @param string|array $strings
-     * @param null|bool    $uniq
-     *
-     * @return string[]
-     */
-    public function theStrvals($strings, $uniq = null) : array
-    {
-        $result = [];
-
-        $strings = is_array($strings)
-            ? $strings
-            : [ $strings ];
-
-        array_walk_recursive($strings, function ($string) use (&$result) {
-            $result[] = $this->theStrval($string);
-        });
-
-        if ($uniq ?? false) {
-            $arr = [];
-            foreach ( $result as $i ) {
-                $arr[ $i ] = true;
-            }
-            $result = array_keys($arr);
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param string|array $words
-     * @param null|bool    $uniq
-     *
-     * @return string[]
-     */
-    public function theWordvals($words, $uniq = null) : array
-    {
-        $result = [];
-
-        $words = is_array($words)
-            ? $words
-            : [ $words ];
-
-        array_walk_recursive($words, function ($word) use (&$result) {
-            $result[] = $this->theWordval($word);
-        });
-
-        if ($uniq ?? false) {
-            $arr = [];
-            foreach ( $result as $i ) {
-                $arr[ $i ] = true;
-            }
-            $result = array_keys($arr);
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param string|array $trims
-     * @param null|bool    $uniq
-     *
-     * @return string[]
-     */
-    public function theTrimvals($trims, $uniq = null) : array
-    {
-        $result = [];
-
-        $trims = is_array($trims)
-            ? $trims
-            : [ $trims ];
-
-        array_walk_recursive($trims, function ($trim) use (&$result) {
-            $result[] = $this->theTrimval($trim);
-        });
-
-        if ($uniq ?? false) {
-            $arr = [];
-            foreach ( $result as $i ) {
-                $arr[ $i ] = true;
-            }
-            $result = array_keys($arr);
-        }
-
-        return $result;
-    }
-
-
-    /**
-     * @param string|int   $case
-     * @param string|array $strings
-     * @param null|string  $separator
-     * @param null|string  $delimiters
+     * @param string|int  $case
+     * @param string      $string
+     * @param null|string $separator
+     * @param null|string $delimiters
      *
      * @return string
      */
     protected function caseSwitch(string $case,
-        $strings, string $separator = null, string $delimiters = null
+        string $string, string $separator = null, string $delimiters = null
     ) : string
     {
         $case = $case ?? static::CASE_LOWER;
@@ -1562,11 +1578,8 @@ class Str
             );
         }
 
-        $implode = implode($separator, $this->wordvals($strings));
-
-        $result = trim($implode);
-        if ('' === $result) {
-            return $result;
+        if ('' === ( $result = trim($string) )) {
+            return '';
         }
 
         $result = preg_replace('/\s+/', static::REPLACER, $result);

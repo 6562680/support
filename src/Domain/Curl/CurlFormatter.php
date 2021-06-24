@@ -162,7 +162,7 @@ class CurlFormatter
         $result = [];
         $resultHeaders = [];
 
-        [ $kwargs, $args ] = $this->php->kwargsDistinct(...$curlOptArrays);
+        [ $kwargs, $args ] = $this->php->kwparams(...$curlOptArrays);
 
         foreach ( $kwargs as $opt => $val ) {
             if (null === ( $optCode = $this->detectOptCode($opt) )) {

@@ -36,6 +36,132 @@ abstract class GeneratedStrFacade
     }
 
     /**
+     * @param mixed $value
+     *
+     * @return null|string
+     */
+    public static function strval($value): ?string
+    {
+        return static::getInstance()->strval($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|string
+     */
+    public static function wordval($value): ?string
+    {
+        return static::getInstance()->wordval($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|string
+     */
+    public static function trimval($value): ?string
+    {
+        return static::getInstance()->trimval($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return string
+     */
+    public static function theStrval($value): string
+    {
+        return static::getInstance()->theStrval($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return string
+     */
+    public static function theWordval($value): string
+    {
+        return static::getInstance()->theWordval($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return string
+     */
+    public static function theTrimval($value): string
+    {
+        return static::getInstance()->theTrimval($value);
+    }
+
+    /**
+     * @param string|array $strings
+     * @param null|bool    $uniq
+     *
+     * @return string[]
+     */
+    public static function strvals($strings, $uniq = null): array
+    {
+        return static::getInstance()->strvals($strings, $uniq);
+    }
+
+    /**
+     * @param string|array $words
+     * @param null|bool    $uniq
+     *
+     * @return string[]
+     */
+    public static function wordvals($words, $uniq = null): array
+    {
+        return static::getInstance()->wordvals($words, $uniq);
+    }
+
+    /**
+     * @param string|array $trims
+     * @param null|bool    $uniq
+     *
+     * @return string[]
+     */
+    public static function trimvals($trims, $uniq = null): array
+    {
+        return static::getInstance()->trimvals($trims, $uniq);
+    }
+
+    /**
+     * @param string|array $strings
+     * @param null|bool    $uniq
+     *
+     * @return string[]
+     */
+    public static function theStrvals($strings, $uniq = null): array
+    {
+        return static::getInstance()->theStrvals($strings, $uniq);
+    }
+
+    /**
+     * @param string|array $words
+     * @param null|bool    $uniq
+     *
+     * @return string[]
+     */
+    public static function theWordvals($words, $uniq = null): array
+    {
+        return static::getInstance()->theWordvals($words, $uniq);
+    }
+
+    /**
+     * @param string|array $trims
+     * @param null|bool    $uniq
+     *
+     * @return string[]
+     */
+    public static function theTrimvals($trims, $uniq = null): array
+    {
+        return static::getInstance()->theTrimvals($trims, $uniq);
+    }
+
+    /**
      * @param null|SluggerInterface $slugger
      *
      * @return SluggerInterface
@@ -579,132 +705,6 @@ abstract class GeneratedStrFacade
     public static function singularize(string $plural, $limit = null, $offset = 0)
     {
         return static::getInstance()->singularize($plural, $limit, $offset);
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|string
-     */
-    public static function strval($value): ?string
-    {
-        return static::getInstance()->strval($value);
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|string
-     */
-    public static function wordval($value): ?string
-    {
-        return static::getInstance()->wordval($value);
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|string
-     */
-    public static function trimval($value): ?string
-    {
-        return static::getInstance()->trimval($value);
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return string
-     */
-    public static function theStrval($value): string
-    {
-        return static::getInstance()->theStrval($value);
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return string
-     */
-    public static function theWordval($value): string
-    {
-        return static::getInstance()->theWordval($value);
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return string
-     */
-    public static function theTrimval($value): string
-    {
-        return static::getInstance()->theTrimval($value);
-    }
-
-    /**
-     * @param string|array $strings
-     * @param null|bool    $uniq
-     *
-     * @return string[]
-     */
-    public static function strvals($strings, $uniq = null): array
-    {
-        return static::getInstance()->strvals($strings, $uniq);
-    }
-
-    /**
-     * @param string|array $words
-     * @param null|bool    $uniq
-     *
-     * @return string[]
-     */
-    public static function wordvals($words, $uniq = null): array
-    {
-        return static::getInstance()->wordvals($words, $uniq);
-    }
-
-    /**
-     * @param string|array $trims
-     * @param null|bool    $uniq
-     *
-     * @return string[]
-     */
-    public static function trimvals($trims, $uniq = null): array
-    {
-        return static::getInstance()->trimvals($trims, $uniq);
-    }
-
-    /**
-     * @param string|array $strings
-     * @param null|bool    $uniq
-     *
-     * @return string[]
-     */
-    public static function theStrvals($strings, $uniq = null): array
-    {
-        return static::getInstance()->theStrvals($strings, $uniq);
-    }
-
-    /**
-     * @param string|array $words
-     * @param null|bool    $uniq
-     *
-     * @return string[]
-     */
-    public static function theWordvals($words, $uniq = null): array
-    {
-        return static::getInstance()->theWordvals($words, $uniq);
-    }
-
-    /**
-     * @param string|array $trims
-     * @param null|bool    $uniq
-     *
-     * @return string[]
-     */
-    public static function theTrimvals($trims, $uniq = null): array
-    {
-        return static::getInstance()->theTrimvals($trims, $uniq);
     }
 
     /**
