@@ -19,6 +19,10 @@ trait ExceptionTrait
      * @var string
      */
     protected $text;
+    /**
+     * @var array
+     */
+    protected $placeholders;
 
     /**
      * @var mixed
@@ -43,6 +47,41 @@ trait ExceptionTrait
      */
     protected $reportTrace;
 
+    /**
+     * @return array
+     */
+    protected function loadReportTrace() : array
+    {
+        $debug = $this->newDebug();
+
+        $trace = [];
+
+        $index = [];
+        foreach ( $this->getTrace() as $idx => $step ) {
+            $key = implode(':', [
+                $step[ 'file' ] ?? '<file>',
+                $step[ 'line' ] ?? '<line>',
+            ]);
+
+            $index[ $key ] = $index[ $key ] ?? 0;
+
+            $key = isset($trace[ $key ])
+                ? $key . ':' . $index[ $key ]++
+                : $key;
+
+            $trace[ $key ] = $debug->traceReport($step);
+        }
+
+        return $trace;
+    }
+
+    /**
+     * @return Debug
+     */
+    protected function newDebug() : Debug
+    {
+        return new Debug();
+    }
 
     /**
      * @param mixed ...$arguments
@@ -75,45 +114,6 @@ trait ExceptionTrait
 
         return $result;
     }
-
-
-    /**
-     * @return array
-     */
-    protected function loadReportTrace() : array
-    {
-        $debug = $this->newDebug();
-
-        $trace = [];
-
-        $index = [];
-        foreach ( $this->getTrace() as $idx => $step ) {
-            $key = implode(':', [
-                $step[ 'file' ] ?? '<file>',
-                $step[ 'line' ] ?? '<line>',
-            ]);
-
-            $index[ $key ] = $index[ $key ] ?? 0;
-
-            $key = isset($trace[ $key ])
-                ? $key . ':' . $index[ $key ]++
-                : $key;
-
-            $trace[ $key ] = $debug->traceReport($step);
-        }
-
-        return $trace;
-    }
-
-
-    /**
-     * @return Debug
-     */
-    protected function newDebug() : Debug
-    {
-        return new Debug();
-    }
-
 
     /**
      * @return string
@@ -195,6 +195,7 @@ trait ExceptionTrait
     {
         [
             $message,
+            $placeholders,
             $original,
         ] = $this->parseMessage($message);
 
@@ -205,6 +206,8 @@ trait ExceptionTrait
         ] = $this->parseArguments(...$arguments);
 
         $this->text = $original;
+        $this->placeholders = $placeholders;
+
         $this->payload = $payload;
         $this->arguments = $arguments;
 
@@ -223,11 +226,11 @@ trait ExceptionTrait
     {
         $debug = $this->newDebug();
 
-        $placeholders = is_array($message)
+        $arguments = is_array($message)
             ? $message
             : [ $message ];
 
-        $original = strval(array_shift($placeholders));
+        $original = strval(array_shift($arguments));
 
         if ('' === $original) {
             throw new \InvalidArgumentException(
@@ -237,22 +240,22 @@ trait ExceptionTrait
 
         $text = $original;
 
-        if ($placeholders) {
-            $placeholders = $debug->args($placeholders);
+        if ($arguments) {
+            $arguments = array_slice($arguments, 0, substr_count(
+                str_replace('%%', "\0", $original),
+                '%'
+            ));
+
+            $placeholders = $debug->args($arguments);
 
             foreach ( array_keys($placeholders) as $idx ) {
                 $placeholders[ $idx ] = $debug->printR($placeholders[ $idx ], 1);
             }
 
-            $text = vsprintf($original,
-                array_slice($placeholders, 0, substr_count(
-                    str_replace('%%', "\0", $original),
-                    '%'
-                ))
-            );
+            $text = vsprintf($original, $placeholders);
         }
 
-        return [ $text, $original ];
+        return [ $text, $arguments, $original ];
     }
 
     /**
