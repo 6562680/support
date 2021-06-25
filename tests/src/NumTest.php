@@ -38,7 +38,7 @@ class NumTest extends AbstractTestCase
         $this->assertEquals([], $num->theIntvals([ [ [] ] ]));
     }
 
-    public function testTheIntvalsBad()
+    public function testBadTheIntvals()
     {
         $num = $this->getNum();
 
@@ -121,7 +121,7 @@ class NumTest extends AbstractTestCase
         $this->assertEquals([], $num->theFloatvals([ [ [] ] ]));
     }
 
-    public function testTheFloatvalsBad()
+    public function testBadTheFloatvals()
     {
         $num = $this->getNum();
 
@@ -204,7 +204,7 @@ class NumTest extends AbstractTestCase
         $this->assertEquals([], $num->theNumericvals([ [ [] ] ]));
     }
 
-    public function testTheNumvalsBad()
+    public function testBadTheNumvals()
     {
         $num = $this->getNum();
 

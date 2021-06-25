@@ -241,7 +241,7 @@ class ExceptionTest extends AbstractTestCase
         $this->assertEquals($parent, $e->getPrevious());
     }
 
-    public function testExceptionPipelineBad()
+    public function testBadExceptionPipeline()
     {
         $this->assertException(\InvalidArgumentException::class, function () {
             $previous = new Exception('Parent');

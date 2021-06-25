@@ -1036,36 +1036,55 @@ class Str
 
 
     /**
+     * рекурсивно разрывает строку в многоуровневый массив вне зависимости от того найдено совпадение или нет (explode recursive)
+     *
      * @param string|array $delimiters
-     * @param string|array ...$strings
+     * @param string|array $strings
+     * @param null|bool    $ignoreCase
+     * @param int|null     $limit
      *
      * @return array
      */
-    public function explode($delimiters, ...$strings) : array
+    public function segregate($delimiters, $strings, bool $ignoreCase = null, int $limit = null) : array
     {
         $delimiters = $this->theStrvals($delimiters, true);
 
-        $key = key($delimiters);
-        do {
-            $delimiter = ( null !== $key )
-                ? array_shift($delimiters)
-                : null;
+        $strings = ( $isArray = is_array($strings) )
+            ? $strings
+            : [ $strings ];
 
-            array_walk_recursive($strings, function (&$ref) use ($delimiter) {
-                if (null === $this->filter->filterStrval($ref)) {
-                    throw new InvalidArgumentException(
-                        [ 'Each value should be stringable: %s', $ref ],
-                    );
-                }
-
-                if ($split = $this->contains($ref, $delimiter, null, false)) {
+        foreach ( $delimiters as $delimiter ) {
+            array_walk_recursive($strings, function (string &$ref) use ($delimiter, $ignoreCase, $limit) {
+                if ($split = $this->contains($ref, $delimiter, $ignoreCase, $limit)) {
                     $ref = $split;
+
+                } else {
+                    $ref = [ $ref ];
                 }
             });
-        } while ( null !== ( $key = key($delimiters) ) );
+        }
+
+        $result = $isArray
+            ? $strings
+            : reset($strings);
+
+        return $result;
+    }
+
+    /**
+     * @param string|array $delimiters
+     * @param string|array $strings
+     * @param null|bool    $ignoreCase
+     * @param null|int     $limit
+     *
+     * @return array
+     */
+    public function explode($delimiters, $strings, bool $ignoreCase = null, int $limit = null) : array
+    {
+        $segragated = $this->segregate($delimiters, $strings, $ignoreCase, $limit);
 
         $result = [];
-        array_walk_recursive($strings, function ($v) use (&$result) {
+        array_walk_recursive($segragated, function ($v) use (&$result) {
             $result[] = $v;
         });
 
@@ -1074,36 +1093,36 @@ class Str
 
 
     /**
-     * рекурсивно разрывает строку в многоуровневый массив
+     * разбирает значение заголовка во вложенный массив, если разделители найдены в каждой подстроке
      *
      * @param string|array $delimiters
-     * @param string       $string
+     * @param string       $strings
+     * @param null|bool    $ignoreCase
      * @param int|null     $limit
      *
-     * @return array
+     * @return string|array
      */
-    public function separate($delimiters, string $string, int $limit = null) : array
+    public function partition($delimiters, $strings, bool $ignoreCase = null, int $limit = null) // : string|array
     {
-        $results = [];
-        $results[] = $string;
-
         $delimiters = $this->theStrvals($delimiters, true);
 
+        $strings = ( $isArray = is_array($strings) )
+            ? $strings
+            : [ $strings ];
+
         foreach ( $delimiters as $delimiter ) {
-            array_walk_recursive($results, function (string &$ref) use ($delimiter, $limit) {
-                if ('' === $delimiter) {
-                    $ref = [ $ref ];
-
-                } elseif ($split = $this->contains($ref, $delimiter, $limit, false)) {
-                    $ref = $split;
-
+            array_walk_recursive($strings, function (string &$ref) use ($delimiter, $limit) {
+                if ('' !== $delimiter) {
+                    if ($split = $this->contains($ref, $delimiter, $limit, false)) {
+                        $ref = $split;
+                    }
                 }
             });
         }
 
-        $result = null !== key($results)
-            ? reset($results)
-            : [];
+        $result = $isArray
+            ? $strings
+            : reset($strings);
 
         return $result;
     }

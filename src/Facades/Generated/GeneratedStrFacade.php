@@ -466,28 +466,46 @@ abstract class GeneratedStrFacade
     }
 
     /**
-     * @param string|array $delimiters
-     * @param string|array ...$strings
-     *
-     * @return array
-     */
-    public static function explode($delimiters, ...$strings): array
-    {
-        return static::getInstance()->explode($delimiters, ...$strings);
-    }
-
-    /**
-     * рекурсивно разрывает строку в многоуровневый массив
+     * рекурсивно разрывает строку в многоуровневый массив вне зависимости от того найдено совпадение или нет (explode recursive)
      *
      * @param string|array $delimiters
-     * @param string       $string
+     * @param string|array $strings
+     * @param null|bool    $ignoreCase
      * @param int|null     $limit
      *
      * @return array
      */
-    public static function separate($delimiters, string $string, int $limit = null): array
+    public static function segregate($delimiters, $strings, bool $ignoreCase = null, int $limit = null): array
     {
-        return static::getInstance()->separate($delimiters, $string, $limit);
+        return static::getInstance()->segregate($delimiters, $strings, $ignoreCase, $limit);
+    }
+
+    /**
+     * @param string|array $delimiters
+     * @param string|array $strings
+     * @param null|bool    $ignoreCase
+     * @param null|int     $limit
+     *
+     * @return array
+     */
+    public static function explode($delimiters, $strings, bool $ignoreCase = null, int $limit = null): array
+    {
+        return static::getInstance()->explode($delimiters, $strings, $ignoreCase, $limit);
+    }
+
+    /**
+     * разбирает значение заголовка во вложенный массив, если разделители найдены в каждой подстроке
+     *
+     * @param string|array $delimiters
+     * @param string       $strings
+     * @param null|bool    $ignoreCase
+     * @param int|null     $limit
+     *
+     * @return string|array
+     */
+    public static function partition($delimiters, $strings, bool $ignoreCase = null, int $limit = null)
+    {
+        return static::getInstance()->partition($delimiters, $strings, $ignoreCase, $limit);
     }
 
     /**

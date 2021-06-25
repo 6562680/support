@@ -63,7 +63,7 @@ class ArrTest extends AbstractTestCase
         $this->assertEquals(1, $arr->get([ 'foo', 'foo', '0' ], $array));
     }
 
-    public function testGetBad()
+    public function testBadGet()
     {
         $arr = $this->getArr();
 
@@ -154,7 +154,7 @@ class ArrTest extends AbstractTestCase
         $this->assertEquals(1, $arr->getRef([ 'foo', 'foo', '0' ], $array));
     }
 
-    public function testGetRefBad()
+    public function testBadGetRef()
     {
         $arr = $this->getArr();
 
@@ -297,7 +297,7 @@ class ArrTest extends AbstractTestCase
         $this->assertEquals([ 'hello' => [ 'world' => [ 'hello' => [ 'world' => 1 ] ] ] ], $dst);
     }
 
-    public function testSetBad()
+    public function testBadSet()
     {
         $arr = $this->getArr();
 
@@ -433,7 +433,7 @@ class ArrTest extends AbstractTestCase
         $this->assertEquals($expect, $arr->del($copy, [ 'foo', 'foo', '0' ]));
     }
 
-    public function testDelBad()
+    public function testBadDel()
     {
         $arr = $this->getArr();
 
@@ -647,7 +647,7 @@ class ArrTest extends AbstractTestCase
         unset($ref);
     }
 
-    public function testPutBad()
+    public function testBadPut()
     {
         $arr = $this->getArr();
 
@@ -787,7 +787,7 @@ class ArrTest extends AbstractTestCase
         );
     }
 
-    public function testPathBad()
+    public function testBadPath()
     {
         $arr = $this->getArr();
 
@@ -824,7 +824,7 @@ class ArrTest extends AbstractTestCase
         );
     }
 
-    public function testPathkeyBad()
+    public function testBadPathkey()
     {
         $arr = $this->getArr();
 
@@ -857,7 +857,7 @@ class ArrTest extends AbstractTestCase
         $this->assertEquals('hello.world.hello.world', $arr->index('.', [ 'hello', 'world', [ 'hello.world' ] ]));
     }
 
-    public function testIndexBad()
+    public function testBadIndex()
     {
         $arr = $this->getArr();
 
