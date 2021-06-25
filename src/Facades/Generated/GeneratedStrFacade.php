@@ -475,9 +475,9 @@ abstract class GeneratedStrFacade
      *
      * @return array
      */
-    public static function segregate($delimiters, $strings, bool $ignoreCase = null, int $limit = null): array
+    public static function separate($delimiters, $strings, bool $ignoreCase = null, int $limit = null): array
     {
-        return static::getInstance()->segregate($delimiters, $strings, $ignoreCase, $limit);
+        return static::getInstance()->separate($delimiters, $strings, $ignoreCase, $limit);
     }
 
     /**

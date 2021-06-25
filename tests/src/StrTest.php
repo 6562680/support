@@ -408,17 +408,17 @@ class StrTest extends AbstractTestCase
     {
         $str = $this->getStr();
 
-        $this->assertEquals([ 'dadbdcd' ], $str->segregate('', 'dadbdcd'));
-        $this->assertEquals([ 'dadbdcd' ], $str->segregate([ '' ], 'dadbdcd'));
+        $this->assertEquals([ 'dadbdcd' ], $str->separate('', 'dadbdcd'));
+        $this->assertEquals([ 'dadbdcd' ], $str->separate([ '' ], 'dadbdcd'));
 
-        $this->assertEquals([ 'dadbdcd' ], $str->segregate('?', 'dadbdcd'));
-        $this->assertEquals([ 'dadbdcd' ], $str->segregate([ '?' ], 'dadbdcd'));
+        $this->assertEquals([ 'dadbdcd' ], $str->separate('?', 'dadbdcd'));
+        $this->assertEquals([ 'dadbdcd' ], $str->separate([ '?' ], 'dadbdcd'));
 
-        $this->assertEquals([ 'd', 'dbdcd' ], $str->segregate('a', 'dadbdcd'));
-        $this->assertEquals([ 'd', 'dbdcd' ], $str->segregate([ 'a' ], 'dadbdcd'));
+        $this->assertEquals([ 'd', 'dbdcd' ], $str->separate('a', 'dadbdcd'));
+        $this->assertEquals([ 'd', 'dbdcd' ], $str->separate([ 'a' ], 'dadbdcd'));
 
-        $this->assertEquals([ [ 'd' ], [ 'd', 'dcd' ] ], $str->segregate([ 'a', 'b' ], 'dadbdcd'));
-        $this->assertEquals([ [ [ 'd' ] ], [ [ 'd' ], [ 'd', 'd' ] ] ], $str->segregate([ 'a', 'b', 'c' ], 'dadbdcd'));
+        $this->assertEquals([ [ 'd' ], [ 'd', 'dcd' ] ], $str->separate([ 'a', 'b' ], 'dadbdcd'));
+        $this->assertEquals([ [ [ 'd' ] ], [ [ 'd' ], [ 'd', 'd' ] ] ], $str->separate([ 'a', 'b', 'c' ], 'dadbdcd'));
     }
 
     public function testBadSeparate()
@@ -426,11 +426,11 @@ class StrTest extends AbstractTestCase
         $str = $this->getStr();
 
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->segregate(null, 'dadbdcd');
+            $str->separate(null, 'dadbdcd');
         });
 
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->segregate([ null ], 'dadbdcd');
+            $str->separate([ null ], 'dadbdcd');
         });
     }
 

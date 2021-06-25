@@ -1045,7 +1045,7 @@ class Str
      *
      * @return array
      */
-    public function segregate($delimiters, $strings, bool $ignoreCase = null, int $limit = null) : array
+    public function separate($delimiters, $strings, bool $ignoreCase = null, int $limit = null) : array
     {
         $delimiters = $this->theStrvals($delimiters, true);
 
@@ -1081,7 +1081,7 @@ class Str
      */
     public function explode($delimiters, $strings, bool $ignoreCase = null, int $limit = null) : array
     {
-        $segragated = $this->segregate($delimiters, $strings, $ignoreCase, $limit);
+        $segragated = $this->separate($delimiters, $strings, $ignoreCase, $limit);
 
         $result = [];
         array_walk_recursive($segragated, function ($v) use (&$result) {
@@ -1111,9 +1111,9 @@ class Str
             : [ $strings ];
 
         foreach ( $delimiters as $delimiter ) {
-            array_walk_recursive($strings, function (string &$ref) use ($delimiter, $limit) {
+            array_walk_recursive($strings, function (string &$ref) use ($delimiter, $ignoreCase, $limit) {
                 if ('' !== $delimiter) {
-                    if ($split = $this->contains($ref, $delimiter, $limit, false)) {
+                    if ($split = $this->contains($ref, $delimiter, $ignoreCase, $limit)) {
                         $ref = $split;
                     }
                 }
