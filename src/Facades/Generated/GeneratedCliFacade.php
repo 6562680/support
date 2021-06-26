@@ -59,13 +59,18 @@ abstract class GeneratedCliFacade
      *
      * @param string      $outputPath
      * @param string      $content
+     * @param null|bool   $backup
      * @param null|string $overwrite
      *
      * @return string
      */
-    public static function writeFile(string $outputPath, string $content, string &$overwrite = null): string
-    {
-        return static::getInstance()->writeFile($outputPath, $content, $overwrite);
+    public static function writeFile(
+        string $outputPath,
+        string $content,
+        bool $backup = null,
+        string &$overwrite = null
+    ): string {
+        return static::getInstance()->writeFile($outputPath, $content, $backup, $overwrite);
     }
 
     /**

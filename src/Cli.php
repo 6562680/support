@@ -146,12 +146,15 @@ class Cli
      *
      * @param string      $outputPath
      * @param string      $content
+     * @param null|bool   $backup
      * @param null|string $overwrite
      *
      * @return string
      */
-    public function writeFile(string $outputPath, string $content, string &$overwrite = null) : string
+    public function writeFile(string $outputPath, string $content, bool $backup = null, string &$overwrite = null) : string
     {
+        $backup = $backup ?? true;
+
         $overwrite = $overwrite ?? 'n';
 
         $willOverwrite = ( 'y' === $overwrite ) || ( 'yy' === $overwrite );
@@ -160,7 +163,7 @@ class Cli
         if (! file_exists($outputPath)) {
             $this->fs->mkdir(dirname($outputPath));
 
-            $result = $this->fs->filePut($outputPath, $content);
+            $this->fs->filePut($outputPath, $content);
 
             echo 'Created file: ' . $outputPath . PHP_EOL;
 
@@ -188,16 +191,19 @@ class Cli
                 echo 'File exists: ' . $this->fs->secure($outputPath) . PHP_EOL;
 
             } else {
-                copy($outputPath, $backupPath = $outputPath . '.backup' . date('Ymd_His'));
+                if ($backup) {
+                    copy($outputPath, $backupPath = $outputPath . '.backup' . date('Ymd_His'));
+
+                    echo 'Backup stored at ' . $this->fs->secure($backupPath) . PHP_EOL;
+                }
 
                 $this->fs->filePut($outputPath, $content);
 
-                echo 'Backup stored at ' . $this->fs->secure($backupPath) . PHP_EOL;
                 echo 'Replaced ' . $this->fs->secure($outputPath) . PHP_EOL;
             }
-
-            $result = realpath($outputPath);
         }
+
+        $result = realpath($outputPath);
 
         return $result;
     }
