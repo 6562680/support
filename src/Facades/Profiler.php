@@ -25,28 +25,10 @@ class Profiler extends GeneratedProfilerFacade
 
 
     /**
-     * @param _Profiler $instance
-     *
-     * @return void
-     */
-    public static function withInstance(_Profiler $instance) : void
-    {
-        static::$instance[ static::class ] = $instance;
-    }
-
-    /**
      * @return _Profiler
      */
     public static function getInstance() : _Profiler
     {
-        return static::$instance[ static::class ] = null
-            ?? static::$instance[ static::class ]
-            ?? ( new SupportFactory() )->newProfiler();
+        return SupportFactory::getInstance()->getProfiler();
     }
-
-
-    /**
-     * @var _Profiler[]
-     */
-    protected static $instance = [];
 }

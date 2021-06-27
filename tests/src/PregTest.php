@@ -11,7 +11,7 @@ class PregTest extends AbstractTestCase
 {
     protected function getPreg() : Preg
     {
-        return ( new SupportFactory() )->newPreg();
+        return SupportFactory::getInstance()->newPreg();
     }
 
 

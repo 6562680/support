@@ -25,28 +25,10 @@ class Calendar extends GeneratedCalendarFacade
 
 
     /**
-     * @param _Calendar $instance
-     *
-     * @return void
-     */
-    public static function withInstance(_Calendar $instance) : void
-    {
-        static::$instance[ static::class ] = $instance;
-    }
-
-    /**
      * @return _Calendar
      */
     public static function getInstance() : _Calendar
     {
-        return static::$instance[ static::class ] = null
-            ?? static::$instance[ static::class ]
-            ?? ( new SupportFactory() )->newCalendar();
+        return SupportFactory::getInstance()->getCalendar();
     }
-
-
-    /**
-     * @var _Calendar[]
-     */
-    protected static $instance = [];
 }

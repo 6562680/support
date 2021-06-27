@@ -25,28 +25,10 @@ class Curl extends GeneratedCurlFacade
 
 
     /**
-     * @param _Curl $instance
-     *
-     * @return void
-     */
-    public static function withInstance(_Curl $instance) : void
-    {
-        static::$instance[ static::class ] = $instance;
-    }
-
-    /**
      * @return _Curl
      */
     public static function getInstance() : _Curl
     {
-        return static::$instance[ static::class ] = null
-            ?? static::$instance[ static::class ]
-            ?? ( new SupportFactory() )->newCurl();
+        return SupportFactory::getInstance()->getCurl();
     }
-
-
-    /**
-     * @var _Curl[]
-     */
-    protected static $instance = [];
 }

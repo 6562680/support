@@ -10,7 +10,7 @@ class ProfilerTest extends AbstractTestCase
 {
     protected function getProfiler() : Profiler
     {
-        return ( new SupportFactory() )->newProfiler();
+        return SupportFactory::getInstance()->newProfiler();
     }
 
 

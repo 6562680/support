@@ -26,14 +26,34 @@ use Gzhegow\Support\Profiler;
 use Psr\Container\ContainerInterface;
 use Gzhegow\Support\Domain\Filter\Type;
 use Gzhegow\Support\Domain\Filter\Assert;
+use Gzhegow\Support\Interfaces\FsInterface;
+use Gzhegow\Support\Interfaces\ArrInterface;
+use Gzhegow\Support\Interfaces\CliInterface;
+use Gzhegow\Support\Interfaces\CmpInterface;
+use Gzhegow\Support\Interfaces\EnvInterface;
+use Gzhegow\Support\Interfaces\NetInterface;
+use Gzhegow\Support\Interfaces\NumInterface;
+use Gzhegow\Support\Interfaces\PhpInterface;
+use Gzhegow\Support\Interfaces\StrInterface;
+use Gzhegow\Support\Interfaces\UriInterface;
+use Gzhegow\Support\Interfaces\CurlInterface;
+use Gzhegow\Support\Interfaces\MathInterface;
+use Gzhegow\Support\Interfaces\PathInterface;
+use Gzhegow\Support\Interfaces\PregInterface;
+use Gzhegow\Support\Interfaces\DebugInterface;
+use Gzhegow\Support\Interfaces\FilterInterface;
+use Gzhegow\Support\Interfaces\LoaderInterface;
+use Gzhegow\Support\Interfaces\FormatInterface;
+use Gzhegow\Support\Interfaces\CalendarInterface;
+use Gzhegow\Support\Interfaces\CriteriaInterface;
+use Gzhegow\Support\Interfaces\ProfilerInterface;
 
 
 /**
  * SupportFactory
  */
 class SupportFactory implements
-    SupportFactoryInterface,
-    ContainerInterface
+    SupportFactoryInterface
 {
     /**
      * @var null|ContainerInterface
@@ -42,13 +62,32 @@ class SupportFactory implements
 
 
     /**
+     * @var array
+     */
+    protected $items = [];
+
+
+    /**
      * Constructor
      *
      * @param null|ContainerInterface $container
      */
-    public function __construct(ContainerInterface $container = null)
+    public function __construct(
+        ContainerInterface $container = null
+    )
     {
         $this->container = $container;
+    }
+
+
+    /**
+     * @param static $instance
+     *
+     * @return void
+     */
+    public static function withInstance(SupportFactory $instance) : void
+    {
+        static::$instance[ static::class ] = $instance;
     }
 
 
@@ -57,11 +96,11 @@ class SupportFactory implements
      */
     public function newArr() : Arr
     {
-        return $this->get(Arr::class)
-            ?? new Arr(
-                $this->newFilter(),
-                $this->newStr()
-            );
+        return new Arr(
+            $this->newFilter(),
+            $this->newPhp(),
+            $this->newStr()
+        );
     }
 
     /**
@@ -69,13 +108,12 @@ class SupportFactory implements
      */
     public function newCalendar() : Calendar
     {
-        return $this->get(Calendar::class)
-            ?? new Calendar(
-                $this->newFilter(),
-                $this->newNum(),
-                $this->newPhp(),
-                $this->newStr()
-            );
+        return new Calendar(
+            $this->newFilter(),
+            $this->newNum(),
+            $this->newPhp(),
+            $this->newStr()
+        );
     }
 
     /**
@@ -83,12 +121,11 @@ class SupportFactory implements
      */
     public function newCli() : Cli
     {
-        return $this->get(Cli::class)
-            ?? new Cli(
-                $this->newEnv(),
-                $this->newFs(),
-                $this->newPhp()
-            );
+        return new Cli(
+            $this->newEnv(),
+            $this->newFs(),
+            $this->newPhp()
+        );
     }
 
     /**
@@ -96,11 +133,10 @@ class SupportFactory implements
      */
     public function newCmp() : Cmp
     {
-        return $this->get(Cmp::class)
-            ?? new Cmp(
-                $this->newCalendar(),
-                $this->newFilter()
-            );
+        return new Cmp(
+            $this->newCalendar(),
+            $this->newFilter()
+        );
     }
 
     /**
@@ -108,13 +144,12 @@ class SupportFactory implements
      */
     public function newCriteria() : Criteria
     {
-        return $this->get(Criteria::class)
-            ?? new Criteria(
-                $this->newCalendar(),
-                $this->newCmp(),
-                $this->newFilter(),
-                $this->newStr()
-            );
+        return new Criteria(
+            $this->newCalendar(),
+            $this->newCmp(),
+            $this->newFilter(),
+            $this->newStr()
+        );
     }
 
     /**
@@ -122,12 +157,11 @@ class SupportFactory implements
      */
     public function newCurl() : Curl
     {
-        return $this->get(Curl::class)
-            ?? new Curl(
-                $this->newArr(),
-                $this->newFilter(),
-                $this->newPhp()
-            );
+        return new Curl(
+            $this->newArr(),
+            $this->newFilter(),
+            $this->newPhp()
+        );
     }
 
     /**
@@ -135,8 +169,7 @@ class SupportFactory implements
      */
     public function newDebug() : Debug
     {
-        return $this->get(Debug::class)
-            ?? new Debug();
+        return new Debug();
     }
 
     /**
@@ -144,8 +177,7 @@ class SupportFactory implements
      */
     public function newEnv() : Env
     {
-        return $this->get(Env::class)
-            ?? new Env();
+        return new Env();
     }
 
     /**
@@ -153,8 +185,7 @@ class SupportFactory implements
      */
     public function newFilter() : Filter
     {
-        return $this->get(Filter::class)
-            ?? new Filter();
+        return new Filter();
     }
 
     /**
@@ -162,10 +193,9 @@ class SupportFactory implements
      */
     public function newFormat() : Format
     {
-        return $this->get(Filter::class)
-            ?? new Format(
-                $this->newNum()
-            );
+        return new Format(
+            $this->newNum()
+        );
     }
 
     /**
@@ -173,12 +203,11 @@ class SupportFactory implements
      */
     public function newFs() : Fs
     {
-        return $this->get(Fs::class)
-            ?? new Fs(
-                $this->newFilter(),
-                $this->newPath(),
-                $this->newPhp()
-            );
+        return new Fs(
+            $this->newFilter(),
+            $this->newPath(),
+            $this->newPhp()
+        );
     }
 
     /**
@@ -186,12 +215,11 @@ class SupportFactory implements
      */
     public function newLoader() : Loader
     {
-        return $this->get(Loader::class)
-            ?? new Loader(
-                $this->newFilter(),
-                $this->newPath(),
-                $this->newStr()
-            );
+        return new Loader(
+            $this->newFilter(),
+            $this->newPath(),
+            $this->newStr()
+        );
     }
 
     /**
@@ -199,12 +227,11 @@ class SupportFactory implements
      */
     public function newMath() : Math
     {
-        return $this->get(Math::class)
-            ?? new Math(
-                $this->newFilter(),
-                $this->newNum(),
-                $this->newStr()
-            );
+        return new Math(
+            $this->newFilter(),
+            $this->newNum(),
+            $this->newStr()
+        );
     }
 
     /**
@@ -212,10 +239,9 @@ class SupportFactory implements
      */
     public function newNet() : Net
     {
-        return $this->get(Net::class)
-            ?? new Net(
-                $this->newStr()
-            );
+        return new Net(
+            $this->newStr()
+        );
     }
 
     /**
@@ -223,10 +249,9 @@ class SupportFactory implements
      */
     public function newNum() : Num
     {
-        return $this->get(Num::class)
-            ?? new Num(
-                $this->newFilter()
-            );
+        return new Num(
+            $this->newFilter()
+        );
     }
 
     /**
@@ -234,12 +259,11 @@ class SupportFactory implements
      */
     public function newPath() : Path
     {
-        return $this->get(Path::class)
-            ?? new Path(
-                $this->newFilter(),
-                $this->newPhp(),
-                $this->newStr()
-            );
+        return new Path(
+            $this->newFilter(),
+            $this->newPhp(),
+            $this->newStr()
+        );
     }
 
     /**
@@ -247,10 +271,9 @@ class SupportFactory implements
      */
     public function newPhp() : Php
     {
-        return $this->get(Php::class)
-            ?? new Php(
-                $this->newFilter()
-            );
+        return new Php(
+            $this->newFilter()
+        );
     }
 
     /**
@@ -258,10 +281,9 @@ class SupportFactory implements
      */
     public function newPreg() : Preg
     {
-        return $this->get(Preg::class)
-            ?? new Preg(
-                $this->newStr()
-            );
+        return new Preg(
+            $this->newStr()
+        );
     }
 
     /**
@@ -269,10 +291,9 @@ class SupportFactory implements
      */
     public function newProfiler() : Profiler
     {
-        return $this->get(Profiler::class)
-            ?? new Profiler(
-                $this->newCalendar()
-            );
+        return new Profiler(
+            $this->newCalendar()
+        );
     }
 
     /**
@@ -280,10 +301,9 @@ class SupportFactory implements
      */
     public function newStr() : Str
     {
-        return $this->get(Str::class)
-            ?? new Str(
-                $this->newFilter()
-            );
+        return new Str(
+            $this->newFilter()
+        );
     }
 
     /**
@@ -291,41 +311,287 @@ class SupportFactory implements
      */
     public function newUri() : Uri
     {
-        return $this->get(Uri::class)
-            ?? new Uri(
-                $this->newArr(),
-                $this->newFilter(),
-                $this->newPhp(),
-                $this->newStr()
-            );
+        return new Uri(
+            $this->newArr(),
+            $this->newFilter(),
+            $this->newPhp(),
+            $this->newStr()
+        );
     }
 
 
     /**
-     * @param null|Filter $filter
-     *
      * @return Assert
      */
-    public function newAssert(Filter $filter = null) : Assert
+    public function newAssert() : Assert
     {
-        return $this->get(Assert::class)
-            ?? new Assert(
-                $debug = $this->newDebug(),
-                $filter = $filter ?? $this->newFilter()
-            );
+        return new Assert(
+            $this->newDebug(),
+            $this->newFilter()
+        );
     }
 
     /**
-     * @param null|Filter $filter
-     *
      * @return Type
      */
-    public function newType(Filter $filter = null) : Type
+    public function newType() : Type
     {
-        return $this->get(Type::class)
-            ?? new Type(
-                $filter = $filter ?? $this->newFilter()
-            );
+        return new Type(
+            $this->newFilter()
+        );
+    }
+
+
+    /**
+     * @return Arr
+     */
+    public function getArr() : Arr
+    {
+        return $this->items[ Arr::class ] = null
+            ?? $this->containerGet(ArrInterface::class)
+            ?? $this->get(Arr::class)
+            ?? $this->newArr();
+    }
+
+    /**
+     * @return Calendar
+     */
+    public function getCalendar() : Calendar
+    {
+        return $this->items[ Calendar::class ] = null
+            ?? $this->containerGet(CalendarInterface::class)
+            ?? $this->get(Calendar::class)
+            ?? $this->newCalendar();
+    }
+
+    /**
+     * @return Cli
+     */
+    public function getCli() : Cli
+    {
+        return $this->items[ Cli::class ] = null
+            ?? $this->containerGet(CliInterface::class)
+            ?? $this->get(Cli::class)
+            ?? $this->newCli();
+    }
+
+    /**
+     * @return Cmp
+     */
+    public function getCmp() : Cmp
+    {
+        return $this->items[ Cmp::class ] = null
+            ?? $this->containerGet(CmpInterface::class)
+            ?? $this->get(Cmp::class)
+            ?? $this->newCmp();
+    }
+
+    /**
+     * @return Criteria
+     */
+    public function getCriteria() : Criteria
+    {
+        return $this->items[ Criteria::class ] = null
+            ?? $this->get(CriteriaInterface::class)
+            ?? $this->get(Criteria::class)
+            ?? $this->newCriteria();
+    }
+
+    /**
+     * @return Curl
+     */
+    public function getCurl() : Curl
+    {
+        return $this->items[ Curl::class ] = null
+            ?? $this->containerGet(CurlInterface::class)
+            ?? $this->get(Curl::class)
+            ?? $this->newCurl();
+    }
+
+    /**
+     * @return Debug
+     */
+    public function getDebug() : Debug
+    {
+        return $this->items[ Debug::class ] = null
+            ?? $this->containerGet(DebugInterface::class)
+            ?? $this->get(Debug::class)
+            ?? $this->newDebug();
+    }
+
+    /**
+     * @return Env
+     */
+    public function getEnv() : Env
+    {
+        return $this->items[ Env::class ] = null
+            ?? $this->containerGet(EnvInterface::class)
+            ?? $this->get(Env::class)
+            ?? $this->newEnv();
+    }
+
+    /**
+     * @return Filter
+     */
+    public function getFilter() : Filter
+    {
+        return $this->items[ Filter::class ] = null
+            ?? $this->containerGet(FilterInterface::class)
+            ?? $this->get(Filter::class)
+            ?? $this->newFilter();
+    }
+
+    /**
+     * @return Format
+     */
+    public function getFormat() : Format
+    {
+        return $this->items[ Format::class ] = null
+            ?? $this->containerGet(FormatInterface::class)
+            ?? $this->get(Format::class)
+            ?? $this->newFormat();
+    }
+
+    /**
+     * @return Fs
+     */
+    public function getFs() : Fs
+    {
+        return $this->items[ Fs::class ] = null
+            ?? $this->containerGet(FsInterface::class)
+            ?? $this->get(Fs::class)
+            ?? $this->newFs();
+    }
+
+    /**
+     * @return Loader
+     */
+    public function getLoader() : Loader
+    {
+        return $this->items[ Loader::class ] = null
+            ?? $this->containerGet(LoaderInterface::class)
+            ?? $this->get(Loader::class)
+            ?? $this->newLoader();
+    }
+
+    /**
+     * @return Math
+     */
+    public function getMath() : Math
+    {
+        return $this->items[ Math::class ] = null
+            ?? $this->containerGet(MathInterface::class)
+            ?? $this->get(Math::class)
+            ?? $this->newMath();
+    }
+
+    /**
+     * @return Net
+     */
+    public function getNet() : Net
+    {
+        return $this->items[ Net::class ] = null
+            ?? $this->containerGet(NetInterface::class)
+            ?? $this->get(Net::class)
+            ?? $this->newNet();
+    }
+
+    /**
+     * @return Num
+     */
+    public function getNum() : Num
+    {
+        return $this->items[ Num::class ] = null
+            ?? $this->containerGet(NumInterface::class)
+            ?? $this->get(Num::class)
+            ?? $this->newNum();
+    }
+
+    /**
+     * @return Path
+     */
+    public function getPath() : Path
+    {
+        return $this->items[ Path::class ] = null
+            ?? $this->containerGet(PathInterface::class)
+            ?? $this->get(Path::class)
+            ?? $this->newPath();
+    }
+
+    /**
+     * @return Php
+     */
+    public function getPhp() : Php
+    {
+        return $this->items[ Php::class ] = null
+            ?? $this->containerGet(PhpInterface::class)
+            ?? $this->get(Php::class)
+            ?? $this->newPhp();
+    }
+
+    /**
+     * @return Preg
+     */
+    public function getPreg() : Preg
+    {
+        return $this->items[ Preg::class ] = null
+            ?? $this->containerGet(PregInterface::class)
+            ?? $this->get(Preg::class)
+            ?? $this->newPreg();
+    }
+
+    /**
+     * @return Profiler
+     */
+    public function getProfiler() : Profiler
+    {
+        return $this->items[ Profiler::class ] = null
+            ?? $this->containerGet(ProfilerInterface::class)
+            ?? $this->get(Profiler::class)
+            ?? $this->newProfiler();
+    }
+
+    /**
+     * @return Str
+     */
+    public function getStr() : Str
+    {
+        return $this->items[ Str::class ] = null
+            ?? $this->containerGet(StrInterface::class)
+            ?? $this->get(Str::class)
+            ?? $this->newStr();
+    }
+
+    /**
+     * @return Uri
+     */
+    public function getUri() : Uri
+    {
+        return $this->items[ Uri::class ] = null
+            ?? $this->containerGet(UriInterface::class)
+            ?? $this->get(Uri::class)
+            ?? $this->newUri();
+    }
+
+
+    /**
+     * @return Assert
+     */
+    public function getAssert() : Assert
+    {
+        return $this->items[ Assert::class ] = null
+            ?? $this->get(Assert::class)
+            ?? $this->newAssert();
+    }
+
+    /**
+     * @return Type
+     */
+    public function getType() : Type
+    {
+        return $this->items[ Type::class ] = null
+            ?? $this->get(Type::class)
+            ?? $this->newType();
     }
 
 
@@ -337,7 +603,7 @@ class SupportFactory implements
     public function get(string $id)
     {
         return $this->has($id)
-            ? $this->container->get($id)
+            ? $this->items[ $id ]
             : null;
     }
 
@@ -348,6 +614,60 @@ class SupportFactory implements
      */
     public function has(string $id)
     {
-        return $this->container && $this->container->has($id);
+        return isset($this->items[ $id ]);
     }
+
+    /**
+     * @param mixed $value
+     *
+     * @return $this
+     */
+    public function set($value)
+    {
+        $this->items[ get_class($value) ] = $value;
+
+        return $this;
+    }
+
+
+    /**
+     * @param string $id
+     *
+     * @return null|mixed
+     */
+    protected function containerGet(string $id)
+    {
+        return $this->containerHas($id)
+            ? $this->container->get($id)
+            : null;
+    }
+
+    /**
+     * @param string $id
+     *
+     * @return null|mixed
+     */
+    protected function containerHas(string $id)
+    {
+        return $this->container
+            ? $this->container->has($id)
+            : null;
+    }
+
+
+    /**
+     * @return static
+     */
+    public static function getInstance() : SupportFactory
+    {
+        return static::$instance[ static::class ] = null
+            ?? static::$instance[ static::class ]
+            ?? new SupportFactory();
+    }
+
+
+    /**
+     * @var static[]
+     */
+    protected static $instance = [];
 }

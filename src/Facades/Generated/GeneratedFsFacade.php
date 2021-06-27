@@ -13,9 +13,18 @@ namespace Gzhegow\Support\Facades\Generated;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Fs;
+use Gzhegow\Support\Interfaces\FsInterface;
 
 abstract class GeneratedFsFacade
 {
+    /**
+     * @return Fs
+     */
+    public static function reset()
+    {
+        return static::getInstance()->reset();
+    }
+
     /**
      * @param string $root
      *
@@ -24,6 +33,26 @@ abstract class GeneratedFsFacade
     public static function clone(string $root)
     {
         return static::getInstance()->clone($root);
+    }
+
+    /**
+     * @param null|string $root
+     *
+     * @return Fs
+     */
+    public static function with(?string $root)
+    {
+        return static::getInstance()->with($root);
+    }
+
+    /**
+     * @param string $root
+     *
+     * @return Fs
+     */
+    public static function withRoot(string $root)
+    {
+        return static::getInstance()->withRoot($root);
     }
 
     /**
@@ -464,16 +493,6 @@ abstract class GeneratedFsFacade
     public static function theSplvalLink($pathOrSpl): \SplFileInfo
     {
         return static::getInstance()->theSplvalLink($pathOrSpl);
-    }
-
-    /**
-     * @param string $root
-     *
-     * @return Fs
-     */
-    public static function using(string $root)
-    {
-        return static::getInstance()->using($root);
     }
 
     /**

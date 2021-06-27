@@ -10,7 +10,7 @@ class CurlTest extends AbstractTestCase
 {
     protected function getCurl() : Curl
     {
-        return ( new SupportFactory() )->newCurl();
+        return SupportFactory::getInstance()->newCurl();
     }
 
 

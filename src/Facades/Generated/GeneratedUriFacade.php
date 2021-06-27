@@ -11,6 +11,7 @@
 namespace Gzhegow\Support\Facades\Generated;
 
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+use Gzhegow\Support\Interfaces\UriInterface;
 use Gzhegow\Support\Uri;
 
 abstract class GeneratedUriFacade

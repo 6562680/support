@@ -2,13 +2,14 @@
 
 namespace Gzhegow\Support;
 
+use Gzhegow\Support\Interfaces\FormatInterface;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
  * Format
  */
-class Format
+class Format implements FormatInterface
 {
     /**
      * @var Num

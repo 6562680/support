@@ -2,6 +2,7 @@
 
 namespace Gzhegow\Support;
 
+use Gzhegow\Support\Interfaces\PhpInterface;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\Runtime\UnexpectedValueException;
@@ -10,7 +11,7 @@ use Gzhegow\Support\Exceptions\Runtime\UnexpectedValueException;
 /**
  * Php
  */
-class Php
+class Php implements PhpInterface
 {
     /**
      * @var Filter
@@ -371,9 +372,9 @@ class Php
 
 
     /**
-     * возвращает строчный идентификатор значения любой переменной в виде строки для дальнейшего сравнения
+     * возвращает идентификатор значения любой переменной в виде строки для дальнейшего сравнения
      * идентификаторы могут быть позже использованы другими обьектами
-     * поэтому его актуальность до тех пор, пока конкретный обьект существует
+     * поэтому его актуальность до тех пор, пока конкретный обьект существует в памяти
      *
      * @param mixed $value
      *
@@ -382,21 +383,20 @@ class Php
     public function hash($value) : string
     {
         switch ( true ):
+            case is_string($value):
+                return $value;
+
             case is_null($value):
             case is_bool($value):
                 return var_export($value, 1);
 
-            case is_int($value):
-                return sprintf('%d', $value);
-
             case ( is_float($value) && is_nan($value) ):
                 return 'NaN';
 
+            case is_int($value):
+                return strval($value);
             case is_float($value):
-                return sprintf('%f', $value);
-
-            case is_string($value):
-                return $value;
+                return sprintf('%.14f', $value);
 
             case ( null !== $this->filter->filterPlainArray($value) ):
                 return json_encode($value);

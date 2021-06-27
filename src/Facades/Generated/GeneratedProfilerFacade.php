@@ -10,6 +10,7 @@
 
 namespace Gzhegow\Support\Facades\Generated;
 
+use Gzhegow\Support\Interfaces\ProfilerInterface;
 use Gzhegow\Support\Profiler;
 
 abstract class GeneratedProfilerFacade

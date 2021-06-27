@@ -3,12 +3,13 @@
 namespace Gzhegow\Support;
 
 use Gzhegow\Support\Domain\Preg\RegExp;
+use Gzhegow\Support\Interfaces\PregInterface;
 
 
 /**
  * Preg
  */
-class Preg
+class Preg implements PregInterface
 {
     /**
      * @var Str

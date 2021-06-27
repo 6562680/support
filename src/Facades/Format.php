@@ -25,28 +25,10 @@ class Format extends GeneratedFormatFacade
 
 
     /**
-     * @param _Format $instance
-     *
-     * @return void
-     */
-    public static function withInstance(_Format $instance) : void
-    {
-        static::$instance[ static::class ] = $instance;
-    }
-
-    /**
      * @return _Format
      */
     public static function getInstance() : _Format
     {
-        return static::$instance[ static::class ] = null
-            ?? static::$instance[ static::class ]
-            ?? ( new SupportFactory() )->newFormat();
+        return SupportFactory::getInstance()->getFormat();
     }
-
-
-    /**
-     * @var _Format[]
-     */
-    protected static $instance = [];
 }

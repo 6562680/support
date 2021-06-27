@@ -11,7 +11,7 @@ class FacadeTest extends AbstractTestCase
 {
     protected function getStr() : Str
     {
-        return ( new SupportFactory() )->newStr();
+        return SupportFactory::getInstance()->newStr();
     }
 
 

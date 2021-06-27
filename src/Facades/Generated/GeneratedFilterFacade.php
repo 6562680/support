@@ -16,6 +16,7 @@ use Gzhegow\Support\Domain\Filter\ValueObjects\InvokableInfo;
 use Gzhegow\Support\Domain\SupportFactory;
 use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
 use Gzhegow\Support\Filter;
+use Gzhegow\Support\Interfaces\FilterInterface;
 
 abstract class GeneratedFilterFacade
 {

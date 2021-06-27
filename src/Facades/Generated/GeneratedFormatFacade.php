@@ -12,6 +12,7 @@ namespace Gzhegow\Support\Facades\Generated;
 
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Format;
+use Gzhegow\Support\Interfaces\FormatInterface;
 
 abstract class GeneratedFormatFacade
 {

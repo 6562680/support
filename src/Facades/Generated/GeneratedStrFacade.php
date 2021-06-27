@@ -15,6 +15,7 @@ use Gzhegow\Support\Domain\Str\InflectorInterface;
 use Gzhegow\Support\Domain\Str\Slugger;
 use Gzhegow\Support\Domain\Str\SluggerInterface;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+use Gzhegow\Support\Interfaces\StrInterface;
 use Gzhegow\Support\Str;
 
 abstract class GeneratedStrFacade

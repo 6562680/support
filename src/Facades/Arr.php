@@ -25,28 +25,10 @@ class Arr extends GeneratedArrFacade
 
 
     /**
-     * @param _Arr $instance
-     *
-     * @return void
-     */
-    public static function withInstance(_Arr $instance) : void
-    {
-        static::$instance[ static::class ] = $instance;
-    }
-
-    /**
      * @return _Arr
      */
     public static function getInstance() : _Arr
     {
-        return static::$instance[ static::class ] = null
-            ?? static::$instance[ static::class ]
-            ?? ( new SupportFactory() )->newArr();
+        return SupportFactory::getInstance()->getArr();
     }
-
-
-    /**
-     * @var _Arr[]
-     */
-    protected static $instance = [];
 }

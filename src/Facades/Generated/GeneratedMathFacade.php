@@ -14,17 +14,26 @@ use Gzhegow\Support\Domain\Math\Bcval;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\Runtime\OutOfBoundsException;
+use Gzhegow\Support\Interfaces\MathInterface;
 use Gzhegow\Support\Math;
 
 abstract class GeneratedMathFacade
 {
+    /**
+     * @return Math
+     */
+    public static function reset()
+    {
+        return static::getInstance()->reset();
+    }
+
     /**
      * @param null|int $scale
      * @param null|int $scaleMax
      *
      * @return Math
      */
-    public static function clone(int $scale = null, int $scaleMax = null)
+    public static function clone(?int $scale, ?int $scaleMax)
     {
         return static::getInstance()->clone($scale, $scaleMax);
     }
@@ -35,7 +44,7 @@ abstract class GeneratedMathFacade
      *
      * @return Math
      */
-    public static function with(int $scale = null, int $scaleMax = null)
+    public static function with(?int $scale, ?int $scaleMax)
     {
         return static::getInstance()->with($scale, $scaleMax);
     }
@@ -48,14 +57,6 @@ abstract class GeneratedMathFacade
     public static function withScale(int $scale)
     {
         return static::getInstance()->withScale($scale);
-    }
-
-    /**
-     * @return Math
-     */
-    public static function withoutScale()
-    {
-        return static::getInstance()->withoutScale();
     }
 
     /**
@@ -79,9 +80,9 @@ abstract class GeneratedMathFacade
     }
 
     /**
-     * @return int
+     * @return null|int
      */
-    public static function getScale(): int
+    public static function getScale(): ?int
     {
         return static::getInstance()->getScale();
     }

@@ -11,28 +11,39 @@
 namespace Gzhegow\Support\Facades\Generated;
 
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+use Gzhegow\Support\Interfaces\PathInterface;
 use Gzhegow\Support\Path;
 
 abstract class GeneratedPathFacade
 {
     /**
-     * @param string|string[]|array ...$delimiters
-     *
      * @return Path
      */
-    public static function clone(...$delimiters)
+    public static function reset()
     {
-        return static::getInstance()->clone(...$delimiters);
+        return static::getInstance()->reset();
     }
 
     /**
-     * @param string|string[] $delimiters
+     * @param null|string       $separator
+     * @param null|string|array $delimiters
      *
      * @return Path
      */
-    public static function with(...$delimiters)
+    public static function clone(?string $separator, ?array $delimiters)
     {
-        return static::getInstance()->with(...$delimiters);
+        return static::getInstance()->clone($separator, $delimiters);
+    }
+
+    /**
+     * @param null|string       $separator
+     * @param null|string|array $delimiters
+     *
+     * @return Path
+     */
+    public static function with(?string $separator, ?array $delimiters)
+    {
+        return static::getInstance()->with($separator, $delimiters);
     }
 
     /**

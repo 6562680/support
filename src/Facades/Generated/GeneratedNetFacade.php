@@ -10,6 +10,7 @@
 
 namespace Gzhegow\Support\Facades\Generated;
 
+use Gzhegow\Support\Interfaces\NetInterface;
 use Gzhegow\Support\Net;
 
 abstract class GeneratedNetFacade

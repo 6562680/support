@@ -5,6 +5,7 @@ namespace Gzhegow\Support;
 use Gzhegow\Support\Domain\Filter\Type;
 use Gzhegow\Support\Domain\Filter\Assert;
 use Gzhegow\Support\Domain\SupportFactory;
+use Gzhegow\Support\Interfaces\FilterInterface;
 use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
 use Gzhegow\Support\Domain\Filter\ValueObjects\InvokableInfo;
 
@@ -12,7 +13,7 @@ use Gzhegow\Support\Domain\Filter\ValueObjects\InvokableInfo;
 /**
  * Filter
  */
-class Filter
+class Filter implements FilterInterface
 {
     /**
      * @var Assert
@@ -34,9 +35,11 @@ class Filter
      *
      * @param null|SupportFactory $factory
      */
-    public function __construct(SupportFactory $factory = null)
+    public function __construct(
+        SupportFactory $factory = null
+    )
     {
-        $this->factory = $factory;
+        $this->factory = $factory ?? new SupportFactory();
     }
 
 
@@ -1375,8 +1378,7 @@ class Filter
     public function assert($message = null, ...$arguments) : Assert
     {
         if (! isset($this->assert)) {
-            $this->factory = $this->factory ?? new SupportFactory();
-            $this->assert = $this->factory->newAssert($this);
+            $this->assert = SupportFactory::getInstance()->getAssert();
         }
 
         $this->assert->withError($message, ...$arguments);
@@ -1390,8 +1392,7 @@ class Filter
     public function type() : Type
     {
         if (! isset($this->type)) {
-            $this->factory = $this->factory ?? new SupportFactory();
-            $this->type = $this->factory->newType($this);
+            $this->type = SupportFactory::getInstance()->getType();
         }
 
         return $this->type;

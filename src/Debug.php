@@ -3,13 +3,14 @@
 namespace Gzhegow\Support;
 
 
+use Gzhegow\Support\Interfaces\DebugInterface;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
  * Debug
  */
-class Debug
+class Debug implements DebugInterface
 {
     /**
      * @param string|array|mixed $message

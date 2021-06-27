@@ -2,13 +2,14 @@
 
 namespace Gzhegow\Support;
 
+use Gzhegow\Support\Interfaces\LoaderInterface;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
  * Loader
  */
-class Loader
+class Loader implements LoaderInterface
 {
     /**
      * @var Filter
@@ -46,7 +47,8 @@ class Loader
         $this->path = $path;
         $this->str = $str;
 
-        $path->with('\\', '/');
+        $path->withSeparator('\\');
+        $path->withDelimiters([ '/' ]);
     }
 
 
@@ -239,13 +241,38 @@ class Loader
 
 
     /**
+     * @param mixed $classOrObject
+     *
+     * @return null|string
+     */
+    public function classVal($classOrObject) : ?string
+    {
+        $result = null;
+
+        if (null !== ( $class = $this->filter->filterClass($classOrObject) )) {
+            $result = $class;
+
+        } elseif (is_object($classOrObject)) {
+            if (null !== ( $reflectionClass = $this->filter->filterReflectionClass($classOrObject) )) {
+                $result = $reflectionClass->getName();
+
+            } else {
+                $result = get_class($classOrObject);
+            }
+        }
+
+        return $result;
+    }
+
+
+    /**
      * @param string|object $classOrObject
      *
      * @return string[]
      */
     public function nsClass($classOrObject) : array
     {
-        if (null === ( $class = $this->classval($classOrObject) )) {
+        if (null === ( $class = $this->classVal($classOrObject) )) {
             throw new InvalidArgumentException('Class should be classval or object');
         }
 
@@ -260,7 +287,6 @@ class Loader
         return [ $namespace, $class ];
     }
 
-
     /**
      * @param string|object $classOrObject
      *
@@ -268,7 +294,7 @@ class Loader
      */
     public function namespace($classOrObject) : ?string
     {
-        if (null === ( $class = $this->classval($classOrObject) )) {
+        if (null === ( $class = $this->classVal($classOrObject) )) {
             throw new InvalidArgumentException('Class should be classval or object');
         }
 
@@ -289,7 +315,7 @@ class Loader
      */
     public function className($classOrObject) : string
     {
-        if (null === ( $class = $this->classval($classOrObject) )) {
+        if (null === ( $class = $this->classVal($classOrObject) )) {
             throw new InvalidArgumentException('Class should be classval or object');
         }
 
@@ -335,7 +361,6 @@ class Loader
 
         return $result;
     }
-
 
     /**
      * @param string|string[]|array ...$parts
@@ -409,7 +434,7 @@ class Loader
      */
     public function pathRelative($classOrObject, string $base = '') : ?string
     {
-        if (null === ( $class = $this->classval($classOrObject) )) {
+        if (null === ( $class = $this->classVal($classOrObject) )) {
             throw new InvalidArgumentException(
                 [ 'Class should be valid class name or object: %s', $classOrObject ]
             );
@@ -441,31 +466,6 @@ class Loader
 
             if (0 < $offset--) continue;
             if (isset($limit) && ! $limit--) break;
-        }
-
-        return $result;
-    }
-
-
-    /**
-     * @param mixed $classOrObject
-     *
-     * @return null|string
-     */
-    public function classval($classOrObject) : ?string
-    {
-        $result = null;
-
-        if (null !== ( $class = $this->filter->filterClass($classOrObject) )) {
-            $result = $class;
-
-        } elseif (is_object($classOrObject)) {
-            if (null !== ( $reflectionClass = $this->filter->filterReflectionClass($classOrObject) )) {
-                $result = $reflectionClass->getName();
-
-            } else {
-                $result = get_class($classOrObject);
-            }
         }
 
         return $result;

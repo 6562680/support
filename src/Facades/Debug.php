@@ -25,28 +25,10 @@ class Debug extends GeneratedDebugFacade
 
 
     /**
-     * @param _Debug $instance
-     *
-     * @return void
-     */
-    public static function withInstance(_Debug $instance) : void
-    {
-        static::$instance[ static::class ] = $instance;
-    }
-
-    /**
      * @return _Debug
      */
     public static function getInstance() : _Debug
     {
-        return static::$instance[ static::class ] = null
-            ?? static::$instance[ static::class ]
-            ?? ( new SupportFactory() )->newDebug();
+        return SupportFactory::getInstance()->getDebug();
     }
-
-
-    /**
-     * @var _Debug[]
-     */
-    protected static $instance = [];
 }

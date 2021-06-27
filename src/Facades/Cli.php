@@ -25,28 +25,10 @@ class Cli extends GeneratedCliFacade
 
 
     /**
-     * @param _Cli $instance
-     *
-     * @return void
-     */
-    public static function withInstance(_Cli $instance) : void
-    {
-        static::$instance[ static::class ] = $instance;
-    }
-
-    /**
      * @return _Cli
      */
     public static function getInstance() : _Cli
     {
-        return static::$instance[ static::class ] = null
-            ?? static::$instance[ static::class ]
-            ?? ( new SupportFactory() )->newCli();
+        return SupportFactory::getInstance()->getCli();
     }
-
-
-    /**
-     * @var _Cli[]
-     */
-    protected static $instance = [];
 }

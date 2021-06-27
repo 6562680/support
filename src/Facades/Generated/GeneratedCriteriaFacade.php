@@ -12,6 +12,7 @@ namespace Gzhegow\Support\Facades\Generated;
 
 use Gzhegow\Support\Criteria;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+use Gzhegow\Support\Interfaces\CriteriaInterface;
 
 abstract class GeneratedCriteriaFacade
 {

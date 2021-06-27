@@ -18,17 +18,17 @@ class ExceptionTest extends AbstractTestCase
 {
     public function getDebug() : Debug
     {
-        return ( new SupportFactory() )->newDebug();
+        return SupportFactory::getInstance()->newDebug();
     }
 
     public function getFilter() : Filter
     {
-        return ( new SupportFactory() )->newFilter();
+        return SupportFactory::getInstance()->newFilter();
     }
 
     public function getPhp() : Php
     {
-        return ( new SupportFactory() )->newPhp();
+        return SupportFactory::getInstance()->newPhp();
     }
 
 

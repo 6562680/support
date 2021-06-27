@@ -3,10 +3,13 @@
 namespace Gzhegow\Support;
 
 
+use Gzhegow\Support\Interfaces\EnvInterface;
+
+
 /**
  * Env
  */
-class Env
+class Env implements EnvInterface
 {
     /**
      * @param null      $option

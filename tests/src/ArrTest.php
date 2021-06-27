@@ -3,6 +3,7 @@
 namespace Gzhegow\Support\Tests;
 
 use Gzhegow\Support\Arr;
+use Gzhegow\Support\Exceptions\Error;
 use Gzhegow\Support\Domain\SupportFactory;
 use Gzhegow\Support\Exceptions\Logic\OutOfRangeException;
 use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
@@ -13,7 +14,7 @@ class ArrTest extends AbstractTestCase
 {
     protected function getArr() : Arr
     {
-        return ( new SupportFactory() )->newArr();
+        return SupportFactory::getInstance()->newArr();
     }
 
 
@@ -868,6 +869,36 @@ class ArrTest extends AbstractTestCase
         $this->assertException(InvalidArgumentException::class, function () use ($arr) {
             $arr->index([ null ], '.');
         });
+    }
+
+
+    public function testIndexed()
+    {
+        $arr = $this->getArr();
+
+        $this->assertEquals('[]', $arr->indexed(null));
+        $this->assertEquals('[""]', $arr->indexed(false));
+        $this->assertEquals('["1"]', $arr->indexed(true));
+        $this->assertEquals('["1"]', $arr->indexed(1));
+        $this->assertEquals('["1.1"]', $arr->indexed(1.1));
+        $this->assertEquals('["1.1E-10"]', $arr->indexed(1.1e-10));
+
+        $this->assertEquals('[]', $arr->indexed([]));
+        $this->assertEquals('[]', $arr->indexed([ null ]));
+        $this->assertEquals('[""]', $arr->indexed([ false ]));
+        $this->assertEquals('["1"]', $arr->indexed([ true ]));
+        $this->assertEquals('["1"]', $arr->indexed([ 1 ]));
+        $this->assertEquals('["1.1"]', $arr->indexed([ 1.1 ]));
+        $this->assertEquals('["1.1E-10"]', $arr->indexed([ 1.1e-10 ]));
+    }
+
+    public function testBadIndexed()
+    {
+        $arr = $this->getArr();
+
+        $this->expectError();
+
+        $arr->indexed(new \StdClass());
     }
 
 

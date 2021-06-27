@@ -2,6 +2,7 @@
 
 namespace Gzhegow\Support;
 
+use Gzhegow\Support\Interfaces\FsInterface;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
@@ -9,7 +10,7 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 /**
  * Fs
  */
-class Fs
+class Fs implements FsInterface
 {
     const FREAD_SIZE = 4096;
 
@@ -54,7 +55,20 @@ class Fs
         $this->path = $path;
         $this->php = $php;
 
-        $path->with(DIRECTORY_SEPARATOR, '/', '\\');
+        $this->reset();
+    }
+
+
+    /**
+     * @return static
+     */
+    public function reset()
+    {
+        $this->root = '';
+
+        $this->path->with(DIRECTORY_SEPARATOR, [ '/', '\\' ]);
+
+        return $this;
     }
 
 
@@ -67,9 +81,39 @@ class Fs
     {
         $instance = clone $this;
 
-        $instance->using($root);
+        if (isset($root)) $this->withRoot($root);
 
         return $instance;
+    }
+
+
+    /**
+     * @param null|string $root
+     *
+     * @return static
+     */
+    public function with(?string $root)
+    {
+        $this->reset();
+
+        if (isset($root)) $this->withRoot($root);
+
+        return $this;
+    }
+
+
+    /**
+     * @param string $root
+     *
+     * @return static
+     */
+    public function withRoot(string $root)
+    {
+        $realpath = $this->assertPathDir($root);
+
+        $this->root = $realpath;
+
+        return $this;
     }
 
 
@@ -723,21 +767,6 @@ class Fs
         }
 
         return $splvalLink;
-    }
-
-
-    /**
-     * @param string $root
-     *
-     * @return static
-     */
-    public function using(string $root)
-    {
-        $realpath = $this->assertPathDir($root);
-
-        $this->root = $realpath;
-
-        return $this;
     }
 
 

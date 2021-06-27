@@ -3,10 +3,13 @@
 namespace Gzhegow\Support;
 
 
+use Gzhegow\Support\Interfaces\ProfilerInterface;
+
+
 /**
  * Profiler
  */
-class Profiler
+class Profiler implements ProfilerInterface
 {
     /**
      * @var Calendar

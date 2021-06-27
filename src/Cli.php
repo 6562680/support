@@ -2,6 +2,7 @@
 
 namespace Gzhegow\Support;
 
+use Gzhegow\Support\Interfaces\CliInterface;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Exceptions\Logic\BadFunctionCallException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
@@ -10,7 +11,7 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 /**
  * Cli
  */
-class Cli
+class Cli implements CliInterface
 {
     /**
      * @var Env

@@ -4,6 +4,7 @@ namespace Gzhegow\Support;
 
 use Gzhegow\Support\Domain\Str\Slugger;
 use Gzhegow\Support\Domain\Str\Inflector;
+use Gzhegow\Support\Interfaces\StrInterface;
 use Gzhegow\Support\Domain\Str\SluggerInterface;
 use Gzhegow\Support\Domain\Str\InflectorInterface;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
@@ -12,7 +13,7 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 /**
  * Str
  */
-class Str
+class Str implements StrInterface
 {
     const CASE_LOWER = MB_CASE_LOWER;
     const CASE_UPPER = MB_CASE_UPPER;

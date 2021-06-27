@@ -11,6 +11,7 @@
 namespace Gzhegow\Support\Facades\Generated;
 
 use Gzhegow\Support\Env;
+use Gzhegow\Support\Interfaces\EnvInterface;
 
 abstract class GeneratedEnvFacade
 {

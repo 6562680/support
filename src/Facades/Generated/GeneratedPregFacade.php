@@ -11,6 +11,7 @@
 namespace Gzhegow\Support\Facades\Generated;
 
 use Gzhegow\Support\Domain\Preg\RegExp;
+use Gzhegow\Support\Interfaces\PregInterface;
 use Gzhegow\Support\Preg;
 
 abstract class GeneratedPregFacade

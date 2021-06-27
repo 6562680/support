@@ -3,7 +3,7 @@
 namespace Gzhegow\Support\Exceptions;
 
 use Throwable;
-use Gzhegow\Support\Exceptions\Domain\ExceptionTrait;
+use Gzhegow\Support\Domain\Exceptions\ExceptionTrait;
 
 
 /**

@@ -2,8 +2,8 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Domain\Arr\WalkIterator;
-use Gzhegow\Support\Domain\Arr\CrawlIterator;
+use Gzhegow\Support\Exceptions\Error;
+use Gzhegow\Support\Interfaces\ArrInterface;
 use Gzhegow\Support\Domain\Arr\ValueObjects\ExpandValue;
 use Gzhegow\Support\Exceptions\Logic\OutOfRangeException;
 use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
@@ -13,7 +13,7 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 /**
  * Arr
  */
-class Arr
+class Arr implements ArrInterface
 {
     const ERROR_FETCHREF_EMPTY_KEY    = 1;
     const ERROR_FETCHREF_MISSING_KEY  = 2;
@@ -26,24 +26,123 @@ class Arr
      */
     protected $filter;
     /**
+     * @var Php
+     */
+    protected $php;
+    /**
      * @var Str
      */
     protected $str;
+
+    /**
+     * @var callable
+     */
+    protected $indexer;
 
 
     /**
      * Constructor
      *
      * @param Filter $filter
+     * @param Php    $php
      * @param Str    $str
      */
     public function __construct(
         Filter $filter,
+        Php $php,
         Str $str
     )
     {
         $this->filter = $filter;
+        $this->php = $php;
         $this->str = $str;
+
+        $this->reset();
+    }
+
+
+    /**
+     * @return static
+     */
+    public function reset()
+    {
+        $this->indexer = $this->loadIndexerDefault();
+
+        return $this;
+    }
+
+
+    /**
+     * @param $indexer
+     *
+     * @return static
+     */
+    public function clone(?callable $indexer)
+    {
+        $instance = clone $this;
+
+        if (isset($indexer)) $this->withIndexer($indexer);
+
+        return $instance;
+    }
+
+
+    /**
+     * @param null|callable $indexer
+     *
+     * @return static
+     */
+    public function with(?callable $indexer)
+    {
+        $this->reset();
+
+        if (isset($indexer)) $this->withIndexer($indexer);
+
+        return $this;
+    }
+
+
+    /**
+     * @param callable $indexer
+     *
+     * @return static
+     */
+    public function withIndexer(callable $indexer)
+    {
+        $this->indexer = $indexer;
+
+        return $this;
+    }
+
+
+    /**
+     * @return \Closure
+     */
+    protected function loadIndexerDefault()
+    {
+        return function (&$value) {
+            switch ( true ):
+                case is_string($value):
+                    break;
+
+                case ( is_float($value) && is_nan($value) ):
+                    $value = 'NaN';
+                    break;
+
+                case is_null($value):
+                case is_bool($value):
+                case is_int($value):
+                case is_float($value):
+                    $value = strval($value);
+                    break;
+
+                default:
+                    throw new Error(
+                        [ 'Unable to index passed element: %s', $value ]
+                    );
+
+            endswitch;
+        };
     }
 
 
@@ -54,7 +153,7 @@ class Arr
      * @param int        $priority
      * @param null|int   $idxInt
      *
-     * @return \Gzhegow\Support\Domain\Arr\ValueObjects\ExpandValue
+     * @return ExpandValue
      */
     protected function newExpandValue($value, $idx, int $ordering, int $priority = 0, int $idxInt = null) : ExpandValue
     {
@@ -84,6 +183,164 @@ class Arr
         throw new OutOfRangeException([ 'Index not found: %s', $path ]);
     }
 
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|array
+     */
+    public function arrval($value) : ?array
+    {
+        if (is_array($value)) {
+            return $value;
+
+        } elseif (is_null($value)) {
+            return [];
+
+        } elseif (is_scalar($value)) {
+            return [ $value ];
+
+        } elseif (is_iterable($value)) {
+            $result = [];
+
+            foreach ( $value as $key => $item ) {
+                ( null === ( $keyval = $this->keyval($key) ) )
+                    ? ( $result[ $keyval ] = $item )
+                    : ( $result[] = $item );
+            }
+
+            return $result;
+
+        } elseif (is_object($value)) {
+            // if (method_exists($value, 'toArray')) // too slow
+
+            $result = null;
+
+            try {
+                $result = $value->toArray();
+            }
+            catch ( \Throwable $e ) {
+            }
+
+            /** @noinspection PhpExpressionAlwaysNullInspection */
+
+            return $result;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return array
+     */
+    public function theArrval($value) : array
+    {
+        if (null === ( $arrval = $this->arrval($value) )) {
+            throw new InvalidArgumentException(
+                [ 'Value should be convertable to arrval: %s', $value ],
+            );
+        }
+
+        return $arrval;
+    }
+
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|int|float
+     */
+    public function keyval($value) // : ?int|float
+    {
+        if (null !== $this->filter->filterStrval($value)) {
+            return strval($value);
+        }
+
+        if (null !== $this->filter->filterIntval($value)) {
+            return intval($value);
+        }
+
+        return null;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|int|float
+     */
+    public function theKeyval($value) // : ?int|float
+    {
+        if (null === ( $keyval = $this->keyval($value) )) {
+            throw new InvalidArgumentException(
+                [ 'Value should be convertable to keyval: %s', $value ],
+            );
+        }
+
+        return $keyval;
+    }
+
+
+    /**
+     * @param int|string|array $keys
+     * @param null|bool        $uniq
+     *
+     * @return string[]
+     */
+    public function keyvals($keys, $uniq = null) : array
+    {
+        $result = [];
+
+        $keys = is_array($keys)
+            ? $keys
+            : [ $keys ];
+
+        array_walk_recursive($keys, function ($key) use (&$result) {
+            $result[] = $this->keyval($key);
+        });
+
+        if ($uniq ?? false) {
+            $arr = [];
+            foreach ( $result as $i ) {
+                $arr[ $i ] = true;
+            }
+            $result = array_keys($arr);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param int|string|array $keys
+     * @param null|bool        $uniq
+     *
+     * @return string[]
+     */
+    public function theKeyvals($keys, $uniq = null) : array
+    {
+        $result = [];
+
+        $keys = is_array($keys)
+            ? $keys
+            : [ $keys ];
+
+        array_walk_recursive($keys, function ($key) use (&$result) {
+            $result[] = $this->theKeyval($key);
+        });
+
+        if ($uniq ?? false) {
+            $arr = [];
+            foreach ( $result as $i ) {
+                $arr[ $i ] = true;
+            }
+            $result = array_keys($arr);
+        }
+
+        return $result;
+    }
+
+
     /**
      * @param string|array $path
      * @param array        $src
@@ -111,7 +368,6 @@ class Arr
         return $error === static::ERROR_FETCHREF_NO_ERROR;
     }
 
-
     /**
      * @param null|array   $dst
      * @param string|array $path
@@ -125,7 +381,6 @@ class Arr
 
         return $this;
     }
-
 
     /**
      * @param array        $src
@@ -191,7 +446,6 @@ class Arr
 
         return $result;
     }
-
 
     /**
      * @param null|array   $dst
@@ -277,6 +531,22 @@ class Arr
         return $result;
     }
 
+    /**
+     * возвращает индекс любого числа аргументов для создания поиска по массивам
+     *
+     * @param mixed ...$values
+     *
+     * @return string
+     */
+    public function indexed(...$values) : string
+    {
+        $list = $this->php->listval(...$values);
+
+        $this->walk_recursive($list, $this->indexer);
+
+        return json_encode($list);
+    }
+
 
     /**
      * в функцию array_intersect_key требуются ключи. можно делать array_flip(), а так будет производительнее
@@ -295,7 +565,6 @@ class Arr
 
         return $result;
     }
-
 
     /**
      * @param array                 $array
@@ -381,19 +650,7 @@ class Arr
             $values = array_fill(0, count($keys), $values);
         }
 
-        $strkeys = [];
-        $intkeys = [];
-        foreach ( $values as $argument ) {
-            if (is_array($argument)) {
-                foreach ( $argument as $key => $val ) {
-                    is_int($key)
-                        ? ( $intkeys[] = $val )
-                        : ( $strkeys[ $key ] = $val );
-                }
-            } else {
-                $intkeys[] = $argument;
-            }
-        }
+        [ $strkeys, $intkeys ] = $this->php->kwargs($values);
 
         $result = [];
         foreach ( $keys as $key ) {
@@ -554,7 +811,7 @@ class Arr
                 array_shift($fullpath);
             }
 
-            $nodeKey = $this->pathkey($path);
+            $nodeKey = $this->pathkey($path, $separators);
 
             ( count($fullpath) )
                 ? ( $this->set($nodes[ $nodeKey ], $fullpath, $value) )
@@ -707,13 +964,13 @@ class Arr
 
 
     /**
-     * @param array      $array
-     * @param callable   $callback
-     * @param null|mixed $arg
+     * @param array    $array
+     * @param callable $callback
+     * @param mixed    ...$args
      *
      * @return static
      */
-    public function walk_recursive(array &$array, $callback, $arg = null)
+    public function walk_recursive(array &$array, $callback, ...$args)
     {
         $queue = [];
         $pathes = [];
@@ -727,11 +984,14 @@ class Arr
             $processChildren = true;
 
             if ([] !== $pathes[ $key ]) {
-                $processChildren = ( 3 === func_num_args() )
-                    ? $callback($queue[ $key ], $pathes[ $key ], $arg)
-                    : $callback($queue[ $key ], $pathes[ $key ]);
-
-                $processChildren = boolval($processChildren ?? true);
+                try {
+                    ( 3 <= func_num_args() )
+                        ? $callback($queue[ $key ], $pathes[ $key ], ...$args)
+                        : $callback($queue[ $key ], $pathes[ $key ]);
+                }
+                catch ( \Exception $e ) {
+                    $processChildren = false;
+                }
             }
 
             $hasChildren = $processChildren
@@ -752,13 +1012,13 @@ class Arr
     }
 
     /**
-     * @param array      $iterable
-     * @param callable   $callback
-     * @param null|mixed $arg
+     * @param array    $iterable
+     * @param callable $callback
+     * @param mixed    ...$args
      *
      * @return static
      */
-    public function crawl_recursive(iterable $iterable, $callback, $arg = null)
+    public function crawl_recursive(iterable $iterable, $callback, ...$args)
     {
         $queue = [];
         $pathes = [];
@@ -772,11 +1032,14 @@ class Arr
             $processChildren = true;
 
             if ([] !== $pathes[ $key ]) {
-                $processChildren = ( 3 === func_num_args() )
-                    ? $callback($queue[ $key ], $pathes[ $key ], $arg)
-                    : $callback($queue[ $key ], $pathes[ $key ]);
-
-                $processChildren = boolval($processChildren ?? true);
+                try {
+                    ( 3 <= func_num_args() )
+                        ? $callback($queue[ $key ], $pathes[ $key ], ...$args)
+                        : $callback($queue[ $key ], $pathes[ $key ]);
+                }
+                catch ( \Exception $e ) {
+                    $processChildren = false;
+                }
             }
 
             $hasChildren = $processChildren
@@ -907,163 +1170,6 @@ class Arr
             }
 
             $indexIntegerPrev = $indexInteger;
-        }
-
-        return $result;
-    }
-
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|array
-     */
-    public function arrval($value) : ?array
-    {
-        if (is_array($value)) {
-            return $value;
-
-        } elseif (is_null($value)) {
-            return [];
-
-        } elseif (is_scalar($value)) {
-            return [ $value ];
-
-        } elseif (is_iterable($value)) {
-            $result = [];
-
-            foreach ( $value as $key => $item ) {
-                ( null === ( $keyval = $this->keyval($key) ) )
-                    ? ( $result[ $keyval ] = $item )
-                    : ( $result[] = $item );
-            }
-
-            return $result;
-
-        } elseif (is_object($value)) {
-            // if (method_exists($value, 'toArray')) // too slow
-
-            $result = null;
-
-            try {
-                $result = $value->toArray();
-            }
-            catch ( \Throwable $e ) {
-            }
-
-            /** @noinspection PhpExpressionAlwaysNullInspection */
-
-            return $result;
-        }
-
-        return null;
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return array
-     */
-    public function theArrval($value) : array
-    {
-        if (null === ( $arrval = $this->arrval($value) )) {
-            throw new InvalidArgumentException(
-                [ 'Value should be convertable to arrval: %s', $value ],
-            );
-        }
-
-        return $arrval;
-    }
-
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|int|float
-     */
-    public function keyval($value) // : ?int|float
-    {
-        if (null !== $this->filter->filterStrval($value)) {
-            return strval($value);
-        }
-
-        if (null !== $this->filter->filterIntval($value)) {
-            return intval($value);
-        }
-
-        return null;
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|int|float
-     */
-    public function theKeyval($value) // : ?int|float
-    {
-        if (null === ( $keyval = $this->keyval($value) )) {
-            throw new InvalidArgumentException(
-                [ 'Value should be convertable to keyval: %s', $value ],
-            );
-        }
-
-        return $keyval;
-    }
-
-
-    /**
-     * @param int|string|array $keys
-     * @param null|bool        $uniq
-     *
-     * @return string[]
-     */
-    public function keyvals($keys, $uniq = null) : array
-    {
-        $result = [];
-
-        $keys = is_array($keys)
-            ? $keys
-            : [ $keys ];
-
-        array_walk_recursive($keys, function ($key) use (&$result) {
-            $result[] = $this->keyval($key);
-        });
-
-        if ($uniq ?? false) {
-            $arr = [];
-            foreach ( $result as $i ) {
-                $arr[ $i ] = true;
-            }
-            $result = array_keys($arr);
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param int|string|array $keys
-     * @param null|bool        $uniq
-     *
-     * @return string[]
-     */
-    public function theKeyvals($keys, $uniq = null) : array
-    {
-        $result = [];
-
-        $keys = is_array($keys)
-            ? $keys
-            : [ $keys ];
-
-        array_walk_recursive($keys, function ($key) use (&$result) {
-            $result[] = $this->theKeyval($key);
-        });
-
-        if ($uniq ?? false) {
-            $arr = [];
-            foreach ( $result as $i ) {
-                $arr[ $i ] = true;
-            }
-            $result = array_keys($arr);
         }
 
         return $result;

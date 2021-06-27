@@ -2,7 +2,7 @@
 
 namespace Gzhegow\Support\Exceptions;
 
-use Gzhegow\Support\Exceptions\Domain\ExceptionTrait;
+use Gzhegow\Support\Domain\Exceptions\ExceptionTrait;
 
 
 /**

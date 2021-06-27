@@ -12,6 +12,7 @@ namespace Gzhegow\Support\Facades\Generated;
 
 use Gzhegow\Support\Cmp;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+use Gzhegow\Support\Interfaces\CmpInterface;
 
 abstract class GeneratedCmpFacade
 {

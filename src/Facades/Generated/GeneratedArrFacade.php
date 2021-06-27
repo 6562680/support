@@ -11,15 +11,53 @@
 namespace Gzhegow\Support\Facades\Generated;
 
 use Gzhegow\Support\Arr;
-use Gzhegow\Support\Domain\Arr\CrawlIterator;
 use Gzhegow\Support\Domain\Arr\ValueObjects\ExpandValue;
-use Gzhegow\Support\Domain\Arr\WalkIterator;
+use Gzhegow\Support\Exceptions\Error;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\Logic\OutOfRangeException;
 use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
+use Gzhegow\Support\Interfaces\ArrInterface;
 
 abstract class GeneratedArrFacade
 {
+    /**
+     * @return Arr
+     */
+    public static function reset()
+    {
+        return static::getInstance()->reset();
+    }
+
+    /**
+     * @param $indexer
+     *
+     * @return Arr
+     */
+    public static function clone(?callable $indexer)
+    {
+        return static::getInstance()->clone($indexer);
+    }
+
+    /**
+     * @param null|callable $indexer
+     *
+     * @return Arr
+     */
+    public static function with(?callable $indexer)
+    {
+        return static::getInstance()->with($indexer);
+    }
+
+    /**
+     * @param callable $indexer
+     *
+     * @return Arr
+     */
+    public static function withIndexer(callable $indexer)
+    {
+        return static::getInstance()->withIndexer($indexer);
+    }
+
     /**
      * @param string|array $path
      * @param array        $src
@@ -30,6 +68,68 @@ abstract class GeneratedArrFacade
     public static function getRef($path, array &$src, $default = "\x00")
     {
         return static::getInstance()->getRef($path, $src, $default);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|array
+     */
+    public static function arrval($value): ?array
+    {
+        return static::getInstance()->arrval($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return array
+     */
+    public static function theArrval($value): array
+    {
+        return static::getInstance()->theArrval($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|int|float
+     */
+    public static function keyval($value)
+    {
+        return static::getInstance()->keyval($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|int|float
+     */
+    public static function theKeyval($value)
+    {
+        return static::getInstance()->theKeyval($value);
+    }
+
+    /**
+     * @param int|string|array $keys
+     * @param null|bool        $uniq
+     *
+     * @return string[]
+     */
+    public static function keyvals($keys, $uniq = null): array
+    {
+        return static::getInstance()->keyvals($keys, $uniq);
+    }
+
+    /**
+     * @param int|string|array $keys
+     * @param null|bool        $uniq
+     *
+     * @return string[]
+     */
+    public static function theKeyvals($keys, $uniq = null): array
+    {
+        return static::getInstance()->theKeyvals($keys, $uniq);
     }
 
     /**
@@ -132,6 +232,18 @@ abstract class GeneratedArrFacade
     public static function index($separators = '.', ...$keys): string
     {
         return static::getInstance()->index($separators, ...$keys);
+    }
+
+    /**
+     * возвращает индекс любого числа аргументов для создания поиска по массивам
+     *
+     * @param mixed ...$values
+     *
+     * @return string
+     */
+    public static function indexed(...$values): string
+    {
+        return static::getInstance()->indexed(...$values);
     }
 
     /**
@@ -296,27 +408,27 @@ abstract class GeneratedArrFacade
     }
 
     /**
-     * @param array      $array
-     * @param callable   $callback
-     * @param null|mixed $arg
+     * @param array    $array
+     * @param callable $callback
+     * @param mixed    ...$args
      *
      * @return Arr
      */
-    public static function walk_recursive(array &$array, $callback, $arg = null)
+    public static function walk_recursive(array &$array, $callback, ...$args)
     {
-        return static::getInstance()->walk_recursive($array, $callback, $arg);
+        return static::getInstance()->walk_recursive($array, $callback, ...$args);
     }
 
     /**
-     * @param array      $iterable
-     * @param callable   $callback
-     * @param null|mixed $arg
+     * @param array    $iterable
+     * @param callable $callback
+     * @param mixed    ...$args
      *
      * @return Arr
      */
-    public static function crawl_recursive(iterable $iterable, $callback, $arg = null)
+    public static function crawl_recursive(iterable $iterable, $callback, ...$args)
     {
-        return static::getInstance()->crawl_recursive($iterable, $callback, $arg);
+        return static::getInstance()->crawl_recursive($iterable, $callback, ...$args);
     }
 
     /**
@@ -345,68 +457,6 @@ abstract class GeneratedArrFacade
     public static function expandMany(array $dst, array ...$expands): array
     {
         return static::getInstance()->expandMany($dst, ...$expands);
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|array
-     */
-    public static function arrval($value): ?array
-    {
-        return static::getInstance()->arrval($value);
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return array
-     */
-    public static function theArrval($value): array
-    {
-        return static::getInstance()->theArrval($value);
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|int|float
-     */
-    public static function keyval($value)
-    {
-        return static::getInstance()->keyval($value);
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return null|int|float
-     */
-    public static function theKeyval($value)
-    {
-        return static::getInstance()->theKeyval($value);
-    }
-
-    /**
-     * @param int|string|array $keys
-     * @param null|bool        $uniq
-     *
-     * @return string[]
-     */
-    public static function keyvals($keys, $uniq = null): array
-    {
-        return static::getInstance()->keyvals($keys, $uniq);
-    }
-
-    /**
-     * @param int|string|array $keys
-     * @param null|bool        $uniq
-     *
-     * @return string[]
-     */
-    public static function theKeyvals($keys, $uniq = null): array
-    {
-        return static::getInstance()->theKeyvals($keys, $uniq);
     }
 
     /**

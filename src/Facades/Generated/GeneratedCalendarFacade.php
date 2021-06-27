@@ -12,6 +12,7 @@ namespace Gzhegow\Support\Facades\Generated;
 
 use Gzhegow\Support\Calendar;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+use Gzhegow\Support\Interfaces\CalendarInterface;
 
 abstract class GeneratedCalendarFacade
 {

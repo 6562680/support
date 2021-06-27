@@ -10,7 +10,7 @@ class MathTest extends AbstractTestCase
 {
     protected function getMath() : Math
     {
-        return ( new SupportFactory() )->newMath();
+        return SupportFactory::getInstance()->newMath();
     }
 
 

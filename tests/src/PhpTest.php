@@ -10,7 +10,7 @@ class PhpTest extends AbstractTestCase
 {
     protected function getPhp() : Php
     {
-        return ( new SupportFactory() )->newPhp();
+        return SupportFactory::getInstance()->newPhp();
     }
 
 

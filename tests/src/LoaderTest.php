@@ -10,7 +10,7 @@ class LoaderTest extends AbstractTestCase
 {
     protected function getLoader() : Loader
     {
-        return ( new SupportFactory() )->newLoader();
+        return SupportFactory::getInstance()->newLoader();
     }
 
 

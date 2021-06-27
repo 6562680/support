@@ -25,28 +25,10 @@ class Str extends GeneratedStrFacade
 
 
     /**
-     * @param _Str $instance
-     *
-     * @return void
-     */
-    public static function withInstance(_Str $instance) : void
-    {
-        static::$instance[ static::class ] = $instance;
-    }
-
-    /**
      * @return _Str
      */
     public static function getInstance() : _Str
     {
-        return static::$instance[ static::class ] = null
-            ?? static::$instance[ static::class ]
-            ?? ( new SupportFactory() )->newStr();
+        return SupportFactory::getInstance()->getStr();
     }
-
-
-    /**
-     * @var _Str[]
-     */
-    protected static $instance = [];
 }

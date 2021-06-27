@@ -2,6 +2,7 @@
 
 namespace Gzhegow\Support;
 
+use Gzhegow\Support\Interfaces\CurlInterface;
 use Gzhegow\Support\Domain\Curl\CurlBlueprint;
 use Gzhegow\Support\Domain\Curl\CurlFormatter;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
@@ -10,7 +11,7 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 /**
  * Curl
  */
-class Curl
+class Curl implements CurlInterface
 {
     /**
      * @var Arr
@@ -53,8 +54,16 @@ class Curl
         $this->filter = $filter;
         $this->php = $php;
 
-        $this->formatter = $this->newFormatter();
+        $this->reset();
+    }
 
+
+    /**
+     * @return void
+     */
+    public function reset()
+    {
+        $this->formatter = $this->newFormatter();
         $this->blueprint = $this->newBlueprint([
             CURLOPT_HEADER         => 0,
             CURLOPT_RETURNTRANSFER => 1,
@@ -62,6 +71,49 @@ class Curl
             CURLOPT_SSL_VERIFYHOST => 0,
             CURLOPT_SSL_VERIFYPEER => 0,
         ]);
+    }
+
+
+    /**
+     * @param null|CurlBlueprint $blueprint
+     *
+     * @return static
+     */
+    public function clone(?CurlBlueprint $blueprint)
+    {
+        $instance = clone $this;
+
+        if (isset($blueprint)) $instance->withBlueprint($blueprint);
+
+        return $instance;
+    }
+
+
+    /**
+     * @param null|CurlBlueprint $blueprint
+     *
+     * @return static
+     */
+    public function with(?CurlBlueprint $blueprint)
+    {
+        $this->reset();
+
+        if (isset($blueprint)) $this->withBlueprint($blueprint);
+
+        return $this;
+    }
+
+
+    /**
+     * @param CurlBlueprint $blueprint
+     *
+     * @return static
+     */
+    public function withBlueprint(CurlBlueprint $blueprint)
+    {
+        $this->blueprint = $blueprint;
+
+        return $this;
     }
 
 
@@ -108,20 +160,6 @@ class Curl
         return $clone;
     }
 
-    /**
-     * @param CurlBlueprint $blueprint
-     *
-     * @return static
-     */
-    public function clone(CurlBlueprint $blueprint)
-    {
-        $instance = clone $this;
-
-        $instance->using($blueprint);
-
-        return $instance;
-    }
-
 
     /**
      * @return CurlBlueprint
@@ -129,19 +167,6 @@ class Curl
     public function getBlueprint() : CurlBlueprint
     {
         return $this->blueprint;
-    }
-
-
-    /**
-     * @param string $url
-     * @param mixed  $data
-     * @param array  $headers
-     *
-     * @return resource
-     */
-    public function get(string $url, $data = null, array $headers = [])
-    {
-        return $this->blueprint->get($url, $data, $headers);
     }
 
 
@@ -195,15 +220,15 @@ class Curl
 
 
     /**
-     * @param CurlBlueprint $blueprint
+     * @param string $url
+     * @param mixed  $data
+     * @param array  $headers
      *
-     * @return static
+     * @return resource
      */
-    public function using(CurlBlueprint $blueprint)
+    public function get(string $url, $data = null, array $headers = [])
     {
-        $this->blueprint = $blueprint;
-
-        return $this;
+        return $this->blueprint->get($url, $data, $headers);
     }
 
 

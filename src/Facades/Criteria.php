@@ -25,28 +25,10 @@ class Criteria extends GeneratedCriteriaFacade
 
 
     /**
-     * @param _Criteria $instance
-     *
-     * @return void
-     */
-    public static function withInstance(_Criteria $instance) : void
-    {
-        static::$instance[ static::class ] = $instance;
-    }
-
-    /**
      * @return _Criteria
      */
     public static function getInstance() : _Criteria
     {
-        return static::$instance[ static::class ] = null
-            ?? static::$instance[ static::class ]
-            ?? ( new SupportFactory() )->newCriteria();
+        return SupportFactory::getInstance()->getCriteria();
     }
-
-
-    /**
-     * @var _Criteria[]
-     */
-    protected static $instance = [];
 }

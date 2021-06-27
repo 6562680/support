@@ -12,6 +12,7 @@ namespace Gzhegow\Support\Facades\Generated;
 
 use Gzhegow\Support\Debug;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+use Gzhegow\Support\Interfaces\DebugInterface;
 
 abstract class GeneratedDebugFacade
 {

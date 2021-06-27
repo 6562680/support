@@ -25,28 +25,10 @@ class Fs extends GeneratedFsFacade
 
 
     /**
-     * @param _Fs $instance
-     *
-     * @return void
-     */
-    public static function withInstance(_Fs $instance) : void
-    {
-        static::$instance[ static::class ] = $instance;
-    }
-
-    /**
      * @return _Fs
      */
     public static function getInstance() : _Fs
     {
-        return static::$instance[ static::class ] = null
-            ?? static::$instance[ static::class ]
-            ?? ( new SupportFactory() )->newFs();
+        return SupportFactory::getInstance()->getFs();
     }
-
-
-    /**
-     * @var _Fs[]
-     */
-    protected static $instance = [];
 }

@@ -25,28 +25,10 @@ class Loader extends GeneratedLoaderFacade
 
 
     /**
-     * @param _Loader $instance
-     *
-     * @return void
-     */
-    public static function withInstance(_Loader $instance) : void
-    {
-        static::$instance[ static::class ] = $instance;
-    }
-
-    /**
      * @return _Loader
      */
     public static function getInstance() : _Loader
     {
-        return static::$instance[ static::class ] = null
-            ?? static::$instance[ static::class ]
-            ?? ( new SupportFactory() )->newLoader();
+        return SupportFactory::getInstance()->getLoader();
     }
-
-
-    /**
-     * @var _Loader[]
-     */
-    protected static $instance = [];
 }

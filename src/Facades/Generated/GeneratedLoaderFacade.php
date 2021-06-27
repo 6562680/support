@@ -11,6 +11,7 @@
 namespace Gzhegow\Support\Facades\Generated;
 
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+use Gzhegow\Support\Interfaces\LoaderInterface;
 use Gzhegow\Support\Loader;
 
 abstract class GeneratedLoaderFacade
@@ -120,6 +121,16 @@ abstract class GeneratedLoaderFacade
     public static function assertSubclassOf($value, $classes)
     {
         return static::getInstance()->assertSubclassOf($value, $classes);
+    }
+
+    /**
+     * @param mixed $classOrObject
+     *
+     * @return null|string
+     */
+    public static function classVal($classOrObject): ?string
+    {
+        return static::getInstance()->classVal($classOrObject);
     }
 
     /**
@@ -254,16 +265,6 @@ abstract class GeneratedLoaderFacade
     public static function searchDeclaredClass(callable $filter, int $limit = null, int $offset = 0): array
     {
         return static::getInstance()->searchDeclaredClass($filter, $limit, $offset);
-    }
-
-    /**
-     * @param mixed $classOrObject
-     *
-     * @return null|string
-     */
-    public static function classval($classOrObject): ?string
-    {
-        return static::getInstance()->classval($classOrObject);
     }
 
     /**

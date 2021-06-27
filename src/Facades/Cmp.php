@@ -25,28 +25,10 @@ class Cmp extends GeneratedCmpFacade
 
 
     /**
-     * @param _Cmp $instance
-     *
-     * @return void
-     */
-    public static function withInstance(_Cmp $instance) : void
-    {
-        static::$instance[ static::class ] = $instance;
-    }
-
-    /**
      * @return _Cmp
      */
     public static function getInstance() : _Cmp
     {
-        return static::$instance[ static::class ] = null
-            ?? static::$instance[ static::class ]
-            ?? ( new SupportFactory() )->newCmp();
+        return SupportFactory::getInstance()->getCmp();
     }
-
-
-    /**
-     * @var _Cmp[]
-     */
-    protected static $instance = [];
 }

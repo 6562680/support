@@ -19,16 +19,137 @@ use Gzhegow\Support\Curl;
 use Gzhegow\Support\Debug;
 use Gzhegow\Support\Loader;
 use Gzhegow\Support\Filter;
+use Gzhegow\Support\Format;
 use Gzhegow\Support\Calendar;
 use Gzhegow\Support\Profiler;
 use Gzhegow\Support\Criteria;
+use Psr\Container\ContainerInterface;
+use Gzhegow\Support\Domain\Filter\Type;
+use Gzhegow\Support\Domain\Filter\Assert;
 
 
 /**
- * SupportFactory
+ * SupportFactoryInterface
  */
 interface SupportFactoryInterface
+    extends ContainerInterface
 {
+    /**
+     * @return Arr
+     */
+    public function getArr() : Arr;
+
+    /**
+     * @return Calendar
+     */
+    public function getCalendar() : Calendar;
+
+    /**
+     * @return Cli
+     */
+    public function getCli() : Cli;
+
+    /**
+     * @return Cmp
+     */
+    public function getCmp() : Cmp;
+
+    /**
+     * @return Criteria
+     */
+    public function getCriteria() : Criteria;
+
+    /**
+     * @return Curl
+     */
+    public function getCurl() : Curl;
+
+    /**
+     * @return Debug
+     */
+    public function getDebug() : Debug;
+
+    /**
+     * @return Env
+     */
+    public function getEnv() : Env;
+
+    /**
+     * @return Filter
+     */
+    public function getFilter() : Filter;
+
+    /**
+     * @return Format
+     */
+    public function getFormat() : Format;
+
+    /**
+     * @return Fs
+     */
+    public function getFs() : Fs;
+
+    /**
+     * @return Loader
+     */
+    public function getLoader() : Loader;
+
+    /**
+     * @return Math
+     */
+    public function getMath() : Math;
+
+    /**
+     * @return Net
+     */
+    public function getNet() : Net;
+
+    /**
+     * @return Num
+     */
+    public function getNum() : Num;
+
+    /**
+     * @return Path
+     */
+    public function getPath() : Path;
+
+    /**
+     * @return Php
+     */
+    public function getPhp() : Php;
+
+    /**
+     * @return Preg
+     */
+    public function getPreg() : Preg;
+
+    /**
+     * @return Profiler
+     */
+    public function getProfiler() : Profiler;
+
+    /**
+     * @return Str
+     */
+    public function getStr() : Str;
+
+    /**
+     * @return Uri
+     */
+    public function getUri() : Uri;
+
+    /**
+     * @return Assert
+     */
+    public function getAssert() : Assert;
+
+    /**
+     * @return Type
+     */
+    public function getType() : Type;
+
+
     /**
      * @return Arr
      */
@@ -73,6 +194,11 @@ interface SupportFactoryInterface
      * @return Filter
      */
     public function newFilter() : Filter;
+
+    /**
+     * @return Format
+     */
+    public function newFormat() : Format;
 
     /**
      * @return Fs
@@ -128,4 +254,22 @@ interface SupportFactoryInterface
      * @return Uri
      */
     public function newUri() : Uri;
+
+    /**
+     * @return Assert
+     */
+    public function newAssert() : Assert;
+
+    /**
+     * @return Type
+     */
+    public function newType() : Type;
+
+
+    /**
+     * @param mixed $value
+     *
+     * @return $this
+     */
+    public function set($value);
 }

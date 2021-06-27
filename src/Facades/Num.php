@@ -25,28 +25,10 @@ class Num extends GeneratedNumFacade
 
 
     /**
-     * @param _Num $instance
-     *
-     * @return void
-     */
-    public static function withInstance(_Num $instance) : void
-    {
-        static::$instance[ static::class ] = $instance;
-    }
-
-    /**
      * @return _Num
      */
     public static function getInstance() : _Num
     {
-        return static::$instance[ static::class ] = null
-            ?? static::$instance[ static::class ]
-            ?? ( new SupportFactory() )->newNum();
+        return SupportFactory::getInstance()->getNum();
     }
-
-
-    /**
-     * @var _Num[]
-     */
-    protected static $instance = [];
 }

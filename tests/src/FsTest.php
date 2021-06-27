@@ -10,7 +10,7 @@ class FsTest extends AbstractTestCase
 {
     protected function getFs() : Fs
     {
-        return ( new SupportFactory() )->newFs();
+        return SupportFactory::getInstance()->newFs();
     }
 
 

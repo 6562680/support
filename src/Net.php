@@ -3,10 +3,13 @@
 namespace Gzhegow\Support;
 
 
+use Gzhegow\Support\Interfaces\NetInterface;
+
+
 /**
  * Net
  */
-class Net
+class Net implements NetInterface
 {
     /**
      * @var Str

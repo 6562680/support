@@ -25,28 +25,10 @@ class Filter extends GeneratedFilterFacade
 
 
     /**
-     * @param _Filter $instance
-     *
-     * @return void
-     */
-    public static function withInstance(_Filter $instance) : void
-    {
-        static::$instance[ static::class ] = $instance;
-    }
-
-    /**
      * @return _Filter
      */
     public static function getInstance() : _Filter
     {
-        return static::$instance[ static::class ] = null
-            ?? static::$instance[ static::class ]
-            ?? ( new SupportFactory() )->newFilter();
+        return SupportFactory::getInstance()->getFilter();
     }
-
-
-    /**
-     * @var _Filter[]
-     */
-    protected static $instance = [];
 }

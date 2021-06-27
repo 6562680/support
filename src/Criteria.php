@@ -2,13 +2,14 @@
 
 namespace Gzhegow\Support;
 
+use Gzhegow\Support\Interfaces\CriteriaInterface;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
  * Criteria
  */
-class Criteria
+class Criteria implements CriteriaInterface
 {
     const OPERATOR_BTW     = 'btw';
     const OPERATOR_ENDS    = 'ends';
@@ -18,12 +19,12 @@ class Criteria
     const OPERATOR_IN      = 'in';
     const OPERATOR_LT      = 'lt';
     const OPERATOR_LTE     = 'lte';
-    const OPERATOR_NBTW    = '!btw';
-    const OPERATOR_NENDS   = '!ends';
-    const OPERATOR_NEQ     = '!eq';
-    const OPERATOR_NIN     = '!in';
-    const OPERATOR_NSTARTS = '!starts';
-    const OPERATOR_NSUBSTR = '!substr';
+    const OPERATOR_NBTW    = 'nbtw';
+    const OPERATOR_NENDS   = 'nends';
+    const OPERATOR_NEQ     = 'neq';
+    const OPERATOR_NIN     = 'nin';
+    const OPERATOR_NSTARTS = 'nstarts';
+    const OPERATOR_NSUBSTR = 'nsubstr';
     const OPERATOR_STARTS  = 'starts';
     const OPERATOR_SUBSTR  = 'substr';
 

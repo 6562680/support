@@ -11,7 +11,7 @@ class NumTest extends AbstractTestCase
 {
     protected function getNum() : Num
     {
-        return ( new SupportFactory() )->newNum();
+        return SupportFactory::getInstance()->newNum();
     }
 
 

@@ -25,28 +25,10 @@ class Path extends GeneratedPathFacade
 
 
     /**
-     * @param _Path $instance
-     *
-     * @return void
-     */
-    public static function withInstance(_Path $instance) : void
-    {
-        static::$instance[ static::class ] = $instance;
-    }
-
-    /**
      * @return _Path
      */
     public static function getInstance() : _Path
     {
-        return static::$instance[ static::class ] = null
-            ?? static::$instance[ static::class ]
-            ?? ( new SupportFactory() )->newPath();
+        return SupportFactory::getInstance()->getPath();
     }
-
-
-    /**
-     * @var _Path[]
-     */
-    protected static $instance = [];
 }

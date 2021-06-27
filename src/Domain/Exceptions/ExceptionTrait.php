@@ -1,8 +1,9 @@
 <?php
 
-namespace Gzhegow\Support\Exceptions\Domain;
+namespace Gzhegow\Support\Domain\Exceptions;
 
 use Gzhegow\Support\Debug;
+use Gzhegow\Support\Domain\SupportFactory;
 
 
 /**
@@ -47,6 +48,7 @@ trait ExceptionTrait
      */
     protected $reportTrace;
 
+
     /**
      * @return array
      */
@@ -75,13 +77,6 @@ trait ExceptionTrait
         return $trace;
     }
 
-    /**
-     * @return Debug
-     */
-    protected function newDebug() : Debug
-    {
-        return new Debug();
-    }
 
     /**
      * @param mixed ...$arguments
@@ -114,6 +109,7 @@ trait ExceptionTrait
 
         return $result;
     }
+
 
     /**
      * @return string
@@ -224,7 +220,7 @@ trait ExceptionTrait
      */
     protected function parseMessage($message) : array
     {
-        $debug = $this->newDebug();
+        $debug = SupportFactory::getInstance()->getDebug();
 
         $arguments = is_array($message)
             ? $message

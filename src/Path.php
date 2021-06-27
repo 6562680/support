@@ -3,13 +3,14 @@
 namespace Gzhegow\Support;
 
 
+use Gzhegow\Support\Interfaces\PathInterface;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
  * Path
  */
-class Path
+class Path implements PathInterface
 {
     /**
      * @var Filter
@@ -54,27 +55,46 @@ class Path
 
 
     /**
-     * @param string|string[]|array ...$delimiters
+     * @return static
+     */
+    public function reset()
+    {
+        $this->separator = '/';
+        $this->delimiters = [ '/' ];
+
+        return $this;
+    }
+
+
+    /**
+     * @param null|string       $separator
+     * @param null|string|array $delimiters
      *
      * @return static
      */
-    public function clone(...$delimiters)
+    public function clone(?string $separator, ?array $delimiters)
     {
         $instance = clone $this;
 
-        $instance->with(...$delimiters);
+        if (isset($separator)) $this->withSeparator($separator);
+        if (isset($delimiters)) $this->withDelimiters($delimiters);
 
         return $instance;
     }
 
+
     /**
-     * @param string|string[] $delimiters
+     * @param null|string       $separator
+     * @param null|string|array $delimiters
      *
      * @return static
      */
-    public function with(...$delimiters)
+    public function with(?string $separator, ?array $delimiters)
     {
-        $this->withDelimiters($delimiters);
+        $this->reset();
+
+        if (isset($separator)) $this->withSeparator($separator);
+        if (isset($delimiters)) $this->withDelimiters($delimiters);
 
         return $this;
     }
@@ -87,6 +107,8 @@ class Path
      */
     public function withSeparator(string $separator)
     {
+        $this->str->theWordval($separator);
+
         $this->separator = $separator;
 
         return $this;
@@ -99,16 +121,15 @@ class Path
      */
     public function withDelimiters(array $delimiters)
     {
-        $delimitersWord = $this->str->theWordvals($delimiters, true);
+        $list = $this->str->theWordvals($delimiters, true);
 
-        if (! $delimitersWord) {
+        if (! $list) {
             throw new InvalidArgumentException(
                 [ 'At least one delimiter should be passed: %s', $delimiters ]
             );
         }
 
-        $this->separator = $delimitersWord[ 0 ];
-        $this->delimiters = $delimitersWord;
+        $this->delimiters = $list;
 
         return $this;
     }
@@ -138,7 +159,9 @@ class Path
      */
     public function optimize(string $path) : string
     {
-        $result = str_replace($this->delimiters, $this->separator, $path);
+        $separators = $this->separators();
+
+        $result = str_replace($separators, $this->separator, $path);
 
         return $result;
     }
@@ -181,17 +204,18 @@ class Path
      */
     public function split(...$strvals) : array
     {
-        $delimiters = implode('', $this->delimiters);
+        $separators = $this->separators();
+        $separatorsImplode = implode('', $separators);
 
         // network: \\c\\documents
         // path: dir;./dir;~/dir;/dir
         // url: ftp://web;//web
         [ $protocol, $list ] = $this->protocol(...$strvals);
 
-        $split = $this->str->explode($this->delimiters, $list);
+        $split = $this->str->explode($separators, $list);
 
         foreach ( $split as $idx => $e ) {
-            $split[ $idx ] = trim($e, $delimiters);
+            $split[ $idx ] = trim($e, $separatorsImplode);
         }
 
         $split = array_filter($split, 'strlen');
@@ -216,7 +240,8 @@ class Path
      */
     public function join(...$strvals) : string
     {
-        $delimiters = implode('', $this->delimiters);
+        $separators = $this->separators();
+        $separatorsImplode = implode('', $separators);
 
         // network: \\c\\documents
         // path: dir;./dir;~/dir;/dir
@@ -224,7 +249,7 @@ class Path
         [ $protocol, $list ] = $this->protocol(...$strvals);
 
         foreach ( $list as $idx => $l ) {
-            $list[ $idx ] = ltrim($l, $delimiters);
+            $list[ $idx ] = ltrim($l, $separatorsImplode);
         }
 
         $result = $this->str->joinSkip($this->separator, $list);
@@ -244,16 +269,18 @@ class Path
      */
     public function concat(...$strvals) : string
     {
+        $separators = $this->separators();
+
         $words = $this->str->strvals($strvals);
         $words = array_filter($words, 'strlen');
 
         $result = array_shift($words);
 
-        $resultSteps = $this->str->explode($this->delimiters, $result);
+        $resultSteps = $this->str->explode($separators, $result);
         $resultSteps = array_values(array_filter($resultSteps, 'strlen'));
 
         foreach ( $words as $word ) {
-            $wordSteps = $this->str->explode($this->delimiters, $word);
+            $wordSteps = $this->str->explode($separators, $word);
             $wordSteps = array_values(array_filter($wordSteps, 'strlen'));
 
             $len = count($wordSteps);
@@ -365,9 +392,11 @@ class Path
      */
     public function protocol(...$strings) : array
     {
+        $separators = $this->separators();
+
         $list = $this->str->theStrvals($strings);
 
-        $delimiters = implode('', $this->delimiters);
+        $delimiters = implode('', $separators);
 
         $first = null !== key($list)
             ? reset($list)
@@ -382,5 +411,14 @@ class Path
         }
 
         return [ $protocol, $list ];
+    }
+
+
+    /**
+     * @return array
+     */
+    protected function separators() : array
+    {
+        return array_merge([ $this->separator ], $this->delimiters);
     }
 }

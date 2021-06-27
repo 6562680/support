@@ -25,28 +25,10 @@ class Net extends GeneratedNetFacade
 
 
     /**
-     * @param _Net $instance
-     *
-     * @return void
-     */
-    public static function withInstance(_Net $instance) : void
-    {
-        static::$instance[ static::class ] = $instance;
-    }
-
-    /**
      * @return _Net
      */
     public static function getInstance() : _Net
     {
-        return static::$instance[ static::class ] = null
-            ?? static::$instance[ static::class ]
-            ?? ( new SupportFactory() )->newNet();
+        return SupportFactory::getInstance()->getNet();
     }
-
-
-    /**
-     * @var _Net[]
-     */
-    protected static $instance = [];
 }

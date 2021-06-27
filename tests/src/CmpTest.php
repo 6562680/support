@@ -11,12 +11,12 @@ class CmpTest extends AbstractTestCase
 {
     protected function getCalendar() : Calendar
     {
-        return ( new SupportFactory() )->newCalendar();
+        return SupportFactory::getInstance()->newCalendar();
     }
 
     protected function getCmp() : Cmp
     {
-        return ( new SupportFactory() )->newCmp();
+        return SupportFactory::getInstance()->newCmp();
     }
 
 

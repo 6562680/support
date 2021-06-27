@@ -14,6 +14,7 @@ use Gzhegow\Support\Cli;
 use Gzhegow\Support\Exceptions\Logic\BadFunctionCallException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\RuntimeException;
+use Gzhegow\Support\Interfaces\CliInterface;
 
 abstract class GeneratedCliFacade
 {

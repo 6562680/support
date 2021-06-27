@@ -2,13 +2,14 @@
 
 namespace Gzhegow\Support;
 
+use Gzhegow\Support\Interfaces\CalendarInterface;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
  * Calendar
  */
-class Calendar
+class Calendar implements CalendarInterface
 {
     const FORMAT_SQL_DATE     = 'Y-m-d';
     const FORMAT_SQL_DATETIME = 'Y-m-d H:i:s';

@@ -10,7 +10,7 @@ class UriTest extends AbstractTestCase
 {
     protected function getUri() : Uri
     {
-        return ( new SupportFactory() )->newUri();
+        return SupportFactory::getInstance()->newUri();
     }
 
 

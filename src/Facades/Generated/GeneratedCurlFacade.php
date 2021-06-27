@@ -14,9 +14,48 @@ use Gzhegow\Support\Curl;
 use Gzhegow\Support\Domain\Curl\CurlBlueprint;
 use Gzhegow\Support\Domain\Curl\CurlFormatter;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+use Gzhegow\Support\Interfaces\CurlInterface;
 
 abstract class GeneratedCurlFacade
 {
+    /**
+     * @return void
+     */
+    public static function reset()
+    {
+        return static::getInstance()->reset();
+    }
+
+    /**
+     * @param null|CurlBlueprint $blueprint
+     *
+     * @return Curl
+     */
+    public static function clone(?CurlBlueprint $blueprint)
+    {
+        return static::getInstance()->clone($blueprint);
+    }
+
+    /**
+     * @param null|CurlBlueprint $blueprint
+     *
+     * @return Curl
+     */
+    public static function with(?CurlBlueprint $blueprint)
+    {
+        return static::getInstance()->with($blueprint);
+    }
+
+    /**
+     * @param CurlBlueprint $blueprint
+     *
+     * @return Curl
+     */
+    public static function withBlueprint(CurlBlueprint $blueprint)
+    {
+        return static::getInstance()->withBlueprint($blueprint);
+    }
+
     /**
      * @param array $curlOptArray
      *
@@ -46,33 +85,11 @@ abstract class GeneratedCurlFacade
     }
 
     /**
-     * @param CurlBlueprint $blueprint
-     *
-     * @return Curl
-     */
-    public static function clone(CurlBlueprint $blueprint)
-    {
-        return static::getInstance()->clone($blueprint);
-    }
-
-    /**
      * @return CurlBlueprint
      */
     public static function getBlueprint(): CurlBlueprint
     {
         return static::getInstance()->getBlueprint();
-    }
-
-    /**
-     * @param string $url
-     * @param mixed  $data
-     * @param array  $headers
-     *
-     * @return resource
-     */
-    public static function get(string $url, $data = null, array $headers = [])
-    {
-        return static::getInstance()->get($url, $data, $headers);
     }
 
     /**
@@ -107,13 +124,15 @@ abstract class GeneratedCurlFacade
     }
 
     /**
-     * @param CurlBlueprint $blueprint
+     * @param string $url
+     * @param mixed  $data
+     * @param array  $headers
      *
-     * @return Curl
+     * @return resource
      */
-    public static function using(CurlBlueprint $blueprint)
+    public static function get(string $url, $data = null, array $headers = [])
     {
-        return static::getInstance()->using($blueprint);
+        return static::getInstance()->get($url, $data, $headers);
     }
 
     /**

@@ -2,13 +2,14 @@
 
 namespace Gzhegow\Support;
 
+use Gzhegow\Support\Interfaces\CmpInterface;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
  * Cmp
  */
-class Cmp
+class Cmp implements CmpInterface
 {
     /**
      * @var Calendar

@@ -25,28 +25,10 @@ class Env extends GeneratedEnvFacade
 
 
     /**
-     * @param _Env $instance
-     *
-     * @return void
-     */
-    public static function withInstance(_Env $instance) : void
-    {
-        static::$instance[ static::class ] = $instance;
-    }
-
-    /**
      * @return _Env
      */
     public static function getInstance() : _Env
     {
-        return static::$instance[ static::class ] = null
-            ?? static::$instance[ static::class ]
-            ?? ( new SupportFactory() )->newEnv();
+        return SupportFactory::getInstance()->getEnv();
     }
-
-
-    /**
-     * @var _Env[]
-     */
-    protected static $instance = [];
 }

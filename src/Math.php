@@ -3,6 +3,7 @@
 namespace Gzhegow\Support;
 
 use Gzhegow\Support\Domain\Math\Bcval;
+use Gzhegow\Support\Interfaces\MathInterface;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 use Gzhegow\Support\Exceptions\Runtime\OutOfBoundsException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
@@ -11,7 +12,7 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 /**
  * Math
  */
-class Math
+class Math implements MathInterface
 {
     /**
      * @var Filter
@@ -56,16 +57,31 @@ class Math
 
 
     /**
+     * @return static
+     */
+    public function reset()
+    {
+        $this->scale = null;
+        $this->scaleMax = 20;
+
+        // bcscale(0);
+
+        return $this;
+    }
+
+
+    /**
      * @param null|int $scale
      * @param null|int $scaleMax
      *
      * @return static
      */
-    public function clone(int $scale = null, int $scaleMax = null)
+    public function clone(?int $scale, ?int $scaleMax)
     {
         $instance = clone $this;
 
-        $instance->with($scale, $scaleMax);
+        if (isset($scale)) $this->withScale($scale);
+        if (isset($scaleMax)) $this->withScaleMax($scaleMax);
 
         return $instance;
     }
@@ -77,8 +93,10 @@ class Math
      *
      * @return static
      */
-    public function with(int $scale = null, int $scaleMax = null)
+    public function with(?int $scale, ?int $scaleMax)
     {
+        $this->reset();
+
         if (is_int($scale)) $this->withScale($scale);
         if (is_int($scaleMax)) $this->withScaleMax($scaleMax);
 
@@ -97,19 +115,10 @@ class Math
 
         $this->scale = $scale;
 
-        return $this;
-    }
-
-    /**
-     * @return static
-     */
-    public function withoutScale()
-    {
-        $this->scale = null;
+        // bcscale($scale);
 
         return $this;
     }
-
 
     /**
      * @param int $scaleMax
@@ -140,9 +149,9 @@ class Math
 
 
     /**
-     * @return int
+     * @return null|int
      */
-    public function getScale() : int
+    public function getScale() : ?int
     {
         return $this->scale;
     }
@@ -340,7 +349,6 @@ class Math
      *
      * @return null|Bcval
      */
-    // public function bcval($number) : ?string
     public function bcval($number) : ?Bcval
     {
         if (is_a($number, Bcval::class)) {
@@ -1055,20 +1063,6 @@ class Math
         foreach ( $keysAll as $i ) {
             $result[ $i ] = $src[ $i ];
         }
-
-        // $mod = 0;
-        // if ($safe) {
-        //     foreach ( $keysResult as $i ) {
-        //         $val = $result[ $i ];
-        //
-        //         $floor = floor($val / $dec) * $dec;
-        //         $mod += $val - $floor;
-        //
-        //         $result[ $i ] = $floor;
-        //     }
-        //
-        //     $result[] = round($mod / $dec) * $dec;
-        // }
 
         return $result;
     }

@@ -5,6 +5,7 @@ namespace Gzhegow\Support\Facades;
 use Gzhegow\Support\Php as _Php;
 use Gzhegow\Support\Domain\SupportFactory;
 use Gzhegow\Support\Facades\Generated\GeneratedPhpFacade;
+use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 
 
 /**
@@ -13,18 +14,21 @@ use Gzhegow\Support\Facades\Generated\GeneratedPhpFacade;
 class Php extends GeneratedPhpFacade
 {
     /**
-     * @return _Php
+     * Constructor
      */
-    public static function getInstance() : _Php
+    final private function __construct()
     {
-        return static::$instance[ static::class ] = null
-            ?? static::$instance[ static::class ]
-            ?? ( new SupportFactory() )->newPhp();
+        throw new BadMethodCallException(
+            [ 'Facade should be used statically: %s', static::class ]
+        );
     }
 
 
     /**
-     * @var _Php[]
+     * @return _Php
      */
-    protected static $instance = [];
+    public static function getInstance() : _Php
+    {
+        return SupportFactory::getInstance()->getPhp();
+    }
 }

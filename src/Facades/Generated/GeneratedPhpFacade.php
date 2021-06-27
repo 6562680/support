@@ -13,6 +13,7 @@ namespace Gzhegow\Support\Facades\Generated;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Exceptions\Runtime\UnexpectedValueException;
+use Gzhegow\Support\Interfaces\PhpInterface;
 use Gzhegow\Support\Php;
 
 abstract class GeneratedPhpFacade
@@ -158,9 +159,9 @@ abstract class GeneratedPhpFacade
     }
 
     /**
-     * возвращает строчный идентификатор значения любой переменной в виде строки для дальнейшего сравнения
+     * возвращает идентификатор значения любой переменной в виде строки для дальнейшего сравнения
      * идентификаторы могут быть позже использованы другими обьектами
-     * поэтому его актуальность до тех пор, пока конкретный обьект существует
+     * поэтому его актуальность до тех пор, пока конкретный обьект существует в памяти
      *
      * @param mixed $value
      *
