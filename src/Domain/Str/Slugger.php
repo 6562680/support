@@ -75,6 +75,7 @@ class Slugger implements SluggerInterface
         $sequences = [];
         foreach ( $sequencesMap as $sequence ) {
             $keys = array_keys($sequence);
+            $sequence = array_values($sequence);
 
             $cnt = count($sequence);
             $max = implode('', array_fill(0, $cnt, 1));
