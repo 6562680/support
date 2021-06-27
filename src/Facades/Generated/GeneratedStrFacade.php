@@ -703,6 +703,18 @@ abstract class GeneratedStrFacade
     }
 
     /**
+     * @param string      $string
+     * @param null|string $delimiter
+     * @param null|string $locale
+     *
+     * @return string
+     */
+    public static function slugLower(string $string, string $delimiter = null, string $locale = null): string
+    {
+        return static::getInstance()->slugLower($string, $delimiter, $locale);
+    }
+
+    /**
      * @param string   $singular
      * @param null|int $limit
      * @param int      $offset

@@ -251,7 +251,7 @@ class Slugger implements SluggerInterface
         } else {
             $result = null
                 ?? $this->translitTransliterator($string)
-                ?? $this->translitIconv($string)
+                // ?? $this->translitIconv($string)
                 ?? $this->translitNative($string);
 
             $replacer = '-';
@@ -334,26 +334,6 @@ class Slugger implements SluggerInterface
         $join = implode('; ', $join);
 
         $result = $func($join, $string);
-
-        return $result;
-    }
-
-    /**
-     * @param string $string
-     *
-     * @return null|string
-     */
-    protected function translitIconv(string $string) : ?string
-    {
-        $func = 'iconv';
-
-        if (! ( extension_loaded('iconv') && function_exists($func) )) {
-            return null;
-        }
-
-        $result = ( false !== ( $transliterated = $func('utf-8', 'us-ascii//TRANSLIT', $string) ) )
-            ? $transliterated
-            : null;
 
         return $result;
     }
@@ -444,4 +424,27 @@ class Slugger implements SluggerInterface
             'zh'   => [ 'ж' ],
         ];
     }
+
+
+    // iconv(): Detected an illegal character in input string
+    // /**
+    //  * @param string $string
+    //  *
+    //  * @return null|string
+    //  */
+    // protected function translitIconv(string $string) : ?string
+    // {
+    //     $func = 'iconv';
+    //
+    //     if (! ( extension_loaded('iconv') && function_exists($func) )) {
+    //         return null;
+    //     }
+    //
+    //     // $result = ( false !== ( $transliterated = $func('UTF-8', 'US-ASCII//IGNORE//TRANSLIT', $string) ) )
+    //     $result = ( false !== ( $transliterated = $func('UTF-8', 'US-ASCII//TRANSLIT', $string) ) )
+    //         ? $transliterated
+    //         : null;
+    //
+    //     return $result;
+    // }
 }

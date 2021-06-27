@@ -552,6 +552,15 @@ interface StrInterface
     public function slug(string $string, string $delimiter = null, string $locale = null): string;
 
     /**
+     * @param string      $string
+     * @param null|string $delimiter
+     * @param null|string $locale
+     *
+     * @return string
+     */
+    public function slugLower(string $string, string $delimiter = null, string $locale = null): string;
+
+    /**
      * @param string   $singular
      * @param null|int $limit
      * @param int      $offset

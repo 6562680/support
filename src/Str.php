@@ -1546,6 +1546,22 @@ class Str implements StrInterface
         return $result;
     }
 
+    /**
+     * @param string      $string
+     * @param null|string $delimiter
+     * @param null|string $locale
+     *
+     * @return string
+     */
+    public function slugLower(string $string, string $delimiter = null, string $locale = null) : string
+    {
+        $result = $this->slug($string, $delimiter, $locale);
+
+        $result = strtolower($result);
+
+        return $result;
+    }
+
 
     /**
      * @param string   $singular
