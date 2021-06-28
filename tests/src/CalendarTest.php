@@ -18,8 +18,8 @@ class CalendarTest extends AbstractTestCase
     {
         $calendar = $this->getCalendar();
 
-        $nowSame1 = $calendar->nowSame();
-        $nowSame2 = $calendar->nowSame();
+        $nowSame1 = $calendar->now();
+        $nowSame2 = $calendar->now();
 
         $this->assertEquals(true, $calendar->isSame($nowSame1, $nowSame2));
     }
@@ -29,8 +29,8 @@ class CalendarTest extends AbstractTestCase
     {
         $calendar = $this->getCalendar();
 
-        $now = $calendar->now();
-        $nowSame = $calendar->nowSame();
+        $now = $calendar->nowInstant();
+        $nowSame = $calendar->now();
 
         $this->assertEquals(true, $calendar->isBefore($now, $nowSame));
     }
@@ -39,9 +39,9 @@ class CalendarTest extends AbstractTestCase
     {
         $calendar = $this->getCalendar();
 
-        $now = $calendar->now();
-        $nowSame1 = $calendar->nowSame();
-        $nowSame2 = $calendar->nowSame();
+        $now = $calendar->nowInstant();
+        $nowSame1 = $calendar->now();
+        $nowSame2 = $calendar->now();
 
         $this->assertEquals(true, $calendar->isBeforeOrSame($now, $nowSame1));
         $this->assertEquals(true, $calendar->isBeforeOrSame($nowSame1, $nowSame2));
@@ -52,8 +52,8 @@ class CalendarTest extends AbstractTestCase
     {
         $calendar = $this->getCalendar();
 
-        $now = $calendar->now();
-        $nowSame = $calendar->nowSame();
+        $now = $calendar->nowInstant();
+        $nowSame = $calendar->now();
 
         $this->assertEquals(true, $calendar->isAfter($nowSame, $now));
     }
@@ -62,9 +62,9 @@ class CalendarTest extends AbstractTestCase
     {
         $calendar = $this->getCalendar();
 
-        $now = $calendar->now();
-        $nowSame1 = $calendar->nowSame();
-        $nowSame2 = $calendar->nowSame();
+        $now = $calendar->nowInstant();
+        $nowSame1 = $calendar->now();
+        $nowSame2 = $calendar->now();
 
         $this->assertEquals(true, $calendar->isAfterOrSame($nowSame1, $now));
         $this->assertEquals(true, $calendar->isAfterOrSame($nowSame1, $nowSame2));
@@ -75,10 +75,10 @@ class CalendarTest extends AbstractTestCase
     {
         $calendar = $this->getCalendar();
 
-        $now1 = $calendar->now();
-        $now2 = $calendar->now();
-        $now3 = $calendar->now();
-        $now4 = $calendar->now();
+        $now1 = $calendar->nowInstant();
+        $now2 = $calendar->nowInstant();
+        $now3 = $calendar->nowInstant();
+        $now4 = $calendar->nowInstant();
 
         $this->assertEquals(true, $calendar->isBetween($now2, [ $now1, $now3, $now4 ]));
     }
@@ -87,10 +87,10 @@ class CalendarTest extends AbstractTestCase
     {
         $calendar = $this->getCalendar();
 
-        $now1 = $calendar->now();
-        $now2 = $calendar->now();
-        $now3 = $calendar->now();
-        $now4 = $calendar->now();
+        $now1 = $calendar->nowInstant();
+        $now2 = $calendar->nowInstant();
+        $now3 = $calendar->nowInstant();
+        $now4 = $calendar->nowInstant();
 
         $this->assertEquals(true, $calendar->isIntersect(
             [ $now1, $now3 ],
@@ -103,8 +103,8 @@ class CalendarTest extends AbstractTestCase
     {
         $calendar = $this->getCalendar();
 
-        $now1 = $calendar->now();
-        $now2 = $calendar->now();
+        $now1 = $calendar->nowInstant();
+        $now2 = $calendar->nowInstant();
         $calendar->add($now2, '1', 'day');
 
         $this->assertEquals(1, $now2->diff($now1)->d);
@@ -114,8 +114,8 @@ class CalendarTest extends AbstractTestCase
     {
         $calendar = $this->getCalendar();
 
-        $now1 = $calendar->nowSame();
-        $now2 = $calendar->nowSame();
+        $now1 = $calendar->now();
+        $now2 = $calendar->now();
         $now2->add(new \DateInterval('P1D'));
 
         $this->assertEquals(-86400, $calendar->diff($now1, $now2));
@@ -188,25 +188,25 @@ class CalendarTest extends AbstractTestCase
     {
         $calendar = $this->getCalendar();
 
-        $now0 = date_create();
-        $now1 = $calendar->now();
-        $now2 = $calendar->now();
-
-        $this->assertGreaterThan($now0, $now1);
-        $this->assertGreaterThan($now0, $now2);
-        $this->assertGreaterThan($now1, $now2);
-    }
-
-    public function testToday()
-    {
-        $calendar = $this->getCalendar();
-
         $now = date_create();
-        $nowSame1 = $calendar->nowSame();
-        $nowSame2 = $calendar->nowSame();
+        $nowSame1 = $calendar->now();
+        $nowSame2 = $calendar->now();
 
         $this->assertGreaterThan($now, $nowSame1);
         $this->assertGreaterThan($now, $nowSame2);
         $this->assertEquals($nowSame1, $nowSame2);
+    }
+
+    public function testNowInstant()
+    {
+        $calendar = $this->getCalendar();
+
+        $now0 = date_create();
+        $now1 = $calendar->nowInstant();
+        $now2 = $calendar->nowInstant();
+
+        $this->assertGreaterThan($now0, $now1);
+        $this->assertGreaterThan($now0, $now2);
+        $this->assertGreaterThan($now1, $now2);
     }
 }

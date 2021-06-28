@@ -104,6 +104,7 @@ class Calendar implements CalendarInterface
         return $this->defaultTimezone;
     }
 
+
     /**
      * @param string|\DateTimeZone $timezone
      *
@@ -761,7 +762,7 @@ class Calendar implements CalendarInterface
     {
         return null
             ?? $this->tryTimezoneFromInstance($timezone)
-            ?? $this->tryTimezoneFromNumval($timezone, $isDst)
+            ?? $this->tryTimezoneFromNumeric($timezone, $isDst)
             ?? $this->tryTimezoneFromString($timezone, $isDst, $utcOffset);
     }
 
@@ -841,268 +842,6 @@ class Calendar implements CalendarInterface
         }
 
         return $result;
-    }
-
-
-    /**
-     * @param int|float|string|\DateTimeInterface|mixed $date
-     * @param string|\DateInterval                      $interval
-     * @param null|string                               $unit
-     *
-     * @return \DateTime
-     */
-    public function add($date, $interval, $unit = null) : \DateTimeInterface
-    {
-        $date = $this->theDateVal($date);
-
-        $date->add($this->theIntervalVal($interval, $unit));
-
-        return $date;
-    }
-
-
-    /**
-     * @param int|float|string|\DateTimeInterface|mixed $dateA
-     * @param int|float|string|\DateTimeInterface|mixed $dateB
-     *
-     * @return float
-     */
-    public function diff($dateA, $dateB) : float
-    {
-        $dateA = $this->theDateVal($dateA);
-        $dateB = $this->theDateVal($dateB);
-
-        $diff = (float) $dateA->format('U.u') - (float) $dateB->format('U.u');
-
-        return $diff;
-    }
-
-
-    /**
-     * @param string      $format
-     * @param string      $date
-     * @param null|string $timezoneInitial
-     *
-     * @return \DateTimeImmutable
-     */
-    public function iDateParse(string $format, string $date, $timezoneInitial = null) : \DateTimeImmutable
-    {
-        $result = $this->parseIDate($format, $date, $timezoneInitial);
-
-        if (null === $result) {
-            throw new InvalidArgumentException([ 'Invalid iDate passed: %s [ %s ]', $format, $date ]);
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param string      $format
-     * @param string      $date
-     * @param null|string $timezoneInitial
-     *
-     * @return \DateTime
-     */
-    public function dateParse(string $format, string $date, $timezoneInitial = null) : \DateTime
-    {
-        $result = $this->parseDate($format, $date, $timezoneInitial);
-
-        if (null === $result) {
-            throw new InvalidArgumentException([ 'Invalid Date passed: %s [ %s ]', $format, $date ]);
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param string    $interval
-     * @param null|bool $isDst
-     * @param null|int  $utcOffset
-     *
-     * @return \DateTimeZone
-     */
-    public function timezoneParse(string $interval, bool $isDst = null, int $utcOffset = null) : \DateTimeZone
-    {
-        $result = $this->parseTimezone($interval, $isDst, $utcOffset);
-
-        if (null === $result) {
-            throw new InvalidArgumentException([ 'Invalid DateTimeZone passed: %s', $interval ]);
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param string      $interval
-     * @param null|string $unit
-     *
-     * @return \DateInterval
-     */
-    public function intervalParse(string $interval, string $unit = null) : \DateInterval
-    {
-        $result = $this->parseInterval($interval, $unit);
-
-        if (null === $result) {
-            throw new InvalidArgumentException([ 'Invalid DateInterval passed: %s [ %s ]', $interval, $unit ]);
-        }
-
-        return $result;
-    }
-
-
-    /**
-     * @param null|string|\DateTimeZone $timezone
-     *
-     * @return \DateTime
-     */
-    public function now($timezone = null) : \DateTime
-    {
-        $timezone = $timezone
-            ?? $this->getDefaultTimezone();
-
-        $now = date_create('now',
-            $dateTimeZone = $this->theTimezoneVal($timezone)
-        );
-
-        return $now;
-    }
-
-    /**
-     * @param null|string|\DateTimeZone $timezone
-     *
-     * @return \DateTimeImmutable
-     */
-    public function iNow($timezone = null) : \DateTimeImmutable
-    {
-        $timezone = $timezone
-            ?? $this->getDefaultTimezone();
-
-        $now = date_create_immutable('now',
-            $dateTimeZone = $this->theTimezoneVal($timezone)
-        );
-
-        return $now;
-    }
-
-
-    /**
-     * @param null|string|\DateTimeZone $timezone
-     *
-     * @return \DateTime
-     */
-    public function nowSame($timezone = null) : \DateTime
-    {
-        $timezone = $timezone
-            ?? $this->getDefaultTimezone();
-
-        $dateTimeZone = $this->theTimezoneVal($timezone);
-
-        $now = $this->now
-            ? ( clone $this->now )->setTimezone($dateTimeZone)
-            : date_create('now', $dateTimeZone);
-
-        if (! $this->now) {
-            $this->now = $now;
-        }
-
-        return $now;
-    }
-
-    /**
-     * @param null|string|\DateTimeZone $timezone
-     *
-     * @return \DateTimeImmutable
-     */
-    public function iNowSame($timezone = null) : \DateTimeImmutable
-    {
-        $timezone = $timezone
-            ?? $this->getDefaultTimezone();
-
-        $dateTimeZone = $this->theTimezoneVal($timezone);
-
-        $moment = $this->moment
-            ? $this->moment->setTimezone($dateTimeZone)
-            : date_create_immutable('now', $dateTimeZone);
-
-        if (! $this->moment) {
-            $this->moment = $moment;
-        }
-
-        return $moment;
-    }
-
-
-    /**
-     * @param string      $format
-     * @param string      $date
-     * @param null|string $timezoneInitial
-     *
-     * @return null|\DateTime
-     */
-    public function parseIDate(string $format, string $date, $timezoneInitial = null) : ?\DateTimeImmutable
-    {
-        if ('' === $format) return null;
-        if ('' === $date) return null;
-
-        $iDateTime = date_create_immutable_from_format($format, $date, $timezoneInitial);
-
-        if (false === $iDateTime) {
-            return null;
-        }
-
-        return $iDateTime;
-    }
-
-    /**
-     * @param string      $format
-     * @param string      $date
-     * @param null|string $timezoneInitial
-     *
-     * @return null|\DateTime
-     */
-    public function parseDate(string $format, string $date, $timezoneInitial = null) : ?\DateTime
-    {
-        if ('' === $format) return null;
-        if ('' === $date) return null;
-
-        $dateTime = date_create_from_format($format, $date, $timezoneInitial);
-
-        if (false === $dateTime) {
-            return null;
-        }
-
-        return $dateTime;
-    }
-
-    /**
-     * @param int|float|string|\DateTimeZone $timezone
-     * @param null|bool                      $isDst
-     * @param null|int                       $utcOffset
-     *
-     * @return null|\DateTimeZone
-     */
-    public function parseTimezone($timezone, bool $isDst = null, int $utcOffset = null) : ?\DateTimeZone
-    {
-        if (null === ( $dateTimeZone = $this->timezoneVal($timezone, $isDst, $utcOffset) )) {
-            return null;
-        }
-
-        return $dateTimeZone;
-    }
-
-    /**
-     * @param int|string|\DateInterval $interval
-     * @param null|string              $unit
-     *
-     * @return null|\DateInterval
-     */
-    public function parseInterval($interval, string $unit = null) : ?\DateInterval
-    {
-        if (null === ( $dateInterval = $this->intervalVal($interval, $unit) )) {
-            return null;
-        }
-
-        return $dateInterval;
     }
 
 
@@ -1256,6 +995,439 @@ class Calendar implements CalendarInterface
 
 
     /**
+     * @param \DateTime|array $dates
+     * @param null|bool       $uniq
+     *
+     * @return \DateTime[]
+     */
+    public function dates($dates, $uniq = null) : array
+    {
+        $result = [];
+
+        $dates = is_array($dates)
+            ? $dates
+            : [ $dates ];
+
+        array_walk_recursive($dates, function ($date) use (&$result) {
+            if (null !== $this->filterDateTime($date)) {
+                $result[] = $date;
+            }
+        });
+
+        if ($uniq ?? false) {
+            $result = $this->php->distinct($result);
+            $result = array_values($result);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param \DateTime|array $dates
+     * @param null|bool       $uniq
+     *
+     * @return \DateTime[]
+     */
+    public function theDates($dates, $uniq = null) : array
+    {
+        $result = [];
+
+        $dates = is_array($dates)
+            ? $dates
+            : [ $dates ];
+
+        array_walk_recursive($dates, function ($date) use (&$result) {
+            if (null !== $this->assertDateTime($date)) {
+                $result[] = $date;
+            }
+        });
+
+        if ($uniq ?? false) {
+            $result = $this->php->distinct($result);
+            $result = array_values($result);
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * @param \DateTimeImmutable|array $dates
+     * @param null|bool                $uniq
+     *
+     * @return \DateTimeImmutable[]
+     */
+    public function iDates($dates, $uniq = null) : array
+    {
+        $result = [];
+
+        $dates = is_array($dates)
+            ? $dates
+            : [ $dates ];
+
+        array_walk_recursive($dates, function ($date) use (&$result) {
+            if (null !== $this->filterDateTimeImmutable($date)) {
+                $result[] = $date;
+            }
+        });
+
+        if ($uniq ?? false) {
+            $result = $this->php->distinct($result);
+            $result = array_values($result);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param \DateTimeImmutable|array $dates
+     * @param null|bool                $uniq
+     *
+     * @return \DateTimeImmutable[]
+     */
+    public function theIDates($dates, $uniq = null) : array
+    {
+        $result = [];
+
+        $dates = is_array($dates)
+            ? $dates
+            : [ $dates ];
+
+        array_walk_recursive($dates, function ($date) use (&$result) {
+            if (null !== $this->assertDateTimeImmutable($date)) {
+                $result[] = $date;
+            }
+        });
+
+        if ($uniq ?? false) {
+            $result = $this->php->distinct($result);
+            $result = array_values($result);
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * @param \DateTimeInterface|array $dates
+     * @param null|bool                $uniq
+     *
+     * @return \DateTimeInterface[]
+     */
+    public function datesAll($dates, $uniq = null) : array
+    {
+        $result = [];
+
+        $dates = is_array($dates)
+            ? $dates
+            : [ $dates ];
+
+        array_walk_recursive($dates, function ($date) use (&$result) {
+            if (null !== $this->filterDateTimeInterface($date)) {
+                $result[] = $date;
+            }
+        });
+
+        if ($uniq ?? false) {
+            $result = $this->php->distinct($result);
+            $result = array_values($result);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param int|float|string|\DateTimeInterface|array $dates
+     * @param null|bool                                 $uniq
+     *
+     * @return \DateTimeInterface[]
+     */
+    public function theDatesAll($dates, $uniq = null) : array
+    {
+        $result = [];
+
+        $dates = is_array($dates)
+            ? $dates
+            : [ $dates ];
+
+        array_walk_recursive($dates, function ($date) use (&$result) {
+            if (null !== $this->assertDateTimeInterface($date)) {
+                $result[] = $date;
+            }
+        });
+
+        if ($uniq ?? false) {
+            $result = $this->php->distinct($result);
+            $result = array_values($result);
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * @param int|float|string|\DateTimeInterface|mixed $date
+     * @param string|\DateInterval                      $interval
+     * @param null|string                               $unit
+     *
+     * @return \DateTime
+     */
+    public function add($date, $interval, $unit = null) : \DateTimeInterface
+    {
+        $date = $this->theDateVal($date);
+
+        $date->add($this->theIntervalVal($interval, $unit));
+
+        return $date;
+    }
+
+
+    /**
+     * @param int|float|string|\DateTimeInterface|mixed $dateA
+     * @param int|float|string|\DateTimeInterface|mixed $dateB
+     *
+     * @return float
+     */
+    public function diff($dateA, $dateB) : float
+    {
+        $dateA = $this->theDateVal($dateA);
+        $dateB = $this->theDateVal($dateB);
+
+        $diff = (float) $dateA->format('U.u') - (float) $dateB->format('U.u');
+
+        return $diff;
+    }
+
+
+    /**
+     * @param string      $format
+     * @param string      $date
+     * @param null|string $timezoneInitial
+     *
+     * @return \DateTimeImmutable
+     */
+    public function iDateParse(string $format, string $date, $timezoneInitial = null) : \DateTimeImmutable
+    {
+        $result = $this->iDateRead($format, $date, $timezoneInitial);
+
+        if (null === $result) {
+            throw new InvalidArgumentException([ 'Invalid iDate passed: %s [ %s ]', $format, $date ]);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string      $format
+     * @param string      $date
+     * @param null|string $timezoneInitial
+     *
+     * @return \DateTime
+     */
+    public function dateParse(string $format, string $date, $timezoneInitial = null) : \DateTime
+    {
+        $result = $this->dateRead($format, $date, $timezoneInitial);
+
+        if (null === $result) {
+            throw new InvalidArgumentException([ 'Invalid Date passed: %s [ %s ]', $format, $date ]);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string    $interval
+     * @param null|bool $isDst
+     * @param null|int  $utcOffset
+     *
+     * @return \DateTimeZone
+     */
+    public function timezoneParse(string $interval, bool $isDst = null, int $utcOffset = null) : \DateTimeZone
+    {
+        $result = $this->timezoneRead($interval, $isDst, $utcOffset);
+
+        if (null === $result) {
+            throw new InvalidArgumentException([ 'Invalid DateTimeZone passed: %s', $interval ]);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string      $interval
+     * @param null|string $unit
+     *
+     * @return \DateInterval
+     */
+    public function intervalParse(string $interval, string $unit = null) : \DateInterval
+    {
+        $result = $this->intervalRead($interval, $unit);
+
+        if (null === $result) {
+            throw new InvalidArgumentException([ 'Invalid DateInterval passed: %s [ %s ]', $interval, $unit ]);
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * @param null|string|\DateTimeZone $timezone
+     *
+     * @return \DateTime
+     */
+    public function now($timezone = null) : \DateTime
+    {
+        $timezone = $timezone
+            ?? $this->getDefaultTimezone();
+
+        $dateTimeZone = $this->theTimezoneVal($timezone);
+
+        $now = $this->now
+            ? ( clone $this->now )->setTimezone($dateTimeZone)
+            : date_create('now', $dateTimeZone);
+
+        if (! $this->now) {
+            $this->now = $now;
+        }
+
+        return $now;
+    }
+
+    /**
+     * @param null|string|\DateTimeZone $timezone
+     *
+     * @return \DateTimeImmutable
+     */
+    public function iNow($timezone = null) : \DateTimeImmutable
+    {
+        $timezone = $timezone
+            ?? $this->getDefaultTimezone();
+
+        $dateTimeZone = $this->theTimezoneVal($timezone);
+
+        $moment = $this->moment
+            ? $this->moment->setTimezone($dateTimeZone)
+            : date_create_immutable('now', $dateTimeZone);
+
+        if (! $this->moment) {
+            $this->moment = $moment;
+        }
+
+        return $moment;
+    }
+
+
+    /**
+     * @param null|string|\DateTimeZone $timezone
+     *
+     * @return \DateTime
+     */
+    public function nowInstant($timezone = null) : \DateTime
+    {
+        $timezone = $timezone
+            ?? $this->getDefaultTimezone();
+
+        $now = date_create('now',
+            $dateTimeZone = $this->theTimezoneVal($timezone)
+        );
+
+        return $now;
+    }
+
+    /**
+     * @param null|string|\DateTimeZone $timezone
+     *
+     * @return \DateTimeImmutable
+     */
+    public function iNowInstant($timezone = null) : \DateTimeImmutable
+    {
+        $timezone = $timezone
+            ?? $this->getDefaultTimezone();
+
+        $now = date_create_immutable('now',
+            $dateTimeZone = $this->theTimezoneVal($timezone)
+        );
+
+        return $now;
+    }
+
+
+    /**
+     * @param string      $format
+     * @param string      $date
+     * @param null|string $timezoneInitial
+     *
+     * @return null|\DateTime
+     */
+    public function iDateRead(string $format, string $date, $timezoneInitial = null) : ?\DateTimeImmutable
+    {
+        if ('' === $format) return null;
+        if ('' === $date) return null;
+
+        $iDateTime = date_create_immutable_from_format($format, $date, $timezoneInitial);
+
+        if (false === $iDateTime) {
+            return null;
+        }
+
+        return $iDateTime;
+    }
+
+    /**
+     * @param string      $format
+     * @param string      $date
+     * @param null|string $timezoneInitial
+     *
+     * @return null|\DateTime
+     */
+    public function dateRead(string $format, string $date, $timezoneInitial = null) : ?\DateTime
+    {
+        if ('' === $format) return null;
+        if ('' === $date) return null;
+
+        $dateTime = date_create_from_format($format, $date, $timezoneInitial);
+
+        if (false === $dateTime) {
+            return null;
+        }
+
+        return $dateTime;
+    }
+
+    /**
+     * @param int|float|string|\DateTimeZone $timezone
+     * @param null|bool                      $isDst
+     * @param null|int                       $utcOffset
+     *
+     * @return null|\DateTimeZone
+     */
+    public function timezoneRead($timezone, bool $isDst = null, int $utcOffset = null) : ?\DateTimeZone
+    {
+        if (null === ( $dateTimeZone = $this->timezoneVal($timezone, $isDst, $utcOffset) )) {
+            return null;
+        }
+
+        return $dateTimeZone;
+    }
+
+    /**
+     * @param int|string|\DateInterval $interval
+     * @param null|string              $unit
+     *
+     * @return null|\DateInterval
+     */
+    public function intervalRead($interval, string $unit = null) : ?\DateInterval
+    {
+        if (null === ( $dateInterval = $this->intervalVal($interval, $unit) )) {
+            return null;
+        }
+
+        return $dateInterval;
+    }
+
+
+    /**
      * @param \DateTime                 $instance
      * @param null|string|\DateTimeZone $timezone
      *
@@ -1289,6 +1461,7 @@ class Calendar implements CalendarInterface
         return $instance;
     }
 
+
     /**
      * @param int                       $int
      * @param null|string|\DateTimeZone $timezone
@@ -1304,7 +1477,7 @@ class Calendar implements CalendarInterface
 
         $dateTimeZone = $this->theTimezoneVal($timezone);
 
-        $dateTime = $this->now($dateTimeZone);
+        $dateTime = $this->nowInstant($dateTimeZone);
 
         $dateTime = $dateTime->setTimestamp($int);
         $dateTime = $dateTime->setTime(
@@ -1341,7 +1514,7 @@ class Calendar implements CalendarInterface
             substr($microseconds, 0, 6), 6, '0'
         );
 
-        $dateTime = $this->now($dateTimeZone);
+        $dateTime = $this->nowInstant($dateTimeZone);
 
         $dateTime = $dateTime->setTimestamp($int);
         $dateTime = $dateTime->setTime(
@@ -1357,7 +1530,6 @@ class Calendar implements CalendarInterface
 
         return $dateTime;
     }
-
 
     /**
      * @param string                    $string
@@ -1437,7 +1609,7 @@ class Calendar implements CalendarInterface
         $dateTimeZone = $this->theTimezoneVal($timezone);
 
         $dateTime = $this->tryDateFromInt(
-            strtotime($datestring, $this->nowSame($dateTimeZone)->getTimestamp()),
+            strtotime($datestring, $this->now($dateTimeZone)->getTimestamp()),
             $dateTimeZone
         );
 
@@ -1462,14 +1634,14 @@ class Calendar implements CalendarInterface
 
         // be aware - timezone will bind instantly here
         foreach ( static::$formatsNoTimezone as $formatNoTimezone => $enabled ) {
-            if ($dateTime = $this->parseDate($formatNoTimezone, $format, $dateTimeZone)) {
+            if ($dateTime = $this->dateRead($formatNoTimezone, $format, $dateTimeZone)) {
                 return $dateTime;
             }
         }
 
         // be careful - timezone will be changed here
         foreach ( static::$formatsTimezone as $formatTimezone => $enabled ) {
-            if ($dateTime = $this->parseDate($formatTimezone, $format)) {
+            if ($dateTime = $this->dateRead($formatTimezone, $format)) {
                 $dateTime->setTimezone($dateTimeZone);
 
                 return $dateTime;
@@ -1493,12 +1665,93 @@ class Calendar implements CalendarInterface
     }
 
     /**
+     * @param string    $string
+     * @param null|bool $isDst
+     * @param null|int  $utcOffset
+     *
+     * @return \DateTimeZone
+     */
+    protected function tryTimezoneFromString($string, bool $isDst = null, int $utcOffset = null) : ?\DateTimeZone
+    {
+        if (! is_string($string)) return null;
+        if ('' === $string) return null;
+
+        $dateTimeZone = null
+            ?? $this->tryTimezoneFromStringNumeric($string, $isDst)
+            ?? $this->tryTimezoneFromStringName($string)
+            ?? $this->tryTimezoneFromStringAbbr($string, $isDst, $utcOffset);
+
+        return $dateTimeZone;
+    }
+
+    /**
+     * @param string    $numeric
+     * @param null|bool $isDst
+     *
+     * @return \DateTimeZone
+     */
+    protected function tryTimezoneFromStringNumeric($numeric, bool $isDst = null) : ?\DateTimeZone
+    {
+        // if (! is_string($number)) return null;
+        // if ('' === $number) return null;
+        if (! is_numeric($numeric)) return null;
+
+        if (null !== ( $numval = $this->num->numericval($numeric) )) {
+            $dateTimeZone = $this->tryTimezoneFromNumeric($numval, $isDst);
+
+            return $dateTimeZone;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return \DateTimeZone
+     */
+    protected function tryTimezoneFromStringName($name) : ?\DateTimeZone
+    {
+        if (! is_string($name)) return null;
+        if ('' === $name) return null;
+        if (is_numeric($name)) return null;
+
+        if (false === ( $dateTimeZone = timezone_open($name) )) {
+            return null;
+        }
+
+        return $dateTimeZone;
+    }
+
+    /**
+     * @param string    $abbr
+     * @param null|bool $isDst
+     * @param null|int  $utcOffset
+     *
+     * @return \DateTimeZone
+     */
+    protected function tryTimezoneFromStringAbbr($abbr, bool $isDst = null, int $utcOffset = null) : ?\DateTimeZone
+    {
+        if (! is_string($abbr)) return null;
+        if ('' === $abbr) return null;
+        if (is_numeric($abbr)) return null;
+
+        if (false === ( $timezoneName = timezone_name_from_abbr($abbr, $utcOffset, $isDst) )) {
+            return null;
+        }
+
+        $dateTimeZone = new \DateTimeZone($timezoneName);
+
+        return $dateTimeZone;
+    }
+
+    /**
      * @param int|float $numval
      * @param null|bool $isDst
      *
      * @return \DateTimeZone
      */
-    protected function tryTimezoneFromNumval($numval, bool $isDst = null) : ?\DateTimeZone
+    protected function tryTimezoneFromNumeric($numval, bool $isDst = null) : ?\DateTimeZone
     {
         if (null === ( $numval = $this->num->numericval($numval) )) {
             return null;
@@ -1554,87 +1807,6 @@ class Calendar implements CalendarInterface
         }
 
         return null;
-    }
-
-    /**
-     * @param string    $string
-     * @param null|bool $isDst
-     * @param null|int  $utcOffset
-     *
-     * @return \DateTimeZone
-     */
-    protected function tryTimezoneFromString($string, bool $isDst = null, int $utcOffset = null) : ?\DateTimeZone
-    {
-        if (! is_string($string)) return null;
-        if ('' === $string) return null;
-
-        $dateTimeZone = null
-            ?? $this->tryTimezoneFromStringNumeric($string, $isDst)
-            ?? $this->tryTimezoneFromStringName($string)
-            ?? $this->tryTimezoneFromStringAbbr($string, $isDst, $utcOffset);
-
-        return $dateTimeZone;
-    }
-
-    /**
-     * @param string    $numeric
-     * @param null|bool $isDst
-     *
-     * @return \DateTimeZone
-     */
-    protected function tryTimezoneFromStringNumeric($numeric, bool $isDst = null) : ?\DateTimeZone
-    {
-        // if (! is_string($number)) return null;
-        // if ('' === $number) return null;
-        if (! is_numeric($numeric)) return null;
-
-        if (null !== ( $numval = $this->num->numericval($numeric) )) {
-            $dateTimeZone = $this->tryTimezoneFromNumval($numval, $isDst);
-
-            return $dateTimeZone;
-        }
-
-        return null;
-    }
-
-    /**
-     * @param string $name
-     *
-     * @return \DateTimeZone
-     */
-    protected function tryTimezoneFromStringName($name) : ?\DateTimeZone
-    {
-        if (! is_string($name)) return null;
-        if ('' === $name) return null;
-        if (is_numeric($name)) return null;
-
-        if (false === ( $dateTimeZone = timezone_open($name) )) {
-            return null;
-        }
-
-        return $dateTimeZone;
-    }
-
-    /**
-     * @param string    $abbr
-     * @param null|bool $isDst
-     * @param null|int  $utcOffset
-     *
-     * @return \DateTimeZone
-     */
-    protected function tryTimezoneFromStringAbbr($abbr, bool $isDst = null, int $utcOffset = null) : ?\DateTimeZone
-    {
-        if (! is_string($abbr)) return null;
-        if ('' === $abbr) return null;
-        if (is_numeric($abbr)) return null;
-
-        if (false === ( $timezoneName = timezone_name_from_abbr($abbr, $utcOffset, $isDst) )) {
-            return null;
-        }
-
-        $dateTimeZone = new \DateTimeZone($timezoneName);
-
-        return $dateTimeZone;
     }
 
 

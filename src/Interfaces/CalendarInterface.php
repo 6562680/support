@@ -339,6 +339,86 @@ interface CalendarInterface
     public function theIntervalVal($interval, string $unit = null): \DateInterval;
 
     /**
+     * @param int|float|string|\DateTimeInterface|array $dates
+     * @param null|bool                                 $uniq
+     *
+     * @return \DateTimeInterface[]
+     */
+    public function datevals($dates, $uniq = null): array;
+
+    /**
+     * @param int|float|string|\DateTimeInterface|array $dates
+     * @param null|bool                                 $uniq
+     *
+     * @return \DateTimeInterface[]
+     */
+    public function theDatevals($dates, $uniq = null): array;
+
+    /**
+     * @param int|float|string|\DateTimeInterface|array $dates
+     * @param null|bool                                 $uniq
+     *
+     * @return \DateTimeImmutable[]
+     */
+    public function iDatevals($dates, $uniq = null): array;
+
+    /**
+     * @param int|float|string|\DateTimeInterface|array $dates
+     * @param null|bool                                 $uniq
+     *
+     * @return \DateTimeImmutable[]
+     */
+    public function theIDatevals($dates, $uniq = null): array;
+
+    /**
+     * @param \DateTime|array $dates
+     * @param null|bool       $uniq
+     *
+     * @return \DateTime[]
+     */
+    public function dates($dates, $uniq = null): array;
+
+    /**
+     * @param \DateTime|array $dates
+     * @param null|bool       $uniq
+     *
+     * @return \DateTime[]
+     */
+    public function theDates($dates, $uniq = null): array;
+
+    /**
+     * @param \DateTimeImmutable|array $dates
+     * @param null|bool                $uniq
+     *
+     * @return \DateTimeImmutable[]
+     */
+    public function iDates($dates, $uniq = null): array;
+
+    /**
+     * @param \DateTimeImmutable|array $dates
+     * @param null|bool                $uniq
+     *
+     * @return \DateTimeImmutable[]
+     */
+    public function theIDates($dates, $uniq = null): array;
+
+    /**
+     * @param \DateTimeInterface|array $dates
+     * @param null|bool                $uniq
+     *
+     * @return \DateTimeInterface[]
+     */
+    public function datesAll($dates, $uniq = null): array;
+
+    /**
+     * @param int|float|string|\DateTimeInterface|array $dates
+     * @param null|bool                                 $uniq
+     *
+     * @return \DateTimeInterface[]
+     */
+    public function theDatesAll($dates, $uniq = null): array;
+
+    /**
      * @param int|float|string|\DateTimeInterface|mixed $date
      * @param string|\DateInterval                      $interval
      * @param null|string                               $unit
@@ -409,14 +489,14 @@ interface CalendarInterface
      *
      * @return \DateTime
      */
-    public function nowSame($timezone = null): \DateTime;
+    public function nowInstant($timezone = null): \DateTime;
 
     /**
      * @param null|string|\DateTimeZone $timezone
      *
      * @return \DateTimeImmutable
      */
-    public function iNowSame($timezone = null): \DateTimeImmutable;
+    public function iNowInstant($timezone = null): \DateTimeImmutable;
 
     /**
      * @param string      $format
@@ -425,7 +505,7 @@ interface CalendarInterface
      *
      * @return null|\DateTime
      */
-    public function parseIDate(string $format, string $date, $timezoneInitial = null): ?\DateTimeImmutable;
+    public function iDateRead(string $format, string $date, $timezoneInitial = null): ?\DateTimeImmutable;
 
     /**
      * @param string      $format
@@ -434,7 +514,7 @@ interface CalendarInterface
      *
      * @return null|\DateTime
      */
-    public function parseDate(string $format, string $date, $timezoneInitial = null): ?\DateTime;
+    public function dateRead(string $format, string $date, $timezoneInitial = null): ?\DateTime;
 
     /**
      * @param int|float|string|\DateTimeZone $timezone
@@ -443,7 +523,7 @@ interface CalendarInterface
      *
      * @return null|\DateTimeZone
      */
-    public function parseTimezone($timezone, bool $isDst = null, int $utcOffset = null): ?\DateTimeZone;
+    public function timezoneRead($timezone, bool $isDst = null, int $utcOffset = null): ?\DateTimeZone;
 
     /**
      * @param int|string|\DateInterval $interval
@@ -451,37 +531,5 @@ interface CalendarInterface
      *
      * @return null|\DateInterval
      */
-    public function parseInterval($interval, string $unit = null): ?\DateInterval;
-
-    /**
-     * @param int|float|string|\DateTimeInterface|array $dates
-     * @param null|bool                                 $uniq
-     *
-     * @return \DateTimeInterface[]
-     */
-    public function datevals($dates, $uniq = null): array;
-
-    /**
-     * @param int|float|string|\DateTimeInterface|array $dates
-     * @param null|bool                                 $uniq
-     *
-     * @return \DateTimeInterface[]
-     */
-    public function theDatevals($dates, $uniq = null): array;
-
-    /**
-     * @param int|float|string|\DateTimeInterface|array $dates
-     * @param null|bool                                 $uniq
-     *
-     * @return \DateTimeImmutable[]
-     */
-    public function iDatevals($dates, $uniq = null): array;
-
-    /**
-     * @param int|float|string|\DateTimeInterface|array $dates
-     * @param null|bool                                 $uniq
-     *
-     * @return \DateTimeImmutable[]
-     */
-    public function theIDatevals($dates, $uniq = null): array;
+    public function intervalRead($interval, string $unit = null): ?\DateInterval;
 }

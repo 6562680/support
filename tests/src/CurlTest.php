@@ -13,9 +13,14 @@ class CurlTest extends AbstractTestCase
         return SupportFactory::getInstance()->newCurl();
     }
 
-
     public function testGet()
     {
+        if ('pong' !== $this->ping()) {
+            $this->assertTrue(false, 'Connection timeout');
+
+            return;
+        }
+
         $curl = $this->getCurl();
 
         $ch = $curl->get('https://my-json-server.typicode.com/typicode/demo/posts');
@@ -36,6 +41,12 @@ class CurlTest extends AbstractTestCase
 
     public function testPost()
     {
+        if ('pong' !== $this->ping()) {
+            $this->assertTrue(false, 'Connection timeout');
+
+            return;
+        }
+
         $curl = $this->getCurl();
 
         $json = '{"id":4,"title":"Post 4"}';
@@ -59,6 +70,12 @@ class CurlTest extends AbstractTestCase
 
     public function testPut()
     {
+        if ('pong' !== $this->ping()) {
+            $this->assertTrue(false, 'Connection timeout');
+
+            return;
+        }
+
         $curl = $this->getCurl();
 
         $json = '{"title":"Post 4"}';
@@ -79,6 +96,12 @@ class CurlTest extends AbstractTestCase
 
     public function testPatch()
     {
+        if ('pong' !== $this->ping()) {
+            $this->assertTrue(false, 'Connection timeout');
+
+            return;
+        }
+
         $curl = $this->getCurl();
 
         $json = '{"title":"Post 1"}';
@@ -99,6 +122,12 @@ class CurlTest extends AbstractTestCase
 
     public function testDelete()
     {
+        if ('pong' !== $this->ping()) {
+            $this->assertTrue(false, 'Connection timeout');
+
+            return;
+        }
+
         $curl = $this->getCurl();
 
         $ch = $curl->delete('https://my-json-server.typicode.com/typicode/demo/posts/1', [
@@ -116,9 +145,14 @@ class CurlTest extends AbstractTestCase
         $this->assertEquals(200, $responseCode);
     }
 
-
     public function testMulti()
     {
+        if ('pong' !== $this->ping()) {
+            $this->assertTrue(false, 'Connection timeout');
+
+            return;
+        }
+
         $curl = $this->getCurl();
 
         $hh[] = $curl->get('https://my-json-server.typicode.com/typicode/demo/posts');
@@ -145,6 +179,12 @@ class CurlTest extends AbstractTestCase
 
     public function testBatch()
     {
+        if ('pong' !== $this->ping()) {
+            $this->assertTrue(false, 'Connection timeout');
+
+            return;
+        }
+
         $curl = $this->getCurl();
 
         $hh[] = $curl->get('https://my-json-server.typicode.com/typicode/demo/posts');
@@ -169,4 +209,30 @@ class CurlTest extends AbstractTestCase
         $this->assertEquals([ $responseJson, $responseJson, $responseJson ], $responses);
         $this->assertEquals([ 200, 200, 200 ], $responseCodes);
     }
+
+
+    /**
+     * @return null|string
+     */
+    protected function ping() : string
+    {
+        if (! isset(static::$ping)) {
+            $curl = $this->getCurl();
+
+            $ch = $curl->get('https://my-json-server.typicode.com/typicode/demo/posts');
+            curl_exec($ch);
+
+            $errno = curl_errno($ch);
+
+            static::$ping = ! $errno ? 'pong' : '';
+        }
+
+        return static::$ping;
+    }
+
+
+    /**
+     * @var string
+     */
+    protected static $ping;
 }
