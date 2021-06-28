@@ -1543,6 +1543,8 @@ class Str implements StrInterface
     {
         $result = $this->slugger()->slug($string, $delimiter, $locale);
 
+        $result = strtolower($result);
+
         return $result;
     }
 
@@ -1553,11 +1555,9 @@ class Str implements StrInterface
      *
      * @return string
      */
-    public function slugLower(string $string, string $delimiter = null, string $locale = null) : string
+    public function slugCase(string $string, string $delimiter = null, string $locale = null) : string
     {
-        $result = $this->slug($string, $delimiter, $locale);
-
-        $result = strtolower($result);
+        $result = $this->slugger()->slug($string, $delimiter, $locale);
 
         return $result;
     }

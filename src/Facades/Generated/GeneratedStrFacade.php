@@ -709,9 +709,9 @@ abstract class GeneratedStrFacade
      *
      * @return string
      */
-    public static function slugLower(string $string, string $delimiter = null, string $locale = null): string
+    public static function slugCase(string $string, string $delimiter = null, string $locale = null): string
     {
-        return static::getInstance()->slugLower($string, $delimiter, $locale);
+        return static::getInstance()->slugCase($string, $delimiter, $locale);
     }
 
     /**

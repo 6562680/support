@@ -558,7 +558,7 @@ interface StrInterface
      *
      * @return string
      */
-    public function slugLower(string $string, string $delimiter = null, string $locale = null): string;
+    public function slugCase(string $string, string $delimiter = null, string $locale = null): string;
 
     /**
      * @param string   $singular
