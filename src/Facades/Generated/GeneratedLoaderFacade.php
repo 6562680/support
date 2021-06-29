@@ -134,6 +134,16 @@ abstract class GeneratedLoaderFacade
     }
 
     /**
+     * @param mixed $classOrObject
+     *
+     * @return string
+     */
+    public static function theClassVal($classOrObject): string
+    {
+        return static::getInstance()->theClassVal($classOrObject);
+    }
+
+    /**
      * @param string|object $classOrObject
      *
      * @return string[]
@@ -146,9 +156,9 @@ abstract class GeneratedLoaderFacade
     /**
      * @param string|object $classOrObject
      *
-     * @return null|string
+     * @return string
      */
-    public static function namespace($classOrObject): ?string
+    public static function namespace($classOrObject): string
     {
         return static::getInstance()->namespace($classOrObject);
     }
@@ -227,7 +237,7 @@ abstract class GeneratedLoaderFacade
      *
      * @return null|string
      */
-    public static function pathDirname(string $path, int $levels = 0): ?string
+    public static function pathDirname(string $path, int $levels = null): string
     {
         return static::getInstance()->pathDirname($path, $levels);
     }
@@ -239,7 +249,7 @@ abstract class GeneratedLoaderFacade
      *
      * @return null|string
      */
-    public static function pathBasename(string $path, string $suffix = null, int $levels = 0): ?string
+    public static function pathBasename(string $path, string $suffix = null, int $levels = null): string
     {
         return static::getInstance()->pathBasename($path, $suffix, $levels);
     }
@@ -250,7 +260,7 @@ abstract class GeneratedLoaderFacade
      *
      * @return string
      */
-    public static function pathRelative($classOrObject, string $base = ''): ?string
+    public static function pathRelative($classOrObject, string $base = null): ?string
     {
         return static::getInstance()->pathRelative($classOrObject, $base);
     }
@@ -262,7 +272,7 @@ abstract class GeneratedLoaderFacade
      *
      * @return array
      */
-    public static function searchDeclaredClass(callable $filter, int $limit = null, int $offset = 0): array
+    public static function searchDeclaredClass(callable $filter, int $limit = null, int $offset = null): array
     {
         return static::getInstance()->searchDeclaredClass($filter, $limit, $offset);
     }

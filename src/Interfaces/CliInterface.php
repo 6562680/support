@@ -52,12 +52,7 @@ interface CliInterface
      *
      * @return string
      */
-    public function writeFile(
-        string $outputPath,
-        string $content,
-        bool $backup = null,
-        string &$overwrite = null
-    ): string;
+    public function filePut(string $outputPath, string $content, bool $backup = null, string &$overwrite = null): string;
 
     /**
      * выполняет консольную команду через proc_open и возвращает данные или код ошибки

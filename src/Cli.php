@@ -152,7 +152,7 @@ class Cli implements CliInterface
      *
      * @return string
      */
-    public function writeFile(string $outputPath, string $content, bool $backup = null, string &$overwrite = null) : string
+    public function filePut(string $outputPath, string $content, bool $backup = null, string &$overwrite = null) : string
     {
         $backup = $backup ?? true;
 

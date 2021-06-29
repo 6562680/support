@@ -677,6 +677,26 @@ abstract class GeneratedFilterFacade
     }
 
     /**
+     * @param mixed $reflectionType
+     *
+     * @return null|\ReflectionUnionType
+     */
+    public static function filterReflectionUnionType($reflectionType)
+    {
+        return static::getInstance()->filterReflectionUnionType($reflectionType);
+    }
+
+    /**
+     * @param mixed $reflectionType
+     *
+     * @return null|\ReflectionNamedType
+     */
+    public static function filterReflectionNamedType($reflectionType)
+    {
+        return static::getInstance()->filterReflectionNamedType($reflectionType);
+    }
+
+    /**
      * @param resource|mixed $h
      *
      * @return null|resource

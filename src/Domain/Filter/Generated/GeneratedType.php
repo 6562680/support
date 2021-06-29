@@ -669,6 +669,26 @@ abstract class GeneratedType
     }
 
     /**
+     * @param mixed $reflectionType
+     *
+     * @return bool
+     */
+    public function isReflectionUnionType($reflectionType): bool
+    {
+        return null !== $this->filter->filterReflectionUnionType($reflectionType);
+    }
+
+    /**
+     * @param mixed $reflectionType
+     *
+     * @return bool
+     */
+    public function isReflectionNamedType($reflectionType): bool
+    {
+        return null !== $this->filter->filterReflectionNamedType($reflectionType);
+    }
+
+    /**
      * @param resource|mixed $h
      *
      * @return bool

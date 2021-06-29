@@ -847,7 +847,7 @@ class Fs implements FsInterface
      *
      * @return null|string
      */
-    public function pathDirname(string $path, int $levels = 0) : ?string
+    public function pathDirname(string $path, int $levels = null) : string
     {
         $result = $this->path->dirname($path, $levels);
 
@@ -861,7 +861,7 @@ class Fs implements FsInterface
      *
      * @return null|string
      */
-    public function pathBasename(string $path, string $suffix = null, int $levels = 0) : ?string
+    public function pathBasename(string $path, string $suffix = null, int $levels = null) : string
     {
         $result = $this->path->basename($path, $suffix, $levels);
 
@@ -1037,19 +1037,28 @@ class Fs implements FsInterface
     }
 
     /**
-     * @param string   $filepath
-     * @param mixed    $data
-     * @param null|int $flags
-     * @param null     $context
+     * @param string    $filepath
+     * @param mixed     $data
+     * @param null|bool $backup
+     * @param null|int  $flags
+     * @param null      $context
      *
      * @return string
      */
-    public function filePut(string $filepath, $data, int $flags = null, $context = null) : string
+    public function filePut(string $filepath, $data, bool $backup = null, int $flags = null, $context = null) : string
     {
-        if (file_exists($filepath) && ! is_writable($filepath)) {
-            throw new InvalidArgumentException(
-                'File is not writable: ' . $this->secure($filepath)
-            );
+        $backup = $backup ?? true;
+
+        if (file_exists($filepath)) {
+            if (! is_writable($filepath)) {
+                throw new InvalidArgumentException(
+                    'File is not writable: ' . $this->secure($filepath)
+                );
+            }
+
+            if ($backup) {
+                copy($filepath, $backupPath = $filepath . '.backup' . date('Ymd_His'));
+            }
         }
 
         isset($context)
@@ -1126,16 +1135,17 @@ class Fs implements FsInterface
      *
      * @return string
      */
-    public function mkdir(string $dirname, int $mode = null, bool $recursive = true, $context = null) : string
+    public function mkdir(string $dirname, int $mode = null, bool $recursive = null, $context = null) : string
     {
+        $mode = $mode ?? static::RWX_DIR;
+        $recursive = $recursive ?? true;
+
         if (! is_dir($dirname)) {
             if (file_exists($dirname)) {
                 throw new RuntimeException([
                     'Unable to create directory, same file exists: ' . $this->secure($dirname),
                 ]);
             }
-
-            $mode = $mode ?? static::RWX_DIR;
 
             $context
                 ? mkdir($dirname, $mode, $recursive, $context)
@@ -1149,12 +1159,12 @@ class Fs implements FsInterface
 
     /**
      * @param string|\SplFileInfo $dir
-     * @param bool                $removeSelf
-     * @param null|\Closure       $keepFunc
+     * @param bool                $rmSelf
+     * @param null|\Closure       $keepFilter
      *
      * @return array
      */
-    public function rmdir($dir, bool $removeSelf = false, \Closure $keepFunc = null) : array
+    public function rmdir($dir, bool $rmSelf = false, \Closure $keepFilter = null) : array
     {
         if (null === ( $realpath = $this->pathvalDir($dir) )) {
             return [];
@@ -1168,7 +1178,7 @@ class Fs implements FsInterface
         foreach ( $iit as $splFileInfo ) {
             /** @var \SplFileInfo $splFileInfo */
 
-            $shouldKeep = $keepFunc ? $keepFunc($splFileInfo) : false;
+            $shouldKeep = $keepFilter ? $keepFilter($splFileInfo) : false;
 
             $dirname = dirname($splFileInfo->getRealPath());
 
@@ -1201,7 +1211,7 @@ class Fs implements FsInterface
             }
         }
 
-        if ($removeSelf && ! $keepSelf) {
+        if ($rmSelf && ! $keepSelf) {
             $result[] = $realpath;
 
             rmdir($realpath);

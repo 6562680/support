@@ -1196,6 +1196,42 @@ abstract class GeneratedAssert
     }
 
     /**
+     * @param mixed $reflectionType
+     *
+     * @return \ReflectionUnionType
+     */
+    public function assertReflectionUnionType($reflectionType)
+    {
+        if (null === ( $filtered = $this->filter->filterReflectionUnionType($reflectionType) )) {
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid ReflectionUnionType passed: %s', func_get_args() ]
+                ))
+            );
+        }
+
+        return $filtered;
+    }
+
+    /**
+     * @param mixed $reflectionType
+     *
+     * @return \ReflectionNamedType
+     */
+    public function assertReflectionNamedType($reflectionType)
+    {
+        if (null === ( $filtered = $this->filter->filterReflectionNamedType($reflectionType) )) {
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid ReflectionNamedType passed: %s', func_get_args() ]
+                ))
+            );
+        }
+
+        return $filtered;
+    }
+
+    /**
      * @param resource|mixed $h
      *
      * @return resource

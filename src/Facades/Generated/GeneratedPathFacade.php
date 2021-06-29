@@ -136,9 +136,9 @@ abstract class GeneratedPathFacade
      * @param string   $path
      * @param null|int $levels
      *
-     * @return null|string
+     * @return string
      */
-    public static function dirname(string $path, int $levels = null): ?string
+    public static function dirname(string $path, int $levels = null): string
     {
         return static::getInstance()->dirname($path, $levels);
     }
@@ -148,9 +148,9 @@ abstract class GeneratedPathFacade
      * @param null|string $suffix
      * @param null|int    $levels
      *
-     * @return null|string
+     * @return string
      */
-    public static function basename(string $path, string $suffix = null, int $levels = null): ?string
+    public static function basename(string $path, string $suffix = null, int $levels = null): string
     {
         return static::getInstance()->basename($path, $suffix, $levels);
     }
@@ -161,7 +161,7 @@ abstract class GeneratedPathFacade
      *
      * @return string
      */
-    public static function relative(string $path, string $base = ''): ?string
+    public static function relative(string $path, string $base = null): ?string
     {
         return static::getInstance()->relative($path, $base);
     }

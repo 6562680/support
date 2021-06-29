@@ -313,9 +313,9 @@ class Path implements PathInterface
      * @param string   $path
      * @param null|int $levels
      *
-     * @return null|string
+     * @return string
      */
-    public function dirname(string $path, int $levels = null) : ?string
+    public function dirname(string $path, int $levels = null) : string
     {
         $levels = $levels ?? 1;
 
@@ -324,9 +324,9 @@ class Path implements PathInterface
         $levelsTotal = count($explode);
         $levels = max(1, min($levels, $levelsTotal));
 
-        $result = array_splice($explode, 0, $levelsTotal - $levels);
-
-        $result = $this->join($result);
+        $result = $this->join(
+            $extracted = array_splice($explode, 0, $levelsTotal - $levels)
+        );
 
         return $result;
     }
@@ -336,17 +336,16 @@ class Path implements PathInterface
      * @param null|string $suffix
      * @param null|int    $levels
      *
-     * @return null|string
+     * @return string
      */
-    public function basename(string $path, string $suffix = null, int $levels = null) : ?string
+    public function basename(string $path, string $suffix = null, int $levels = null) : string
     {
-        $levels = $levels ?? 0;
-        $levels = max(0, $levels);
+        $levels = max(0, $levels ?? 0);
+
+        $result = [];
 
         $explode = $this->split($path);
         $last = array_pop($explode);
-
-        $result = [];
 
         if ($levels) {
             $result[] = array_slice($explode, -1 * $levels);
@@ -365,8 +364,10 @@ class Path implements PathInterface
      *
      * @return string
      */
-    public function relative(string $path, string $base = '') : ?string
+    public function relative(string $path, string $base = null) : ?string
     {
+        $base = $base ?? '';
+
         $normalizedPath = $this->normalize($path);
 
         if ('' === $base) {
@@ -375,11 +376,9 @@ class Path implements PathInterface
 
         $normalizedBase = $this->normalize($base);
 
-        if (null === ( $result = $this->str->starts($normalizedPath, $normalizedBase) )) {
-            return null;
+        if (null !== ( $result = $this->str->starts($normalizedPath, $normalizedBase) )) {
+            $result = ltrim($result, $this->separator);
         }
-
-        $result = ltrim($result, $this->separator);
 
         return $result;
     }

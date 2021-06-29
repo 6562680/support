@@ -312,6 +312,20 @@ interface PhpInterface
     public function apply(callable $func, array $arguments);
 
     /**
+     * @param \ReflectionProperty $reflectionProperty
+     *
+     * @return null|\ReflectionType
+     */
+    public function reflectionPropertyGetType(\ReflectionProperty $reflectionProperty);
+
+    /**
+     * @param \ReflectionProperty $reflectionProperty
+     *
+     * @return null|bool
+     */
+    public function reflectionPropertyHasDefaultValue(\ReflectionProperty $reflectionProperty): ?bool;
+
+    /**
      * Выполняет func_get_arg($num) позволяя задать вероятные позиции аргумента и отфильтровать их
      *
      * @param null|array    $args

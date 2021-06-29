@@ -1229,6 +1229,7 @@ class Filter implements FilterInterface
             : null;
     }
 
+
     /**
      * @param \ReflectionFunction|mixed $value
      *
@@ -1252,6 +1253,7 @@ class Filter implements FilterInterface
             ? $value
             : null;
     }
+
 
     /**
      * @param \ReflectionProperty|mixed $value
@@ -1287,6 +1289,35 @@ class Filter implements FilterInterface
         return is_a($value, \ReflectionType::class)
             ? $value
             : null;
+    }
+
+
+    /**
+     * @param mixed $reflectionType
+     *
+     * @return null|\ReflectionUnionType
+     */
+    public function filterReflectionUnionType($reflectionType) // : ?\ReflectionUnionType
+    {
+        if (is_a($reflectionType, 'ReflectionUnionType')) {
+            return $reflectionType;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param mixed $reflectionType
+     *
+     * @return null|\ReflectionNamedType
+     */
+    public function filterReflectionNamedType($reflectionType) // : ?\ReflectionNamedType
+    {
+        if (is_a($reflectionType, 'ReflectionNamedType')) {
+            return $reflectionType;
+        }
+
+        return null;
     }
 
 

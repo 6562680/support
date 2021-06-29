@@ -99,18 +99,18 @@ interface PathInterface
      * @param string   $path
      * @param null|int $levels
      *
-     * @return null|string
+     * @return string
      */
-    public function dirname(string $path, int $levels = null): ?string;
+    public function dirname(string $path, int $levels = null): string;
 
     /**
      * @param string      $path
      * @param null|string $suffix
      * @param null|int    $levels
      *
-     * @return null|string
+     * @return string
      */
-    public function basename(string $path, string $suffix = null, int $levels = null): ?string;
+    public function basename(string $path, string $suffix = null, int $levels = null): string;
 
     /**
      * @param string      $path
@@ -118,7 +118,7 @@ interface PathInterface
      *
      * @return string
      */
-    public function relative(string $path, string $base = ''): ?string;
+    public function relative(string $path, string $base = null): ?string;
 
     /**
      * @param string|array ...$strings

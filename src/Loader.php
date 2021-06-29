@@ -247,21 +247,37 @@ class Loader implements LoaderInterface
      */
     public function classVal($classOrObject) : ?string
     {
-        $result = null;
+        $val = null;
 
         if (null !== ( $class = $this->filter->filterClass($classOrObject) )) {
-            $result = $class;
+            $val = $class;
 
         } elseif (is_object($classOrObject)) {
             if (null !== ( $reflectionClass = $this->filter->filterReflectionClass($classOrObject) )) {
-                $result = $reflectionClass->getName();
+                $val = $reflectionClass->getName();
 
             } else {
-                $result = get_class($classOrObject);
+                $val = get_class($classOrObject);
             }
         }
 
-        return $result;
+        return $val;
+    }
+
+    /**
+     * @param mixed $classOrObject
+     *
+     * @return string
+     */
+    public function theClassVal($classOrObject) : string
+    {
+        if (null === ( $val = $this->classVal($classOrObject) )) {
+            throw new InvalidArgumentException(
+                [ 'Invalid Class passed: %s', $classOrObject ]
+            );
+        }
+
+        return $val;
     }
 
 
@@ -276,9 +292,9 @@ class Loader implements LoaderInterface
             throw new InvalidArgumentException('Class should be classval or object');
         }
 
+        $namespace = '';
         $class = ltrim($class, '\\');
 
-        $namespace = null;
         if (false !== ( $pos = strrpos($class, '\\') )) {
             $namespace = substr($class, 0, $pos);
             $class = substr($class, $pos + 1);
@@ -290,17 +306,17 @@ class Loader implements LoaderInterface
     /**
      * @param string|object $classOrObject
      *
-     * @return null|string
+     * @return string
      */
-    public function namespace($classOrObject) : ?string
+    public function namespace($classOrObject) : string
     {
         if (null === ( $class = $this->classVal($classOrObject) )) {
             throw new InvalidArgumentException('Class should be classval or object');
         }
 
+        $namespace = '';
         $class = ltrim($class, '\\');
 
-        $namespace = null;
         if (false !== ( $pos = strrpos($class, '\\') )) {
             $namespace = substr($class, 0, $pos);
         }
@@ -405,7 +421,7 @@ class Loader implements LoaderInterface
      *
      * @return null|string
      */
-    public function pathDirname(string $path, int $levels = 0) : ?string
+    public function pathDirname(string $path, int $levels = null) : string
     {
         $result = $this->path->dirname($path, $levels);
 
@@ -419,7 +435,7 @@ class Loader implements LoaderInterface
      *
      * @return null|string
      */
-    public function pathBasename(string $path, string $suffix = null, int $levels = 0) : ?string
+    public function pathBasename(string $path, string $suffix = null, int $levels = null) : string
     {
         $result = $this->path->basename($path, $suffix, $levels);
 
@@ -432,7 +448,7 @@ class Loader implements LoaderInterface
      *
      * @return string
      */
-    public function pathRelative($classOrObject, string $base = '') : ?string
+    public function pathRelative($classOrObject, string $base = null) : ?string
     {
         if (null === ( $class = $this->classVal($classOrObject) )) {
             throw new InvalidArgumentException(
@@ -453,7 +469,7 @@ class Loader implements LoaderInterface
      *
      * @return array
      */
-    public function searchDeclaredClass(callable $filter, int $limit = null, int $offset = 0) : array
+    public function searchDeclaredClass(callable $filter, int $limit = null, int $offset = null) : array
     {
         $result = [];
 

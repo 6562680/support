@@ -484,6 +484,20 @@ interface FilterInterface
     public function filterReflectionType($value): ?\ReflectionType;
 
     /**
+     * @param mixed $reflectionType
+     *
+     * @return null|\ReflectionUnionType
+     */
+    public function filterReflectionUnionType($reflectionType);
+
+    /**
+     * @param mixed $reflectionType
+     *
+     * @return null|\ReflectionNamedType
+     */
+    public function filterReflectionNamedType($reflectionType);
+
+    /**
      * @param resource|mixed $h
      *
      * @return null|resource

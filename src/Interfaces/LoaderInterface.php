@@ -100,6 +100,13 @@ interface LoaderInterface
     public function classVal($classOrObject): ?string;
 
     /**
+     * @param mixed $classOrObject
+     *
+     * @return string
+     */
+    public function theClassVal($classOrObject): string;
+
+    /**
      * @param string|object $classOrObject
      *
      * @return string[]
@@ -109,9 +116,9 @@ interface LoaderInterface
     /**
      * @param string|object $classOrObject
      *
-     * @return null|string
+     * @return string
      */
-    public function namespace($classOrObject): ?string;
+    public function namespace($classOrObject): string;
 
     /**
      * @param string|object $classOrObject
@@ -166,7 +173,7 @@ interface LoaderInterface
      *
      * @return null|string
      */
-    public function pathDirname(string $path, int $levels = 0): ?string;
+    public function pathDirname(string $path, int $levels = null): string;
 
     /**
      * @param string      $path
@@ -175,7 +182,7 @@ interface LoaderInterface
      *
      * @return null|string
      */
-    public function pathBasename(string $path, string $suffix = null, int $levels = 0): ?string;
+    public function pathBasename(string $path, string $suffix = null, int $levels = null): string;
 
     /**
      * @param string|object $classOrObject
@@ -183,7 +190,7 @@ interface LoaderInterface
      *
      * @return string
      */
-    public function pathRelative($classOrObject, string $base = ''): ?string;
+    public function pathRelative($classOrObject, string $base = null): ?string;
 
     /**
      * @param callable $filter
@@ -192,5 +199,5 @@ interface LoaderInterface
      *
      * @return array
      */
-    public function searchDeclaredClass(callable $filter, int $limit = null, int $offset = 0): array;
+    public function searchDeclaredClass(callable $filter, int $limit = null, int $offset = null): array;
 }

@@ -13,7 +13,6 @@ namespace Gzhegow\Support\Facades\Generated;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Fs;
-use Gzhegow\Support\Interfaces\FsInterface;
 
 abstract class GeneratedFsFacade
 {
@@ -559,7 +558,7 @@ abstract class GeneratedFsFacade
      *
      * @return null|string
      */
-    public static function pathDirname(string $path, int $levels = 0): ?string
+    public static function pathDirname(string $path, int $levels = null): string
     {
         return static::getInstance()->pathDirname($path, $levels);
     }
@@ -571,7 +570,7 @@ abstract class GeneratedFsFacade
      *
      * @return null|string
      */
-    public static function pathBasename(string $path, string $suffix = null, int $levels = 0): ?string
+    public static function pathBasename(string $path, string $suffix = null, int $levels = null): string
     {
         return static::getInstance()->pathBasename($path, $suffix, $levels);
     }
@@ -642,16 +641,22 @@ abstract class GeneratedFsFacade
     }
 
     /**
-     * @param string   $filepath
-     * @param mixed    $data
-     * @param null|int $flags
-     * @param null     $context
+     * @param string    $filepath
+     * @param mixed     $data
+     * @param null|bool $backup
+     * @param null|int  $flags
+     * @param null      $context
      *
      * @return string
      */
-    public static function filePut(string $filepath, $data, int $flags = null, $context = null): string
-    {
-        return static::getInstance()->filePut($filepath, $data, $flags, $context);
+    public static function filePut(
+        string $filepath,
+        $data,
+        bool $backup = null,
+        int $flags = null,
+        $context = null
+    ): string {
+        return static::getInstance()->filePut($filepath, $data, $backup, $flags, $context);
     }
 
     /**
@@ -682,21 +687,21 @@ abstract class GeneratedFsFacade
      *
      * @return string
      */
-    public static function mkdir(string $dirname, int $mode = null, bool $recursive = true, $context = null): string
+    public static function mkdir(string $dirname, int $mode = null, bool $recursive = null, $context = null): string
     {
         return static::getInstance()->mkdir($dirname, $mode, $recursive, $context);
     }
 
     /**
      * @param string|\SplFileInfo $dir
-     * @param bool                $removeSelf
-     * @param null|\Closure       $keepFunc
+     * @param bool                $rmSelf
+     * @param null|\Closure       $keepFilter
      *
      * @return array
      */
-    public static function rmdir($dir, bool $removeSelf = false, \Closure $keepFunc = null): array
+    public static function rmdir($dir, bool $rmSelf = false, \Closure $keepFilter = null): array
     {
-        return static::getInstance()->rmdir($dir, $removeSelf, $keepFunc);
+        return static::getInstance()->rmdir($dir, $rmSelf, $keepFilter);
     }
 
     /**

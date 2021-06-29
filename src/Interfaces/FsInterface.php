@@ -393,7 +393,7 @@ interface FsInterface
      *
      * @return null|string
      */
-    public function pathDirname(string $path, int $levels = 0): ?string;
+    public function pathDirname(string $path, int $levels = null): string;
 
     /**
      * @param string      $path
@@ -402,7 +402,7 @@ interface FsInterface
      *
      * @return null|string
      */
-    public function pathBasename(string $path, string $suffix = null, int $levels = 0): ?string;
+    public function pathBasename(string $path, string $suffix = null, int $levels = null): string;
 
     /**
      * @param string      $path
@@ -450,14 +450,15 @@ interface FsInterface
     public function fileGet($file, bool $use_include_path = null, $context = null, $offset = 0, $length = null): string;
 
     /**
-     * @param string   $filepath
-     * @param mixed    $data
-     * @param null|int $flags
-     * @param null     $context
+     * @param string    $filepath
+     * @param mixed     $data
+     * @param null|bool $backup
+     * @param null|int  $flags
+     * @param null      $context
      *
      * @return string
      */
-    public function filePut(string $filepath, $data, int $flags = null, $context = null): string;
+    public function filePut(string $filepath, $data, bool $backup = null, int $flags = null, $context = null): string;
 
     /**
      * @param string $file
@@ -481,16 +482,16 @@ interface FsInterface
      *
      * @return string
      */
-    public function mkdir(string $dirname, int $mode = null, bool $recursive = true, $context = null): string;
+    public function mkdir(string $dirname, int $mode = null, bool $recursive = null, $context = null): string;
 
     /**
      * @param string|\SplFileInfo $dir
-     * @param bool                $removeSelf
-     * @param null|\Closure       $keepFunc
+     * @param bool                $rmSelf
+     * @param null|\Closure       $keepFilter
      *
      * @return array
      */
-    public function rmdir($dir, bool $removeSelf = false, \Closure $keepFunc = null): array;
+    public function rmdir($dir, bool $rmSelf = false, \Closure $keepFilter = null): array;
 
     /**
      * @param resource $readableA

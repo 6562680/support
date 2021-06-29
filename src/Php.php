@@ -909,6 +909,42 @@ class Php implements PhpInterface
 
 
     /**
+     * @param \ReflectionProperty $reflectionProperty
+     *
+     * @return null|\ReflectionType
+     */
+    public function reflectionPropertyGetType(\ReflectionProperty $reflectionProperty)
+    {
+        try {
+            $reflectionType = $reflectionProperty->{'getType'}();
+        }
+        catch ( \Throwable $e ) {
+            $reflectionType = null;
+        }
+
+        return $reflectionType;
+    }
+
+
+    /**
+     * @param \ReflectionProperty $reflectionProperty
+     *
+     * @return null|bool
+     */
+    public function reflectionPropertyHasDefaultValue(\ReflectionProperty $reflectionProperty) : ?bool
+    {
+        try {
+            $hasDefaultValue = $reflectionProperty->{'hasDefaultValue'}();
+        }
+        catch ( \Throwable $e ) {
+            $hasDefaultValue = null;
+        }
+
+        return $hasDefaultValue;
+    }
+
+
+    /**
      * Выполняет func_get_arg($num) позволяя задать вероятные позиции аргумента и отфильтровать их
      *
      * @param null|array    $args

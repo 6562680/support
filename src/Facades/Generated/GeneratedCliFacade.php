@@ -65,13 +65,13 @@ abstract class GeneratedCliFacade
      *
      * @return string
      */
-    public static function writeFile(
+    public static function filePut(
         string $outputPath,
         string $content,
         bool $backup = null,
         string &$overwrite = null
     ): string {
-        return static::getInstance()->writeFile($outputPath, $content, $backup, $overwrite);
+        return static::getInstance()->filePut($outputPath, $content, $backup, $overwrite);
     }
 
     /**

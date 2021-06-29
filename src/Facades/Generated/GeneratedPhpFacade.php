@@ -421,6 +421,26 @@ abstract class GeneratedPhpFacade
     }
 
     /**
+     * @param \ReflectionProperty $reflectionProperty
+     *
+     * @return null|\ReflectionType
+     */
+    public static function reflectionPropertyGetType(\ReflectionProperty $reflectionProperty)
+    {
+        return static::getInstance()->reflectionPropertyGetType($reflectionProperty);
+    }
+
+    /**
+     * @param \ReflectionProperty $reflectionProperty
+     *
+     * @return null|bool
+     */
+    public static function reflectionPropertyHasDefaultValue(\ReflectionProperty $reflectionProperty): ?bool
+    {
+        return static::getInstance()->reflectionPropertyHasDefaultValue($reflectionProperty);
+    }
+
+    /**
      * Выполняет func_get_arg($num) позволяя задать вероятные позиции аргумента и отфильтровать их
      *
      * @param null|array    $args
