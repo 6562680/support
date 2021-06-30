@@ -198,7 +198,7 @@ class Cli implements CliInterface
                     echo 'Backup stored at ' . $this->fs->secure($backupPath) . PHP_EOL;
                 }
 
-                $this->fs->filePut($outputPath, $content);
+                $this->fs->filePut($outputPath, $content, false);
 
                 echo 'Replaced ' . $this->fs->secure($outputPath) . PHP_EOL;
             }
