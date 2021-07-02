@@ -7,7 +7,7 @@ use Gzhegow\Support\Interfaces\PregInterface;
 
 
 /**
- * Preg
+ * PregF
  */
 class Preg implements PregInterface
 {

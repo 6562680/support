@@ -2,16 +2,16 @@
 
 namespace Gzhegow\Support\Facades;
 
-use Gzhegow\Support\Str as _Str;
+use Gzhegow\Support\Php as _Php;
 use Gzhegow\Support\Domain\SupportFactory;
-use Gzhegow\Support\Facades\Generated\GeneratedStrFacade;
+use Gzhegow\Support\Facades\Generated\GeneratedPhpFacade;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 
 
 /**
- * Str
+ * PhpF
  */
-class Str extends GeneratedStrFacade
+class PhpF extends GeneratedPhpFacade
 {
     /**
      * Constructor
@@ -25,10 +25,10 @@ class Str extends GeneratedStrFacade
 
 
     /**
-     * @return _Str
+     * @return _Php
      */
-    public static function getInstance() : _Str
+    public static function getInstance() : _Php
     {
-        return SupportFactory::getInstance()->getStr();
+        return SupportFactory::getInstance()->getPhp();
     }
 }

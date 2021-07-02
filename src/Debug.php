@@ -8,7 +8,7 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
- * Debug
+ * DebugF
  */
 class Debug implements DebugInterface
 {

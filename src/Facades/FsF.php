@@ -2,16 +2,16 @@
 
 namespace Gzhegow\Support\Facades;
 
-use Gzhegow\Support\Profiler as _Profiler;
+use Gzhegow\Support\Fs as _Fs;
 use Gzhegow\Support\Domain\SupportFactory;
+use Gzhegow\Support\Facades\Generated\GeneratedFsFacade;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
-use Gzhegow\Support\Facades\Generated\GeneratedProfilerFacade;
 
 
 /**
- * Profiler
+ * FsF
  */
-class Profiler extends GeneratedProfilerFacade
+class FsF extends GeneratedFsFacade
 {
     /**
      * Constructor
@@ -25,10 +25,10 @@ class Profiler extends GeneratedProfilerFacade
 
 
     /**
-     * @return _Profiler
+     * @return _Fs
      */
-    public static function getInstance() : _Profiler
+    public static function getInstance() : _Fs
     {
-        return SupportFactory::getInstance()->getProfiler();
+        return SupportFactory::getInstance()->getFs();
     }
 }

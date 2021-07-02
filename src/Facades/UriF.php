@@ -2,16 +2,16 @@
 
 namespace Gzhegow\Support\Facades;
 
-use Gzhegow\Support\Path as _Path;
+use Gzhegow\Support\Uri as _Uri;
 use Gzhegow\Support\Domain\SupportFactory;
-use Gzhegow\Support\Facades\Generated\GeneratedPathFacade;
+use Gzhegow\Support\Facades\Generated\GeneratedUriFacade;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 
 
 /**
- * Path
+ * UriF
  */
-class Path extends GeneratedPathFacade
+class UriF extends GeneratedUriFacade
 {
     /**
      * Constructor
@@ -25,10 +25,10 @@ class Path extends GeneratedPathFacade
 
 
     /**
-     * @return _Path
+     * @return _Uri
      */
-    public static function getInstance() : _Path
+    public static function getInstance() : _Uri
     {
-        return SupportFactory::getInstance()->getPath();
+        return SupportFactory::getInstance()->getUri();
     }
 }

@@ -7,7 +7,7 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
- * Cmp
+ * CmpF
  */
 class Cmp implements CmpInterface
 {

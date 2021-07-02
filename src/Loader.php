@@ -7,7 +7,7 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
- * Loader
+ * LoaderF
  */
 class Loader implements LoaderInterface
 {
@@ -28,6 +28,15 @@ class Loader implements LoaderInterface
      * @var array
      */
     protected $declaredClasses;
+
+    /**
+     * @var string
+     */
+    protected $includeFilepath;
+    /**
+     * @var array
+     */
+    protected $includeData = [];
 
 
     /**
@@ -457,6 +466,104 @@ class Loader implements LoaderInterface
         }
 
         $result = $this->path->relative($class, $base);
+
+        return $result;
+    }
+
+
+    /**
+     * @param string $filepath
+     * @param array  $data
+     *
+     * @return mixed
+     * @noinspection PhpIncludeInspection
+     */
+    public function include(string $filepath, array $data = [])
+    {
+        $this->includeFilepath = $filepath;
+        $this->includeData = $data;
+
+        $result = function () {
+            extract($this->includeData);
+
+            return include $this->includeFilepath;
+        };
+
+        $this->includeFilepath = null;
+        $this->includeData = [];
+
+        return $result;
+    }
+
+    /**
+     * @param string $filepath
+     * @param array  $data
+     *
+     * @return mixed
+     * @noinspection PhpIncludeInspection
+     */
+    public function includeOnce(string $filepath, array $data = [])
+    {
+        $this->includeFilepath = $filepath;
+        $this->includeData = $data;
+
+        $result = function () {
+            extract($this->includeData);
+
+            return include_once $this->includeFilepath;
+        };
+
+        $this->includeFilepath = null;
+        $this->includeData = [];
+
+        return $result;
+    }
+
+
+    /**
+     * @param string $filepath
+     * @param array  $data
+     *
+     * @return mixed
+     * @noinspection PhpIncludeInspection
+     */
+    public function require(string $filepath, array $data = [])
+    {
+        $this->includeFilepath = $filepath;
+        $this->includeData = $data;
+
+        $result = ( function () {
+            extract($this->includeData);
+
+            return require $this->includeFilepath;
+        } );
+
+        $this->includeFilepath = null;
+        $this->includeData = [];
+
+        return $result;
+    }
+
+    /**
+     * @param string $filepath
+     * @param array  $data
+     *
+     * @return mixed
+     * @noinspection PhpIncludeInspection
+     */
+    public function requireOnce(string $filepath, array $data = [])
+    {
+        $this->includeFilepath = $filepath;
+        $this->includeData = $data;
+
+        $result = ( function () {
+            extract($this->includeData);
+
+            return require_once $this->includeFilepath;
+        } );
+
+        $this->includeFilepath = null;
+        $this->includeData = [];
 
         return $result;
     }

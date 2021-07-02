@@ -2,16 +2,16 @@
 
 namespace Gzhegow\Support\Facades;
 
-use Gzhegow\Support\Net as _Net;
+use Gzhegow\Support\Profiler as _Profiler;
 use Gzhegow\Support\Domain\SupportFactory;
-use Gzhegow\Support\Facades\Generated\GeneratedNetFacade;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
+use Gzhegow\Support\Facades\Generated\GeneratedProfilerFacade;
 
 
 /**
- * Net
+ * ProfilerF
  */
-class Net extends GeneratedNetFacade
+class ProfilerF extends GeneratedProfilerFacade
 {
     /**
      * Constructor
@@ -25,10 +25,10 @@ class Net extends GeneratedNetFacade
 
 
     /**
-     * @return _Net
+     * @return _Profiler
      */
-    public static function getInstance() : _Net
+    public static function getInstance() : _Profiler
     {
-        return SupportFactory::getInstance()->getNet();
+        return SupportFactory::getInstance()->getProfiler();
     }
 }

@@ -8,7 +8,7 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
- * Path
+ * PathF
  */
 class Path implements PathInterface
 {

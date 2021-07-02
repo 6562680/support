@@ -2,16 +2,16 @@
 
 namespace Gzhegow\Support\Facades;
 
-use Gzhegow\Support\Math as _Math;
+use Gzhegow\Support\Debug as _Debug;
 use Gzhegow\Support\Domain\SupportFactory;
-use Gzhegow\Support\Facades\Generated\GeneratedMathFacade;
+use Gzhegow\Support\Facades\Generated\GeneratedDebugFacade;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 
 
 /**
- * Math
+ * DebugF
  */
-class Math extends GeneratedMathFacade
+class DebugF extends GeneratedDebugFacade
 {
     /**
      * Constructor
@@ -25,10 +25,10 @@ class Math extends GeneratedMathFacade
 
 
     /**
-     * @return _Math
+     * @return _Debug
      */
-    public static function getInstance() : _Math
+    public static function getInstance() : _Debug
     {
-        return SupportFactory::getInstance()->getMath();
+        return SupportFactory::getInstance()->getDebug();
     }
 }

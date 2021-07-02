@@ -2,16 +2,16 @@
 
 namespace Gzhegow\Support\Facades;
 
-use Gzhegow\Support\Criteria as _Criteria;
+use Gzhegow\Support\Math as _Math;
 use Gzhegow\Support\Domain\SupportFactory;
+use Gzhegow\Support\Facades\Generated\GeneratedMathFacade;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
-use Gzhegow\Support\Facades\Generated\GeneratedCriteriaFacade;
 
 
 /**
- * Criteria
+ * MathF
  */
-class Criteria extends GeneratedCriteriaFacade
+class MathF extends GeneratedMathFacade
 {
     /**
      * Constructor
@@ -25,10 +25,10 @@ class Criteria extends GeneratedCriteriaFacade
 
 
     /**
-     * @return _Criteria
+     * @return _Math
      */
-    public static function getInstance() : _Criteria
+    public static function getInstance() : _Math
     {
-        return SupportFactory::getInstance()->getCriteria();
+        return SupportFactory::getInstance()->getMath();
     }
 }

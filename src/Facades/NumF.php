@@ -9,9 +9,9 @@ use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 
 
 /**
- * Num
+ * NumF
  */
-class Num extends GeneratedNumFacade
+class NumF extends GeneratedNumFacade
 {
     /**
      * Constructor

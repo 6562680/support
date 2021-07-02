@@ -193,6 +193,42 @@ interface LoaderInterface
     public function pathRelative($classOrObject, string $base = null): ?string;
 
     /**
+     * @param string $filepath
+     * @param array  $data
+     *
+     * @return mixed
+     * @noinspection PhpIncludeInspection
+     */
+    public function include(string $filepath, array $data = []);
+
+    /**
+     * @param string $filepath
+     * @param array  $data
+     *
+     * @return mixed
+     * @noinspection PhpIncludeInspection
+     */
+    public function includeOnce(string $filepath, array $data = []);
+
+    /**
+     * @param string $filepath
+     * @param array  $data
+     *
+     * @return mixed
+     * @noinspection PhpIncludeInspection
+     */
+    public function require(string $filepath, array $data = []);
+
+    /**
+     * @param string $filepath
+     * @param array  $data
+     *
+     * @return mixed
+     * @noinspection PhpIncludeInspection
+     */
+    public function requireOnce(string $filepath, array $data = []);
+
+    /**
      * @param callable $filter
      * @param null|int $limit
      * @param int      $offset

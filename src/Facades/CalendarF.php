@@ -9,9 +9,9 @@ use Gzhegow\Support\Facades\Generated\GeneratedCalendarFacade;
 
 
 /**
- * Calendar
+ * CalendarF
  */
-class Calendar extends GeneratedCalendarFacade
+class CalendarF extends GeneratedCalendarFacade
 {
     /**
      * Constructor

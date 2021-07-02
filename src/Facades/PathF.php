@@ -2,16 +2,16 @@
 
 namespace Gzhegow\Support\Facades;
 
-use Gzhegow\Support\Cmp as _Cmp;
+use Gzhegow\Support\Path as _Path;
 use Gzhegow\Support\Domain\SupportFactory;
-use Gzhegow\Support\Facades\Generated\GeneratedCmpFacade;
+use Gzhegow\Support\Facades\Generated\GeneratedPathFacade;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 
 
 /**
- * Cmp
+ * PathF
  */
-class Cmp extends GeneratedCmpFacade
+class PathF extends GeneratedPathFacade
 {
     /**
      * Constructor
@@ -25,10 +25,10 @@ class Cmp extends GeneratedCmpFacade
 
 
     /**
-     * @return _Cmp
+     * @return _Path
      */
-    public static function getInstance() : _Cmp
+    public static function getInstance() : _Path
     {
-        return SupportFactory::getInstance()->getCmp();
+        return SupportFactory::getInstance()->getPath();
     }
 }

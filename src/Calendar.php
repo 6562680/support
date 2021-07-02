@@ -7,7 +7,7 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
- * Calendar
+ * CalendarF
  */
 class Calendar implements CalendarInterface
 {

@@ -9,7 +9,7 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
- * Curl
+ * CurlF
  */
 class Curl implements CurlInterface
 {

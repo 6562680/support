@@ -11,7 +11,7 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
- * Arr
+ * ArrF
  */
 class Arr implements ArrInterface
 {

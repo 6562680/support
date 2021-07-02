@@ -10,7 +10,7 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
- * Math
+ * MathF
  */
 class Math implements MathInterface
 {
@@ -1160,7 +1160,7 @@ class Math implements MathInterface
     public function bcmod($a, $b, int $scale = null)
     {
         return $this->newBcval(
-            bcdiv(
+            bcmod(
                 $this->theBcval($a),
                 $this->theBcval($b),
                 $this->theScaleVal($scale, $a, $b)

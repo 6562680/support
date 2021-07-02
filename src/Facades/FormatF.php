@@ -2,16 +2,16 @@
 
 namespace Gzhegow\Support\Facades;
 
-use Gzhegow\Support\Env as _Env;
+use Gzhegow\Support\Format as _Format;
 use Gzhegow\Support\Domain\SupportFactory;
-use Gzhegow\Support\Facades\Generated\GeneratedEnvFacade;
+use Gzhegow\Support\Facades\Generated\GeneratedFormatFacade;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 
 
 /**
- * Env
+ * FormatF
  */
-class Env extends GeneratedEnvFacade
+class FormatF extends GeneratedFormatFacade
 {
     /**
      * Constructor
@@ -25,10 +25,10 @@ class Env extends GeneratedEnvFacade
 
 
     /**
-     * @return _Env
+     * @return _Format
      */
-    public static function getInstance() : _Env
+    public static function getInstance() : _Format
     {
-        return SupportFactory::getInstance()->getEnv();
+        return SupportFactory::getInstance()->getFormat();
     }
 }

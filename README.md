@@ -16,7 +16,7 @@
     //     $result = [];
     //
     //     if ('-' === $delimiter) {
-    //         throw new \InvalidArgumentException('Math minus `-` should not be used as delimiter');
+    //         throw new \InvalidArgumentException('MathF minus `-` should not be used as delimiter');
     //     }
     //
     //     $min = $min ?? 0; // you can pass NULL to use -INF
@@ -28,7 +28,7 @@
     //     foreach ( $array as $i => $val ) {
     //         $breakpoints = array_filter(explode($delimiter, $val));
     //
-    //         $nonNumeric = Arr::first($breakpoints, function ($val) {
+    //         $nonNumeric = ArrF::first($breakpoints, function ($val) {
     //             return ! Type::is_numerable($val);
     //         });
     //         if ($nonNumeric) {

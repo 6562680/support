@@ -8,7 +8,7 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
- * Uri
+ * UriF
  */
 class Uri implements UriInterface
 {

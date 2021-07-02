@@ -2,16 +2,16 @@
 
 namespace Gzhegow\Support\Facades;
 
-use Gzhegow\Support\Preg as _Preg;
+use Gzhegow\Support\Arr as _Arr;
 use Gzhegow\Support\Domain\SupportFactory;
-use Gzhegow\Support\Facades\Generated\GeneratedPregFacade;
+use Gzhegow\Support\Facades\Generated\GeneratedArrFacade;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 
 
 /**
- * Preg
+ * ArrF
  */
-class Preg extends GeneratedPregFacade
+class ArrF extends GeneratedArrFacade
 {
     /**
      * Constructor
@@ -25,10 +25,10 @@ class Preg extends GeneratedPregFacade
 
 
     /**
-     * @return _Preg
+     * @return _Arr
      */
-    public static function getInstance() : _Preg
+    public static function getInstance() : _Arr
     {
-        return SupportFactory::getInstance()->getPreg();
+        return SupportFactory::getInstance()->getArr();
     }
 }

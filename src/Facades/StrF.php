@@ -2,16 +2,16 @@
 
 namespace Gzhegow\Support\Facades;
 
-use Gzhegow\Support\Loader as _Loader;
+use Gzhegow\Support\Str as _Str;
 use Gzhegow\Support\Domain\SupportFactory;
-use Gzhegow\Support\Facades\Generated\GeneratedLoaderFacade;
+use Gzhegow\Support\Facades\Generated\GeneratedStrFacade;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 
 
 /**
- * Loader
+ * StrF
  */
-class Loader extends GeneratedLoaderFacade
+class StrF extends GeneratedStrFacade
 {
     /**
      * Constructor
@@ -25,10 +25,10 @@ class Loader extends GeneratedLoaderFacade
 
 
     /**
-     * @return _Loader
+     * @return _Str
      */
-    public static function getInstance() : _Loader
+    public static function getInstance() : _Str
     {
-        return SupportFactory::getInstance()->getLoader();
+        return SupportFactory::getInstance()->getStr();
     }
 }

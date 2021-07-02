@@ -2,16 +2,16 @@
 
 namespace Gzhegow\Support\Facades;
 
-use Gzhegow\Support\Cli as _Cli;
+use Gzhegow\Support\Preg as _Preg;
 use Gzhegow\Support\Domain\SupportFactory;
-use Gzhegow\Support\Facades\Generated\GeneratedCliFacade;
+use Gzhegow\Support\Facades\Generated\GeneratedPregFacade;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 
 
 /**
- * Cli
+ * PregF
  */
-class Cli extends GeneratedCliFacade
+class PregF extends GeneratedPregFacade
 {
     /**
      * Constructor
@@ -25,10 +25,10 @@ class Cli extends GeneratedCliFacade
 
 
     /**
-     * @return _Cli
+     * @return _Preg
      */
-    public static function getInstance() : _Cli
+    public static function getInstance() : _Preg
     {
-        return SupportFactory::getInstance()->getCli();
+        return SupportFactory::getInstance()->getPreg();
     }
 }

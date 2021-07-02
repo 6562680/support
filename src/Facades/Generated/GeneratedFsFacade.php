@@ -13,6 +13,7 @@ namespace Gzhegow\Support\Facades\Generated;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Fs;
+use Gzhegow\Support\Interfaces\FsInterface;
 
 abstract class GeneratedFsFacade
 {

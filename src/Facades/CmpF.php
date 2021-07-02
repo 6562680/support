@@ -2,16 +2,16 @@
 
 namespace Gzhegow\Support\Facades;
 
-use Gzhegow\Support\Filter as _Filter;
+use Gzhegow\Support\Cmp as _Cmp;
 use Gzhegow\Support\Domain\SupportFactory;
-use Gzhegow\Support\Facades\Generated\GeneratedFilterFacade;
+use Gzhegow\Support\Facades\Generated\GeneratedCmpFacade;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 
 
 /**
- * Filter
+ * CmpF
  */
-class Filter extends GeneratedFilterFacade
+class CmpF extends GeneratedCmpFacade
 {
     /**
      * Constructor
@@ -25,10 +25,10 @@ class Filter extends GeneratedFilterFacade
 
 
     /**
-     * @return _Filter
+     * @return _Cmp
      */
-    public static function getInstance() : _Filter
+    public static function getInstance() : _Cmp
     {
-        return SupportFactory::getInstance()->getFilter();
+        return SupportFactory::getInstance()->getCmp();
     }
 }

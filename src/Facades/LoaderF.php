@@ -2,16 +2,16 @@
 
 namespace Gzhegow\Support\Facades;
 
-use Gzhegow\Support\Arr as _Arr;
+use Gzhegow\Support\Loader as _Loader;
 use Gzhegow\Support\Domain\SupportFactory;
-use Gzhegow\Support\Facades\Generated\GeneratedArrFacade;
+use Gzhegow\Support\Facades\Generated\GeneratedLoaderFacade;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 
 
 /**
- * Arr
+ * LoaderF
  */
-class Arr extends GeneratedArrFacade
+class LoaderF extends GeneratedLoaderFacade
 {
     /**
      * Constructor
@@ -25,10 +25,10 @@ class Arr extends GeneratedArrFacade
 
 
     /**
-     * @return _Arr
+     * @return _Loader
      */
-    public static function getInstance() : _Arr
+    public static function getInstance() : _Loader
     {
-        return SupportFactory::getInstance()->getArr();
+        return SupportFactory::getInstance()->getLoader();
     }
 }

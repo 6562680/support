@@ -2,16 +2,16 @@
 
 namespace Gzhegow\Support\Facades;
 
-use Gzhegow\Support\Php as _Php;
+use Gzhegow\Support\Env as _Env;
 use Gzhegow\Support\Domain\SupportFactory;
-use Gzhegow\Support\Facades\Generated\GeneratedPhpFacade;
+use Gzhegow\Support\Facades\Generated\GeneratedEnvFacade;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 
 
 /**
- * Php
+ * EnvF
  */
-class Php extends GeneratedPhpFacade
+class EnvF extends GeneratedEnvFacade
 {
     /**
      * Constructor
@@ -25,10 +25,10 @@ class Php extends GeneratedPhpFacade
 
 
     /**
-     * @return _Php
+     * @return _Env
      */
-    public static function getInstance() : _Php
+    public static function getInstance() : _Env
     {
-        return SupportFactory::getInstance()->getPhp();
+        return SupportFactory::getInstance()->getEnv();
     }
 }

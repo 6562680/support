@@ -11,7 +11,7 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
- * Str
+ * StrF
  */
 class Str implements StrInterface
 {

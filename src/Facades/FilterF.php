@@ -2,16 +2,16 @@
 
 namespace Gzhegow\Support\Facades;
 
-use Gzhegow\Support\Fs as _Fs;
+use Gzhegow\Support\Filter as _Filter;
 use Gzhegow\Support\Domain\SupportFactory;
-use Gzhegow\Support\Facades\Generated\GeneratedFsFacade;
+use Gzhegow\Support\Facades\Generated\GeneratedFilterFacade;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 
 
 /**
- * Fs
+ * FilterF
  */
-class Fs extends GeneratedFsFacade
+class FilterF extends GeneratedFilterFacade
 {
     /**
      * Constructor
@@ -25,10 +25,10 @@ class Fs extends GeneratedFsFacade
 
 
     /**
-     * @return _Fs
+     * @return _Filter
      */
-    public static function getInstance() : _Fs
+    public static function getInstance() : _Filter
     {
-        return SupportFactory::getInstance()->getFs();
+        return SupportFactory::getInstance()->getFilter();
     }
 }

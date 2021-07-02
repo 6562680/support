@@ -7,7 +7,7 @@ use Gzhegow\Support\Interfaces\EnvInterface;
 
 
 /**
- * Env
+ * EnvF
  */
 class Env implements EnvInterface
 {

@@ -7,7 +7,7 @@ use Gzhegow\Support\Interfaces\NetInterface;
 
 
 /**
- * Net
+ * NetF
  */
 class Net implements NetInterface
 {

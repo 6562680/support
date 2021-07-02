@@ -45,7 +45,7 @@ class FacadeTest extends AbstractTestCase
             $facadeReflection = null;
             try {
                 $class = 'Gzhegow\\Support\\' . $className;
-                $facadeClass = 'Gzhegow\\Support\\Facades\\' . $className;
+                $facadeClass = 'Gzhegow\\Support\\Facades\\' . $className . 'F';
 
                 $objReflection = new \ReflectionClass($class);
                 $facadeReflection = new \ReflectionClass($facadeClass);

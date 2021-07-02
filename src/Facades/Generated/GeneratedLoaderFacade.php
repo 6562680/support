@@ -266,6 +266,54 @@ abstract class GeneratedLoaderFacade
     }
 
     /**
+     * @param string $filepath
+     * @param array  $data
+     *
+     * @return mixed
+     * @noinspection PhpIncludeInspection
+     */
+    public static function include(string $filepath, array $data = [])
+    {
+        return static::getInstance()->include($filepath, $data);
+    }
+
+    /**
+     * @param string $filepath
+     * @param array  $data
+     *
+     * @return mixed
+     * @noinspection PhpIncludeInspection
+     */
+    public static function includeOnce(string $filepath, array $data = [])
+    {
+        return static::getInstance()->includeOnce($filepath, $data);
+    }
+
+    /**
+     * @param string $filepath
+     * @param array  $data
+     *
+     * @return mixed
+     * @noinspection PhpIncludeInspection
+     */
+    public static function require(string $filepath, array $data = [])
+    {
+        return static::getInstance()->require($filepath, $data);
+    }
+
+    /**
+     * @param string $filepath
+     * @param array  $data
+     *
+     * @return mixed
+     * @noinspection PhpIncludeInspection
+     */
+    public static function requireOnce(string $filepath, array $data = [])
+    {
+        return static::getInstance()->requireOnce($filepath, $data);
+    }
+
+    /**
      * @param callable $filter
      * @param null|int $limit
      * @param int      $offset

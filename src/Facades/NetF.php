@@ -2,16 +2,16 @@
 
 namespace Gzhegow\Support\Facades;
 
-use Gzhegow\Support\Uri as _Uri;
+use Gzhegow\Support\Net as _Net;
 use Gzhegow\Support\Domain\SupportFactory;
-use Gzhegow\Support\Facades\Generated\GeneratedUriFacade;
+use Gzhegow\Support\Facades\Generated\GeneratedNetFacade;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 
 
 /**
- * Uri
+ * NetF
  */
-class Uri extends GeneratedUriFacade
+class NetF extends GeneratedNetFacade
 {
     /**
      * Constructor
@@ -25,10 +25,10 @@ class Uri extends GeneratedUriFacade
 
 
     /**
-     * @return _Uri
+     * @return _Net
      */
-    public static function getInstance() : _Uri
+    public static function getInstance() : _Net
     {
-        return SupportFactory::getInstance()->getUri();
+        return SupportFactory::getInstance()->getNet();
     }
 }

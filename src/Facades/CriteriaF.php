@@ -2,16 +2,16 @@
 
 namespace Gzhegow\Support\Facades;
 
-use Gzhegow\Support\Curl as _Curl;
+use Gzhegow\Support\Criteria as _Criteria;
 use Gzhegow\Support\Domain\SupportFactory;
-use Gzhegow\Support\Facades\Generated\GeneratedCurlFacade;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
+use Gzhegow\Support\Facades\Generated\GeneratedCriteriaFacade;
 
 
 /**
- * Curl
+ * CriteriaF
  */
-class Curl extends GeneratedCurlFacade
+class CriteriaF extends GeneratedCriteriaFacade
 {
     /**
      * Constructor
@@ -25,10 +25,10 @@ class Curl extends GeneratedCurlFacade
 
 
     /**
-     * @return _Curl
+     * @return _Criteria
      */
-    public static function getInstance() : _Curl
+    public static function getInstance() : _Criteria
     {
-        return SupportFactory::getInstance()->getCurl();
+        return SupportFactory::getInstance()->getCriteria();
     }
 }

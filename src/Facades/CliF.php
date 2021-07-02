@@ -2,16 +2,16 @@
 
 namespace Gzhegow\Support\Facades;
 
-use Gzhegow\Support\Debug as _Debug;
+use Gzhegow\Support\Cli as _Cli;
 use Gzhegow\Support\Domain\SupportFactory;
-use Gzhegow\Support\Facades\Generated\GeneratedDebugFacade;
+use Gzhegow\Support\Facades\Generated\GeneratedCliFacade;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 
 
 /**
- * Debug
+ * CliF
  */
-class Debug extends GeneratedDebugFacade
+class CliF extends GeneratedCliFacade
 {
     /**
      * Constructor
@@ -25,10 +25,10 @@ class Debug extends GeneratedDebugFacade
 
 
     /**
-     * @return _Debug
+     * @return _Cli
      */
-    public static function getInstance() : _Debug
+    public static function getInstance() : _Cli
     {
-        return SupportFactory::getInstance()->getDebug();
+        return SupportFactory::getInstance()->getCli();
     }
 }

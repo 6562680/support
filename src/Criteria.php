@@ -7,7 +7,7 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
- * Criteria
+ * CriteriaF
  */
 class Criteria implements CriteriaInterface
 {

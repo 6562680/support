@@ -6,7 +6,7 @@ set_error_handler(function (
     $errfile,
     $errline
 ) {
-    $exception = new \ErrorException($errstr, null, $errno);
+    $exception = new ErrorException($errstr, null, $errno);
 
     ( function ($errno, $errfile, $errline) {
         $this->file = $errfile;
