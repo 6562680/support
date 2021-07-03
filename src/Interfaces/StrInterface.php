@@ -120,6 +120,19 @@ interface StrInterface
     public function theTrimvals($trims, $uniq = null): array;
 
     /**
+     * фикс. стандартная функция не поддерживает лимит замен
+     *
+     * @param string|string[] $strings
+     * @param string|string[] $replacements
+     * @param string|string[] $subjects
+     * @param null|int        $limit
+     * @param null|int        $count
+     *
+     * @return string|string[]
+     */
+    public function replace($strings, $replacements, $subjects, int $limit = null, int &$count = null);
+
+    /**
      * @param null|SluggerInterface $slugger
      *
      * @return SluggerInterface
@@ -194,19 +207,6 @@ interface StrInterface
      * @return array
      */
     public function split(string $string, int $len = null): array;
-
-    /**
-     * фикс. стандартная функция не поддерживает лимит замен
-     *
-     * @param string|string[] $strings
-     * @param string|string[] $replacements
-     * @param string|string[] $subjects
-     * @param null|int        $limit
-     * @param null|int        $count
-     *
-     * @return string|string[]
-     */
-    public function replace($strings, $replacements, $subjects, int $limit = null, int &$count = null);
 
     /**
      * фикс. стандартная функция не поддерживает лимит замен
@@ -513,34 +513,34 @@ interface StrInterface
      * camelCase
      *
      * @param string|array $strings
+     * @param null|string  $keep
      * @param null|string  $separator
-     * @param null|string  $delimiters
      *
      * @return string
      */
-    public function camel($strings, string $separator = null, string $delimiters = null): string;
+    public function camel($strings, string $keep = null, string $separator = null): string;
 
     /**
      * PascalCase
      *
      * @param string|array $strings
+     * @param null|string  $keep
      * @param null|string  $separator
-     * @param null|string  $delimiters
      *
      * @return string
      */
-    public function pascal($strings, string $separator = null, string $delimiters = null): string;
+    public function pascal($strings, string $keep = null, string $separator = null): string;
 
     /**
      * snake_case
      *
      * @param string|array $strings
      * @param null|string  $separator
-     * @param null|string  $delimiters
+     * @param null|string  $keep
      *
      * @return string
      */
-    public function snake($strings, string $separator = null, string $delimiters = null): string;
+    public function snake($strings, string $keep = null, string $separator = null): string;
 
     /**
      * @param string      $string

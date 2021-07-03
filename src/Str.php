@@ -378,151 +378,6 @@ class Str implements StrInterface
         return $result;
     }
 
-
-    /**
-     * @param null|SluggerInterface $slugger
-     *
-     * @return SluggerInterface
-     */
-    public function slugger(SluggerInterface $slugger = null) : SluggerInterface
-    {
-        if ($slugger) {
-            $this->slugger = $slugger;
-        }
-
-        if (! $this->slugger) {
-            $this->slugger = new Slugger($this);
-        }
-
-        return $this->slugger;
-    }
-
-    /**
-     * @param null|InflectorInterface $inflector
-     *
-     * @return InflectorInterface
-     */
-    public function inflector(InflectorInterface $inflector = null) : InflectorInterface
-    {
-        if ($inflector) {
-            $this->inflector = $inflector;
-        }
-
-        if (! $this->inflector) {
-            $this->inflector = new Inflector();
-        }
-
-        return $this->inflector;
-    }
-
-
-    /**
-     * стандартная функция возвращает false, если не найдено, false при вычитании приравнивается к 0
-     * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для битового сдвига
-     * usort($array, function ($a, $b) { return $str->strpos($haystack, $a) - $str->strpos($haystack, $b); }}
-     *
-     * @param string   $haystack
-     * @param string   $needle
-     * @param null|int $offset
-     *
-     * @return int
-     */
-    public function strpos(string $haystack, string $needle, int $offset = null) : int
-    {
-        $result = false === ( $pos = mb_strpos($haystack, $needle, $offset) )
-            ? -1 : $pos;
-
-        return $result;
-    }
-
-    /**
-     * стандартная функция возвращает false, если не найдено, false при вычитании приравнивается к 0
-     * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для битового сдвига
-     * usort($array, function ($a, $b) { return $str->strrpos($haystack, $a) - $str->strrpos($haystack, $b); }}
-     *
-     * @param string   $haystack
-     * @param string   $needle
-     * @param null|int $offset
-     *
-     * @return int
-     */
-    public function strrpos(string $haystack, string $needle, int $offset = null) : int
-    {
-        $result = false === ( $pos = mb_strrpos($haystack, $needle, $offset) )
-            ? -1 : $pos;
-
-        return $result;
-    }
-
-    /**
-     * стандартная функция возвращает false, если не найдено, false при вычитании приравнивается к 0
-     * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для битового сдвига
-     * usort($array, function ($a, $b) { return $str->stripos($haystack, $a) - $str->stripos($haystack, $b); }}
-     *
-     * @param string   $haystack
-     * @param string   $needle
-     * @param null|int $offset
-     *
-     * @return int
-     */
-    public function stripos(string $haystack, string $needle, int $offset = null) : int
-    {
-        $result = false === ( $pos = mb_stripos($haystack, $needle, $offset) )
-            ? -1 : $pos;
-
-        return $result;
-    }
-
-    /**
-     * стандартная функция возвращает false, если не найдено, false при вычитании приравнивается к 0
-     * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для битового сдвига
-     * usort($array, function ($a, $b) { return $str->strripos($haystack, $a) - $str->strripos($haystack, $b); }}
-     *
-     * @param string   $haystack
-     * @param string   $needle
-     * @param null|int $offset
-     *
-     * @return int
-     */
-    public function strripos(string $haystack, string $needle, int $offset = null) : int
-    {
-        $result = false === ( $pos = mb_strripos($haystack, $needle, $offset) )
-            ? -1 : $pos;
-
-        return $result;
-    }
-
-
-    /**
-     * фикс. стандартная функция при попытке разбить пустую строку возвращает массив из пустой строки
-     *
-     * @param string   $string
-     * @param null|int $len
-     *
-     * @return array
-     */
-    public function split(string $string, int $len = null) : array
-    {
-        $len = $len ?? 1;
-
-        if ('' === $string) {
-            return [];
-        }
-
-        if ($len < 1) {
-            throw new InvalidArgumentException([ 'Len should integer greater than 0: %s', $len ]);
-        }
-
-        $letters = [];
-
-        for ( $i = 0; $i < mb_strlen($string); $i += $len ) {
-            $letters[] = mb_substr($string, $i, $len);
-        }
-
-        return $letters;
-    }
-
-
     /**
      * фикс. стандартная функция не поддерживает лимит замен
      *
@@ -600,6 +455,147 @@ class Str implements StrInterface
         }
 
         return $result;
+    }
+
+    /**
+     * @param null|SluggerInterface $slugger
+     *
+     * @return SluggerInterface
+     */
+    public function slugger(SluggerInterface $slugger = null) : SluggerInterface
+    {
+        if ($slugger) {
+            $this->slugger = $slugger;
+        }
+
+        if (! $this->slugger) {
+            $this->slugger = new Slugger($this);
+        }
+
+        return $this->slugger;
+    }
+
+    /**
+     * @param null|InflectorInterface $inflector
+     *
+     * @return InflectorInterface
+     */
+    public function inflector(InflectorInterface $inflector = null) : InflectorInterface
+    {
+        if ($inflector) {
+            $this->inflector = $inflector;
+        }
+
+        if (! $this->inflector) {
+            $this->inflector = new Inflector();
+        }
+
+        return $this->inflector;
+    }
+
+    /**
+     * стандартная функция возвращает false, если не найдено, false при вычитании приравнивается к 0
+     * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для битового сдвига
+     * usort($array, function ($a, $b) { return $str->strpos($haystack, $a) - $str->strpos($haystack, $b); }}
+     *
+     * @param string   $haystack
+     * @param string   $needle
+     * @param null|int $offset
+     *
+     * @return int
+     */
+    public function strpos(string $haystack, string $needle, int $offset = null) : int
+    {
+        $result = false === ( $pos = mb_strpos($haystack, $needle, $offset) )
+            ? -1 : $pos;
+
+        return $result;
+    }
+
+    /**
+     * стандартная функция возвращает false, если не найдено, false при вычитании приравнивается к 0
+     * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для битового сдвига
+     * usort($array, function ($a, $b) { return $str->strrpos($haystack, $a) - $str->strrpos($haystack, $b); }}
+     *
+     * @param string   $haystack
+     * @param string   $needle
+     * @param null|int $offset
+     *
+     * @return int
+     */
+    public function strrpos(string $haystack, string $needle, int $offset = null) : int
+    {
+        $result = false === ( $pos = mb_strrpos($haystack, $needle, $offset) )
+            ? -1 : $pos;
+
+        return $result;
+    }
+
+    /**
+     * стандартная функция возвращает false, если не найдено, false при вычитании приравнивается к 0
+     * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для битового сдвига
+     * usort($array, function ($a, $b) { return $str->stripos($haystack, $a) - $str->stripos($haystack, $b); }}
+     *
+     * @param string   $haystack
+     * @param string   $needle
+     * @param null|int $offset
+     *
+     * @return int
+     */
+    public function stripos(string $haystack, string $needle, int $offset = null) : int
+    {
+        $result = false === ( $pos = mb_stripos($haystack, $needle, $offset) )
+            ? -1 : $pos;
+
+        return $result;
+    }
+
+    /**
+     * стандартная функция возвращает false, если не найдено, false при вычитании приравнивается к 0
+     * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для битового сдвига
+     * usort($array, function ($a, $b) { return $str->strripos($haystack, $a) - $str->strripos($haystack, $b); }}
+     *
+     * @param string   $haystack
+     * @param string   $needle
+     * @param null|int $offset
+     *
+     * @return int
+     */
+    public function strripos(string $haystack, string $needle, int $offset = null) : int
+    {
+        $result = false === ( $pos = mb_strripos($haystack, $needle, $offset) )
+            ? -1 : $pos;
+
+        return $result;
+    }
+
+    /**
+     * фикс. стандартная функция при попытке разбить пустую строку возвращает массив из пустой строки
+     *
+     * @param string   $string
+     * @param null|int $len
+     *
+     * @return array
+     */
+    public function split(string $string, int $len = null) : array
+    {
+        $len = $len ?? 1;
+
+        if ('' === $string) {
+            return [];
+        }
+
+        if ($len < 1) {
+            throw new InvalidArgumentException([ 'Len should integer greater than 0: %s', $len ]);
+        }
+
+        $letters = [];
+
+        for ( $i = 0; $i < mb_strlen($string); $i += $len ) {
+            $letters[] = mb_substr($string, $i, $len);
+        }
+
+        return $letters;
     }
 
     /**
@@ -1457,12 +1453,12 @@ class Str implements StrInterface
      * camelCase
      *
      * @param string|array $strings
+     * @param null|string  $keep
      * @param null|string  $separator
-     * @param null|string  $delimiters
      *
      * @return string
      */
-    public function camel($strings, string $separator = null, string $delimiters = null) : string
+    public function camel($strings, string $keep = null, string $separator = null) : string
     {
         $separator = $separator ?? '';
 
@@ -1473,7 +1469,7 @@ class Str implements StrInterface
         $implode = implode(static::REPLACER, $strings);
 
         $result = $this->caseSwitch(static::CASE_UPPER,
-            $implode, $separator, $delimiters
+            $implode, $separator, $keep
         );
 
         $result = mb_convert_case($result[ 0 ], MB_CASE_LOWER) . mb_substr($result, 1);
@@ -1485,12 +1481,12 @@ class Str implements StrInterface
      * PascalCase
      *
      * @param string|array $strings
+     * @param null|string  $keep
      * @param null|string  $separator
-     * @param null|string  $delimiters
      *
      * @return string
      */
-    public function pascal($strings, string $separator = null, string $delimiters = null) : string
+    public function pascal($strings, string $keep = null, string $separator = null) : string
     {
         if (! $strings = $this->wordvals($strings)) {
             return '';
@@ -1499,7 +1495,7 @@ class Str implements StrInterface
         $implode = implode(static::REPLACER, $strings);
 
         $result = $this->caseSwitch(static::CASE_UPPER,
-            $implode, $separator, $delimiters
+            $implode, $separator, $keep
         );
 
         return $result;
@@ -1510,11 +1506,11 @@ class Str implements StrInterface
      *
      * @param string|array $strings
      * @param null|string  $separator
-     * @param null|string  $delimiters
+     * @param null|string  $keep
      *
      * @return string
      */
-    public function snake($strings, string $separator = null, string $delimiters = null) : string
+    public function snake($strings, string $keep = null, string $separator = null) : string
     {
         $separator = $separator ?? '_';
 
@@ -1525,7 +1521,7 @@ class Str implements StrInterface
         $implode = implode(static::REPLACER, $strings);
 
         $result = $this->caseSwitch(static::CASE_LOWER,
-            $implode, $separator, $delimiters
+            $implode, $separator, $keep
         );
 
         return $result;
@@ -1596,17 +1592,19 @@ class Str implements StrInterface
      * @param string|int  $case
      * @param string      $string
      * @param null|string $separator
-     * @param null|string $delimiters
+     * @param null|string $keep
      *
      * @return string
      */
     protected function caseSwitch(string $case,
-        string $string, string $separator = null, string $delimiters = null
+        string $string, string $separator = null, string $keep = null
     ) : string
     {
         $case = $case ?? static::CASE_LOWER;
         $separator = $separator ?? '';
-        $delimiters = $delimiters ?? '_-';
+        $keep = isset($keep)
+            ? $separator . $keep
+            : $separator;
 
         if (! isset(static::THE_CASE_LIST[ $case ])) {
             throw new InvalidArgumentException(
@@ -1620,13 +1618,16 @@ class Str implements StrInterface
 
         $result = preg_replace('/\s+/', static::REPLACER, $result);
 
-        $separatorsArray = $this->split($separator . $delimiters);
-
         $result = ''
             . mb_convert_case(mb_substr($result, 0, 1), $case)
             . preg_replace('/\p{Lu}/', static::REPLACER . '$0', mb_substr($result, 1));
 
-        $resultArray = $this->explode([ static::REPLACER, $separatorsArray ], $result);
+        preg_match_all('/([^\w' . $keep . ']|[_])/', $result, $matches);
+
+        $delimiters = implode('', array_unique($matches[ 1 ]));
+        $delimitersArray = $this->split($separator . $delimiters);
+
+        $resultArray = $this->explode([ static::REPLACER, $delimitersArray ], $result);
         $resultArray = array_filter($resultArray, 'strlen');
 
         foreach ( $resultArray as $idx => $r ) {
