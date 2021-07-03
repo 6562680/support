@@ -516,6 +516,18 @@ abstract class GeneratedCalendarFacade
     }
 
     /**
+     * @param int|float|string|\DateTimeInterface|mixed $date
+     * @param string|\DateInterval                      $interval
+     * @param null|string                               $unit
+     *
+     * @return \DateTime
+     */
+    public static function add($date, $interval, $unit = null): \DateTimeInterface
+    {
+        return static::getInstance()->add($date, $interval, $unit);
+    }
+
+    /**
      * @param \DateTime|array $dates
      * @param null|bool       $uniq
      *
@@ -579,18 +591,6 @@ abstract class GeneratedCalendarFacade
     public static function theDatesAll($dates, $uniq = null): array
     {
         return static::getInstance()->theDatesAll($dates, $uniq);
-    }
-
-    /**
-     * @param int|float|string|\DateTimeInterface|mixed $date
-     * @param string|\DateInterval                      $interval
-     * @param null|string                               $unit
-     *
-     * @return \DateTime
-     */
-    public static function add($date, $interval, $unit = null): \DateTimeInterface
-    {
-        return static::getInstance()->add($date, $interval, $unit);
     }
 
     /**

@@ -371,6 +371,15 @@ interface CalendarInterface
     public function theIDatevals($dates, $uniq = null): array;
 
     /**
+     * @param int|float|string|\DateTimeInterface|mixed $date
+     * @param string|\DateInterval                      $interval
+     * @param null|string                               $unit
+     *
+     * @return \DateTime
+     */
+    public function add($date, $interval, $unit = null): \DateTimeInterface;
+
+    /**
      * @param \DateTime|array $dates
      * @param null|bool       $uniq
      *
@@ -417,15 +426,6 @@ interface CalendarInterface
      * @return \DateTimeInterface[]
      */
     public function theDatesAll($dates, $uniq = null): array;
-
-    /**
-     * @param int|float|string|\DateTimeInterface|mixed $date
-     * @param string|\DateInterval                      $interval
-     * @param null|string                               $unit
-     *
-     * @return \DateTime
-     */
-    public function add($date, $interval, $unit = null): \DateTimeInterface;
 
     /**
      * @param int|float|string|\DateTimeInterface|mixed $dateA

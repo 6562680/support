@@ -64,7 +64,7 @@ class Calendar implements CalendarInterface
     /**
      * @var \DateTimeImmutable
      */
-    protected $moment;
+    protected $iNow;
 
     /**
      * @var \DateTimeZone
@@ -919,6 +919,7 @@ class Calendar implements CalendarInterface
         return $result;
     }
 
+
     /**
      * @param int|float|string|\DateTimeInterface|array $dates
      * @param null|bool                                 $uniq
@@ -991,6 +992,23 @@ class Calendar implements CalendarInterface
         }
 
         return $result;
+    }
+
+
+    /**
+     * @param int|float|string|\DateTimeInterface|mixed $date
+     * @param string|\DateInterval                      $interval
+     * @param null|string                               $unit
+     *
+     * @return \DateTime
+     */
+    public function add($date, $interval, $unit = null) : \DateTimeInterface
+    {
+        $date = $this->theDateVal($date);
+
+        $date->add($this->theIntervalVal($interval, $unit));
+
+        return $date;
     }
 
 
@@ -1166,23 +1184,6 @@ class Calendar implements CalendarInterface
 
 
     /**
-     * @param int|float|string|\DateTimeInterface|mixed $date
-     * @param string|\DateInterval                      $interval
-     * @param null|string                               $unit
-     *
-     * @return \DateTime
-     */
-    public function add($date, $interval, $unit = null) : \DateTimeInterface
-    {
-        $date = $this->theDateVal($date);
-
-        $date->add($this->theIntervalVal($interval, $unit));
-
-        return $date;
-    }
-
-
-    /**
      * @param int|float|string|\DateTimeInterface|mixed $dateA
      * @param int|float|string|\DateTimeInterface|mixed $dateB
      *
@@ -1283,13 +1284,11 @@ class Calendar implements CalendarInterface
 
         $dateTimeZone = $this->theTimezoneVal($timezone);
 
-        $now = $this->now
-            ? ( clone $this->now )->setTimezone($dateTimeZone)
-            : date_create('now', $dateTimeZone);
-
-        if (! $this->now) {
-            $this->now = $now;
+        if (! isset($this->now)) {
+            $this->now = date_create('now', $dateTimeZone);
         }
+
+        $now = ( clone $this->now )->setTimezone($dateTimeZone);
 
         return $now;
     }
@@ -1306,15 +1305,13 @@ class Calendar implements CalendarInterface
 
         $dateTimeZone = $this->theTimezoneVal($timezone);
 
-        $moment = $this->moment
-            ? $this->moment->setTimezone($dateTimeZone)
-            : date_create_immutable('now', $dateTimeZone);
-
-        if (! $this->moment) {
-            $this->moment = $moment;
+        if (! isset($this->iNow)) {
+            $this->iNow = date_create_immutable('now', $dateTimeZone);
         }
 
-        return $moment;
+        $now = ( clone $this->iNow )->setTimezone($dateTimeZone);
+
+        return $now;
     }
 
 
@@ -1832,6 +1829,8 @@ class Calendar implements CalendarInterface
     {
         if (! is_int($int)) return null;
 
+        $unit = $unit ?? static::UNIT_SECOND;
+
         $unitLower = strtolower($unit);
 
         $unit = null;
@@ -1876,6 +1875,7 @@ class Calendar implements CalendarInterface
                 case static::UNIT_SECOND:
                     $dateInterval = new \DateInterval('PT' . $int . 'S');
                     break;
+
             endswitch;
 
             return $dateInterval;
