@@ -96,6 +96,27 @@ class RegExp
         return $this;
     }
 
+
+    /**
+     * @param string $delimiter
+     *
+     * @return null|array
+     */
+    protected function loadDelimiters(string $delimiter) : ?array
+    {
+        if (false === ( $pos = strpos(static::$delimitersAllowed[ 0 ], $delimiter) )) {
+            return null;
+        }
+
+        $delimiters = [
+            static::$delimitersAllowed[ 0 ][ $pos ],
+            static::$delimitersAllowed[ 1 ][ $pos ],
+        ];
+
+        return $delimiters;
+    }
+
+
     /**
      * @param string $delimiter
      *
@@ -107,7 +128,7 @@ class RegExp
             throw new InvalidArgumentException('Delimiter should be non-empty string');
         }
 
-        if (null === ( $delimiters = $this->fetchDelimiters($delimiter) )) {
+        if (null === ( $delimiters = $this->loadDelimiters($delimiter) )) {
             throw new InvalidArgumentException('Invalid delimiter passed: ' . $delimiter);
         }
 
@@ -130,7 +151,7 @@ class RegExp
             : [];
 
         foreach ( $letters as $letter ) {
-            if (false === strpos(static::$_flags, $letter)) {
+            if (false === strpos(static::$flagsAllowed, $letter)) {
                 throw new InvalidArgumentException('Invalid flag passed: ' . $letter);
             }
 
@@ -167,7 +188,7 @@ class RegExp
     protected function addRegex(...$regex)
     {
         array_walk_recursive($regex, function (string $r) {
-            $delimiters = $this->fetchDelimiters($r[ 0 ]);
+            $delimiters = $this->loadDelimiters($r[ 0 ]);
 
             if (! $this->delimiters) {
                 $this->setDelimiter($delimiters[ 0 ]);
@@ -281,31 +302,12 @@ class RegExp
 
 
     /**
-     * @param string $delimiter
-     *
-     * @return null|array
-     */
-    protected function fetchDelimiters(string $delimiter) : ?array
-    {
-        if (false === ( $pos = strpos(static::$_delimiters[ 0 ], $delimiter) )) {
-            return null;
-        }
-
-        $delimiters = [
-            static::$_delimiters[ 0 ][ $pos ],
-            static::$_delimiters[ 1 ][ $pos ],
-        ];
-
-        return $delimiters;
-    }
-
-    /**
      * @var string[]
      */
-    protected static $_delimiters = [ '/#+%{([<', '/#+%})]>' ];
+    protected static $delimitersAllowed = [ '/#+%{([<', '/#+%})]>' ];
 
     /**
      * @var string
      */
-    protected static $_flags = 'eimsuxADJSUX';
+    protected static $flagsAllowed = 'eimsuxADJSUX';
 }

@@ -1630,14 +1630,14 @@ class Calendar implements CalendarInterface
         $dateTimeZone = $this->theTimezoneVal($timezone);
 
         // be aware - timezone will bind instantly here
-        foreach ( static::$formatsNoTimezone as $formatNoTimezone => $enabled ) {
+        foreach ( static::getFormatsNoTimezone() as $formatNoTimezone => $enabled ) {
             if ($dateTime = $this->dateRead($formatNoTimezone, $format, $dateTimeZone)) {
                 return $dateTime;
             }
         }
 
         // be careful - timezone will be changed here
-        foreach ( static::$formatsTimezone as $formatTimezone => $enabled ) {
+        foreach ( static::getFormatsTimezone() as $formatTimezone => $enabled ) {
             if ($dateTime = $this->dateRead($formatTimezone, $format)) {
                 $dateTime->setTimezone($dateTimeZone);
 
@@ -1970,30 +1970,36 @@ class Calendar implements CalendarInterface
 
 
     /**
-     * @var array
+     * @return bool[]
      */
-    protected static $formatsNoTimezone = [
-        self::FORMAT_SQL_DATETIME     => true, // 'Y-m-d H:i:s',
-        self::FORMAT_SQL_DATE . ' 00' => true, // 'Y-m-d 00',
-        self::FORMAT_SQL_TIME         => true, // 'H:i:s',
-    ];
+    protected static function getFormatsNoTimezone()
+    {
+        return [
+            self::FORMAT_SQL_DATETIME     => true, // 'Y-m-d H:i:s',
+            self::FORMAT_SQL_DATE . ' 00' => true, // 'Y-m-d 00',
+            self::FORMAT_SQL_TIME         => true, // 'H:i:s',
+        ];
+    }
 
     /**
-     * @var array
+     * @return bool[]
      */
-    protected static $formatsTimezone = [
-        // \DateTimeInterface::ATOM             => true, // => 'Y-m-d\TH:i:sP',
-        // \DateTimeInterface::RFC822           => true, // => 'D, d M y H:i:s O',
-        // \DateTimeInterface::RFC1123          => true, // => 'D, d M Y H:i:s O',
-        // \DateTimeInterface::RSS              => true, // => 'D, d M Y H:i:s O',
-        // \DateTimeInterface::W3C              => true, // => 'Y-m-d\TH:i:sP',
+    protected static function getFormatsTimezone()
+    {
+        return [
+            // \DateTimeInterface::ATOM             => true, // => 'Y-m-d\TH:i:sP',
+            // \DateTimeInterface::RFC822           => true, // => 'D, d M y H:i:s O',
+            // \DateTimeInterface::RFC1123          => true, // => 'D, d M Y H:i:s O',
+            // \DateTimeInterface::RSS              => true, // => 'D, d M Y H:i:s O',
+            // \DateTimeInterface::W3C              => true, // => 'Y-m-d\TH:i:sP',
 
-        \DateTimeInterface::COOKIE           => true, // 'l, d-M-Y H:i:s T',
-        \DateTimeInterface::ISO8601          => true, // 'Y-m-d\TH:i:sO',
-        \DateTimeInterface::RFC850           => true, // 'l, d-M-y H:i:s T',
-        \DateTimeInterface::RFC3339_EXTENDED => true, // 'Y-m-d\TH:i:s.vP',
-        \DateTimeInterface::RFC3339          => true, // 'Y-m-d\TH:i:sP',
-        \DateTimeInterface::RFC2822          => true, // 'D, d M Y H:i:s O',
-        \DateTimeInterface::RFC1036          => true, // 'D, d M y H:i:s O',
-    ];
+            \DateTimeInterface::COOKIE           => true, // 'l, d-M-Y H:i:s T',
+            \DateTimeInterface::ISO8601          => true, // 'Y-m-d\TH:i:sO',
+            \DateTimeInterface::RFC850           => true, // 'l, d-M-y H:i:s T',
+            \DateTimeInterface::RFC3339_EXTENDED => true, // 'Y-m-d\TH:i:s.vP',
+            \DateTimeInterface::RFC3339          => true, // 'Y-m-d\TH:i:sP',
+            \DateTimeInterface::RFC2822          => true, // 'D, d M Y H:i:s O',
+            \DateTimeInterface::RFC1036          => true, // 'D, d M y H:i:s O',
+        ];
+    }
 }

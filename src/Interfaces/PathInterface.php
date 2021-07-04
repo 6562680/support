@@ -97,20 +97,20 @@ interface PathInterface
 
     /**
      * @param string   $path
-     * @param null|int $levels
+     * @param null|int $level
      *
      * @return string
      */
-    public function dirname(string $path, int $levels = null): string;
+    public function dirname(string $path, int $level = null): string;
 
     /**
      * @param string      $path
      * @param null|string $suffix
-     * @param null|int    $levels
+     * @param null|int    $level
      *
      * @return string
      */
-    public function basename(string $path, string $suffix = null, int $levels = null): string;
+    public function basename(string $path, string $suffix = null, int $level = null): string;
 
     /**
      * @param string      $path

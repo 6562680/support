@@ -311,21 +311,18 @@ class Path implements PathInterface
 
     /**
      * @param string   $path
-     * @param null|int $levels
+     * @param null|int $level
      *
      * @return string
      */
-    public function dirname(string $path, int $levels = null) : string
+    public function dirname(string $path, int $level = null) : string
     {
-        $levels = $levels ?? 1;
+        $level = max(0, $level ?? 1);
 
         $explode = $this->split($path);
 
-        $levelsTotal = count($explode);
-        $levels = max(1, min($levels, $levelsTotal));
-
         $result = $this->join(
-            $extracted = array_splice($explode, 0, $levelsTotal - $levels)
+            $extracted = array_splice($explode, 0, -$level)
         );
 
         return $result;
@@ -334,21 +331,21 @@ class Path implements PathInterface
     /**
      * @param string      $path
      * @param null|string $suffix
-     * @param null|int    $levels
+     * @param null|int    $level
      *
      * @return string
      */
-    public function basename(string $path, string $suffix = null, int $levels = null) : string
+    public function basename(string $path, string $suffix = null, int $level = null) : string
     {
-        $levels = max(0, $levels ?? 0);
-
         $result = [];
 
         $explode = $this->split($path);
         $last = array_pop($explode);
 
-        if ($levels) {
-            $result[] = array_slice($explode, -1 * $levels);
+        if (isset($level)) {
+            $level = max(0, $level ?? 0);
+
+            $result[] = array_splice($explode, -$level);
         }
 
         $result[] = basename($last, $suffix);
@@ -357,6 +354,7 @@ class Path implements PathInterface
 
         return $result;
     }
+
 
     /**
      * @param string      $path

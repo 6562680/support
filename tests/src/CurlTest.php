@@ -13,6 +13,7 @@ class CurlTest extends AbstractTestCase
         return SupportFactory::getInstance()->newCurl();
     }
 
+
     public function testGet()
     {
         if ('pong' !== $this->ping()) {

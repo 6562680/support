@@ -82,6 +82,22 @@ abstract class GeneratedAssert
     abstract public function throwableOr(\Throwable $throwable = null);
 
     /**
+     * @return SupportFactory
+     */
+    public function assert(): \Gzhegow\Support\Domain\SupportFactory
+    {
+        if (null === ( $filtered = $this->filter->getSupportFactory() )) {
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid  passed: %s', func_get_args() ]
+                ))
+            );
+        }
+
+        return $filtered;
+    }
+
+    /**
      * @param bool|mixed $value
      *
      * @return bool

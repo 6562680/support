@@ -23,7 +23,6 @@ use Gzhegow\Support\Format;
 use Gzhegow\Support\Calendar;
 use Gzhegow\Support\Profiler;
 use Gzhegow\Support\Criteria;
-use Psr\Container\ContainerInterface;
 use Gzhegow\Support\Domain\Filter\Type;
 use Gzhegow\Support\Domain\Filter\Assert;
 
@@ -32,7 +31,6 @@ use Gzhegow\Support\Domain\Filter\Assert;
  * SupportFactoryInterface
  */
 interface SupportFactoryInterface
-    extends ContainerInterface
 {
     /**
      * @return Arr
@@ -139,16 +137,6 @@ interface SupportFactoryInterface
      */
     public function getUri() : Uri;
 
-    /**
-     * @return Assert
-     */
-    public function getAssert() : Assert;
-
-    /**
-     * @return Type
-     */
-    public function getType() : Type;
-
 
     /**
      * @return Arr
@@ -254,22 +242,4 @@ interface SupportFactoryInterface
      * @return Uri
      */
     public function newUri() : Uri;
-
-    /**
-     * @return Assert
-     */
-    public function newAssert() : Assert;
-
-    /**
-     * @return Type
-     */
-    public function newType() : Type;
-
-
-    /**
-     * @param mixed $value
-     *
-     * @return $this
-     */
-    public function set($value);
 }

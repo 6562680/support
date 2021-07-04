@@ -27,19 +27,29 @@ class Filter implements FilterInterface
     /**
      * @var null|SupportFactory
      */
-    protected $factory;
+    protected $supportFactory;
 
 
     /**
      * Constructor
      *
-     * @param null|SupportFactory $factory
+     * @param null|SupportFactory $supportFactory
      */
     public function __construct(
-        SupportFactory $factory = null
+        SupportFactory $supportFactory = null
     )
     {
-        $this->factory = $factory ?? new SupportFactory();
+        $this->supportFactory = $supportFactory;
+    }
+
+
+    /**
+     * @return null|SupportFactory
+     */
+    public function getSupportFactory() : SupportFactory
+    {
+        return $this->supportFactory = $this->supportFactory
+            ?? SupportFactory::getInstance();
     }
 
 
@@ -1086,11 +1096,17 @@ class Filter implements FilterInterface
             return null;
         }
 
-        $validate = preg_replace('~[a-zA-Z0-9_\x80-\xff]*~', '', $class);
+        $trim = ltrim($class, '\\');
 
-        $letters = '' !== $validate
-            ? str_split($validate)
-            : [];
+        if (ctype_digit(substr($trim, 0, 1))) {
+            return null;
+        }
+
+        $validate = preg_replace('~[a-z0-9_\x80-\xff]*~iu', '', $class);
+
+        $letters = '' === $validate
+            ? []
+            : str_split($validate);
 
         foreach ( $letters as $letter ) {
             if ($letter !== '\\') {
@@ -1409,7 +1425,7 @@ class Filter implements FilterInterface
     public function assert($message = null, ...$arguments) : Assert
     {
         if (! isset($this->assert)) {
-            $this->assert = SupportFactory::getInstance()->getAssert();
+            $this->assert = SupportFactory::getInstance()->newAssert();
         }
 
         $this->assert->withError($message, ...$arguments);
@@ -1423,7 +1439,7 @@ class Filter implements FilterInterface
     public function type() : Type
     {
         if (! isset($this->type)) {
-            $this->type = SupportFactory::getInstance()->getType();
+            $this->type = SupportFactory::getInstance()->newType();
         }
 
         return $this->type;

@@ -11,6 +11,7 @@
 namespace Gzhegow\Support\Interfaces;
 
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Loader;
 
 interface LoaderInterface
@@ -21,12 +22,46 @@ interface LoaderInterface
     public function getDeclaredClasses(): array;
 
     /**
-     * @param object          $value
-     * @param string|string[] $classes
+     * @param string|object|\ReflectionClass $classOrObject
      *
-     * @return bool
+     * @return array
      */
-    public function isInstanceOf($value, $classes): bool;
+    public function getUseStatements($classOrObject): array;
+
+    /**
+     * @return array
+     */
+    public function getContracts(): array;
+
+    /**
+     * @param string $contract
+     *
+     * @return array
+     */
+    public function getContract(string $contract): array;
+
+    /**
+     * @param string $contract
+     *
+     * @return null|array
+     */
+    public function existsContract($contract): ?array;
+
+    /**
+     * @param string       $contract
+     * @param string|array $classes
+     *
+     * @return Loader
+     */
+    public function setContract(string $contract, ...$classes);
+
+    /**
+     * @param string       $contract
+     * @param string|array $classes
+     *
+     * @return Loader
+     */
+    public function addContract(string $contract, ...$classes);
 
     /**
      * @param string|object   $value
@@ -48,9 +83,17 @@ interface LoaderInterface
      * @param object          $value
      * @param string|string[] $classes
      *
-     * @return null|object
+     * @return bool
      */
-    public function filterInstanceOf($value, $classes);
+    public function isInstanceOf($value, $classes): bool;
+
+    /**
+     * @param string|mixed $contract
+     * @param object|mixed $object
+     *
+     * @return bool
+     */
+    public function isContact($contract, $object): bool;
 
     /**
      * @param string|object   $value
@@ -69,18 +112,26 @@ interface LoaderInterface
     public function filterSubclassOf($value, $classes);
 
     /**
-     * @param object          $value
-     * @param string|string[] ...$classes
+     * @param object          $object
+     * @param string|string[] $classes
      *
      * @return null|object
      */
-    public function assertInstanceOf($value, $classes);
+    public function filterInstanceOf($object, $classes): ?object;
+
+    /**
+     * @param string|mixed $contract
+     * @param object|mixed $object
+     *
+     * @return null|object
+     */
+    public function filterContract($contract, $object): ?object;
 
     /**
      * @param string|object   $value
      * @param string|string[] ...$classes
      *
-     * @return null|string|object
+     * @return string|object
      */
     public function assertClassOf($value, $classes);
 
@@ -88,23 +139,66 @@ interface LoaderInterface
      * @param string|object   $value
      * @param string|string[] ...$classes
      *
-     * @return null|string|object
+     * @return string|object
      */
     public function assertSubclassOf($value, $classes);
 
     /**
-     * @param mixed $classOrObject
+     * @param object          $object
+     * @param string|string[] ...$classes
+     *
+     * @return object
+     */
+    public function assertInstanceOf($object, $classes): object;
+
+    /**
+     * @param string|mixed $contract
+     * @param object|mixed $object
+     *
+     * @return object
+     */
+    public function assertContract($contract, $object): object;
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param null|bool                      $prefixed
      *
      * @return null|string
      */
-    public function classVal($classOrObject): ?string;
+    public function classVal($classOrObject, bool $prefixed = null): ?string;
 
     /**
-     * @param mixed $classOrObject
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param null|bool                      $prefixed
      *
      * @return string
      */
-    public function theClassVal($classOrObject): string;
+    public function theClassVal($classOrObject, bool $prefixed = null): string;
+
+    /**
+     * @param object|\ReflectionClass $object
+     * @param null|bool               $prefixed
+     *
+     * @return null|string
+     */
+    public function objectClassVal($object, bool $prefixed = null): ?string;
+
+    /**
+     * @param object|\ReflectionClass $object
+     * @param null|bool               $prefixed
+     *
+     * @return string
+     */
+    public function theObjectClassVal($object, bool $prefixed = null): string;
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param string|object|\ReflectionClass $declaredClassOrObject
+     * @param null|bool                      $prefixed
+     *
+     * @return null|string
+     */
+    public function useClassVal($classOrObject, $declaredClassOrObject = null, bool $prefixed = null);
 
     /**
      * @param string|object $classOrObject
@@ -168,21 +262,21 @@ interface LoaderInterface
     public function pathConcat(...$parts): string;
 
     /**
-     * @param string $path
-     * @param int    $levels
+     * @param string   $path
+     * @param null|int $level
      *
      * @return null|string
      */
-    public function pathDirname(string $path, int $levels = null): string;
+    public function pathDirname(string $path, int $level = null): string;
 
     /**
      * @param string      $path
      * @param null|string $suffix
-     * @param int         $levels
+     * @param null|int    $level
      *
      * @return null|string
      */
-    public function pathBasename(string $path, string $suffix = null, int $levels = null): string;
+    public function pathBasename(string $path, string $suffix = null, int $level = null): string;
 
     /**
      * @param string|object $classOrObject
@@ -231,7 +325,7 @@ interface LoaderInterface
     /**
      * @param callable $filter
      * @param null|int $limit
-     * @param int      $offset
+     * @param null|int $offset
      *
      * @return array
      */

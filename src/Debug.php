@@ -95,7 +95,7 @@ class Debug implements DebugInterface
 
         foreach ( $trace as $t ) {
             foreach ( array_keys($t) as $key ) {
-                if (! isset(static::$traceKeys[ $key ])) {
+                if (! isset(static::getTraceKeys()[ $key ])) {
                     return null;
                 }
             }
@@ -196,7 +196,7 @@ class Debug implements DebugInterface
         $columns = null
             ?? ( is_array($columns) ? $columns : null )
             ?? ( ! empty($columns) ? [ $columns ] : null )
-            ?? array_keys(static::$traceKeys);
+            ?? array_keys(static::getTraceKeys());
 
         foreach ( $trace as $t ) {
             $data = [];
@@ -337,15 +337,18 @@ class Debug implements DebugInterface
 
 
     /**
-     * @var bool[]
+     * @return bool[]
      */
-    protected static $traceKeys = [
-        'function' => true,
-        'line'     => true,
-        'file'     => true,
-        'class'    => true,
-        'object'   => true,
-        'type'     => true,
-        'args'     => true,
-    ];
+    protected static function getTraceKeys() : array
+    {
+        return [
+            'function' => true,
+            'line'     => true,
+            'file'     => true,
+            'class'    => true,
+            'object'   => true,
+            'type'     => true,
+            'args'     => true,
+        ];
+    }
 }

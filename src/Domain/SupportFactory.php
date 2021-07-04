@@ -52,8 +52,7 @@ use Gzhegow\Support\Interfaces\ProfilerInterface;
 /**
  * SupportFactory
  */
-class SupportFactory implements
-    SupportFactoryInterface
+class SupportFactory implements SupportFactoryInterface
 {
     /**
      * @var null|ContainerInterface
@@ -62,19 +61,11 @@ class SupportFactory implements
 
 
     /**
-     * @var array
-     */
-    protected $items = [];
-
-
-    /**
      * Constructor
      *
      * @param null|ContainerInterface $container
      */
-    public function __construct(
-        ContainerInterface $container = null
-    )
+    public function __construct(?ContainerInterface $container)
     {
         $this->container = $container;
     }
@@ -347,9 +338,8 @@ class SupportFactory implements
      */
     public function getArr() : Arr
     {
-        return $this->items[ Arr::class ] = null
+        return null
             ?? $this->containerGet(ArrInterface::class)
-            ?? $this->get(Arr::class)
             ?? $this->newArr();
     }
 
@@ -358,9 +348,8 @@ class SupportFactory implements
      */
     public function getCalendar() : Calendar
     {
-        return $this->items[ Calendar::class ] = null
+        return null
             ?? $this->containerGet(CalendarInterface::class)
-            ?? $this->get(Calendar::class)
             ?? $this->newCalendar();
     }
 
@@ -369,9 +358,8 @@ class SupportFactory implements
      */
     public function getCli() : Cli
     {
-        return $this->items[ Cli::class ] = null
+        return null
             ?? $this->containerGet(CliInterface::class)
-            ?? $this->get(Cli::class)
             ?? $this->newCli();
     }
 
@@ -380,9 +368,8 @@ class SupportFactory implements
      */
     public function getCmp() : Cmp
     {
-        return $this->items[ Cmp::class ] = null
+        return null
             ?? $this->containerGet(CmpInterface::class)
-            ?? $this->get(Cmp::class)
             ?? $this->newCmp();
     }
 
@@ -391,9 +378,8 @@ class SupportFactory implements
      */
     public function getCriteria() : Criteria
     {
-        return $this->items[ Criteria::class ] = null
-            ?? $this->get(CriteriaInterface::class)
-            ?? $this->get(Criteria::class)
+        return null
+            ?? $this->containerGet(CriteriaInterface::class)
             ?? $this->newCriteria();
     }
 
@@ -402,9 +388,8 @@ class SupportFactory implements
      */
     public function getCurl() : Curl
     {
-        return $this->items[ Curl::class ] = null
+        return null
             ?? $this->containerGet(CurlInterface::class)
-            ?? $this->get(Curl::class)
             ?? $this->newCurl();
     }
 
@@ -413,9 +398,8 @@ class SupportFactory implements
      */
     public function getDebug() : Debug
     {
-        return $this->items[ Debug::class ] = null
+        return null
             ?? $this->containerGet(DebugInterface::class)
-            ?? $this->get(Debug::class)
             ?? $this->newDebug();
     }
 
@@ -424,9 +408,8 @@ class SupportFactory implements
      */
     public function getEnv() : Env
     {
-        return $this->items[ Env::class ] = null
+        return null
             ?? $this->containerGet(EnvInterface::class)
-            ?? $this->get(Env::class)
             ?? $this->newEnv();
     }
 
@@ -435,9 +418,8 @@ class SupportFactory implements
      */
     public function getFilter() : Filter
     {
-        return $this->items[ Filter::class ] = null
+        return null
             ?? $this->containerGet(FilterInterface::class)
-            ?? $this->get(Filter::class)
             ?? $this->newFilter();
     }
 
@@ -446,9 +428,8 @@ class SupportFactory implements
      */
     public function getFormat() : Format
     {
-        return $this->items[ Format::class ] = null
+        return null
             ?? $this->containerGet(FormatInterface::class)
-            ?? $this->get(Format::class)
             ?? $this->newFormat();
     }
 
@@ -457,9 +438,8 @@ class SupportFactory implements
      */
     public function getFs() : Fs
     {
-        return $this->items[ Fs::class ] = null
+        return null
             ?? $this->containerGet(FsInterface::class)
-            ?? $this->get(Fs::class)
             ?? $this->newFs();
     }
 
@@ -468,9 +448,8 @@ class SupportFactory implements
      */
     public function getLoader() : Loader
     {
-        return $this->items[ Loader::class ] = null
+        return null
             ?? $this->containerGet(LoaderInterface::class)
-            ?? $this->get(Loader::class)
             ?? $this->newLoader();
     }
 
@@ -479,9 +458,8 @@ class SupportFactory implements
      */
     public function getMath() : Math
     {
-        return $this->items[ Math::class ] = null
+        return null
             ?? $this->containerGet(MathInterface::class)
-            ?? $this->get(Math::class)
             ?? $this->newMath();
     }
 
@@ -490,9 +468,8 @@ class SupportFactory implements
      */
     public function getNet() : Net
     {
-        return $this->items[ Net::class ] = null
+        return null
             ?? $this->containerGet(NetInterface::class)
-            ?? $this->get(Net::class)
             ?? $this->newNet();
     }
 
@@ -501,9 +478,8 @@ class SupportFactory implements
      */
     public function getNum() : Num
     {
-        return $this->items[ Num::class ] = null
+        return null
             ?? $this->containerGet(NumInterface::class)
-            ?? $this->get(Num::class)
             ?? $this->newNum();
     }
 
@@ -512,9 +488,8 @@ class SupportFactory implements
      */
     public function getPath() : Path
     {
-        return $this->items[ Path::class ] = null
+        return null
             ?? $this->containerGet(PathInterface::class)
-            ?? $this->get(Path::class)
             ?? $this->newPath();
     }
 
@@ -523,9 +498,8 @@ class SupportFactory implements
      */
     public function getPhp() : Php
     {
-        return $this->items[ Php::class ] = null
+        return null
             ?? $this->containerGet(PhpInterface::class)
-            ?? $this->get(Php::class)
             ?? $this->newPhp();
     }
 
@@ -534,9 +508,8 @@ class SupportFactory implements
      */
     public function getPreg() : Preg
     {
-        return $this->items[ Preg::class ] = null
+        return null
             ?? $this->containerGet(PregInterface::class)
-            ?? $this->get(Preg::class)
             ?? $this->newPreg();
     }
 
@@ -545,9 +518,8 @@ class SupportFactory implements
      */
     public function getProfiler() : Profiler
     {
-        return $this->items[ Profiler::class ] = null
+        return null
             ?? $this->containerGet(ProfilerInterface::class)
-            ?? $this->get(Profiler::class)
             ?? $this->newProfiler();
     }
 
@@ -556,9 +528,8 @@ class SupportFactory implements
      */
     public function getStr() : Str
     {
-        return $this->items[ Str::class ] = null
+        return null
             ?? $this->containerGet(StrInterface::class)
-            ?? $this->get(Str::class)
             ?? $this->newStr();
     }
 
@@ -567,66 +538,9 @@ class SupportFactory implements
      */
     public function getUri() : Uri
     {
-        return $this->items[ Uri::class ] = null
+        return null
             ?? $this->containerGet(UriInterface::class)
-            ?? $this->get(Uri::class)
             ?? $this->newUri();
-    }
-
-
-    /**
-     * @return Assert
-     */
-    public function getAssert() : Assert
-    {
-        return $this->items[ Assert::class ] = null
-            ?? $this->get(Assert::class)
-            ?? $this->newAssert();
-    }
-
-    /**
-     * @return Type
-     */
-    public function getType() : Type
-    {
-        return $this->items[ Type::class ] = null
-            ?? $this->get(Type::class)
-            ?? $this->newType();
-    }
-
-
-    /**
-     * @param string $id
-     *
-     * @return null|mixed
-     */
-    public function get(string $id)
-    {
-        return $this->has($id)
-            ? $this->items[ $id ]
-            : null;
-    }
-
-    /**
-     * @param string $id
-     *
-     * @return bool
-     */
-    public function has(string $id)
-    {
-        return isset($this->items[ $id ]);
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return $this
-     */
-    public function set($value)
-    {
-        $this->items[ get_class($value) ] = $value;
-
-        return $this;
     }
 
 
@@ -662,7 +576,7 @@ class SupportFactory implements
     {
         return static::$instance[ static::class ] = null
             ?? static::$instance[ static::class ]
-            ?? new SupportFactory();
+            ?? new SupportFactory(null);
     }
 
 

@@ -3,6 +3,7 @@
 namespace Gzhegow\Support;
 
 use Gzhegow\Support\Interfaces\LoaderInterface;
+use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
@@ -28,6 +29,15 @@ class Loader implements LoaderInterface
      * @var array
      */
     protected $declaredClasses;
+    /**
+     * @var array
+     */
+    protected $useStatements;
+
+    /**
+     * @var array
+     */
+    protected $contracts = [];
 
     /**
      * @var string
@@ -75,6 +85,93 @@ class Loader implements LoaderInterface
         return $map;
     }
 
+    /**
+     * @param string $class
+     *
+     * @return array
+     */
+    protected function loadUseStatements(string $class) : array
+    {
+        $useStatements = [];
+
+        try {
+            $reflectionClass = new \ReflectionClass($class);
+        }
+        catch ( \ReflectionException $e ) {
+            throw new RuntimeException($e->getMessage(), null, $e);
+        }
+
+        $code = [];
+        $h = fopen($reflectionClass->getFileName(), 'r');
+        while ( ! feof($h) ) {
+            $line = trim(fgets($h));
+            if (! $line) {
+                continue;
+            }
+
+            if (false
+                || ( 0 === mb_stripos($line, $needle = 'class ') )
+                || ( 0 === mb_stripos($line, $needle = 'interface ') )
+                || ( 0 === mb_stripos($line, $needle = 'trait ') )
+                || ( false !== mb_stripos($line, $needle = ' class ') )
+                || ( false !== mb_stripos($line, $needle = ' interface ') )
+                || ( false !== mb_stripos($line, $needle = ' trait ') )
+            ) {
+                break;
+            }
+
+            $code[] = $line;
+        }
+        fclose($h);
+
+        $tokens = token_get_all(implode("\n", $code));
+        unset($code);
+
+        $use = [];
+        $alias = [];
+        $isUse = false;
+        $isAlias = false;
+        foreach ( $tokens as $token ) {
+            if (T_USE === $token[ 0 ]) {
+                $isUse = true;
+                $use = [];
+
+                continue;
+            }
+
+            if (T_AS === $token[ 0 ]) {
+                $isAlias = true;
+                $alias = [];
+
+                continue;
+            }
+
+            if ($isAlias) {
+                $alias[] = $token[ 1 ];
+
+            } elseif ($isUse) {
+                $use[] = $token[ 1 ];
+            }
+
+            if (( ';' === $token ) && ( $isUse || $isAlias )) {
+                $isUse = false;
+                $isAlias = false;
+
+                $use = trim(implode('', $use));
+                $alias = trim(implode('', $alias)) ?: $this->className($use);
+
+                $useStatements[ $alias ] = $use;
+
+                $use = [];
+                $alias = [];
+
+                continue;
+            }
+        }
+
+        return $useStatements;
+    }
+
 
     /**
      * @return array
@@ -85,17 +182,91 @@ class Loader implements LoaderInterface
             ?? $this->loadDeclaredClasses();
     }
 
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     *
+     * @return array
+     */
+    public function getUseStatements($classOrObject) : array
+    {
+        $class = $this->theClassVal($classOrObject);
+
+        return $this->useStatements[ $class ] = $this->useStatements[ $class ]
+            ?? $this->loadUseStatements($class);
+    }
+
 
     /**
-     * @param object          $value
-     * @param string|string[] $classes
-     *
-     * @return bool
+     * @return array
      */
-    public function isInstanceOf($value, $classes) : bool
+    public function getContracts() : array
     {
-        return null !== $this->filterInstanceOf($value, $classes);
+        return $this->contracts;
     }
+
+    /**
+     * @param string $contract
+     *
+     * @return array
+     */
+    public function getContract(string $contract) : array
+    {
+        return $this->contracts[ $contract ];
+    }
+
+
+    /**
+     * @param string $contract
+     *
+     * @return null|array
+     */
+    public function existsContract($contract) : ?array
+    {
+        return $this->contracts[ $contract ] ?? null;
+    }
+
+
+    /**
+     * @param string       $contract
+     * @param string|array $classes
+     *
+     * @return static
+     */
+    public function setContract(string $contract, ...$classes)
+    {
+        $this->contracts[ $contract ] = [];
+
+        $this->addContract($contract, ...$classes);
+
+        return $this;
+    }
+
+    /**
+     * @param string       $contract
+     * @param string|array $classes
+     *
+     * @return static
+     */
+    public function addContract(string $contract, ...$classes)
+    {
+        $contract = $this->str->theWordval($contract);
+        $classes = $this->str->theWordvals(...$classes);
+
+        foreach ( $classes as $class ) {
+            $class = $this->theClassVal($class);
+
+            if (! ( class_exists($class) || interface_exists($class) )) {
+                throw new InvalidArgumentException(
+                    [ 'Each Class should be existing ClassName or InterfaceName: %s', $class ]
+                );
+            }
+
+            $this->contracts[ $contract ][] = $class;
+        }
+
+        return $this;
+    }
+
 
     /**
      * @param string|object   $value
@@ -119,25 +290,28 @@ class Loader implements LoaderInterface
         return null !== $this->filterSubclassOf($value, $classes);
     }
 
-
     /**
      * @param object          $value
      * @param string|string[] $classes
      *
-     * @return null|object
+     * @return bool
      */
-    public function filterInstanceOf($value, $classes) // : ?object
+    public function isInstanceOf($value, $classes) : bool
     {
-        $list = $this->str->theWordvals($classes, true);
-
-        foreach ( $list as $class ) {
-            if ($value instanceof $class) {
-                return $value;
-            }
-        }
-
-        return null;
+        return null !== $this->filterInstanceOf($value, $classes);
     }
+
+    /**
+     * @param string|mixed $contract
+     * @param object|mixed $object
+     *
+     * @return bool
+     */
+    public function isContact($contract, $object) : bool
+    {
+        return null !== $this->filterContract($contract, $object);
+    }
+
 
     /**
      * @param string|object   $value
@@ -187,32 +361,52 @@ class Loader implements LoaderInterface
         return null;
     }
 
-
     /**
-     * @param object          $value
-     * @param string|string[] ...$classes
+     * @param object          $object
+     * @param string|string[] $classes
      *
      * @return null|object
      */
-    public function assertInstanceOf($value, $classes) // : ?object
+    public function filterInstanceOf($object, $classes) : ?object
     {
-        if (null === $this->filterInstanceOf($value, $classes)) {
-            throw new InvalidArgumentException('Value should be instance of: '
-                . '[' . implode(', ', is_array($classes)
-                    ? $classes
-                    : [ $classes ]
-                ) . ']'
-            );
+        $list = $this->str->theWordvals($classes, true);
+
+        foreach ( $list as $class ) {
+            if ($object instanceof $class) {
+                return $object;
+            }
         }
 
-        return $value;
+        return null;
     }
+
+    /**
+     * @param string|mixed $contract
+     * @param object|mixed $object
+     *
+     * @return null|object
+     */
+    public function filterContract($contract, $object) : ?object
+    {
+        if (! is_string($contract)) {
+            return null;
+        }
+
+        if (! is_object($object)) {
+            return null;
+        }
+
+        $result = $this->filterInstanceOf($object, $this->contracts[ $contract ] ?? []);
+
+        return $result;
+    }
+
 
     /**
      * @param string|object   $value
      * @param string|string[] ...$classes
      *
-     * @return null|string|object
+     * @return string|object
      */
     public function assertClassOf($value, $classes) // : ?string|object
     {
@@ -232,7 +426,7 @@ class Loader implements LoaderInterface
      * @param string|object   $value
      * @param string|string[] ...$classes
      *
-     * @return null|string|object
+     * @return string|object
      */
     public function assertSubclassOf($value, $classes) // : ?string|object
     {
@@ -248,25 +442,66 @@ class Loader implements LoaderInterface
         return $value;
     }
 
+    /**
+     * @param object          $object
+     * @param string|string[] ...$classes
+     *
+     * @return object
+     */
+    public function assertInstanceOf($object, $classes) : object
+    {
+        if (null === $this->filterInstanceOf($object, $classes)) {
+            throw new InvalidArgumentException('Value should be instance of: '
+                . '[' . implode(', ', is_array($classes)
+                    ? $classes
+                    : [ $classes ]
+                ) . ']'
+            );
+        }
+
+        return $object;
+    }
 
     /**
-     * @param mixed $classOrObject
+     * @param string|mixed $contract
+     * @param object|mixed $object
+     *
+     * @return object
+     */
+    public function assertContract($contract, $object) : object
+    {
+        if (null === $this->filterContract($contract, $object)) {
+            throw new InvalidArgumentException(
+                [ 'Object does not match registered contract (%s): %s', $contract, $object ]
+            );
+        }
+
+        return $object;
+    }
+
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param null|bool                      $prefixed
      *
      * @return null|string
      */
-    public function classVal($classOrObject) : ?string
+    public function classVal($classOrObject, bool $prefixed = null) : ?string
     {
+        $prefixed = $prefixed ?? true;
+
         $val = null;
 
         if (null !== ( $class = $this->filter->filterClass($classOrObject) )) {
             $val = $class;
 
-        } elseif (is_object($classOrObject)) {
-            if (null !== ( $reflectionClass = $this->filter->filterReflectionClass($classOrObject) )) {
-                $val = $reflectionClass->getName();
+        } elseif (null !== ( $class = $this->objectClassVal($classOrObject) )) {
+            $val = $class;
+        }
 
-            } else {
-                $val = get_class($classOrObject);
+        if (class_exists($val)) {
+            if (strlen($val) && $prefixed) {
+                $val = '\\' . ltrim($val, '\\');
             }
         }
 
@@ -274,16 +509,115 @@ class Loader implements LoaderInterface
     }
 
     /**
-     * @param mixed $classOrObject
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param null|bool                      $prefixed
      *
      * @return string
      */
-    public function theClassVal($classOrObject) : string
+    public function theClassVal($classOrObject, bool $prefixed = null) : string
     {
-        if (null === ( $val = $this->classVal($classOrObject) )) {
+        if (null === ( $val = $this->classVal($classOrObject, $prefixed) )) {
             throw new InvalidArgumentException(
-                [ 'Invalid Class passed: %s', $classOrObject ]
+                [ 'Invalid ClassOrObject passed: %s', $classOrObject ]
             );
+        }
+
+        return $val;
+    }
+
+
+    /**
+     * @param object|\ReflectionClass $object
+     * @param null|bool               $prefixed
+     *
+     * @return null|string
+     */
+    public function objectClassVal($object, bool $prefixed = null) : ?string
+    {
+        $prefixed = $prefixed ?? true;
+
+        $val = null;
+
+        if (is_object($object)) {
+            if (null !== ( $reflectionClass = $this->filter->filterReflectionClass($object) )) {
+                $val = $reflectionClass->getName();
+
+            } else {
+                $val = get_class($object);
+            }
+        }
+
+        if (strlen($val) && $prefixed) {
+            $val = '\\' . ltrim($val, '\\');
+        }
+
+        return $val;
+    }
+
+    /**
+     * @param object|\ReflectionClass $object
+     * @param null|bool               $prefixed
+     *
+     * @return string
+     */
+    public function theObjectClassVal($object, bool $prefixed = null) : string
+    {
+        if (null === ( $val = $this->objectClassVal($object, $prefixed) )) {
+            throw new InvalidArgumentException(
+                [ 'Invalid Object passed: %s', $object ]
+            );
+        }
+
+        return $val;
+    }
+
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param string|object|\ReflectionClass $declaredClassOrObject
+     * @param null|bool                      $prefixed
+     *
+     * @return null|string
+     */
+    public function useClassVal($classOrObject, $declaredClassOrObject = null, bool $prefixed = null)
+    {
+        $prefixed = $prefixed ?? true;
+
+        if (null === ( $class = $this->classVal($classOrObject, $prefixed) )) {
+            return null;
+        }
+
+        if (class_exists($class)) {
+            return $class;
+        }
+
+        if ('\\' === $class) {
+            return $class;
+        }
+
+        $val = null;
+
+        if (null !== $declaredClassOrObject) {
+            $useStatements = $this->getUseStatements($declaredClassOrObject);
+
+            [
+                $declaredClassNamespace,
+                $declaredClassName,
+            ] = $this->nsClass($declaredClassOrObject);
+
+            $classOrNamespaceAlias = explode('\\', $declaredClassName)[ 0 ];
+
+            $namespace = null
+                ?? $useStatements[ $classOrNamespaceAlias ]
+                ?? $declaredClassNamespace;
+
+            if (class_exists($class = $namespace . '\\' . $classOrObject)) {
+                $val = $class;
+            }
+        }
+
+        if (strlen($val) && $prefixed) {
+            $val = '\\' . ltrim($val, '\\');
         }
 
         return $val;
@@ -340,9 +674,7 @@ class Loader implements LoaderInterface
      */
     public function className($classOrObject) : string
     {
-        if (null === ( $class = $this->classVal($classOrObject) )) {
-            throw new InvalidArgumentException('Class should be classval or object');
-        }
+        $class = $this->theClassVal($classOrObject);
 
         $class = ltrim($class, '\\');
 
@@ -425,14 +757,14 @@ class Loader implements LoaderInterface
 
 
     /**
-     * @param string $path
-     * @param int    $levels
+     * @param string   $path
+     * @param null|int $level
      *
      * @return null|string
      */
-    public function pathDirname(string $path, int $levels = null) : string
+    public function pathDirname(string $path, int $level = null) : string
     {
-        $result = $this->path->dirname($path, $levels);
+        $result = $this->path->dirname($path, $level);
 
         return $result;
     }
@@ -440,16 +772,17 @@ class Loader implements LoaderInterface
     /**
      * @param string      $path
      * @param null|string $suffix
-     * @param int         $levels
+     * @param null|int    $level
      *
      * @return null|string
      */
-    public function pathBasename(string $path, string $suffix = null, int $levels = null) : string
+    public function pathBasename(string $path, string $suffix = null, int $level = null) : string
     {
-        $result = $this->path->basename($path, $suffix, $levels);
+        $result = $this->path->basename($path, $suffix, $level);
 
         return $result;
     }
+
 
     /**
      * @param string|object $classOrObject
@@ -459,7 +792,7 @@ class Loader implements LoaderInterface
      */
     public function pathRelative($classOrObject, string $base = null) : ?string
     {
-        if (null === ( $class = $this->classVal($classOrObject) )) {
+        if (null === ( $class = $this->classVal($classOrObject, false) )) {
             throw new InvalidArgumentException(
                 [ 'Class should be valid class name or object: %s', $classOrObject ]
             );
@@ -572,7 +905,7 @@ class Loader implements LoaderInterface
     /**
      * @param callable $filter
      * @param null|int $limit
-     * @param int      $offset
+     * @param null|int $offset
      *
      * @return array
      */
@@ -585,9 +918,10 @@ class Loader implements LoaderInterface
                 continue;
             }
 
+            if (0 < $offset--) continue;
+
             $result[] = $class;
 
-            if (0 < $offset--) continue;
             if (isset($limit) && ! $limit--) break;
         }
 

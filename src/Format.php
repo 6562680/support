@@ -52,7 +52,7 @@ class Format implements FormatInterface
             $multiplier++;
         }
 
-        $result = round($numval) . array_search($multiplier, static::$units);
+        $result = round($numval) . array_search($multiplier, static::getUnits());
 
         return $result;
     }
@@ -81,27 +81,30 @@ class Format implements FormatInterface
 
 
     /**
-     * @var array
+     * @return array
      */
-    protected static $units = [
-        'B' => 0,
+    protected static function getUnits() : array
+    {
+        return [
+            'B' => 0,
 
-        'Kb' => 1,
-        'Mb' => 2,
-        'Gb' => 3,
-        'Tb' => 4,
-        'Pb' => 5,
-        'Eb' => 6,
-        'Zb' => 7,
-        'Yb' => 8,
+            'Kb' => 1,
+            'Mb' => 2,
+            'Gb' => 3,
+            'Tb' => 4,
+            'Pb' => 5,
+            'Eb' => 6,
+            'Zb' => 7,
+            'Yb' => 8,
 
-        'K' => 1,
-        'M' => 2,
-        'G' => 3,
-        'T' => 4,
-        'P' => 5,
-        'E' => 6,
-        'Z' => 7,
-        'Y' => 8,
-    ];
+            'K' => 1,
+            'M' => 2,
+            'G' => 3,
+            'T' => 4,
+            'P' => 5,
+            'E' => 6,
+            'Z' => 7,
+            'Y' => 8,
+        ];
+    }
 }

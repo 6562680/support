@@ -842,14 +842,14 @@ class Fs implements FsInterface
 
 
     /**
-     * @param string $path
-     * @param int    $levels
+     * @param string   $path
+     * @param null|int $level
      *
      * @return null|string
      */
-    public function pathDirname(string $path, int $levels = null) : string
+    public function pathDirname(string $path, int $level = null) : string
     {
-        $result = $this->path->dirname($path, $levels);
+        $result = $this->path->dirname($path, $level);
 
         return $result;
     }
@@ -857,16 +857,17 @@ class Fs implements FsInterface
     /**
      * @param string      $path
      * @param null|string $suffix
-     * @param int         $levels
+     * @param null|int    $level
      *
      * @return null|string
      */
-    public function pathBasename(string $path, string $suffix = null, int $levels = null) : string
+    public function pathBasename(string $path, string $suffix = null, int $level = null) : string
     {
-        $result = $this->path->basename($path, $suffix, $levels);
+        $result = $this->path->basename($path, $suffix, $level);
 
         return $result;
     }
+
 
     /**
      * @param string      $path
