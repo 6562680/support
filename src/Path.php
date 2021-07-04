@@ -2,13 +2,12 @@
 
 namespace Gzhegow\Support;
 
-
 use Gzhegow\Support\Interfaces\PathInterface;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
- * PathF
+ * Path
  */
 class Path implements PathInterface
 {

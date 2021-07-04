@@ -33,29 +33,21 @@ interface DebugInterface
 
     /**
      * @param null|array|\Throwable|mixed $trace
-     * @param int                         $limit
-     * @param int                         $options
+     * @param null|int                    $limit
+     * @param null|int                    $options
      *
      * @return null|array
      */
-    public function traceVal(
-        $trace = null,
-        int $limit = 0,
-        int $options = Gzhegow\Support\DEBUG_BACKTRACE_PROVIDE_OBJECT
-    ): ?array;
+    public function traceVal($trace = null, int $limit = null, int $options = null): ?array;
 
     /**
      * @param null|array|\Throwable|mixed $trace
-     * @param int                         $limit
-     * @param int                         $options
+     * @param null|int                    $limit
+     * @param null|int                    $options
      *
      * @return array
      */
-    public function theTraceVal(
-        $trace = null,
-        int $limit = 0,
-        int $options = Gzhegow\Support\DEBUG_BACKTRACE_PROVIDE_OBJECT
-    ): array;
+    public function theTraceVal($trace = null, int $limit = null, int $options = null): array;
 
     /**
      * Выводит любой тип для дебага и отчета в исключениях

@@ -2,13 +2,12 @@
 
 namespace Gzhegow\Support;
 
-
 use Gzhegow\Support\Interfaces\DebugInterface;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
- * DebugF
+ * Debug
  */
 class Debug implements DebugInterface
 {
@@ -59,17 +58,15 @@ class Debug implements DebugInterface
 
     /**
      * @param null|array|\Throwable|mixed $trace
-     * @param int                         $limit
-     * @param int                         $options
+     * @param null|int                    $limit
+     * @param null|int                    $options
      *
      * @return null|array
      */
-    public function traceVal($trace = null,
-        int $limit = 0,
-        int $options = DEBUG_BACKTRACE_PROVIDE_OBJECT
-    ) : ?array
+    public function traceVal($trace = null, int $limit = null, int $options = null) : ?array
     {
-        $limit = max(0, $limit);
+        $limit = max(0, $limit ?? 0);
+        $options = $options ?? DEBUG_BACKTRACE_PROVIDE_OBJECT;
 
         if (is_null($trace)) {
             $trace = debug_backtrace($options, $limit);
@@ -106,17 +103,17 @@ class Debug implements DebugInterface
 
     /**
      * @param null|array|\Throwable|mixed $trace
-     * @param int                         $limit
-     * @param int                         $options
+     * @param null|int                    $limit
+     * @param null|int                    $options
      *
      * @return array
      */
     public function theTraceVal($trace = null,
-        int $limit = 0,
-        int $options = DEBUG_BACKTRACE_PROVIDE_OBJECT
+        int $limit = null,
+        int $options = null
     ) : array
     {
-        if (null === ( $traceVal = $this->traceVal($trace) )) {
+        if (null === ( $traceVal = $this->traceVal($trace, $limit, $options) )) {
             throw new InvalidArgumentException(
                 [ 'Invalid trace passed: %s', func_get_args() ]
             );

@@ -9,7 +9,7 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
- * CurlF
+ * Curl
  */
 class Curl implements CurlInterface
 {
@@ -59,7 +59,7 @@ class Curl implements CurlInterface
 
 
     /**
-     * @return void
+     * @return static
      */
     public function reset()
     {
@@ -72,6 +72,8 @@ class Curl implements CurlInterface
             CURLOPT_SSL_VERIFYPEER => 0,
             CURLOPT_TIMEOUT        => 5,
         ]);
+
+        return $this;
     }
 
 
@@ -571,6 +573,7 @@ class Curl implements CurlInterface
 
         return $result;
     }
+
 
     /**
      * @param resource|\CurlHandle|array $curls

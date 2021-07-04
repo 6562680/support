@@ -2,13 +2,15 @@
 
 namespace Gzhegow\Support;
 
+use Gzhegow\Support\Domain\SupportFactory;
+use Gzhegow\Support\Interfaces\PathInterface;
 use Gzhegow\Support\Interfaces\LoaderInterface;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
- * LoaderF
+ * Loader
  */
 class Loader implements LoaderInterface
 {
@@ -17,13 +19,14 @@ class Loader implements LoaderInterface
      */
     protected $filter;
     /**
-     * @var Path
-     */
-    protected $path;
-    /**
      * @var Str
      */
     protected $str;
+
+    /**
+     * @var PathInterface
+     */
+    protected $path;
 
     /**
      * @var array
@@ -53,21 +56,31 @@ class Loader implements LoaderInterface
      * Constructor
      *
      * @param Filter $filter
-     * @param Path   $path
      * @param Str    $str
      */
     public function __construct(
         Filter $filter,
-        Path $path,
         Str $str
     )
     {
         $this->filter = $filter;
-        $this->path = $path;
         $this->str = $str;
 
-        $path->withSeparator('\\');
-        $path->withDelimiters([ '/' ]);
+        $this->reset();
+    }
+
+
+    /**
+     * @return static
+     */
+    public function reset()
+    {
+        $this->declaredClasses = null;
+        $this->useStatements = null;
+
+        $this->contracts = [];
+
+        return $this;
     }
 
 
@@ -687,10 +700,17 @@ class Loader implements LoaderInterface
 
 
     /**
-     * @return Path
+     * @return PathInterface
      */
-    public function path() : Path
+    public function path() : PathInterface
     {
+        if (! isset($this->path)) {
+            $this->path = SupportFactory::getInstance()
+                ->newPath()
+                ->withSeparator('\\')
+                ->withDelimiters([ '/' ]);
+        }
+
         return $this->path;
     }
 
@@ -702,7 +722,7 @@ class Loader implements LoaderInterface
      */
     public function pathOptimize(string $path) : string
     {
-        $result = $this->path->optimize($path);
+        $result = $this->path()->optimize($path);
 
         return $result;
     }
@@ -714,7 +734,7 @@ class Loader implements LoaderInterface
      */
     public function pathNormalize(string $path) : string
     {
-        $result = $this->path->normalize($path);
+        $result = $this->path()->normalize($path);
 
         return $result;
     }
@@ -726,7 +746,7 @@ class Loader implements LoaderInterface
      */
     public function pathSplit(...$parts) : array
     {
-        $result = $this->path->split(...$parts);
+        $result = $this->path()->split(...$parts);
 
         return $result;
     }
@@ -738,7 +758,7 @@ class Loader implements LoaderInterface
      */
     public function pathJoin(...$parts) : string
     {
-        $result = $this->path->join(...$parts);
+        $result = $this->path()->join(...$parts);
 
         return $result;
     }
@@ -750,7 +770,7 @@ class Loader implements LoaderInterface
      */
     public function pathConcat(...$parts) : string
     {
-        $result = $this->path->concat(...$parts);
+        $result = $this->path()->concat(...$parts);
 
         return $result;
     }
@@ -764,7 +784,7 @@ class Loader implements LoaderInterface
      */
     public function pathDirname(string $path, int $level = null) : string
     {
-        $result = $this->path->dirname($path, $level);
+        $result = $this->path()->dirname($path, $level);
 
         return $result;
     }
@@ -778,7 +798,7 @@ class Loader implements LoaderInterface
      */
     public function pathBasename(string $path, string $suffix = null, int $level = null) : string
     {
-        $result = $this->path->basename($path, $suffix, $level);
+        $result = $this->path()->basename($path, $suffix, $level);
 
         return $result;
     }
@@ -798,7 +818,7 @@ class Loader implements LoaderInterface
             );
         }
 
-        $result = $this->path->relative($class, $base);
+        $result = $this->path()->relative($class, $base);
 
         return $result;
     }
@@ -809,7 +829,6 @@ class Loader implements LoaderInterface
      * @param array  $data
      *
      * @return mixed
-     * @noinspection PhpIncludeInspection
      */
     public function include(string $filepath, array $data = [])
     {
@@ -819,6 +838,7 @@ class Loader implements LoaderInterface
         $result = function () {
             extract($this->includeData);
 
+            /** @noinspection PhpIncludeInspection */
             return include $this->includeFilepath;
         };
 
@@ -833,7 +853,6 @@ class Loader implements LoaderInterface
      * @param array  $data
      *
      * @return mixed
-     * @noinspection PhpIncludeInspection
      */
     public function includeOnce(string $filepath, array $data = [])
     {
@@ -843,6 +862,7 @@ class Loader implements LoaderInterface
         $result = function () {
             extract($this->includeData);
 
+            /** @noinspection PhpIncludeInspection */
             return include_once $this->includeFilepath;
         };
 
@@ -858,7 +878,6 @@ class Loader implements LoaderInterface
      * @param array  $data
      *
      * @return mixed
-     * @noinspection PhpIncludeInspection
      */
     public function require(string $filepath, array $data = [])
     {
@@ -868,6 +887,7 @@ class Loader implements LoaderInterface
         $result = ( function () {
             extract($this->includeData);
 
+            /** @noinspection PhpIncludeInspection */
             return require $this->includeFilepath;
         } );
 
@@ -882,7 +902,6 @@ class Loader implements LoaderInterface
      * @param array  $data
      *
      * @return mixed
-     * @noinspection PhpIncludeInspection
      */
     public function requireOnce(string $filepath, array $data = [])
     {
@@ -892,6 +911,7 @@ class Loader implements LoaderInterface
         $result = ( function () {
             extract($this->includeData);
 
+            /** @noinspection PhpIncludeInspection */
             return require_once $this->includeFilepath;
         } );
 

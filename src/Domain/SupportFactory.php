@@ -196,7 +196,6 @@ class SupportFactory implements SupportFactoryInterface
     {
         return new Fs(
             $this->newFilter(),
-            $this->newPath(),
             $this->newPhp()
         );
     }
@@ -208,7 +207,6 @@ class SupportFactory implements SupportFactoryInterface
     {
         return new Loader(
             $this->newFilter(),
-            $this->newPath(),
             $this->newStr()
         );
     }

@@ -9,7 +9,7 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
- * CliF
+ * Cli
  */
 class Cli implements CliInterface
 {

@@ -233,6 +233,7 @@ class CurlFormatter implements CurlFormatterInterface
 
     /**
      * @return array
+     * @noinspection PhpDeprecationInspection
      */
     protected static function getCurlOptNames() : array
     {

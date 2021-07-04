@@ -10,12 +10,18 @@
 
 namespace Gzhegow\Support\Interfaces;
 
+use Gzhegow\Support\Domain\SupportFactory;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Loader;
 
 interface LoaderInterface
 {
+    /**
+     * @return Loader
+     */
+    public function reset();
+
     /**
      * @return array
      */
@@ -222,9 +228,9 @@ interface LoaderInterface
     public function className($classOrObject): string;
 
     /**
-     * @return Path
+     * @return PathInterface
      */
-    public function path(): \Gzhegow\Support\Path;
+    public function path(): PathInterface;
 
     /**
      * @param string $path
@@ -291,7 +297,6 @@ interface LoaderInterface
      * @param array  $data
      *
      * @return mixed
-     * @noinspection PhpIncludeInspection
      */
     public function include(string $filepath, array $data = []);
 
@@ -300,7 +305,6 @@ interface LoaderInterface
      * @param array  $data
      *
      * @return mixed
-     * @noinspection PhpIncludeInspection
      */
     public function includeOnce(string $filepath, array $data = []);
 
@@ -309,7 +313,6 @@ interface LoaderInterface
      * @param array  $data
      *
      * @return mixed
-     * @noinspection PhpIncludeInspection
      */
     public function require(string $filepath, array $data = []);
 
@@ -318,7 +321,6 @@ interface LoaderInterface
      * @param array  $data
      *
      * @return mixed
-     * @noinspection PhpIncludeInspection
      */
     public function requireOnce(string $filepath, array $data = []);
 

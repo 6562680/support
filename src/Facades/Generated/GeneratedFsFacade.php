@@ -10,10 +10,12 @@
 
 namespace Gzhegow\Support\Facades\Generated;
 
+use Gzhegow\Support\Domain\SupportFactory;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Fs;
 use Gzhegow\Support\Interfaces\FsInterface;
+use Gzhegow\Support\Interfaces\PathInterface;
 
 abstract class GeneratedFsFacade
 {
@@ -496,9 +498,9 @@ abstract class GeneratedFsFacade
     }
 
     /**
-     * @return Path
+     * @return PathInterface
      */
-    public static function path(): \Gzhegow\Support\Path
+    public static function path(): PathInterface
     {
         return static::getInstance()->path();
     }
@@ -635,7 +637,7 @@ abstract class GeneratedFsFacade
         $file,
         bool $use_include_path = null,
         $context = null,
-        $offset = 0,
+        $offset = null,
         $length = null
     ): string {
         return static::getInstance()->fileGet($file, $use_include_path, $context, $offset, $length);

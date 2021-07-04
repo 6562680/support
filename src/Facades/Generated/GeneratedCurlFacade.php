@@ -19,7 +19,7 @@ use Gzhegow\Support\Interfaces\CurlInterface;
 abstract class GeneratedCurlFacade
 {
     /**
-     * @return void
+     * @return Curl
      */
     public static function reset()
     {

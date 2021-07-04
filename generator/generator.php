@@ -67,7 +67,14 @@ class Gzhegow_Support_Generator
                 $uses[] = rtrim($cut, ';');
             }
 
-            if (null !== $this->strStarts($line, 'class ')) {
+            if (false
+                || 0 === stripos($line, 'class ')
+                || 0 === stripos($line, 'interface ')
+                || 0 === stripos($line, 'trait ')
+                || false !== stripos($line, ' trait ')
+                || false !== stripos($line, ' trait ')
+                || false !== stripos($line, ' trait ')
+            ) {
                 break;
             }
         }

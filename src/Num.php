@@ -7,7 +7,7 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
- * NumF
+ * Num
  */
 class Num implements NumInterface
 {

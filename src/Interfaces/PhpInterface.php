@@ -32,12 +32,26 @@ interface PhpInterface
     public function isNotBlank(&$value): bool;
 
     /**
+     * @param string|mixed $phpKeyword
+     *
+     * @return bool
+     */
+    public function isPhpKeyword($phpKeyword): bool;
+
+    /**
      * @param \Closure $func
      * @param string   $returnType
      *
      * @return bool
      */
     public function isFactory(\Closure $func, string $returnType): bool;
+
+    /**
+     * @param string|mixed $phpKeyword
+     *
+     * @return null|string
+     */
+    public function filterPhpKeyword($phpKeyword): ?string;
 
     /**
      * проверяет возвращаемый тип у замыкания
@@ -79,6 +93,13 @@ interface PhpInterface
     public function assertKeyExists(string $key, array $array);
 
     /**
+     * @param string|mixed $phpKeyword
+     *
+     * @return string
+     */
+    public function assertPhpKeyword($phpKeyword): string;
+
+    /**
      * @param \Closure $func
      * @param string   $returnType
      *
@@ -117,6 +138,17 @@ interface PhpInterface
      * @return array
      */
     public function listvals(...$lists): array;
+
+    /**
+     * выполняет функцию как шаг array_filter
+     *
+     * @param null|callable $func
+     * @param               $arg
+     * @param array         $arguments
+     *
+     * @return bool|array
+     */
+    public function filter(?callable $func, $arg, ...$arguments): bool;
 
     /**
      * возвращает идентификатор значения любой переменной в виде строки для дальнейшего сравнения
@@ -240,17 +272,6 @@ interface PhpInterface
      * @return Php
      */
     public function sleep(...$sleeps);
-
-    /**
-     * выполняет функцию как шаг array_filter
-     *
-     * @param null|callable $func
-     * @param               $arg
-     * @param array         $arguments
-     *
-     * @return bool|array
-     */
-    public function filter(?callable $func, $arg, ...$arguments): bool;
 
     /**
      * выполняет функцию как шаг array_map

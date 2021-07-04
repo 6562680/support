@@ -7,7 +7,7 @@ use Gzhegow\Support\Interfaces\ProfilerInterface;
 
 
 /**
- * ProfilerF
+ * Profiler
  */
 class Profiler implements ProfilerInterface
 {

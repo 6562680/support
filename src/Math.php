@@ -10,7 +10,7 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
- * MathF
+ * Math
  */
 class Math implements MathInterface
 {

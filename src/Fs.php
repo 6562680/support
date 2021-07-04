@@ -2,7 +2,9 @@
 
 namespace Gzhegow\Support;
 
+use Gzhegow\Support\Domain\SupportFactory;
 use Gzhegow\Support\Interfaces\FsInterface;
+use Gzhegow\Support\Interfaces\PathInterface;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
@@ -24,13 +26,14 @@ class Fs implements FsInterface
      */
     protected $filter;
     /**
-     * @var Path
-     */
-    protected $path;
-    /**
      * @var Php
      */
     protected $php;
+
+    /**
+     * @var PathInterface
+     */
+    protected $path;
 
     /**
      * @var string
@@ -42,17 +45,14 @@ class Fs implements FsInterface
      * Constructor
      *
      * @param Filter $filter
-     * @param Path   $path
      * @param Php    $php
      */
     public function __construct(
         Filter $filter,
-        Path $path,
         Php $php
     )
     {
         $this->filter = $filter;
-        $this->path = $path;
         $this->php = $php;
 
         $this->reset();
@@ -65,8 +65,6 @@ class Fs implements FsInterface
     public function reset()
     {
         $this->root = '';
-
-        $this->path->with(DIRECTORY_SEPARATOR, [ '/', '\\' ]);
 
         return $this;
     }
@@ -771,10 +769,17 @@ class Fs implements FsInterface
 
 
     /**
-     * @return Path
+     * @return PathInterface
      */
-    public function path() : Path
+    public function path() : PathInterface
     {
+        if (! isset($this->path)) {
+            $this->path = SupportFactory::getInstance()
+                ->newPath()
+                ->withSeparator(DIRECTORY_SEPARATOR)
+                ->withDelimiters([ '/', '\\' ]);
+        }
+
         return $this->path;
     }
 
@@ -786,7 +791,7 @@ class Fs implements FsInterface
      */
     public function pathOptimize(string $path) : string
     {
-        $result = $this->path->optimize($path);
+        $result = $this->path()->optimize($path);
 
         return $result;
     }
@@ -798,7 +803,7 @@ class Fs implements FsInterface
      */
     public function pathNormalize(string $path) : string
     {
-        $result = $this->path->normalize($path);
+        $result = $this->path()->normalize($path);
 
         return $result;
     }
@@ -811,7 +816,7 @@ class Fs implements FsInterface
      */
     public function pathSplit(...$parts) : array
     {
-        $result = $this->path->split(...$parts);
+        $result = $this->path()->split(...$parts);
 
         return $result;
     }
@@ -823,7 +828,7 @@ class Fs implements FsInterface
      */
     public function pathJoin(...$parts) : string
     {
-        $result = $this->path->join(...$parts);
+        $result = $this->path()->join(...$parts);
 
         return $result;
     }
@@ -835,7 +840,7 @@ class Fs implements FsInterface
      */
     public function pathConcat(...$parts) : string
     {
-        $result = $this->path->concat(...$parts);
+        $result = $this->path()->concat(...$parts);
 
         return $result;
     }
@@ -849,7 +854,7 @@ class Fs implements FsInterface
      */
     public function pathDirname(string $path, int $level = null) : string
     {
-        $result = $this->path->dirname($path, $level);
+        $result = $this->path()->dirname($path, $level);
 
         return $result;
     }
@@ -863,7 +868,7 @@ class Fs implements FsInterface
      */
     public function pathBasename(string $path, string $suffix = null, int $level = null) : string
     {
-        $result = $this->path->basename($path, $suffix, $level);
+        $result = $this->path()->basename($path, $suffix, $level);
 
         return $result;
     }
@@ -879,7 +884,7 @@ class Fs implements FsInterface
     {
         $base = $base ?? $this->root;
 
-        $result = $this->path->relative($path, $base);
+        $result = $this->path()->relative($path, $base);
 
         return $result;
     }
@@ -991,8 +996,8 @@ class Fs implements FsInterface
             );
         }
 
-        $drive = $this->path->normalize($drive);
-        $relpath = $this->path->normalize($relpath);
+        $drive = $this->path()->normalize($drive);
+        $relpath = $this->path()->normalize($relpath);
 
         return [ $drive, $relpath ];
     }
@@ -1008,10 +1013,12 @@ class Fs implements FsInterface
      * @return null|string
      */
     public function fileGet($file, bool $use_include_path = null, $context = null,
-        $offset = 0,
+        $offset = null,
         $length = null
     ) : string
     {
+        $offset = $offset ?? 0;
+
         if (null === ( $realpath = $this->pathvalFile($file) )) {
             throw new InvalidArgumentException(
                 [ 'Invalid file: %s', $this->secure($file) ]

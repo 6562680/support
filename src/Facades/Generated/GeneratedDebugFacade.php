@@ -40,31 +40,25 @@ abstract class GeneratedDebugFacade
 
     /**
      * @param null|array|\Throwable|mixed $trace
-     * @param int                         $limit
-     * @param int                         $options
+     * @param null|int                    $limit
+     * @param null|int                    $options
      *
      * @return null|array
      */
-    public static function traceVal(
-        $trace = null,
-        int $limit = 0,
-        int $options = Gzhegow\Support\DEBUG_BACKTRACE_PROVIDE_OBJECT
-    ): ?array {
+    public static function traceVal($trace = null, int $limit = null, int $options = null): ?array
+    {
         return static::getInstance()->traceVal($trace, $limit, $options);
     }
 
     /**
      * @param null|array|\Throwable|mixed $trace
-     * @param int                         $limit
-     * @param int                         $options
+     * @param null|int                    $limit
+     * @param null|int                    $options
      *
      * @return array
      */
-    public static function theTraceVal(
-        $trace = null,
-        int $limit = 0,
-        int $options = Gzhegow\Support\DEBUG_BACKTRACE_PROVIDE_OBJECT
-    ): array {
+    public static function theTraceVal($trace = null, int $limit = null, int $options = null): array
+    {
         return static::getInstance()->theTraceVal($trace, $limit, $options);
     }
 

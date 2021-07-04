@@ -2,12 +2,11 @@
 
 namespace Gzhegow\Support;
 
-
 use Gzhegow\Support\Interfaces\EnvInterface;
 
 
 /**
- * EnvF
+ * Env
  */
 class Env implements EnvInterface
 {

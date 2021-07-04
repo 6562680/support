@@ -92,7 +92,6 @@ foreach ( $moduleCopy->getMethods() as $method ) {
     $methodNew->setReturnNullable($method->isReturnNullable());
     $methodNew->setParameters($methodParameters);
     $methodNew->setPublic();
-    // $methodNew->setComment($methodComment);
     $methodNew->setComment($methodCommentNew);
     $methodNew->setReturnType($method->getReturnType());
     $methodNew->setBody(

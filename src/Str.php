@@ -11,7 +11,7 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
- * StrF
+ * Str
  */
 class Str implements StrInterface
 {
@@ -1488,6 +1488,8 @@ class Str implements StrInterface
      */
     public function pascal($strings, string $keep = null, string $separator = null) : string
     {
+        $separator = $separator ?? '';
+
         if (! $strings = $this->wordvals($strings)) {
             return '';
         }
@@ -1500,6 +1502,7 @@ class Str implements StrInterface
 
         return $result;
     }
+
 
     /**
      * snake_case

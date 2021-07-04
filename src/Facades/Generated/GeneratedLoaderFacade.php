@@ -10,13 +10,23 @@
 
 namespace Gzhegow\Support\Facades\Generated;
 
+use Gzhegow\Support\Domain\SupportFactory;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Interfaces\LoaderInterface;
+use Gzhegow\Support\Interfaces\PathInterface;
 use Gzhegow\Support\Loader;
 
 abstract class GeneratedLoaderFacade
 {
+    /**
+     * @return Loader
+     */
+    public static function reset()
+    {
+        return static::getInstance()->reset();
+    }
+
     /**
      * @return array
      */
@@ -304,9 +314,9 @@ abstract class GeneratedLoaderFacade
     }
 
     /**
-     * @return Path
+     * @return PathInterface
      */
-    public static function path(): \Gzhegow\Support\Path
+    public static function path(): PathInterface
     {
         return static::getInstance()->path();
     }
@@ -400,7 +410,6 @@ abstract class GeneratedLoaderFacade
      * @param array  $data
      *
      * @return mixed
-     * @noinspection PhpIncludeInspection
      */
     public static function include(string $filepath, array $data = [])
     {
@@ -412,7 +421,6 @@ abstract class GeneratedLoaderFacade
      * @param array  $data
      *
      * @return mixed
-     * @noinspection PhpIncludeInspection
      */
     public static function includeOnce(string $filepath, array $data = [])
     {
@@ -424,7 +432,6 @@ abstract class GeneratedLoaderFacade
      * @param array  $data
      *
      * @return mixed
-     * @noinspection PhpIncludeInspection
      */
     public static function require(string $filepath, array $data = [])
     {
@@ -436,7 +443,6 @@ abstract class GeneratedLoaderFacade
      * @param array  $data
      *
      * @return mixed
-     * @noinspection PhpIncludeInspection
      */
     public static function requireOnce(string $filepath, array $data = [])
     {

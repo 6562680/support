@@ -11,7 +11,7 @@ use Gzhegow\Support\Domain\Filter\ValueObjects\InvokableInfo;
 
 
 /**
- * FilterF
+ * Filter
  */
 class Filter implements FilterInterface
 {

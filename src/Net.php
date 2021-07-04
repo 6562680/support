@@ -2,12 +2,11 @@
 
 namespace Gzhegow\Support;
 
-
 use Gzhegow\Support\Interfaces\NetInterface;
 
 
 /**
- * NetF
+ * Net
  */
 class Net implements NetInterface
 {
@@ -110,7 +109,7 @@ class Net implements NetInterface
         foreach ( $_SERVER as $key => $val ) {
             if (! $header = $this->str->starts($key, 'HTTP_')) continue;
 
-            $result[ $this->str->usnake($header, $delimiter = '-') ] = $val;
+            $result[ $this->str->pascal($header, null, '-') ] = $val;
         }
 
         return $result;

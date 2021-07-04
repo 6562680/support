@@ -10,6 +10,7 @@
 
 namespace Gzhegow\Support\Interfaces;
 
+use Gzhegow\Support\Domain\SupportFactory;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Fs;
@@ -348,9 +349,9 @@ interface FsInterface
     public function theSplvalLink($pathOrSpl): \SplFileInfo;
 
     /**
-     * @return Path
+     * @return PathInterface
      */
-    public function path(): \Gzhegow\Support\Path;
+    public function path(): PathInterface;
 
     /**
      * @param string $path
@@ -447,7 +448,13 @@ interface FsInterface
      *
      * @return null|string
      */
-    public function fileGet($file, bool $use_include_path = null, $context = null, $offset = 0, $length = null): string;
+    public function fileGet(
+        $file,
+        bool $use_include_path = null,
+        $context = null,
+        $offset = null,
+        $length = null
+    ): string;
 
     /**
      * @param string    $filepath

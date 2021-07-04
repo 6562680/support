@@ -39,6 +39,16 @@ abstract class GeneratedPhpFacade
     }
 
     /**
+     * @param string|mixed $phpKeyword
+     *
+     * @return bool
+     */
+    public static function isPhpKeyword($phpKeyword): bool
+    {
+        return static::getInstance()->isPhpKeyword($phpKeyword);
+    }
+
+    /**
      * @param \Closure $func
      * @param string   $returnType
      *
@@ -47,6 +57,16 @@ abstract class GeneratedPhpFacade
     public static function isFactory(\Closure $func, string $returnType): bool
     {
         return static::getInstance()->isFactory($func, $returnType);
+    }
+
+    /**
+     * @param string|mixed $phpKeyword
+     *
+     * @return null|string
+     */
+    public static function filterPhpKeyword($phpKeyword): ?string
+    {
+        return static::getInstance()->filterPhpKeyword($phpKeyword);
     }
 
     /**
@@ -104,6 +124,16 @@ abstract class GeneratedPhpFacade
     }
 
     /**
+     * @param string|mixed $phpKeyword
+     *
+     * @return string
+     */
+    public static function assertPhpKeyword($phpKeyword): string
+    {
+        return static::getInstance()->assertPhpKeyword($phpKeyword);
+    }
+
+    /**
      * @param \Closure $func
      * @param string   $returnType
      *
@@ -156,6 +186,20 @@ abstract class GeneratedPhpFacade
     public static function listvals(...$lists): array
     {
         return static::getInstance()->listvals(...$lists);
+    }
+
+    /**
+     * выполняет функцию как шаг array_filter
+     *
+     * @param null|callable $func
+     * @param               $arg
+     * @param array         $arguments
+     *
+     * @return bool|array
+     */
+    public static function filter(?callable $func, $arg, ...$arguments): bool
+    {
+        return static::getInstance()->filter($func, $arg, ...$arguments);
     }
 
     /**
@@ -330,20 +374,6 @@ abstract class GeneratedPhpFacade
     public static function sleep(...$sleeps)
     {
         return static::getInstance()->sleep(...$sleeps);
-    }
-
-    /**
-     * выполняет функцию как шаг array_filter
-     *
-     * @param null|callable $func
-     * @param               $arg
-     * @param array         $arguments
-     *
-     * @return bool|array
-     */
-    public static function filter(?callable $func, $arg, ...$arguments): bool
-    {
-        return static::getInstance()->filter($func, $arg, ...$arguments);
     }
 
     /**

@@ -58,7 +58,8 @@ foreach ( $facades as $facade => $from ) {
     $phpFile->addNamespace($namespace);
 
     $namespace->addUse($originalClass);
-    foreach ( $generator->loaderClassUses($fromClass) as $use ) {
+    $useStatements = $generator->loaderClassUses($fromClass);
+    foreach ( $useStatements as $use ) {
         $namespace->addUse($use);
     }
 

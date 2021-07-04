@@ -7,7 +7,7 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
- * FormatF
+ * Format
  */
 class Format implements FormatInterface
 {

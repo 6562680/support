@@ -2,13 +2,12 @@
 
 namespace Gzhegow\Support;
 
-
 use Gzhegow\Support\Interfaces\UriInterface;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
- * UriF
+ * Uri
  */
 class Uri implements UriInterface
 {

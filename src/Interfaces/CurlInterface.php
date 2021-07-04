@@ -18,7 +18,7 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 interface CurlInterface
 {
     /**
-     * @return void
+     * @return Curl
      */
     public function reset();
 

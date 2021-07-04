@@ -9,7 +9,7 @@ use Gzhegow\Support\Exceptions\Runtime\UnexpectedValueException;
 
 
 /**
- * PhpF
+ * Php
  */
 class Php implements PhpInterface
 {
@@ -99,6 +99,17 @@ class Php implements PhpInterface
 
 
     /**
+     * @param string|mixed $phpKeyword
+     *
+     * @return bool
+     */
+    public function isPhpKeyword($phpKeyword) : bool
+    {
+        return null !== $this->filterPhpKeyword($phpKeyword);
+    }
+
+
+    /**
      * @param \Closure $func
      * @param string   $returnType
      *
@@ -107,6 +118,37 @@ class Php implements PhpInterface
     public function isFactory(\Closure $func, string $returnType) : bool
     {
         return null !== $this->filterFactory($func, $returnType);
+    }
+
+
+    /**
+     * @param string|mixed $phpKeyword
+     *
+     * @return null|string
+     */
+    public function filterPhpKeyword($phpKeyword) : ?string
+    {
+        if (! ctype_alpha($phpKeyword)) {
+            return false;
+        }
+
+        $tokens = token_get_all('<?php ' . $phpKeyword . '; ?>');
+
+        $token = is_null($tokens[ 1 ] ?? null)
+            ? []
+            : [ $tokens[ 1 ] ];
+
+        $tokenClaim = reset($token);
+
+        if (! is_int($tokenClaim)) {
+            return null;
+        }
+
+        if ($tokenClaim !== T_STRING) {
+            return null;
+        }
+
+        return $phpKeyword;
     }
 
 
@@ -235,6 +277,23 @@ class Php implements PhpInterface
         }
 
         return $array[ $key ];
+    }
+
+
+    /**
+     * @param string|mixed $phpKeyword
+     *
+     * @return string
+     */
+    public function assertPhpKeyword($phpKeyword) : string
+    {
+        if (null === $this->filterPhpKeyword($phpKeyword)) {
+            throw new InvalidArgumentException(
+                [ 'Invalid PhpKeyword passed: %s', $phpKeyword ]
+            );
+        }
+
+        return $phpKeyword;
     }
 
 
@@ -370,6 +429,27 @@ class Php implements PhpInterface
         return $result;
     }
 
+    /**
+     * выполняет функцию как шаг array_filter
+     *
+     * @param null|callable $func
+     * @param               $arg
+     * @param array         $arguments
+     *
+     * @return bool|array
+     */
+    public function filter(?callable $func, $arg, ...$arguments) : bool
+    {
+        if (! $func) {
+            return empty($arg);
+        }
+
+        $result = (bool) call_user_func(
+            $this->bind($func, $arg, ...$arguments)
+        );
+
+        return $result;
+    }
 
     /**
      * возвращает идентификатор значения любой переменной в виде строки для дальнейшего сравнения
@@ -417,7 +497,6 @@ class Php implements PhpInterface
         );
     }
 
-
     /**
      * @param object $object
      *
@@ -462,7 +541,6 @@ class Php implements PhpInterface
         return get_object_vars($object);
     }
 
-
     /**
      * @param mixed ...$arguments
      *
@@ -506,7 +584,6 @@ class Php implements PhpInterface
 
         return [ $kwargs, $args ];
     }
-
 
     /**
      * @param mixed ...$arguments
@@ -570,7 +647,6 @@ class Php implements PhpInterface
         return [ $kwargs, $args ];
     }
 
-
     /**
      * @param mixed ...$arguments
      *
@@ -621,7 +697,6 @@ class Php implements PhpInterface
         return [ $kwargs, $args ];
     }
 
-
     /**
      * @param mixed ...$values
      *
@@ -642,7 +717,6 @@ class Php implements PhpInterface
 
         return $result;
     }
-
 
     /**
      * @param mixed ...$values
@@ -673,7 +747,6 @@ class Php implements PhpInterface
 
         return array_values($arr);
     }
-
 
     /**
      * @param mixed ...$values
@@ -719,7 +792,6 @@ class Php implements PhpInterface
         return $duplicates;
     }
 
-
     /**
      * @param int|float|int[]|float[] $sleeps
      *
@@ -758,29 +830,6 @@ class Php implements PhpInterface
         }
 
         return $this;
-    }
-
-
-    /**
-     * выполняет функцию как шаг array_filter
-     *
-     * @param null|callable $func
-     * @param               $arg
-     * @param array         $arguments
-     *
-     * @return bool|array
-     */
-    public function filter(?callable $func, $arg, ...$arguments) : bool
-    {
-        if (! $func) {
-            return empty($arg);
-        }
-
-        $result = (bool) call_user_func(
-            $this->bind($func, $arg, ...$arguments)
-        );
-
-        return $result;
     }
 
     /**

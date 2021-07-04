@@ -2,7 +2,7 @@
 
 namespace Gzhegow\Support\Domain\Exceptions;
 
-use Gzhegow\Support\Debug;
+use Gzhegow\Support\Facades\DebugF;
 use Gzhegow\Support\Domain\SupportFactory;
 
 
@@ -54,8 +54,6 @@ trait ExceptionTrait
      */
     protected function loadReportTrace() : array
     {
-        $debug = $this->newDebug();
-
         $trace = [];
 
         $index = [];
@@ -71,7 +69,7 @@ trait ExceptionTrait
                 ? $key . ':' . $index[ $key ]++
                 : $key;
 
-            $trace[ $key ] = $debug->traceReport($step);
+            $trace[ $key ] = DebugF::getInstance()->traceReport($step);
         }
 
         return $trace;
