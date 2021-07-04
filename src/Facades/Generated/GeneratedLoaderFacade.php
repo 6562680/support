@@ -278,9 +278,21 @@ abstract class GeneratedLoaderFacade
      *
      * @return null|string
      */
-    public static function useClassVal($classOrObject, $declaredClassOrObject = null, bool $prefixed = null)
+    public static function useClassVal($classOrObject, $declaredClassOrObject, bool $prefixed = null): ?string
     {
         return static::getInstance()->useClassVal($classOrObject, $declaredClassOrObject, $prefixed);
+    }
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param string|object|\ReflectionClass $declaredClassOrObject
+     * @param null|bool                      $prefixed
+     *
+     * @return null|string
+     */
+    public static function theUseClassVal($classOrObject, $declaredClassOrObject, bool $prefixed = null): string
+    {
+        return static::getInstance()->theUseClassVal($classOrObject, $declaredClassOrObject, $prefixed);
     }
 
     /**

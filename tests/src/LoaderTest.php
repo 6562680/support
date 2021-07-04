@@ -48,13 +48,13 @@ class LoaderTest extends AbstractTestCase
         $currentReflectionClass = new \ReflectionClass($this);
         $currentClassName = $loader->className($currentClass);
 
-        $this->assertEquals($globalClass, $loader->useClassVal($class));
-        $this->assertEquals($globalClass, $loader->useClassVal($object));
-        $this->assertEquals($globalClass, $loader->useClassVal($globalClass));
+        $this->assertEquals($globalClass, $loader->useClassVal($class, __CLASS__));
+        $this->assertEquals($globalClass, $loader->useClassVal($object, __CLASS__));
+        $this->assertEquals($globalClass, $loader->useClassVal($globalClass, __CLASS__));
 
-        $this->assertEquals($currentGlobalClass, $loader->useClassVal($currentClass));
-        $this->assertEquals($currentGlobalClass, $loader->useClassVal($currentGlobalClass));
-        $this->assertEquals($currentGlobalClass, $loader->useClassVal($currentReflectionClass));
+        $this->assertEquals($currentGlobalClass, $loader->useClassVal($currentClass, __CLASS__));
+        $this->assertEquals($currentGlobalClass, $loader->useClassVal($currentGlobalClass, __CLASS__));
+        $this->assertEquals($currentGlobalClass, $loader->useClassVal($currentReflectionClass, __CLASS__));
         $this->assertEquals($currentGlobalClass, $loader->useClassVal($currentClassName, __CLASS__));
     }
 

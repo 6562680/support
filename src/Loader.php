@@ -592,11 +592,15 @@ class Loader implements LoaderInterface
      *
      * @return null|string
      */
-    public function useClassVal($classOrObject, $declaredClassOrObject = null, bool $prefixed = null)
+    public function useClassVal($classOrObject, $declaredClassOrObject, bool $prefixed = null) : ?string
     {
         $prefixed = $prefixed ?? true;
 
         if (null === ( $class = $this->classVal($classOrObject, $prefixed) )) {
+            return null;
+        }
+
+        if (null === ( $declaredClass = $this->classVal($declaredClassOrObject) )) {
             return null;
         }
 
@@ -610,27 +614,43 @@ class Loader implements LoaderInterface
 
         $val = null;
 
-        if (null !== $declaredClassOrObject) {
-            $useStatements = $this->getUseStatements($declaredClassOrObject);
+        $useStatements = $this->getUseStatements($declaredClass);
 
-            [
-                $declaredClassNamespace,
-                $declaredClassName,
-            ] = $this->nsClass($declaredClassOrObject);
+        [
+            $declaredClassNamespace,
+            $declaredClassName,
+        ] = $this->nsClass($declaredClass);
 
-            $classOrNamespaceAlias = explode('\\', $declaredClassName)[ 0 ];
+        $classOrNamespaceAlias = explode('\\', $declaredClassName)[ 0 ];
 
-            $namespace = null
-                ?? $useStatements[ $classOrNamespaceAlias ]
-                ?? $declaredClassNamespace;
+        $namespace = null
+            ?? $useStatements[ $classOrNamespaceAlias ]
+            ?? $declaredClassNamespace;
 
-            if (class_exists($class = $namespace . '\\' . $classOrObject)) {
-                $val = $class;
-            }
+        if (class_exists($class = $namespace . '\\' . $class)) {
+            $val = $class;
         }
 
         if (strlen($val) && $prefixed) {
             $val = '\\' . ltrim($val, '\\');
+        }
+
+        return $val;
+    }
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param string|object|\ReflectionClass $declaredClassOrObject
+     * @param null|bool                      $prefixed
+     *
+     * @return null|string
+     */
+    public function theUseClassVal($classOrObject, $declaredClassOrObject, bool $prefixed = null) : string
+    {
+        if (null === ( $val = $this->useClassVal($classOrObject, $declaredClassOrObject, $prefixed) )) {
+            throw new InvalidArgumentException(
+                [ 'Invalid ClassOrObject passed: %s', $classOrObject ]
+            );
         }
 
         return $val;

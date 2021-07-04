@@ -204,7 +204,16 @@ interface LoaderInterface
      *
      * @return null|string
      */
-    public function useClassVal($classOrObject, $declaredClassOrObject = null, bool $prefixed = null);
+    public function useClassVal($classOrObject, $declaredClassOrObject, bool $prefixed = null): ?string;
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param string|object|\ReflectionClass $declaredClassOrObject
+     * @param null|bool                      $prefixed
+     *
+     * @return null|string
+     */
+    public function theUseClassVal($classOrObject, $declaredClassOrObject, bool $prefixed = null): string;
 
     /**
      * @param string|object $classOrObject
