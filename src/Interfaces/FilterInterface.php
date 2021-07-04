@@ -538,6 +538,13 @@ interface FilterInterface
     public function filterWritableResource($h);
 
     /**
+     * @param resource|\CurlHandle $ch
+     *
+     * @return null|resource|\CurlHandle
+     */
+    public function filterCurl($ch);
+
+    /**
      * @param null|string|array $message
      * @param mixed             ...$arguments
      *

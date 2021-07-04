@@ -1417,6 +1417,28 @@ class Filter implements FilterInterface
 
 
     /**
+     * @param resource|\CurlHandle $ch
+     *
+     * @return null|resource|\CurlHandle
+     */
+    public function filterCurl($ch) // : ?resource|\CurlHandle
+    {
+        if (is_a($ch, 'CurlHandle')) {
+            return $ch;
+
+        } elseif (null !== $this->filterOpenedResource($ch)) {
+            if (false === @curl_error($ch)) {
+                return null;
+            }
+
+            return $ch;
+        }
+
+        return null;
+    }
+
+
+    /**
      * @param null|string|array $message
      * @param mixed             ...$arguments
      *

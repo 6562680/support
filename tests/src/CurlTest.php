@@ -170,11 +170,19 @@ class CurlTest extends AbstractTestCase
         $responses = array_map(function ($response) {
             return json_decode($response, true);
         }, $responses);
+        $responseKeys = array_keys($responses);
         $responseCodes = array_map(function ($ch) {
             return curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
         }, $hh);
 
-        $this->assertEquals([ $responseJson, $responseJson, $responseJson ], $responses);
+        $this->assertEquals(
+            array_combine($responseKeys, [
+                $responseJson,
+                $responseJson,
+                $responseJson,
+            ]),
+            $responses
+        );
         $this->assertEquals([ 200, 200, 200 ], $responseCodes);
     }
 
@@ -202,12 +210,19 @@ class CurlTest extends AbstractTestCase
         $responses = array_map(function ($response) {
             return json_decode($response, true);
         }, $responses);
-
+        $responseKeys = array_keys($responses);
         $responseCodes = array_map(function ($ch) {
             return curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
         }, $hh);
 
-        $this->assertEquals([ $responseJson, $responseJson, $responseJson ], $responses);
+        $this->assertEquals(
+            array_combine($responseKeys, [
+                $responseJson,
+                $responseJson,
+                $responseJson,
+            ]),
+            $responses
+        );
         $this->assertEquals([ 200, 200, 200 ], $responseCodes);
     }
 

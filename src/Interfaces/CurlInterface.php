@@ -68,28 +68,6 @@ interface CurlInterface
     public function getBlueprint(): CurlBlueprint;
 
     /**
-     * @param resource $ch
-     *
-     * @return boolean
-     */
-    public function isCurl($ch): bool;
-
-    /**
-     * @param resource|\CurlHandle $ch
-     *
-     * @return null|resource|\CurlHandle
-     * @noinspection PhpStrictComparisonWithOperandsOfDifferentTypesInspection
-     */
-    public function filterCurl($ch);
-
-    /**
-     * @param resource $ch
-     *
-     * @return null|resource
-     */
-    public function assertCurl($ch);
-
-    /**
      * @param string $url
      * @param mixed  $data
      * @param array  $headers
@@ -219,22 +197,10 @@ interface CurlInterface
     /**
      * @param resource|\CurlHandle|array $curls
      * @param null|bool                  $uniq
-     * @param null|string|array          $message
-     * @param mixed                      ...$arguments
      *
      * @return resource[]|\CurlHandle[]
      */
-    public function curls($curls, $uniq = null, $message = null, ...$arguments): array;
-
-    /**
-     * @param resource|\CurlHandle|array $curls
-     * @param null|bool                  $uniq
-     * @param null|string|array          $message
-     * @param mixed                      ...$arguments
-     *
-     * @return resource[]|\CurlHandle[]
-     */
-    public function theCurls($curls, $uniq = null, $message = null, ...$arguments): array;
+    public function curls($curls, $uniq = null): array;
 
     /**
      * @param resource|\CurlHandle|array $curls
@@ -242,13 +208,5 @@ interface CurlInterface
      *
      * @return resource[]|\CurlHandle[]
      */
-    public function curlsSkip($curls, $uniq = null): array;
-
-    /**
-     * @param resource|\CurlHandle|array $curls
-     * @param null|bool                  $uniq
-     *
-     * @return resource[]|\CurlHandle[]
-     */
-    public function theCurlsSkip($curls, $uniq = null): array;
+    public function theCurls($curls, $uniq = null): array;
 }

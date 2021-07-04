@@ -755,6 +755,16 @@ abstract class GeneratedFilterFacade
     }
 
     /**
+     * @param resource|\CurlHandle $ch
+     *
+     * @return null|resource|\CurlHandle
+     */
+    public static function filterCurl($ch)
+    {
+        return static::getInstance()->filterCurl($ch);
+    }
+
+    /**
      * @param null|string|array $message
      * @param mixed             ...$arguments
      *

@@ -93,37 +93,6 @@ abstract class GeneratedCurlFacade
     }
 
     /**
-     * @param resource $ch
-     *
-     * @return boolean
-     */
-    public static function isCurl($ch): bool
-    {
-        return static::getInstance()->isCurl($ch);
-    }
-
-    /**
-     * @param resource|\CurlHandle $ch
-     *
-     * @return null|resource|\CurlHandle
-     * @noinspection PhpStrictComparisonWithOperandsOfDifferentTypesInspection
-     */
-    public static function filterCurl($ch)
-    {
-        return static::getInstance()->filterCurl($ch);
-    }
-
-    /**
-     * @param resource $ch
-     *
-     * @return null|resource
-     */
-    public static function assertCurl($ch)
-    {
-        return static::getInstance()->assertCurl($ch);
-    }
-
-    /**
      * @param string $url
      * @param mixed  $data
      * @param array  $headers
@@ -298,27 +267,12 @@ abstract class GeneratedCurlFacade
     /**
      * @param resource|\CurlHandle|array $curls
      * @param null|bool                  $uniq
-     * @param null|string|array          $message
-     * @param mixed                      ...$arguments
      *
      * @return resource[]|\CurlHandle[]
      */
-    public static function curls($curls, $uniq = null, $message = null, ...$arguments): array
+    public static function curls($curls, $uniq = null): array
     {
-        return static::getInstance()->curls($curls, $uniq, $message, ...$arguments);
-    }
-
-    /**
-     * @param resource|\CurlHandle|array $curls
-     * @param null|bool                  $uniq
-     * @param null|string|array          $message
-     * @param mixed                      ...$arguments
-     *
-     * @return resource[]|\CurlHandle[]
-     */
-    public static function theCurls($curls, $uniq = null, $message = null, ...$arguments): array
-    {
-        return static::getInstance()->theCurls($curls, $uniq, $message, ...$arguments);
+        return static::getInstance()->curls($curls, $uniq);
     }
 
     /**
@@ -327,20 +281,9 @@ abstract class GeneratedCurlFacade
      *
      * @return resource[]|\CurlHandle[]
      */
-    public static function curlsSkip($curls, $uniq = null): array
+    public static function theCurls($curls, $uniq = null): array
     {
-        return static::getInstance()->curlsSkip($curls, $uniq);
-    }
-
-    /**
-     * @param resource|\CurlHandle|array $curls
-     * @param null|bool                  $uniq
-     *
-     * @return resource[]|\CurlHandle[]
-     */
-    public static function theCurlsSkip($curls, $uniq = null): array
-    {
-        return static::getInstance()->theCurlsSkip($curls, $uniq);
+        return static::getInstance()->theCurls($curls, $uniq);
     }
 
     /**

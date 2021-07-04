@@ -174,55 +174,6 @@ class Curl implements CurlInterface
 
 
     /**
-     * @param resource $ch
-     *
-     * @return boolean
-     */
-    public function isCurl($ch) : bool
-    {
-        return null !== $this->filterCurl($ch);
-    }
-
-    /**
-     * @param resource|\CurlHandle $ch
-     *
-     * @return null|resource|\CurlHandle
-     * @noinspection PhpStrictComparisonWithOperandsOfDifferentTypesInspection
-     */
-    public function filterCurl($ch) // : ?resource|\CurlHandle
-    {
-        if (is_a($ch, 'CurlHandle')) {
-            return $ch;
-
-        } elseif (null !== $this->filter->filterOpenedResource($ch)) {
-            if (false === @curl_error($ch)) {
-                return null;
-            }
-
-            return $ch;
-        }
-
-        return null;
-    }
-
-    /**
-     * @param resource $ch
-     *
-     * @return null|resource
-     */
-    public function assertCurl($ch) // : ?resource
-    {
-        if (null === $this->filterCurl($ch)) {
-            throw new InvalidArgumentException(
-                [ 'Ch should be cURL Handle: %s', $ch ]
-            );
-        }
-
-        return $ch;
-    }
-
-
-    /**
      * @param string $url
      * @param mixed  $data
      * @param array  $headers
@@ -339,7 +290,7 @@ class Curl implements CurlInterface
      */
     public function curlInfo($ch) : ?array
     {
-        if (! $this->isCurl($ch)) {
+        if (null === $this->filter->filterCurl($ch)) {
             return null;
         }
 
@@ -356,7 +307,7 @@ class Curl implements CurlInterface
      */
     public function curlInfoOpt($ch, $opt)
     {
-        if (! $this->isCurl($ch)) {
+        if (null === $this->filter->filterCurl($ch)) {
             return null;
         }
 
@@ -509,12 +460,10 @@ class Curl implements CurlInterface
     /**
      * @param resource|\CurlHandle|array $curls
      * @param null|bool                  $uniq
-     * @param null|string|array          $message
-     * @param mixed                      ...$arguments
      *
      * @return resource[]|\CurlHandle[]
      */
-    public function curls($curls, $uniq = null, $message = null, ...$arguments) : array
+    public function curls($curls, $uniq = null) : array
     {
         $result = [];
 
@@ -522,78 +471,11 @@ class Curl implements CurlInterface
             ? $curls
             : [ $curls ];
 
-        if ($hasMessage = ( null !== $message )) {
-            $this->filter->assert($message, ...$arguments);
-        }
-
-        foreach ( $curls as $idx => $curl ) {
-            if (null === $this->filterCurl($curl)) {
-                throw new InvalidArgumentException($this->filter->assert()->flushMessage($curl)
-                    ?? [ 'Each item should be curl handle: %s', $curl ],
-                );
+        array_walk_recursive($curls, function ($curl) use (&$result) {
+            if (null !== $this->filter->filterCurl($curl)) {
+                $result[ (int) $curl ] = $curl;
             }
-
-            $result[ $idx ] = $curl;
-        }
-
-        if ($hasMessage) {
-            $this->filter->assert()->flushMessage();
-        }
-
-        if ($uniq ?? false) {
-            $distinct = $this->php->distinct($result);
-
-            foreach ( $result as $idx => $val ) {
-                if (! isset($distinct[ $idx ])) {
-                    unset($result[ $idx ]);
-                }
-            }
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param resource|\CurlHandle|array $curls
-     * @param null|bool                  $uniq
-     * @param null|string|array          $message
-     * @param mixed                      ...$arguments
-     *
-     * @return resource[]|\CurlHandle[]
-     */
-    public function theCurls($curls, $uniq = null, $message = null, ...$arguments) : array
-    {
-        $result = $this->curls($curls, $uniq, $message, ...$arguments);
-
-        if (! count($result)) {
-            throw new InvalidArgumentException(
-                [ 'At least one curl handle should be provided: %s', $curls ],
-            );
-        }
-
-        return $result;
-    }
-
-
-    /**
-     * @param resource|\CurlHandle|array $curls
-     * @param null|bool                  $uniq
-     *
-     * @return resource[]|\CurlHandle[]
-     */
-    public function curlsSkip($curls, $uniq = null) : array
-    {
-        $result = [];
-
-        $curls = is_array($curls)
-            ? $curls
-            : [ $curls ];
-
-        foreach ( $curls as $idx => $curl ) {
-            if (null !== $this->filterCurl($curl)) {
-                $result[ $idx ] = $curl;
-            }
-        }
+        });
 
         if ($uniq ?? false) {
             $distinct = $this->php->distinct($result);
@@ -614,14 +496,30 @@ class Curl implements CurlInterface
      *
      * @return resource[]|\CurlHandle[]
      */
-    public function theCurlsSkip($curls, $uniq = null) : array
+    public function theCurls($curls, $uniq = null) : array
     {
-        $result = $this->curlsSkip($curls, $uniq);
+        $result = [];
 
-        if (! count($result)) {
-            throw new InvalidArgumentException(
-                [ 'At least one curl handle should be provided: %s', $curls ],
-            );
+        $curls = is_array($curls)
+            ? $curls
+            : [ $curls ];
+
+        array_walk_recursive($curls, function ($curl) use (&$result) {
+            $this->filter
+                ->assert([ 'Each item should be curl handle: %s', $curl ])
+                ->assertCurl($curl);
+
+            $result[ (int) $curl ] = $curl;
+        });
+
+        if ($uniq ?? false) {
+            $distinct = $this->php->distinct($result);
+
+            foreach ( $result as $idx => $val ) {
+                if (! isset($distinct[ $idx ])) {
+                    unset($result[ $idx ]);
+                }
+            }
         }
 
         return $result;

@@ -1336,4 +1336,22 @@ abstract class GeneratedAssert
 
         return $filtered;
     }
+
+    /**
+     * @param resource|\CurlHandle $ch
+     *
+     * @return resource|\CurlHandle
+     */
+    public function assertCurl($ch)
+    {
+        if (null === ( $filtered = $this->filter->filterCurl($ch) )) {
+            throw $this->throwableOr(
+                new InvalidArgumentException($this->messageOr(
+                    [ 'Invalid Curl passed: %s', func_get_args() ]
+                ))
+            );
+        }
+
+        return $filtered;
+    }
 }

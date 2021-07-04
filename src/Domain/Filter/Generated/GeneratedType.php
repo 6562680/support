@@ -745,4 +745,14 @@ abstract class GeneratedType
     {
         return null !== $this->filter->filterWritableResource($h);
     }
+
+    /**
+     * @param resource|\CurlHandle $ch
+     *
+     * @return bool
+     */
+    public function isCurl($ch): bool
+    {
+        return null !== $this->filter->filterCurl($ch);
+    }
 }

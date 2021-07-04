@@ -179,6 +179,22 @@ abstract class GeneratedStrFacade
     }
 
     /**
+     * фикс. стандартная функция не поддерживает лимит замен
+     *
+     * @param string|string[] $strings
+     * @param string|string[] $replacements
+     * @param string|string[] $subjects
+     * @param null|int        $limit
+     * @param null|int        $count
+     *
+     * @return string|string[]
+     */
+    public static function ireplace($strings, $replacements, $subjects, int $limit = null, int &$count = null)
+    {
+        return static::getInstance()->ireplace($strings, $replacements, $subjects, $limit, $count);
+    }
+
+    /**
      * @param null|SluggerInterface $slugger
      *
      * @return SluggerInterface
@@ -273,22 +289,6 @@ abstract class GeneratedStrFacade
     public static function split(string $string, int $len = null): array
     {
         return static::getInstance()->split($string, $len);
-    }
-
-    /**
-     * фикс. стандартная функция не поддерживает лимит замен
-     *
-     * @param string|string[] $strings
-     * @param string|string[] $replacements
-     * @param string|string[] $subjects
-     * @param null|int        $limit
-     * @param null|int        $count
-     *
-     * @return string|string[]
-     */
-    public static function ireplace($strings, $replacements, $subjects, int $limit = null, int &$count = null)
-    {
-        return static::getInstance()->ireplace($strings, $replacements, $subjects, $limit, $count);
     }
 
     /**

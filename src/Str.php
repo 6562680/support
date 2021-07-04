@@ -378,6 +378,7 @@ class Str implements StrInterface
         return $result;
     }
 
+
     /**
      * фикс. стандартная функция не поддерживает лимит замен
      *
@@ -458,6 +459,86 @@ class Str implements StrInterface
     }
 
     /**
+     * фикс. стандартная функция не поддерживает лимит замен
+     *
+     * @param string|string[] $strings
+     * @param string|string[] $replacements
+     * @param string|string[] $subjects
+     * @param null|int        $limit
+     * @param null|int        $count
+     *
+     * @return string|string[]
+     */
+    public function ireplace($strings, $replacements, $subjects, int $limit = null, int &$count = null) // : string|string[]
+    {
+        $searchArray = $this->theStrvals($strings);
+        $replaceArray = $this->theStrvals($replacements);
+        $subjectArray = $this->theStrvals($subjects);
+
+        if ([] === $searchArray) return $subjects;
+        if ([] === $replaceArray) return $subjects;
+        if ([] === $subjectArray) return $subjects;
+
+        if (null === $limit) {
+            $result = ( 5 === func_num_args() )
+                ? str_ireplace($strings, $replacements, $subjects, $count)
+                : str_ireplace($strings, $replacements, $subjects);
+
+        } else {
+            $reverse = $limit < 0;
+
+            $count = 0;
+            $limit = abs($limit);
+
+            $cntSearch = count($searchArray);
+            $cntReplace = count($replaceArray);
+
+            $len = max(0, $cntSearch, $cntReplace);
+
+            for ( $i = 0; $i < $len; $i++ ) {
+                $curSearch = $searchArray[ $i ] = $searchArray[ $i ]
+                    ?? $searchArray[ 0 ];
+
+                $curReplace = $replaceArray[ $i ] = $replaceArray[ $i ]
+                    ?? $replaceArray[ 0 ];
+
+                $lenSearch = mb_strlen($curSearch);
+
+                foreach ( array_keys($subjectArray) as $idx ) {
+                    $curLimit = $limit;
+
+                    while ( 0 < $curLimit-- ) {
+                        if ($reverse) {
+                            if (false !== ( $pos = mb_strripos($subjectArray[ $idx ], $curSearch) )) {
+                                $count++;
+
+                                $subjectArray[ $idx ] = mb_substr($subjectArray[ $idx ], 0, $pos)
+                                    . $curReplace
+                                    . mb_substr($subjectArray[ $idx ], $pos + $lenSearch);
+                            }
+                        } else {
+                            if (false !== ( $pos = mb_stripos($subjectArray[ $idx ], $curSearch) )) {
+                                $count++;
+
+                                $subjectArray[ $idx ] = mb_substr($subjectArray[ $idx ], 0, $pos)
+                                    . $curReplace
+                                    . mb_substr($subjectArray[ $idx ], $pos + $lenSearch);
+                            }
+                        }
+                    }
+                }
+            }
+
+            $result = 1 < count($subjectArray)
+                ? $subjectArray
+                : reset($subjectArray);
+        }
+
+        return $result;
+    }
+
+
+    /**
      * @param null|SluggerInterface $slugger
      *
      * @return SluggerInterface
@@ -492,6 +573,7 @@ class Str implements StrInterface
 
         return $this->inflector;
     }
+
 
     /**
      * стандартная функция возвращает false, если не найдено, false при вычитании приравнивается к 0
@@ -569,6 +651,7 @@ class Str implements StrInterface
         return $result;
     }
 
+
     /**
      * фикс. стандартная функция при попытке разбить пустую строку возвращает массив из пустой строки
      *
@@ -596,85 +679,6 @@ class Str implements StrInterface
         }
 
         return $letters;
-    }
-
-    /**
-     * фикс. стандартная функция не поддерживает лимит замен
-     *
-     * @param string|string[] $strings
-     * @param string|string[] $replacements
-     * @param string|string[] $subjects
-     * @param null|int        $limit
-     * @param null|int        $count
-     *
-     * @return string|string[]
-     */
-    public function ireplace($strings, $replacements, $subjects, int $limit = null, int &$count = null) // : string|string[]
-    {
-        $searchArray = $this->theStrvals($strings);
-        $replaceArray = $this->theStrvals($replacements);
-        $subjectArray = $this->theStrvals($subjects);
-
-        if ([] === $searchArray) return $subjects;
-        if ([] === $replaceArray) return $subjects;
-        if ([] === $subjectArray) return $subjects;
-
-        if (null === $limit) {
-            $result = ( 5 === func_num_args() )
-                ? str_ireplace($strings, $replacements, $subjects, $count)
-                : str_ireplace($strings, $replacements, $subjects);
-
-        } else {
-            $reverse = $limit < 0;
-
-            $count = 0;
-            $limit = abs($limit);
-
-            $cntSearch = count($searchArray);
-            $cntReplace = count($replaceArray);
-
-            $len = max(0, $cntSearch, $cntReplace);
-
-            for ( $i = 0; $i < $len; $i++ ) {
-                $curSearch = $searchArray[ $i ] = $searchArray[ $i ]
-                    ?? $searchArray[ 0 ];
-
-                $curReplace = $replaceArray[ $i ] = $replaceArray[ $i ]
-                    ?? $replaceArray[ 0 ];
-
-                $lenSearch = mb_strlen($curSearch);
-
-                foreach ( array_keys($subjectArray) as $idx ) {
-                    $curLimit = $limit;
-
-                    while ( 0 < $curLimit-- ) {
-                        if ($reverse) {
-                            if (false !== ( $pos = mb_strripos($subjectArray[ $idx ], $curSearch) )) {
-                                $count++;
-
-                                $subjectArray[ $idx ] = mb_substr($subjectArray[ $idx ], 0, $pos)
-                                    . $curReplace
-                                    . mb_substr($subjectArray[ $idx ], $pos + $lenSearch);
-                            }
-                        } else {
-                            if (false !== ( $pos = mb_stripos($subjectArray[ $idx ], $curSearch) )) {
-                                $count++;
-
-                                $subjectArray[ $idx ] = mb_substr($subjectArray[ $idx ], 0, $pos)
-                                    . $curReplace
-                                    . mb_substr($subjectArray[ $idx ], $pos + $lenSearch);
-                            }
-                        }
-                    }
-                }
-            }
-
-            $result = 1 < count($subjectArray)
-                ? $subjectArray
-                : reset($subjectArray);
-        }
-
-        return $result;
     }
 
 

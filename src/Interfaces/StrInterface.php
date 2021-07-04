@@ -133,6 +133,19 @@ interface StrInterface
     public function replace($strings, $replacements, $subjects, int $limit = null, int &$count = null);
 
     /**
+     * фикс. стандартная функция не поддерживает лимит замен
+     *
+     * @param string|string[] $strings
+     * @param string|string[] $replacements
+     * @param string|string[] $subjects
+     * @param null|int        $limit
+     * @param null|int        $count
+     *
+     * @return string|string[]
+     */
+    public function ireplace($strings, $replacements, $subjects, int $limit = null, int &$count = null);
+
+    /**
      * @param null|SluggerInterface $slugger
      *
      * @return SluggerInterface
@@ -207,19 +220,6 @@ interface StrInterface
      * @return array
      */
     public function split(string $string, int $len = null): array;
-
-    /**
-     * фикс. стандартная функция не поддерживает лимит замен
-     *
-     * @param string|string[] $strings
-     * @param string|string[] $replacements
-     * @param string|string[] $subjects
-     * @param null|int        $limit
-     * @param null|int        $count
-     *
-     * @return string|string[]
-     */
-    public function ireplace($strings, $replacements, $subjects, int $limit = null, int &$count = null);
 
     /**
      * Обрезает у строки подстроку с начала (ltrim, только для строк а не букв)
