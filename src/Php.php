@@ -699,7 +699,6 @@ class Php implements PhpInterface
     }
 
 
-
     /**
      * @param object $object
      *
