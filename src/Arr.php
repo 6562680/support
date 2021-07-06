@@ -155,8 +155,10 @@ class Arr implements ArrInterface
      *
      * @return ExpandValue
      */
-    protected function newExpandValue($value, $idx, int $ordering, int $priority = 0, int $idxInt = null) : ExpandValue
+    protected function newExpandValue($value, $idx, int $ordering, int $priority = null, int $idxInt = null) : ExpandValue
     {
+        $priority = $priority ?? 0;
+
         return new ExpandValue($value, $idx, $ordering, $priority, $idxInt);
     }
 
@@ -367,6 +369,7 @@ class Arr implements ArrInterface
 
         return $error === static::ERROR_FETCHREF_NO_ERROR;
     }
+
 
     /**
      * @param null|array   $dst
@@ -635,9 +638,9 @@ class Arr implements ArrInterface
     /**
      * array_combine позволяющий передать разное число ключей и значений
      *
-     * @param string|string[]    $keys
-     * @param null|mixed|mixed[] $values
-     * @param bool               $drop
+     * @param string|array     $keys
+     * @param null|mixed|array $values
+     * @param null|bool        $drop
      *
      * @return array
      */
@@ -680,6 +683,26 @@ class Arr implements ArrInterface
         return $result;
     }
 
+    /**
+     * array_combine + array_map
+     *
+     * @param string|array $keys
+     * @param iterable     $collection
+     * @param null|bool    $drop
+     *
+     * @return array
+     */
+    public function combineMap(array $keys, iterable $collection, bool $drop = null) : array
+    {
+        $result = [];
+
+        foreach ( $collection as $idx => $array ) {
+            $result[ $idx ] = $this->combine($keys, $array);
+        }
+
+        return $result;
+    }
+
 
     /**
      * обменивает местами номер элемента массива и номер ключа в массиве
@@ -700,7 +723,7 @@ class Arr implements ArrInterface
     }
 
     /**
-     * разбивает массив на два по указанному критерию
+     * разбивает массив на два по указанному булеву критерию
      *
      * @param array         $array
      * @param callable|null $func

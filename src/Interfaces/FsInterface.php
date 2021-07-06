@@ -63,14 +63,14 @@ interface FsInterface
      *
      * @return bool
      */
-    public function isPathFileExists($value): bool;
+    public function isPath($value): bool;
 
     /**
      * @param string $value
      *
      * @return bool
      */
-    public function isPathFile($value): bool;
+    public function isPathFileExists($value): bool;
 
     /**
      * @param string $value
@@ -87,32 +87,25 @@ interface FsInterface
     public function isPathLink($value): bool;
 
     /**
-     * @param \SplFileInfo $value
+     * @param string $value
      *
      * @return bool
      */
-    public function isSplFileExists($value): bool;
+    public function isPathFile($value): bool;
 
     /**
-     * @param \SplFileInfo $value
+     * @param string $value
      *
      * @return bool
      */
-    public function isSplFile($value): bool;
+    public function isPathImage($value): bool;
 
     /**
-     * @param \SplFileInfo $value
+     * @param string $value
      *
-     * @return bool
+     * @return null|string
      */
-    public function isSplDir($value): bool;
-
-    /**
-     * @param \SplFileInfo $value
-     *
-     * @return bool
-     */
-    public function isSplLink($value): bool;
+    public function filterPath($value): ?string;
 
     /**
      * @param string $value
@@ -120,13 +113,6 @@ interface FsInterface
      * @return null|string
      */
     public function filterPathFileExists($value): ?string;
-
-    /**
-     * @param string $value
-     *
-     * @return null|string
-     */
-    public function filterPathFile($value): ?string;
 
     /**
      * @param string $value
@@ -143,32 +129,19 @@ interface FsInterface
     public function filterPathLink($value): ?string;
 
     /**
-     * @param \SplFileInfo $value
+     * @param string $value
      *
-     * @return null|\SplFileInfo
+     * @return null|string
      */
-    public function filterSplFileExists($value): ?\SplFileInfo;
+    public function filterPathFile($value): ?string;
 
     /**
-     * @param \SplFileInfo $value
+     * @param string $value
+     * @param array  $mimetypes
      *
-     * @return null|\SplFileInfo
+     * @return null|string
      */
-    public function filterSplFile($value): ?\SplFileInfo;
-
-    /**
-     * @param \SplFileInfo $value
-     *
-     * @return null|\SplFileInfo
-     */
-    public function filterSplDir($value): ?\SplFileInfo;
-
-    /**
-     * @param \SplFileInfo $value
-     *
-     * @return null|\SplFileInfo
-     */
-    public function filterSplLink($value): ?\SplFileInfo;
+    public function filterPathImage($value, $mimetypes = null): ?string;
 
     /**
      * @return bool
@@ -183,170 +156,212 @@ interface FsInterface
     /**
      * @param string $value
      *
-     * @return null|string
+     * @return string
      */
-    public function assertPathFileExists($value): ?string;
+    public function assertPath($value): string;
 
     /**
      * @param string $value
      *
-     * @return null|string
+     * @return string
      */
-    public function assertPathFile($value): ?string;
+    public function assertPathFileExists($value): string;
 
     /**
      * @param string $value
      *
-     * @return null|string
+     * @return string
      */
-    public function assertPathDir($value): ?string;
+    public function assertPathDir($value): string;
 
     /**
      * @param string $value
      *
-     * @return null|string
+     * @return string
      */
-    public function assertPathLink($value): ?string;
+    public function assertPathLink($value): string;
 
     /**
-     * @param \SplFileInfo $value
+     * @param string $value
      *
-     * @return null|\SplFileInfo
+     * @return string
      */
-    public function assertSplFileExists($value): ?\SplFileInfo;
+    public function assertPathFile($value): string;
 
     /**
-     * @param \SplFileInfo $value
+     * @param string $value
      *
-     * @return null|\SplFileInfo
+     * @return string
      */
-    public function assertSplFile($value): ?\SplFileInfo;
-
-    /**
-     * @param \SplFileInfo $value
-     *
-     * @return null|\SplFileInfo
-     */
-    public function assertSplDir($value): ?\SplFileInfo;
-
-    /**
-     * @param \SplFileInfo $value
-     *
-     * @return null|\SplFileInfo
-     */
-    public function assertSplLink($value): ?\SplFileInfo;
+    public function assertPathImage($value): string;
 
     /**
      * @param string|\SplFileInfo $pathOrSpl
      *
      * @return null|string
      */
-    public function pathvalFileExists($pathOrSpl): ?string;
+    public function pathVal($pathOrSpl): ?string;
 
     /**
      * @param string|\SplFileInfo $pathOrSpl
      *
      * @return null|string
      */
-    public function pathvalFile($pathOrSpl): ?string;
+    public function pathFileExistsVal($pathOrSpl): ?string;
 
     /**
      * @param string|\SplFileInfo $pathOrSpl
      *
      * @return null|string
      */
-    public function pathvalDir($pathOrSpl): ?string;
+    public function pathDirVal($pathOrSpl): ?string;
 
     /**
      * @param string|\SplFileInfo $pathOrSpl
      *
      * @return null|string
      */
-    public function pathvalLink($pathOrSpl): ?string;
+    public function pathLinkVal($pathOrSpl): ?string;
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return null|string
+     */
+    public function pathFileVal($pathOrSpl): ?string;
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return null|string
+     */
+    public function pathImageVal($pathOrSpl): ?string;
 
     /**
      * @param string|\SplFileInfo $pathOrSpl
      *
      * @return null|\SplFileInfo
      */
-    public function splvalFileExists($pathOrSpl): ?\SplFileInfo;
+    public function splVal($pathOrSpl): ?\SplFileInfo;
 
     /**
      * @param string|\SplFileInfo $pathOrSpl
      *
      * @return null|\SplFileInfo
      */
-    public function splvalFile($pathOrSpl): ?\SplFileInfo;
+    public function splFileExistsVal($pathOrSpl): ?\SplFileInfo;
 
     /**
      * @param string|\SplFileInfo $pathOrSpl
      *
      * @return null|\SplFileInfo
      */
-    public function splvalDir($pathOrSpl): ?\SplFileInfo;
+    public function splDirVal($pathOrSpl): ?\SplFileInfo;
 
     /**
      * @param string|\SplFileInfo $pathOrSpl
      *
      * @return null|\SplFileInfo
      */
-    public function splvalLink($pathOrSpl): ?\SplFileInfo;
+    public function splLinkVal($pathOrSpl): ?\SplFileInfo;
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return null|\SplFileObject
+     */
+    public function splFileVal($pathOrSpl): ?\SplFileObject;
+
+    /**
+     * @param \SplFileInfo|string $pathOrSpl
+     *
+     * @return null|\SplFileObject
+     */
+    public function splImageVal($pathOrSpl): ?\SplFileObject;
 
     /**
      * @param string|\SplFileInfo $pathOrSpl
      *
      * @return string
      */
-    public function thePathvalFileExists($pathOrSpl): string;
+    public function thePathVal($pathOrSpl): string;
 
     /**
      * @param string|\SplFileInfo $pathOrSpl
      *
      * @return string
      */
-    public function thePathvalFile($pathOrSpl): string;
+    public function thePathFileExistsVal($pathOrSpl): string;
 
     /**
      * @param string|\SplFileInfo $pathOrSpl
      *
      * @return string
      */
-    public function thePathvalDir($pathOrSpl): string;
+    public function thePathDirVal($pathOrSpl): string;
 
     /**
      * @param string|\SplFileInfo $pathOrSpl
      *
      * @return string
      */
-    public function thePathvalLink($pathOrSpl): string;
+    public function thePathLinkVal($pathOrSpl): string;
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return string
+     */
+    public function thePathFileVal($pathOrSpl): string;
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return string
+     */
+    public function thePathImageVal($pathOrSpl): string;
 
     /**
      * @param string|\SplFileInfo $pathOrSpl
      *
      * @return \SplFileInfo
      */
-    public function theSplvalFileExists($pathOrSpl): \SplFileInfo;
+    public function theSplVal($pathOrSpl): \SplFileInfo;
 
     /**
      * @param string|\SplFileInfo $pathOrSpl
      *
      * @return \SplFileInfo
      */
-    public function theSplvalFile($pathOrSpl): \SplFileInfo;
+    public function theSplFileExistsVal($pathOrSpl): \SplFileInfo;
 
     /**
      * @param string|\SplFileInfo $pathOrSpl
      *
      * @return \SplFileInfo
      */
-    public function theSplvalDir($pathOrSpl): \SplFileInfo;
+    public function theSplDirVal($pathOrSpl): \SplFileInfo;
 
     /**
      * @param string|\SplFileInfo $pathOrSpl
      *
      * @return \SplFileInfo
      */
-    public function theSplvalLink($pathOrSpl): \SplFileInfo;
+    public function theSplLinkVal($pathOrSpl): \SplFileInfo;
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return \SplFileObject
+     */
+    public function theSplFileVal($pathOrSpl): \SplFileObject;
+
+    /**
+     * @param \SplFileInfo|string $pathOrSpl
+     *
+     * @return \SplFileObject
+     */
+    public function theSplImageVal($pathOrSpl): \SplFileObject;
 
     /**
      * @return PathInterface

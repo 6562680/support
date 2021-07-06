@@ -316,6 +316,69 @@ class Php implements PhpInterface
 
 
     /**
+     * @param mixed ...$values
+     *
+     * @return array
+     */
+    public function flatval(...$values) : array
+    {
+        $result = [];
+
+        array_walk_recursive($values, function ($val) use (&$result) {
+            $result[] = $val;
+        });
+
+        return $result;
+    }
+
+
+    /**
+     * @param mixed ...$items
+     *
+     * @return array
+     */
+    public function listval(...$items) : array
+    {
+        $result = [];
+
+        $flatten = [];
+        foreach ( $items as $idx => $item ) {
+            if (null !== $this->filter->filterList($item)) {
+                foreach ( $item as $val ) {
+                    $flatten[] = $val;
+                }
+            } else {
+                $flatten[] = $item;
+            }
+        }
+
+        foreach ( $flatten as $val ) {
+            if (! is_null($val)) {
+                $result[] = $val;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param mixed ...$lists
+     *
+     * @return array
+     */
+    public function listvals(...$lists) : array
+    {
+        $result = [];
+
+        foreach ( $lists as $idx => $list ) {
+            $result[ $idx ] = $this->listval($list);
+        }
+
+        return $result;
+    }
+
+
+    /**
      * Превращает enum-список любой вложенности (значения могут быть в ключах или в полях) в список уникальных значений
      *
      * @param mixed ...$items
@@ -385,71 +448,187 @@ class Php implements PhpInterface
 
 
     /**
-     * @param mixed ...$items
+     * @param mixed ...$values
      *
      * @return array
      */
-    public function listval(...$items) : array
+    public function unique(...$values) : array
+    {
+        $arr = [];
+        foreach ( $values as $value ) {
+            $arr[ $this->hash($value) ] = $value;
+        }
+
+        return array_values($arr);
+    }
+
+    /**
+     * @param mixed ...$values
+     *
+     * @return array
+     */
+    public function uniqueFlatten(...$values) : array
+    {
+        $arr = [];
+        array_walk_recursive($values, function ($value) use (&$arr) {
+            $arr[ $this->hash($value) ] = $value;
+        });
+
+        return array_values($arr);
+    }
+
+
+    /**
+     * @param mixed ...$values
+     *
+     * @return array
+     */
+    public function duplicates(...$values) : array
+    {
+        $arr = [];
+        $duplicates = [];
+        foreach ( $values as $value ) {
+            $hash = $this->hash($value);
+
+            if (isset($arr[ $hash ])) {
+                $duplicates[ $hash ][] = $value;
+            }
+
+            $arr[ $hash ] = true;
+        }
+
+        return $duplicates;
+    }
+
+    /**
+     * @param mixed ...$values
+     *
+     * @return array
+     */
+    public function duplicatesFlatten(...$values) : array
+    {
+        $arr = [];
+        $duplicates = [];
+        array_walk_recursive($values, function ($value) use (&$duplicates, &$arr) {
+            $hash = $this->hash($value);
+
+            if (isset($arr[ $hash ])) {
+                $duplicates[ $hash ][] = $value;
+            }
+
+            $arr[ $hash ] = true;
+        });
+
+        return $duplicates;
+    }
+
+
+    /**
+     * генерирует последовательность типа "каждый с каждым из каждого массива" (все возможные пересечения)
+     *
+     * @param mixed ...$arrays
+     *
+     * @return array
+     */
+    public function sequence(...$arrays) : array
     {
         $result = [];
 
-        $flatten = [];
-        foreach ( $items as $idx => $item ) {
-            if (null !== $this->filter->filterList($item)) {
-                foreach ( $item as $val ) {
-                    $flatten[] = $val;
+        $collections = $this->listvals(...$arrays);
+
+        $lenArrs = [];
+        foreach ( $collections as $idx => $arr ) {
+            $lenArrs[ $idx ] = count($arr);
+        }
+
+        $repArr = [];
+        $lenArrsCurrent = $lenArrs;
+        foreach ( $lenArrsCurrent as $idx => $len ) {
+            $repetitions = 1;
+            unset($lenArrsCurrent[ $idx ]);
+
+            foreach ( $lenArrsCurrent as $lenMultiplier ) {
+                $repetitions *= $lenMultiplier;
+            }
+
+            $repArr[ $idx ] = $repetitions;
+        }
+
+        $size = array_product($lenArrs);
+
+        for ( $i = 0; $i < $size; $i++ ) {
+            foreach ( $repArr as $idx => $repetitions ) {
+                $result[ $i ][] = $collections[ $idx ][ ( $i / $repetitions ) % $lenArrs[ $idx ] ];
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * генерирует последовательность типа "каждый с каждым"
+     *
+     * @param mixed ...$values
+     *
+     * @return array
+     */
+    public function sequenceFlatten(...$values) : array
+    {
+        $flatten = $this->flatval(...$values);
+        $size = count($flatten);
+
+        $result = [ [] ];
+        for ( $i = 0; $i < $size; $i++ ) {
+            $res = [];
+
+            foreach ( $result as $c ) {
+                foreach ( $flatten as $f ) {
+                    $line = $c;
+                    $line[] = $f;
+
+                    $res[] = $line;
                 }
-            } else {
-                $flatten[] = $item;
             }
-        }
 
-        foreach ( $flatten as $val ) {
-            if (! is_null($val)) {
-                $result[] = $val;
-            }
+            $result = $res;
         }
 
         return $result;
     }
 
+
     /**
-     * @param mixed ...$lists
+     * генерирует последовательность типа "битовая маска" (каждое значение есть или нет, могут быть все или ни одного)
+     *
+     * @param array ...$values
      *
      * @return array
      */
-    public function listvals(...$lists) : array
+    public function bitmask(...$values) : array
     {
         $result = [];
 
-        foreach ( $lists as $idx => $list ) {
-            $result[ $idx ] = $this->listval($list);
+        $flatten = $this->flatval(...$values);
+        $size = count($flatten);
+
+        $max = bindec(str_repeat('1', $size));
+
+        for ( $i = 0; $i <= $max; $i++ ) {
+            $bitmask = str_pad(decbin($i), $size, '0', STR_PAD_LEFT);
+
+            $line = [];
+            foreach ( str_split($bitmask) as $idx => $number ) {
+                $line[] = '1' === $number
+                    ? $flatten[ $idx ]
+                    : null;
+            }
+
+            $result[] = $line;
         }
 
         return $result;
     }
 
-    /**
-     * выполняет функцию как шаг array_filter
-     *
-     * @param null|callable $func
-     * @param               $arg
-     * @param array         $arguments
-     *
-     * @return bool|array
-     */
-    public function filter(?callable $func, $arg, ...$arguments) : bool
-    {
-        if (! $func) {
-            return empty($arg);
-        }
-
-        $result = (bool) call_user_func(
-            $this->bind($func, $arg, ...$arguments)
-        );
-
-        return $result;
-    }
 
     /**
      * возвращает идентификатор значения любой переменной в виде строки для дальнейшего сравнения
@@ -498,6 +677,28 @@ class Php implements PhpInterface
     }
 
     /**
+     * @param mixed ...$values
+     *
+     * @return array
+     */
+    public function distinct(array $values) : array
+    {
+        $result = [];
+
+        $arr = [];
+        foreach ( $values as $idx => $value ) {
+            $arr[ $this->hash($value) ] = $idx;
+        }
+
+        foreach ( $arr as $idx ) {
+            $result[ $idx ] = $values[ $idx ];
+        }
+
+        return $result;
+    }
+
+
+    /**
      * @param object $object
      *
      * @return array
@@ -540,6 +741,7 @@ class Php implements PhpInterface
     {
         return get_object_vars($object);
     }
+
 
     /**
      * @param mixed ...$arguments
@@ -584,6 +786,7 @@ class Php implements PhpInterface
 
         return [ $kwargs, $args ];
     }
+
 
     /**
      * @param mixed ...$arguments
@@ -647,6 +850,7 @@ class Php implements PhpInterface
         return [ $kwargs, $args ];
     }
 
+
     /**
      * @param mixed ...$arguments
      *
@@ -697,100 +901,6 @@ class Php implements PhpInterface
         return [ $kwargs, $args ];
     }
 
-    /**
-     * @param mixed ...$values
-     *
-     * @return array
-     */
-    public function distinct(array $values) : array
-    {
-        $result = [];
-
-        $arr = [];
-        foreach ( $values as $idx => $value ) {
-            $arr[ $this->hash($value) ] = $idx;
-        }
-
-        foreach ( $arr as $idx ) {
-            $result[ $idx ] = $values[ $idx ];
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param mixed ...$values
-     *
-     * @return array
-     */
-    public function unique(...$values) : array
-    {
-        $arr = [];
-        foreach ( $values as $value ) {
-            $arr[ $this->hash($value) ] = $value;
-        }
-
-        return array_values($arr);
-    }
-
-    /**
-     * @param mixed ...$values
-     *
-     * @return array
-     */
-    public function uniqueFlatten(...$values) : array
-    {
-        $arr = [];
-        array_walk_recursive($values, function ($value) use (&$arr) {
-            $arr[ $this->hash($value) ] = $value;
-        });
-
-        return array_values($arr);
-    }
-
-    /**
-     * @param mixed ...$values
-     *
-     * @return array
-     */
-    public function duplicates(...$values) : array
-    {
-        $arr = [];
-        $duplicates = [];
-        foreach ( $values as $value ) {
-            $hash = $this->hash($value);
-
-            if (isset($arr[ $hash ])) {
-                $duplicates[ $hash ][] = $value;
-            }
-
-            $arr[ $hash ] = true;
-        }
-
-        return $duplicates;
-    }
-
-    /**
-     * @param mixed ...$values
-     *
-     * @return array
-     */
-    public function duplicatesFlatten(...$values) : array
-    {
-        $arr = [];
-        $duplicates = [];
-        array_walk_recursive($values, function ($value) use (&$duplicates, &$arr) {
-            $hash = $this->hash($value);
-
-            if (isset($arr[ $hash ])) {
-                $duplicates[ $hash ][] = $value;
-            }
-
-            $arr[ $hash ] = true;
-        });
-
-        return $duplicates;
-    }
 
     /**
      * @param int|float|int[]|float[] $sleeps
@@ -830,6 +940,29 @@ class Php implements PhpInterface
         }
 
         return $this;
+    }
+
+
+    /**
+     * выполняет функцию как шаг array_filter
+     *
+     * @param null|callable $func
+     * @param               $arg
+     * @param array         $arguments
+     *
+     * @return bool|array
+     */
+    public function filter(?callable $func, $arg, ...$arguments) : bool
+    {
+        if (! $func) {
+            return empty($arg);
+        }
+
+        $result = (bool) call_user_func(
+            $this->bind($func, $arg, ...$arguments)
+        );
+
+        return $result;
     }
 
     /**

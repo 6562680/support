@@ -145,6 +145,36 @@ abstract class GeneratedPhpFacade
     }
 
     /**
+     * @param mixed ...$values
+     *
+     * @return array
+     */
+    public static function flatval(...$values): array
+    {
+        return static::getInstance()->flatval(...$values);
+    }
+
+    /**
+     * @param mixed ...$items
+     *
+     * @return array
+     */
+    public static function listval(...$items): array
+    {
+        return static::getInstance()->listval(...$items);
+    }
+
+    /**
+     * @param mixed ...$lists
+     *
+     * @return array
+     */
+    public static function listvals(...$lists): array
+    {
+        return static::getInstance()->listvals(...$lists);
+    }
+
+    /**
      * Превращает enum-список любой вложенности (значения могут быть в ключах или в полях) в список уникальных значений
      *
      * @param mixed ...$items
@@ -169,37 +199,79 @@ abstract class GeneratedPhpFacade
     }
 
     /**
-     * @param mixed ...$items
+     * @param mixed ...$values
      *
      * @return array
      */
-    public static function listval(...$items): array
+    public static function unique(...$values): array
     {
-        return static::getInstance()->listval(...$items);
+        return static::getInstance()->unique(...$values);
     }
 
     /**
-     * @param mixed ...$lists
+     * @param mixed ...$values
      *
      * @return array
      */
-    public static function listvals(...$lists): array
+    public static function uniqueFlatten(...$values): array
     {
-        return static::getInstance()->listvals(...$lists);
+        return static::getInstance()->uniqueFlatten(...$values);
     }
 
     /**
-     * выполняет функцию как шаг array_filter
+     * @param mixed ...$values
      *
-     * @param null|callable $func
-     * @param               $arg
-     * @param array         $arguments
-     *
-     * @return bool|array
+     * @return array
      */
-    public static function filter(?callable $func, $arg, ...$arguments): bool
+    public static function duplicates(...$values): array
     {
-        return static::getInstance()->filter($func, $arg, ...$arguments);
+        return static::getInstance()->duplicates(...$values);
+    }
+
+    /**
+     * @param mixed ...$values
+     *
+     * @return array
+     */
+    public static function duplicatesFlatten(...$values): array
+    {
+        return static::getInstance()->duplicatesFlatten(...$values);
+    }
+
+    /**
+     * генерирует последовательность типа "каждый с каждым из каждого массива" (все возможные пересечения)
+     *
+     * @param mixed ...$arrays
+     *
+     * @return array
+     */
+    public static function sequence(...$arrays): array
+    {
+        return static::getInstance()->sequence(...$arrays);
+    }
+
+    /**
+     * генерирует последовательность типа "каждый с каждым"
+     *
+     * @param mixed ...$values
+     *
+     * @return array
+     */
+    public static function sequenceFlatten(...$values): array
+    {
+        return static::getInstance()->sequenceFlatten(...$values);
+    }
+
+    /**
+     * генерирует последовательность типа "битовая маска" (каждое значение есть или нет, могут быть все или ни одного)
+     *
+     * @param array ...$values
+     *
+     * @return array
+     */
+    public static function bitmask(...$values): array
+    {
+        return static::getInstance()->bitmask(...$values);
     }
 
     /**
@@ -214,6 +286,16 @@ abstract class GeneratedPhpFacade
     public static function hash($value): string
     {
         return static::getInstance()->hash($value);
+    }
+
+    /**
+     * @param mixed ...$values
+     *
+     * @return array
+     */
+    public static function distinct(array $values): array
+    {
+        return static::getInstance()->distinct($values);
     }
 
     /**
@@ -317,56 +399,6 @@ abstract class GeneratedPhpFacade
     }
 
     /**
-     * @param mixed ...$values
-     *
-     * @return array
-     */
-    public static function distinct(array $values): array
-    {
-        return static::getInstance()->distinct($values);
-    }
-
-    /**
-     * @param mixed ...$values
-     *
-     * @return array
-     */
-    public static function unique(...$values): array
-    {
-        return static::getInstance()->unique(...$values);
-    }
-
-    /**
-     * @param mixed ...$values
-     *
-     * @return array
-     */
-    public static function uniqueFlatten(...$values): array
-    {
-        return static::getInstance()->uniqueFlatten(...$values);
-    }
-
-    /**
-     * @param mixed ...$values
-     *
-     * @return array
-     */
-    public static function duplicates(...$values): array
-    {
-        return static::getInstance()->duplicates(...$values);
-    }
-
-    /**
-     * @param mixed ...$values
-     *
-     * @return array
-     */
-    public static function duplicatesFlatten(...$values): array
-    {
-        return static::getInstance()->duplicatesFlatten(...$values);
-    }
-
-    /**
      * @param int|float|int[]|float[] $sleeps
      *
      * @return Php
@@ -374,6 +406,20 @@ abstract class GeneratedPhpFacade
     public static function sleep(...$sleeps)
     {
         return static::getInstance()->sleep(...$sleeps);
+    }
+
+    /**
+     * выполняет функцию как шаг array_filter
+     *
+     * @param null|callable $func
+     * @param               $arg
+     * @param array         $arguments
+     *
+     * @return bool|array
+     */
+    public static function filter(?callable $func, $arg, ...$arguments): bool
+    {
+        return static::getInstance()->filter($func, $arg, ...$arguments);
     }
 
     /**

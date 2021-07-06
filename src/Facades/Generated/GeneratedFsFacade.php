@@ -86,9 +86,9 @@ abstract class GeneratedFsFacade
      *
      * @return bool
      */
-    public static function isPathFileExists($value): bool
+    public static function isPath($value): bool
     {
-        return static::getInstance()->isPathFileExists($value);
+        return static::getInstance()->isPath($value);
     }
 
     /**
@@ -96,9 +96,9 @@ abstract class GeneratedFsFacade
      *
      * @return bool
      */
-    public static function isPathFile($value): bool
+    public static function isPathFileExists($value): bool
     {
-        return static::getInstance()->isPathFile($value);
+        return static::getInstance()->isPathFileExists($value);
     }
 
     /**
@@ -122,43 +122,33 @@ abstract class GeneratedFsFacade
     }
 
     /**
-     * @param \SplFileInfo $value
+     * @param string $value
      *
      * @return bool
      */
-    public static function isSplFileExists($value): bool
+    public static function isPathFile($value): bool
     {
-        return static::getInstance()->isSplFileExists($value);
+        return static::getInstance()->isPathFile($value);
     }
 
     /**
-     * @param \SplFileInfo $value
+     * @param string $value
      *
      * @return bool
      */
-    public static function isSplFile($value): bool
+    public static function isPathImage($value): bool
     {
-        return static::getInstance()->isSplFile($value);
+        return static::getInstance()->isPathImage($value);
     }
 
     /**
-     * @param \SplFileInfo $value
+     * @param string $value
      *
-     * @return bool
+     * @return null|string
      */
-    public static function isSplDir($value): bool
+    public static function filterPath($value): ?string
     {
-        return static::getInstance()->isSplDir($value);
-    }
-
-    /**
-     * @param \SplFileInfo $value
-     *
-     * @return bool
-     */
-    public static function isSplLink($value): bool
-    {
-        return static::getInstance()->isSplLink($value);
+        return static::getInstance()->filterPath($value);
     }
 
     /**
@@ -169,16 +159,6 @@ abstract class GeneratedFsFacade
     public static function filterPathFileExists($value): ?string
     {
         return static::getInstance()->filterPathFileExists($value);
-    }
-
-    /**
-     * @param string $value
-     *
-     * @return null|string
-     */
-    public static function filterPathFile($value): ?string
-    {
-        return static::getInstance()->filterPathFile($value);
     }
 
     /**
@@ -202,43 +182,24 @@ abstract class GeneratedFsFacade
     }
 
     /**
-     * @param \SplFileInfo $value
+     * @param string $value
      *
-     * @return null|\SplFileInfo
+     * @return null|string
      */
-    public static function filterSplFileExists($value): ?\SplFileInfo
+    public static function filterPathFile($value): ?string
     {
-        return static::getInstance()->filterSplFileExists($value);
+        return static::getInstance()->filterPathFile($value);
     }
 
     /**
-     * @param \SplFileInfo $value
+     * @param string $value
+     * @param array  $mimetypes
      *
-     * @return null|\SplFileInfo
+     * @return null|string
      */
-    public static function filterSplFile($value): ?\SplFileInfo
+    public static function filterPathImage($value, $mimetypes = null): ?string
     {
-        return static::getInstance()->filterSplFile($value);
-    }
-
-    /**
-     * @param \SplFileInfo $value
-     *
-     * @return null|\SplFileInfo
-     */
-    public static function filterSplDir($value): ?\SplFileInfo
-    {
-        return static::getInstance()->filterSplDir($value);
-    }
-
-    /**
-     * @param \SplFileInfo $value
-     *
-     * @return null|\SplFileInfo
-     */
-    public static function filterSplLink($value): ?\SplFileInfo
-    {
-        return static::getInstance()->filterSplLink($value);
+        return static::getInstance()->filterPathImage($value, $mimetypes);
     }
 
     /**
@@ -260,9 +221,19 @@ abstract class GeneratedFsFacade
     /**
      * @param string $value
      *
-     * @return null|string
+     * @return string
      */
-    public static function assertPathFileExists($value): ?string
+    public static function assertPath($value): string
+    {
+        return static::getInstance()->assertPath($value);
+    }
+
+    /**
+     * @param string $value
+     *
+     * @return string
+     */
+    public static function assertPathFileExists($value): string
     {
         return static::getInstance()->assertPathFileExists($value);
     }
@@ -270,19 +241,9 @@ abstract class GeneratedFsFacade
     /**
      * @param string $value
      *
-     * @return null|string
+     * @return string
      */
-    public static function assertPathFile($value): ?string
-    {
-        return static::getInstance()->assertPathFile($value);
-    }
-
-    /**
-     * @param string $value
-     *
-     * @return null|string
-     */
-    public static function assertPathDir($value): ?string
+    public static function assertPathDir($value): string
     {
         return static::getInstance()->assertPathDir($value);
     }
@@ -290,51 +251,31 @@ abstract class GeneratedFsFacade
     /**
      * @param string $value
      *
-     * @return null|string
+     * @return string
      */
-    public static function assertPathLink($value): ?string
+    public static function assertPathLink($value): string
     {
         return static::getInstance()->assertPathLink($value);
     }
 
     /**
-     * @param \SplFileInfo $value
+     * @param string $value
      *
-     * @return null|\SplFileInfo
+     * @return string
      */
-    public static function assertSplFileExists($value): ?\SplFileInfo
+    public static function assertPathFile($value): string
     {
-        return static::getInstance()->assertSplFileExists($value);
+        return static::getInstance()->assertPathFile($value);
     }
 
     /**
-     * @param \SplFileInfo $value
+     * @param string $value
      *
-     * @return null|\SplFileInfo
+     * @return string
      */
-    public static function assertSplFile($value): ?\SplFileInfo
+    public static function assertPathImage($value): string
     {
-        return static::getInstance()->assertSplFile($value);
-    }
-
-    /**
-     * @param \SplFileInfo $value
-     *
-     * @return null|\SplFileInfo
-     */
-    public static function assertSplDir($value): ?\SplFileInfo
-    {
-        return static::getInstance()->assertSplDir($value);
-    }
-
-    /**
-     * @param \SplFileInfo $value
-     *
-     * @return null|\SplFileInfo
-     */
-    public static function assertSplLink($value): ?\SplFileInfo
-    {
-        return static::getInstance()->assertSplLink($value);
+        return static::getInstance()->assertPathImage($value);
     }
 
     /**
@@ -342,9 +283,9 @@ abstract class GeneratedFsFacade
      *
      * @return null|string
      */
-    public static function pathvalFileExists($pathOrSpl): ?string
+    public static function pathVal($pathOrSpl): ?string
     {
-        return static::getInstance()->pathvalFileExists($pathOrSpl);
+        return static::getInstance()->pathVal($pathOrSpl);
     }
 
     /**
@@ -352,9 +293,9 @@ abstract class GeneratedFsFacade
      *
      * @return null|string
      */
-    public static function pathvalFile($pathOrSpl): ?string
+    public static function pathFileExistsVal($pathOrSpl): ?string
     {
-        return static::getInstance()->pathvalFile($pathOrSpl);
+        return static::getInstance()->pathFileExistsVal($pathOrSpl);
     }
 
     /**
@@ -362,9 +303,9 @@ abstract class GeneratedFsFacade
      *
      * @return null|string
      */
-    public static function pathvalDir($pathOrSpl): ?string
+    public static function pathDirVal($pathOrSpl): ?string
     {
-        return static::getInstance()->pathvalDir($pathOrSpl);
+        return static::getInstance()->pathDirVal($pathOrSpl);
     }
 
     /**
@@ -372,9 +313,29 @@ abstract class GeneratedFsFacade
      *
      * @return null|string
      */
-    public static function pathvalLink($pathOrSpl): ?string
+    public static function pathLinkVal($pathOrSpl): ?string
     {
-        return static::getInstance()->pathvalLink($pathOrSpl);
+        return static::getInstance()->pathLinkVal($pathOrSpl);
+    }
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return null|string
+     */
+    public static function pathFileVal($pathOrSpl): ?string
+    {
+        return static::getInstance()->pathFileVal($pathOrSpl);
+    }
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return null|string
+     */
+    public static function pathImageVal($pathOrSpl): ?string
+    {
+        return static::getInstance()->pathImageVal($pathOrSpl);
     }
 
     /**
@@ -382,9 +343,9 @@ abstract class GeneratedFsFacade
      *
      * @return null|\SplFileInfo
      */
-    public static function splvalFileExists($pathOrSpl): ?\SplFileInfo
+    public static function splVal($pathOrSpl): ?\SplFileInfo
     {
-        return static::getInstance()->splvalFileExists($pathOrSpl);
+        return static::getInstance()->splVal($pathOrSpl);
     }
 
     /**
@@ -392,9 +353,9 @@ abstract class GeneratedFsFacade
      *
      * @return null|\SplFileInfo
      */
-    public static function splvalFile($pathOrSpl): ?\SplFileInfo
+    public static function splFileExistsVal($pathOrSpl): ?\SplFileInfo
     {
-        return static::getInstance()->splvalFile($pathOrSpl);
+        return static::getInstance()->splFileExistsVal($pathOrSpl);
     }
 
     /**
@@ -402,9 +363,9 @@ abstract class GeneratedFsFacade
      *
      * @return null|\SplFileInfo
      */
-    public static function splvalDir($pathOrSpl): ?\SplFileInfo
+    public static function splDirVal($pathOrSpl): ?\SplFileInfo
     {
-        return static::getInstance()->splvalDir($pathOrSpl);
+        return static::getInstance()->splDirVal($pathOrSpl);
     }
 
     /**
@@ -412,9 +373,29 @@ abstract class GeneratedFsFacade
      *
      * @return null|\SplFileInfo
      */
-    public static function splvalLink($pathOrSpl): ?\SplFileInfo
+    public static function splLinkVal($pathOrSpl): ?\SplFileInfo
     {
-        return static::getInstance()->splvalLink($pathOrSpl);
+        return static::getInstance()->splLinkVal($pathOrSpl);
+    }
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return null|\SplFileObject
+     */
+    public static function splFileVal($pathOrSpl): ?\SplFileObject
+    {
+        return static::getInstance()->splFileVal($pathOrSpl);
+    }
+
+    /**
+     * @param \SplFileInfo|string $pathOrSpl
+     *
+     * @return null|\SplFileObject
+     */
+    public static function splImageVal($pathOrSpl): ?\SplFileObject
+    {
+        return static::getInstance()->splImageVal($pathOrSpl);
     }
 
     /**
@@ -422,9 +403,9 @@ abstract class GeneratedFsFacade
      *
      * @return string
      */
-    public static function thePathvalFileExists($pathOrSpl): string
+    public static function thePathVal($pathOrSpl): string
     {
-        return static::getInstance()->thePathvalFileExists($pathOrSpl);
+        return static::getInstance()->thePathVal($pathOrSpl);
     }
 
     /**
@@ -432,9 +413,9 @@ abstract class GeneratedFsFacade
      *
      * @return string
      */
-    public static function thePathvalFile($pathOrSpl): string
+    public static function thePathFileExistsVal($pathOrSpl): string
     {
-        return static::getInstance()->thePathvalFile($pathOrSpl);
+        return static::getInstance()->thePathFileExistsVal($pathOrSpl);
     }
 
     /**
@@ -442,9 +423,9 @@ abstract class GeneratedFsFacade
      *
      * @return string
      */
-    public static function thePathvalDir($pathOrSpl): string
+    public static function thePathDirVal($pathOrSpl): string
     {
-        return static::getInstance()->thePathvalDir($pathOrSpl);
+        return static::getInstance()->thePathDirVal($pathOrSpl);
     }
 
     /**
@@ -452,9 +433,29 @@ abstract class GeneratedFsFacade
      *
      * @return string
      */
-    public static function thePathvalLink($pathOrSpl): string
+    public static function thePathLinkVal($pathOrSpl): string
     {
-        return static::getInstance()->thePathvalLink($pathOrSpl);
+        return static::getInstance()->thePathLinkVal($pathOrSpl);
+    }
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return string
+     */
+    public static function thePathFileVal($pathOrSpl): string
+    {
+        return static::getInstance()->thePathFileVal($pathOrSpl);
+    }
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return string
+     */
+    public static function thePathImageVal($pathOrSpl): string
+    {
+        return static::getInstance()->thePathImageVal($pathOrSpl);
     }
 
     /**
@@ -462,9 +463,9 @@ abstract class GeneratedFsFacade
      *
      * @return \SplFileInfo
      */
-    public static function theSplvalFileExists($pathOrSpl): \SplFileInfo
+    public static function theSplVal($pathOrSpl): \SplFileInfo
     {
-        return static::getInstance()->theSplvalFileExists($pathOrSpl);
+        return static::getInstance()->theSplVal($pathOrSpl);
     }
 
     /**
@@ -472,9 +473,9 @@ abstract class GeneratedFsFacade
      *
      * @return \SplFileInfo
      */
-    public static function theSplvalFile($pathOrSpl): \SplFileInfo
+    public static function theSplFileExistsVal($pathOrSpl): \SplFileInfo
     {
-        return static::getInstance()->theSplvalFile($pathOrSpl);
+        return static::getInstance()->theSplFileExistsVal($pathOrSpl);
     }
 
     /**
@@ -482,9 +483,9 @@ abstract class GeneratedFsFacade
      *
      * @return \SplFileInfo
      */
-    public static function theSplvalDir($pathOrSpl): \SplFileInfo
+    public static function theSplDirVal($pathOrSpl): \SplFileInfo
     {
-        return static::getInstance()->theSplvalDir($pathOrSpl);
+        return static::getInstance()->theSplDirVal($pathOrSpl);
     }
 
     /**
@@ -492,9 +493,29 @@ abstract class GeneratedFsFacade
      *
      * @return \SplFileInfo
      */
-    public static function theSplvalLink($pathOrSpl): \SplFileInfo
+    public static function theSplLinkVal($pathOrSpl): \SplFileInfo
     {
-        return static::getInstance()->theSplvalLink($pathOrSpl);
+        return static::getInstance()->theSplLinkVal($pathOrSpl);
+    }
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return \SplFileObject
+     */
+    public static function theSplFileVal($pathOrSpl): \SplFileObject
+    {
+        return static::getInstance()->theSplFileVal($pathOrSpl);
+    }
+
+    /**
+     * @param \SplFileInfo|string $pathOrSpl
+     *
+     * @return \SplFileObject
+     */
+    public static function theSplImageVal($pathOrSpl): \SplFileObject
+    {
+        return static::getInstance()->theSplImageVal($pathOrSpl);
     }
 
     /**

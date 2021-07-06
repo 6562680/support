@@ -294,15 +294,29 @@ abstract class GeneratedArrFacade
     /**
      * array_combine позволяющий передать разное число ключей и значений
      *
-     * @param string|string[]    $keys
-     * @param null|mixed|mixed[] $values
-     * @param bool               $drop
+     * @param string|array     $keys
+     * @param null|mixed|array $values
+     * @param null|bool        $drop
      *
      * @return array
      */
     public static function combine(array $keys, $values = null, bool $drop = null): array
     {
         return static::getInstance()->combine($keys, $values, $drop);
+    }
+
+    /**
+     * array_combine + array_map
+     *
+     * @param string|array $keys
+     * @param iterable     $collection
+     * @param null|bool    $drop
+     *
+     * @return array
+     */
+    public static function combineMap(array $keys, iterable $collection, bool $drop = null): array
+    {
+        return static::getInstance()->combineMap($keys, $collection, $drop);
     }
 
     /**
@@ -320,7 +334,7 @@ abstract class GeneratedArrFacade
     }
 
     /**
-     * разбивает массив на два по указанному критерию
+     * разбивает массив на два по указанному булеву критерию
      *
      * @param array         $array
      * @param callable|null $func

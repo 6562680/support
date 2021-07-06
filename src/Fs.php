@@ -146,9 +146,9 @@ class Fs implements FsInterface
      *
      * @return bool
      */
-    public function isPathFileExists($value) : bool
+    public function isPath($value) : bool
     {
-        return null !== $this->filterPathFileExists($value);
+        return null !== $this->filterPath($value);
     }
 
     /**
@@ -156,9 +156,9 @@ class Fs implements FsInterface
      *
      * @return bool
      */
-    public function isPathFile($value) : bool
+    public function isPathFileExists($value) : bool
     {
-        return null !== $this->filterPathFile($value);
+        return null !== $this->filterPathFileExists($value);
     }
 
     /**
@@ -181,47 +181,53 @@ class Fs implements FsInterface
         return null !== $this->filterPathLink($value);
     }
 
-
     /**
-     * @param \SplFileInfo $value
+     * @param string $value
      *
      * @return bool
      */
-    public function isSplFileExists($value) : bool
+    public function isPathFile($value) : bool
     {
-        return null !== $this->filterSplFileExists($value);
+        return null !== $this->filterPathFile($value);
     }
 
     /**
-     * @param \SplFileInfo $value
+     * @param string $value
      *
      * @return bool
      */
-    public function isSplFile($value) : bool
+    public function isPathImage($value) : bool
     {
-        return null !== $this->filterSplFile($value);
+        return null !== $this->filterPathImage($value);
     }
+
 
     /**
-     * @param \SplFileInfo $value
+     * @param string $value
      *
-     * @return bool
+     * @return null|string
      */
-    public function isSplDir($value) : bool
+    public function filterPath($value) : ?string
     {
-        return null !== $this->filterSplDir($value);
-    }
+        if (null === $this->filter->filterWord($value)) {
+            return null;
+        }
 
-    /**
-     * @param \SplFileInfo $value
-     *
-     * @return bool
-     */
-    public function isSplLink($value) : bool
-    {
-        return null !== $this->filterSplLink($value);
-    }
+        if (false === ctype_print($value)) {
+            return null;
+        }
 
+        if ($this->isWindows()) {
+            $regex = preg_quote(self::getForbiddenSymbolsFilenameWindows(), '/');
+
+            $test = implode('', $this->pathSplit($value));
+            if (preg_match('/[' . $regex . ']/', $test)) {
+                return null;
+            }
+        }
+
+        return $value;
+    }
 
     /**
      * @param string $value
@@ -230,25 +236,15 @@ class Fs implements FsInterface
      */
     public function filterPathFileExists($value) : ?string
     {
-        $result = ( ( null !== $this->filter->filterWord($value) ) && file_exists($value) )
-            ? $value
-            : null;
+        if (null === $this->filterPath($value)) {
+            return null;
+        }
 
-        return $result;
-    }
+        if (! file_exists($value)) {
+            return null;
+        }
 
-    /**
-     * @param string $value
-     *
-     * @return null|string
-     */
-    public function filterPathFile($value) : ?string
-    {
-        $result = ( ( null !== $this->filter->filterWord($value) ) && is_file($value) )
-            ? $value
-            : null;
-
-        return $result;
+        return $value;
     }
 
     /**
@@ -258,11 +254,15 @@ class Fs implements FsInterface
      */
     public function filterPathDir($value) : ?string
     {
-        $result = ( ( null !== $this->filter->filterWord($value) ) && is_dir($value) )
-            ? $value
-            : null;
+        if (null === $this->filterPath($value)) {
+            return null;
+        }
 
-        return $result;
+        if (! is_dir($value)) {
+            return null;
+        }
+
+        return $value;
     }
 
     /**
@@ -272,68 +272,73 @@ class Fs implements FsInterface
      */
     public function filterPathLink($value) : ?string
     {
-        $result = ( ( null !== $this->filter->filterWord($value) ) && is_link($value) )
-            ? $value
-            : null;
+        if (null === $this->filterPath($value)) {
+            return null;
+        }
 
-        return $result;
-    }
+        if (! is_link($value)) {
+            return null;
+        }
 
-
-    /**
-     * @param \SplFileInfo $value
-     *
-     * @return null|\SplFileInfo
-     */
-    public function filterSplFileExists($value) : ?\SplFileInfo
-    {
-        $result = ( null !== $this->filter->filterFileInfo($value) )
-            ? $value
-            : null;
-
-        return $result;
+        return $value;
     }
 
     /**
-     * @param \SplFileInfo $value
+     * @param string $value
      *
-     * @return null|\SplFileInfo
+     * @return null|string
      */
-    public function filterSplFile($value) : ?\SplFileInfo
+    public function filterPathFile($value) : ?string
     {
-        $result = ( ( null !== ( $spl = $this->filter->filterFileInfo($value) ) ) && $spl->isFile() )
-            ? $value
-            : null;
+        if (null === $this->filterPath($value)) {
+            return null;
+        }
 
-        return $result;
+        if (! is_file($value)) {
+            return null;
+        }
+
+        return $value;
     }
 
     /**
-     * @param \SplFileInfo $value
+     * @param string $value
+     * @param array  $mimetypes
      *
-     * @return null|\SplFileInfo
+     * @return null|string
      */
-    public function filterSplDir($value) : ?\SplFileInfo
+    public function filterPathImage($value, $mimetypes = null) : ?string
     {
-        $result = ( ( null !== ( $spl = $this->filter->filterFileInfo($value) ) ) && $spl->isDir() )
-            ? $value
-            : null;
+        if (null === $this->filterPath($value)) {
+            return null;
+        }
 
-        return $result;
-    }
+        if (! is_file($value)) {
+            return null;
+        }
 
-    /**
-     * @param \SplFileInfo $value
-     *
-     * @return null|\SplFileInfo
-     */
-    public function filterSplLink($value) : ?\SplFileInfo
-    {
-        $result = ( ( null !== ( $spl = $this->filter->filterFileInfo($value) ) ) && $spl->isLink() )
-            ? $value
-            : null;
+        if (function_exists($func = 'exif_imagetype')) {
+            if (! $func($value)) {
+                return null;
+            }
 
-        return $result;
+        } else {
+            $mimetypes = ( is_array($mimetypes) )
+                ? $mimetypes
+                : [ $mimetypes ];
+            $mimetypes = array_filter($mimetypes, 'strlen');
+            $mimetypes = $mimetypes ?: static::getMimeTypesImage();
+
+            $h = finfo_open(FILEINFO_MIME_TYPE);
+            $finfoMime = finfo_file($h, $value);
+            finfo_close($h);
+
+            if (! in_array($finfoMime, $mimetypes)) {
+                return null;
+            }
+        }
+
+        return $value;
     }
 
 
@@ -365,130 +370,97 @@ class Fs implements FsInterface
     /**
      * @param string $value
      *
-     * @return null|string
+     * @return string
      */
-    public function assertPathFileExists($value) : ?string
+    public function assertPath($value) : string
     {
-        if (null === ( $result = $this->filterPathFileExists($value) )) {
+        if (null === $this->filterPath($value)) {
+            throw new InvalidArgumentException(
+                [ 'Invalid path: %s', $this->secure($value) ]
+            );
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param string $value
+     *
+     * @return string
+     */
+    public function assertPathFileExists($value) : string
+    {
+        if (null === $this->filterPathFileExists($value)) {
             throw new InvalidArgumentException(
                 [ 'Invalid path or file/dir/link not found: %s', $this->secure($value) ]
             );
         }
 
-        return $result;
+        return $value;
     }
 
     /**
      * @param string $value
      *
-     * @return null|string
+     * @return string
      */
-    public function assertPathFile($value) : ?string
+    public function assertPathDir($value) : string
     {
-        if (null === ( $result = $this->filterPathFile($value) )) {
-            throw new InvalidArgumentException(
-                [ 'Invalid path or file not found: %s', $this->secure($value) ]
-            );
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param string $value
-     *
-     * @return null|string
-     */
-    public function assertPathDir($value) : ?string
-    {
-        if (null === ( $result = $this->filterPathDir($value) )) {
+        if (null === $this->filterPathDir($value)) {
             throw new InvalidArgumentException(
                 [ 'Invalid path or dir not found: %s', $this->secure($value) ]
             );
         }
 
-        return $result;
+        return $value;
     }
 
     /**
      * @param string $value
      *
-     * @return null|string
+     * @return string
      */
-    public function assertPathLink($value) : ?string
+    public function assertPathLink($value) : string
     {
-        if (null === ( $result = $this->filterPathLink($value) )) {
+        if (null === $this->filterPathLink($value)) {
             throw new InvalidArgumentException(
                 [ 'Invalid path or link not found: %s', $this->secure($value) ]
             );
         }
 
-        return $result;
-    }
-
-
-    /**
-     * @param \SplFileInfo $value
-     *
-     * @return null|\SplFileInfo
-     */
-    public function assertSplFileExists($value) : ?\SplFileInfo
-    {
-        if (null === ( $result = $this->filterSplFileExists($value) )) {
-            throw new InvalidArgumentException(
-                [ 'Invalid spl or spl is not a file/dir/link: %s', $this->secure($value) ]
-            );
-        }
-
-        return $result;
+        return $value;
     }
 
     /**
-     * @param \SplFileInfo $value
+     * @param string $value
      *
-     * @return null|\SplFileInfo
+     * @return string
      */
-    public function assertSplFile($value) : ?\SplFileInfo
+    public function assertPathFile($value) : string
     {
-        if (null === ( $result = $this->filterSplFile($value) )) {
+        if (null === $this->filterPathFile($value)) {
             throw new InvalidArgumentException(
-                [ 'Invalid spl or spl is not a file: %s', $this->secure($value) ]
+                [ 'Invalid path or file not found: %s', $this->secure($value) ]
             );
         }
 
-        return $result;
+        return $value;
     }
 
     /**
-     * @param \SplFileInfo $value
+     * @param string $value
      *
-     * @return null|\SplFileInfo
+     * @return string
      */
-    public function assertSplDir($value) : ?\SplFileInfo
+    public function assertPathImage($value) : string
     {
-        if (null === ( $result = $this->filterSplDir($value) )) {
+        if (null === $this->filterPathImage($value)) {
             throw new InvalidArgumentException(
-                [ 'Invalid spl or spl is not a dir: %s', $this->secure($value) ]
+                [ 'Invalid path or image not found: %s', $this->secure($value) ]
             );
         }
 
-        return $result;
-    }
-
-    /**
-     * @param \SplFileInfo $value
-     *
-     * @return null|\SplFileInfo
-     */
-    public function assertSplLink($value) : ?\SplFileInfo
-    {
-        if (null === ( $result = $this->filterSplLink($value) )) {
-            throw new InvalidArgumentException(
-                [ 'Invalid spl or spl is not a link: %s', $this->secure($value) ]
-            );
-        }
-
-        return $result;
+        return $value;
     }
 
 
@@ -497,9 +469,33 @@ class Fs implements FsInterface
      *
      * @return null|string
      */
-    public function pathvalFileExists($pathOrSpl) : ?string
+    public function pathVal($pathOrSpl) : ?string
     {
-        if (null !== ( $spl = $this->filterSplFileExists($pathOrSpl) )) {
+        if (null !== ( $spl = $this->filter->filterFileInfo($pathOrSpl) )) {
+            return $spl->getPathname();
+        }
+
+        if (null !== $this->filterPath($pathOrSpl)) {
+            return $pathOrSpl;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return null|string
+     */
+    public function pathFileExistsVal($pathOrSpl) : ?string
+    {
+        if (null !== ( $spl = $this->filter->filterFileInfo($pathOrSpl) )) {
+            if (false !== ( $realpath = $spl->getRealPath() )) {
+                return $realpath;
+            }
+        }
+
+        if (null !== ( $spl = $this->filter->filterFileObject($pathOrSpl) )) {
             return $spl->getRealPath();
         }
 
@@ -515,28 +511,18 @@ class Fs implements FsInterface
      *
      * @return null|string
      */
-    public function pathvalFile($pathOrSpl) : ?string
+    public function pathDirVal($pathOrSpl) : ?string
     {
-        if (null !== ( $spl = $this->filterSplFile($pathOrSpl) )) {
-            return $spl->getRealPath();
+        if (null !== ( $spl = $this->filter->filterFileInfo($pathOrSpl) )) {
+            if ($spl->isDir()) {
+                return $spl->getRealPath();
+            }
         }
 
-        if (null !== $this->filterPathFile($pathOrSpl)) {
-            return realpath($pathOrSpl);
-        }
-
-        return null;
-    }
-
-    /**
-     * @param string|\SplFileInfo $pathOrSpl
-     *
-     * @return null|string
-     */
-    public function pathvalDir($pathOrSpl) : ?string
-    {
-        if (null !== ( $spl = $this->filterSplDir($pathOrSpl) )) {
-            return $spl->getRealPath();
+        if (null !== ( $spl = $this->filter->filterFileObject($pathOrSpl) )) {
+            if ($spl->isDir()) {
+                return $spl->getRealPath();
+            }
         }
 
         if (null !== $this->filterPathDir($pathOrSpl)) {
@@ -551,13 +537,73 @@ class Fs implements FsInterface
      *
      * @return null|string
      */
-    public function pathvalLink($pathOrSpl) : ?string
+    public function pathLinkVal($pathOrSpl) : ?string
     {
-        if (null !== ( $spl = $this->filterSplLink($pathOrSpl) )) {
-            return $spl->getRealPath();
+        if (null !== ( $spl = $this->filter->filterFileInfo($pathOrSpl) )) {
+            if ($spl->isLink()) {
+                return $spl->getRealPath();
+            }
+        }
+
+        if (null !== ( $spl = $this->filter->filterFileObject($pathOrSpl) )) {
+            if ($spl->isLink()) {
+                return $spl->getRealPath();
+            }
         }
 
         if (null !== $this->filterPathLink($pathOrSpl)) {
+            return realpath($pathOrSpl);
+        }
+
+        return null;
+    }
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return null|string
+     */
+    public function pathFileVal($pathOrSpl) : ?string
+    {
+        if (null !== ( $spl = $this->filter->filterFileInfo($pathOrSpl) )) {
+            if ($spl->isFile()) {
+                return $spl->getRealPath();
+            }
+        }
+
+        if (null !== ( $spl = $this->filter->filterFileObject($pathOrSpl) )) {
+            if ($spl->isFile()) {
+                return $spl->getRealPath();
+            }
+        }
+
+        if (null !== $this->filterPathFile($pathOrSpl)) {
+            return realpath($pathOrSpl);
+        }
+
+        return null;
+    }
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return null|string
+     */
+    public function pathImageVal($pathOrSpl) : ?string
+    {
+        if (null !== ( $spl = $this->filter->filterFileInfo($pathOrSpl) )) {
+            if ($spl->isFile() && strlen($this->filterPathImage($realpath = $spl->getRealPath()))) {
+                return $realpath;
+            }
+        }
+
+        if (null !== ( $spl = $this->filter->filterFileObject($pathOrSpl) )) {
+            if ($spl->isFile() && strlen($this->filterPathImage($realpath = $spl->getRealPath()))) {
+                return $realpath;
+            }
+        }
+
+        if (null !== $this->filterPathImage($pathOrSpl)) {
             return realpath($pathOrSpl);
         }
 
@@ -570,14 +616,14 @@ class Fs implements FsInterface
      *
      * @return null|\SplFileInfo
      */
-    public function splvalFileExists($pathOrSpl) : ?\SplFileInfo
+    public function splVal($pathOrSpl) : ?\SplFileInfo
     {
-        if (null !== ( $spl = $this->filterSplFileExists($pathOrSpl) )) {
+        if (null !== ( $spl = $this->filter->filterFileInfo($pathOrSpl) )) {
             return $spl;
         }
 
-        if (null !== ( $path = $this->filterPathFileExists($pathOrSpl) )) {
-            return new \SplFileInfo($path);
+        if (null !== $this->filterPath($pathOrSpl)) {
+            return new \SplFileInfo($pathOrSpl);
         }
 
         return null;
@@ -588,14 +634,20 @@ class Fs implements FsInterface
      *
      * @return null|\SplFileInfo
      */
-    public function splvalFile($pathOrSpl) : ?\SplFileInfo
+    public function splFileExistsVal($pathOrSpl) : ?\SplFileInfo
     {
-        if (null !== ( $spl = $this->filterSplFile($pathOrSpl) )) {
+        if (null !== ( $spl = $this->filter->filterFileInfo($pathOrSpl) )) {
+            if (false !== ( $realpath = $spl->getRealPath() )) {
+                return new \SplFileInfo($realpath);
+            }
+        }
+
+        if (null !== ( $spl = $this->filter->filterFileObject($pathOrSpl) )) {
             return $spl;
         }
 
-        if (null !== ( $path = $this->filterPathFile($pathOrSpl) )) {
-            return new \SplFileInfo($path);
+        if (null !== $this->filterPathFileExists($pathOrSpl)) {
+            return new \SplFileInfo($pathOrSpl);
         }
 
         return null;
@@ -606,14 +658,22 @@ class Fs implements FsInterface
      *
      * @return null|\SplFileInfo
      */
-    public function splvalDir($pathOrSpl) : ?\SplFileInfo
+    public function splDirVal($pathOrSpl) : ?\SplFileInfo
     {
-        if (null !== ( $spl = $this->filterSplDir($pathOrSpl) )) {
-            return $spl;
+        if (null !== ( $spl = $this->filter->filterFileInfo($pathOrSpl) )) {
+            if ($spl->isDir()) {
+                return new \SplFileInfo($spl->getRealPath());
+            }
         }
 
-        if (null !== ( $path = $this->filterPathDir($pathOrSpl) )) {
-            return new \SplFileInfo($path);
+        if (null !== ( $spl = $this->filter->filterFileObject($pathOrSpl) )) {
+            if ($spl->isDir()) {
+                return $spl;
+            }
+        }
+
+        if (null !== $this->filterPathDir($pathOrSpl)) {
+            return new \SplFileInfo($pathOrSpl);
         }
 
         return null;
@@ -624,14 +684,74 @@ class Fs implements FsInterface
      *
      * @return null|\SplFileInfo
      */
-    public function splvalLink($pathOrSpl) : ?\SplFileInfo
+    public function splLinkVal($pathOrSpl) : ?\SplFileInfo
     {
-        if (null !== ( $spl = $this->filterSplLink($pathOrSpl) )) {
-            return $spl;
+        if (null !== ( $spl = $this->filter->filterFileInfo($pathOrSpl) )) {
+            if ($spl->isLink()) {
+                return new \SplFileInfo($spl->getRealPath());
+            }
         }
 
-        if (null !== ( $path = $this->filterPathLink($pathOrSpl) )) {
-            return new \SplFileInfo($path);
+        if (null !== ( $spl = $this->filter->filterFileObject($pathOrSpl) )) {
+            if ($spl->isLink()) {
+                return $spl;
+            }
+        }
+
+        if (null !== $this->filterPathLink($pathOrSpl)) {
+            return new \SplFileInfo($pathOrSpl);
+        }
+
+        return null;
+    }
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return null|\SplFileObject
+     */
+    public function splFileVal($pathOrSpl) : ?\SplFileObject
+    {
+        if (null !== ( $spl = $this->filter->filterFileInfo($pathOrSpl) )) {
+            if ($spl->isFile()) {
+                return new \SplFileObject($spl->getRealPath());
+            }
+        }
+
+        if (null !== ( $spl = $this->filter->filterFileObject($pathOrSpl) )) {
+            if ($spl->isFile()) {
+                return $spl;
+            }
+        }
+
+        if (null !== $this->filterPathFile($pathOrSpl)) {
+            return new \SplFileObject($pathOrSpl);
+        }
+
+        return null;
+    }
+
+    /**
+     * @param \SplFileInfo|string $pathOrSpl
+     *
+     * @return null|\SplFileObject
+     */
+    public function splImageVal($pathOrSpl) : ?\SplFileObject
+    {
+        if (null !== ( $spl = $this->filter->filterFileInfo($pathOrSpl) )) {
+            if ($spl->isFile() && strlen($this->filterPathImage($realpath = $spl->getRealPath()))) {
+                return new \SplFileObject($realpath);
+            }
+        }
+
+        if (null !== ( $spl = $this->filter->filterFileObject($pathOrSpl) )) {
+            if ($spl->isFile() && strlen($this->filterPathImage($realpath = $spl->getRealPath()))) {
+                return $spl;
+            }
+        }
+
+        if (null !== $this->filterPathImage($pathOrSpl)) {
+            return new \SplFileObject($pathOrSpl);
         }
 
         return null;
@@ -643,15 +763,31 @@ class Fs implements FsInterface
      *
      * @return string
      */
-    public function thePathvalFileExists($pathOrSpl) : string
+    public function thePathVal($pathOrSpl) : string
     {
-        if (null === ( $pathvalFileExists = $this->pathvalFileExists($pathOrSpl) )) {
+        if (null === ( $val = $this->pathVal($pathOrSpl) )) {
+            throw new InvalidArgumentException(
+                [ 'Value should be convertable to path: %s', $pathOrSpl ],
+            );
+        }
+
+        return $val;
+    }
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return string
+     */
+    public function thePathFileExistsVal($pathOrSpl) : string
+    {
+        if (null === ( $val = $this->pathFileExistsVal($pathOrSpl) )) {
             throw new InvalidArgumentException(
                 [ 'Value should be convertable to path and file should exists: %s', $pathOrSpl ],
             );
         }
 
-        return $pathvalFileExists;
+        return $val;
     }
 
     /**
@@ -659,31 +795,15 @@ class Fs implements FsInterface
      *
      * @return string
      */
-    public function thePathvalFile($pathOrSpl) : string
+    public function thePathDirVal($pathOrSpl) : string
     {
-        if (null === ( $pathvalFile = $this->pathvalFile($pathOrSpl) )) {
-            throw new InvalidArgumentException(
-                [ 'Value should be convertable to path and be file: %s', $pathOrSpl ],
-            );
-        }
-
-        return $pathvalFile;
-    }
-
-    /**
-     * @param string|\SplFileInfo $pathOrSpl
-     *
-     * @return string
-     */
-    public function thePathvalDir($pathOrSpl) : string
-    {
-        if (null === ( $pathvalDir = $this->pathvalDir($pathOrSpl) )) {
+        if (null === ( $val = $this->pathDirVal($pathOrSpl) )) {
             throw new InvalidArgumentException(
                 [ 'Value should be convertable to path and be directory: %s', $pathOrSpl ],
             );
         }
 
-        return $pathvalDir;
+        return $val;
     }
 
     /**
@@ -691,15 +811,47 @@ class Fs implements FsInterface
      *
      * @return string
      */
-    public function thePathvalLink($pathOrSpl) : string
+    public function thePathLinkVal($pathOrSpl) : string
     {
-        if (null === ( $pathvalLink = $this->pathvalLink($pathOrSpl) )) {
+        if (null === ( $val = $this->pathLinkVal($pathOrSpl) )) {
             throw new InvalidArgumentException(
                 [ 'Value should be convertable to path and be symlink/hardlink: %s', $pathOrSpl ],
             );
         }
 
-        return $pathvalLink;
+        return $val;
+    }
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return string
+     */
+    public function thePathFileVal($pathOrSpl) : string
+    {
+        if (null === ( $val = $this->pathFileVal($pathOrSpl) )) {
+            throw new InvalidArgumentException(
+                [ 'Value should be convertable to path and be file: %s', $pathOrSpl ],
+            );
+        }
+
+        return $val;
+    }
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return string
+     */
+    public function thePathImageVal($pathOrSpl) : string
+    {
+        if (null === ( $val = $this->pathImageVal($pathOrSpl) )) {
+            throw new InvalidArgumentException(
+                [ 'Value should be convertable to path and be image: %s', $pathOrSpl ],
+            );
+        }
+
+        return $val;
     }
 
 
@@ -708,15 +860,15 @@ class Fs implements FsInterface
      *
      * @return \SplFileInfo
      */
-    public function theSplvalFileExists($pathOrSpl) : \SplFileInfo
+    public function theSplVal($pathOrSpl) : \SplFileInfo
     {
-        if (null === ( $splvalFileExists = $this->splvalFileExists($pathOrSpl) )) {
+        if (null === ( $val = $this->splVal($pathOrSpl) )) {
             throw new InvalidArgumentException(
-                [ 'Value should be convertable to \SplFileInfo and file should exists: %s', $pathOrSpl ],
+                [ 'Value should be convertable to \SplFileInfo: %s', $pathOrSpl ],
             );
         }
 
-        return $splvalFileExists;
+        return $val;
     }
 
     /**
@@ -724,15 +876,15 @@ class Fs implements FsInterface
      *
      * @return \SplFileInfo
      */
-    public function theSplvalFile($pathOrSpl) : \SplFileInfo
+    public function theSplFileExistsVal($pathOrSpl) : \SplFileInfo
     {
-        if (null === ( $splvalFile = $this->splvalFile($pathOrSpl) )) {
+        if (null === ( $val = $this->splFileExistsVal($pathOrSpl) )) {
             throw new InvalidArgumentException(
-                [ 'Value should be convertable to \SplFileInfo and be file: %s', $pathOrSpl ],
+                [ 'Value should be convertable to \SplFileObject and file should exists: %s', $pathOrSpl ],
             );
         }
 
-        return $splvalFile;
+        return $val;
     }
 
     /**
@@ -740,15 +892,15 @@ class Fs implements FsInterface
      *
      * @return \SplFileInfo
      */
-    public function theSplvalDir($pathOrSpl) : \SplFileInfo
+    public function theSplDirVal($pathOrSpl) : \SplFileInfo
     {
-        if (null === ( $splvalDir = $this->splvalDir($pathOrSpl) )) {
+        if (null === ( $val = $this->splDirVal($pathOrSpl) )) {
             throw new InvalidArgumentException(
-                [ 'Value should be convertable to \SplFileInfo and be directory: %s', $pathOrSpl ],
+                [ 'Value should be convertable to \SplFileObject and be directory: %s', $pathOrSpl ],
             );
         }
 
-        return $splvalDir;
+        return $val;
     }
 
     /**
@@ -756,15 +908,47 @@ class Fs implements FsInterface
      *
      * @return \SplFileInfo
      */
-    public function theSplvalLink($pathOrSpl) : \SplFileInfo
+    public function theSplLinkVal($pathOrSpl) : \SplFileInfo
     {
-        if (null === ( $splvalLink = $this->splvalLink($pathOrSpl) )) {
+        if (null === ( $val = $this->splLinkVal($pathOrSpl) )) {
             throw new InvalidArgumentException(
-                [ 'Value should be convertable to \SplFileInfo and be symlink/hardlink: %s', $pathOrSpl ],
+                [ 'Value should be convertable to \SplFileObject and be symlink/hardlink: %s', $pathOrSpl ],
             );
         }
 
-        return $splvalLink;
+        return $val;
+    }
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return \SplFileObject
+     */
+    public function theSplFileVal($pathOrSpl) : \SplFileObject
+    {
+        if (null === ( $val = $this->splFileVal($pathOrSpl) )) {
+            throw new InvalidArgumentException(
+                [ 'Value should be convertable to \SplFileObject and be file: %s', $pathOrSpl ],
+            );
+        }
+
+        return $val;
+    }
+
+    /**
+     * @param \SplFileInfo|string $pathOrSpl
+     *
+     * @return \SplFileObject
+     */
+    public function theSplImageVal($pathOrSpl) : \SplFileObject
+    {
+        if (null === ( $val = $this->splImageVal($pathOrSpl) )) {
+            throw new InvalidArgumentException(
+                [ 'Value should be convertable to \SplFileObject and be image: %s', $pathOrSpl ],
+            );
+        }
+
+        return $val;
     }
 
 
@@ -1019,7 +1203,7 @@ class Fs implements FsInterface
     {
         $offset = $offset ?? 0;
 
-        if (null === ( $realpath = $this->pathvalFile($file) )) {
+        if (null === ( $realpath = $this->pathFileVal($file) )) {
             throw new InvalidArgumentException(
                 [ 'Invalid file: %s', $this->secure($file) ]
             );
@@ -1094,7 +1278,7 @@ class Fs implements FsInterface
     {
         $this->assertNonWindows();
 
-        if (null !== ( $realpath = $this->pathvalFileExists($file) )) {
+        if (null !== ( $realpath = $this->pathFileExistsVal($file) )) {
             throw new RuntimeException(
                 [ 'Invalid filepath/spl or file not found: %s', $this->secure($file) ]
             );
@@ -1123,7 +1307,7 @@ class Fs implements FsInterface
      */
     public function filePerms($file) : string
     {
-        if (null !== ( $realpath = $this->pathvalFileExists($file) )) {
+        if (null !== ( $realpath = $this->pathFileExistsVal($file) )) {
             throw new RuntimeException(
                 [ 'Invalid filepath/spl or file not found: %s', $this->secure($file) ]
             );
@@ -1174,7 +1358,7 @@ class Fs implements FsInterface
      */
     public function rmdir($dir, bool $rmSelf = false, \Closure $keepFilter = null) : array
     {
-        if (null === ( $realpath = $this->pathvalDir($dir) )) {
+        if (null === ( $realpath = $this->pathDirVal($dir) )) {
             return [];
         }
 
@@ -1285,7 +1469,7 @@ class Fs implements FsInterface
         $filesizeA = mb_strlen($contentA, '8bit');
 
         if (! $result) {
-            if (null !== ( $realpathB = $this->pathvalFile($readableB) )) {
+            if (null !== ( $realpathB = $this->pathFileVal($readableB) )) {
                 if ($filesizeA !== filesize($realpathB)) {
                     $result = true;
                 }
@@ -1319,7 +1503,7 @@ class Fs implements FsInterface
      */
     public function diffFile($fileA, $readableB, bool $throw = false, bool $close = false) : bool
     {
-        if (null === ( $realpathA = $this->pathvalFile($fileA) )) {
+        if (null === ( $realpathA = $this->pathFileVal($fileA) )) {
             if (! $throw) {
                 return ! is_null($readableB);
 
@@ -1335,7 +1519,7 @@ class Fs implements FsInterface
         if (! $result) {
             $filesizeA = filesize($realpathA);
 
-            if (null !== ( $realpathB = $this->pathvalFile($readableB) )) {
+            if (null !== ( $realpathB = $this->pathFileVal($readableB) )) {
                 if ($filesizeA != filesize($realpathB)) {
                     $result = true;
                 }
@@ -1407,7 +1591,7 @@ class Fs implements FsInterface
             return $h;
         }
 
-        if (null !== ( $realpath = $this->pathvalFile($readable) )) {
+        if (null !== ( $realpath = $this->pathFileVal($readable) )) {
             $h = $context
                 ? fopen($realpath, $mode, $use_include_path, $context)
                 : fopen($realpath, $mode, $use_include_path);
@@ -1468,5 +1652,59 @@ class Fs implements FsInterface
         }
 
         return $mount;
+    }
+
+
+    /**
+     * @return string
+     */
+    protected static function getForbiddenSymbolsFilenameWindows() : string
+    {
+        // https://stackoverflow.com/a/31976060/2119205
+        return implode('', [
+            '<', // (less than)
+            '>', // (greater than)
+            '"', // (double quote)
+            '/', // (forward slash)
+            '\\', // (backslash)
+            '|', // (vertical bar or pipe)
+            '?', // (question mark)
+            '*', // (asterisk)
+
+            // drive separator
+            // ':', // (colon - sometimes works, but is actually NTFS Alternate Data Streams)
+        ]);
+    }
+
+    /**
+     * @return string[]
+     */
+    protected static function getMimeTypesImage() : array
+    {
+        // https://www.thoughtco.com/mime-types-by-content-type-3469108#mntl-sc-block_1-0-23
+        return [
+            'bmp'  => 'image/bmp',
+            'cmx'  => 'image/x-cmx',
+            'cod'  => 'image/cis-cod',
+            'gif'  => 'image/gif',
+            'ico'  => 'image/x-icon',
+            'ief'  => 'image/ief',
+            'jfif' => 'image/pipeg',
+            'jpe'  => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'jpg'  => 'image/jpeg',
+            'pbm'  => 'image/x-portable-bitmap',
+            'pgm'  => 'image/x-portable-graymap',
+            'pnm'  => 'image/x-portable-anymap',
+            'ppm'  => 'image/x-portable-pixmap',
+            'ras'  => 'image/x-cmu-raster',
+            'rgb'  => 'image/x-rgb',
+            'svg'  => 'image/svg+xml',
+            'tif'  => 'image/tiff',
+            'tiff' => 'image/tiff',
+            'xbm'  => 'image/x-xbitmap',
+            'xpm'  => 'image/x-xpixmap',
+            'xwd'  => 'image/x-xwindowdump',
+        ];
     }
 }

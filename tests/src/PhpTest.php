@@ -14,6 +14,28 @@ class PhpTest extends AbstractTestCase
     }
 
 
+    public function testListval()
+    {
+        $php = $this->getPhp();
+
+        $this->assertEquals([], $php->listval(null));
+        $this->assertEquals([], $php->listval(null, null));
+        $this->assertEquals([], $php->listval([ null ]));
+        $this->assertEquals([], $php->listval([ null, null ]));
+        $this->assertEquals([ [ null ] ], $php->listval([ null, [ null ] ]));
+
+        $this->assertEquals([ [ 'a' => null ] ], $php->listval([ 'a' => null ]));
+        $this->assertEquals([ [ 'a' => null ], [ 'a' => null ] ], $php->listval([ 'a' => null ], [ 'a' => null ]));
+        $this->assertEquals([ [ 'a' => null ], [ 'a' => null ] ], $php->listval([ [ 'a' => null ], [ 'a' => null ] ]));
+
+        $this->assertEquals([ 1 ], $php->listval(1));
+        $this->assertEquals([ 1, 1 ], $php->listval(1, 1));
+        $this->assertEquals([ 1 ], $php->listval([ 1 ]));
+        $this->assertEquals([ 1, 1 ], $php->listval([ 1, 1 ]));
+        $this->assertEquals([ 1, [ 1 ] ], $php->listval([ 1, [ 1 ] ]));
+    }
+
+
     public function testEnumval()
     {
         $php = $this->getPhp();
@@ -44,24 +66,41 @@ class PhpTest extends AbstractTestCase
     }
 
 
-    public function testListval()
+    public function testSequence()
     {
         $php = $this->getPhp();
 
-        $this->assertEquals([], $php->listval(null));
-        $this->assertEquals([], $php->listval(null, null));
-        $this->assertEquals([], $php->listval([ null ]));
-        $this->assertEquals([], $php->listval([ null, null ]));
-        $this->assertEquals([ [ null ] ], $php->listval([ null, [ null ] ]));
+        $this->assertEquals([
+            [ 1, 3 ],
+            [ 2, 3 ],
+        ], $php->sequence([ 1, 2 ], [ 3 ]));
+    }
 
-        $this->assertEquals([ [ 'a' => null ] ], $php->listval([ 'a' => null ]));
-        $this->assertEquals([ [ 'a' => null ], [ 'a' => null ] ], $php->listval([ 'a' => null ], [ 'a' => null ]));
-        $this->assertEquals([ [ 'a' => null ], [ 'a' => null ] ], $php->listval([ [ 'a' => null ], [ 'a' => null ] ]));
+    public function testSequenceFlatten()
+    {
+        $php = $this->getPhp();
 
-        $this->assertEquals([ 1 ], $php->listval(1));
-        $this->assertEquals([ 1, 1 ], $php->listval(1, 1));
-        $this->assertEquals([ 1 ], $php->listval([ 1 ]));
-        $this->assertEquals([ 1, 1 ], $php->listval([ 1, 1 ]));
-        $this->assertEquals([ 1, [ 1 ] ], $php->listval([ 1, [ 1 ] ]));
+        $this->assertEquals([
+            [ 1, 1 ],
+            [ 1, 2 ],
+            [ 2, 1 ],
+            [ 2, 2 ],
+        ], $php->sequenceFlatten(1, 2));
+    }
+
+
+    public function testBitmask()
+    {
+        $php = $this->getPhp();
+
+        $this->assertEquals([
+            [ null, null ],
+            [ null, 2 ],
+            [ 1, null ],
+            [ 1, 2 ],
+        ], $php->bitmask([ 1, 2 ]));
+
+        $this->assertCount(8, $php->bitmask([ 1, 2, 3 ]));
+        $this->assertCount(16, $php->bitmask([ 1, 2, 3, 4 ]));
     }
 }

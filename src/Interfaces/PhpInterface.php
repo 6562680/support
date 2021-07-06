@@ -108,6 +108,27 @@ interface PhpInterface
     public function assertFactory(\Closure $func, $returnType): \Closure;
 
     /**
+     * @param mixed ...$values
+     *
+     * @return array
+     */
+    public function flatval(...$values): array;
+
+    /**
+     * @param mixed ...$items
+     *
+     * @return array
+     */
+    public function listval(...$items): array;
+
+    /**
+     * @param mixed ...$lists
+     *
+     * @return array
+     */
+    public function listvals(...$lists): array;
+
+    /**
      * Превращает enum-список любой вложенности (значения могут быть в ключах или в полях) в список уникальных значений
      *
      * @param mixed ...$items
@@ -126,29 +147,59 @@ interface PhpInterface
     public function enumvals(...$enums): array;
 
     /**
-     * @param mixed ...$items
+     * @param mixed ...$values
      *
      * @return array
      */
-    public function listval(...$items): array;
+    public function unique(...$values): array;
 
     /**
-     * @param mixed ...$lists
+     * @param mixed ...$values
      *
      * @return array
      */
-    public function listvals(...$lists): array;
+    public function uniqueFlatten(...$values): array;
 
     /**
-     * выполняет функцию как шаг array_filter
+     * @param mixed ...$values
      *
-     * @param null|callable $func
-     * @param               $arg
-     * @param array         $arguments
-     *
-     * @return bool|array
+     * @return array
      */
-    public function filter(?callable $func, $arg, ...$arguments): bool;
+    public function duplicates(...$values): array;
+
+    /**
+     * @param mixed ...$values
+     *
+     * @return array
+     */
+    public function duplicatesFlatten(...$values): array;
+
+    /**
+     * генерирует последовательность типа "каждый с каждым из каждого массива" (все возможные пересечения)
+     *
+     * @param mixed ...$arrays
+     *
+     * @return array
+     */
+    public function sequence(...$arrays): array;
+
+    /**
+     * генерирует последовательность типа "каждый с каждым"
+     *
+     * @param mixed ...$values
+     *
+     * @return array
+     */
+    public function sequenceFlatten(...$values): array;
+
+    /**
+     * генерирует последовательность типа "битовая маска" (каждое значение есть или нет, могут быть все или ни одного)
+     *
+     * @param array ...$values
+     *
+     * @return array
+     */
+    public function bitmask(...$values): array;
 
     /**
      * возвращает идентификатор значения любой переменной в виде строки для дальнейшего сравнения
@@ -160,6 +211,13 @@ interface PhpInterface
      * @return string
      */
     public function hash($value): string;
+
+    /**
+     * @param mixed ...$values
+     *
+     * @return array
+     */
+    public function distinct(array $values): array;
 
     /**
      * @param object $object
@@ -232,46 +290,22 @@ interface PhpInterface
     public function theKwparamsFlatten(...$arguments): array;
 
     /**
-     * @param mixed ...$values
-     *
-     * @return array
-     */
-    public function distinct(array $values): array;
-
-    /**
-     * @param mixed ...$values
-     *
-     * @return array
-     */
-    public function unique(...$values): array;
-
-    /**
-     * @param mixed ...$values
-     *
-     * @return array
-     */
-    public function uniqueFlatten(...$values): array;
-
-    /**
-     * @param mixed ...$values
-     *
-     * @return array
-     */
-    public function duplicates(...$values): array;
-
-    /**
-     * @param mixed ...$values
-     *
-     * @return array
-     */
-    public function duplicatesFlatten(...$values): array;
-
-    /**
      * @param int|float|int[]|float[] $sleeps
      *
      * @return Php
      */
     public function sleep(...$sleeps);
+
+    /**
+     * выполняет функцию как шаг array_filter
+     *
+     * @param null|callable $func
+     * @param               $arg
+     * @param array         $arguments
+     *
+     * @return bool|array
+     */
+    public function filter(?callable $func, $arg, ...$arguments): bool;
 
     /**
      * выполняет функцию как шаг array_map

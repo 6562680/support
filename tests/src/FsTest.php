@@ -26,15 +26,17 @@ class FsTest extends AbstractTestCase
         $fs->mkdir($dirpath, 0775, true);
         touch($filepath);
 
-        $this->assertEquals(realpath($filepath), $fs->pathvalFileExists($filepath));
-        $this->assertEquals(realpath($filepath), $fs->pathvalFile($filepath));
-        $this->assertEquals(null, $fs->pathvalDir($filepath));
-        $this->assertEquals(null, $fs->pathvalLink($filepath));
+        $this->assertEquals($filepath, $fs->pathVal($filepath));
+        $this->assertEquals(realpath($filepath), $fs->pathFileExistsVal($filepath));
+        $this->assertEquals(realpath($filepath), $fs->pathFileVal($filepath));
+        $this->assertEquals(null, $fs->pathDirVal($filepath));
+        $this->assertEquals(null, $fs->pathLinkVal($filepath));
 
-        $this->assertEquals(realpath($dirpath), $fs->pathvalFileExists($dirpath));
-        $this->assertEquals(null, $fs->pathvalFile($dirpath));
-        $this->assertEquals(realpath($dirpath), $fs->pathvalDir($dirpath));
-        $this->assertEquals(null, $fs->pathvalLink($dirpath));
+        $this->assertEquals($dirpath, $fs->pathVal($dirpath));
+        $this->assertEquals(realpath($dirpath), $fs->pathFileExistsVal($dirpath));
+        $this->assertEquals(null, $fs->pathFileVal($dirpath));
+        $this->assertEquals(realpath($dirpath), $fs->pathDirVal($dirpath));
+        $this->assertEquals(null, $fs->pathLinkVal($dirpath));
 
         $fs->rmdir($dir, true);
     }
@@ -51,15 +53,17 @@ class FsTest extends AbstractTestCase
         $fs->mkdir($dirpath, 0775, true);
         touch($filepath);
 
-        $this->assertInstanceOf(\SplFileInfo::class, $fs->splvalFileExists($filepath));
-        $this->assertInstanceOf(\SplFileInfo::class, $fs->splvalFile($filepath));
-        $this->assertEquals(null, $fs->splvalDir($filepath));
-        $this->assertEquals(null, $fs->splvalLink($filepath));
+        $this->assertInstanceOf(\SplFileInfo::class, $fs->splVal($filepath));
+        $this->assertInstanceOf(\SplFileInfo::class, $fs->splFileExistsVal($filepath));
+        $this->assertInstanceOf(\SplFileObject::class, $fs->splFileVal($filepath));
+        $this->assertEquals(null, $fs->splDirVal($filepath));
+        $this->assertEquals(null, $fs->splLinkVal($filepath));
 
-        $this->assertInstanceOf(\SplFileInfo::class, $fs->splvalFileExists($dirpath));
-        $this->assertEquals(null, $fs->splvalFile($dirpath));
-        $this->assertInstanceOf(\SplFileInfo::class, $fs->splvalDir($dirpath));
-        $this->assertEquals(null, $fs->splvalLink($dirpath));
+        $this->assertInstanceOf(\SplFileInfo::class, $fs->splVal($dirpath));
+        $this->assertInstanceOf(\SplFileInfo::class, $fs->splFileExistsVal($dirpath));
+        $this->assertEquals(null, $fs->splFileVal($dirpath));
+        $this->assertInstanceOf(\SplFileInfo::class, $fs->splDirVal($dirpath));
+        $this->assertEquals(null, $fs->splLinkVal($dirpath));
 
         $fs->rmdir($dir, true);
     }
