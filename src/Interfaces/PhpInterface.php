@@ -175,6 +175,13 @@ interface PhpInterface
     public function duplicatesFlatten(...$values): array;
 
     /**
+     * @param mixed ...$values
+     *
+     * @return array
+     */
+    public function distinct(array $values): array;
+
+    /**
      * генерирует последовательность типа "каждый с каждым из каждого массива" (все возможные пересечения)
      *
      * @param mixed ...$arrays
@@ -211,13 +218,6 @@ interface PhpInterface
      * @return string
      */
     public function hash($value): string;
-
-    /**
-     * @param mixed ...$values
-     *
-     * @return array
-     */
-    public function distinct(array $values): array;
 
     /**
      * @param object $object

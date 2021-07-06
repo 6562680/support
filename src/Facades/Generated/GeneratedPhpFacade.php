@@ -239,6 +239,16 @@ abstract class GeneratedPhpFacade
     }
 
     /**
+     * @param mixed ...$values
+     *
+     * @return array
+     */
+    public static function distinct(array $values): array
+    {
+        return static::getInstance()->distinct($values);
+    }
+
+    /**
      * генерирует последовательность типа "каждый с каждым из каждого массива" (все возможные пересечения)
      *
      * @param mixed ...$arrays
@@ -286,16 +296,6 @@ abstract class GeneratedPhpFacade
     public static function hash($value): string
     {
         return static::getInstance()->hash($value);
-    }
-
-    /**
-     * @param mixed ...$values
-     *
-     * @return array
-     */
-    public static function distinct(array $values): array
-    {
-        return static::getInstance()->distinct($values);
     }
 
     /**

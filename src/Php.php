@@ -524,6 +524,28 @@ class Php implements PhpInterface
 
 
     /**
+     * @param mixed ...$values
+     *
+     * @return array
+     */
+    public function distinct(array $values) : array
+    {
+        $result = [];
+
+        $arr = [];
+        foreach ( $values as $idx => $value ) {
+            $arr[ $this->hash($value) ] = $idx;
+        }
+
+        foreach ( $arr as $idx ) {
+            $result[ $idx ] = $values[ $idx ];
+        }
+
+        return $result;
+    }
+
+
+    /**
      * генерирует последовательность типа "каждый с каждым из каждого массива" (все возможные пересечения)
      *
      * @param mixed ...$arrays
@@ -676,26 +698,6 @@ class Php implements PhpInterface
         );
     }
 
-    /**
-     * @param mixed ...$values
-     *
-     * @return array
-     */
-    public function distinct(array $values) : array
-    {
-        $result = [];
-
-        $arr = [];
-        foreach ( $values as $idx => $value ) {
-            $arr[ $this->hash($value) ] = $idx;
-        }
-
-        foreach ( $arr as $idx ) {
-            $result[ $idx ] = $values[ $idx ];
-        }
-
-        return $result;
-    }
 
 
     /**
