@@ -20,11 +20,6 @@ use Gzhegow\Support\Filter;
 interface FilterInterface
 {
     /**
-     * @return null|SupportFactory
-     */
-    public function getSupportFactory(): SupportFactory;
-
-    /**
      * @return callable[]
      */
     public function getCustomFilters(): array;

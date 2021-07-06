@@ -69,8 +69,9 @@ class Assert extends GeneratedAssert
     public function message($text, ...$arguments) // : ?string|array
     {
         $message = null
-            ?? ( func_num_args() ? $this->debug->messageVal($text, ...$arguments) : null )
-            ?? $this->message;
+            ?? ( func_num_args() ? $this->debug->messageVal($text, ...$arguments) : null ) // 1
+            ?? $this->message // 2
+        ;
 
         $this->message = null;
 
@@ -86,8 +87,9 @@ class Assert extends GeneratedAssert
     public function messageOr($text, ...$arguments) // : ?string|array
     {
         $message = null
-            ?? $this->message
-            ?? ( func_num_args() ? $this->debug->messageVal($text, ...$arguments) : null );
+            ?? $this->message // 1
+            ?? ( func_num_args() ? $this->debug->messageVal($text, ...$arguments) : null ) // 2
+        ;
 
         $this->message = null;
 
@@ -103,8 +105,9 @@ class Assert extends GeneratedAssert
     public function throwable(\Throwable $throwable = null) : ?\Throwable
     {
         $throwable = null
-            ?? ( func_num_args() ? $throwable : null )
-            ?? $this->throwable;
+            ?? ( func_num_args() ? $throwable : null ) // 1
+            ?? $this->throwable // 2
+        ;
 
         $this->throwable = null;
 
@@ -119,8 +122,9 @@ class Assert extends GeneratedAssert
     public function throwableOr(\Throwable $throwable = null) : ?\Throwable
     {
         $throwable = null
-            ?? $this->throwable
-            ?? ( func_num_args() ? $throwable : null );
+            ?? $this->throwable // 1
+            ?? ( func_num_args() ? $throwable : null ) // 2
+        ;
 
         $this->throwable = null;
 

@@ -82,22 +82,6 @@ abstract class GeneratedAssert
     abstract public function throwableOr(\Throwable $throwable = null);
 
     /**
-     * @return SupportFactory
-     */
-    public function assert(): \Gzhegow\Support\Domain\SupportFactory
-    {
-        if (null === ( $filtered = $this->filter->getSupportFactory() )) {
-            throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid  passed: %s', func_get_args() ]
-                ))
-            );
-        }
-
-        return $filtered;
-    }
-
-    /**
      * @param bool|mixed $value
      *
      * @return bool
@@ -106,8 +90,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterBool($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid Bool passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid Bool passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -124,8 +108,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterInt($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid Int passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid Int passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -142,8 +126,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterFloat($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid Float passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid Float passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -160,8 +144,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterNan($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid Nan passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid Nan passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -178,8 +162,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterNum($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid Num passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid Num passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -196,8 +180,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterIntval($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid Intval passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid Intval passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -214,8 +198,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterFloatval($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid Floatval passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid Floatval passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -232,8 +216,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterNumval($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid Numval passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid Numval passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -250,8 +234,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterNumericval($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid Numericval passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid Numericval passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -268,8 +252,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterPositiveVal($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid PositiveVal passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid PositiveVal passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -286,8 +270,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterNonNegativeVal($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid NonNegativeVal passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid NonNegativeVal passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -304,8 +288,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterNegativeVal($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid NegativeVal passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid NegativeVal passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -322,8 +306,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterNonPositiveVal($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid NonPositiveVal passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid NonPositiveVal passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -340,8 +324,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterPositiveIntval($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid PositiveIntval passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid PositiveIntval passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -358,8 +342,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterNonNegativeIntval($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid NonNegativeIntval passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid NonNegativeIntval passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -376,8 +360,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterNegativeIntval($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid NegativeIntval passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid NegativeIntval passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -394,8 +378,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterNonPositiveIntval($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid NonPositiveIntval passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid NonPositiveIntval passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -412,8 +396,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterString($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid String passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid String passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -430,8 +414,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterWord($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid Word passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid Word passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -448,8 +432,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterStringOrInt($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid StringOrInt passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid StringOrInt passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -466,8 +450,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterWordOrInt($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid WordOrInt passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid WordOrInt passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -484,8 +468,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterStringOrNum($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid StringOrNum passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid StringOrNum passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -502,8 +486,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterWordOrNum($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid WordOrNum passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid WordOrNum passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -520,8 +504,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterStrval($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid Strval passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid Strval passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -538,8 +522,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterWordval($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid Wordval passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid Wordval passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -556,8 +540,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterTrimval($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid Trimval passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid Trimval passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -576,8 +560,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterKey($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid Key passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid Key passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -595,8 +579,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterArray($array,$of) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid Array passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid Array passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -614,8 +598,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterList($list,$of) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid List passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid List passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -633,8 +617,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterDict($dict,$of) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid Dict passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid Dict passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -652,8 +636,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterAssoc($assoc,$of) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid Assoc passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid Assoc passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -670,8 +654,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterPlainArray($array) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid PlainArray passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid PlainArray passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -688,8 +672,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterArrval($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid Arrval passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid Arrval passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -706,8 +690,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterLink($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid Link passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid Link passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -724,8 +708,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterUrl($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid Url passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid Url passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -743,8 +727,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterCallable($callable,$invokableInfo) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid Callable passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid Callable passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -762,8 +746,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterCallableString($callableString,$invokableInfo) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid CallableString passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid CallableString passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -781,8 +765,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterCallableStringFunction($callableString,$invokableInfo) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid CallableStringFunction passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid CallableStringFunction passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -800,8 +784,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterCallableStringStatic($callableString,$invokableInfo) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid CallableStringStatic passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid CallableStringStatic passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -819,8 +803,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterCallableArray($callableArray,$invokableInfo) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid CallableArray passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid CallableArray passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -838,8 +822,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterCallableArrayStatic($callableArray,$invokableInfo) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid CallableArrayStatic passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid CallableArrayStatic passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -857,8 +841,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterCallableArrayPublic($callableArray,$invokableInfo) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid CallableArrayPublic passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid CallableArrayPublic passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -876,8 +860,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterClosure($closure,$invokableInfo) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid Closure passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid Closure passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -894,8 +878,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterMethodArray($methodArray) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid MethodArray passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid MethodArray passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -913,8 +897,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterMethodArrayReflection($methodArray,$invokableInfo) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid MethodArrayReflection passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid MethodArrayReflection passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -932,8 +916,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterHandler($handler,$invokableInfo) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid Handler passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid Handler passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -950,8 +934,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterClass($class) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid Class passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid Class passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -968,8 +952,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterClassName($className) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid ClassName passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid ClassName passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -986,8 +970,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterThrowable($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid Throwable passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid Throwable passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -1004,8 +988,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterException($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid Exception passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid Exception passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -1022,8 +1006,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterRuntimeException($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid RuntimeException passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid RuntimeException passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -1040,8 +1024,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterLogicException($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid LogicException passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid LogicException passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -1058,8 +1042,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterStdClass($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid StdClass passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid StdClass passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -1076,8 +1060,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterFileInfo($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid FileInfo passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid FileInfo passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -1094,8 +1078,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterFileObject($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid FileObject passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid FileObject passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -1112,8 +1096,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterReflectionClass($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid ReflectionClass passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid ReflectionClass passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -1130,8 +1114,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterReflectionFunction($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid ReflectionFunction passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid ReflectionFunction passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -1148,8 +1132,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterReflectionMethod($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid ReflectionMethod passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid ReflectionMethod passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -1166,8 +1150,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterReflectionProperty($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid ReflectionProperty passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid ReflectionProperty passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -1184,8 +1168,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterReflectionParameter($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid ReflectionParameter passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid ReflectionParameter passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -1202,8 +1186,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterReflectionType($value) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid ReflectionType passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid ReflectionType passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -1220,8 +1204,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterReflectionUnionType($reflectionType) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid ReflectionUnionType passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid ReflectionUnionType passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -1238,8 +1222,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterReflectionNamedType($reflectionType) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid ReflectionNamedType passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid ReflectionNamedType passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -1256,8 +1240,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterResource($h) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid Resource passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid Resource passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -1274,8 +1258,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterOpenedResource($h) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid OpenedResource passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid OpenedResource passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -1292,8 +1276,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterClosedResource($h) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid ClosedResource passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid ClosedResource passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -1310,8 +1294,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterReadableResource($h) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid ReadableResource passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid ReadableResource passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -1328,8 +1312,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterWritableResource($h) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid WritableResource passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid WritableResource passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -1346,8 +1330,8 @@ abstract class GeneratedAssert
     {
         if (null === ( $filtered = $this->filter->filterCurl($ch) )) {
             throw $this->throwableOr(
-                new InvalidArgumentException($this->messageOr(
-                    [ 'Invalid Curl passed: %s', func_get_args() ]
+                new InvalidArgumentException(...$this->messageOr(
+                    'Invalid Curl passed: %s', ...func_get_args()
                 ))
             );
         }

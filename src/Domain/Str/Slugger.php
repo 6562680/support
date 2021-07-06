@@ -3,7 +3,9 @@
 namespace Gzhegow\Support\Domain\Str;
 
 use Gzhegow\Support\Str;
+use Gzhegow\Support\Php;
 use Gzhegow\Support\Exceptions\RuntimeException;
+use Gzhegow\Support\Exceptions\Runtime\UnexpectedValueException;
 
 
 /**
@@ -11,6 +13,10 @@ use Gzhegow\Support\Exceptions\RuntimeException;
  */
 class Slugger implements SluggerInterface
 {
+    /**
+     * @var Php
+     */
+    protected $php;
     /**
      * @var Str
      */
@@ -38,10 +44,15 @@ class Slugger implements SluggerInterface
     /**
      * Constructor
      *
+     * @param Php $php
      * @param Str $str
      */
-    public function __construct(Str $str)
+    public function __construct(
+        Php $php,
+        Str $str
+    )
     {
+        $this->php = $php;
         $this->str = $str;
     }
 
@@ -77,27 +88,29 @@ class Slugger implements SluggerInterface
             $keys = array_keys($sequence);
             $sequence = array_values($sequence);
 
-            $cnt = count($sequence);
-            $max = implode('', array_fill(0, $cnt, 1));
-
-            $search = [];
-            $replacement = [];
-            for ( $i = 0; $i <= bindec($max); $i++ ) {
-                $bin = str_pad(decbin($i), $cnt, '0', STR_PAD_LEFT);
-
-                for ( $ii = 0; $ii < $cnt; $ii++ ) {
-                    if ('1' === $bin[ $ii ]) {
-                        $search[ $ii ] = mb_strtoupper($keys[ $ii ]);
-                        $replacement[ $ii ] = mb_strtoupper($sequence[ $ii ]);
-
-                    } else {
-                        $search[ $ii ] = $keys[ $ii ];
-                        $replacement[ $ii ] = $sequence[ $ii ];
-                    }
-                }
+            $keysCase = [];
+            foreach ( $keys as $idx => $letter ) {
+                $keysCase[ $idx ][] = $letter;
+                $keysCase[ $idx ][] = mb_strtoupper($letter);
             }
 
-            $sequences[ implode('', $search) ] = implode('', $replacement);
+            $sequenceCase = [];
+            foreach ( $sequence as $idx => $letter ) {
+                $sequenceCase[ $idx ][] = $letter;
+                $sequenceCase[ $idx ][] = mb_strtoupper($letter);
+            }
+
+            $keysCase = $this->php->sequence(...$keysCase);
+            $sequenceCase = $this->php->sequence(...$sequenceCase);
+
+            foreach ( array_keys($keysCase) as $idx ) {
+                $search = implode('', $keysCase[ $idx ]);
+                $replacement = implode('', $sequenceCase[ $idx ]);
+
+                if (( $search !== $replacement ) && ! isset($sequences[ $replacement ])) {
+                    $sequences[ $search ] = $replacement;
+                }
+            }
         }
 
         return $sequences;
@@ -118,21 +131,40 @@ class Slugger implements SluggerInterface
 
         $map = [];
         foreach ( $symbolsMap as $a => $b ) {
-            $map[ $lower = mb_strtolower($a) ] = [];
-            $map[ $upper = mb_strtoupper($a) ] = [];
+            $aLower = mb_strtolower($a);
+            $aUpper = mb_strtoupper($a);
 
-            $b = is_array($b)
-                ? $b
-                : [ $b ];
+            $b = is_array($b) ? $b : [ $b ];
 
             $list = [];
             foreach ( $b as $bb ) {
                 $list = array_merge($list, $this->str->split($bb));
             }
 
-            foreach ( $list as $l ) {
-                $map[ $lower ][] = mb_strtolower($l);
-                $map[ $upper ][] = mb_strtoupper($l);
+            foreach ( $list as $bb ) {
+                $bbLen = mb_strlen($bb);
+                $bbLower = mb_strtolower($bb);
+                $bbUpper = mb_strtoupper($bb);
+
+                // incorrect: ß -> 'SS'
+                if (false
+                    || ( $bbLen !== mb_strlen($bbLower) )
+                    || ( $bbLen !== mb_strlen($bbUpper) )
+                ) {
+                    throw new UnexpectedValueException([
+                        'Case change cause lenght difference, you should move pair into sequence: %s / %s',
+                        [ $a => $bb ],
+                        [ $bb, $bbLower, $bbUpper ],
+                    ]);
+                }
+
+                if (! isset($map[ $bbLower ])) {
+                    $map[ $aLower ][] = $bbLower;
+                }
+
+                if (! isset($map[ $bbUpper ])) {
+                    $map[ $aUpper ][] = $bbUpper;
+                }
             }
         }
 
@@ -374,6 +406,9 @@ class Slugger implements SluggerInterface
             'ех' => [ 'е' => 'c', 'х' => 'kh' ],
             'сх' => [ 'с' => 'c', 'х' => 'kh' ],
             'цх' => [ 'ц' => 'c', 'х' => 'kh' ],
+
+            'ẚ' => [ 'ẚ' => 'a' ],
+            'ß' => [ 'ß' => 'ss' ],
         ];
     }
 
@@ -383,9 +418,9 @@ class Slugger implements SluggerInterface
     protected function symbolsMapDefault() : array
     {
         return [
-            '' => 'ъь',
+            ' ' => 'ъь',
 
-            'a' => [ 'aàáâãāăȧäảåǎȁąạḁẚầấẫẩằắẵẳǡǟǻậặæǽǣая' ],
+            'a' => [ 'aàáâãāăȧäảåǎȁąạḁầấẫẩằắẵẳǡǟǻậặæǽǣая' ],
             'b' => [ 'þб' ],
             'c' => [ 'çćĉċčц' ],
             'd' => [ 'ðďд' ],
@@ -417,7 +452,7 @@ class Slugger implements SluggerInterface
             'oe'   => [ 'œ' ],
             'sh'   => [ 'ш' ],
             'shch' => [ 'щ' ],
-            'ss'   => [ 'ßſ' ],
+            'ss'   => [ 'ſ' ],
             'ue'   => [ 'ü' ],
             'ya'   => [ 'я' ],
             'yo'   => [ 'ё' ],
@@ -425,27 +460,4 @@ class Slugger implements SluggerInterface
             'zh'   => [ 'ж' ],
         ];
     }
-
-
-    // iconv(): Detected an illegal character in input string
-    // /**
-    //  * @param string $string
-    //  *
-    //  * @return null|string
-    //  */
-    // protected function translitIconv(string $string) : ?string
-    // {
-    //     $func = 'iconv';
-    //
-    //     if (! ( extension_loaded('iconv') && function_exists($func) )) {
-    //         return null;
-    //     }
-    //
-    //     // $result = ( false !== ( $transliterated = $func('UTF-8', 'US-ASCII//IGNORE//TRANSLIT', $string) ) )
-    //     $result = ( false !== ( $transliterated = $func('UTF-8', 'US-ASCII//TRANSLIT', $string) ) )
-    //         ? $transliterated
-    //         : null;
-    //
-    //     return $result;
-    // }
 }

@@ -14,6 +14,7 @@ use Gzhegow\Support\Domain\Str\Inflector;
 use Gzhegow\Support\Domain\Str\InflectorInterface;
 use Gzhegow\Support\Domain\Str\Slugger;
 use Gzhegow\Support\Domain\Str\SluggerInterface;
+use Gzhegow\Support\Domain\SupportFactory;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Str;
 

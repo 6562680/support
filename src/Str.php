@@ -4,7 +4,9 @@ namespace Gzhegow\Support;
 
 use Gzhegow\Support\Domain\Str\Slugger;
 use Gzhegow\Support\Domain\Str\Inflector;
+use Gzhegow\Support\Domain\SupportFactory;
 use Gzhegow\Support\Interfaces\StrInterface;
+use Gzhegow\Support\Interfaces\PhpInterface;
 use Gzhegow\Support\Domain\Str\SluggerInterface;
 use Gzhegow\Support\Domain\Str\InflectorInterface;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
@@ -32,6 +34,11 @@ class Str implements StrInterface
      * @var Filter
      */
     protected $filter;
+
+    /**
+     * @var PhpInterface
+     */
+    protected $php;
 
 
     /**
@@ -550,7 +557,11 @@ class Str implements StrInterface
         }
 
         if (! $this->slugger) {
-            $this->slugger = new Slugger($this);
+            if (! isset($this->php)) {
+                $this->php = SupportFactory::getInstance()->newPhp();
+            }
+
+            $this->slugger = new Slugger($this->php, $this);
         }
 
         return $this->slugger;

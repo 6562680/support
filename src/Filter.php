@@ -24,34 +24,6 @@ class Filter implements FilterInterface
      */
     protected $type;
 
-    /**
-     * @var null|SupportFactory
-     */
-    protected $supportFactory;
-
-
-    /**
-     * Constructor
-     *
-     * @param null|SupportFactory $supportFactory
-     */
-    public function __construct(
-        SupportFactory $supportFactory = null
-    )
-    {
-        $this->supportFactory = $supportFactory;
-    }
-
-
-    /**
-     * @return null|SupportFactory
-     */
-    public function getSupportFactory() : SupportFactory
-    {
-        return $this->supportFactory = $this->supportFactory
-            ?? SupportFactory::getInstance();
-    }
-
 
     /**
      * @return callable[]

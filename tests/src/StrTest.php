@@ -942,6 +942,7 @@ class StrTest extends AbstractTestCase
 
         $this->assertEquals('privet-mir', $str->slug('Привет Мир'));
         $this->assertEquals('workspace-settings', $str->slug('Wôrķšƥáçè ~~sèťtïñğš~~'));
+        $this->assertEquals('set', $str->slug('Сеть'));
     }
 
     public function testSlugCase()

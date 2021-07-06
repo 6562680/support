@@ -36,27 +36,29 @@ $moduleAssert->setAbstract();
 
 // copy methods
 $moduleCopy = \Nette\PhpGenerator\ClassType::from(Filter::class);
-$moduleCopy->removeMethod('getCustomFilters');
 $moduleCopy->removeMethod('addCustomFilter');
 $moduleCopy->removeMethod('assert');
-$moduleCopy->removeMethod('filter');
-$moduleCopy->removeMethod('php');
-$moduleCopy->removeMethod('type');
-$moduleCopy->removeMethod('call');
 $moduleCopy->removeMethod('bind');
-$moduleCopy->removeMethod('replaceCustomFilter');
+$moduleCopy->removeMethod('call');
+$moduleCopy->removeMethod('filter');
 $moduleCopy->removeMethod('findCustomFilter');
+$moduleCopy->removeMethod('getCustomFilters');
+$moduleCopy->removeMethod('php');
+$moduleCopy->removeMethod('replaceCustomFilter');
+$moduleCopy->removeMethod('type');
 foreach ( $moduleCopy->getMethods() as $method ) {
-    $methodName = $method->getName();
+    if ('__construct' === ( $methodName = $method->getName() )) {
+        continue;
+    }
 
-    if ('__construct' === $methodName) {
+    if (null === ( $filterName = $generator->strStarts($methodName, 'filter') )) {
         continue;
     }
 
     $methodParameters = $method->getParameters();
     $methodComment = $method->getComment();
 
-    $methodNameNew = 'assert' . ( $filterName = $generator->strStarts($methodName, 'filter') );
+    $methodNameNew = 'assert' . $filterName;
 
     $lines = explode("\n", $methodComment);
     foreach ( $lines as $i => $line ) {
@@ -98,8 +100,8 @@ foreach ( $moduleCopy->getMethods() as $method ) {
         implode("\n", [
             '' . sprintf('if (null === ( $filtered = $this->filter->%s(%s) )) {', $methodName, $arguments),
             '    throw $this->throwableOr(',
-            '        new InvalidArgumentException($this->messageOr(',
-            '            [ \'Invalid ' . $filterName . ' passed: %s\', func_get_args() ]',
+            '        new InvalidArgumentException(...$this->messageOr(',
+            '            \'Invalid ' . $filterName . ' passed: %s\', ...func_get_args()',
             '        ))',
             '    );',
             '}',

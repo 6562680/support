@@ -21,14 +21,6 @@ use Gzhegow\Support\Interfaces\FilterInterface;
 abstract class GeneratedFilterFacade
 {
     /**
-     * @return null|SupportFactory
-     */
-    public static function getSupportFactory(): SupportFactory
-    {
-        return static::getInstance()->getSupportFactory();
-    }
-
-    /**
      * @return callable[]
      */
     public static function getCustomFilters(): array

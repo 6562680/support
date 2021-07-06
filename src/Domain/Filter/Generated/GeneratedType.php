@@ -43,14 +43,6 @@ abstract class GeneratedType
     }
 
     /**
-     * @return bool
-     */
-    public function is(): bool
-    {
-        return null !== $this->filter->getSupportFactory();
-    }
-
-    /**
      * @param bool|mixed $value
      *
      * @return bool

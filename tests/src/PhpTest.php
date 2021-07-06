@@ -94,10 +94,10 @@ class PhpTest extends AbstractTestCase
         $php = $this->getPhp();
 
         $this->assertEquals([
-            [ null, null ],
-            [ null, 2 ],
-            [ 1, null ],
-            [ 1, 2 ],
+            '00' => [ null, null ],
+            '01' => [ null, 2 ],
+            '10' => [ 1, null ],
+            '11' => [ 1, 2 ],
         ], $php->bitmask([ 1, 2 ]));
 
         $this->assertCount(8, $php->bitmask([ 1, 2, 3 ]));

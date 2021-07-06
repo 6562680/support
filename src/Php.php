@@ -645,7 +645,7 @@ class Php implements PhpInterface
                     : null;
             }
 
-            $result[] = $line;
+            $result[ $bitmask ] = $line;
         }
 
         return $result;
