@@ -2,7 +2,7 @@
 
 namespace Gzhegow\Support\Tests;
 
-use Gzhegow\Support\Str;
+use Gzhegow\Support\ZStr;
 use Gzhegow\Support\IStr;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
@@ -11,7 +11,7 @@ class StrTest extends AbstractTestCase
 {
     protected function getStr() : IStr
     {
-        return Str::getInstance();
+        return ZStr::getInstance();
     }
 
 

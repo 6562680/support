@@ -292,7 +292,7 @@ interface IPhp
     /**
      * @param int|float|int[]|float[] $sleeps
      *
-     * @return Php
+     * @return ZPhp
      */
     public function sleep(...$sleeps);
 

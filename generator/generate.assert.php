@@ -33,7 +33,7 @@ $moduleAssert->setAbstract();
 $moduleAssert->setImplements([ \Gzhegow\Support\IAssert::class ]);
 
 // copy methods
-$moduleCopy = \Nette\PhpGenerator\ClassType::from(\Gzhegow\Support\Filter::class);
+$moduleCopy = \Nette\PhpGenerator\ClassType::from(\Gzhegow\Support\ZFilter::class);
 $moduleCopy->removeMethod('assert');
 $moduleCopy->removeMethod('php');
 $moduleCopy->removeMethod('type');

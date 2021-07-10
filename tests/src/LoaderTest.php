@@ -2,7 +2,7 @@
 
 namespace Gzhegow\Support\Tests;
 
-use Gzhegow\Support\Loader;
+use Gzhegow\Support\ZLoader;
 use Gzhegow\Support\ILoader;
 
 
@@ -10,7 +10,7 @@ class LoaderTest extends AbstractTestCase
 {
     protected function getLoader() : ILoader
     {
-        return Loader::getInstance();
+        return ZLoader::getInstance();
     }
 
 
@@ -189,7 +189,7 @@ class LoaderTest extends AbstractTestCase
         $d = '\\A\\B\\C\\D';
 
         $this->assertEquals([ 'Gzhegow\Support\Tests', 'LoaderTest' ], $loader->nsClass($a));
-        $this->assertEquals([ 'Gzhegow\Support', 'Loader' ], $loader->nsClass($b));
+        $this->assertEquals([ 'Gzhegow\Support', 'ZLoader' ], $loader->nsClass($b));
         $this->assertEquals([ 'A\\B\\C', 'D' ], $loader->nsClass($c));
         $this->assertEquals([ 'A\\B\\C', 'D' ], $loader->nsClass($d));
     }
@@ -219,7 +219,7 @@ class LoaderTest extends AbstractTestCase
         $d = '\\A\\B\\C\\D';
 
         $this->assertEquals('LoaderTest', $loader->className($a));
-        $this->assertEquals('Loader', $loader->className($b));
+        $this->assertEquals('ZLoader', $loader->className($b));
         $this->assertEquals('D', $loader->className($c));
         $this->assertEquals('D', $loader->className($d));
     }

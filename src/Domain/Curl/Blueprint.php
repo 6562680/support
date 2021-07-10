@@ -323,11 +323,11 @@ class Blueprint
                 }
 
                 if ($fields) {
-                    $headers[] = 'Content-Type: multipart/form-data';
+                    $headers[] = 'Content-ZType: multipart/form-data';
 
                     $key = implode(";\n", [
                         'raw',
-                        'Content-Type: text/plain',
+                        'Content-ZType: text/plain',
                         'Content-Disposition: form-data',
                     ]);
 

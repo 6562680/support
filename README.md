@@ -29,7 +29,7 @@
     //         $breakpoints = array_filter(explode($delimiter, $val));
     //
     //         $nonNumeric = ArrF::first($breakpoints, function ($val) {
-    //             return ! Type::is_numerable($val);
+    //             return ! ZType::is_numerable($val);
     //         });
     //         if ($nonNumeric) {
     //             throw new \InvalidArgumentException('Argument in range should be numerable: ' . $nonNumeric);

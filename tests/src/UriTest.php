@@ -2,7 +2,7 @@
 
 namespace Gzhegow\Support\Tests;
 
-use Gzhegow\Support\Uri;
+use Gzhegow\Support\ZUri;
 use Gzhegow\Support\IUri;
 
 
@@ -10,7 +10,7 @@ class UriTest extends AbstractTestCase
 {
     protected function getUri() : IUri
     {
-        return Uri::getInstance();
+        return ZUri::getInstance();
     }
 
 

@@ -17,7 +17,7 @@ use Gzhegow\Support\Exceptions\RuntimeException;
 interface ILoader
 {
     /**
-     * @return Loader
+     * @return ZLoader
      */
     public function reset();
 
@@ -56,7 +56,7 @@ interface ILoader
      * @param string       $contract
      * @param string|array $classes
      *
-     * @return Loader
+     * @return ZLoader
      */
     public function setContract(string $contract, ...$classes);
 
@@ -64,7 +64,7 @@ interface ILoader
      * @param string       $contract
      * @param string|array $classes
      *
-     * @return Loader
+     * @return ZLoader
      */
     public function addContract(string $contract, ...$classes);
 

@@ -18,28 +18,28 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 interface ICurl
 {
     /**
-     * @return Curl
+     * @return ZCurl
      */
     public function reset();
 
     /**
      * @param null|Blueprint $blueprint
      *
-     * @return Curl
+     * @return ZCurl
      */
     public function clone(?Blueprint $blueprint);
 
     /**
      * @param null|Blueprint $blueprint
      *
-     * @return Curl
+     * @return ZCurl
      */
     public function with(?Blueprint $blueprint);
 
     /**
      * @param Blueprint $blueprint
      *
-     * @return Curl
+     * @return ZCurl
      */
     public function withBlueprint(Blueprint $blueprint);
 

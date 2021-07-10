@@ -2,7 +2,7 @@
 
 namespace Gzhegow\Support\Tests;
 
-use Gzhegow\Support\Php;
+use Gzhegow\Support\ZPhp;
 use Gzhegow\Support\IPhp;
 
 
@@ -10,7 +10,7 @@ class PhpTest extends AbstractTestCase
 {
     protected function getPhp() : IPhp
     {
-        return Php::getInstance();
+        return ZPhp::getInstance();
     }
 
 

@@ -2,7 +2,7 @@
 
 namespace Gzhegow\Support\Tests;
 
-use Gzhegow\Support\Preg;
+use Gzhegow\Support\ZPreg;
 use Gzhegow\Support\IPreg;
 use Gzhegow\Support\Exceptions\RuntimeException;
 
@@ -11,7 +11,7 @@ class PregTest extends AbstractTestCase
 {
     protected function getPreg() : IPreg
     {
-        return Preg::getInstance();
+        return ZPreg::getInstance();
     }
 
 

@@ -2,7 +2,7 @@
 
 namespace Gzhegow\Support\Tests;
 
-use Gzhegow\Support\Assert;
+use Gzhegow\Support\ZAssert;
 use Gzhegow\Support\IAssert;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
@@ -11,7 +11,7 @@ class AssertTest extends AbstractTestCase
 {
     protected function getAssert() : IAssert
     {
-        return Assert::getInstance();
+        return ZAssert::getInstance();
     }
 
 

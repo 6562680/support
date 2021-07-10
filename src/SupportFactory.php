@@ -43,7 +43,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newArr() : IArr
     {
-        return new Arr(
+        return new ZArr(
             $this->getFilter(),
             $this->getPhp(),
             $this->getStr()
@@ -55,7 +55,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newAssert() : IAssert
     {
-        return new Assert(
+        return new ZAssert(
             $this->getDebug(),
             $this->getFilter(),
         );
@@ -66,7 +66,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newCalendar() : ICalendar
     {
-        return new Calendar(
+        return new ZCalendar(
             $this->getFilter(),
             $this->getNum(),
             $this->getPhp(),
@@ -79,7 +79,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newCli() : ICli
     {
-        return new Cli(
+        return new ZCli(
             $this->getEnv(),
             $this->getFs(),
             $this->getPhp()
@@ -91,7 +91,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newCmp() : ICmp
     {
-        return new Cmp(
+        return new ZCmp(
             $this->getCalendar(),
             $this->getFilter()
         );
@@ -102,7 +102,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newCriteria() : ICriteria
     {
-        return new Criteria(
+        return new ZCriteria(
             $this->getCalendar(),
             $this->getCmp(),
             $this->getFilter(),
@@ -115,7 +115,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newCurl() : ICurl
     {
-        return new Curl(
+        return new ZCurl(
             $this->getArr(),
             $this->getFilter(),
             $this->getNet(),
@@ -128,7 +128,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newDebug() : IDebug
     {
-        return new Debug();
+        return new ZDebug();
     }
 
     /**
@@ -136,7 +136,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newEnv() : IEnv
     {
-        return new Env();
+        return new ZEnv();
     }
 
     /**
@@ -144,7 +144,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newFilter() : IFilter
     {
-        return new Filter();
+        return new ZFilter();
     }
 
     /**
@@ -152,7 +152,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newFormat() : IFormat
     {
-        return new Format(
+        return new ZFormat(
             $this->getNum()
         );
     }
@@ -162,7 +162,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newFs() : IFs
     {
-        return new Fs(
+        return new ZFs(
             $this->getFilter(),
             $this->getPhp()
         );
@@ -173,7 +173,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newLoader() : ILoader
     {
-        return new Loader(
+        return new ZLoader(
             $this->getFilter(),
             $this->getStr()
         );
@@ -184,7 +184,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newMath() : IMath
     {
-        return new Math(
+        return new ZMath(
             $this->getFilter(),
             $this->getNum(),
             $this->getStr()
@@ -196,7 +196,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newNet() : INet
     {
-        return new Net(
+        return new ZNet(
             $this->getStr()
         );
     }
@@ -206,7 +206,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newNum() : INum
     {
-        return new Num(
+        return new ZNum(
             $this->getFilter()
         );
     }
@@ -216,7 +216,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newPath() : IPath
     {
-        return new Path(
+        return new ZPath(
             $this->getFilter(),
             $this->getPhp(),
             $this->getStr()
@@ -228,7 +228,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newPhp() : IPhp
     {
-        return new Php(
+        return new ZPhp(
             $this->getFilter()
         );
     }
@@ -238,7 +238,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newPreg() : IPreg
     {
-        return new Preg(
+        return new ZPreg(
             $this->getStr()
         );
     }
@@ -248,7 +248,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newProf() : IProf
     {
-        return new Prof(
+        return new ZProf(
             $this->getCalendar()
         );
     }
@@ -258,7 +258,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newStr() : IStr
     {
-        return new Str(
+        return new ZStr(
             $this->getFilter()
         );
     }
@@ -268,7 +268,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newType() : IType
     {
-        return new Type(
+        return new ZType(
             $this->getFilter()
         );
     }
@@ -278,7 +278,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     public function newUri() : IUri
     {
-        return new Uri(
+        return new ZUri(
             $this->getArr(),
             $this->getFilter(),
             $this->getPhp(),

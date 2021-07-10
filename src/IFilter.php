@@ -25,7 +25,7 @@ interface IFilter
      * @param string   $filter
      * @param \Closure $callable
      *
-     * @return Filter
+     * @return ZFilter
      */
     public function addCustomFilter(string $filter, \Closure $callable);
 
@@ -33,7 +33,7 @@ interface IFilter
      * @param string   $filter
      * @param \Closure $callable
      *
-     * @return Filter
+     * @return ZFilter
      */
     public function replaceCustomFilter(string $filter, \Closure $callable);
 

@@ -2,7 +2,7 @@
 
 namespace Gzhegow\Support\Tests;
 
-use Gzhegow\Support\Path;
+use Gzhegow\Support\ZPath;
 use Gzhegow\Support\IPath;
 
 
@@ -10,7 +10,7 @@ class PathTest extends AbstractTestCase
 {
     protected function getPath() : IPath
     {
-        return Path::getInstance();
+        return ZPath::getInstance();
     }
 
 

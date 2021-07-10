@@ -2,7 +2,7 @@
 
 namespace Gzhegow\Support\Tests;
 
-use Gzhegow\Support\Arr;
+use Gzhegow\Support\ZArr;
 use Gzhegow\Support\IArr;
 use Gzhegow\Support\Exceptions\Logic\OutOfRangeException;
 use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
@@ -13,7 +13,7 @@ class ArrTest extends AbstractTestCase
 {
     protected function getArr() : IArr
     {
-        return Arr::getInstance();
+        return ZArr::getInstance();
     }
 
 

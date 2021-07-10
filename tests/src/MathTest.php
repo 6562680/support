@@ -2,7 +2,7 @@
 
 namespace Gzhegow\Support\Tests;
 
-use Gzhegow\Support\Math;
+use Gzhegow\Support\ZMath;
 use Gzhegow\Support\IMath;
 
 
@@ -10,7 +10,7 @@ class MathTest extends AbstractTestCase
 {
     protected function getMath() : IMath
     {
-        return Math::getInstance();
+        return ZMath::getInstance();
     }
 
 

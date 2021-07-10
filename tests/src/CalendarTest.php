@@ -2,7 +2,7 @@
 
 namespace Gzhegow\Support\Tests;
 
-use Gzhegow\Support\Calendar;
+use Gzhegow\Support\ZCalendar;
 use Gzhegow\Support\ICalendar;
 
 
@@ -10,7 +10,7 @@ class CalendarTest extends AbstractTestCase
 {
     protected function getCalendar() : ICalendar
     {
-        return Calendar::getInstance();
+        return ZCalendar::getInstance();
     }
 
 

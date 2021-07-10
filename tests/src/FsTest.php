@@ -2,7 +2,7 @@
 
 namespace Gzhegow\Support\Tests;
 
-use Gzhegow\Support\Fs;
+use Gzhegow\Support\ZFs;
 use Gzhegow\Support\IFs;
 
 
@@ -10,7 +10,7 @@ class FsTest extends AbstractTestCase
 {
     protected function getFs() : IFs
     {
-        return Fs::getInstance();
+        return ZFs::getInstance();
     }
 
 

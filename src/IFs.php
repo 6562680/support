@@ -17,28 +17,28 @@ use Gzhegow\Support\Exceptions\RuntimeException;
 interface IFs
 {
     /**
-     * @return Fs
+     * @return ZFs
      */
     public function reset();
 
     /**
      * @param string $root
      *
-     * @return Fs
+     * @return ZFs
      */
     public function clone(string $root);
 
     /**
      * @param null|string $root
      *
-     * @return Fs
+     * @return ZFs
      */
     public function with(?string $root);
 
     /**
      * @param string $root
      *
-     * @return Fs
+     * @return ZFs
      */
     public function withRoot(string $root);
 

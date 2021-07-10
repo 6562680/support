@@ -20,28 +20,28 @@ use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
 interface IArr
 {
     /**
-     * @return Arr
+     * @return ZArr
      */
     public function reset();
 
     /**
      * @param $indexer
      *
-     * @return Arr
+     * @return ZArr
      */
     public function clone(?callable $indexer);
 
     /**
      * @param null|callable $indexer
      *
-     * @return Arr
+     * @return ZArr
      */
     public function with(?callable $indexer);
 
     /**
      * @param callable $indexer
      *
-     * @return Arr
+     * @return ZArr
      */
     public function withIndexer(callable $indexer);
 
@@ -120,7 +120,7 @@ interface IArr
      * @param string|array $path
      * @param mixed        $value
      *
-     * @return Arr
+     * @return ZArr
      */
     public function set(?array &$dst, $path, $value);
 
@@ -320,7 +320,7 @@ interface IArr
      * @param callable $callback
      * @param mixed    ...$args
      *
-     * @return Arr
+     * @return ZArr
      */
     public function walk_recursive(array &$array, $callback, ...$args);
 
@@ -329,7 +329,7 @@ interface IArr
      * @param callable $callback
      * @param mixed    ...$args
      *
-     * @return Arr
+     * @return ZArr
      */
     public function crawl_recursive(iterable $iterable, $callback, ...$args);
 

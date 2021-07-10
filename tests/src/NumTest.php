@@ -2,7 +2,7 @@
 
 namespace Gzhegow\Support\Tests;
 
-use Gzhegow\Support\Num;
+use Gzhegow\Support\ZNum;
 use Gzhegow\Support\INum;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
@@ -11,7 +11,7 @@ class NumTest extends AbstractTestCase
 {
     protected function getNum() : INum
     {
-        return Num::getInstance();
+        return ZNum::getInstance();
     }
 
 

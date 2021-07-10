@@ -19,7 +19,7 @@ use Gzhegow\Support\Exceptions\Runtime\OutOfBoundsException;
 interface IMath
 {
     /**
-     * @return Math
+     * @return ZMath
      */
     public function reset();
 
@@ -27,7 +27,7 @@ interface IMath
      * @param null|int $scale
      * @param null|int $scaleMax
      *
-     * @return Math
+     * @return ZMath
      */
     public function clone(?int $scale, ?int $scaleMax);
 
@@ -35,21 +35,21 @@ interface IMath
      * @param null|int $scale
      * @param null|int $scaleMax
      *
-     * @return Math
+     * @return ZMath
      */
     public function with(?int $scale, ?int $scaleMax);
 
     /**
      * @param int $scale
      *
-     * @return Math
+     * @return ZMath
      */
     public function withScale(int $scale);
 
     /**
      * @param int $scaleMax
      *
-     * @return Math
+     * @return ZMath
      */
     public function withScaleMax(int $scaleMax);
 

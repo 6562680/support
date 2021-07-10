@@ -28,7 +28,7 @@ interface IProf
     public function report(int $decimals = null): array;
 
     /**
-     * @return Prof
+     * @return ZProf
      */
     public function flush();
 }

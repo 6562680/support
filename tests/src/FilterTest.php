@@ -2,7 +2,7 @@
 
 namespace Gzhegow\Support\Tests;
 
-use Gzhegow\Support\Filter;
+use Gzhegow\Support\ZFilter;
 use Gzhegow\Support\IFilter;
 
 
@@ -10,7 +10,7 @@ class FilterTest extends AbstractTestCase
 {
     protected function getFilter() : IFilter
     {
-        return Filter::getInstance();
+        return ZFilter::getInstance();
     }
 
 

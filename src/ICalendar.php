@@ -23,7 +23,7 @@ interface ICalendar
     /**
      * @param string|\DateTimeZone $timezone
      *
-     * @return Calendar
+     * @return ZCalendar
      */
     public function setDefaultTimezone($timezone);
 

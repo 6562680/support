@@ -1,0 +1,281 @@
+<?php
+/**
+ * @noinspection RedundantSuppression
+ * @noinspection PhpUnusedAliasInspection
+ */
+
+namespace Gzhegow\Support;
+
+use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+
+
+/**
+ * ZNet
+ */
+class ZNet implements INet
+{
+    const METHOD_CONNECT = 'CONNECT';
+    const METHOD_DELETE  = 'DELETE';
+    const METHOD_GET     = 'GET';
+    const METHOD_HEAD    = 'HEAD';
+    const METHOD_OPTIONS = 'OPTIONS';
+    const METHOD_PATCH   = 'PATCH';
+    const METHOD_POST    = 'POST';
+    const METHOD_PURGE   = 'PURGE';
+    const METHOD_PUT     = 'PUT';
+    const METHOD_TRACE   = 'TRACE';
+
+    const THE_METHOD_LIST = [
+        self::METHOD_HEAD    => true,
+        self::METHOD_OPTIONS => true,
+        self::METHOD_GET     => true,
+        self::METHOD_POST    => true,
+        self::METHOD_PATCH   => true,
+        self::METHOD_PUT     => true,
+        self::METHOD_DELETE  => true,
+        self::METHOD_PURGE   => true,
+        self::METHOD_CONNECT => true,
+        self::METHOD_TRACE   => true,
+    ];
+
+
+    /**
+     * @var IStr
+     */
+    protected $str;
+
+
+    /**
+     * Constructor
+     *
+     * @param IStr $str
+     */
+    public function __construct(
+        IStr $str
+    )
+    {
+        $this->str = $str;
+    }
+
+
+    /**
+     * @param string $ip
+     *
+     * @return bool
+     */
+    public function isIp(string $ip) : bool
+    {
+        if ('' === $ip) return false;
+
+        return filter_var($ip, FILTER_VALIDATE_IP);
+    }
+
+    /**
+     * @param string $mask
+     * @param null   $subnet_ip
+     * @param null   $cidr
+     *
+     * @return bool
+     */
+    public function isMask(string $mask, &$subnet_ip = null, &$cidr = null) : bool
+    {
+        if ('' === $mask) return false;
+
+        [ $subnet_ip, $cidr ] = explode('/', $mask) + [ null, 32 ];
+
+        $cidr = (int) $cidr;
+        if ($cidr < 0) return false;
+        if ($cidr > 32) return false;
+
+        return true;
+    }
+
+
+    /**
+     * @param string $ip
+     * @param string $mask
+     *
+     * @return bool
+     */
+    public function isInSubnet(string $ip, string $mask) : bool
+    {
+        if (! $this->isIp($ip)) return false;
+        if (! $this->isMask($mask, $subnet_ip, $cidr)) return true;
+
+        $bitmask = -1 << 32 - $cidr;
+
+        return ( ip2long($ip) & $bitmask ) === ( ip2long($subnet_ip) & $bitmask );
+    }
+
+
+    /**
+     * @param string $httpMethod
+     *
+     * @return null|string
+     */
+    public function httpMethodVal($httpMethod) : ?string
+    {
+        $val = null;
+
+        if (! is_string($httpMethod)) {
+            return null;
+        }
+
+        if ('' === $httpMethod) {
+            return null;
+        }
+
+        if (isset(static::THE_METHOD_LIST[ $httpMethodUpper = strtoupper($httpMethod) ])) {
+            $val = $httpMethodUpper;
+        }
+
+        return $val;
+    }
+
+    /**
+     * @param string $httpMethod
+     *
+     * @return string
+     */
+    public function theHttpMethodVal($httpMethod) : string
+    {
+        if (null === ( $val = $this->httpMethodVal($httpMethod) )) {
+            throw new InvalidArgumentException(
+                [ 'Invalid HttpMethod passed: %s', $httpMethod ]
+            );
+        }
+
+        return $val;
+    }
+
+
+    /**
+     * @param string|array $httpMethods
+     * @param null|bool    $uniq
+     *
+     * @return string[]
+     */
+    public function httpMethodVals($httpMethods, $uniq = null) : array
+    {
+        $result = [];
+
+        $httpMethods = is_array($httpMethods)
+            ? $httpMethods
+            : [ $httpMethods ];
+
+        array_walk_recursive($httpMethods, function ($httpMethod) use (&$result) {
+            if (null !== ( $strval = $this->httpMethodVal($httpMethod) )) {
+                $result[] = $strval;
+            }
+        });
+
+        if ($uniq ?? false) {
+            $arr = [];
+            foreach ( $result as $i ) {
+                $arr[ $i ] = true;
+            }
+            $result = array_keys($arr);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string|array $httpMethods
+     * @param null|bool    $uniq
+     *
+     * @return string[]
+     */
+    public function theHttpMethodVals($httpMethods, $uniq = null) : array
+    {
+        $result = [];
+
+        $httpMethods = is_array($httpMethods)
+            ? $httpMethods
+            : [ $httpMethods ];
+
+        array_walk_recursive($httpMethods, function ($httpMethod) use (&$result) {
+            $result[] = $this->theHttpMethodVal($httpMethod);
+        });
+
+        if ($uniq ?? false) {
+            $arr = [];
+            foreach ( $result as $i ) {
+                $arr[ $i ] = true;
+            }
+            $result = array_keys($arr);
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * @param string $header
+     *
+     * @return null|string
+     */
+    public function header(string $header) : ?string
+    {
+        if ('' === $header) {
+            return null;
+        }
+
+        $server_key = $this->str->prepend(strtoupper($this->str->snake($header)), 'HTTP_');
+
+        $result = null
+            ?? $_SERVER[ $server_key ]
+            ?? $this->headers()[ $header ]
+            ?? null;
+
+        return $result;
+    }
+
+    /**
+     * @return array
+     */
+    public function headers() : array
+    {
+        $result = [];
+
+        foreach ( $_SERVER as $key => $val ) {
+            if (! $header = $this->str->starts($key, 'HTTP_')) continue;
+
+            $result[ $this->str->pascal($header, null, '-') ] = $val;
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * @return string
+     */
+    public function ip() : string
+    {
+        return null
+            ?? $_SERVER[ 'HTTP_CLIENT_IP' ]
+            ?? $_SERVER[ 'HTTP_X_FORWARDED_FOR' ]
+            ?? $_SERVER[ 'REMOTE_ADDR' ]
+            ?? '127.0.0.1';
+    }
+
+    /**
+     * @return null|string
+     */
+    public function useragent() : ?string
+    {
+        return isset($_SERVER[ 'HTTP_USER_AGENT' ])
+            ? $_SERVER[ 'HTTP_USER_AGENT' ]
+            : null;
+    }
+
+
+    /**
+     * @return INet
+     */
+    public static function getInstance()
+    {
+        return SupportFactory::getInstance()->getNet();
+    }
+}

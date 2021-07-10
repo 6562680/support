@@ -16,7 +16,7 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 interface IPath
 {
     /**
-     * @return Path
+     * @return ZPath
      */
     public function reset();
 
@@ -24,7 +24,7 @@ interface IPath
      * @param null|string       $separator
      * @param null|string|array $delimiters
      *
-     * @return Path
+     * @return ZPath
      */
     public function clone(?string $separator, ?array $delimiters);
 
@@ -32,21 +32,21 @@ interface IPath
      * @param null|string       $separator
      * @param null|string|array $delimiters
      *
-     * @return Path
+     * @return ZPath
      */
     public function with(?string $separator, ?array $delimiters);
 
     /**
      * @param string $separator
      *
-     * @return Path
+     * @return ZPath
      */
     public function withSeparator(string $separator);
 
     /**
      * @param string[] $delimiters
      *
-     * @return Path
+     * @return ZPath
      */
     public function withDelimiters(array $delimiters);
 

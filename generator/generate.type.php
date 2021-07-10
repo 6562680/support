@@ -31,7 +31,7 @@ $moduleType->setAbstract();
 $moduleType->setImplements([ \Gzhegow\Support\IType::class ]);
 
 // copy methods
-$moduleCopy = \Nette\PhpGenerator\ClassType::from(\Gzhegow\Support\Filter::class);
+$moduleCopy = \Nette\PhpGenerator\ClassType::from(\Gzhegow\Support\ZFilter::class);
 $moduleCopy->removeMethod('assert');
 $moduleCopy->removeMethod('php');
 $moduleCopy->removeMethod('type');

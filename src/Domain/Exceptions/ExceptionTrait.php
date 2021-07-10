@@ -2,7 +2,7 @@
 
 namespace Gzhegow\Support\Domain\Exceptions;
 
-use Gzhegow\Support\Debug;
+use Gzhegow\Support\ZDebug;
 
 
 /**
@@ -53,7 +53,7 @@ trait ExceptionTrait
      */
     protected function loadReportTrace() : array
     {
-        $debug = Debug::getInstance();
+        $debug = ZDebug::getInstance();
 
         $trace = [];
 
@@ -234,7 +234,7 @@ trait ExceptionTrait
         $text = $original;
 
         if ($arguments) {
-            $debug = Debug::getInstance();
+            $debug = ZDebug::getInstance();
 
             $arguments = array_slice($arguments, 0, substr_count(
                 str_replace('%%', "\0", $original),

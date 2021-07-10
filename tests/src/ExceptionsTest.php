@@ -2,10 +2,10 @@
 
 namespace Gzhegow\Support\Tests;
 
-use Gzhegow\Support\Php;
+use Gzhegow\Support\ZPhp;
 use Gzhegow\Support\IPhp;
-use Gzhegow\Support\Debug;
-use Gzhegow\Support\Filter;
+use Gzhegow\Support\ZDebug;
+use Gzhegow\Support\ZFilter;
 use Gzhegow\Support\IDebug;
 use Gzhegow\Support\IFilter;
 use Gzhegow\Support\Exceptions\Exception;
@@ -20,17 +20,17 @@ class ExceptionsTest extends AbstractTestCase
 {
     public function getDebug() : IDebug
     {
-        return Debug::getInstance();
+        return ZDebug::getInstance();
     }
 
     public function getFilter() : IFilter
     {
-        return Filter::getInstance();
+        return ZFilter::getInstance();
     }
 
     public function getPhp() : IPhp
     {
-        return Php::getInstance();
+        return ZPhp::getInstance();
     }
 
 

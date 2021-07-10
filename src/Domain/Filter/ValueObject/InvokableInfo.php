@@ -11,25 +11,147 @@ class InvokableInfo
     /**
      * @var callable
      */
-    public $callable;
+    protected $callable;
     /**
      * @var string
      */
-    public $class;
+    protected $class;
     /**
      * @var \Closure
      */
-    public $closure;
+    protected $closure;
     /**
      * @var string
      */
-    public $function;
+    protected $function;
     /**
      * @var string
      */
-    public $method;
+    protected $method;
     /**
      * @var object
      */
-    public $object;
+    protected $object;
+
+
+    /**
+     * @return callable
+     */
+    public function getCallable() : callable
+    {
+        return $this->callable;
+    }
+
+    /**
+     * @return string
+     */
+    public function getClass() : string
+    {
+        return $this->class;
+    }
+
+    /**
+     * @return \Closure
+     */
+    public function getClosure() : \Closure
+    {
+        return $this->closure;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFunction() : string
+    {
+        return $this->function;
+    }
+
+    /**
+     * @return string
+     */
+    public function getMethod() : string
+    {
+        return $this->method;
+    }
+
+    /**
+     * @return object
+     */
+    public function getObject() : object
+    {
+        return $this->object;
+    }
+
+
+    /**
+     * @param callable $callable
+     *
+     * @return static
+     */
+    public function setCallable(callable $callable)
+    {
+        $this->callable = $callable;
+
+        return $this;
+    }
+
+    /**
+     * @param string $class
+     *
+     * @return static
+     */
+    public function setClass(string $class)
+    {
+        $this->class = $class;
+
+        return $this;
+    }
+
+    /**
+     * @param \Closure $closure
+     *
+     * @return static
+     */
+    public function setClosure(\Closure $closure)
+    {
+        $this->closure = $closure;
+
+        return $this;
+    }
+
+    /**
+     * @param string $function
+     *
+     * @return static
+     */
+    public function setFunction(string $function)
+    {
+        $this->function = $function;
+
+        return $this;
+    }
+
+    /**
+     * @param string $method
+     *
+     * @return static
+     */
+    public function setMethod(string $method)
+    {
+        $this->method = $method;
+
+        return $this;
+    }
+
+    /**
+     * @param object $object
+     *
+     * @return static
+     */
+    public function setObject(object $object)
+    {
+        $this->object = $object;
+
+        return $this;
+    }
 }
