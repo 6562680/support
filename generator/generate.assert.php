@@ -101,8 +101,8 @@ foreach ( $moduleCopy->getMethods() as $method ) {
     $methodNew->setBody(
         implode("\n", [
             '' . sprintf('if (null === ( $filtered = $this->filter->%s(%s) )) {', $methodName, $arguments),
-            '    throw $this->throwableOr(',
-            '        new InvalidArgumentException(...$this->messageOr(',
+            '    throw $this->getThrowableOr(',
+            '        new InvalidArgumentException($this->getErrorOr(',
             '            \'Invalid ' . $filterName . ' passed: %s\', ...func_get_args()',
             '        ))',
             '    );',

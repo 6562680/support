@@ -1,8 +1,10 @@
 <?php
+/**
+ * @noinspection RedundantSuppression
+ * @noinspection PhpUnusedAliasInspection
+ */
 
 namespace Gzhegow\Support;
-
-use Gzhegow\Support\SupportFactory;
 
 
 /**
@@ -81,7 +83,7 @@ class Env implements IEnv
     /**
      * @return IEnv
      */
-    public static function me()
+    public static function getInstance()
     {
         return SupportFactory::getInstance()->getEnv();
     }

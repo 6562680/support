@@ -10,8 +10,9 @@ class FilterTest extends AbstractTestCase
 {
     protected function getFilter() : IFilter
     {
-        return Filter::me();
+        return Filter::getInstance();
     }
+
 
     public function testFilterClass()
     {

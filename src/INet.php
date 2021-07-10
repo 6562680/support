@@ -6,6 +6,7 @@
  * @noinspection PhpDocMissingThrowsInspection
  * @noinspection PhpUnhandledExceptionInspection
  * @noinspection PhpUnusedAliasInspection
+ * @noinspection RedundantSuppression
  */
 
 namespace Gzhegow\Support;
@@ -51,6 +52,22 @@ interface INet
      * @return string
      */
     public function theHttpMethodVal($httpMethod): string;
+
+    /**
+     * @param string|array $httpMethods
+     * @param null|bool    $uniq
+     *
+     * @return string[]
+     */
+    public function httpMethodVals($httpMethods, $uniq = null): array;
+
+    /**
+     * @param string|array $httpMethods
+     * @param null|bool    $uniq
+     *
+     * @return string[]
+     */
+    public function theHttpMethodVals($httpMethods, $uniq = null): array;
 
     /**
      * @param string $header

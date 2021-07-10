@@ -10,7 +10,7 @@ class LoaderTest extends AbstractTestCase
 {
     protected function getLoader() : ILoader
     {
-        return Loader::me();
+        return Loader::getInstance();
     }
 
 

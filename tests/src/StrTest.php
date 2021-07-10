@@ -11,7 +11,7 @@ class StrTest extends AbstractTestCase
 {
     protected function getStr() : IStr
     {
-        return Str::me();
+        return Str::getInstance();
     }
 
 

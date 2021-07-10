@@ -10,7 +10,7 @@ class FsTest extends AbstractTestCase
 {
     protected function getFs() : IFs
     {
-        return Fs::me();
+        return Fs::getInstance();
     }
 
 

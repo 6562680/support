@@ -1,8 +1,11 @@
 <?php
+/**
+ * @noinspection RedundantSuppression
+ * @noinspection PhpUnusedAliasInspection
+ */
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
@@ -370,7 +373,7 @@ class Uri implements IUri
     /**
      * @return IUri
      */
-    public static function me()
+    public static function getInstance()
     {
         return SupportFactory::getInstance()->getUri();
     }

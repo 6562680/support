@@ -10,7 +10,7 @@ class ProfTest extends AbstractTestCase
 {
     protected function getProf() : IProf
     {
-        return Prof::me();
+        return Prof::getInstance();
     }
 
 

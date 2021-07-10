@@ -11,7 +11,7 @@ class NumTest extends AbstractTestCase
 {
     protected function getNum() : INum
     {
-        return Num::me();
+        return Num::getInstance();
     }
 
 

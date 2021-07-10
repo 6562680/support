@@ -1,8 +1,11 @@
 <?php
+/**
+ * @noinspection RedundantSuppression
+ * @noinspection PhpUnusedAliasInspection
+ */
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
@@ -720,9 +723,10 @@ class Loader implements ILoader
 
 
     /**
-     * @return IPath
+     * @return \Gzhegow\Support\IPath
+     * @noinspection PhpUnnecessaryFullyQualifiedNameInspection
      */
-    public function path() : IPath
+    public function path() : \Gzhegow\Support\IPath
     {
         if (! isset($this->path)) {
             $this->path = SupportFactory::getInstance()
@@ -972,7 +976,7 @@ class Loader implements ILoader
     /**
      * @return ILoader
      */
-    public static function me()
+    public static function getInstance()
     {
         return SupportFactory::getInstance()->getLoader();
     }

@@ -11,7 +11,7 @@ class PregTest extends AbstractTestCase
 {
     protected function getPreg() : IPreg
     {
-        return Preg::me();
+        return Preg::getInstance();
     }
 
 

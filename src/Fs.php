@@ -1,8 +1,11 @@
 <?php
+/**
+ * @noinspection RedundantSuppression
+ * @noinspection PhpUnusedAliasInspection
+ */
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
@@ -953,9 +956,11 @@ class Fs implements IFs
 
 
     /**
-     * @return IPath
+     * @return \Gzhegow\Support\IPath
+     * @noinspection PhpUnnecessaryFullyQualifiedNameInspection
+     * @noinspection PhpFullyQualifiedNameUsageInspection
      */
-    public function path() : IPath
+    public function path() : \Gzhegow\Support\IPath
     {
         if (! isset($this->path)) {
             $this->path = SupportFactory::getInstance()
@@ -1656,6 +1661,15 @@ class Fs implements IFs
 
 
     /**
+     * @return IFs
+     */
+    public static function getInstance()
+    {
+        return SupportFactory::getInstance()->getFs();
+    }
+
+
+    /**
      * @return string
      */
     protected static function getForbiddenSymbolsFilenameWindows() : string
@@ -1706,14 +1720,5 @@ class Fs implements IFs
             'xpm'  => 'image/x-xpixmap',
             'xwd'  => 'image/x-xwindowdump',
         ];
-    }
-
-
-    /**
-     * @return IFs
-     */
-    public static function me()
-    {
-        return SupportFactory::getInstance()->getFs();
     }
 }

@@ -6,6 +6,7 @@
  * @noinspection PhpDocMissingThrowsInspection
  * @noinspection PhpUnhandledExceptionInspection
  * @noinspection PhpUnusedAliasInspection
+ * @noinspection RedundantSuppression
  */
 
 namespace Gzhegow\Support;
@@ -362,7 +363,9 @@ interface IFs
     public function theSplImageVal($pathOrSpl): \SplFileObject;
 
     /**
-     * @return IPath
+     * @return \Gzhegow\Support\IPath
+     * @noinspection PhpUnnecessaryFullyQualifiedNameInspection
+     * @noinspection PhpFullyQualifiedNameUsageInspection
      */
     public function path(): IPath;
 

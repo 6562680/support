@@ -10,7 +10,7 @@ class MathTest extends AbstractTestCase
 {
     protected function getMath() : IMath
     {
-        return Math::me();
+        return Math::getInstance();
     }
 
 

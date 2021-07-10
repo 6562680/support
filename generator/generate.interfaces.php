@@ -49,12 +49,13 @@ foreach ( $interfaces as $interface => $sourceClasses ) {
         '@noinspection PhpDocMissingThrowsInspection',
         '@noinspection PhpUnhandledExceptionInspection',
         '@noinspection PhpUnusedAliasInspection',
+        '@noinspection RedundantSuppression',
     ]));
 
     // namespace
-    $namespace = new \Nette\PhpGenerator\PhpNamespace('Gzhegow\\Support');
-    $phpFile->addNamespace($namespace);
-
+    $phpFile->addNamespace(
+        $namespace = new \Nette\PhpGenerator\PhpNamespace('Gzhegow\\Support')
+    );
     foreach ( $sourceClasses as $sourceClass ) {
         $namespace->addUse($sourceClass);
 

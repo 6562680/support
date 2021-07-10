@@ -1,8 +1,10 @@
 <?php
+/**
+ * @noinspection RedundantSuppression
+ * @noinspection PhpUnusedAliasInspection
+ */
 
 namespace Gzhegow\Support;
-
-use Gzhegow\Support\SupportFactory;
 
 
 /**
@@ -109,7 +111,7 @@ class Prof implements IProf
     /**
      * @return IProf
      */
-    public static function me()
+    public static function getInstance()
     {
         return SupportFactory::getInstance()->getProf();
     }

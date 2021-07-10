@@ -3,7 +3,6 @@
 namespace Gzhegow\Support\Domain\Exceptions;
 
 use Gzhegow\Support\Debug;
-use Gzhegow\Support\SupportFactory;
 
 
 /**
@@ -54,6 +53,8 @@ trait ExceptionTrait
      */
     protected function loadReportTrace() : array
     {
+        $debug = Debug::getInstance();
+
         $trace = [];
 
         $index = [];
@@ -69,7 +70,7 @@ trait ExceptionTrait
                 ? $key . ':' . $index[ $key ]++
                 : $key;
 
-            $trace[ $key ] = Debug::me()->traceReport($step);
+            $trace[ $key ] = $debug->traceReport($step);
         }
 
         return $trace;
@@ -218,8 +219,6 @@ trait ExceptionTrait
      */
     protected function parseMessage($message) : array
     {
-        $debug = SupportFactory::getInstance()->getDebug();
-
         $arguments = is_array($message)
             ? $message
             : [ $message ];
@@ -235,6 +234,8 @@ trait ExceptionTrait
         $text = $original;
 
         if ($arguments) {
+            $debug = Debug::getInstance();
+
             $arguments = array_slice($arguments, 0, substr_count(
                 str_replace('%%', "\0", $original),
                 '%'

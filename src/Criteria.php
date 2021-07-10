@@ -1,8 +1,11 @@
 <?php
+/**
+ * @noinspection RedundantSuppression
+ * @noinspection PhpUnusedAliasInspection
+ */
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
@@ -400,9 +403,9 @@ class Criteria implements ICriteria
 
 
     /**
-     * @return static
+     * @return ICriteria
      */
-    public static function me()
+    public static function getInstance()
     {
         return SupportFactory::getInstance()->getCriteria();
     }

@@ -1,4 +1,8 @@
 <?php
+/**
+ * @noinspection RedundantSuppression
+ * @noinspection PhpUnusedAliasInspection
+ */
 
 namespace Gzhegow\Support;
 
@@ -542,7 +546,7 @@ class Curl implements ICurl
     /**
      * @return ICurl
      */
-    public static function me()
+    public static function getInstance()
     {
         return SupportFactory::getInstance()->getCurl();
     }

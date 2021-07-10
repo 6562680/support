@@ -10,7 +10,7 @@ class UriTest extends AbstractTestCase
 {
     protected function getUri() : IUri
     {
-        return Uri::me();
+        return Uri::getInstance();
     }
 
 

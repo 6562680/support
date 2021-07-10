@@ -115,10 +115,10 @@ abstract class Gzhegow_Support_Generator_AssertBlueprint
     public function call(string $customFilter, ...$arguments)
     {
         if (null === ( $filtered = $this->filter->call($customFilter, ...$arguments) )) {
-            throw $this->throwableOr(
-                new InvalidArgumentException(
-                    $this->messageOr('Invalid ' . $customFilter . ' passed: %s', ...$arguments)
-                )
+            throw $this->getThrowableOr(
+                new InvalidArgumentException($this->getErrorOr(
+                    'Invalid ' . $customFilter . ' passed: %s', ...$arguments
+                ))
             );
         }
 
@@ -127,35 +127,35 @@ abstract class Gzhegow_Support_Generator_AssertBlueprint
 
 
     /**
-     * @param string|array $text
-     * @param mixed        ...$arguments
+     * @param null|string|array $text
+     * @param array             ...$arguments
      *
-     * @return null|string|array
+     * @return null|array
      */
-    abstract public function message($text, ...$arguments); // : ?string|array
+    abstract public function getError($text = null, ...$arguments) : ?array;
 
     /**
-     * @param string|array $text
-     * @param mixed        ...$arguments
+     * @param null|string|array $text
+     * @param array             ...$arguments
      *
-     * @return null|string|array
+     * @return null|array
      */
-    abstract public function messageOr($text, ...$arguments); // : ?string|array
+    abstract public function getErrorOr($text = null, ...$arguments) : ?array;
 
-
-    /**
-     * @param null|\Throwable $throwable
-     *
-     * @return null|\RuntimeException
-     */
-    abstract public function throwable(\Throwable $throwable = null); // : ?\Throwable;
 
     /**
      * @param null|\Throwable $throwable
      *
      * @return null|\RuntimeException
      */
-    abstract public function throwableOr(\Throwable $throwable = null); // : ?\Throwable
+    abstract public function getThrowable(\Throwable $throwable = null); // : ?\Throwable
+
+    /**
+     * @param null|\Throwable $throwable
+     *
+     * @return null|\RuntimeException
+     */
+    abstract public function getThrowableOr(\Throwable $throwable = null); // : ?\Throwable
 }
 
 

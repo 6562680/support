@@ -6,10 +6,12 @@
  * @noinspection PhpDocMissingThrowsInspection
  * @noinspection PhpUnhandledExceptionInspection
  * @noinspection PhpUnusedAliasInspection
+ * @noinspection RedundantSuppression
  */
 
 namespace Gzhegow\Support;
 
+use Gzhegow\Support\Domain\Debug\Message;
 use Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Generated\GeneratedAssert;
@@ -17,42 +19,63 @@ use Gzhegow\Support\Generated\GeneratedAssert;
 interface IAssert
 {
     /**
-     * @param string|array|\Throwable $error
-     * @param mixed                   ...$arguments
-     *
-     * @return Assert
+     * @return Message
      */
-    public function withError($error, ...$arguments);
+    public function getMessage(): Message;
 
     /**
-     * @param string|array $text
-     * @param mixed        ...$arguments
+     * @param null|string|array $text
+     * @param array             ...$arguments
      *
-     * @return null|string|array
+     * @return null|array
      */
-    public function message($text, ...$arguments);
+    public function getError($text = null, ...$arguments): ?array;
 
     /**
-     * @param string|array $text
-     * @param mixed        ...$arguments
+     * @param null|string|array $text
+     * @param array             ...$arguments
      *
-     * @return null|string|array
+     * @return null|array
      */
-    public function messageOr($text, ...$arguments);
+    public function getErrorOr($text = null, ...$arguments): ?array;
 
     /**
      * @param null|\Throwable $throwable
      *
      * @return null|\RuntimeException
      */
-    public function throwable(\Throwable $throwable = null);
+    public function getThrowable(\Throwable $throwable = null);
 
     /**
      * @param null|\Throwable $throwable
      *
      * @return null|\RuntimeException
      */
-    public function throwableOr(\Throwable $throwable = null);
+    public function getThrowableOr(\Throwable $throwable = null);
+
+    /**
+     * @param null|string|array|\Throwable $error
+     * @param mixed                        ...$arguments
+     *
+     * @return \Gzhegow\Support\IAssert
+     * @noinspection PhpUnnecessaryFullyQualifiedNameInspection
+     * @noinspection PhpFullyQualifiedNameUsageInspection
+     */
+    public function assert($error = null, ...$arguments): IAssert;
+
+    /**
+     * @return \Gzhegow\Support\IFilter
+     * @noinspection PhpUnnecessaryFullyQualifiedNameInspection
+     * @noinspection PhpFullyQualifiedNameUsageInspection
+     */
+    public function filter(): IFilter;
+
+    /**
+     * @return \Gzhegow\Support\IType
+     * @noinspection PhpUnnecessaryFullyQualifiedNameInspection
+     * @noinspection PhpFullyQualifiedNameUsageInspection
+     */
+    public function type(): IType;
 
     /**
      * @param string $customFilter

@@ -1,8 +1,11 @@
 <?php
+/**
+ * @noinspection RedundantSuppression
+ * @noinspection PhpUnusedAliasInspection
+ */
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\Runtime\UnexpectedValueException;
@@ -1227,7 +1230,7 @@ class Php implements IPhp
     /**
      * @return IPhp
      */
-    public static function me()
+    public static function getInstance()
     {
         return SupportFactory::getInstance()->getPhp();
     }

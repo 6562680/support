@@ -10,7 +10,7 @@ class PathTest extends AbstractTestCase
 {
     protected function getPath() : IPath
     {
-        return Path::me();
+        return Path::getInstance();
     }
 
 

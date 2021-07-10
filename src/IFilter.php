@@ -6,6 +6,7 @@
  * @noinspection PhpDocMissingThrowsInspection
  * @noinspection PhpUnhandledExceptionInspection
  * @noinspection PhpUnusedAliasInspection
+ * @noinspection RedundantSuppression
  */
 
 namespace Gzhegow\Support;
@@ -536,17 +537,28 @@ interface IFilter
     public function filterCurl($ch);
 
     /**
-     * @param null|string|array $message
-     * @param mixed             ...$arguments
+     * @param null|string|array|\Throwable $error
+     * @param mixed                        ...$arguments
      *
-     * @return Assert
+     * @return \Gzhegow\Support\IAssert
+     * @noinspection PhpUnnecessaryFullyQualifiedNameInspection
+     * @noinspection PhpFullyQualifiedNameUsageInspection
      */
-    public function assert($message = null, ...$arguments): Assert;
+    public function assert($error = null, ...$arguments): IAssert;
 
     /**
-     * @return Type
+     * @return \Gzhegow\Support\IFilter
+     * @noinspection PhpUnnecessaryFullyQualifiedNameInspection
+     * @noinspection PhpFullyQualifiedNameUsageInspection
      */
-    public function type(): Type;
+    public function filter(): IFilter;
+
+    /**
+     * @return \Gzhegow\Support\IType
+     * @noinspection PhpUnnecessaryFullyQualifiedNameInspection
+     * @noinspection PhpFullyQualifiedNameUsageInspection
+     */
+    public function type(): IType;
 
     /**
      * @param string $customFilter

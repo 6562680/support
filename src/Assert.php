@@ -1,8 +1,12 @@
 <?php
+/**
+ * @noinspection RedundantSuppression
+ * @noinspection PhpUnusedAliasInspection
+ */
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\SupportFactory;
+use Gzhegow\Support\Domain\Debug\Message;
 use Gzhegow\Support\Generated\GeneratedAssert;
 
 
@@ -18,7 +22,7 @@ class Assert extends GeneratedAssert
 
 
     /**
-     * @var array
+     * @var Message
      */
     protected $message;
     /**
@@ -45,32 +49,34 @@ class Assert extends GeneratedAssert
 
 
     /**
-     * @param string|array|\Throwable $error
-     * @param mixed                   ...$arguments
-     *
-     * @return static
+     * @return Message
      */
-    public function withError($error, ...$arguments)
+    public function getMessage() : Message
     {
-        $this->message = $this->debug->messageVal($error, ...$arguments);
-        $this->throwable = $this->filter->filterThrowable($error);
-
-        return $this;
+        return $this->message;
     }
 
 
     /**
-     * @param string|array $text
-     * @param mixed        ...$arguments
+     * @param null|string|array $text
+     * @param array             ...$arguments
      *
-     * @return null|string|array
+     * @return null|array
      */
-    public function message($text, ...$arguments) // : ?string|array
+    public function getError($text = null, ...$arguments) : ?array
     {
-        $message = null
-            ?? ( func_num_args() ? $this->debug->messageVal($text, ...$arguments) : null ) // 1
-            ?? $this->message // 2
-        ;
+        $message = null;
+
+        if (null !== $text) {
+            $message = $this->debug->theMessageVal($text, ...$arguments)->toArray();
+
+        } elseif (null !== $this->message) {
+            $message = $this->message->toArray();
+        }
+
+        if ($arguments && ( 1 === count($message) )) {
+            $message = array_merge($message, $arguments);
+        }
 
         $this->message = null;
 
@@ -78,17 +84,25 @@ class Assert extends GeneratedAssert
     }
 
     /**
-     * @param string|array $text
-     * @param mixed        ...$arguments
+     * @param null|string|array $text
+     * @param array             ...$arguments
      *
-     * @return null|string|array
+     * @return null|array
      */
-    public function messageOr($text, ...$arguments) // : ?string|array
+    public function getErrorOr($text = null, ...$arguments) : ?array
     {
-        $message = null
-            ?? $this->message // 1
-            ?? ( func_num_args() ? $this->debug->messageVal($text, ...$arguments) : null ) // 2
-        ;
+        $message = null;
+
+        if (null !== $this->message) {
+            $message = $this->message->toArray();
+
+        } elseif (null !== $text) {
+            $message = $this->debug->theMessageVal($text, ...$arguments)->toArray();
+        }
+
+        if ($arguments && ( 1 === count($message) )) {
+            $message = array_merge($message, $arguments);
+        }
 
         $this->message = null;
 
@@ -99,12 +113,12 @@ class Assert extends GeneratedAssert
     /**
      * @param null|\Throwable $throwable
      *
-     * @return null|\Throwable
+     * @return null|\RuntimeException
      */
-    public function throwable(\Throwable $throwable = null) : ?\Throwable
+    public function getThrowable(\Throwable $throwable = null) // : ?\Throwable
     {
         $throwable = null
-            ?? ( func_num_args() ? $throwable : null ) // 1
+            ?? ( ( null !== $throwable ) ? $throwable : null ) // 1
             ?? $this->throwable // 2
         ;
 
@@ -116,13 +130,13 @@ class Assert extends GeneratedAssert
     /**
      * @param null|\Throwable $throwable
      *
-     * @return null|\Throwable
+     * @return null|\RuntimeException
      */
-    public function throwableOr(\Throwable $throwable = null) : ?\Throwable
+    public function getThrowableOr(\Throwable $throwable = null) // : ?\Throwable
     {
         $throwable = null
             ?? $this->throwable // 1
-            ?? ( func_num_args() ? $throwable : null ) // 2
+            ?? ( ( null !== $throwable ) ? $throwable : null ) // 2
         ;
 
         $this->throwable = null;
@@ -132,9 +146,70 @@ class Assert extends GeneratedAssert
 
 
     /**
+     * @param null|string|array|\Throwable $error
+     * @param mixed                        ...$arguments
+     *
+     * @return \Gzhegow\Support\IAssert
+     * @noinspection PhpUnnecessaryFullyQualifiedNameInspection
+     * @noinspection PhpFullyQualifiedNameUsageInspection
+     */
+    public function assert($error = null, ...$arguments) : \Gzhegow\Support\IAssert
+    {
+        $this->error($error, ...$arguments);
+
+        return $this;
+    }
+
+    /**
+     * @return \Gzhegow\Support\IFilter
+     * @noinspection PhpUnnecessaryFullyQualifiedNameInspection
+     * @noinspection PhpFullyQualifiedNameUsageInspection
+     */
+    public function filter() : \Gzhegow\Support\IFilter
+    {
+        return $this->filter;
+    }
+
+    /**
+     * @return \Gzhegow\Support\IType
+     * @noinspection PhpUnnecessaryFullyQualifiedNameInspection
+     * @noinspection PhpFullyQualifiedNameUsageInspection
+     */
+    public function type() : \Gzhegow\Support\IType
+    {
+        if (! isset($this->type)) {
+            $this->type = SupportFactory::getInstance()->getType();
+        }
+
+        return $this->type;
+    }
+
+
+    /**
+     * @param null|string|array|\Throwable $error
+     * @param mixed                        ...$arguments
+     *
+     * @return static
+     */
+    protected function error($error, ...$arguments)
+    {
+        if (null !== $error) {
+            if (null !== $this->filter->filterThrowable($error)) {
+                $this->throwable = $this->filter->filterThrowable($error);
+
+            } else {
+                $this->message = $this->debug->theMessageVal($error, ...$arguments);
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
      * @return IAssert
      */
-    public static function me()
+    public static function getInstance()
     {
         return SupportFactory::getInstance()->getAssert();
     }

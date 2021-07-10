@@ -1,4 +1,8 @@
 <?php
+/**
+ * @noinspection RedundantSuppression
+ * @noinspection PhpUnusedAliasInspection
+ */
 
 namespace Gzhegow\Support;
 
@@ -146,6 +150,67 @@ class Net implements INet
 
 
     /**
+     * @param string|array $httpMethods
+     * @param null|bool    $uniq
+     *
+     * @return string[]
+     */
+    public function httpMethodVals($httpMethods, $uniq = null) : array
+    {
+        $result = [];
+
+        $httpMethods = is_array($httpMethods)
+            ? $httpMethods
+            : [ $httpMethods ];
+
+        array_walk_recursive($httpMethods, function ($httpMethod) use (&$result) {
+            if (null !== ( $strval = $this->httpMethodVal($httpMethod) )) {
+                $result[] = $strval;
+            }
+        });
+
+        if ($uniq ?? false) {
+            $arr = [];
+            foreach ( $result as $i ) {
+                $arr[ $i ] = true;
+            }
+            $result = array_keys($arr);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string|array $httpMethods
+     * @param null|bool    $uniq
+     *
+     * @return string[]
+     */
+    public function theHttpMethodVals($httpMethods, $uniq = null) : array
+    {
+        $result = [];
+
+        $httpMethods = is_array($httpMethods)
+            ? $httpMethods
+            : [ $httpMethods ];
+
+        array_walk_recursive($httpMethods, function ($httpMethod) use (&$result) {
+            $result[] = $this->theHttpMethodVal($httpMethod);
+        });
+
+        if ($uniq ?? false) {
+            $arr = [];
+            foreach ( $result as $i ) {
+                $arr[ $i ] = true;
+            }
+            $result = array_keys($arr);
+        }
+
+        return $result;
+    }
+
+
+    /**
      * @param string $header
      *
      * @return null|string
@@ -209,7 +274,7 @@ class Net implements INet
     /**
      * @return INet
      */
-    public static function me()
+    public static function getInstance()
     {
         return SupportFactory::getInstance()->getNet();
     }

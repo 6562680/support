@@ -1,4 +1,8 @@
 <?php
+/**
+ * @noinspection RedundantSuppression
+ * @noinspection PhpUnusedAliasInspection
+ */
 
 namespace Gzhegow\Support;
 
@@ -6,7 +10,6 @@ use Gzhegow\Support\Domain\Str\Slugger;
 use Gzhegow\Support\Domain\Str\Inflector;
 use Gzhegow\Support\Domain\Str\SluggerInterface;
 use Gzhegow\Support\Domain\Str\InflectorInterface;
-use Gzhegow\Support\Exceptions\Logic\OutOfRangeException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
@@ -553,9 +556,11 @@ class Str implements IStr
 
 
     /**
-     * @return IPhp
+     * @return \Gzhegow\Support\IPhp
+     * @noinspection PhpUnnecessaryFullyQualifiedNameInspection
+     * @noinspection PhpFullyQualifiedNameUsageInspection
      */
-    public function php() : IPhp
+    public function php() : \Gzhegow\Support\IPhp
     {
         if (! isset($this->php)) {
             $this->php = SupportFactory::getInstance()->newPhp();
@@ -1493,7 +1498,7 @@ class Str implements IStr
     {
         $separator = $separator ?? '';
 
-        $result = $this->case($strings, $keep, $separator);
+        $result = $this->space($strings, $keep, $separator);
 
         $result = array_map('ucfirst', explode(' ', $result));
         $result = implode($separator, $result);
@@ -1533,7 +1538,7 @@ class Str implements IStr
     {
         $separator = $separator ?? '_';
 
-        $result = $this->case($strings, $keep, $separator);
+        $result = $this->space($strings, $keep, $separator);
 
         $result = array_map('lcfirst', explode(' ', $result));
         $result = implode($separator, $result);
@@ -1555,6 +1560,40 @@ class Str implements IStr
         $separator = $separator ?? '-';
 
         $result = $this->snake($strings, $keep, $separator);
+
+        return $result;
+    }
+
+
+    /**
+     * 'space case'
+     *
+     * @param string|array $strings
+     * @param null|string  $separator
+     * @param null|string  $keep
+     *
+     * @return string
+     */
+    public function space($strings, string $keep = null, string $separator = null) : string
+    {
+        $separator = $separator ?? '';
+        $keep = $keep ?? '';
+
+        if (! $strings = $this->wordvals($strings)) {
+            return '';
+        }
+
+        $result = trim(implode(' ', $strings));
+        if (! strlen($result)) {
+            return '';
+        }
+
+        $result = preg_replace('/\p{Lu}/', ' $0', lcfirst($result));
+        $result = preg_replace('/(?:[^\w' . preg_quote($separator . $keep, '/') . ']|[_])+/', ' ', $result);
+
+        if (strlen($separator)) {
+            $result = preg_replace('/[' . $separator . ' ]+/', ' ', $result);
+        }
 
         return $result;
     }
@@ -1621,41 +1660,9 @@ class Str implements IStr
 
 
     /**
-     * @param string|array $strings
-     * @param null|string  $separator
-     * @param null|string  $keep
-     *
-     * @return string
-     */
-    protected function case($strings, string $keep = null, string $separator = null) : string
-    {
-        $separator = $separator ?? '';
-        $keep = $keep ?? '';
-
-        if (! $strings = $this->wordvals($strings)) {
-            return '';
-        }
-
-        $result = trim(implode(' ', $strings));
-        if (! strlen($result)) {
-            return '';
-        }
-
-        $result = preg_replace('/\p{Lu}/', ' $0', lcfirst($result));
-        $result = preg_replace('/(?:[^\w' . preg_quote($separator . $keep, '/') . ']|[_])+/', ' ', $result);
-
-        if (strlen($separator)) {
-            $result = preg_replace('/[' . $separator . ' ]+/', ' ', $result);
-        }
-
-        return $result;
-    }
-
-
-    /**
      * @return IStr
      */
-    public static function me()
+    public static function getInstance()
     {
         return SupportFactory::getInstance()->getStr();
     }

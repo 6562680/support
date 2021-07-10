@@ -20,17 +20,17 @@ class ExceptionsTest extends AbstractTestCase
 {
     public function getDebug() : IDebug
     {
-        return Debug::me();
+        return Debug::getInstance();
     }
 
     public function getFilter() : IFilter
     {
-        return Filter::me();
+        return Filter::getInstance();
     }
 
     public function getPhp() : IPhp
     {
-        return Php::me();
+        return Php::getInstance();
     }
 
 

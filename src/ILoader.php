@@ -6,6 +6,7 @@
  * @noinspection PhpDocMissingThrowsInspection
  * @noinspection PhpUnhandledExceptionInspection
  * @noinspection PhpUnusedAliasInspection
+ * @noinspection RedundantSuppression
  */
 
 namespace Gzhegow\Support;
@@ -235,7 +236,8 @@ interface ILoader
     public function className($classOrObject): string;
 
     /**
-     * @return IPath
+     * @return \Gzhegow\Support\IPath
+     * @noinspection PhpUnnecessaryFullyQualifiedNameInspection
      */
     public function path(): IPath;
 

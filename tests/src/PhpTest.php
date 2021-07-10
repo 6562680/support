@@ -10,7 +10,7 @@ class PhpTest extends AbstractTestCase
 {
     protected function getPhp() : IPhp
     {
-        return Php::me();
+        return Php::getInstance();
     }
 
 

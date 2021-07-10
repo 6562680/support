@@ -115,29 +115,29 @@ abstract class SupportServiceProvider
         $this->instance(Type::class, [ SupportFactoryInterface::class, 'newType' ]);
         $this->instance(Uri::class, [ SupportFactoryInterface::class, 'newUri' ]);
 
-        $this->singleton(IArr::class, Arr::class);
-        $this->singleton(IAssert::class, Assert::class);
-        $this->singleton(ICalendar::class, Calendar::class);
-        $this->singleton(ICli::class, Cli::class);
-        $this->singleton(ICmp::class, Cmp::class);
-        $this->singleton(ICriteria::class, Criteria::class);
-        $this->singleton(ICurl::class, Curl::class);
-        $this->singleton(IDebug::class, Debug::class);
-        $this->singleton(IEnv::class, Env::class);
-        $this->singleton(IFilter::class, Filter::class);
-        $this->singleton(IFormat::class, Format::class);
-        $this->singleton(IFs::class, Fs::class);
-        $this->singleton(ILoader::class, Loader::class);
-        $this->singleton(IMath::class, Math::class);
-        $this->singleton(INet::class, Net::class);
-        $this->singleton(INum::class, Num::class);
-        $this->singleton(IPath::class, Path::class);
-        $this->singleton(IPhp::class, Php::class);
-        $this->singleton(IPreg::class, Preg::class);
-        $this->singleton(IProf::class, Prof::class);
-        $this->singleton(IStr::class, Str::class);
-        $this->singleton(IType::class, Type::class);
-        $this->singleton(IUri::class, Uri::class);
+        $this->singleton(IArr::class, [ SupportFactoryInterface::class, 'getArr' ]);
+        $this->singleton(IAssert::class, [ SupportFactoryInterface::class, 'getAssert' ]);
+        $this->singleton(ICalendar::class, [ SupportFactoryInterface::class, 'getCalendar' ]);
+        $this->singleton(ICli::class, [ SupportFactoryInterface::class, 'getCli' ]);
+        $this->singleton(ICmp::class, [ SupportFactoryInterface::class, 'getCmp' ]);
+        $this->singleton(ICriteria::class, [ SupportFactoryInterface::class, 'getCriteria' ]);
+        $this->singleton(ICurl::class, [ SupportFactoryInterface::class, 'getCurl' ]);
+        $this->singleton(IDebug::class, [ SupportFactoryInterface::class, 'getDebug' ]);
+        $this->singleton(IEnv::class, [ SupportFactoryInterface::class, 'getEnv' ]);
+        $this->singleton(IFilter::class, [ SupportFactoryInterface::class, 'getFilter' ]);
+        $this->singleton(IFormat::class, [ SupportFactoryInterface::class, 'getFormat' ]);
+        $this->singleton(IFs::class, [ SupportFactoryInterface::class, 'getFs' ]);
+        $this->singleton(ILoader::class, [ SupportFactoryInterface::class, 'getLoader' ]);
+        $this->singleton(IMath::class, [ SupportFactoryInterface::class, 'getMath' ]);
+        $this->singleton(INet::class, [ SupportFactoryInterface::class, 'getNet' ]);
+        $this->singleton(INum::class, [ SupportFactoryInterface::class, 'getNum' ]);
+        $this->singleton(IPath::class, [ SupportFactoryInterface::class, 'getPath' ]);
+        $this->singleton(IPhp::class, [ SupportFactoryInterface::class, 'getPhp' ]);
+        $this->singleton(IPreg::class, [ SupportFactoryInterface::class, 'getPreg' ]);
+        $this->singleton(IProf::class, [ SupportFactoryInterface::class, 'getProf' ]);
+        $this->singleton(IStr::class, [ SupportFactoryInterface::class, 'getStr' ]);
+        $this->singleton(IType::class, [ SupportFactoryInterface::class, 'getType' ]);
+        $this->singleton(IUri::class, [ SupportFactoryInterface::class, 'getUri' ]);
     }
 
 

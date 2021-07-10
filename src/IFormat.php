@@ -6,6 +6,7 @@
  * @noinspection PhpDocMissingThrowsInspection
  * @noinspection PhpUnhandledExceptionInspection
  * @noinspection PhpUnusedAliasInspection
+ * @noinspection RedundantSuppression
  */
 
 namespace Gzhegow\Support;
@@ -17,11 +18,11 @@ interface IFormat
     /**
      * конвертирует цифру размера в читабельный формат (1024 => 1Mb)
      *
-     * @param int|float|string $size
+     * @param int|float|string $filesize
      *
      * @return string
      */
-    public function fileSize($size): string;
+    public function niceSize($filesize): string;
 
     /**
      * Формирует условие для SQL LIKE %val% запроса, экранируя проценты и подчеркивания

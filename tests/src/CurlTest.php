@@ -10,7 +10,7 @@ class CurlTest extends AbstractTestCase
 {
     protected function getCurl() : ICurl
     {
-        return Curl::me();
+        return Curl::getInstance();
     }
 
 

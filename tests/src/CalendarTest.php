@@ -10,7 +10,7 @@ class CalendarTest extends AbstractTestCase
 {
     protected function getCalendar() : ICalendar
     {
-        return Calendar::me();
+        return Calendar::getInstance();
     }
 
 

@@ -1,8 +1,12 @@
 <?php
+/**
+ * @noinspection RedundantSuppression
+ * @noinspection PhpUnusedAliasInspection
+ */
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\SupportFactory;
+use Gzhegow\Support\Domain\Debug\Message;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
@@ -15,44 +19,57 @@ class Debug implements IDebug
      * @param string|array|mixed $message
      * @param mixed              ...$arguments
      *
-     * @return null|array
+     * @return null|Message
      */
-    public function messageVal($message, ...$arguments) : ?array
+    public function messageVal($message, ...$arguments) : ?Message
     {
-        if (! ( is_string($message) || is_array($message) )) {
-            return null;
+        $val = null;
+
+        $placeholders = null;
+        if (is_a($message, Message::class)) {
+            $val = $message;
+
+        } elseif (is_a($message, \Throwable::class)) {
+            $val = new Message($message->getMessage());
+
+        } elseif (is_string($message) || is_array($message)) {
+            $placeholders = is_array($message)
+                ? $message
+                : [ $message ];
+
+            $text = array_shift($placeholders);
+            if (! is_string($text)) {
+                return null;
+            }
+
+            $text = trim($text);
+            if ('' === $text) {
+                return null;
+            }
+
+            $placeholders = array_replace($placeholders, $arguments);
+
+            $val = new Message($text, ...$arguments);
         }
 
-        $placeholders = is_array($message)
-            ? $message
-            : [ $message ];
-
-        $text = array_shift($placeholders);
-
-        $placeholders = array_replace($placeholders, $arguments);
-
-        if ('' === $text) {
-            return null;
-        }
-
-        return [ $text, $placeholders ];
+        return $val;
     }
 
     /**
      * @param string|array|mixed $message
      * @param mixed              ...$arguments
      *
-     * @return array
+     * @return Message
      */
-    public function theMessageVal($message, ...$arguments) : array
+    public function theMessageVal($message, ...$arguments) : Message
     {
-        if (null === ( $messageVal = $this->messageVal($message, ...$arguments) )) {
+        if (null === ( $val = $this->messageVal($message, ...$arguments) )) {
             throw new InvalidArgumentException(
-                [ 'Invalid msg passed: %s', func_get_args() ]
+                [ 'Invalid Message passed: %s', func_get_args() ]
             );
         }
 
-        return $messageVal;
+        return $val;
     }
 
 
@@ -332,6 +349,13 @@ class Debug implements IDebug
         return preg_replace("/\s+/m", ' ', $content);
     }
 
+    /**
+     * @return IDebug
+     */
+    public static function getInstance()
+    {
+        return SupportFactory::getInstance()->getDebug();
+    }
 
     /**
      * @return bool[]
@@ -347,14 +371,5 @@ class Debug implements IDebug
             'type'     => true,
             'args'     => true,
         ];
-    }
-
-
-    /**
-     * @return IDebug
-     */
-    public static function me()
-    {
-        return SupportFactory::getInstance()->getDebug();
     }
 }

@@ -6,6 +6,7 @@
  * @noinspection PhpDocMissingThrowsInspection
  * @noinspection PhpUnhandledExceptionInspection
  * @noinspection PhpUnusedAliasInspection
+ * @noinspection RedundantSuppression
  */
 
 namespace Gzhegow\Support;
@@ -15,7 +16,6 @@ use Gzhegow\Support\Domain\Str\InflectorInterface;
 use Gzhegow\Support\Domain\Str\Slugger;
 use Gzhegow\Support\Domain\Str\SluggerInterface;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
-use Gzhegow\Support\Exceptions\Logic\OutOfRangeException;
 
 interface IStr
 {
@@ -151,7 +151,9 @@ interface IStr
     public function ireplace($strings, $replacements, $subjects, int $limit = null, int &$count = null);
 
     /**
-     * @return IPhp
+     * @return \Gzhegow\Support\IPhp
+     * @noinspection PhpUnnecessaryFullyQualifiedNameInspection
+     * @noinspection PhpFullyQualifiedNameUsageInspection
      */
     public function php(): IPhp;
 
@@ -562,6 +564,17 @@ interface IStr
      * @return string
      */
     public function kebab($strings, string $keep = null, string $separator = null): string;
+
+    /**
+     * 'space case'
+     *
+     * @param string|array $strings
+     * @param null|string  $separator
+     * @param null|string  $keep
+     *
+     * @return string
+     */
+    public function space($strings, string $keep = null, string $separator = null): string;
 
     /**
      * @param string      $string

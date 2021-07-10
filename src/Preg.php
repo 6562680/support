@@ -1,9 +1,12 @@
 <?php
+/**
+ * @noinspection RedundantSuppression
+ * @noinspection PhpUnusedAliasInspection
+ */
 
 namespace Gzhegow\Support;
 
 use Gzhegow\Support\Domain\Preg\RegExp;
-use Gzhegow\Support\SupportFactory;
 
 
 /**
@@ -123,7 +126,7 @@ class Preg implements IPreg
     /**
      * @return IPreg
      */
-    public static function me()
+    public static function getInstance()
     {
         return SupportFactory::getInstance()->getPreg();
     }

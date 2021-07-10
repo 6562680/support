@@ -6,6 +6,7 @@
  * @noinspection PhpDocMissingThrowsInspection
  * @noinspection PhpUnhandledExceptionInspection
  * @noinspection PhpUnusedAliasInspection
+ * @noinspection RedundantSuppression
  */
 
 namespace Gzhegow\Support;
@@ -15,6 +16,30 @@ use Gzhegow\Support\Generated\GeneratedType;
 
 interface IType
 {
+    /**
+     * @param null|string|array|\Throwable $error
+     * @param mixed                        ...$arguments
+     *
+     * @return \Gzhegow\Support\IAssert
+     * @noinspection PhpUnnecessaryFullyQualifiedNameInspection
+     * @noinspection PhpFullyQualifiedNameUsageInspection
+     */
+    public function assert($error = null, ...$arguments): IAssert;
+
+    /**
+     * @return \Gzhegow\Support\IFilter
+     * @noinspection PhpUnnecessaryFullyQualifiedNameInspection
+     * @noinspection PhpFullyQualifiedNameUsageInspection
+     */
+    public function filter(): IFilter;
+
+    /**
+     * @return \Gzhegow\Support\IType
+     * @noinspection PhpUnnecessaryFullyQualifiedNameInspection
+     * @noinspection PhpFullyQualifiedNameUsageInspection
+     */
+    public function type(): IType;
+
     /**
      * @param string $customFilter
      * @param mixed  ...$arguments

@@ -6,10 +6,12 @@
  * @noinspection PhpDocMissingThrowsInspection
  * @noinspection PhpUnhandledExceptionInspection
  * @noinspection PhpUnusedAliasInspection
+ * @noinspection RedundantSuppression
  */
 
 namespace Gzhegow\Support;
 
+use Gzhegow\Support\Domain\Debug\Message;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 interface IDebug
@@ -18,17 +20,17 @@ interface IDebug
      * @param string|array|mixed $message
      * @param mixed              ...$arguments
      *
-     * @return null|array
+     * @return null|Message
      */
-    public function messageVal($message, ...$arguments): ?array;
+    public function messageVal($message, ...$arguments): ?Message;
 
     /**
      * @param string|array|mixed $message
      * @param mixed              ...$arguments
      *
-     * @return array
+     * @return Message
      */
-    public function theMessageVal($message, ...$arguments): array;
+    public function theMessageVal($message, ...$arguments): Message;
 
     /**
      * @param null|array|\Throwable|mixed $trace

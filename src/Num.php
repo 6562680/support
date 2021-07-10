@@ -1,8 +1,11 @@
 <?php
+/**
+ * @noinspection RedundantSuppression
+ * @noinspection PhpUnusedAliasInspection
+ */
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
@@ -679,7 +682,7 @@ class Num implements INum
     /**
      * @return INum
      */
-    public static function me()
+    public static function getInstance()
     {
         return SupportFactory::getInstance()->getNum();
     }

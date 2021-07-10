@@ -1,8 +1,11 @@
-<?php /** @noinspection PhpUnusedAliasInspection */
+<?php
+/**
+ * @noinspection RedundantSuppression
+ * @noinspection PhpUnusedAliasInspection
+ */
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
@@ -33,26 +36,22 @@ class Format implements IFormat
     /**
      * конвертирует цифру размера в читабельный формат (1024 => 1Mb)
      *
-     * @param int|float|string $size
+     * @param int|float|string $filesize
      *
      * @return string
      */
-    public function fileSize($size) : string
+    public function niceSize($filesize) : string
     {
-        if (null === ( $numval = $this->num->numericval($size) )) {
-            throw new InvalidArgumentException(
-                [ 'Filesize should be int or float: %s', $size ]
-            );
-        }
+        $filesize = $this->num->theNumericval($filesize);
 
         $multiplier = 0;
-        while ( $numval / 1024 > 0.9 ) {
-            $numval = $numval / 1024;
+        while ( $filesize / 1024 > 0.9 ) {
+            $filesize = $filesize / 1024;
 
             $multiplier++;
         }
 
-        $result = round($numval) . array_search($multiplier, static::getUnits());
+        $result = round($filesize) . array_search($multiplier, static::getUnits());
 
         return $result;
     }
@@ -77,6 +76,15 @@ class Format implements IFormat
         );
 
         return $result;
+    }
+
+
+    /**
+     * @return IFormat
+     */
+    public static function getInstance()
+    {
+        return SupportFactory::getInstance()->getFormat();
     }
 
 
@@ -106,14 +114,5 @@ class Format implements IFormat
             'Z' => 7,
             'Y' => 8,
         ];
-    }
-
-
-    /**
-     * @return IFormat
-     */
-    public static function me()
-    {
-        return SupportFactory::getInstance()->getFormat();
     }
 }

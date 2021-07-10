@@ -13,7 +13,7 @@ class ArrTest extends AbstractTestCase
 {
     protected function getArr() : IArr
     {
-        return Arr::me();
+        return Arr::getInstance();
     }
 
 

@@ -1,10 +1,11 @@
-<?php /** @noinspection PhpUnusedAliasInspection */
+<?php
+/**
+ * @noinspection RedundantSuppression
+ * @noinspection PhpUnusedAliasInspection
+ */
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Type;
-use Gzhegow\Support\Assert;
-use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
 use Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo;
 
@@ -1410,29 +1411,43 @@ class Filter implements IFilter
 
 
     /**
-     * @param null|string|array $message
-     * @param mixed             ...$arguments
+     * @param null|string|array|\Throwable $error
+     * @param mixed                        ...$arguments
      *
-     * @return Assert
+     * @return \Gzhegow\Support\IAssert
+     * @noinspection PhpUnnecessaryFullyQualifiedNameInspection
+     * @noinspection PhpFullyQualifiedNameUsageInspection
      */
-    public function assert($message = null, ...$arguments) : Assert
+    public function assert($error = null, ...$arguments) : \Gzhegow\Support\IAssert
     {
         if (! isset($this->assert)) {
-            $this->assert = SupportFactory::getInstance()->newAssert();
+            $this->assert = SupportFactory::getInstance()->getAssert();
         }
 
-        $this->assert->withError($message, ...$arguments);
+        $this->assert->assert($error, ...$arguments);
 
         return $this->assert;
     }
 
     /**
-     * @return Type
+     * @return \Gzhegow\Support\IFilter
+     * @noinspection PhpUnnecessaryFullyQualifiedNameInspection
+     * @noinspection PhpFullyQualifiedNameUsageInspection
      */
-    public function type() : Type
+    public function filter() : \Gzhegow\Support\IFilter
+    {
+        return $this;
+    }
+
+    /**
+     * @return \Gzhegow\Support\IType
+     * @noinspection PhpUnnecessaryFullyQualifiedNameInspection
+     * @noinspection PhpFullyQualifiedNameUsageInspection
+     */
+    public function type() : \Gzhegow\Support\IType
     {
         if (! isset($this->type)) {
-            $this->type = SupportFactory::getInstance()->newType();
+            $this->type = SupportFactory::getInstance()->getType();
         }
 
         return $this->type;
@@ -1499,7 +1514,7 @@ class Filter implements IFilter
     /**
      * @return IFilter
      */
-    public static function me()
+    public static function getInstance()
     {
         return SupportFactory::getInstance()->getFilter();
     }

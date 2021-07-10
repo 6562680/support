@@ -1,8 +1,11 @@
 <?php
+/**
+ * @noinspection RedundantSuppression
+ * @noinspection PhpUnusedAliasInspection
+ */
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
@@ -1969,6 +1972,13 @@ class Calendar implements ICalendar
         return null;
     }
 
+    /**
+     * @return ICalendar
+     */
+    public static function getInstance()
+    {
+        return SupportFactory::getInstance()->getCalendar();
+    }
 
     /**
      * @return bool[]
@@ -2002,14 +2012,5 @@ class Calendar implements ICalendar
             \DateTimeInterface::RFC2822          => true, // 'D, d M Y H:i:s O',
             \DateTimeInterface::RFC1036          => true, // 'D, d M y H:i:s O',
         ];
-    }
-
-
-    /**
-     * @return static
-     */
-    public static function me()
-    {
-        return SupportFactory::getInstance()->getCalendar();
     }
 }

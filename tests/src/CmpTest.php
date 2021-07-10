@@ -12,13 +12,13 @@ class CmpTest extends AbstractTestCase
 {
     protected function getCmp() : ICmp
     {
-        return Cmp::me();
+        return Cmp::getInstance();
     }
 
 
     protected function getCalendar() : ICalendar
     {
-        return Calendar::me();
+        return Calendar::getInstance();
     }
 
 

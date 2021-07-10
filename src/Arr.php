@@ -1,9 +1,12 @@
 <?php
+/**
+ * @noinspection RedundantSuppression
+ * @noinspection PhpUnusedAliasInspection
+ */
 
 namespace Gzhegow\Support;
 
 use Gzhegow\Support\Exceptions\Error;
-use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\Domain\Arr\ValueObject\ExpandValue;
 use Gzhegow\Support\Exceptions\Logic\OutOfRangeException;
 use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
@@ -1247,7 +1250,7 @@ class Arr implements IArr
     /**
      * @return IArr
      */
-    public static function me()
+    public static function getInstance()
     {
         return SupportFactory::getInstance()->getArr();
     }
