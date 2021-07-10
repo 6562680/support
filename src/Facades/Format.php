@@ -11,8 +11,8 @@
 
 namespace Gzhegow\Support\Facades;
 
-use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\IFormat;
+use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\ZFormat;
 
 class Format
@@ -45,8 +45,8 @@ class Format
     /**
      * @return IFormat
      */
-    public static function getInstance()
+    public static function getInstance(): IFormat
     {
-        return static::getInstance()->getInstance();
+        return SupportFactory::getInstance()->getFormat();
     }
 }

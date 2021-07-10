@@ -12,6 +12,7 @@
 namespace Gzhegow\Support\Facades;
 
 use Gzhegow\Support\IProf;
+use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\ZProf;
 
 class Prof
@@ -47,8 +48,8 @@ class Prof
     /**
      * @return IProf
      */
-    public static function getInstance()
+    public static function getInstance(): IProf
     {
-        return static::getInstance()->getInstance();
+        return SupportFactory::getInstance()->getProf();
     }
 }

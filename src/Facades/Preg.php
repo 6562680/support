@@ -13,6 +13,7 @@ namespace Gzhegow\Support\Facades;
 
 use Gzhegow\Support\Domain\Preg\RegExp;
 use Gzhegow\Support\IPreg;
+use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\ZPreg;
 
 class Preg
@@ -83,8 +84,8 @@ class Preg
     /**
      * @return IPreg
      */
-    public static function getInstance()
+    public static function getInstance(): IPreg
     {
-        return static::getInstance()->getInstance();
+        return SupportFactory::getInstance()->getPreg();
     }
 }

@@ -274,7 +274,7 @@ class ZNet implements INet
     /**
      * @return INet
      */
-    public static function getInstance()
+    public static function getInstance() : INet
     {
         return SupportFactory::getInstance()->getNet();
     }

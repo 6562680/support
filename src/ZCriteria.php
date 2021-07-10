@@ -405,7 +405,7 @@ class ZCriteria implements ICriteria
     /**
      * @return ICriteria
      */
-    public static function getInstance()
+    public static function getInstance() : ICriteria
     {
         return SupportFactory::getInstance()->getCriteria();
     }

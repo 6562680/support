@@ -737,8 +737,8 @@ abstract class GeneratedAssert implements \Gzhegow\Support\IAssert
     }
 
     /**
-     * @param string|array|callable|mixed                                   $callableString
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param string|array|callable|mixed $callableString
+     * @param null|InvokableInfo          $invokableInfo
      *
      * @return string|array|callable
      */
@@ -756,8 +756,8 @@ abstract class GeneratedAssert implements \Gzhegow\Support\IAssert
     }
 
     /**
-     * @param string|callable|mixed                                         $callableString
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param string|callable|mixed $callableString
+     * @param null|InvokableInfo    $invokableInfo
      *
      * @return string|callable
      */
@@ -775,8 +775,8 @@ abstract class GeneratedAssert implements \Gzhegow\Support\IAssert
     }
 
     /**
-     * @param string|callable|mixed                                         $callableString
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param string|callable|mixed $callableString
+     * @param null|InvokableInfo    $invokableInfo
      *
      * @return string|callable
      */
@@ -794,8 +794,8 @@ abstract class GeneratedAssert implements \Gzhegow\Support\IAssert
     }
 
     /**
-     * @param array|callable|mixed                                          $callableArray
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfo   $invokableInfo
      *
      * @return array|callable
      */
@@ -813,8 +813,8 @@ abstract class GeneratedAssert implements \Gzhegow\Support\IAssert
     }
 
     /**
-     * @param array|callable|mixed                                          $callableArray
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfo   $invokableInfo
      *
      * @return array|callable
      */
@@ -832,8 +832,8 @@ abstract class GeneratedAssert implements \Gzhegow\Support\IAssert
     }
 
     /**
-     * @param array|callable|mixed                                          $callableArray
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfo   $invokableInfo
      *
      * @return array|callable
      */
@@ -851,8 +851,8 @@ abstract class GeneratedAssert implements \Gzhegow\Support\IAssert
     }
 
     /**
-     * @param \Closure|mixed                                                $closure
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param \Closure|mixed     $closure
+     * @param null|InvokableInfo $invokableInfo
      *
      * @return \Closure
      */
@@ -888,8 +888,8 @@ abstract class GeneratedAssert implements \Gzhegow\Support\IAssert
     }
 
     /**
-     * @param array|mixed                                                   $methodArray
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param array|mixed        $methodArray
+     * @param null|InvokableInfo $invokableInfo
      *
      * @return array
      */
@@ -907,8 +907,8 @@ abstract class GeneratedAssert implements \Gzhegow\Support\IAssert
     }
 
     /**
-     * @param string|mixed                                                  $handler
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param string|mixed       $handler
+     * @param null|InvokableInfo $invokableInfo
      *
      * @return string|callable
      */

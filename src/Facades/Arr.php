@@ -17,6 +17,7 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\Logic\OutOfRangeException;
 use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
 use Gzhegow\Support\IArr;
+use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\ZArr;
 
 class Arr
@@ -477,8 +478,8 @@ class Arr
     /**
      * @return IArr
      */
-    public static function getInstance()
+    public static function getInstance(): IArr
     {
-        return static::getInstance()->getInstance();
+        return SupportFactory::getInstance()->getArr();
     }
 }

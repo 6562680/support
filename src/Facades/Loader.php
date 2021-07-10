@@ -14,6 +14,7 @@ namespace Gzhegow\Support\Facades;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\ILoader;
+use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\ZLoader;
 
 class Loader
@@ -476,8 +477,8 @@ class Loader
     /**
      * @return ILoader
      */
-    public static function getInstance()
+    public static function getInstance(): ILoader
     {
-        return static::getInstance()->getInstance();
+        return SupportFactory::getInstance()->getLoader();
     }
 }

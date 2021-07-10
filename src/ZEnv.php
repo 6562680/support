@@ -83,7 +83,7 @@ class ZEnv implements IEnv
     /**
      * @return IEnv
      */
-    public static function getInstance()
+    public static function getInstance() : IEnv
     {
         return SupportFactory::getInstance()->getEnv();
     }

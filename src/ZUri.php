@@ -373,7 +373,7 @@ class ZUri implements IUri
     /**
      * @return IUri
      */
-    public static function getInstance()
+    public static function getInstance() : IUri
     {
         return SupportFactory::getInstance()->getUri();
     }

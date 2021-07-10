@@ -13,6 +13,7 @@ namespace Gzhegow\Support\Facades;
 
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\ICmp;
+use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\ZCmp;
 
 class Cmp
@@ -81,8 +82,8 @@ class Cmp
     /**
      * @return ICmp
      */
-    public static function getInstance()
+    public static function getInstance(): ICmp
     {
-        return static::getInstance()->getInstance();
+        return SupportFactory::getInstance()->getCmp();
     }
 }

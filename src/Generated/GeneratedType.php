@@ -410,8 +410,8 @@ abstract class GeneratedType implements \Gzhegow\Support\IType
     }
 
     /**
-     * @param string|array|callable|mixed                                   $callableString
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param string|array|callable|mixed $callableString
+     * @param null|InvokableInfo          $invokableInfo
      *
      * @return bool
      */
@@ -421,8 +421,8 @@ abstract class GeneratedType implements \Gzhegow\Support\IType
     }
 
     /**
-     * @param string|callable|mixed                                         $callableString
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param string|callable|mixed $callableString
+     * @param null|InvokableInfo    $invokableInfo
      *
      * @return bool
      */
@@ -432,8 +432,8 @@ abstract class GeneratedType implements \Gzhegow\Support\IType
     }
 
     /**
-     * @param string|callable|mixed                                         $callableString
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param string|callable|mixed $callableString
+     * @param null|InvokableInfo    $invokableInfo
      *
      * @return bool
      */
@@ -443,8 +443,8 @@ abstract class GeneratedType implements \Gzhegow\Support\IType
     }
 
     /**
-     * @param array|callable|mixed                                          $callableArray
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfo   $invokableInfo
      *
      * @return bool
      */
@@ -454,8 +454,8 @@ abstract class GeneratedType implements \Gzhegow\Support\IType
     }
 
     /**
-     * @param array|callable|mixed                                          $callableArray
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfo   $invokableInfo
      *
      * @return bool
      */
@@ -465,8 +465,8 @@ abstract class GeneratedType implements \Gzhegow\Support\IType
     }
 
     /**
-     * @param array|callable|mixed                                          $callableArray
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfo   $invokableInfo
      *
      * @return bool
      */
@@ -476,8 +476,8 @@ abstract class GeneratedType implements \Gzhegow\Support\IType
     }
 
     /**
-     * @param \Closure|mixed                                                $closure
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param \Closure|mixed     $closure
+     * @param null|InvokableInfo $invokableInfo
      *
      * @return bool
      */
@@ -497,8 +497,8 @@ abstract class GeneratedType implements \Gzhegow\Support\IType
     }
 
     /**
-     * @param array|mixed                                                   $methodArray
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param array|mixed        $methodArray
+     * @param null|InvokableInfo $invokableInfo
      *
      * @return bool
      */
@@ -508,8 +508,8 @@ abstract class GeneratedType implements \Gzhegow\Support\IType
     }
 
     /**
-     * @param string|mixed                                                  $handler
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param string|mixed       $handler
+     * @param null|InvokableInfo $invokableInfo
      *
      * @return bool
      */

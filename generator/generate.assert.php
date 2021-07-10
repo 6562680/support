@@ -115,20 +115,6 @@ foreach ( $moduleCopy->getMethods() as $method ) {
     $moduleAssert->addMember($methodNew);
 }
 
-// add methods
-// flushMessage()
-// $method = new \Nette\PhpGenerator\Method('flushMessage');
-// $method->setVariadic();
-// $method->setComment(implode("\n", [
-//     '@param mixed ...$arguments',
-//     '',
-//     '@return null|string|array',
-// ]));
-// $method->addParameter('arguments');
-// $method->setAbstract();
-// $method->setPublic();
-// $moduleAssert->addMember($method);
-
 // add to namespace
 $namespace->add($moduleAssert);
 

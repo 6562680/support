@@ -308,56 +308,56 @@ interface IType
     public function isCallable($callable, InvokableInfo &$invokableInfo = null): bool;
 
     /**
-     * @param string|array|callable|mixed                                   $callableString
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param string|array|callable|mixed $callableString
+     * @param null|InvokableInfo          $invokableInfo
      *
      * @return bool
      */
     public function isCallableString($callableString, InvokableInfo &$invokableInfo = null): bool;
 
     /**
-     * @param string|callable|mixed                                         $callableString
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param string|callable|mixed $callableString
+     * @param null|InvokableInfo    $invokableInfo
      *
      * @return bool
      */
     public function isCallableStringFunction($callableString, InvokableInfo &$invokableInfo = null): ?bool;
 
     /**
-     * @param string|callable|mixed                                         $callableString
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param string|callable|mixed $callableString
+     * @param null|InvokableInfo    $invokableInfo
      *
      * @return bool
      */
     public function isCallableStringStatic($callableString, InvokableInfo &$invokableInfo = null): ?bool;
 
     /**
-     * @param array|callable|mixed                                          $callableArray
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfo   $invokableInfo
      *
      * @return bool
      */
     public function isCallableArray($callableArray, InvokableInfo &$invokableInfo = null): ?bool;
 
     /**
-     * @param array|callable|mixed                                          $callableArray
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfo   $invokableInfo
      *
      * @return bool
      */
     public function isCallableArrayStatic($callableArray, InvokableInfo &$invokableInfo = null): ?bool;
 
     /**
-     * @param array|callable|mixed                                          $callableArray
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfo   $invokableInfo
      *
      * @return bool
      */
     public function isCallableArrayPublic($callableArray, InvokableInfo &$invokableInfo = null): ?bool;
 
     /**
-     * @param \Closure|mixed                                                $closure
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param \Closure|mixed     $closure
+     * @param null|InvokableInfo $invokableInfo
      *
      * @return bool
      */
@@ -371,16 +371,16 @@ interface IType
     public function isMethodArray($methodArray): ?bool;
 
     /**
-     * @param array|mixed                                                   $methodArray
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param array|mixed        $methodArray
+     * @param null|InvokableInfo $invokableInfo
      *
      * @return bool
      */
     public function isMethodArrayReflection($methodArray, InvokableInfo &$invokableInfo = null): ?bool;
 
     /**
-     * @param string|mixed                                                  $handler
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param string|mixed       $handler
+     * @param null|InvokableInfo $invokableInfo
      *
      * @return bool
      */

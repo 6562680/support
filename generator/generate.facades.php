@@ -59,6 +59,7 @@ foreach ( $facades as $facade => $sourceClasses ) {
     $phpFile->addNamespace(
         $namespace = new \Nette\PhpGenerator\PhpNamespace('Gzhegow\\Support\\Facades')
     );
+    $namespace->addUse(\Gzhegow\Support\SupportFactory::class);
     $namespace->addUse($interface);
     foreach ( $sourceClasses as $sourceClass ) {
         $namespace->addUse($sourceClass);
@@ -78,6 +79,10 @@ foreach ( $facades as $facade => $sourceClasses ) {
 
         foreach ( $moduleCopy->getMethods() as $method ) {
             if (! $method->isPublic()) {
+                continue;
+            }
+
+            if ($method->isStatic()) {
                 continue;
             }
 
@@ -136,6 +141,19 @@ foreach ( $facades as $facade => $sourceClasses ) {
             $moduleFacade->addMember($methodNew);
         }
     }
+
+    // add methods
+    $method = new \Nette\PhpGenerator\Method('getInstance');
+    $method->setPublic();
+    $method->setStatic();
+    $method->setReturnType($interface);
+    $method->setComment(implode("\n", [
+        '@return ' . substr($interface, strrpos($interface, '\\') + 1),
+    ]));
+    $method->setBody(implode("\n", [
+        sprintf('return SupportFactory::getInstance()->get%s();', $facade),
+    ]));
+    $moduleFacade->addMember($method);
 
     // add to namespace
     $namespace->add($moduleFacade);

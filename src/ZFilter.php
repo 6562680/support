@@ -809,8 +809,8 @@ class ZFilter implements IFilter
     }
 
     /**
-     * @param string|array|callable|mixed                                   $callableString
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param string|array|callable|mixed $callableString
+     * @param null|InvokableInfo          $invokableInfo
      *
      * @return null|string|array|callable
      */
@@ -829,8 +829,8 @@ class ZFilter implements IFilter
     }
 
     /**
-     * @param string|callable|mixed                                         $callableString
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param string|callable|mixed $callableString
+     * @param null|InvokableInfo    $invokableInfo
      *
      * @return null|string|callable
      */
@@ -841,8 +841,8 @@ class ZFilter implements IFilter
         if (( null !== $this->filterWord($callableString) )
             && function_exists($callableString)
         ) {
-            $invokableInfo->function = $callableString;
-            $invokableInfo->callable = $callableString;
+            $invokableInfo->setFunction($callableString);
+            $invokableInfo->setCallable($callableString);
 
             return $callableString;
         }
@@ -851,8 +851,8 @@ class ZFilter implements IFilter
     }
 
     /**
-     * @param string|callable|mixed                                         $callableString
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param string|callable|mixed $callableString
+     * @param null|InvokableInfo    $invokableInfo
      *
      * @return null|string|callable
      */
@@ -874,8 +874,8 @@ class ZFilter implements IFilter
     }
 
     /**
-     * @param array|callable|mixed                                          $callableArray
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfo   $invokableInfo
      *
      * @return null|array|callable
      */
@@ -894,8 +894,8 @@ class ZFilter implements IFilter
     }
 
     /**
-     * @param array|callable|mixed                                          $callableArray
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfo   $invokableInfo
      *
      * @return null|array|callable
      */
@@ -908,9 +908,9 @@ class ZFilter implements IFilter
             && isset($callableArray[ 1 ]) && ( null !== $this->filterWord($callableArray[ 1 ]) )
             && is_callable($callableArray)
         ) {
-            $invokableInfo->class = $callableArray[ 0 ];
-            $invokableInfo->method = $callableArray[ 1 ];
-            $invokableInfo->callable = $callableArray;
+            $invokableInfo->setClass($callableArray[ 0 ]);
+            $invokableInfo->setMethod($callableArray[ 1 ]);
+            $invokableInfo->setCallable($callableArray);
 
             return $callableArray;
         }
@@ -919,8 +919,8 @@ class ZFilter implements IFilter
     }
 
     /**
-     * @param array|callable|mixed                                          $callableArray
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfo   $invokableInfo
      *
      * @return null|array|callable
      */
@@ -933,10 +933,10 @@ class ZFilter implements IFilter
             && isset($callableArray[ 1 ]) && ( null !== $this->filterWord($callableArray[ 1 ]) )
             && is_callable($callableArray)
         ) {
-            $invokableInfo->object = $callableArray[ 0 ];
-            $invokableInfo->class = get_class($callableArray[ 0 ]);
-            $invokableInfo->method = $callableArray[ 1 ];
-            $invokableInfo->callable = $callableArray;
+            $invokableInfo->setObject($callableArray[ 0 ]);
+            $invokableInfo->setClass(get_class($callableArray[ 0 ]));
+            $invokableInfo->setMethod($callableArray[ 1 ]);
+            $invokableInfo->setCallable($callableArray);
 
             return $callableArray;
         }
@@ -945,8 +945,8 @@ class ZFilter implements IFilter
     }
 
     /**
-     * @param \Closure|mixed                                                $closure
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param \Closure|mixed     $closure
+     * @param null|InvokableInfo $invokableInfo
      *
      * @return null|\Closure
      */
@@ -955,8 +955,8 @@ class ZFilter implements IFilter
         $invokableInfo = $invokableInfo ?? new InvokableInfo();
 
         if (is_object($closure) && ( get_class($closure) === \Closure::class )) {
-            $invokableInfo->closure = $closure;
-            $invokableInfo->class = \Closure::class;
+            $invokableInfo->setClosure($closure);
+            $invokableInfo->setClass(\Closure::class);
 
             return $closure;
         }
@@ -991,8 +991,8 @@ class ZFilter implements IFilter
     }
 
     /**
-     * @param array|mixed                                                   $methodArray
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param array|mixed        $methodArray
+     * @param null|InvokableInfo $invokableInfo
      *
      * @return null|array
      */
@@ -1004,14 +1004,14 @@ class ZFilter implements IFilter
             $rm = new \ReflectionMethod($objectOrClass, $method);
 
             $invokableInfo = $invokableInfo ?? new InvokableInfo();
-            $invokableInfo->method = $rm->getName();
+            $invokableInfo->setMethod($rm->getName());
 
             if (is_object($objectOrClass)) {
-                $invokableInfo->object = $objectOrClass;
-                $invokableInfo->class = get_class($objectOrClass);
+                $invokableInfo->setObject($objectOrClass);
+                $invokableInfo->setClass(get_class($objectOrClass));
 
             } elseif ($objectOrClass) {
-                $invokableInfo->class = $objectOrClass;
+                $invokableInfo->setClass($objectOrClass);
             }
         }
         catch ( \ReflectionException $e ) {
@@ -1022,8 +1022,8 @@ class ZFilter implements IFilter
     }
 
     /**
-     * @param string|mixed                                                  $handler
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param string|mixed       $handler
+     * @param null|InvokableInfo $invokableInfo
      *
      * @return null|string|callable
      */
@@ -1041,8 +1041,8 @@ class ZFilter implements IFilter
             $rm = new \ReflectionMethod($class, $method);
 
             $invokableInfo = $invokableInfo ?? new InvokableInfo();
-            $invokableInfo->class = $class;
-            $invokableInfo->method = $method;
+            $invokableInfo->setClass($class);
+            $invokableInfo->setMethod($method);
 
             if (! $rm->isPublic() || $rm->isStatic() || $rm->isAbstract()) {
                 return null;
@@ -1514,7 +1514,7 @@ class ZFilter implements IFilter
     /**
      * @return IFilter
      */
-    public static function getInstance()
+    public static function getInstance() : IFilter
     {
         return SupportFactory::getInstance()->getFilter();
     }

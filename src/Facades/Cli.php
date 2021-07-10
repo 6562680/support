@@ -15,6 +15,7 @@ use Gzhegow\Support\Exceptions\Logic\BadFunctionCallException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\ICli;
+use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\ZCli;
 
 class Cli
@@ -99,8 +100,8 @@ class Cli
     /**
      * @return ICli
      */
-    public static function getInstance()
+    public static function getInstance(): ICli
     {
-        return static::getInstance()->getInstance();
+        return SupportFactory::getInstance()->getCli();
     }
 }

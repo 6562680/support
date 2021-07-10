@@ -349,13 +349,15 @@ class ZDebug implements IDebug
         return preg_replace("/\s+/m", ' ', $content);
     }
 
+
     /**
      * @return IDebug
      */
-    public static function getInstance()
+    public static function getInstance() : IDebug
     {
         return SupportFactory::getInstance()->getDebug();
     }
+
 
     /**
      * @return bool[]

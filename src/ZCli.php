@@ -277,7 +277,7 @@ class ZCli implements ICli
     /**
      * @return ICli
      */
-    public static function getInstance()
+    public static function getInstance() : ICli
     {
         return SupportFactory::getInstance()->getCli();
     }

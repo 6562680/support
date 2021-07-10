@@ -297,56 +297,56 @@ interface IFilter
     public function filterCallable($callable, InvokableInfo &$invokableInfo = null);
 
     /**
-     * @param string|array|callable|mixed                                   $callableString
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param string|array|callable|mixed $callableString
+     * @param null|InvokableInfo          $invokableInfo
      *
      * @return null|string|array|callable
      */
     public function filterCallableString($callableString, InvokableInfo &$invokableInfo = null);
 
     /**
-     * @param string|callable|mixed                                         $callableString
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param string|callable|mixed $callableString
+     * @param null|InvokableInfo    $invokableInfo
      *
      * @return null|string|callable
      */
     public function filterCallableStringFunction($callableString, InvokableInfo &$invokableInfo = null): ?string;
 
     /**
-     * @param string|callable|mixed                                         $callableString
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param string|callable|mixed $callableString
+     * @param null|InvokableInfo    $invokableInfo
      *
      * @return null|string|callable
      */
     public function filterCallableStringStatic($callableString, InvokableInfo &$invokableInfo = null): ?string;
 
     /**
-     * @param array|callable|mixed                                          $callableArray
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfo   $invokableInfo
      *
      * @return null|array|callable
      */
     public function filterCallableArray($callableArray, InvokableInfo &$invokableInfo = null): ?array;
 
     /**
-     * @param array|callable|mixed                                          $callableArray
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfo   $invokableInfo
      *
      * @return null|array|callable
      */
     public function filterCallableArrayStatic($callableArray, InvokableInfo &$invokableInfo = null): ?array;
 
     /**
-     * @param array|callable|mixed                                          $callableArray
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfo   $invokableInfo
      *
      * @return null|array|callable
      */
     public function filterCallableArrayPublic($callableArray, InvokableInfo &$invokableInfo = null): ?array;
 
     /**
-     * @param \Closure|mixed                                                $closure
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param \Closure|mixed     $closure
+     * @param null|InvokableInfo $invokableInfo
      *
      * @return null|\Closure
      */
@@ -360,16 +360,16 @@ interface IFilter
     public function filterMethodArray($methodArray): ?array;
 
     /**
-     * @param array|mixed                                                   $methodArray
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param array|mixed        $methodArray
+     * @param null|InvokableInfo $invokableInfo
      *
      * @return null|array
      */
     public function filterMethodArrayReflection($methodArray, InvokableInfo &$invokableInfo = null): ?array;
 
     /**
-     * @param string|mixed                                                  $handler
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param string|mixed       $handler
+     * @param null|InvokableInfo $invokableInfo
      *
      * @return null|string|callable
      */

@@ -221,7 +221,7 @@ class ZCmp implements ICmp
     /**
      * @return ICmp
      */
-    public static function getInstance()
+    public static function getInstance() : ICmp
     {
         return SupportFactory::getInstance()->getCmp();
     }

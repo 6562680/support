@@ -61,7 +61,7 @@ class ZType extends GeneratedType
     /**
      * @return IType
      */
-    public static function getInstance()
+    public static function getInstance() : IType
     {
         return SupportFactory::getInstance()->getType();
     }

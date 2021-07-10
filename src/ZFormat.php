@@ -6,8 +6,6 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
-
 
 /**
  * ZFormat
@@ -82,7 +80,7 @@ class ZFormat implements IFormat
     /**
      * @return IFormat
      */
-    public static function getInstance()
+    public static function getInstance() : IFormat
     {
         return SupportFactory::getInstance()->getFormat();
     }

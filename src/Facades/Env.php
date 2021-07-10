@@ -12,6 +12,7 @@
 namespace Gzhegow\Support\Facades;
 
 use Gzhegow\Support\IEnv;
+use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\ZEnv;
 
 class Env
@@ -41,8 +42,8 @@ class Env
     /**
      * @return IEnv
      */
-    public static function getInstance()
+    public static function getInstance(): IEnv
     {
-        return static::getInstance()->getInstance();
+        return SupportFactory::getInstance()->getEnv();
     }
 }

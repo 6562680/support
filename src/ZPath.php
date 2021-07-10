@@ -426,7 +426,7 @@ class ZPath implements IPath
     /**
      * @return IPath
      */
-    public static function getInstance()
+    public static function getInstance() : IPath
     {
         return SupportFactory::getInstance()->getPath();
     }

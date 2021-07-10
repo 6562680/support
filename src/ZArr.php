@@ -1250,7 +1250,7 @@ class ZArr implements IArr
     /**
      * @return IArr
      */
-    public static function getInstance()
+    public static function getInstance() : IArr
     {
         return SupportFactory::getInstance()->getArr();
     }

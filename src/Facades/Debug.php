@@ -14,6 +14,7 @@ namespace Gzhegow\Support\Facades;
 use Gzhegow\Support\Domain\Debug\Message;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\IDebug;
+use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\ZDebug;
 
 class Debug
@@ -174,8 +175,8 @@ class Debug
     /**
      * @return IDebug
      */
-    public static function getInstance()
+    public static function getInstance(): IDebug
     {
-        return static::getInstance()->getInstance();
+        return SupportFactory::getInstance()->getDebug();
     }
 }

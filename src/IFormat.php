@@ -11,8 +11,6 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
-
 interface IFormat
 {
     /**

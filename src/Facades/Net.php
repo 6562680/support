@@ -13,6 +13,7 @@ namespace Gzhegow\Support\Facades;
 
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\INet;
+use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\ZNet;
 
 class Net
@@ -129,8 +130,8 @@ class Net
     /**
      * @return INet
      */
-    public static function getInstance()
+    public static function getInstance(): INet
     {
-        return static::getInstance()->getInstance();
+        return SupportFactory::getInstance()->getNet();
     }
 }

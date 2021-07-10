@@ -1230,7 +1230,7 @@ class ZPhp implements IPhp
     /**
      * @return IPhp
      */
-    public static function getInstance()
+    public static function getInstance() : IPhp
     {
         return SupportFactory::getInstance()->getPhp();
     }

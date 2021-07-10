@@ -14,6 +14,7 @@ namespace Gzhegow\Support\Facades;
 use Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo;
 use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
 use Gzhegow\Support\IFilter;
+use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\ZFilter;
 
 class Filter
@@ -416,8 +417,8 @@ class Filter
     }
 
     /**
-     * @param string|array|callable|mixed                                   $callableString
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param string|array|callable|mixed $callableString
+     * @param null|InvokableInfo          $invokableInfo
      *
      * @return null|string|array|callable
      */
@@ -427,8 +428,8 @@ class Filter
     }
 
     /**
-     * @param string|callable|mixed                                         $callableString
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param string|callable|mixed $callableString
+     * @param null|InvokableInfo    $invokableInfo
      *
      * @return null|string|callable
      */
@@ -438,8 +439,8 @@ class Filter
     }
 
     /**
-     * @param string|callable|mixed                                         $callableString
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param string|callable|mixed $callableString
+     * @param null|InvokableInfo    $invokableInfo
      *
      * @return null|string|callable
      */
@@ -449,8 +450,8 @@ class Filter
     }
 
     /**
-     * @param array|callable|mixed                                          $callableArray
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfo   $invokableInfo
      *
      * @return null|array|callable
      */
@@ -460,8 +461,8 @@ class Filter
     }
 
     /**
-     * @param array|callable|mixed                                          $callableArray
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfo   $invokableInfo
      *
      * @return null|array|callable
      */
@@ -471,8 +472,8 @@ class Filter
     }
 
     /**
-     * @param array|callable|mixed                                          $callableArray
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfo   $invokableInfo
      *
      * @return null|array|callable
      */
@@ -482,8 +483,8 @@ class Filter
     }
 
     /**
-     * @param \Closure|mixed                                                $closure
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param \Closure|mixed     $closure
+     * @param null|InvokableInfo $invokableInfo
      *
      * @return null|\Closure
      */
@@ -503,8 +504,8 @@ class Filter
     }
 
     /**
-     * @param array|mixed                                                   $methodArray
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param array|mixed        $methodArray
+     * @param null|InvokableInfo $invokableInfo
      *
      * @return null|array
      */
@@ -514,8 +515,8 @@ class Filter
     }
 
     /**
-     * @param string|mixed                                                  $handler
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param string|mixed       $handler
+     * @param null|InvokableInfo $invokableInfo
      *
      * @return null|string|callable
      */
@@ -822,8 +823,8 @@ class Filter
     /**
      * @return IFilter
      */
-    public static function getInstance()
+    public static function getInstance(): IFilter
     {
-        return static::getInstance()->getInstance();
+        return SupportFactory::getInstance()->getFilter();
     }
 }

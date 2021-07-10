@@ -17,6 +17,7 @@ use Gzhegow\Support\Domain\Str\Slugger;
 use Gzhegow\Support\Domain\Str\SluggerInterface;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\IStr;
+use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\ZStr;
 
 class Str
@@ -788,8 +789,8 @@ class Str
     /**
      * @return IStr
      */
-    public static function getInstance()
+    public static function getInstance(): IStr
     {
-        return static::getInstance()->getInstance();
+        return SupportFactory::getInstance()->getStr();
     }
 }

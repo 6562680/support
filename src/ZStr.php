@@ -1662,7 +1662,7 @@ class ZStr implements IStr
     /**
      * @return IStr
      */
-    public static function getInstance()
+    public static function getInstance() : IStr
     {
         return SupportFactory::getInstance()->getStr();
     }

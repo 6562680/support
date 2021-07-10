@@ -126,7 +126,7 @@ class ZPreg implements IPreg
     /**
      * @return IPreg
      */
-    public static function getInstance()
+    public static function getInstance() : IPreg
     {
         return SupportFactory::getInstance()->getPreg();
     }

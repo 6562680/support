@@ -15,6 +15,7 @@ use Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo;
 use Gzhegow\Support\Generated\GeneratedType;
 use Gzhegow\Support\IFilter;
 use Gzhegow\Support\IType;
+use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\ZType;
 
 class Type
@@ -50,14 +51,6 @@ class Type
     public static function type(): IType
     {
         return static::getInstance()->type();
-    }
-
-    /**
-     * @return IType
-     */
-    public static function getInstance()
-    {
-        return static::getInstance()->getInstance();
     }
 
     /**
@@ -439,8 +432,8 @@ class Type
     }
 
     /**
-     * @param string|array|callable|mixed                                   $callableString
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param string|array|callable|mixed $callableString
+     * @param null|InvokableInfo          $invokableInfo
      *
      * @return bool
      */
@@ -450,8 +443,8 @@ class Type
     }
 
     /**
-     * @param string|callable|mixed                                         $callableString
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param string|callable|mixed $callableString
+     * @param null|InvokableInfo    $invokableInfo
      *
      * @return bool
      */
@@ -461,8 +454,8 @@ class Type
     }
 
     /**
-     * @param string|callable|mixed                                         $callableString
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param string|callable|mixed $callableString
+     * @param null|InvokableInfo    $invokableInfo
      *
      * @return bool
      */
@@ -472,8 +465,8 @@ class Type
     }
 
     /**
-     * @param array|callable|mixed                                          $callableArray
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfo   $invokableInfo
      *
      * @return bool
      */
@@ -483,8 +476,8 @@ class Type
     }
 
     /**
-     * @param array|callable|mixed                                          $callableArray
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfo   $invokableInfo
      *
      * @return bool
      */
@@ -494,8 +487,8 @@ class Type
     }
 
     /**
-     * @param array|callable|mixed                                          $callableArray
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param array|callable|mixed $callableArray
+     * @param null|InvokableInfo   $invokableInfo
      *
      * @return bool
      */
@@ -505,8 +498,8 @@ class Type
     }
 
     /**
-     * @param \Closure|mixed                                                $closure
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param \Closure|mixed     $closure
+     * @param null|InvokableInfo $invokableInfo
      *
      * @return bool
      */
@@ -526,8 +519,8 @@ class Type
     }
 
     /**
-     * @param array|mixed                                                   $methodArray
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param array|mixed        $methodArray
+     * @param null|InvokableInfo $invokableInfo
      *
      * @return bool
      */
@@ -537,8 +530,8 @@ class Type
     }
 
     /**
-     * @param string|mixed                                                  $handler
-     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
+     * @param string|mixed       $handler
+     * @param null|InvokableInfo $invokableInfo
      *
      * @return bool
      */
@@ -775,5 +768,13 @@ class Type
     public static function isCurl($ch): bool
     {
         return static::getInstance()->isCurl($ch);
+    }
+
+    /**
+     * @return IType
+     */
+    public static function getInstance(): IType
+    {
+        return SupportFactory::getInstance()->getType();
     }
 }

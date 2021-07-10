@@ -976,7 +976,7 @@ class ZLoader implements ILoader
     /**
      * @return ILoader
      */
-    public static function getInstance()
+    public static function getInstance() : ILoader
     {
         return SupportFactory::getInstance()->getLoader();
     }

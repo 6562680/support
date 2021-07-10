@@ -1663,7 +1663,7 @@ class ZFs implements IFs
     /**
      * @return IFs
      */
-    public static function getInstance()
+    public static function getInstance() : IFs
     {
         return SupportFactory::getInstance()->getFs();
     }

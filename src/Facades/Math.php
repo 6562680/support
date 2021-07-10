@@ -16,6 +16,7 @@ use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\Runtime\OutOfBoundsException;
 use Gzhegow\Support\IMath;
+use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\ZMath;
 
 class Math
@@ -764,8 +765,8 @@ class Math
     /**
      * @return IMath
      */
-    public static function getInstance()
+    public static function getInstance(): IMath
     {
-        return static::getInstance()->getInstance();
+        return SupportFactory::getInstance()->getMath();
     }
 }

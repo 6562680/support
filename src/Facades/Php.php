@@ -15,6 +15,7 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Exceptions\Runtime\UnexpectedValueException;
 use Gzhegow\Support\IPhp;
+use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\ZPhp;
 
 class Php
@@ -548,8 +549,8 @@ class Php
     /**
      * @return IPhp
      */
-    public static function getInstance()
+    public static function getInstance(): IPhp
     {
-        return static::getInstance()->getInstance();
+        return SupportFactory::getInstance()->getPhp();
     }
 }

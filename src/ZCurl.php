@@ -546,7 +546,7 @@ class ZCurl implements ICurl
     /**
      * @return ICurl
      */
-    public static function getInstance()
+    public static function getInstance() : ICurl
     {
         return SupportFactory::getInstance()->getCurl();
     }

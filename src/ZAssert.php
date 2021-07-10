@@ -209,7 +209,7 @@ class ZAssert extends GeneratedAssert
     /**
      * @return IAssert
      */
-    public static function getInstance()
+    public static function getInstance() : IAssert
     {
         return SupportFactory::getInstance()->getAssert();
     }

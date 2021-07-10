@@ -1972,13 +1972,15 @@ class ZCalendar implements ICalendar
         return null;
     }
 
+
     /**
      * @return ICalendar
      */
-    public static function getInstance()
+    public static function getInstance() : ICalendar
     {
         return SupportFactory::getInstance()->getCalendar();
     }
+
 
     /**
      * @return bool[]

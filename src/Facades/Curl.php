@@ -15,6 +15,7 @@ use Gzhegow\Support\Domain\Curl\Blueprint;
 use Gzhegow\Support\Domain\Curl\Manager;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\ICurl;
+use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\ZCurl;
 
 class Curl
@@ -290,8 +291,8 @@ class Curl
     /**
      * @return ICurl
      */
-    public static function getInstance()
+    public static function getInstance(): ICurl
     {
-        return static::getInstance()->getInstance();
+        return SupportFactory::getInstance()->getCurl();
     }
 }

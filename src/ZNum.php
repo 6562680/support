@@ -682,7 +682,7 @@ class ZNum implements INum
     /**
      * @return INum
      */
-    public static function getInstance()
+    public static function getInstance() : INum
     {
         return SupportFactory::getInstance()->getNum();
     }

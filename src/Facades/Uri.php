@@ -13,6 +13,7 @@ namespace Gzhegow\Support\Facades;
 
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\IUri;
+use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\ZUri;
 
 class Uri
@@ -118,8 +119,8 @@ class Uri
     /**
      * @return IUri
      */
-    public static function getInstance()
+    public static function getInstance(): IUri
     {
-        return static::getInstance()->getInstance();
+        return SupportFactory::getInstance()->getUri();
     }
 }

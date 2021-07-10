@@ -13,6 +13,7 @@ namespace Gzhegow\Support\Facades;
 
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\ICriteria;
+use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\ZCriteria;
 
 class Criteria
@@ -120,8 +121,8 @@ class Criteria
     /**
      * @return ICriteria
      */
-    public static function getInstance()
+    public static function getInstance(): ICriteria
     {
-        return static::getInstance()->getInstance();
+        return SupportFactory::getInstance()->getCriteria();
     }
 }

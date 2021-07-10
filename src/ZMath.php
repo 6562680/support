@@ -1789,7 +1789,7 @@ class ZMath implements IMath
     /**
      * @return IMath
      */
-    public static function getInstance()
+    public static function getInstance() : IMath
     {
         return SupportFactory::getInstance()->getMath();
     }

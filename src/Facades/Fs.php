@@ -14,6 +14,7 @@ namespace Gzhegow\Support\Facades;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\IFs;
+use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\ZFs;
 
 class Fs
@@ -795,8 +796,8 @@ class Fs
     /**
      * @return IFs
      */
-    public static function getInstance()
+    public static function getInstance(): IFs
     {
-        return static::getInstance()->getInstance();
+        return SupportFactory::getInstance()->getFs();
     }
 }

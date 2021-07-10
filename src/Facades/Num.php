@@ -13,6 +13,7 @@ namespace Gzhegow\Support\Facades;
 
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\INum;
+use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\ZNum;
 
 class Num
@@ -348,8 +349,8 @@ class Num
     /**
      * @return INum
      */
-    public static function getInstance()
+    public static function getInstance(): INum
     {
-        return static::getInstance()->getInstance();
+        return SupportFactory::getInstance()->getNum();
     }
 }

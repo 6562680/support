@@ -13,6 +13,7 @@ namespace Gzhegow\Support\Facades;
 
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\IPath;
+use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\ZPath;
 
 class Path
@@ -180,8 +181,8 @@ class Path
     /**
      * @return IPath
      */
-    public static function getInstance()
+    public static function getInstance(): IPath
     {
-        return static::getInstance()->getInstance();
+        return SupportFactory::getInstance()->getPath();
     }
 }

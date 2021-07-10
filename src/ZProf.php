@@ -111,7 +111,7 @@ class ZProf implements IProf
     /**
      * @return IProf
      */
-    public static function getInstance()
+    public static function getInstance() : IProf
     {
         return SupportFactory::getInstance()->getProf();
     }

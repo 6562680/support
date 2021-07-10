@@ -13,6 +13,7 @@ namespace Gzhegow\Support\Facades;
 
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\ICalendar;
+use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\ZCalendar;
 
 class Calendar
@@ -742,8 +743,8 @@ class Calendar
     /**
      * @return ICalendar
      */
-    public static function getInstance()
+    public static function getInstance(): ICalendar
     {
-        return static::getInstance()->getInstance();
+        return SupportFactory::getInstance()->getCalendar();
     }
 }
