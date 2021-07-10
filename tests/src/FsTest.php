@@ -3,14 +3,14 @@
 namespace Gzhegow\Support\Tests;
 
 use Gzhegow\Support\Fs;
-use Gzhegow\Support\Domain\SupportFactory;
+use Gzhegow\Support\IFs;
 
 
 class FsTest extends AbstractTestCase
 {
-    protected function getFs() : Fs
+    protected function getFs() : IFs
     {
-        return SupportFactory::getInstance()->newFs();
+        return Fs::me();
     }
 
 

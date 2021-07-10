@@ -2,14 +2,14 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Interfaces\CalendarInterface;
+use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
  * Calendar
  */
-class Calendar implements CalendarInterface
+class Calendar implements ICalendar
 {
     const FORMAT_SQL_DATE     = 'Y-m-d';
     const FORMAT_SQL_DATETIME = 'Y-m-d H:i:s';
@@ -41,21 +41,22 @@ class Calendar implements CalendarInterface
 
 
     /**
-     * @var Filter
+     * @var IFilter
      */
     protected $filter;
     /**
-     * @var Num
+     * @var INum
      */
     protected $num;
     /**
-     * @var Php
+     * @var IPhp
      */
     protected $php;
     /**
-     * @var Str
+     * @var IStr
      */
     protected $str;
+
 
     /**
      * @var \DateTime
@@ -75,16 +76,16 @@ class Calendar implements CalendarInterface
     /**
      * Constructor
      *
-     * @param Filter $filter
-     * @param Php    $php
-     * @param Num    $num
-     * @param Str    $str
+     * @param IFilter $filter
+     * @param INum    $php
+     * @param IPhp    $num
+     * @param IStr    $str
      */
     public function __construct(
-        Filter $filter,
-        Num $num,
-        Php $php,
-        Str $str
+        IFilter $filter,
+        INum $num,
+        IPhp $php,
+        IStr $str
     )
     {
         $this->filter = $filter;
@@ -2001,5 +2002,14 @@ class Calendar implements CalendarInterface
             \DateTimeInterface::RFC2822          => true, // 'D, d M Y H:i:s O',
             \DateTimeInterface::RFC1036          => true, // 'D, d M y H:i:s O',
         ];
+    }
+
+
+    /**
+     * @return static
+     */
+    public static function me()
+    {
+        return SupportFactory::getInstance()->getCalendar();
     }
 }

@@ -3,27 +3,30 @@
 namespace Gzhegow\Support\Tests;
 
 use Gzhegow\Support\Cmp;
+use Gzhegow\Support\ICmp;
 use Gzhegow\Support\Calendar;
-use Gzhegow\Support\Domain\SupportFactory;
+use Gzhegow\Support\ICalendar;
 
 
 class CmpTest extends AbstractTestCase
 {
-    protected function getCalendar() : Calendar
+    protected function getCmp() : ICmp
     {
-        return SupportFactory::getInstance()->newCalendar();
+        return Cmp::me();
     }
 
-    protected function getCmp() : Cmp
+
+    protected function getCalendar() : ICalendar
     {
-        return SupportFactory::getInstance()->newCmp();
+        return Calendar::me();
     }
 
 
     public function testCmpDate()
     {
-        $calendar = $this->getCalendar();
         $cmp = $this->getCmp();
+
+        $calendar = $this->getCalendar();
 
         $dt[] = $dt1 = $calendar->theDateVal(50);
         $dt[] = $dt3 = $calendar->theDateVal(200);

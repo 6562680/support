@@ -2,8 +2,8 @@
 
 namespace Gzhegow\Support\Domain\Exceptions;
 
-use Gzhegow\Support\Facades\DebugF;
-use Gzhegow\Support\Domain\SupportFactory;
+use Gzhegow\Support\Debug;
+use Gzhegow\Support\SupportFactory;
 
 
 /**
@@ -69,7 +69,7 @@ trait ExceptionTrait
                 ? $key . ':' . $index[ $key ]++
                 : $key;
 
-            $trace[ $key ] = DebugF::getInstance()->traceReport($step);
+            $trace[ $key ] = Debug::me()->traceReport($step);
         }
 
         return $trace;

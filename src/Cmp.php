@@ -2,21 +2,21 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Interfaces\CmpInterface;
+use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
  * Cmp
  */
-class Cmp implements CmpInterface
+class Cmp implements ICmp
 {
     /**
-     * @var Calendar
+     * @var ICalendar
      */
     protected $calendar;
     /**
-     * @var Filter
+     * @var IFilter
      */
     protected $filter;
 
@@ -24,12 +24,12 @@ class Cmp implements CmpInterface
     /**
      * Constructor
      *
-     * @param Calendar $calendar
-     * @param Filter   $filter
+     * @param ICalendar $calendar
+     * @param IFilter   $filter
      */
     public function __construct(
-        Calendar $calendar,
-        Filter $filter
+        ICalendar $calendar,
+        IFilter $filter
     )
     {
         $this->calendar = $calendar;
@@ -212,5 +212,14 @@ class Cmp implements CmpInterface
         $result = $result ?? ( $isA - $isB );
 
         return $result;
+    }
+
+
+    /**
+     * @return static
+     */
+    public static function me()
+    {
+        return SupportFactory::getInstance()->getCmp();
     }
 }

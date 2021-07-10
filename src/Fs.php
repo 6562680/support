@@ -2,9 +2,7 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Domain\SupportFactory;
-use Gzhegow\Support\Interfaces\FsInterface;
-use Gzhegow\Support\Interfaces\PathInterface;
+use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
@@ -12,7 +10,7 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 /**
  * Fs
  */
-class Fs implements FsInterface
+class Fs implements IFs
 {
     const FREAD_SIZE = 4096;
 
@@ -22,18 +20,20 @@ class Fs implements FsInterface
 
 
     /**
-     * @var Filter
+     * @var IFilter
      */
     protected $filter;
     /**
-     * @var Php
+     * @var IPhp
      */
     protected $php;
 
+
     /**
-     * @var PathInterface
+     * @var IPath
      */
     protected $path;
+
 
     /**
      * @var string
@@ -44,12 +44,12 @@ class Fs implements FsInterface
     /**
      * Constructor
      *
-     * @param Filter $filter
-     * @param Php    $php
+     * @param IFilter $filter
+     * @param IPhp    $php
      */
     public function __construct(
-        Filter $filter,
-        Php $php
+        IFilter $filter,
+        IPhp $php
     )
     {
         $this->filter = $filter;
@@ -953,9 +953,9 @@ class Fs implements FsInterface
 
 
     /**
-     * @return PathInterface
+     * @return IPath
      */
-    public function path() : PathInterface
+    public function path() : IPath
     {
         if (! isset($this->path)) {
             $this->path = SupportFactory::getInstance()
@@ -1706,5 +1706,14 @@ class Fs implements FsInterface
             'xpm'  => 'image/x-xpixmap',
             'xwd'  => 'image/x-xwindowdump',
         ];
+    }
+
+
+    /**
+     * @return IFs
+     */
+    public static function me()
+    {
+        return SupportFactory::getInstance()->getFs();
     }
 }

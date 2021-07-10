@@ -3,8 +3,7 @@
 namespace Gzhegow\Support\Tests;
 
 use Gzhegow\Support\Arr;
-use Gzhegow\Support\Exceptions\Error;
-use Gzhegow\Support\Domain\SupportFactory;
+use Gzhegow\Support\IArr;
 use Gzhegow\Support\Exceptions\Logic\OutOfRangeException;
 use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
@@ -12,9 +11,9 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 class ArrTest extends AbstractTestCase
 {
-    protected function getArr() : Arr
+    protected function getArr() : IArr
     {
-        return SupportFactory::getInstance()->newArr();
+        return Arr::me();
     }
 
 

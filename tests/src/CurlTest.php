@@ -3,14 +3,14 @@
 namespace Gzhegow\Support\Tests;
 
 use Gzhegow\Support\Curl;
-use Gzhegow\Support\Domain\SupportFactory;
+use Gzhegow\Support\ICurl;
 
 
 class CurlTest extends AbstractTestCase
 {
-    protected function getCurl() : Curl
+    protected function getCurl() : ICurl
     {
-        return SupportFactory::getInstance()->newCurl();
+        return Curl::me();
     }
 
 
@@ -146,6 +146,7 @@ class CurlTest extends AbstractTestCase
         $this->assertEquals(200, $responseCode);
     }
 
+
     public function testMulti()
     {
         if ('pong' !== $this->ping()) {
@@ -224,6 +225,45 @@ class CurlTest extends AbstractTestCase
             $responses
         );
         $this->assertEquals([ 200, 200, 200 ], $responseCodes);
+    }
+
+
+    public function testGetWithQueryAndHeaders()
+    {
+        if ('pong' !== $this->ping()) {
+            $this->assertTrue(false, 'Connection timeout');
+
+            return;
+        }
+
+        $curl = $this->getCurl();
+
+        $ch1 = $curl->get('https://my-json-server.typicode.com/typicode/demo/posts', [ 'array' ], [
+            'Accept' => 'application/json',
+        ]);
+        $ch2 = $curl->get('https://my-json-server.typicode.com/typicode/demo/posts', [ 'dict' => 'text' ], [
+            'Accept' => 'application/json',
+        ]);
+
+        $responseJson = json_decode(
+            '[{"id":1,"title":"Post 1"},{"id":2,"title":"Post 2"},{"id":3,"title":"Post 3"}]',
+            true
+        );
+
+        $response1 = curl_exec($ch1);
+        $response2 = curl_exec($ch2);
+
+        $responseCode1 = $curl->curlInfoOpt($ch1, CURLINFO_HTTP_CODE);
+        $responseCode2 = $curl->curlInfoOpt($ch2, CURLINFO_HTTP_CODE);
+
+        curl_close($ch1);
+        curl_close($ch2);
+
+        $this->assertEquals($responseJson, json_decode($response1, true));
+        $this->assertEquals($responseJson, json_decode($response2, true));
+
+        $this->assertEquals(200, $responseCode1);
+        $this->assertEquals(200, $responseCode2);
     }
 
 

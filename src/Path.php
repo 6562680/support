@@ -2,27 +2,28 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Interfaces\PathInterface;
+use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
  * Path
  */
-class Path implements PathInterface
+class Path implements IPath
 {
     /**
-     * @var Filter
+     * @var IFilter
      */
     protected $filter;
     /**
-     * @var Php
+     * @var IPhp
      */
     protected $php;
     /**
-     * @var Str
+     * @var IStr
      */
     protected $str;
+
 
     /**
      * @var string
@@ -37,14 +38,14 @@ class Path implements PathInterface
     /**
      * Constructor
      *
-     * @param Filter $filter
-     * @param Php    $php
-     * @param Str    $str
+     * @param IFilter $filter
+     * @param IPhp    $php
+     * @param IStr    $str
      */
     public function __construct(
-        Filter $filter,
-        Php $php,
-        Str $str
+        IFilter $filter,
+        IPhp $php,
+        IStr $str
     )
     {
         $this->filter = $filter;
@@ -416,5 +417,14 @@ class Path implements PathInterface
     protected function separators() : array
     {
         return array_merge([ $this->separator ], $this->delimiters);
+    }
+
+
+    /**
+     * @return IPath
+     */
+    public static function me()
+    {
+        return SupportFactory::getInstance()->getPath();
     }
 }

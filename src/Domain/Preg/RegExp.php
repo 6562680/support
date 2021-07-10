@@ -2,8 +2,8 @@
 
 namespace Gzhegow\Support\Domain\Preg;
 
-use Gzhegow\Support\Str;
-use Gzhegow\Support\Preg;
+use Gzhegow\Support\IStr;
+use Gzhegow\Support\IPreg;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
@@ -14,13 +14,16 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 class RegExp
 {
     /**
-     * @var Preg
+     * @var IPreg
      */
     protected $preg;
+
+
     /**
-     * @var Str
+     * @var IStr
      */
     protected $str;
+
 
     /**
      * @var string[]
@@ -49,16 +52,18 @@ class RegExp
     /**
      * Constructor
      *
-     * @param Preg            $preg
-     * @param Str             $str
+     * @param IPreg           $preg
+     *
+     * @param IStr            $str
      *
      * @param string|string[] $regex
      * @param null|string     $delimiter
      * @param null|string     $flags
      */
     public function __construct(
-        Preg $preg,
-        Str $str,
+        IPreg $preg,
+
+        IStr $str,
 
         $regex,
         string $delimiter = null,

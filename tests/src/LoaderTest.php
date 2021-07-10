@@ -3,14 +3,14 @@
 namespace Gzhegow\Support\Tests;
 
 use Gzhegow\Support\Loader;
-use Gzhegow\Support\Domain\SupportFactory;
+use Gzhegow\Support\ILoader;
 
 
 class LoaderTest extends AbstractTestCase
 {
-    protected function getLoader() : Loader
+    protected function getLoader() : ILoader
     {
-        return SupportFactory::getInstance()->newLoader();
+        return Loader::me();
     }
 
 

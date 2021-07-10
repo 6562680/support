@@ -3,14 +3,76 @@
 namespace Gzhegow\Support\Tests;
 
 use Gzhegow\Support\Calendar;
-use Gzhegow\Support\Domain\SupportFactory;
+use Gzhegow\Support\ICalendar;
 
 
 class CalendarTest extends AbstractTestCase
 {
-    protected function getCalendar() : Calendar
+    protected function getCalendar() : ICalendar
     {
-        return SupportFactory::getInstance()->newCalendar();
+        return Calendar::me();
+    }
+
+
+    public function testDateval()
+    {
+        $calendar = $this->getCalendar();
+
+        $dateTime = new \DateTime();
+        $dateTimezone = new \DateTimeZone('America/Los_Angeles');
+
+        $this->assertEquals(1, $calendar->dateVal(1)->getTimestamp());
+        $this->assertEquals(1, $calendar->dateVal(1.0)->getTimestamp());
+        $this->assertEquals('1.100000', $calendar->dateVal(1.1)->format('U.u'));
+        $this->assertEquals(1, $calendar->dateVal('1')->getTimestamp());
+        $this->assertEquals(1, $calendar->dateVal('1.0')->getTimestamp());
+        $this->assertEquals('1.100000', $calendar->dateVal('1.1')->format('U.u'));
+
+        $this->assertEquals(
+            date_create('now', $dateTimezone)
+                ->format('Ymd'),
+
+            $calendar->dateVal('now', $dateTimezone)->format('Ymd')
+        );
+
+        $this->assertEquals(
+            date_create('now', $dateTimezone)
+                ->add(new \DateInterval('PT86400S'))
+                ->format('Ymd'),
+
+            $calendar->dateVal('+1 day', $dateTimezone)->format('Ymd')
+        );
+
+        $this->assertEquals(
+            date_create_from_format('Y-m-d H:i:s', '2020-01-01 00:00:00', $dateTimezone)
+                ->format('Ymd'),
+
+            $calendar->dateVal('2020-01-01 00:00:00', $dateTimezone)->format('Ymd')
+        );
+
+        $this->assertEquals($dateTime, $calendar->dateVal($dateTime));
+    }
+
+    public function testTimezoneval()
+    {
+        $calendar = $this->getCalendar();
+
+        $calendar->setDefaultTimezone('UTC');
+
+        $this->assertEquals('Africa/Algiers', $calendar->timezoneVal(1)->getName());
+        $this->assertEquals('Africa/Algiers', $calendar->timezoneVal(2.0)->getName());
+        $this->assertEquals('Africa/Addis_Ababa', $calendar->timezoneVal(3.1)->getName());
+        $this->assertEquals('Atlantic/Madeira', $calendar->timezoneVal('-1')->getName());
+        $this->assertEquals('America/Pangnirtung', $calendar->timezoneVal('-2.0')->getName());
+        $this->assertEquals('America/Blanc-Sablon', $calendar->timezoneVal('-3.1')->getName());
+        $this->assertEquals('America/Blanc-Sablon', $calendar->timezoneVal('America/Blanc-Sablon')->getName());
+    }
+
+    public function testInterval()
+    {
+        $calendar = $this->getCalendar();
+
+        $this->assertEquals(1, $calendar->intervalVal(1, 'day')->d);
     }
 
 
@@ -23,7 +85,6 @@ class CalendarTest extends AbstractTestCase
 
         $this->assertEquals(true, $calendar->isSame($nowSame1, $nowSame2));
     }
-
 
     public function testIsBefore()
     {
@@ -46,7 +107,6 @@ class CalendarTest extends AbstractTestCase
         $this->assertEquals(true, $calendar->isBeforeOrSame($now, $nowSame1));
         $this->assertEquals(true, $calendar->isBeforeOrSame($nowSame1, $nowSame2));
     }
-
 
     public function testIsAfter()
     {
@@ -119,68 +179,6 @@ class CalendarTest extends AbstractTestCase
         $now2->add(new \DateInterval('P1D'));
 
         $this->assertEquals(-86400, $calendar->diff($now1, $now2));
-    }
-
-
-    public function testDateval()
-    {
-        $calendar = $this->getCalendar();
-
-        $dateTime = new \DateTime();
-        $dateTimezone = new \DateTimeZone('America/Los_Angeles');
-
-        $this->assertEquals(1, $calendar->dateVal(1)->getTimestamp());
-        $this->assertEquals(1, $calendar->dateVal(1.0)->getTimestamp());
-        $this->assertEquals('1.100000', $calendar->dateVal(1.1)->format('U.u'));
-        $this->assertEquals(1, $calendar->dateVal('1')->getTimestamp());
-        $this->assertEquals(1, $calendar->dateVal('1.0')->getTimestamp());
-        $this->assertEquals('1.100000', $calendar->dateVal('1.1')->format('U.u'));
-
-        $this->assertEquals(
-            date_create('now', $dateTimezone)
-                ->format('Ymd'),
-
-            $calendar->dateVal('now', $dateTimezone)->format('Ymd')
-        );
-
-        $this->assertEquals(
-            date_create('now', $dateTimezone)
-                ->add(new \DateInterval('PT86400S'))
-                ->format('Ymd'),
-
-            $calendar->dateVal('+1 day', $dateTimezone)->format('Ymd')
-        );
-
-        $this->assertEquals(
-            date_create_from_format('Y-m-d H:i:s', '2020-01-01 00:00:00', $dateTimezone)
-                ->format('Ymd'),
-
-            $calendar->dateVal('2020-01-01 00:00:00', $dateTimezone)->format('Ymd')
-        );
-
-        $this->assertEquals($dateTime, $calendar->dateVal($dateTime));
-    }
-
-    public function testTimezoneval()
-    {
-        $calendar = $this->getCalendar();
-
-        $calendar->setDefaultTimezone('UTC');
-
-        $this->assertEquals('Africa/Algiers', $calendar->timezoneVal(1)->getName());
-        $this->assertEquals('Africa/Algiers', $calendar->timezoneVal(2.0)->getName());
-        $this->assertEquals('Africa/Addis_Ababa', $calendar->timezoneVal(3.1)->getName());
-        $this->assertEquals('Atlantic/Madeira', $calendar->timezoneVal('-1')->getName());
-        $this->assertEquals('America/Pangnirtung', $calendar->timezoneVal('-2.0')->getName());
-        $this->assertEquals('America/Blanc-Sablon', $calendar->timezoneVal('-3.1')->getName());
-        $this->assertEquals('America/Blanc-Sablon', $calendar->timezoneVal('America/Blanc-Sablon')->getName());
-    }
-
-    public function testInterval()
-    {
-        $calendar = $this->getCalendar();
-
-        $this->assertEquals(1, $calendar->intervalVal(1, 'day')->d);
     }
 
 

@@ -1,9 +1,6 @@
 <?php
 
-use Gzhegow\Support\Filter;
-use Gzhegow\Support\Arr as _Arr;
-use Gzhegow\Support\Domain\SupportFactory;
-use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
+use Gzhegow\Support\IFilter;
 
 
 defined('__ROOT__') or define('__ROOT__', __DIR__ . '/..');
@@ -91,7 +88,7 @@ class Gzhegow_Support_Generator
 abstract class Gzhegow_Support_Generator_AssertBlueprint
 {
     /**
-     * @var Filter
+     * @var IFilter
      */
     protected $filter;
 
@@ -99,9 +96,11 @@ abstract class Gzhegow_Support_Generator_AssertBlueprint
     /**
      * Constructor
      *
-     * @param Filter $filter
+     * @param IFilter $filter
      */
-    public function __construct(Filter $filter)
+    public function __construct(
+        IFilter $filter
+    )
     {
         $this->filter = $filter;
     }
@@ -166,7 +165,7 @@ abstract class Gzhegow_Support_Generator_AssertBlueprint
 abstract class Gzhegow_Support_Generator_TypeBlueprint
 {
     /**
-     * @var Filter
+     * @var IFilter
      */
     protected $filter;
 
@@ -174,9 +173,9 @@ abstract class Gzhegow_Support_Generator_TypeBlueprint
     /**
      * Constructor
      *
-     * @param Filter $filter
+     * @param IFilter $filter
      */
-    public function __construct(Filter $filter)
+    public function __construct(IFilter $filter)
     {
         $this->filter = $filter;
     }

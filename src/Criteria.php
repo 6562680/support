@@ -2,14 +2,14 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Interfaces\CriteriaInterface;
+use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
  * Criteria
  */
-class Criteria implements CriteriaInterface
+class Criteria implements ICriteria
 {
     const OPERATOR_BTW     = 'btw';
     const OPERATOR_ENDS    = 'ends';
@@ -78,19 +78,19 @@ class Criteria implements CriteriaInterface
 
 
     /**
-     * @var Calendar
+     * @var ICalendar
      */
     protected $calendar;
     /**
-     * @var Cmp
+     * @var ICmp
      */
     protected $cmp;
     /**
-     * @var Filter
+     * @var IFilter
      */
     protected $filter;
     /**
-     * @var Str
+     * @var IStr
      */
     protected $str;
 
@@ -98,16 +98,16 @@ class Criteria implements CriteriaInterface
     /**
      * Constructor
      *
-     * @param Calendar $calendar
-     * @param Cmp      $cmp
-     * @param Filter   $filter
-     * @param Str      $str
+     * @param ICalendar $calendar
+     * @param ICmp      $cmp
+     * @param IFilter   $filter
+     * @param IStr      $str
      */
     public function __construct(
-        Calendar $calendar,
-        Cmp $cmp,
-        Filter $filter,
-        Str $str
+        ICalendar $calendar,
+        ICmp $cmp,
+        IFilter $filter,
+        IStr $str
     )
     {
         $this->calendar = $calendar;
@@ -396,5 +396,14 @@ class Criteria implements CriteriaInterface
         }
 
         return false;
+    }
+
+
+    /**
+     * @return static
+     */
+    public static function me()
+    {
+        return SupportFactory::getInstance()->getCriteria();
     }
 }

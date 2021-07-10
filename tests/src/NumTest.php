@@ -3,15 +3,15 @@
 namespace Gzhegow\Support\Tests;
 
 use Gzhegow\Support\Num;
-use Gzhegow\Support\Domain\SupportFactory;
+use Gzhegow\Support\INum;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 class NumTest extends AbstractTestCase
 {
-    protected function getNum() : Num
+    protected function getNum() : INum
     {
-        return SupportFactory::getInstance()->newNum();
+        return Num::me();
     }
 
 

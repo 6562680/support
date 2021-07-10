@@ -2,9 +2,7 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Domain\SupportFactory;
-use Gzhegow\Support\Interfaces\PathInterface;
-use Gzhegow\Support\Interfaces\LoaderInterface;
+use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
@@ -12,21 +10,23 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 /**
  * Loader
  */
-class Loader implements LoaderInterface
+class Loader implements ILoader
 {
     /**
-     * @var Filter
+     * @var IFilter
      */
     protected $filter;
     /**
-     * @var Str
+     * @var IStr
      */
     protected $str;
 
+
     /**
-     * @var PathInterface
+     * @var IPath
      */
     protected $path;
+
 
     /**
      * @var array
@@ -55,12 +55,12 @@ class Loader implements LoaderInterface
     /**
      * Constructor
      *
-     * @param Filter $filter
-     * @param Str    $str
+     * @param IFilter $filter
+     * @param IStr    $str
      */
     public function __construct(
-        Filter $filter,
-        Str $str
+        IFilter $filter,
+        IStr $str
     )
     {
         $this->filter = $filter;
@@ -720,9 +720,9 @@ class Loader implements LoaderInterface
 
 
     /**
-     * @return PathInterface
+     * @return IPath
      */
-    public function path() : PathInterface
+    public function path() : IPath
     {
         if (! isset($this->path)) {
             $this->path = SupportFactory::getInstance()
@@ -966,5 +966,14 @@ class Loader implements LoaderInterface
         }
 
         return $result;
+    }
+
+
+    /**
+     * @return ILoader
+     */
+    public static function me()
+    {
+        return SupportFactory::getInstance()->getLoader();
     }
 }

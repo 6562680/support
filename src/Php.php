@@ -2,7 +2,7 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Interfaces\PhpInterface;
+use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\Runtime\UnexpectedValueException;
@@ -11,10 +11,10 @@ use Gzhegow\Support\Exceptions\Runtime\UnexpectedValueException;
 /**
  * Php
  */
-class Php implements PhpInterface
+class Php implements IPhp
 {
     /**
-     * @var Filter
+     * @var IFilter
      */
     protected $filter;
 
@@ -22,10 +22,10 @@ class Php implements PhpInterface
     /**
      * Constructor
      *
-     * @param Filter $filter
+     * @param IFilter $filter
      */
     public function __construct(
-        Filter $filter
+        IFilter $filter
     )
     {
         $this->filter = $filter;
@@ -1221,5 +1221,14 @@ class Php implements PhpInterface
         }
 
         return $result;
+    }
+
+
+    /**
+     * @return IPhp
+     */
+    public static function me()
+    {
+        return SupportFactory::getInstance()->getPhp();
     }
 }

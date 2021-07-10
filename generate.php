@@ -6,7 +6,7 @@ set_error_handler(function (
     $errfile,
     $errline
 ) {
-    $exception = new ErrorException($errstr, null, $errno);
+    $exception = new \Gzhegow\Support\Exceptions\Error($errstr, null, $errno);
 
     ( function ($errno, $errfile, $errline) {
         $this->file = $errfile;
@@ -20,7 +20,6 @@ try {
     require_once __DIR__ . '/generator/generate.assert.php';
     require_once __DIR__ . '/generator/generate.type.php';
     require_once __DIR__ . '/generator/generate.interfaces.php';
-    require_once __DIR__ . '/generator/generate.facades.php';
 }
 catch ( \Throwable $e ) {
     dd($e);

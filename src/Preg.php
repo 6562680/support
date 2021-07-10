@@ -3,16 +3,16 @@
 namespace Gzhegow\Support;
 
 use Gzhegow\Support\Domain\Preg\RegExp;
-use Gzhegow\Support\Interfaces\PregInterface;
+use Gzhegow\Support\SupportFactory;
 
 
 /**
  * Preg
  */
-class Preg implements PregInterface
+class Preg implements IPreg
 {
     /**
-     * @var Str
+     * @var IStr
      */
     protected $str;
 
@@ -20,9 +20,11 @@ class Preg implements PregInterface
     /**
      * Constructor
      *
-     * @param Str $str
+     * @param IStr $str
      */
-    public function __construct(Str $str)
+    public function __construct(
+        IStr $str
+    )
     {
         $this->str = $str;
     }
@@ -115,5 +117,14 @@ class Preg implements PregInterface
     {
         return $this->new($regex)->concat(...$regexes)
             ->compile();
+    }
+
+
+    /**
+     * @return IPreg
+     */
+    public static function me()
+    {
+        return SupportFactory::getInstance()->getPreg();
     }
 }

@@ -3,16 +3,17 @@
 namespace Gzhegow\Support\Tests;
 
 use Gzhegow\Support\Str;
-use Gzhegow\Support\Domain\SupportFactory;
+use Gzhegow\Support\IStr;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 class StrTest extends AbstractTestCase
 {
-    protected function getStr() : Str
+    protected function getStr() : IStr
     {
-        return SupportFactory::getInstance()->newStr();
+        return Str::me();
     }
+
 
     public function testTheStrvals()
     {
@@ -77,6 +78,7 @@ class StrTest extends AbstractTestCase
             $str->theStrvals([ [ new \StdClass() ] ]);
         });
     }
+
 
     public function testTheWordvals()
     {
@@ -148,6 +150,7 @@ class StrTest extends AbstractTestCase
         });
     }
 
+
     public function testReplace()
     {
         $str = $this->getStr();
@@ -167,6 +170,7 @@ class StrTest extends AbstractTestCase
         $this->assertEquals('aAb', $str->ireplace('A', 'b', 'aAa', -1));
         $this->assertEquals('abb', $str->ireplace('A', 'b', 'aAa', -2));
     }
+
 
     public function testLcrop()
     {
@@ -327,6 +331,7 @@ class StrTest extends AbstractTestCase
         $this->assertEquals('aba', $str->crop('aabaa', 'A', true, 1));
     }
 
+
     public function testStarts()
     {
         $str = $this->getStr();
@@ -372,65 +377,67 @@ class StrTest extends AbstractTestCase
         $this->assertEquals([ 'Hello ', '' ], $str->contains('Hello World', 'World', null, false));
     }
 
-    public function testLwrap()
+
+    public function testUnltrim()
     {
         $str = $this->getStr();
 
-        $this->assertEquals('', $str->lwrap(''));
-        $this->assertEquals('', $str->lwrap('', ''));
-        $this->assertEquals('$', $str->lwrap('', '$'));
-        $this->assertEquals('$$', $str->lwrap('', '$', 2));
+        $this->assertEquals('', $str->unltrim(''));
+        $this->assertEquals('', $str->unltrim('', ''));
+        $this->assertEquals('$', $str->unltrim('', '$'));
+        $this->assertEquals('$$', $str->unltrim('', '$', 2));
 
-        $this->assertEquals('a', $str->lwrap('a'));
-        $this->assertEquals('a', $str->lwrap('a', ''));
-        $this->assertEquals('$a', $str->lwrap('a', '$'));
-        $this->assertEquals('$$a', $str->lwrap('a', '$', 2));
+        $this->assertEquals('a', $str->unltrim('a'));
+        $this->assertEquals('a', $str->unltrim('a', ''));
+        $this->assertEquals('$a', $str->unltrim('a', '$'));
+        $this->assertEquals('$$a', $str->unltrim('a', '$', 2));
 
-        $this->assertEquals('$', $str->lwrap('$'));
-        $this->assertEquals('$', $str->lwrap('$', ''));
-        $this->assertEquals('$$', $str->lwrap('$', '$'));
-        $this->assertEquals('$$$', $str->lwrap('$', '$', 2));
+        $this->assertEquals('$', $str->unltrim('$'));
+        $this->assertEquals('$', $str->unltrim('$', ''));
+        $this->assertEquals('$$', $str->unltrim('$', '$'));
+        $this->assertEquals('$$$', $str->unltrim('$', '$', 2));
     }
 
-    public function testRwrap()
+    public function testUnrtrim()
     {
         $str = $this->getStr();
 
-        $this->assertEquals('', $str->rwrap(''));
-        $this->assertEquals('', $str->rwrap('', ''));
-        $this->assertEquals('$', $str->rwrap('', '$'));
-        $this->assertEquals('$$', $str->rwrap('', '$', 2));
+        $this->assertEquals('', $str->unrtrim(''));
+        $this->assertEquals('', $str->unrtrim('', ''));
+        $this->assertEquals('$', $str->unrtrim('', '$'));
+        $this->assertEquals('$$', $str->unrtrim('', '$', 2));
 
-        $this->assertEquals('a', $str->rwrap('a'));
-        $this->assertEquals('a', $str->rwrap('a', ''));
-        $this->assertEquals('a$', $str->rwrap('a', '$'));
-        $this->assertEquals('a$$', $str->rwrap('a', '$', 2));
+        $this->assertEquals('a', $str->unrtrim('a'));
+        $this->assertEquals('a', $str->unrtrim('a', ''));
+        $this->assertEquals('a$', $str->unrtrim('a', '$'));
+        $this->assertEquals('a$$', $str->unrtrim('a', '$', 2));
 
-        $this->assertEquals('$', $str->lwrap('$'));
-        $this->assertEquals('$', $str->lwrap('$', ''));
-        $this->assertEquals('$$', $str->lwrap('$', '$'));
-        $this->assertEquals('$$$', $str->lwrap('$', '$', 2));
+        $this->assertEquals('$', $str->unltrim('$'));
+        $this->assertEquals('$', $str->unltrim('$', ''));
+        $this->assertEquals('$$', $str->unltrim('$', '$'));
+        $this->assertEquals('$$$', $str->unltrim('$', '$', 2));
     }
 
-    public function testWrap()
+    public function testUntrim()
     {
         $str = $this->getStr();
 
-        $this->assertEquals('', $str->wrap('', null));
-        $this->assertEquals('', $str->wrap('', ''));
-        $this->assertEquals('$$', $str->wrap('', '$'));
-        $this->assertEquals('$$$$', $str->wrap('', '$', 2));
+        $this->assertEquals('', $str->untrim('', null));
+        $this->assertEquals('', $str->untrim('', ''));
+        $this->assertEquals('$$', $str->untrim('', '$'));
+        $this->assertEquals('$$$$', $str->untrim('', '$', 2));
 
-        $this->assertEquals('a', $str->wrap('a', null));
-        $this->assertEquals('a', $str->wrap('a', ''));
-        $this->assertEquals('$a$', $str->wrap('a', '$'));
-        $this->assertEquals('$$a$$', $str->wrap('a', '$', 2));
+        $this->assertEquals('a', $str->untrim('a', null));
+        $this->assertEquals('a', $str->untrim('a', ''));
+        $this->assertEquals('$a$', $str->untrim('a', '$'));
+        $this->assertEquals('$$a$$', $str->untrim('a', '$', 2));
 
-        $this->assertEquals('$', $str->wrap('$', null));
-        $this->assertEquals('$', $str->wrap('$', ''));
-        $this->assertEquals('$$$', $str->wrap('$', '$'));
-        $this->assertEquals('$$$$$', $str->wrap('$', '$', 2));
+        $this->assertEquals('$', $str->untrim('$', null));
+        $this->assertEquals('$', $str->untrim('$', ''));
+        $this->assertEquals('$$$', $str->untrim('$', '$'));
+        $this->assertEquals('$$$$$', $str->untrim('$', '$', 2));
     }
+
 
     public function testPrepend()
     {
@@ -478,28 +485,29 @@ class StrTest extends AbstractTestCase
         $this->assertEquals('A', $str->append('A', 'A', false));
     }
 
-    public function testOverlay()
+    public function testWrap()
     {
         $str = $this->getStr();
 
-        $this->assertEquals('', $str->overlay('', ''));
-        $this->assertEquals('A', $str->overlay('', 'A'));
+        $this->assertEquals('', $str->wrap('', ''));
+        $this->assertEquals('A', $str->wrap('', 'A'));
 
-        $this->assertEquals('a', $str->overlay('a', ''));
-        $this->assertEquals('a', $str->overlay('a', 'A'));
+        $this->assertEquals('a', $str->wrap('a', ''));
+        $this->assertEquals('a', $str->wrap('a', 'A'));
 
-        $this->assertEquals('A', $str->overlay('A', ''));
-        $this->assertEquals('A', $str->overlay('A', 'A'));
+        $this->assertEquals('A', $str->wrap('A', ''));
+        $this->assertEquals('A', $str->wrap('A', 'A'));
 
-        $this->assertEquals('', $str->overlay('', '', false));
-        $this->assertEquals('A', $str->overlay('', 'A', false));
+        $this->assertEquals('', $str->wrap('', '', false));
+        $this->assertEquals('A', $str->wrap('', 'A', false));
 
-        $this->assertEquals('a', $str->overlay('a', '', false));
-        $this->assertEquals('AaA', $str->overlay('a', 'A', false));
+        $this->assertEquals('a', $str->wrap('a', '', false));
+        $this->assertEquals('AaA', $str->wrap('a', 'A', false));
 
-        $this->assertEquals('A', $str->overlay('A', '', false));
-        $this->assertEquals('A', $str->overlay('A', 'A', false));
+        $this->assertEquals('A', $str->wrap('A', '', false));
+        $this->assertEquals('A', $str->wrap('A', 'A', false));
     }
+
 
     public function testSegregate()
     {
@@ -531,6 +539,7 @@ class StrTest extends AbstractTestCase
         });
     }
 
+
     public function testSeparate()
     {
         $str = $this->getStr();
@@ -560,6 +569,7 @@ class StrTest extends AbstractTestCase
             $str->separate([ null ], 'dadbdcd');
         });
     }
+
 
     public function testExplode()
     {
@@ -591,6 +601,7 @@ class StrTest extends AbstractTestCase
         });
     }
 
+
     public function testPartition()
     {
         $str = $this->getStr();
@@ -620,6 +631,7 @@ class StrTest extends AbstractTestCase
             $str->partition([ null ], 'dadbdcd');
         });
     }
+
 
     public function testImplode()
     {
@@ -666,6 +678,7 @@ class StrTest extends AbstractTestCase
         });
     }
 
+
     public function testJoin()
     {
         $str = $this->getStr();
@@ -710,6 +723,7 @@ class StrTest extends AbstractTestCase
             $str->join('', [ new \StdClass() ]);
         });
     }
+
 
     public function testConcat()
     {
@@ -790,6 +804,7 @@ class StrTest extends AbstractTestCase
         });
     }
 
+
     public function testMatch()
     {
         $str = $this->getStr();
@@ -801,6 +816,7 @@ class StrTest extends AbstractTestCase
         $this->assertEquals([], $str->match('a', 'a', 'Hello AWorldA AFooA bar', null, false));
         $this->assertEquals([ 'World', 'Foo' ], $str->match('A', 'A', 'Hello AWorldA AFooA bar', null, false));
     }
+
 
     public function testPrefix()
     {
@@ -845,6 +861,7 @@ class StrTest extends AbstractTestCase
         $this->assertEquals('usropr', $str->compact('user_operator', '_', 3));
         $this->assertEquals('useroprt', $str->compact('user_operator', '_', 4));
     }
+
 
     public function testCamel()
     {
@@ -898,6 +915,7 @@ class StrTest extends AbstractTestCase
         $this->assertEquals('HelloId', $str->pascal([ 'hello', 'id' ]));
     }
 
+
     public function testSnake()
     {
         $str = $this->getStr();
@@ -936,6 +954,45 @@ class StrTest extends AbstractTestCase
         $this->assertEquals('hello.id', $str->snake([ 'hello', 'id' ], null, '.'));
     }
 
+    public function testKebab()
+    {
+        $str = $this->getStr();
+
+        $this->assertEquals('helloworld', $str->kebab('helloworld'));
+        $this->assertEquals('hello-world', $str->kebab('HelloWorld'));
+        $this->assertEquals('hello-world', $str->kebab('hello-world'));
+        $this->assertEquals('hello-world', $str->kebab('hello_world'));
+        $this->assertEquals('hello-world', $str->kebab('Hello-World'));
+        $this->assertEquals('hello-world', $str->kebab('Hello World'));
+        $this->assertEquals('hello-world', $str->kebab('Hello_World'));
+
+        $this->assertEquals('hello.world', $str->kebab('hello.world', '.'));
+        $this->assertEquals('hello.-world', $str->kebab('Hello.World', '.'));
+        $this->assertEquals('helloworld.foo', $str->kebab('helloworld.foo', '.'));
+        $this->assertEquals('hello-world.foo', $str->kebab('HelloWorld.foo', '.'));
+        $this->assertEquals('hello-world.foo', $str->kebab('hello world.foo', '.'));
+        $this->assertEquals('hello-world.foo', $str->kebab('hello-world.foo', '.'));
+        $this->assertEquals('hello-world.foo', $str->kebab('hello_world.foo', '.'));
+        $this->assertEquals('hello-world.foo', $str->kebab('Hello-World.foo', '.'));
+        $this->assertEquals('hello-world.foo', $str->kebab('Hello World.foo', '.'));
+        $this->assertEquals('hello-world.foo', $str->kebab('Hello_World.foo', '.'));
+
+        $this->assertEquals('hello.world', $str->kebab('hello.world', null, '.'));
+        $this->assertEquals('hello.world', $str->kebab('Hello.World', null, '.'));
+        $this->assertEquals('helloworld.foo', $str->kebab('helloworld.foo', null, '.'));
+        $this->assertEquals('hello.world.foo', $str->kebab('HelloWorld.foo', null, '.'));
+        $this->assertEquals('hello.world.foo', $str->kebab('hello world.foo', null, '.'));
+        $this->assertEquals('hello.world.foo', $str->kebab('hello-world.foo', null, '.'));
+        $this->assertEquals('hello.world.foo', $str->kebab('hello_world.foo', null, '.'));
+        $this->assertEquals('hello.world.foo', $str->kebab('Hello-World.foo', null, '.'));
+        $this->assertEquals('hello.world.foo', $str->kebab('Hello World.foo', null, '.'));
+        $this->assertEquals('hello.world.foo', $str->kebab('Hello_World.foo', null, '.'));
+
+        $this->assertEquals('hello-id', $str->kebab([ 'hello', 'id' ]));
+        $this->assertEquals('hello.id', $str->kebab([ 'hello', 'id' ], null, '.'));
+    }
+
+
     public function testSlug()
     {
         $str = $this->getStr();
@@ -952,6 +1009,7 @@ class StrTest extends AbstractTestCase
         $this->assertEquals('Privet-Mir', $str->slugCase('Привет Мир'));
         $this->assertEquals('Workspace-settings', $str->slugCase('Wôrķšƥáçè ~~sèťtïñğš~~'));
     }
+
 
     public function testPluralize()
     {

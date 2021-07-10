@@ -2,17 +2,15 @@
 
 namespace Gzhegow\Support\Tests;
 
-use Gzhegow\Support\Cmp;
 use Gzhegow\Support\Filter;
-use Gzhegow\Support\Calendar;
-use Gzhegow\Support\Domain\SupportFactory;
+use Gzhegow\Support\IFilter;
 
 
 class FilterTest extends AbstractTestCase
 {
-    protected function getFilter() : Filter
+    protected function getFilter() : IFilter
     {
-        return SupportFactory::getInstance()->newFilter();
+        return Filter::me();
     }
 
     public function testFilterClass()

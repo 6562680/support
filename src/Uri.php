@@ -2,29 +2,29 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Interfaces\UriInterface;
+use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
  * Uri
  */
-class Uri implements UriInterface
+class Uri implements IUri
 {
     /**
-     * @var Arr
+     * @var IArr
      */
     protected $arr;
     /**
-     * @var Filter
+     * @var IFilter
      */
     protected $filter;
     /**
-     * @var Php
+     * @var IStr
      */
     protected $php;
     /**
-     * @var Str
+     * @var IPhp
      */
     protected $str;
 
@@ -32,16 +32,16 @@ class Uri implements UriInterface
     /**
      * Constructor
      *
-     * @param Arr    $arr
-     * @param Filter $filter
-     * @param Str    $str
-     * @param Php    $php
+     * @param IArr    $arr
+     * @param IFilter $filter
+     * @param IStr    $str
+     * @param IPhp    $php
      */
     public function __construct(
-        Arr $arr,
-        Filter $filter,
-        Php $php,
-        Str $str
+        IArr $arr,
+        IFilter $filter,
+        IPhp $php,
+        IStr $str
     )
     {
         $this->arr = $arr;
@@ -60,7 +60,7 @@ class Uri implements UriInterface
      * @param null|array  $needleQuery
      * @param null|string $needleRef
      *
-     * @param null|bool   $strictPath
+     * @param null|bool   $strict
      * @param null|bool   $strictQuery
      * @param null|bool   $strictRef
      *
@@ -71,12 +71,12 @@ class Uri implements UriInterface
         array $needleQuery = null,
         string $needleRef = null,
 
-        bool $strictPath = null,
+        bool $strict = null,
         bool $strictQuery = null,
         bool $strictRef = null
     ) : bool
     {
-        $strictPath = $strictPath ?? true;
+        $strict = $strict ?? true;
         $strictQuery = $strictQuery ?? true;
         $strictRef = $strictRef ?? true;
 
@@ -87,7 +87,7 @@ class Uri implements UriInterface
         $info = $this->linkinfo($link);
         $info2 = $this->linkinfo($link2);
 
-        if ($strictPath) {
+        if ($strict) {
             $matchPath = ( $info[ 'path' ] === $info2[ 'path' ] );
 
         } else {
@@ -157,7 +157,7 @@ class Uri implements UriInterface
      * @param null|array  $needleQuery
      * @param null|string $needleRef
      *
-     * @param null|bool   $strictPath
+     * @param null|bool   $strict
      * @param null|bool   $strictQuery
      * @param null|bool   $strictRef
      *
@@ -168,12 +168,12 @@ class Uri implements UriInterface
         array $needleQuery = null,
         string $needleRef = null,
 
-        bool $strictPath = null,
+        bool $strict = null,
         bool $strictQuery = null,
         bool $strictRef = null
     ) : bool
     {
-        $strictPath = $strictPath ?? true;
+        $strict = $strict ?? true;
         $strictQuery = $strictQuery ?? true;
         $strictRef = $strictRef ?? true;
 
@@ -202,7 +202,7 @@ class Uri implements UriInterface
             $needleQuery,
             $needleRef,
 
-            $strictPath,
+            $strict,
             $strictQuery,
             $strictRef,
         );
@@ -364,5 +364,14 @@ class Uri implements UriInterface
             . rtrim('#' . $info[ 'fragment' ], '#');
 
         return $result;
+    }
+
+
+    /**
+     * @return IUri
+     */
+    public static function me()
+    {
+        return SupportFactory::getInstance()->getUri();
     }
 }

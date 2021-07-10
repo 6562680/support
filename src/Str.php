@@ -4,18 +4,16 @@ namespace Gzhegow\Support;
 
 use Gzhegow\Support\Domain\Str\Slugger;
 use Gzhegow\Support\Domain\Str\Inflector;
-use Gzhegow\Support\Domain\SupportFactory;
-use Gzhegow\Support\Interfaces\StrInterface;
-use Gzhegow\Support\Interfaces\PhpInterface;
 use Gzhegow\Support\Domain\Str\SluggerInterface;
 use Gzhegow\Support\Domain\Str\InflectorInterface;
+use Gzhegow\Support\Exceptions\Logic\OutOfRangeException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
  * Str
  */
-class Str implements StrInterface
+class Str implements IStr
 {
     const CASE_LOWER = MB_CASE_LOWER;
     const CASE_UPPER = MB_CASE_UPPER;
@@ -31,12 +29,13 @@ class Str implements StrInterface
 
 
     /**
-     * @var Filter
+     * @var IFilter
      */
     protected $filter;
 
+
     /**
-     * @var PhpInterface
+     * @var IPhp
      */
     protected $php;
 
@@ -45,7 +44,6 @@ class Str implements StrInterface
      * @var SluggerInterface
      */
     protected $slugger;
-
     /**
      * @var InflectorInterface
      */
@@ -55,10 +53,10 @@ class Str implements StrInterface
     /**
      * Constructor
      *
-     * @param Filter $filter
+     * @param IFilter $filter
      */
     public function __construct(
-        Filter $filter
+        IFilter $filter
     )
     {
         $this->filter = $filter;
@@ -83,6 +81,15 @@ class Str implements StrInterface
     {
         return " \t\n\r\0\x0B";
     }
+
+    /**
+     * @return string
+     */
+    public function getSeparators() : string
+    {
+        return " \t\r\n\f\v";
+    }
+
 
     /**
      * @return string
@@ -546,6 +553,19 @@ class Str implements StrInterface
 
 
     /**
+     * @return IPhp
+     */
+    public function php() : IPhp
+    {
+        if (! isset($this->php)) {
+            $this->php = SupportFactory::getInstance()->newPhp();
+        }
+
+        return $this->php;
+    }
+
+
+    /**
      * @param null|SluggerInterface $slugger
      *
      * @return SluggerInterface
@@ -557,11 +577,7 @@ class Str implements StrInterface
         }
 
         if (! $this->slugger) {
-            if (! isset($this->php)) {
-                $this->php = SupportFactory::getInstance()->newPhp();
-            }
-
-            $this->slugger = new Slugger($this->php, $this);
+            $this->slugger = new Slugger($this, $this->php());
         }
 
         return $this->slugger;
@@ -897,21 +913,21 @@ class Str implements StrInterface
      * Добавляет подстроку в начале строки
      *
      * @param string      $str
-     * @param string|null $wrapper
+     * @param string|null $repeat
      * @param null|int    $len
      *
      * @return string
      */
-    public function lwrap(string $str, string $wrapper = null, int $len = null) : string
+    public function unltrim(string $str, string $repeat = null, int $len = null) : string
     {
-        $wrapper = $wrapper ?? '';
+        $repeat = $repeat ?? '';
         $len = $len ?? 1;
 
-        if ('' === $wrapper) return $str;
+        if ('' === $repeat) return $str;
 
         $len = max(0, $len);
 
-        $result = str_repeat($wrapper, $len) . $str;
+        $result = str_repeat($repeat, $len) . $str;
 
         return $result;
     }
@@ -920,21 +936,21 @@ class Str implements StrInterface
      * Добавляет подстроку в конце строки
      *
      * @param string      $str
-     * @param string|null $wrapper
+     * @param string|null $repeat
      * @param null|int    $len
      *
      * @return string
      */
-    public function rwrap(string $str, string $wrapper = null, int $len = null) : string
+    public function unrtrim(string $str, string $repeat = null, int $len = null) : string
     {
-        $wrapper = $wrapper ?? '';
+        $repeat = $repeat ?? '';
         $len = $len ?? 1;
 
-        if ('' === $wrapper) return $str;
+        if ('' === $repeat) return $str;
 
         $len = max(0, $len);
 
-        $result = $str . str_repeat($wrapper, $len);
+        $result = $str . str_repeat($repeat, $len);
 
         return $result;
     }
@@ -943,16 +959,16 @@ class Str implements StrInterface
      * Оборачивает строку в другие, например в кавычки
      *
      * @param string          $str
-     * @param string|string[] $wrappers
+     * @param string|string[] $repeats
      * @param null|int        $len
      *
      * @return string
      */
-    public function wrap(string $str, $wrappers, int $len = null) : string
+    public function untrim(string $str, $repeats, int $len = null) : string
     {
-        $wraps = is_array($wrappers)
-            ? $wrappers
-            : [ $wrappers ];
+        $wraps = is_array($repeats)
+            ? $repeats
+            : [ $repeats ];
 
         $lwrap = array_shift($wraps);
         $rwrap = null !== key($wraps)
@@ -960,8 +976,8 @@ class Str implements StrInterface
             : $lwrap;
 
         $result = $str;
-        $result = $this->lwrap($result, $lwrap, $len);
-        $result = $this->rwrap($result, $rwrap, $len);
+        $result = $this->unltrim($result, $lwrap, $len);
+        $result = $this->unrtrim($result, $rwrap, $len);
 
         return $result;
     }
@@ -1023,20 +1039,20 @@ class Str implements StrInterface
      * Оборачивает строку в подстроки, если их уже там нет
      *
      * @param string          $str
-     * @param string|string[] $overlays
+     * @param string|string[] $wraps
      * @param bool            $ignoreCase
      *
      * @return string
      */
-    public function overlay(string $str, $overlays, bool $ignoreCase = null) : string
+    public function wrap(string $str, $wraps, bool $ignoreCase = null) : string
     {
-        $overlays = is_array($overlays)
-            ? $overlays
-            : [ $overlays ];
+        $wraps = is_array($wraps)
+            ? $wraps
+            : [ $wraps ];
 
-        $overlayPrepend = array_shift($overlays);
-        $overlayAppend = null !== key($overlays)
-            ? current($overlays)
+        $overlayPrepend = array_shift($wraps);
+        $overlayAppend = null !== key($wraps)
+            ? current($wraps)
             : $overlayPrepend;
 
         $result = $str;
@@ -1465,34 +1481,6 @@ class Str implements StrInterface
 
 
     /**
-     * camelCase
-     *
-     * @param string|array $strings
-     * @param null|string  $keep
-     * @param null|string  $separator
-     *
-     * @return string
-     */
-    public function camel($strings, string $keep = null, string $separator = null) : string
-    {
-        $separator = $separator ?? '';
-
-        if (! $strings = $this->wordvals($strings)) {
-            return '';
-        }
-
-        $implode = implode(static::REPLACER, $strings);
-
-        $result = $this->caseSwitch(static::CASE_UPPER,
-            $implode, $separator, $keep
-        );
-
-        $result = mb_convert_case($result[ 0 ], MB_CASE_LOWER) . mb_substr($result, 1);
-
-        return $result;
-    }
-
-    /**
      * PascalCase
      *
      * @param string|array $strings
@@ -1505,15 +1493,28 @@ class Str implements StrInterface
     {
         $separator = $separator ?? '';
 
-        if (! $strings = $this->wordvals($strings)) {
-            return '';
-        }
+        $result = $this->case($strings, $keep, $separator);
 
-        $implode = implode(static::REPLACER, $strings);
+        $result = array_map('ucfirst', explode(' ', $result));
+        $result = implode($separator, $result);
 
-        $result = $this->caseSwitch(static::CASE_UPPER,
-            $implode, $separator, $keep
-        );
+        return $result;
+    }
+
+    /**
+     * camelCase
+     *
+     * @param string|array $strings
+     * @param null|string  $keep
+     * @param null|string  $separator
+     *
+     * @return string
+     */
+    public function camel($strings, string $keep = null, string $separator = null) : string
+    {
+        $result = $this->pascal($strings, $keep, $separator);
+
+        $result = lcfirst($result);
 
         return $result;
     }
@@ -1532,15 +1533,28 @@ class Str implements StrInterface
     {
         $separator = $separator ?? '_';
 
-        if (! $strings = $this->wordvals($strings)) {
-            return '';
-        }
+        $result = $this->case($strings, $keep, $separator);
 
-        $implode = implode(static::REPLACER, $strings);
+        $result = array_map('lcfirst', explode(' ', $result));
+        $result = implode($separator, $result);
 
-        $result = $this->caseSwitch(static::CASE_LOWER,
-            $implode, $separator, $keep
-        );
+        return $result;
+    }
+
+    /**
+     * kebab-case
+     *
+     * @param string|array $strings
+     * @param null|string  $separator
+     * @param null|string  $keep
+     *
+     * @return string
+     */
+    public function kebab($strings, string $keep = null, string $separator = null) : string
+    {
+        $separator = $separator ?? '-';
+
+        $result = $this->snake($strings, $keep, $separator);
 
         return $result;
     }
@@ -1607,55 +1621,42 @@ class Str implements StrInterface
 
 
     /**
-     * @param string|int  $case
-     * @param string      $string
-     * @param null|string $separator
-     * @param null|string $keep
+     * @param string|array $strings
+     * @param null|string  $separator
+     * @param null|string  $keep
      *
      * @return string
      */
-    protected function caseSwitch(string $case,
-        string $string, string $separator = null, string $keep = null
-    ) : string
+    protected function case($strings, string $keep = null, string $separator = null) : string
     {
-        $case = $case ?? static::CASE_LOWER;
         $separator = $separator ?? '';
-        $keep = isset($keep)
-            ? $separator . $keep
-            : $separator;
+        $keep = $keep ?? '';
 
-        if (! isset(static::THE_CASE_LIST[ $case ])) {
-            throw new InvalidArgumentException(
-                [ 'Unknown case passed: %s', $case ]
-            );
-        }
-
-        if ('' === ( $result = trim($string) )) {
+        if (! $strings = $this->wordvals($strings)) {
             return '';
         }
 
-        $result = preg_replace('/\s+/', static::REPLACER, $result);
-
-        $result = ''
-            . mb_convert_case(mb_substr($result, 0, 1), $case)
-            . preg_replace('/\p{Lu}/', static::REPLACER . '$0', mb_substr($result, 1));
-
-        preg_match_all('/([^\w' . $keep . ']|[_])/', $result, $matches);
-
-        $delimiters = implode('', array_unique($matches[ 1 ]));
-        $delimitersArray = $this->split($separator . $delimiters);
-
-        $resultArray = $this->explode([ static::REPLACER, $delimitersArray ], $result);
-        $resultArray = array_filter($resultArray, 'strlen');
-
-        foreach ( $resultArray as $idx => $r ) {
-            $resultArray[ $idx ] = ''
-                . mb_convert_case(mb_substr($r, 0, 1), $case)
-                . mb_substr($r, 1);
+        $result = trim(implode(' ', $strings));
+        if (! strlen($result)) {
+            return '';
         }
 
-        $result = implode($separator, $resultArray);
+        $result = preg_replace('/\p{Lu}/', ' $0', lcfirst($result));
+        $result = preg_replace('/(?:[^\w' . preg_quote($separator . $keep, '/') . ']|[_])+/', ' ', $result);
+
+        if (strlen($separator)) {
+            $result = preg_replace('/[' . $separator . ' ]+/', ' ', $result);
+        }
 
         return $result;
+    }
+
+
+    /**
+     * @return IStr
+     */
+    public static function me()
+    {
+        return SupportFactory::getInstance()->getStr();
     }
 }

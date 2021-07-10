@@ -1,8 +1,5 @@
 <?php
 
-use Gzhegow\Support\Filter;
-use Gzhegow\Support\Domain\Filter\ValueObjects\InvokableInfo;
-
 
 require_once __DIR__ . '/generator.php';
 
@@ -23,29 +20,34 @@ $phpFile->setComment(implode("\n", [
 ]));
 
 // namespace
-$namespace = new \Nette\PhpGenerator\PhpNamespace('Gzhegow\\Support\\Domain\\Filter\\Generated');
+$namespace = new \Nette\PhpGenerator\PhpNamespace('Gzhegow\\Support\\Generated');
 $phpFile->addNamespace($namespace);
-$namespace->addUse(Filter::class, 'Filter');
-$namespace->addUse(InvokableInfo::class, 'InvokableInfo');
-$namespace->addUse(\Gzhegow\Support\Exceptions\Logic\InvalidArgumentException::class, 'InvalidArgumentException');
+$namespace->addUse(\Gzhegow\Support\IFilter::class);
+$namespace->addUse(\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo::class);
+$namespace->addUse(\Gzhegow\Support\Exceptions\Logic\InvalidArgumentException::class);
 
 // class
 $moduleAssert = \Nette\PhpGenerator\ClassType::withBodiesFrom(Gzhegow_Support_Generator_AssertBlueprint::class);
 $moduleAssert->setName('GeneratedAssert');
 $moduleAssert->setAbstract();
+$moduleAssert->setImplements([ \Gzhegow\Support\IAssert::class ]);
 
 // copy methods
-$moduleCopy = \Nette\PhpGenerator\ClassType::from(Filter::class);
-$moduleCopy->removeMethod('addCustomFilter');
+$moduleCopy = \Nette\PhpGenerator\ClassType::from(\Gzhegow\Support\Filter::class);
 $moduleCopy->removeMethod('assert');
+$moduleCopy->removeMethod('php');
+$moduleCopy->removeMethod('type');
+//
 $moduleCopy->removeMethod('bind');
 $moduleCopy->removeMethod('call');
+//
 $moduleCopy->removeMethod('filter');
+$moduleCopy->removeMethod('addCustomFilter');
 $moduleCopy->removeMethod('findCustomFilter');
 $moduleCopy->removeMethod('getCustomFilters');
-$moduleCopy->removeMethod('php');
 $moduleCopy->removeMethod('replaceCustomFilter');
-$moduleCopy->removeMethod('type');
+//
+$moduleCopy->removeMethod('me');
 foreach ( $moduleCopy->getMethods() as $method ) {
     if ('__construct' === ( $methodName = $method->getName() )) {
         continue;
@@ -134,7 +136,7 @@ $namespace->add($moduleAssert);
 $content = $printer->printFile($phpFile);
 
 // store
-$filepath = __ROOT__ . '/src/Domain/Filter/Generated/GeneratedAssert.php';
+$filepath = __ROOT__ . '/src/Generated/GeneratedAssert.php';
 
 echo 'Writing file: ' . $filepath . PHP_EOL;
 file_put_contents($filepath, $content);

@@ -2,17 +2,17 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Interfaces\NumInterface;
+use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
  * Num
  */
-class Num implements NumInterface
+class Num implements INum
 {
     /**
-     * @var Filter
+     * @var IFilter
      */
     protected $filter;
 
@@ -20,10 +20,10 @@ class Num implements NumInterface
     /**
      * Constructor
      *
-     * @param Filter $filter
+     * @param IFilter $filter
      */
     public function __construct(
-        Filter $filter
+        IFilter $filter
     )
     {
         $this->filter = $filter;
@@ -673,5 +673,14 @@ class Num implements NumInterface
         }
 
         return $result;
+    }
+
+
+    /**
+     * @return INum
+     */
+    public static function me()
+    {
+        return SupportFactory::getInstance()->getNum();
     }
 }

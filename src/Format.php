@@ -2,17 +2,17 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Interfaces\FormatInterface;
+use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
  * Format
  */
-class Format implements FormatInterface
+class Format implements IFormat
 {
     /**
-     * @var Num
+     * @var INum
      */
     protected $num;
 
@@ -20,10 +20,10 @@ class Format implements FormatInterface
     /**
      * Constructor
      *
-     * @param Num $num
+     * @param INum $num
      */
     public function __construct(
-        Num $num
+        INum $num
     )
     {
         $this->num = $num;
@@ -106,5 +106,14 @@ class Format implements FormatInterface
             'Z' => 7,
             'Y' => 8,
         ];
+    }
+
+
+    /**
+     * @return IFormat
+     */
+    public static function me()
+    {
+        return SupportFactory::getInstance()->getFormat();
     }
 }

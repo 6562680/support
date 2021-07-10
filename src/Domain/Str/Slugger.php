@@ -2,8 +2,8 @@
 
 namespace Gzhegow\Support\Domain\Str;
 
-use Gzhegow\Support\Str;
-use Gzhegow\Support\Php;
+use Gzhegow\Support\IStr;
+use Gzhegow\Support\IPhp;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Exceptions\Runtime\UnexpectedValueException;
 
@@ -14,13 +14,16 @@ use Gzhegow\Support\Exceptions\Runtime\UnexpectedValueException;
 class Slugger implements SluggerInterface
 {
     /**
-     * @var Php
-     */
-    protected $php;
-    /**
-     * @var Str
+     * @var IStr
      */
     protected $str;
+
+
+    /**
+     * @var IPhp
+     */
+    protected $php;
+
 
     /**
      * @var \Symfony\Component\String\Slugger\SluggerInterface $symfonySlugger
@@ -44,16 +47,19 @@ class Slugger implements SluggerInterface
     /**
      * Constructor
      *
-     * @param Php $php
-     * @param Str $str
+     * @param IStr $str
+     *
+     * @param IPhp $php
      */
     public function __construct(
-        Php $php,
-        Str $str
+        IStr $str,
+
+        IPhp $php
     )
     {
-        $this->php = $php;
         $this->str = $str;
+
+        $this->php = $php;
     }
 
 

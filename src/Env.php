@@ -2,17 +2,17 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Interfaces\EnvInterface;
+use Gzhegow\Support\SupportFactory;
 
 
 /**
  * Env
  */
-class Env implements EnvInterface
+class Env implements IEnv
 {
     /**
-     * @param null      $option
-     * @param bool|null $runtime
+     * @param null|string $option
+     * @param null|bool   $runtime
      *
      * @return null|array|false|string
      */
@@ -23,16 +23,12 @@ class Env implements EnvInterface
             : null;
 
         $varname_lower = is_string($option)
-            ? mb_strtolower($option)
+            ? strtolower($option)
             : null;
 
         $runtime = null
-            ?? ( is_bool($runtime)
-                ? $runtime
-                : null )
-            ?? ( is_bool($option)
-                ? $option
-                : null )
+            ?? ( is_bool($runtime) ? $runtime : null )
+            ?? ( is_bool($option) ? $option : null )
             ?? true;
 
         $env = getenv();
@@ -43,12 +39,8 @@ class Env implements EnvInterface
         // one value
         if ($varname) {
             $result = null
-                ?? ( isset($env[ $varname ])
-                    ? getenv($varname, $runtime)
-                    : null )
-                ?? ( isset($env[ $varname_lower ])
-                    ? getenv($varname_lower, $runtime)
-                    : null );
+                ?? ( isset($env[ $varname ]) ? getenv($varname, $runtime) : null )
+                ?? ( isset($env[ $varname_lower ]) ? getenv($varname_lower, $runtime) : null );
 
             return $result;
         }
@@ -57,7 +49,7 @@ class Env implements EnvInterface
         $result = [];
         $registry = [];
         foreach ( $env as $key => $item ) {
-            $prev = $registry[ $keyLower = mb_strtolower($key) ] ?? null;
+            $prev = $registry[ $keyLower = strtolower($key) ] ?? null;
 
             if (isset($prev)) unset($result[ $prev ]);
 
@@ -87,7 +79,16 @@ class Env implements EnvInterface
 
 
     /**
-     * @var
+     * @return IEnv
+     */
+    public static function me()
+    {
+        return SupportFactory::getInstance()->getEnv();
+    }
+
+
+    /**
+     * @var array
      */
     protected static $env;
 }

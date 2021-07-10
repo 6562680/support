@@ -2,18 +2,17 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Domain\Filter\Type;
-use Gzhegow\Support\Domain\Filter\Assert;
-use Gzhegow\Support\Domain\SupportFactory;
-use Gzhegow\Support\Interfaces\FilterInterface;
+use Gzhegow\Support\Type;
+use Gzhegow\Support\Assert;
+use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
-use Gzhegow\Support\Domain\Filter\ValueObjects\InvokableInfo;
+use Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo;
 
 
 /**
  * Filter
  */
-class Filter implements FilterInterface
+class Filter implements IFilter
 {
     /**
      * @var Assert
@@ -809,8 +808,8 @@ class Filter implements FilterInterface
     }
 
     /**
-     * @param string|array|callable|mixed $callableString
-     * @param null|InvokableInfo          $invokableInfo
+     * @param string|array|callable|mixed                                   $callableString
+     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
      *
      * @return null|string|array|callable
      */
@@ -829,8 +828,8 @@ class Filter implements FilterInterface
     }
 
     /**
-     * @param string|callable|mixed $callableString
-     * @param null|InvokableInfo    $invokableInfo
+     * @param string|callable|mixed                                         $callableString
+     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
      *
      * @return null|string|callable
      */
@@ -851,8 +850,8 @@ class Filter implements FilterInterface
     }
 
     /**
-     * @param string|callable|mixed $callableString
-     * @param null|InvokableInfo    $invokableInfo
+     * @param string|callable|mixed                                         $callableString
+     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
      *
      * @return null|string|callable
      */
@@ -874,8 +873,8 @@ class Filter implements FilterInterface
     }
 
     /**
-     * @param array|callable|mixed $callableArray
-     * @param null|InvokableInfo   $invokableInfo
+     * @param array|callable|mixed                                          $callableArray
+     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
      *
      * @return null|array|callable
      */
@@ -894,8 +893,8 @@ class Filter implements FilterInterface
     }
 
     /**
-     * @param array|callable|mixed $callableArray
-     * @param null|InvokableInfo   $invokableInfo
+     * @param array|callable|mixed                                          $callableArray
+     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
      *
      * @return null|array|callable
      */
@@ -919,8 +918,8 @@ class Filter implements FilterInterface
     }
 
     /**
-     * @param array|callable|mixed $callableArray
-     * @param null|InvokableInfo   $invokableInfo
+     * @param array|callable|mixed                                          $callableArray
+     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
      *
      * @return null|array|callable
      */
@@ -945,8 +944,8 @@ class Filter implements FilterInterface
     }
 
     /**
-     * @param \Closure|mixed     $closure
-     * @param null|InvokableInfo $invokableInfo
+     * @param \Closure|mixed                                                $closure
+     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
      *
      * @return null|\Closure
      */
@@ -991,8 +990,8 @@ class Filter implements FilterInterface
     }
 
     /**
-     * @param array|mixed        $methodArray
-     * @param null|InvokableInfo $invokableInfo
+     * @param array|mixed                                                   $methodArray
+     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
      *
      * @return null|array
      */
@@ -1022,8 +1021,8 @@ class Filter implements FilterInterface
     }
 
     /**
-     * @param string|mixed       $handler
-     * @param null|InvokableInfo $invokableInfo
+     * @param string|mixed                                                  $handler
+     * @param null|\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo $invokableInfo
      *
      * @return null|string|callable
      */
@@ -1494,6 +1493,15 @@ class Filter implements FilterInterface
         $result = static::$customFilters[ $filterLower ] ?? null;
 
         return $result;
+    }
+
+
+    /**
+     * @return IFilter
+     */
+    public static function me()
+    {
+        return SupportFactory::getInstance()->getFilter();
     }
 
 

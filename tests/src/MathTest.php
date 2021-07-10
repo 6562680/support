@@ -3,14 +3,14 @@
 namespace Gzhegow\Support\Tests;
 
 use Gzhegow\Support\Math;
-use Gzhegow\Support\Domain\SupportFactory;
+use Gzhegow\Support\IMath;
 
 
 class MathTest extends AbstractTestCase
 {
-    protected function getMath() : Math
+    protected function getMath() : IMath
     {
-        return SupportFactory::getInstance()->newMath();
+        return Math::me();
     }
 
 

@@ -3,14 +3,14 @@
 namespace Gzhegow\Support\Tests;
 
 use Gzhegow\Support\Path;
-use Gzhegow\Support\Domain\SupportFactory;
+use Gzhegow\Support\IPath;
 
 
 class PathTest extends AbstractTestCase
 {
-    protected function getPath() : Path
+    protected function getPath() : IPath
     {
-        return SupportFactory::getInstance()->newPath();
+        return Path::me();
     }
 
 

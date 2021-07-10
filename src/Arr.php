@@ -3,8 +3,8 @@
 namespace Gzhegow\Support;
 
 use Gzhegow\Support\Exceptions\Error;
-use Gzhegow\Support\Interfaces\ArrInterface;
-use Gzhegow\Support\Domain\Arr\ValueObjects\ExpandValue;
+use Gzhegow\Support\SupportFactory;
+use Gzhegow\Support\Domain\Arr\ValueObject\ExpandValue;
 use Gzhegow\Support\Exceptions\Logic\OutOfRangeException;
 use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
@@ -13,7 +13,7 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 /**
  * Arr
  */
-class Arr implements ArrInterface
+class Arr implements IArr
 {
     const ERROR_FETCHREF_EMPTY_KEY    = 1;
     const ERROR_FETCHREF_MISSING_KEY  = 2;
@@ -22,17 +22,18 @@ class Arr implements ArrInterface
 
 
     /**
-     * @var Filter
+     * @var IFilter
      */
     protected $filter;
     /**
-     * @var Php
+     * @var IPhp
      */
     protected $php;
     /**
-     * @var Str
+     * @var IStr
      */
     protected $str;
+
 
     /**
      * @var callable
@@ -43,14 +44,14 @@ class Arr implements ArrInterface
     /**
      * Constructor
      *
-     * @param Filter $filter
-     * @param Php    $php
-     * @param Str    $str
+     * @param IFilter $filter
+     * @param IPhp    $php
+     * @param IStr    $str
      */
     public function __construct(
-        Filter $filter,
-        Php $php,
-        Str $str
+        IFilter $filter,
+        IPhp $php,
+        IStr $str
     )
     {
         $this->filter = $filter;
@@ -1240,5 +1241,14 @@ class Arr implements ArrInterface
         }
 
         return $ref;
+    }
+
+
+    /**
+     * @return IArr
+     */
+    public static function me()
+    {
+        return SupportFactory::getInstance()->getArr();
     }
 }

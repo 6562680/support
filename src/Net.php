@@ -2,16 +2,41 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Interfaces\NetInterface;
+use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
  * Net
  */
-class Net implements NetInterface
+class Net implements INet
 {
+    const METHOD_CONNECT = 'CONNECT';
+    const METHOD_DELETE  = 'DELETE';
+    const METHOD_GET     = 'GET';
+    const METHOD_HEAD    = 'HEAD';
+    const METHOD_OPTIONS = 'OPTIONS';
+    const METHOD_PATCH   = 'PATCH';
+    const METHOD_POST    = 'POST';
+    const METHOD_PURGE   = 'PURGE';
+    const METHOD_PUT     = 'PUT';
+    const METHOD_TRACE   = 'TRACE';
+
+    const THE_METHOD_LIST = [
+        self::METHOD_HEAD    => true,
+        self::METHOD_OPTIONS => true,
+        self::METHOD_GET     => true,
+        self::METHOD_POST    => true,
+        self::METHOD_PATCH   => true,
+        self::METHOD_PUT     => true,
+        self::METHOD_DELETE  => true,
+        self::METHOD_PURGE   => true,
+        self::METHOD_CONNECT => true,
+        self::METHOD_TRACE   => true,
+    ];
+
+
     /**
-     * @var Str
+     * @var IStr
      */
     protected $str;
 
@@ -19,9 +44,11 @@ class Net implements NetInterface
     /**
      * Constructor
      *
-     * @param Str $str
+     * @param IStr $str
      */
-    public function __construct(Str $str)
+    public function __construct(
+        IStr $str
+    )
     {
         $this->str = $str;
     }
@@ -76,6 +103,46 @@ class Net implements NetInterface
         return ( ip2long($ip) & $bitmask ) === ( ip2long($subnet_ip) & $bitmask );
     }
 
+
+    /**
+     * @param string $httpMethod
+     *
+     * @return null|string
+     */
+    public function httpMethodVal($httpMethod) : ?string
+    {
+        $val = null;
+
+        if (! is_string($httpMethod)) {
+            return null;
+        }
+
+        if ('' === $httpMethod) {
+            return null;
+        }
+
+        if (isset(static::THE_METHOD_LIST[ $httpMethodUpper = strtoupper($httpMethod) ])) {
+            $val = $httpMethodUpper;
+        }
+
+        return $val;
+    }
+
+    /**
+     * @param string $httpMethod
+     *
+     * @return string
+     */
+    public function theHttpMethodVal($httpMethod) : string
+    {
+        if (null === ( $val = $this->httpMethodVal($httpMethod) )) {
+            throw new InvalidArgumentException(
+                [ 'Invalid HttpMethod passed: %s', $httpMethod ]
+            );
+        }
+
+        return $val;
+    }
 
 
     /**
@@ -136,5 +203,14 @@ class Net implements NetInterface
         return isset($_SERVER[ 'HTTP_USER_AGENT' ])
             ? $_SERVER[ 'HTTP_USER_AGENT' ]
             : null;
+    }
+
+
+    /**
+     * @return INet
+     */
+    public static function me()
+    {
+        return SupportFactory::getInstance()->getNet();
     }
 }

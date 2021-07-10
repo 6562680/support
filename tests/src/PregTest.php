@@ -3,15 +3,15 @@
 namespace Gzhegow\Support\Tests;
 
 use Gzhegow\Support\Preg;
-use Gzhegow\Support\Domain\SupportFactory;
+use Gzhegow\Support\IPreg;
 use Gzhegow\Support\Exceptions\RuntimeException;
 
 
 class PregTest extends AbstractTestCase
 {
-    protected function getPreg() : Preg
+    protected function getPreg() : IPreg
     {
-        return SupportFactory::getInstance()->newPreg();
+        return Preg::me();
     }
 
 

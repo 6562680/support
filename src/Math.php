@@ -3,7 +3,7 @@
 namespace Gzhegow\Support;
 
 use Gzhegow\Support\Domain\Math\Bcval;
-use Gzhegow\Support\Interfaces\MathInterface;
+use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 use Gzhegow\Support\Exceptions\Runtime\OutOfBoundsException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
@@ -12,20 +12,21 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 /**
  * Math
  */
-class Math implements MathInterface
+class Math implements IMath
 {
     /**
-     * @var Filter
+     * @var IFilter
      */
     protected $filter;
     /**
-     * @var Num
+     * @var INum
      */
     protected $num;
     /**
-     * @var Str
+     * @var IStr
      */
     protected $str;
+
 
     /**
      * @var int
@@ -40,14 +41,14 @@ class Math implements MathInterface
     /**
      * Constructor
      *
-     * @param Filter $filter
-     * @param Num    $num
-     * @param Str    $str
+     * @param IFilter $filter
+     * @param INum    $num
+     * @param IStr    $str
      */
     public function __construct(
-        Filter $filter,
-        Num $num,
-        Str $str
+        IFilter $filter,
+        INum $num,
+        IStr $str
     )
     {
         $this->filter = $filter;
@@ -1779,5 +1780,14 @@ class Math implements MathInterface
         $bcval = $this->newBcval($bcval);
 
         return $bcval;
+    }
+
+
+    /**
+     * @return IMath
+     */
+    public static function me()
+    {
+        return SupportFactory::getInstance()->getMath();
     }
 }

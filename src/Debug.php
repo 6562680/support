@@ -2,14 +2,14 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Interfaces\DebugInterface;
+use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
  * Debug
  */
-class Debug implements DebugInterface
+class Debug implements IDebug
 {
     /**
      * @param string|array|mixed $message
@@ -347,5 +347,14 @@ class Debug implements DebugInterface
             'type'     => true,
             'args'     => true,
         ];
+    }
+
+
+    /**
+     * @return IDebug
+     */
+    public static function me()
+    {
+        return SupportFactory::getInstance()->getDebug();
     }
 }

@@ -2,37 +2,41 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Interfaces\CurlInterface;
-use Gzhegow\Support\Domain\Curl\CurlBlueprint;
-use Gzhegow\Support\Domain\Curl\CurlFormatter;
+use Gzhegow\Support\Domain\Curl\Manager;
+use Gzhegow\Support\Domain\Curl\Blueprint;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
  * Curl
  */
-class Curl implements CurlInterface
+class Curl implements ICurl
 {
     /**
-     * @var Arr
+     * @var IArr
      */
     protected $arr;
     /**
-     * @var Filter
+     * @var IFilter
      */
     protected $filter;
     /**
-     * @var Php
+     * @var INet
+     */
+    protected $net;
+    /**
+     * @var IPhp
      */
     protected $php;
 
+
     /**
-     * @var CurlFormatter
+     * @var Manager
      */
     protected $formatter;
 
     /**
-     * @var CurlBlueprint
+     * @var Blueprint
      */
     protected $blueprint;
 
@@ -40,18 +44,21 @@ class Curl implements CurlInterface
     /**
      * Constructor
      *
-     * @param Arr    $arr
-     * @param Filter $filter
-     * @param Php    $php
+     * @param IArr    $arr
+     * @param IFilter $filter
+     * @param INet    $net
+     * @param IPhp    $php
      */
     public function __construct(
-        Arr $arr,
-        Filter $filter,
-        Php $php
+        IArr $arr,
+        IFilter $filter,
+        INet $net,
+        IPhp $php
     )
     {
         $this->arr = $arr;
         $this->filter = $filter;
+        $this->net = $net;
         $this->php = $php;
 
         $this->reset();
@@ -63,7 +70,7 @@ class Curl implements CurlInterface
      */
     public function reset()
     {
-        $this->formatter = $this->newFormatter();
+        $this->formatter = $this->formatter();
         $this->blueprint = $this->newBlueprint([
             CURLOPT_HEADER         => 0,
             CURLOPT_RETURNTRANSFER => 1,
@@ -78,11 +85,11 @@ class Curl implements CurlInterface
 
 
     /**
-     * @param null|CurlBlueprint $blueprint
+     * @param null|Blueprint $blueprint
      *
      * @return static
      */
-    public function clone(?CurlBlueprint $blueprint)
+    public function clone(?Blueprint $blueprint)
     {
         $instance = clone $this;
 
@@ -93,11 +100,11 @@ class Curl implements CurlInterface
 
 
     /**
-     * @param null|CurlBlueprint $blueprint
+     * @param null|Blueprint $blueprint
      *
      * @return static
      */
-    public function with(?CurlBlueprint $blueprint)
+    public function with(?Blueprint $blueprint)
     {
         $this->reset();
 
@@ -108,11 +115,11 @@ class Curl implements CurlInterface
 
 
     /**
-     * @param CurlBlueprint $blueprint
+     * @param Blueprint $blueprint
      *
      * @return static
      */
-    public function withBlueprint(CurlBlueprint $blueprint)
+    public function withBlueprint(Blueprint $blueprint)
     {
         $this->blueprint = $blueprint;
 
@@ -123,13 +130,14 @@ class Curl implements CurlInterface
     /**
      * @param array $curlOptArray
      *
-     * @return CurlBlueprint
+     * @return Blueprint
      */
-    public function newBlueprint(array $curlOptArray = []) : CurlBlueprint
+    public function newBlueprint(array $curlOptArray = []) : Blueprint
     {
-        return new CurlBlueprint(
+        return new Blueprint(
             $this->arr,
             $this->filter,
+            $this->net,
 
             $this->formatter,
 
@@ -138,23 +146,11 @@ class Curl implements CurlInterface
     }
 
     /**
-     * @return CurlFormatter
-     */
-    public function newFormatter() : CurlFormatter
-    {
-        return new CurlFormatter(
-            $this->filter,
-            $this->php,
-        );
-    }
-
-
-    /**
      * @param array $curlOptArray
      *
-     * @return CurlBlueprint
+     * @return Blueprint
      */
-    public function cloneBlueprint(array $curlOptArray = []) : CurlBlueprint
+    public function cloneBlueprint(array $curlOptArray = []) : Blueprint
     {
         $clone = clone $this->blueprint;
 
@@ -165,9 +161,9 @@ class Curl implements CurlInterface
 
 
     /**
-     * @return CurlBlueprint
+     * @return Blueprint
      */
-    public function getBlueprint() : CurlBlueprint
+    public function getBlueprint() : Blueprint
     {
         return $this->blueprint;
     }
@@ -184,6 +180,7 @@ class Curl implements CurlInterface
     {
         return $this->blueprint->get($url, $data, $headers);
     }
+
 
 
     /**
@@ -284,6 +281,22 @@ class Curl implements CurlInterface
 
 
     /**
+     * @return Manager
+     */
+    public function formatter() : Manager
+    {
+        if (! isset($this->formatter)) {
+            $this->formatter = new Manager(
+                $this->filter,
+                $this->php,
+            );
+        }
+
+        return $this->formatter;
+    }
+
+
+    /**
      * @param resource $ch
      *
      * @return null|array
@@ -311,7 +324,7 @@ class Curl implements CurlInterface
             return null;
         }
 
-        $result = ( null !== ( $infoCode = $this->formatter->detectInfoCode($opt) ) )
+        $result = ( null !== ( $infoCode = $this->formatter->curlInfoCodeVal($opt) ) )
             ? curl_getinfo($ch, $infoCode)
             : curl_getinfo($ch)[ $infoCode ];
 
@@ -523,5 +536,14 @@ class Curl implements CurlInterface
         }
 
         return $result;
+    }
+
+
+    /**
+     * @return ICurl
+     */
+    public static function me()
+    {
+        return SupportFactory::getInstance()->getCurl();
     }
 }

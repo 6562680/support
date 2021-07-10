@@ -3,14 +3,14 @@
 namespace Gzhegow\Support\Tests;
 
 use Gzhegow\Support\Uri;
-use Gzhegow\Support\Domain\SupportFactory;
+use Gzhegow\Support\IUri;
 
 
 class UriTest extends AbstractTestCase
 {
-    protected function getUri() : Uri
+    protected function getUri() : IUri
     {
-        return SupportFactory::getInstance()->newUri();
+        return Uri::me();
     }
 
 

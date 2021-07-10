@@ -2,7 +2,7 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Interfaces\CliInterface;
+use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Exceptions\Logic\BadFunctionCallException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
@@ -11,18 +11,18 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 /**
  * Cli
  */
-class Cli implements CliInterface
+class Cli implements ICli
 {
     /**
-     * @var Env
+     * @var IEnv
      */
     protected $env;
     /**
-     * @var Fs
+     * @var IFs
      */
     protected $fs;
     /**
-     * @var Php
+     * @var IPhp
      */
     protected $php;
 
@@ -30,14 +30,14 @@ class Cli implements CliInterface
     /**
      * Constructor
      *
-     * @param Env $env
-     * @param Fs  $fs
-     * @param Php $php
+     * @param IEnv $env
+     * @param IFs  $fs
+     * @param IPhp $php
      */
     public function __construct(
-        Env $env,
-        Fs $fs,
-        Php $php
+        IEnv $env,
+        IFs $fs,
+        IPhp $php
     )
     {
         $this->env = $env;
@@ -268,5 +268,14 @@ class Cli implements CliInterface
         $code = proc_close($h);
 
         return [ $code, $stderr, $stdout ];
+    }
+
+
+    /**
+     * @return static
+     */
+    public static function me()
+    {
+        return SupportFactory::getInstance()->getCli();
     }
 }

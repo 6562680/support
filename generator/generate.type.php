@@ -1,7 +1,5 @@
 <?php
 
-use Gzhegow\Support\Filter;
-
 
 require_once __DIR__ . '/generator.php';
 
@@ -22,28 +20,32 @@ $phpFile->setComment(implode("\n", [
 ]));
 
 // namespace
-$namespace = new \Nette\PhpGenerator\PhpNamespace('Gzhegow\\Support\\Domain\\Filter\\Generated');
+$namespace = new \Nette\PhpGenerator\PhpNamespace('Gzhegow\\Support\\Generated');
 $phpFile->addNamespace($namespace);
-$namespace->addUse(\Gzhegow\Support\Filter::class, 'Filter');
-$namespace->addUse(\Gzhegow\Support\Domain\Filter\ValueObjects\InvokableInfo::class, 'InvokableInfo');
-
+$namespace->addUse(\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo::class);
+$namespace->addUse(\Gzhegow\Support\IFilter::class);
 // class
 $moduleType = \Nette\PhpGenerator\ClassType::withBodiesFrom(Gzhegow_Support_Generator_TypeBlueprint::class);
 $moduleType->setName('GeneratedType');
 $moduleType->setAbstract();
+$moduleType->setImplements([ \Gzhegow\Support\IType::class ]);
 
 // copy methods
-$moduleCopy = \Nette\PhpGenerator\ClassType::from(Filter::class);
-$moduleCopy->removeMethod('addCustomFilter');
+$moduleCopy = \Nette\PhpGenerator\ClassType::from(\Gzhegow\Support\Filter::class);
 $moduleCopy->removeMethod('assert');
+$moduleCopy->removeMethod('php');
+$moduleCopy->removeMethod('type');
+//
 $moduleCopy->removeMethod('bind');
 $moduleCopy->removeMethod('call');
+//
 $moduleCopy->removeMethod('filter');
+$moduleCopy->removeMethod('addCustomFilter');
 $moduleCopy->removeMethod('findCustomFilter');
 $moduleCopy->removeMethod('getCustomFilters');
-$moduleCopy->removeMethod('php');
 $moduleCopy->removeMethod('replaceCustomFilter');
-$moduleCopy->removeMethod('type');
+//
+$moduleCopy->removeMethod('me');
 foreach ( $moduleCopy->getMethods() as $method ) {
     if ('__construct' === ( $methodName = $method->getName() )) {
         continue;
@@ -104,7 +106,7 @@ $namespace->add($moduleType);
 $content = $printer->printFile($phpFile);
 
 // store
-$filepath = __ROOT__ . '/src/Domain/Filter/Generated/GeneratedType.php';
+$filepath = __ROOT__ . '/src/Generated/GeneratedType.php';
 
 echo 'Writing file: ' . $filepath . PHP_EOL;
 file_put_contents($filepath, $content);
