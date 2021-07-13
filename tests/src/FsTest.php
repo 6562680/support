@@ -231,32 +231,60 @@ class FsTest extends AbstractTestCase
     {
         $fs = $this->getFs();
 
-        $dir = $fs->mkdir(__DIR__ . '/../storage/fs/mkdir/1/2/3');
+        $directory = __DIR__ . '/../storage/fs/mkdir';
+
+        $dir = $fs->mkdir($directory . '/1/2/3');
 
         $this->assertDirectoryExists($dir);
 
-        $fs->rmdir($dir, true);
+        $fs->rmdir($directory, true);
     }
 
     public function testRmdir()
     {
         $fs = $this->getFs();
 
-        $filesDir = __DIR__ . '/../storage/fs/rmdir';
-        $appDir = $filesDir . '/app';
+        $directory = __DIR__ . '/../storage/fs/rmdir';
 
-        $protected[] = $filesDir;
-        $protected[] = $appDir;
+        $dir1 = $directory . '/1';
+        $dir11 = $directory . '/1/11';
+        $dir2 = $directory . '/2';
+        $dir21 = $directory . '/2/21';
 
-        $removed[] = $filesDir . '/logs';
+        $ignoredDirs[] = $directory;
+        $ignoredDirs[] = $dir1;
+        $ignoredDirs[] = $dir11;
+        // $ignoredDirs[] = $dir2;
+        // $ignoredDirs[] = $dir21;
+
+        // $removedDirs[] = $dir;
+        // $removedDirs[] = $dir1;
+        // $removedDirs[] = $dir11;
+        $removedDirs[] = $dir2;
+        $removedDirs[] = $dir21;
 
         $files = [
-            $protected[] = $filesDir . '/app/logs/log.txt',
-            $protected[] = $filesDir . '/app/logs/file.html',
-            $protected[] = $filesDir . '/file.html',
+            $ignored[] = $directory . '/1.txt',
+            // $ignored[] = $directory . '/2.txt',
+            // $ignored[] = $directory . '/1/11.txt',
+            // $ignored[] = $directory . '/1/12.txt',
+            $ignored[] = $directory . '/1/11/111.txt',
+            $ignored[] = $directory . '/1/11/112.txt',
+            // $ignored[] = $directory . '/2/21.txt',
+            // $ignored[] = $directory . '/2/22.txt',
+            // $ignored[] = $directory . '/2/21/211.txt',
+            // $ignored[] = $directory . '/2/21/212.txt',
 
-            $removed[] = $filesDir . '/log.txt',
-            $removed[] = $filesDir . '/logs/log.txt',
+            // $removed[] = $directory . '/1.txt',
+            $removed[] = $directory . '/2.txt',
+            $removed[] = $directory . '/1/11.txt',
+            $removed[] = $directory . '/1/12.txt',
+            // $removed[] = $$directorydir . '/1/11/111.txt',
+            // $removed[] = $directory . '/1/11/112.txt',
+            $removed[] = $directory . '/2/21.txt',
+            $removed[] = $directory . '/2/22.txt',
+            $removed[] = $directory . '/2/21/211.txt',
+            $removed[] = $directory . '/2/21/212.txt',
         ];
 
         foreach ( $files as $file ) {
@@ -265,26 +293,37 @@ class FsTest extends AbstractTestCase
             touch($file);
         }
 
-        $fs->rmdir($filesDir, true, function (\SplFileInfo $file) use ($appDir) {
-            if ($shouldKeep = ( $file->getBasename() === 'file.html' )) {
+        $fs->rmdir($directory, function (\SplFileInfo $file) use ($dir11) {
+            if ($file->getBasename() === '1.txt') {
                 return true;
             }
 
-            if ($shouldKeep = 0 === mb_stripos($file->getRealPath(), realpath($appDir))) {
+            $startsWith = 0 === mb_stripos($file->getRealPath(), realpath($dir11) . DIRECTORY_SEPARATOR);
+            if ($startsWith) {
                 return true;
             }
 
             return false;
         });
 
-        foreach ( $protected as $file ) {
-            static::assertFileExists($file);
+        foreach ( $ignoredDirs as $dir ) {
+            $this->assertDirectoryExists($dir);
+        }
+
+        foreach ( $ignored as $file ) {
+            $this->assertFileExists($file);
+        }
+
+        foreach ( $removedDirs as $dir ) {
+            $this->assertDirectoryDoesNotExist($dir);
         }
 
         foreach ( $removed as $file ) {
-            static::assertFileDoesNotExist($file);
+            $this->assertFileDoesNotExist($file);
         }
 
-        $fs->rmdir($filesDir, true);
+        $fs->rmdir($directory, true);
+
+        $this->assertDirectoryDoesNotExist($directory);
     }
 }

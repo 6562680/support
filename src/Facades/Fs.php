@@ -13,6 +13,7 @@ namespace Gzhegow\Support\Facades;
 
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\RuntimeException;
+use Gzhegow\Support\Exceptions\Runtime\FilesystemException;
 use Gzhegow\Support\IFs;
 use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\ZFs;
@@ -28,33 +29,45 @@ class Fs
     }
 
     /**
-     * @param string $root
+     * @param null|string $rootPath
+     * @param null|string $backupPath
      *
      * @return ZFs
      */
-    public static function clone(string $root)
+    public static function clone(?string $rootPath, ?string $backupPath)
     {
-        return static::getInstance()->clone($root);
+        return static::getInstance()->clone($rootPath, $backupPath);
     }
 
     /**
-     * @param null|string $root
+     * @param null|string $rootPath
+     * @param null|string $backupPath
      *
      * @return ZFs
      */
-    public static function with(?string $root)
+    public static function with(?string $rootPath, ?string $backupPath)
     {
-        return static::getInstance()->with($root);
+        return static::getInstance()->with($rootPath, $backupPath);
     }
 
     /**
-     * @param string $root
+     * @param string $absolutePath
      *
      * @return ZFs
      */
-    public static function withRoot(string $root)
+    public static function withRootPath(string $absolutePath)
     {
-        return static::getInstance()->withRoot($root);
+        return static::getInstance()->withRootPath($absolutePath);
+    }
+
+    /**
+     * @param string $path
+     *
+     * @return ZFs
+     */
+    public static function withBackupPath(string $path)
+    {
+        return static::getInstance()->withBackupPath($path);
     }
 
     /**
@@ -720,14 +733,13 @@ class Fs
 
     /**
      * @param string|\SplFileInfo $dir
-     * @param bool                $rmSelf
-     * @param null|\Closure       $keepFilter
+     * @param null|bool|\Closure  $recursive
      *
      * @return array
      */
-    public static function rmdir($dir, bool $rmSelf = false, \Closure $keepFilter = null): array
+    public static function rmdir($dir, $recursive = null): array
     {
-        return static::getInstance()->rmdir($dir, $rmSelf, $keepFilter);
+        return static::getInstance()->rmdir($dir, $recursive);
     }
 
     /**

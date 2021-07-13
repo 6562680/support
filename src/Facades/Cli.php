@@ -63,7 +63,7 @@ class Cli
      * @param string      $outputPath
      * @param string      $content
      * @param null|bool   $backup
-     * @param null|string $overwrite
+     * @param null|string $yesOverwrite
      *
      * @return string
      */
@@ -71,9 +71,32 @@ class Cli
         string $outputPath,
         string $content,
         bool $backup = null,
-        string &$overwrite = null
+        string &$yesOverwrite = null
     ): string {
-        return static::getInstance()->filePut($outputPath, $content, $backup, $overwrite);
+        return static::getInstance()->filePut($outputPath, $content, $backup, $yesOverwrite);
+    }
+
+    /**
+     * @param string|\SplFileInfo $dir
+     * @param null|bool|\Closure  $recursive
+     * @param null|string         $yesRemove
+     *
+     * @return array
+     */
+    public static function rmdir($dir, $recursive = null, string &$yesRemove = null): array
+    {
+        return static::getInstance()->rmdir($dir, $recursive, $yesRemove);
+    }
+
+    /**
+     * @param string      $message
+     * @param null|string $yesQuestion
+     *
+     * @return bool
+     */
+    public static function yes(string $message, string &$yesQuestion = null): bool
+    {
+        return static::getInstance()->yes($message, $yesQuestion);
     }
 
     /**

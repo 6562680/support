@@ -7,6 +7,7 @@
 namespace Gzhegow\Support;
 
 use Gzhegow\Support\Exceptions\RuntimeException;
+use Gzhegow\Support\Exceptions\Runtime\FilesystemException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
@@ -41,7 +42,11 @@ class ZFs implements IFs
     /**
      * @var string
      */
-    protected $root = '';
+    protected $rootPath = '';
+    /**
+     * @var string
+     */
+    protected $backupPath;
 
 
     /**
@@ -67,52 +72,76 @@ class ZFs implements IFs
      */
     public function reset()
     {
-        $this->root = '';
+        $this->rootPath = '';
+        $this->backupPath = null;
 
         return $this;
     }
 
 
     /**
-     * @param string $root
+     * @param null|string $rootPath
+     * @param null|string $backupPath
      *
      * @return static
      */
-    public function clone(string $root)
+    public function clone(?string $rootPath, ?string $backupPath)
     {
         $instance = clone $this;
 
-        if (isset($root)) $this->withRoot($root);
+        if (isset($rootPath)) $instance->withRootPath($rootPath);
+        if (isset($backupPath)) $instance->withBackupPath($backupPath);
 
         return $instance;
     }
 
 
     /**
-     * @param null|string $root
+     * @param null|string $rootPath
+     * @param null|string $backupPath
      *
      * @return static
      */
-    public function with(?string $root)
+    public function with(?string $rootPath, ?string $backupPath)
     {
         $this->reset();
 
-        if (isset($root)) $this->withRoot($root);
+        if (isset($rootPath)) $this->withRootPath($rootPath);
+        if (isset($backupPath)) $this->withBackupPath($backupPath);
 
         return $this;
     }
 
 
     /**
-     * @param string $root
+     * @param string $absolutePath
      *
      * @return static
      */
-    public function withRoot(string $root)
+    public function withRootPath(string $absolutePath)
     {
-        $realpath = $this->assertPathDir($root);
+        $realpath = $this->thePathDirVal($absolutePath);
 
-        $this->root = $realpath;
+        $this->rootPath = $realpath;
+
+        return $this;
+    }
+
+    /**
+     * @param string $path
+     *
+     * @return static
+     */
+    public function withBackupPath(string $path)
+    {
+        if (null !== ( $realpath = $this->pathDirVal($path) )) {
+            $this->backupPath = $realpath;
+
+        } else {
+            $subpath = $this->thePathVal($path);
+
+            $this->backupPath = $subpath;
+        }
 
         return $this;
     }
@@ -123,7 +152,7 @@ class ZFs implements IFs
      */
     public function getRoot() : string
     {
-        return $this->root;
+        return $this->rootPath;
     }
 
 
@@ -1071,7 +1100,7 @@ class ZFs implements IFs
      */
     public function pathRelative(string $path, string $base = null) : ?string
     {
-        $base = $base ?? $this->root;
+        $base = $base ?? $this->rootPath;
 
         $result = $this->path()->relative($path, $base);
 
@@ -1181,7 +1210,7 @@ class ZFs implements IFs
 
         if (mb_substr_count($relpath, ':')) {
             throw new InvalidArgumentException(
-                'Invalid path passed: ' . $this->secure($relpath)
+                [ 'Invalid path passed: %s', $this->secure($relpath) ]
             );
         }
 
@@ -1208,15 +1237,23 @@ class ZFs implements IFs
     {
         $offset = $offset ?? 0;
 
-        if (null === ( $realpath = $this->pathFileVal($file) )) {
+        if (null === ( $filepath = $this->pathVal($file) )) {
             throw new InvalidArgumentException(
+                [ 'Invalid filepath/spl: %s', $this->secure($file) ]
+            );
+        }
+
+        if (! is_file($filepath)) {
+            throw new FilesystemException(
                 [ 'Invalid file: %s', $this->secure($file) ]
             );
         }
 
+        $realpath = realpath($filepath);
+
         if (! is_readable($realpath)) {
-            throw new InvalidArgumentException(
-                'File is not readable: ' . $this->secure($realpath)
+            throw new FilesystemException(
+                [ 'File is not readable: %s', $this->secure($realpath) ]
             );
         }
 
@@ -1226,7 +1263,7 @@ class ZFs implements IFs
 
         if (false === $content) {
             throw new RuntimeException(
-                'Unable to read file: ' . $this->secure($realpath)
+                [ 'Unable to read file: %s', $this->secure($realpath) ]
             );
         }
 
@@ -1246,15 +1283,34 @@ class ZFs implements IFs
     {
         $backup = $backup ?? true;
 
+        $realpath = null;
+        $backupPath = null;
         if (file_exists($filepath)) {
+            $realpath = realpath($filepath);
+
             if (! is_writable($filepath)) {
-                throw new InvalidArgumentException(
-                    'File is not writable: ' . $this->secure($filepath)
+                throw new FilesystemException(
+                    [ 'File is not writable: %s', $this->secure($filepath) ]
                 );
             }
 
             if ($backup) {
-                copy($filepath, $backupPath = $filepath . '.backup' . date('Ymd_His'));
+                $dirPath = dirname($filepath);
+
+                if ($this->backupPath) {
+                    $dirPath = is_dir($this->backupPath)
+                        ? $this->backupPath
+                        : $this->pathConcat($dirPath, $this->backupPath);
+                }
+
+                $backupPath = $dirPath . DIRECTORY_SEPARATOR
+                    . basename($realpath) . '.backup' . date('Ymd_His');
+
+                copy($realpath, $backupPath);
+
+                $backupPath = realpath($backupPath);
+
+                chmod($backupPath, static::RWX_FILE);
             }
         }
 
@@ -1262,15 +1318,11 @@ class ZFs implements IFs
             ? file_put_contents($filepath, $data, $flags, $context)
             : file_put_contents($filepath, $data, $flags);
 
-        if (false === ( $realpath = realpath($filepath) )) {
-            throw new RuntimeException(
-                'Unable to write file: ' . $this->secure($filepath)
-            );
-        }
+        $realpath = realpath($filepath);
 
         chmod($realpath, static::RWX_FILE);
 
-        return $realpath;
+        return $backupPath ?? $realpath;
     }
 
 
@@ -1283,11 +1335,19 @@ class ZFs implements IFs
     {
         $this->assertNonWindows();
 
-        if (null !== ( $realpath = $this->pathFileExistsVal($file) )) {
+        if (null !== ( $filepath = $this->pathVal($file) )) {
             throw new RuntimeException(
-                [ 'Invalid filepath/spl or file not found: %s', $this->secure($file) ]
+                [ 'Invalid filepath/spl: %s', $this->secure($file) ]
             );
         }
+
+        if (! file_exists($filepath)) {
+            throw new FilesystemException(
+                [ 'File not found: %s', $this->secure($file) ]
+            );
+        }
+
+        $realpath = realpath($filepath);
 
         $result = false;
 
@@ -1312,11 +1372,19 @@ class ZFs implements IFs
      */
     public function filePerms($file) : string
     {
-        if (null !== ( $realpath = $this->pathFileExistsVal($file) )) {
+        if (null !== ( $filepath = $this->pathVal($file) )) {
             throw new RuntimeException(
-                [ 'Invalid filepath/spl or file not found: %s', $this->secure($file) ]
+                [ 'Invalid filepath/spl: %s', $this->secure($file) ]
             );
         }
+
+        if (! file_exists($filepath)) {
+            throw new FilesystemException(
+                [ 'File not found: %s', $this->secure($file) ]
+            );
+        }
+
+        $realpath = realpath($filepath);
 
         $result = substr(sprintf('%o', fileperms($realpath)), -4);
 
@@ -1339,8 +1407,9 @@ class ZFs implements IFs
 
         if (! is_dir($dirname)) {
             if (file_exists($dirname)) {
-                throw new RuntimeException([
-                    'Unable to create directory, same file exists: ' . $this->secure($dirname),
+                throw new FilesystemException([
+                    'Unable to create directory, same file exists: %s',
+                    $this->secure($dirname),
                 ]);
             }
 
@@ -1356,65 +1425,84 @@ class ZFs implements IFs
 
     /**
      * @param string|\SplFileInfo $dir
-     * @param bool                $rmSelf
-     * @param null|\Closure       $keepFilter
+     * @param null|bool|\Closure  $recursive
      *
      * @return array
      */
-    public function rmdir($dir, bool $rmSelf = false, \Closure $keepFilter = null) : array
+    public function rmdir($dir, $recursive = null) : array
     {
-        if (null === ( $realpath = $this->pathDirVal($dir) )) {
+        if (null === ( $selfRealpath = $this->pathDirVal($dir) )) {
             return [];
         }
 
-        $result = [];
-        $keepDirs = [];
+        $report = [];
 
-        $it = new \RecursiveDirectoryIterator($realpath, \RecursiveDirectoryIterator::SKIP_DOTS);
-        $iit = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::CHILD_FIRST);
-        foreach ( $iit as $splFileInfo ) {
-            /** @var \SplFileInfo $splFileInfo */
 
-            $shouldKeep = $keepFilter ? $keepFilter($splFileInfo) : false;
+        if (! $recursive) {
+            try {
+                rmdir($dir);
+            }
+            catch ( \Throwable $e ) {
+                throw new FilesystemException($e->getMessage(), null, $e);
+            }
+        } else {
+            $keepFilter = null;
 
-            $dirname = dirname($splFileInfo->getRealPath());
-
-            $keepDirs[ $dirname ] = $keepDirs[ $dirname ]
-                ?: $shouldKeep;
-
-            if ($splFileInfo->isDir()) {
-                $keepDirs[ $splFileInfo->getRealPath() ] =
-                    $keepDirs[ $splFileInfo->getRealPath() ]
-                        ?: $shouldKeep;
+            if ($recursive instanceof \Closure) {
+                $keepFilter = $recursive;
             }
 
-            if (! $shouldKeep) {
-                if ($splFileInfo->isFile()) {
-                    $result[] = $splFileInfo->getRealPath();
+            $directories = [];
 
-                    unlink($splFileInfo->getRealPath());
+            $it = new \RecursiveDirectoryIterator($selfRealpath, \RecursiveDirectoryIterator::SKIP_DOTS);
+            $iit = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::CHILD_FIRST);
+
+            foreach ( $iit as $spl ) {
+                /** @var \SplFileInfo $spl */
+
+                $realpath = $spl->getRealPath();
+                $dirRealpath = dirname($realpath);
+
+                $isKeep = $keepFilter
+                    ? $keepFilter($spl)
+                    : false;
+
+                $directories[ $dirRealpath ] = $directories[ $dirRealpath ] ?? false;
+
+                if ($isKeep) {
+                    $directories[ $selfRealpath ] = true;
+
+                    $parent = $dirRealpath;
+                    while ( $parent !== $selfRealpath ) {
+                        $directories[ $parent ] = true;
+                        $parent = dirname($parent);
+                    }
+
+                } elseif ($spl->isDir()) {
+                    $directories[ $realpath ] = $directories[ $realpath ] ?? false;
+
+                } else {
+                    $report[] = $realpath;
+
+                    unlink($realpath);
                 }
             }
-        }
 
-        $keepSelf = $keepDirs[ $realpath ] ?? false;
-        unset($keepDirs[ $realpath ]);
+            uksort($directories, function ($a, $b) {
+                return 0
+                    ?: mb_substr_count($b, DIRECTORY_SEPARATOR) - mb_substr_count($a, DIRECTORY_SEPARATOR);
+            });
 
-        foreach ( $keepDirs as $dirPath => $shouldKeep ) {
-            if (! $shouldKeep) {
-                $result[] = $dirPath;
+            foreach ( $directories as $realpath => $isKeep ) {
+                if ($isKeep) continue;
 
-                rmdir($dirPath);
+                $report[] = $realpath;
+
+                rmdir($realpath);
             }
         }
 
-        if ($rmSelf && ! $keepSelf) {
-            $result[] = $realpath;
-
-            rmdir($realpath);
-        }
-
-        return $result;
+        return $report;
     }
 
 

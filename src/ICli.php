@@ -48,11 +48,33 @@ interface ICli
      * @param string      $outputPath
      * @param string      $content
      * @param null|bool   $backup
-     * @param null|string $overwrite
+     * @param null|string $yesOverwrite
      *
      * @return string
      */
-    public function filePut(string $outputPath, string $content, bool $backup = null, string &$overwrite = null): string;
+    public function filePut(
+        string $outputPath,
+        string $content,
+        bool $backup = null,
+        string &$yesOverwrite = null
+    ): string;
+
+    /**
+     * @param string|\SplFileInfo $dir
+     * @param null|bool|\Closure  $recursive
+     * @param null|string         $yesRemove
+     *
+     * @return array
+     */
+    public function rmdir($dir, $recursive = null, string &$yesRemove = null): array;
+
+    /**
+     * @param string      $message
+     * @param null|string $yesQuestion
+     *
+     * @return bool
+     */
+    public function yes(string $message, string &$yesQuestion = null): bool;
 
     /**
      * выполняет консольную команду через proc_open и возвращает данные или код ошибки

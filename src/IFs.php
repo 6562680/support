@@ -13,6 +13,7 @@ namespace Gzhegow\Support;
 
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\RuntimeException;
+use Gzhegow\Support\Exceptions\Runtime\FilesystemException;
 
 interface IFs
 {
@@ -22,25 +23,34 @@ interface IFs
     public function reset();
 
     /**
-     * @param string $root
+     * @param null|string $rootPath
+     * @param null|string $backupPath
      *
      * @return ZFs
      */
-    public function clone(string $root);
+    public function clone(?string $rootPath, ?string $backupPath);
 
     /**
-     * @param null|string $root
+     * @param null|string $rootPath
+     * @param null|string $backupPath
      *
      * @return ZFs
      */
-    public function with(?string $root);
+    public function with(?string $rootPath, ?string $backupPath);
 
     /**
-     * @param string $root
+     * @param string $absolutePath
      *
      * @return ZFs
      */
-    public function withRoot(string $root);
+    public function withRootPath(string $absolutePath);
+
+    /**
+     * @param string $path
+     *
+     * @return ZFs
+     */
+    public function withBackupPath(string $path);
 
     /**
      * @return string
@@ -509,12 +519,11 @@ interface IFs
 
     /**
      * @param string|\SplFileInfo $dir
-     * @param bool                $rmSelf
-     * @param null|\Closure       $keepFilter
+     * @param null|bool|\Closure  $recursive
      *
      * @return array
      */
-    public function rmdir($dir, bool $rmSelf = false, \Closure $keepFilter = null): array;
+    public function rmdir($dir, $recursive = null): array;
 
     /**
      * @param resource $readableA

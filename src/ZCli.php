@@ -151,65 +151,120 @@ class ZCli implements ICli
      * @param string      $outputPath
      * @param string      $content
      * @param null|bool   $backup
-     * @param null|string $overwrite
+     * @param null|string $yesOverwrite
      *
      * @return string
      */
-    public function filePut(string $outputPath, string $content, bool $backup = null, string &$overwrite = null) : string
+    public function filePut(string $outputPath, string $content, bool $backup = null, string &$yesOverwrite = null) : string
     {
         $backup = $backup ?? true;
+        $yesOverwrite = $yesOverwrite ?? 'n';
 
-        $overwrite = $overwrite ?? 'n';
-
-        $willOverwrite = ( 'y' === $overwrite ) || ( 'yy' === $overwrite );
-        $all = ( 'nn' === $overwrite ) || ( 'yy' === $overwrite );
-
+        $realpath = null;
+        $backupPath = null;
         if (! file_exists($outputPath)) {
             $this->fs->mkdir(dirname($outputPath));
 
-            $this->fs->filePut($outputPath, $content);
+            $realpath = $this->fs->filePut($outputPath, $content);
 
-            echo 'Created file: ' . $outputPath . PHP_EOL;
+            echo 'Created file: ' . $this->fs->secure($realpath) . PHP_EOL;
 
         } else {
-            $outputPath = realpath($outputPath);
+            $realpath = realpath($outputPath);
 
-            if (! $all) {
-                $accepted = [ 'yy', 'y', 'n', 'nn' ];
-                $message = 'File exists: ' . basename($outputPath) . PHP_EOL
-                    . $this->fs->secure($outputPath) . PHP_EOL
-                    . 'Overwrite? [' . implode('/', $accepted) . ']';
+            $message = 'File exists: ' . basename($realpath) . PHP_EOL
+                . $this->fs->secure($realpath) . PHP_EOL
+                . 'Overwrite?';
 
-                echo $message . PHP_EOL;
+            $yes = $this->yes($message, $yesOverwrite);
 
-                while ( ! in_array($var = $this->readln(), $accepted) ) {
-                    echo 'Please enter one of: [' . implode('/', $accepted) . ']';
-                }
-
-                $overwrite = $var;
-
-                $willOverwrite = ( 'y' === $overwrite ) || ( 'yy' === $overwrite );
-            }
-
-            if (! $willOverwrite) {
-                echo 'File exists: ' . $this->fs->secure($outputPath) . PHP_EOL;
+            if (! $yes) {
+                echo 'File exists: ' . $this->fs->secure($realpath) . PHP_EOL;
 
             } else {
-                if ($backup) {
-                    copy($outputPath, $backupPath = $outputPath . '.backup' . date('Ymd_His'));
+                $backupPath = $this->fs->filePut($realpath, $content, $backup);
 
+                echo 'Replaced ' . $this->fs->secure($realpath) . PHP_EOL;
+
+                if ($backup) {
                     echo 'Backup stored at ' . $this->fs->secure($backupPath) . PHP_EOL;
                 }
-
-                $this->fs->filePut($outputPath, $content, false);
-
-                echo 'Replaced ' . $this->fs->secure($outputPath) . PHP_EOL;
             }
         }
 
-        $result = realpath($outputPath);
+        return $backupPath ?? $realpath;
+    }
 
-        return $result;
+    /**
+     * @param string|\SplFileInfo $dir
+     * @param null|bool|\Closure  $recursive
+     * @param null|string         $yesRemove
+     *
+     * @return array
+     */
+    public function rmdir($dir, $recursive = null, string &$yesRemove = null) : array
+    {
+        $yesRemove = $yesRemove ?? 'n';
+
+        $report = $this->fs->rmdir($dir, function (\SplFileInfo $spl) use ($recursive, &$yesRemove) {
+            $isKeep = null
+                ?? ( ( null === $recursive ) ? false : null )
+                ?? ( $recursive instanceof \Closure ? $recursive($spl) : null )
+                ?? ( (bool) $recursive );
+
+            if ($isKeep) {
+                $message = $spl->isDir()
+                    ? "Deleting directory: %s\n%s\nAre you sure?"
+                    : "Deleting file: %s\n%s\nAre you sure?";
+
+                $realpath = $spl->getRealPath();
+                $message = sprintf($message, basename($realpath), $this->fs->secure($realpath));
+
+                $isKeep = $this->yes($message, $yesRemove);
+            }
+
+            return $isKeep;
+        });
+
+        return $report;
+    }
+
+
+    /**
+     * @param string      $message
+     * @param null|string $yesQuestion
+     *
+     * @return bool
+     */
+    public function yes(string $message, string &$yesQuestion = null) : bool
+    {
+        $yesQuestion = $yesQuestion ?? 'n';
+
+        $yes = ( 'y' === $yesQuestion ) || ( 'yy' === $yesQuestion );
+        $all = ( 'nn' === $yesQuestion ) || ( 'yy' === $yesQuestion );
+
+        if (! $all) {
+            if (! $yes) {
+                $accepted = [ 'yy', 'y', 'n', 'nn' ];
+
+                echo $message . ' [' . implode('/', $accepted) . ']' . PHP_EOL;
+
+                while ( ! in_array($passed = $this->readln(), $accepted) ) {
+                    echo 'Please enter one of: [' . implode('/', $accepted) . ']';
+                }
+
+                $yesQuestion = $passed;
+
+                $yes = ( 'y' === $yesQuestion ) || ( 'yy' === $yesQuestion );
+                $all = ( 'nn' === $yesQuestion ) || ( 'yy' === $yesQuestion );
+            }
+
+            if (! $all) {
+                $yesQuestion = null;
+            }
+        }
+
+        return $yes;
     }
 
 

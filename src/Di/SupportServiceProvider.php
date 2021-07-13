@@ -71,7 +71,7 @@ abstract class SupportServiceProvider
         $calendar->iNow();
 
         $fs = $supportFactory->getFs();
-        $fs->withRoot($this->getRootDir());
+        $fs->withRootPath($this->getRootDir());
     }
 
 
