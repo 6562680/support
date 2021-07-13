@@ -39,9 +39,17 @@ class Str
     }
 
     /**
-     * @return string
+     * @return array
      */
-    public static function getVowels(): string
+    public static function getAccents(): array
+    {
+        return static::getInstance()->getAccents();
+    }
+
+    /**
+     * @return array
+     */
+    public static function getVowels(): array
     {
         return static::getInstance()->getVowels();
     }
@@ -109,67 +117,73 @@ class Str
     /**
      * @param string|array $strings
      * @param null|bool    $uniq
+     * @param null|bool    $recursive
      *
      * @return string[]
      */
-    public static function strvals($strings, $uniq = null): array
+    public static function strvals($strings, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->strvals($strings, $uniq);
+        return static::getInstance()->strvals($strings, $uniq, $recursive);
     }
 
     /**
      * @param string|array $words
      * @param null|bool    $uniq
+     * @param null|bool    $recursive
      *
      * @return string[]
      */
-    public static function wordvals($words, $uniq = null): array
+    public static function wordvals($words, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->wordvals($words, $uniq);
+        return static::getInstance()->wordvals($words, $uniq, $recursive);
     }
 
     /**
      * @param string|array $trims
      * @param null|bool    $uniq
+     * @param null|bool    $recursive
      *
      * @return string[]
      */
-    public static function trimvals($trims, $uniq = null): array
+    public static function trimvals($trims, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->trimvals($trims, $uniq);
+        return static::getInstance()->trimvals($trims, $uniq, $recursive);
     }
 
     /**
      * @param string|array $strings
      * @param null|bool    $uniq
+     * @param null|bool    $recursive
      *
      * @return string[]
      */
-    public static function theStrvals($strings, $uniq = null): array
+    public static function theStrvals($strings, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->theStrvals($strings, $uniq);
+        return static::getInstance()->theStrvals($strings, $uniq, $recursive);
     }
 
     /**
      * @param string|array $words
      * @param null|bool    $uniq
+     * @param null|bool    $recursive
      *
      * @return string[]
      */
-    public static function theWordvals($words, $uniq = null): array
+    public static function theWordvals($words, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->theWordvals($words, $uniq);
+        return static::getInstance()->theWordvals($words, $uniq, $recursive);
     }
 
     /**
      * @param string|array $trims
      * @param null|bool    $uniq
+     * @param null|bool    $recursive
      *
      * @return string[]
      */
-    public static function theTrimvals($trims, $uniq = null): array
+    public static function theTrimvals($trims, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->theTrimvals($trims, $uniq);
+        return static::getInstance()->theTrimvals($trims, $uniq, $recursive);
     }
 
     /**
@@ -611,7 +625,7 @@ class Str
      * @return string
      */
     public static function concatSkip(
-        array $strings,
+        $strings,
         string $delimiter = null,
         string $lastDelimiter = null,
         string $wrapper = null
@@ -620,7 +634,7 @@ class Str
     }
 
     /**
-     * урезает английское слово(-а) до префикса из нескольких букв - когда имя индекса в бд слишком длинное
+     * урезает английское слово до префикса из нескольких букв - когда имя индекса в бд слишком длинное
      *
      * @param string   $string
      * @param null|int $len
@@ -760,6 +774,16 @@ class Str
     public static function slugCase(string $string, string $delimiter = null, string $locale = null): string
     {
         return static::getInstance()->slugCase($string, $delimiter, $locale);
+    }
+
+    /**
+     * @param string $string
+     *
+     * @return string
+     */
+    public static function unaccent(string $string): string
+    {
+        return static::getInstance()->unaccent($string);
     }
 
     /**

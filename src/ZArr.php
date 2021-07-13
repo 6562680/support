@@ -260,12 +260,12 @@ class ZArr implements IArr
      */
     public function keyval($value) // : ?int|float
     {
-        if (null !== $this->filter->filterStrval($value)) {
-            return strval($value);
+        if (null !== $this->filter->filterInt($value)) {
+            return intval($value);
         }
 
-        if (null !== $this->filter->filterIntval($value)) {
-            return intval($value);
+        if (null !== $this->filter->filterString($value)) {
+            return strval($value);
         }
 
         return null;
@@ -278,35 +278,46 @@ class ZArr implements IArr
      */
     public function theKeyval($value) // : ?int|float
     {
-        if (null === ( $keyval = $this->keyval($value) )) {
+        if (null === ( $val = $this->keyval($value) )) {
             throw new InvalidArgumentException(
                 [ 'Value should be convertable to keyval: %s', $value ],
             );
         }
 
-        return $keyval;
+        return $val;
     }
 
 
     /**
      * @param int|string|array $keys
      * @param null|bool        $uniq
+     * @param null|bool        $recursive
      *
      * @return string[]
      */
-    public function keyvals($keys, $uniq = null) : array
+    public function keyvals($keys, bool $uniq = null, bool $recursive = null) : array
     {
         $result = [];
 
         $keys = is_array($keys)
-            ? $keys
+            ? array_reverse($keys)
             : [ $keys ];
 
-        array_walk_recursive($keys, function ($key) use (&$result) {
-            $result[] = $this->keyval($key);
-        });
+        if ($recursive) {
+            array_walk_recursive($keys, function ($item) use (&$result) {
+                if (null !== ( $val = $this->keyval($item) )) {
+                    $result[] = $val;
+                }
+            });
+        } else {
+            foreach ( $keys as $item ) {
+                if (null !== ( $val = $this->keyval($item) )) {
+                    $result[] = $val;
+                }
+            }
+        }
 
-        if ($uniq ?? false) {
+        if ($uniq) {
             $arr = [];
             foreach ( $result as $i ) {
                 $arr[ $i ] = true;
@@ -320,10 +331,11 @@ class ZArr implements IArr
     /**
      * @param int|string|array $keys
      * @param null|bool        $uniq
+     * @param null|bool        $recursive
      *
      * @return string[]
      */
-    public function theKeyvals($keys, $uniq = null) : array
+    public function theKeyvals($keys, bool $uniq = null, bool $recursive = null) : array
     {
         $result = [];
 
@@ -331,11 +343,17 @@ class ZArr implements IArr
             ? $keys
             : [ $keys ];
 
-        array_walk_recursive($keys, function ($key) use (&$result) {
-            $result[] = $this->theKeyval($key);
-        });
+        if ($recursive) {
+            array_walk_recursive($keys, function ($item) use (&$result) {
+                $result[] = $this->theKeyval($item);
+            });
+        } else {
+            foreach ( $keys as $item ) {
+                $result[] = $this->theKeyval($item);
+            }
+        }
 
-        if ($uniq ?? false) {
+        if ($uniq) {
             $arr = [];
             foreach ( $result as $i ) {
                 $arr[ $i ] = true;
@@ -487,31 +505,31 @@ class ZArr implements IArr
 
 
     /**
-     * @param string|string[]|array $keys
+     * @param string|string[]|array $path
      * @param string|string[]|array $separators
      *
      * @return array
      */
-    public function path($keys, $separators = '.') : array
+    public function path($path, $separators = '.') : array
     {
-        $keys = $this->theKeyvals($keys);
+        $keypath = $this->theKeyvals($path, null, true);
 
-        $result = $this->str->explode($separators, $keys);
+        $result = $this->str->explode($separators, $keypath);
 
         return $result;
     }
 
     /**
-     * @param string|string[]|array $keys
+     * @param string|string[]|array $path
      * @param string|string[]|array $separators
      *
      * @return string
      */
-    public function pathkey($keys, $separators = '.') : string
+    public function pathkey($path, $separators = '.') : string
     {
-        $keys = $this->theKeyvals($keys);
+        $keypath = $this->theKeyvals($path, null, true);
 
-        $result = $this->str->explode($separators, $keys);
+        $result = $this->str->explode($separators, $keypath);
 
         $result = implode($separators[ 0 ], $result);
 
@@ -527,9 +545,9 @@ class ZArr implements IArr
      */
     public function index($separators = '.', ...$keys) : string
     {
-        $keys = $this->theKeyvals($keys);
+        $keypath = $this->theKeyvals($keys, null, true);
 
-        $result = $this->str->explode($separators, $keys);
+        $result = $this->str->explode($separators, $keypath);
 
         $result = array_filter($result, 'strlen');
 
@@ -581,7 +599,7 @@ class ZArr implements IArr
      */
     public function only(array $array, ...$keys) : array
     {
-        $keys = $this->theKeyvals($keys, true);
+        $keys = $this->theKeyvals($keys, true, true);
 
         $result = [];
 
@@ -604,7 +622,7 @@ class ZArr implements IArr
      */
     public function except(array $array, ...$keys) : array
     {
-        $keys = $this->theKeyvals($keys, true);
+        $keys = $this->theKeyvals($keys, true, true);
 
         $result = [];
 
@@ -627,7 +645,7 @@ class ZArr implements IArr
      */
     public function drop(array $array, ...$keys)
     {
-        $keys = $this->theKeyvals($keys, true);
+        $keys = $this->theKeyvals($keys, true, true);
 
         foreach ( $keys as $key ) {
             unset($array[ $key ]);
@@ -650,8 +668,9 @@ class ZArr implements IArr
      */
     public function combine(array $keys, $values = null, bool $drop = null) : array
     {
-        $keys = $this->theKeyvals($keys);
         $drop = $drop ?? false;
+
+        $keys = $this->theKeyvals($keys);
 
         if (! is_array($values)) {
             $values = array_fill(0, count($keys), $values);
@@ -705,6 +724,25 @@ class ZArr implements IArr
         }
 
         return $result;
+    }
+
+
+    /**
+     * @param array $arr
+     *
+     * @return void
+     */
+    public function reverse(array &$arr) : void
+    {
+        $i = 0;
+        $ii = count($arr) - 1;
+
+        while ( $i < $ii ) {
+            [ $arr[ $i ], $arr[ $ii ] ] = [ $arr[ $ii ], $arr[ $i ] ];
+
+            $i++;
+            $ii--;
+        }
     }
 
 

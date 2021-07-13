@@ -197,16 +197,18 @@ interface ICurl
     /**
      * @param resource|\CurlHandle|array $curls
      * @param null|bool                  $uniq
+     * @param null|bool                  $recursive
      *
      * @return resource[]|\CurlHandle[]
      */
-    public function curls($curls, $uniq = null): array;
+    public function curls($curls, bool $uniq = null, bool $recursive = null): array;
 
     /**
      * @param resource|\CurlHandle|array $curls
      * @param null|bool                  $uniq
+     * @param null|bool                  $recursive
      *
      * @return resource[]|\CurlHandle[]
      */
-    public function theCurls($curls, $uniq = null): array;
+    public function theCurls($curls, bool $uniq = null, bool $recursive = null): array;
 }

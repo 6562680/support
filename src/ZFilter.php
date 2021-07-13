@@ -108,7 +108,7 @@ class ZFilter implements IFilter
      */
     public function filterFloat($value) : ?float
     {
-        if (( is_float($value) && ! is_nan($value) )) {
+        if (is_float($value) && ! is_nan($value)) {
             return $value;
         }
 
@@ -122,7 +122,7 @@ class ZFilter implements IFilter
      */
     public function filterNan($value) : ?float
     {
-        if (( is_float($value) && is_nan($value) )) {
+        if (is_float($value) && is_nan($value)) {
             return $value;
         }
 
@@ -136,14 +136,13 @@ class ZFilter implements IFilter
      */
     public function filterNum($value) // : ?null|int|float
     {
-        $result = ( 0
-            || ( null !== $this->filterInt($value) )
-            || ( null !== $this->filterFloat($value) )
-        )
-            ? $value
-            : null;
+        if (is_int($value)
+            || ( is_float($value) && ! is_nan($value) )
+        ) {
+            return $value;
+        }
 
-        return $result;
+        return null;
     }
 
 
@@ -154,22 +153,24 @@ class ZFilter implements IFilter
      */
     public function filterIntval($value) : ?int
     {
-        if (null !== $this->filterInt($value)) {
+        if (is_int($value)) {
             return $value;
+        }
+
+        if (is_float($value)) {
+            return intval($value) == $value
+                ? $value
+                : null;
         }
 
         if (false !== filter_var($value, FILTER_VALIDATE_INT)) {
             return $value;
         }
 
-        if (null !== $this->filterFloat($value)) {
-            return intval($value) == $value
-                ? $value : null;
-        }
-
         if (false !== filter_var($value, FILTER_VALIDATE_FLOAT)) {
             return intval($value) == $value
-                ? $value : null;
+                ? $value
+                : null;
         }
 
         return null;
@@ -182,22 +183,26 @@ class ZFilter implements IFilter
      */
     public function filterFloatval($value) : ?float
     {
-        if (null !== $this->filterFloat($value)) {
+        if (is_float($value) && ! is_nan($value)) {
             return $value;
+        }
+
+        if (is_int($value)) {
+            return floatval($value) == $value
+                ? $value
+                : null;
         }
 
         if (false !== filter_var($value, FILTER_VALIDATE_FLOAT)) {
-            return $value;
-        }
-
-        if (null !== $this->filterInt($value)) {
-            return floatval($value) == $value
-                ? $value : null;
+            return is_nan($value)
+                ? null
+                : $value;
         }
 
         if (false !== filter_var($value, FILTER_VALIDATE_INT)) {
             return floatval($value) == $value
-                ? $value : null;
+                ? $value
+                : null;
         }
 
         return null;
@@ -395,11 +400,11 @@ class ZFilter implements IFilter
      */
     public function filterString($value) : ?string
     {
-        $result = is_string($value)
-            ? $value
-            : null;
+        if (is_string($value)) {
+            return $value;
+        }
 
-        return $result;
+        return null;
     }
 
     /**
@@ -409,11 +414,54 @@ class ZFilter implements IFilter
      */
     public function filterWord($value) : ?string
     {
-        $result = ( is_string($value) && ( '' !== $value ) )
-            ? $value
-            : null;
+        if (is_string($value) && ( '' !== $value )) {
+            return $value;
+        }
 
-        return $result;
+        return null;
+    }
+
+    /**
+     * @param string|mixed $value
+     *
+     * @return null|string
+     */
+    public function filterUtf8($value) : ?string
+    {
+        if (! is_string($value)) {
+            return null;
+
+        } elseif ('' === $value) {
+            return null;
+        }
+
+        for ( $i = 0; $i < strlen($value); $i++ ) {
+            if (ord($value[ $i ]) < 0x80) {
+                continue; // 0bbbbbbb
+            }
+
+            if (( ord($value[ $i ]) & 0xE0 ) === 0xC0) {
+                $n = 1; // 110bbbbb
+            } elseif (( ord($value[ $i ]) & 0xF0 ) === 0xE0) {
+                $n = 2; // 1110bbbb
+            } elseif (( ord($value[ $i ]) & 0xF8 ) === 0xF0) {
+                $n = 3; // 11110bbb
+            } elseif (( ord($value[ $i ]) & 0xFC ) === 0xF8) {
+                $n = 4; // 111110bb
+            } elseif (( ord($value[ $i ]) & 0xFE ) === 0xFC) {
+                $n = 5; // 1111110b
+            } else {
+                return null; // Does not match any model
+            }
+
+            for ( $j = 0; $j < $n; $j++ ) { // n bytes matching 10bbbbbb follow ?
+                if (++$i === strlen($value) || ( ( ord($value[ $i ]) & 0xC0 ) !== 0x80 )) {
+                    return null;
+                }
+            }
+        }
+
+        return $value;
     }
 
 
@@ -424,13 +472,11 @@ class ZFilter implements IFilter
      */
     public function filterStringOrInt($value) // : ?null|int|float|string
     {
-        $result = ( is_string($value)
-            || ( null !== $this->filterInt($value) )
-        )
-            ? $value
-            : null;
+        if (is_string($value) || is_int($value)) {
+            return $value;
+        }
 
-        return $result;
+        return null;
     }
 
     /**
@@ -440,14 +486,13 @@ class ZFilter implements IFilter
      */
     public function filterWordOrInt($value) // : ?null|int|float|string
     {
-        $result = ( 0
-            || ( null !== $this->filterWord($value) )
-            || ( null !== $this->filterInt($value) )
-        );
+        if (( is_string($value) && ( '' !== $value ) )
+            || is_int($value)
+        ) {
+            return $value;
+        }
 
-        return $result
-            ? $value
-            : null;
+        return null;
     }
 
 
@@ -458,13 +503,13 @@ class ZFilter implements IFilter
      */
     public function filterStringOrNum($value) // : ?null|int|float|string
     {
-        $result = ( is_string($value)
+        if (is_string($value)
             || ( null !== $this->filterNum($value) )
-        )
-            ? $value
-            : null;
+        ) {
+            return $value;
+        }
 
-        return $result;
+        return null;
     }
 
     /**
@@ -474,14 +519,13 @@ class ZFilter implements IFilter
      */
     public function filterWordOrNum($value) // : ?null|int|float|string
     {
-        $result = ( 0
-            || ( null !== $this->filterWord($value) )
+        if (( is_string($value) && ( '' !== $value ) )
             || ( null !== $this->filterNum($value) )
-        );
+        ) {
+            return $value;
+        }
 
-        return $result
-            ? $value
-            : null;
+        return null;
     }
 
 
@@ -492,32 +536,29 @@ class ZFilter implements IFilter
      */
     public function filterStrval($value) : ?string
     {
-        if (is_null($value)) {
-            return null; // becomes '' and causes data lost
-        }
-
-        if (is_bool($value)) {
-            return null; // becomes '' on false and causes data lost
-        }
-
-        if (is_array($value)) {
-            return null; // becomes 'Array' and causes data lost
-        }
-
         if (null !== $this->filterStringOrNum($value)) {
             return $value;
         }
 
+        if (is_null($value)) {
+            return null; // becomes '' and causes data lost
+
+        } elseif (is_bool($value)) {
+            return null; // becomes '' on false and causes data lost
+
+        } elseif (is_array($value)) {
+            return null; // becomes 'Array' and causes data lost
+        }
+
         try {
-            if (false === settype($value, 'string')) {
-                return null; // __toString()
+            if (false !== settype($value, 'string')) {
+                return $value; // __toString()
             }
         }
         catch ( \Throwable $e ) {
-            return null;
         }
 
-        return $value;
+        return null;
     }
 
     /**
@@ -529,13 +570,12 @@ class ZFilter implements IFilter
     {
         if ('' === $value) {
             return null;
+
+        } elseif (null !== $this->filterStrval($value)) {
+            return $value;
         }
 
-        if (null === $this->filterStrval($value)) {
-            return null;
-        }
-
-        return $value;
+        return null;
     }
 
     /**
@@ -547,15 +587,12 @@ class ZFilter implements IFilter
     {
         if ('' === $value) {
             return null;
-        }
 
-        if (null === $this->filterStrval($value)) {
+        } elseif (null === $this->filterStrval($value)) {
             return null;
         }
 
-        $trim = trim($value);
-
-        if ('' === $trim) {
+        if ('' === trim($value)) {
             return null;
         }
 
@@ -572,11 +609,11 @@ class ZFilter implements IFilter
      */
     public function filterKey($value) // : ?int|string
     {
-        if (null === $this->filterStringOrInt($value)) {
-            return null;
+        if (null !== $this->filterStringOrInt($value)) {
+            return $value;
         }
 
-        return $value;
+        return null;
     }
 
 
@@ -694,6 +731,34 @@ class ZFilter implements IFilter
 
 
     /**
+     * Array that contains array
+     *
+     * @param array|mixed $array
+     *
+     * @return null|array
+     */
+    public function filterDeepArray($array) : ?array
+    {
+        if (! is_array($array)) {
+            return null;
+        }
+
+        $queue = $array;
+
+        while ( null !== key($queue) ) {
+            $current = array_shift($queue);
+
+            if (is_array($current)) {
+                return $array;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Array that can be safely serialized
+     *
      * @param array|mixed $array
      *
      * @return null|array
@@ -744,6 +809,7 @@ class ZFilter implements IFilter
 
         } elseif (is_object($value)) {
             $result = null;
+
             try {
                 $result = $value->toArray();
             }
@@ -766,11 +832,13 @@ class ZFilter implements IFilter
      */
     public function filterLink($value) : ?string
     {
-        return ( is_string($value)
+        if (is_string($value)
             && ( false !== parse_url($value) )
-        )
-            ? $value
-            : null;
+        ) {
+            return $value;
+        }
+
+        return null;
     }
 
     /**
@@ -780,12 +848,14 @@ class ZFilter implements IFilter
      */
     public function filterUrl($value) : ?string
     {
-        return ( is_string($value)
+        if (is_string($value)
             && ( false !== filter_var($value, FILTER_VALIDATE_URL) )
             && ( false !== parse_url($value) )
-        )
-            ? $value
-            : null;
+        ) {
+            return $value;
+        }
+
+        return null;
     }
 
 
@@ -797,8 +867,7 @@ class ZFilter implements IFilter
      */
     public function filterCallable($callable, InvokableInfo &$invokableInfo = null) // : ?string|array|\Closure
     {
-        if (0
-            || ( null !== $this->filterClosure($callable, $invokableInfo) )
+        if (( null !== $this->filterClosure($callable, $invokableInfo) )
             || ( null !== $this->filterCallableString($callable, $invokableInfo) )
             || ( null !== $this->filterCallableArray($callable, $invokableInfo) )
         ) {
@@ -817,8 +886,7 @@ class ZFilter implements IFilter
     public function filterCallableString($callableString, InvokableInfo &$invokableInfo = null) // : ?string|array
     {
         if (! is_array($callableString)
-            && ( 0
-                || ( null !== $this->filterCallableStringFunction($callableString, $invokableInfo) )
+            && ( ( null !== $this->filterCallableStringFunction($callableString, $invokableInfo) )
                 || ( null !== $this->filterCallableStringStatic($callableString, $invokableInfo) )
             )
         ) {
@@ -882,8 +950,7 @@ class ZFilter implements IFilter
     public function filterCallableArray($callableArray, InvokableInfo &$invokableInfo = null) : ?array
     {
         if (is_array($callableArray)
-            && ( 0
-                || $this->filterCallableArrayStatic($callableArray, $invokableInfo)
+            && ( $this->filterCallableArrayStatic($callableArray, $invokableInfo)
                 || $this->filterCallableArrayPublic($callableArray, $invokableInfo)
             )
         ) {
@@ -944,6 +1011,7 @@ class ZFilter implements IFilter
         return null;
     }
 
+
     /**
      * @param \Closure|mixed     $closure
      * @param null|InvokableInfo $invokableInfo
@@ -963,6 +1031,7 @@ class ZFilter implements IFilter
 
         return null;
     }
+
 
     /**
      * @param array|mixed $methodArray
@@ -989,6 +1058,7 @@ class ZFilter implements IFilter
 
         return null;
     }
+
 
     /**
      * @param array|mixed        $methodArray
@@ -1020,6 +1090,7 @@ class ZFilter implements IFilter
 
         return $methodArray;
     }
+
 
     /**
      * @param string|mixed       $handler
@@ -1068,9 +1139,9 @@ class ZFilter implements IFilter
             return null;
         }
 
-        $trim = ltrim($class, '\\');
+        $phpClass = ltrim($class, '\\');
 
-        if (ctype_digit(substr($trim, 0, 1))) {
+        if (ctype_digit(substr($phpClass, 0, 1))) {
             return null;
         }
 
@@ -1115,11 +1186,25 @@ class ZFilter implements IFilter
      */
     public function filterThrowable($value) // : ?object
     {
-        return ( is_object($value)
-            && $value instanceof \Throwable
-        )
-            ? $value
-            : null;
+        if ($value instanceof \Throwable) {
+            return $value;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param object|mixed $value
+     *
+     * @return null|object
+     */
+    public function filterError($value) // : ?object
+    {
+        if ($value instanceof \Error) {
+            return $value;
+        }
+
+        return null;
     }
 
     /**
@@ -1129,11 +1214,11 @@ class ZFilter implements IFilter
      */
     public function filterException($value) // : ?object
     {
-        return ( is_object($value)
-            && $value instanceof \Exception
-        )
-            ? $value
-            : null;
+        if ($value instanceof \Exception) {
+            return $value;
+        }
+
+        return null;
     }
 
     /**
@@ -1143,11 +1228,11 @@ class ZFilter implements IFilter
      */
     public function filterRuntimeException($value) // : ?object
     {
-        return ( is_object($value)
-            && $value instanceof \RuntimeException
-        )
-            ? $value
-            : null;
+        if ($value instanceof \RuntimeException) {
+            return $value;
+        }
+
+        return null;
     }
 
     /**
@@ -1157,11 +1242,11 @@ class ZFilter implements IFilter
      */
     public function filterLogicException($value) // : ?object
     {
-        return ( is_object($value)
-            && $value instanceof \LogicException
-        )
-            ? $value
-            : null;
+        if ($value instanceof \LogicException) {
+            return $value;
+        }
+
+        return null;
     }
 
 
@@ -1172,11 +1257,11 @@ class ZFilter implements IFilter
      */
     public function filterStdClass($value) // : ?object
     {
-        return ( is_object($value)
-            && $value instanceof \StdClass
-        )
-            ? $value
-            : null;
+        if ($value instanceof \StdClass) {
+            return $value;
+        }
+
+        return null;
     }
 
 
@@ -1187,9 +1272,11 @@ class ZFilter implements IFilter
      */
     public function filterFileInfo($value) : ?\SplFileInfo
     {
-        return is_a($value, \SplFileInfo::class)
-            ? $value
-            : null;
+        if ($value instanceof \SplFileInfo) {
+            return $value;
+        }
+
+        return null;
     }
 
     /**
@@ -1199,9 +1286,11 @@ class ZFilter implements IFilter
      */
     public function filterFileObject($value) : ?\SplFileObject
     {
-        return is_a($value, \SplFileObject::class)
-            ? $value
-            : null;
+        if ($value instanceof \SplFileObject) {
+            return $value;
+        }
+
+        return null;
     }
 
 
@@ -1212,9 +1301,11 @@ class ZFilter implements IFilter
      */
     public function filterReflectionClass($value) : ?\ReflectionClass
     {
-        return is_a($value, \ReflectionClass::class)
-            ? $value
-            : null;
+        if ($value instanceof \ReflectionClass) {
+            return $value;
+        }
+
+        return null;
     }
 
 
@@ -1225,9 +1316,11 @@ class ZFilter implements IFilter
      */
     public function filterReflectionFunction($value) : ?\ReflectionFunction
     {
-        return is_a($value, \ReflectionFunction::class)
-            ? $value
-            : null;
+        if ($value instanceof \ReflectionFunction) {
+            return $value;
+        }
+
+        return null;
     }
 
     /**
@@ -1237,9 +1330,11 @@ class ZFilter implements IFilter
      */
     public function filterReflectionMethod($value) : ?\ReflectionMethod
     {
-        return is_a($value, \ReflectionMethod::class)
-            ? $value
-            : null;
+        if ($value instanceof \ReflectionMethod) {
+            return $value;
+        }
+
+        return null;
     }
 
 
@@ -1250,9 +1345,11 @@ class ZFilter implements IFilter
      */
     public function filterReflectionProperty($value) : ?\ReflectionProperty
     {
-        return is_a($value, \ReflectionProperty::class)
-            ? $value
-            : null;
+        if ($value instanceof \ReflectionProperty) {
+            return $value;
+        }
+
+        return null;
     }
 
     /**
@@ -1262,9 +1359,11 @@ class ZFilter implements IFilter
      */
     public function filterReflectionParameter($value) : ?\ReflectionParameter
     {
-        return is_a($value, \ReflectionParameter::class)
-            ? $value
-            : null;
+        if ($value instanceof \ReflectionParameter) {
+            return $value;
+        }
+
+        return null;
     }
 
     /**
@@ -1274,9 +1373,11 @@ class ZFilter implements IFilter
      */
     public function filterReflectionType($value) : ?\ReflectionType
     {
-        return is_a($value, \ReflectionType::class)
-            ? $value
-            : null;
+        if ($value instanceof \ReflectionType) {
+            return $value;
+        }
+
+        return null;
     }
 
 

@@ -19,7 +19,7 @@ use Gzhegow\Support\ZNum;
 class Num
 {
     /**
-     * @param int|float|string|mixed $value
+     * @param int|float|mixed $value
      *
      * @return null|int|float
      */
@@ -29,7 +29,7 @@ class Num
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|float|mixed $value
      *
      * @return null|int|float
      */
@@ -39,7 +39,7 @@ class Num
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|float|mixed $value
      *
      * @return null|int|float
      */
@@ -49,7 +49,7 @@ class Num
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|float|mixed $value
      *
      * @return null|int|float
      */
@@ -59,7 +59,7 @@ class Num
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|float|mixed $value
      *
      * @return int|float
      */
@@ -69,7 +69,7 @@ class Num
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|float|mixed $value
      *
      * @return int|float
      */
@@ -79,7 +79,7 @@ class Num
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|float|mixed $value
      *
      * @return int|float
      */
@@ -89,7 +89,7 @@ class Num
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|float|mixed $value
      *
      * @return int|float
      */
@@ -99,7 +99,7 @@ class Num
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|mixed $value
      *
      * @return null|int
      */
@@ -109,7 +109,7 @@ class Num
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|mixed $value
      *
      * @return null|int
      */
@@ -119,7 +119,7 @@ class Num
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|mixed $value
      *
      * @return null|int
      */
@@ -129,7 +129,7 @@ class Num
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|mixed $value
      *
      * @return null|int
      */
@@ -139,7 +139,7 @@ class Num
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|mixed $value
      *
      * @return int
      */
@@ -149,7 +149,7 @@ class Num
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|mixed $value
      *
      * @return int
      */
@@ -159,7 +159,7 @@ class Num
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|mixed $value
      *
      * @return int
      */
@@ -169,7 +169,7 @@ class Num
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|mixed $value
      *
      * @return int
      */
@@ -179,7 +179,7 @@ class Num
     }
 
     /**
-     * @param mixed $value
+     * @param int|mixed $value
      *
      * @return null|int
      */
@@ -189,7 +189,7 @@ class Num
     }
 
     /**
-     * @param mixed $value
+     * @param float|mixed $value
      *
      * @return null|float
      */
@@ -199,7 +199,7 @@ class Num
     }
 
     /**
-     * @param mixed $value
+     * @param int|float|mixed $value
      *
      * @return null|int|float
      */
@@ -209,7 +209,7 @@ class Num
     }
 
     /**
-     * @param mixed $value
+     * @param int|float|string|mixed $value
      *
      * @return null|string
      */
@@ -219,7 +219,7 @@ class Num
     }
 
     /**
-     * @param mixed $value
+     * @param int|mixed $value
      *
      * @return int
      */
@@ -229,7 +229,7 @@ class Num
     }
 
     /**
-     * @param mixed $value
+     * @param float|mixed $value
      *
      * @return float
      */
@@ -239,7 +239,7 @@ class Num
     }
 
     /**
-     * @param mixed $value
+     * @param int|float|mixed $value
      *
      * @return int|float
      */
@@ -249,7 +249,7 @@ class Num
     }
 
     /**
-     * @param mixed $value
+     * @param int|float|string|mixed $value
      *
      * @return string
      */
@@ -261,89 +261,97 @@ class Num
     /**
      * @param int|array $integers
      * @param null|bool $uniq
+     * @param null|bool $recursive
      *
      * @return int[]
      */
-    public static function intvals($integers, $uniq = null): array
+    public static function intvals($integers, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->intvals($integers, $uniq);
+        return static::getInstance()->intvals($integers, $uniq, $recursive);
     }
 
     /**
      * @param float|array $floats
      * @param null|bool   $uniq
+     * @param null|bool   $recursive
      *
      * @return float[]
      */
-    public static function floatvals($floats, $uniq = null): array
+    public static function floatvals($floats, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->floatvals($floats, $uniq);
+        return static::getInstance()->floatvals($floats, $uniq, $recursive);
     }
 
     /**
-     * @param int|float|string|array $numbers
-     * @param null|bool              $uniq
+     * @param int|float|array $numbers
+     * @param null|bool       $uniq
+     * @param null|bool       $recursive
      *
      * @return int[]|float[]
      */
-    public static function numvals($numbers, $uniq = null): array
+    public static function numvals($numbers, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->numvals($numbers, $uniq);
+        return static::getInstance()->numvals($numbers, $uniq, $recursive);
     }
 
     /**
      * @param int|float|string|array $numbers
      * @param null|bool              $uniq
+     * @param null|bool              $recursive
      *
      * @return string[]
      */
-    public static function numericvals($numbers, $uniq = null): array
+    public static function numericvals($numbers, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->numericvals($numbers, $uniq);
+        return static::getInstance()->numericvals($numbers, $uniq, $recursive);
     }
 
     /**
-     * @param int|array $intvals
+     * @param int|array $integers
      * @param null|bool $uniq
+     * @param null|bool $recursive
      *
      * @return int[]
      */
-    public static function theIntvals($intvals, $uniq = null): array
+    public static function theIntvals($integers, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->theIntvals($intvals, $uniq);
+        return static::getInstance()->theIntvals($integers, $uniq, $recursive);
     }
 
     /**
-     * @param float|array $floatvals
+     * @param float|array $floats
      * @param null|bool   $uniq
+     * @param null|bool   $recursive
      *
      * @return float[]
      */
-    public static function theFloatvals($floatvals, $uniq = null): array
+    public static function theFloatvals($floats, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->theFloatvals($floatvals, $uniq);
+        return static::getInstance()->theFloatvals($floats, $uniq, $recursive);
     }
 
     /**
-     * @param float|array $numbervals
-     * @param null|bool   $uniq
+     * @param int|float|array $numbers
+     * @param null|bool       $uniq
+     * @param null|bool       $recursive
      *
      * @return int[]|float[]
      */
-    public static function theNumvals($numbervals, $uniq = null): array
+    public static function theNumvals($numbers, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->theNumvals($numbervals, $uniq);
+        return static::getInstance()->theNumvals($numbers, $uniq, $recursive);
     }
 
     /**
-     * @param int|float|string|array $numvals
+     * @param int|float|string|array $numbers
      * @param null|bool              $uniq
+     * @param null|bool              $recursive
      *
      * @return string[]
      */
-    public static function theNumericvals($numvals, $uniq = null): array
+    public static function theNumericvals($numbers, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->theNumericvals($numvals, $uniq);
+        return static::getInstance()->theNumericvals($numbers, $uniq, $recursive);
     }
 
     /**

@@ -171,6 +171,13 @@ interface IFilter
     public function filterWord($value): ?string;
 
     /**
+     * @param string|mixed $value
+     *
+     * @return null|string
+     */
+    public function filterUtf8($value): ?string;
+
+    /**
      * @param int|string|mixed $value
      *
      * @return null|int|float|string
@@ -261,6 +268,17 @@ interface IFilter
     public function filterAssoc($assoc, callable $of = null): ?array;
 
     /**
+     * Array that contains array
+     *
+     * @param array|mixed $array
+     *
+     * @return null|array
+     */
+    public function filterDeepArray($array): ?array;
+
+    /**
+     * Array that can be safely serialized
+     *
      * @param array|mixed $array
      *
      * @return null|array
@@ -395,6 +413,13 @@ interface IFilter
      * @return null|object
      */
     public function filterThrowable($value);
+
+    /**
+     * @param object|mixed $value
+     *
+     * @return null|object
+     */
+    public function filterError($value);
 
     /**
      * @param object|mixed $value

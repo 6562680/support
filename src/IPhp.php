@@ -108,13 +108,6 @@ interface IPhp
     public function assertFactory(\Closure $func, $returnType): \Closure;
 
     /**
-     * @param mixed ...$values
-     *
-     * @return array
-     */
-    public function flatval(...$values): array;
-
-    /**
      * @param mixed ...$items
      *
      * @return array
@@ -151,6 +144,20 @@ interface IPhp
      *
      * @return array
      */
+    public function queueVal(...$values): array;
+
+    /**
+     * @param mixed ...$values
+     *
+     * @return array
+     */
+    public function stackVal(...$values): array;
+
+    /**
+     * @param mixed ...$values
+     *
+     * @return array
+     */
     public function unique(...$values): array;
 
     /**
@@ -175,6 +182,8 @@ interface IPhp
     public function duplicatesFlatten(...$values): array;
 
     /**
+     * unique() с сохранением ключей
+     *
      * @param mixed ...$values
      *
      * @return array

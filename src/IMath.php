@@ -157,20 +157,22 @@ interface IMath
     public function theBcval($value): Bcval;
 
     /**
-     * @param string|array $strings
+     * @param string|array $numerics
      * @param null|bool    $uniq
+     * @param null|bool    $recursive
      *
      * @return Bcval[]
      */
-    public function bcvals($strings, $uniq = null): array;
+    public function bcvals($numerics, bool $uniq = null, bool $recursive = null): array;
 
     /**
-     * @param string|array $strings
+     * @param string|array $numerics
      * @param null|bool    $uniq
+     * @param null|bool    $recursive
      *
      * @return Bcval[]
      */
-    public function theBcvals($strings, $uniq = null): array;
+    public function theBcvals($numerics, bool $uniq = null, bool $recursive = null): array;
 
     /**
      * @param int|float|string|Bcval|mixed $number

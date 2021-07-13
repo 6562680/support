@@ -319,23 +319,6 @@ class ZPhp implements IPhp
 
 
     /**
-     * @param mixed ...$values
-     *
-     * @return array
-     */
-    public function flatval(...$values) : array
-    {
-        $result = [];
-
-        array_walk_recursive($values, function ($val) use (&$result) {
-            $result[] = $val;
-        });
-
-        return $result;
-    }
-
-
-    /**
      * @param mixed ...$items
      *
      * @return array
@@ -344,18 +327,19 @@ class ZPhp implements IPhp
     {
         $result = [];
 
-        $flatten = [];
+        $list = [];
         foreach ( $items as $idx => $item ) {
-            if (null !== $this->filter->filterList($item)) {
-                foreach ( $item as $val ) {
-                    $flatten[] = $val;
-                }
+            if (null === $this->filter->filterList($item)) {
+                $list[] = $item;
+
             } else {
-                $flatten[] = $item;
+                foreach ( $item as $val ) {
+                    $list[] = $val;
+                }
             }
         }
 
-        foreach ( $flatten as $val ) {
+        foreach ( $list as $val ) {
             if (! is_null($val)) {
                 $result[] = $val;
             }
@@ -392,38 +376,25 @@ class ZPhp implements IPhp
     {
         $result = [];
 
-        array_walk_recursive($items, function ($item, $key) use (&$result) {
-            $map = [];
-
-            if (is_iterable($item)) {
-                foreach ( $item as $itemKey => $itemVal ) {
-                    $map[ $itemKey ] = $itemVal;
-                }
-            } else {
-                $map[ $key ] = $item;
+        array_walk_recursive($items, function ($val, $key) use (&$result) {
+            if (null === $val
+                || false === $val
+                || '' === $val
+            ) {
+                return;
             }
 
-            foreach ( $map as $valOrKey => $valOrBool ) {
-                $isIgnore = null === $valOrBool
-                    || false === $valOrBool
-                    || '' === $valOrBool;
+            $value = null
+                ?? ( true === $val ? $key : null )
+                ?? $this->filter->filterWord($key)
+                ?? $this->filter->filterWordOrNum($val)
+                ?? $this->filter->filterInt($key);
 
-                if ($isIgnore) {
-                    continue;
-                }
-
-                $value = null
-                    ?? ( true === $valOrBool ? $valOrKey : null )
-                    ?? $this->filter->filterWord($valOrKey)
-                    ?? $this->filter->filterWordOrNum($valOrBool)
-                    ?? $this->filter->filterInt($valOrKey);
-
-                if (null === $value) {
-                    continue;
-                }
-
-                $result[ $this->hash($value) ] = $value;
+            if (null === $value) {
+                return;
             }
+
+            $result[ $this->hash($value) ] = $value;
         });
 
         $result = array_values($result);
@@ -455,6 +426,67 @@ class ZPhp implements IPhp
      *
      * @return array
      */
+    public function queueVal(...$values) : array
+    {
+        $result = [];
+
+        while ( null !== key($values) ) {
+            $current = array_shift($values);
+
+            if (is_iterable($current)) {
+                while ( null !== key($current) ) {
+                    $values[] = current($current);
+                    next($current);
+                }
+
+            } else {
+                $result[] = $current;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param mixed ...$values
+     *
+     * @return array
+     */
+    public function stackVal(...$values) : array
+    {
+        $stack = [];
+
+        end($values);
+        while ( null !== key($values) ) {
+            $stack[] = current($values);
+            prev($values);
+        }
+
+        $result = [];
+        while ( null !== key($stack) ) {
+            $current = array_pop($stack);
+
+            if (is_iterable($current)) {
+                end($current);
+                while ( null !== key($current) ) {
+                    $stack[] = current($current);
+                    prev($current);
+                }
+
+            } else {
+                $result[] = $current;
+            }
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * @param mixed ...$values
+     *
+     * @return array
+     */
     public function unique(...$values) : array
     {
         $arr = [];
@@ -462,7 +494,9 @@ class ZPhp implements IPhp
             $arr[ $this->hash($value) ] = $value;
         }
 
-        return array_values($arr);
+        $result = array_values($arr);
+
+        return $result;
     }
 
     /**
@@ -473,9 +507,20 @@ class ZPhp implements IPhp
     public function uniqueFlatten(...$values) : array
     {
         $arr = [];
-        array_walk_recursive($values, function ($value) use (&$arr) {
-            $arr[ $this->hash($value) ] = $value;
-        });
+
+        while ( null !== key($values) ) {
+            $current = array_shift($values);
+
+            if (is_iterable($current)) {
+                while ( null !== key($current) ) {
+                    $values[] = current($current);
+                    next($current);
+                }
+
+            } else {
+                $arr[ $this->hash($current) ] = $current;
+            }
+        }
 
         return array_values($arr);
     }
@@ -512,21 +557,34 @@ class ZPhp implements IPhp
     {
         $arr = [];
         $duplicates = [];
-        array_walk_recursive($values, function ($value) use (&$duplicates, &$arr) {
-            $hash = $this->hash($value);
 
-            if (isset($arr[ $hash ])) {
-                $duplicates[ $hash ][] = $value;
+        while ( null !== key($values) ) {
+            $current = array_shift($values);
+
+            if (is_iterable($current)) {
+                while ( null !== key($current) ) {
+                    $values[] = current($current);
+                    next($current);
+                }
+
+            } else {
+                $hash = $this->hash($current);
+
+                if (isset($arr[ $hash ])) {
+                    $duplicates[ $hash ][] = $current;
+                }
+
+                $arr[ $hash ] = true;
             }
-
-            $arr[ $hash ] = true;
-        });
+        }
 
         return $duplicates;
     }
 
 
     /**
+     * unique() с сохранением ключей
+     *
      * @param mixed ...$values
      *
      * @return array
@@ -535,12 +593,12 @@ class ZPhp implements IPhp
     {
         $result = [];
 
-        $arr = [];
+        $index = [];
         foreach ( $values as $idx => $value ) {
-            $arr[ $this->hash($value) ] = $idx;
+            $index[ $this->hash($value) ] = $idx;
         }
 
-        foreach ( $arr as $idx ) {
+        foreach ( $index as $idx ) {
             $result[ $idx ] = $values[ $idx ];
         }
 
@@ -559,31 +617,31 @@ class ZPhp implements IPhp
     {
         $result = [];
 
-        $collections = $this->listvals(...$arrays);
+        $lists = $this->listvals(...$arrays);
 
         $lenArrs = [];
-        foreach ( $collections as $idx => $arr ) {
+        foreach ( $lists as $idx => $arr ) {
             $lenArrs[ $idx ] = count($arr);
         }
 
         $repArr = [];
         $lenArrsCurrent = $lenArrs;
         foreach ( $lenArrsCurrent as $idx => $len ) {
-            $repetitions = 1;
             unset($lenArrsCurrent[ $idx ]);
 
+            $rep = 1;
             foreach ( $lenArrsCurrent as $lenMultiplier ) {
-                $repetitions *= $lenMultiplier;
+                $rep *= $lenMultiplier;
             }
 
-            $repArr[ $idx ] = $repetitions;
+            $repArr[ $idx ] = $rep;
         }
 
         $size = array_product($lenArrs);
 
         for ( $i = 0; $i < $size; $i++ ) {
-            foreach ( $repArr as $idx => $repetitions ) {
-                $result[ $i ][] = $collections[ $idx ][ ( $i / $repetitions ) % $lenArrs[ $idx ] ];
+            foreach ( $repArr as $idx => $rep ) {
+                $result[ $i ][] = $lists[ $idx ][ ( $i / $rep ) % $lenArrs[ $idx ] ];
             }
         }
 
@@ -599,15 +657,15 @@ class ZPhp implements IPhp
      */
     public function sequenceFlatten(...$values) : array
     {
-        $flatten = $this->flatval(...$values);
-        $size = count($flatten);
+        $flatval = $this->queueVal($values);
+        $size = count($flatval);
 
         $result = [ [] ];
         for ( $i = 0; $i < $size; $i++ ) {
             $res = [];
 
             foreach ( $result as $c ) {
-                foreach ( $flatten as $f ) {
+                foreach ( $flatval as $f ) {
                     $line = $c;
                     $line[] = $f;
 
@@ -633,8 +691,8 @@ class ZPhp implements IPhp
     {
         $result = [];
 
-        $flatten = $this->flatval(...$values);
-        $size = count($flatten);
+        $flatval = $this->queueVal($values);
+        $size = count($flatval);
 
         $max = bindec(str_repeat('1', $size));
 
@@ -644,7 +702,7 @@ class ZPhp implements IPhp
             $line = [];
             foreach ( str_split($bitmask) as $idx => $number ) {
                 $line[] = '1' === $number
-                    ? $flatten[ $idx ]
+                    ? $flatval[ $idx ]
                     : null;
             }
 
@@ -670,23 +728,26 @@ class ZPhp implements IPhp
             case is_string($value):
                 return $value;
 
-            case is_null($value):
-            case is_bool($value):
-                return var_export($value, 1);
-
-            case ( is_float($value) && is_nan($value) ):
-                return 'NaN';
-
             case is_int($value):
                 return strval($value);
-            case is_float($value):
-                return sprintf('%.14f', $value);
 
-            case ( null !== $this->filter->filterPlainArray($value) ):
-                return json_encode($value);
+            case is_null($value):
+                return '{NULL}';
+
+            case true === $value:
+                return '{TRUE}';
+
+            case false === $value:
+                return '{FALSE}';
+
+            case ( is_float($value) && is_nan($value) ):
+                return '{NaN}';
+
+            case is_float($value):
+                return crc32($value);
 
             case ( is_array($value) ):
-                return md5(json_encode($value));
+                return crc32(serialize($value));
 
             case is_object($value):
                 return '{' . spl_object_hash((object) $value) . '}';

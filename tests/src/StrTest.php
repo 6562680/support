@@ -33,15 +33,15 @@ class StrTest extends AbstractTestCase
         $this->assertEquals([ '' ], $str->theStrvals([ '' ]));
         $this->assertEquals([ 'hello' ], $str->theStrvals([ 'hello' ]));
         $this->assertEquals([ 'hello', 'hello' ], $str->theStrvals([ 'hello', 'hello' ]));
-        $this->assertEquals([], $str->theStrvals([ [] ]));
+        $this->assertEquals([], $str->theStrvals([ [] ], null, true));
 
-        $this->assertEquals([ '1' ], $str->theStrvals([ [ 1 ] ]));
-        $this->assertEquals([ '1' ], $str->theStrvals([ [ 1.0 ] ]));
-        $this->assertEquals([ '1.1' ], $str->theStrvals([ [ 1.1 ] ]));
-        $this->assertEquals([ '' ], $str->theStrvals([ [ '' ] ]));
-        $this->assertEquals([ 'hello' ], $str->theStrvals([ [ 'hello' ] ]));
-        $this->assertEquals([ 'hello', 'hello' ], $str->theStrvals([ [ 'hello' ], 'hello' ]));
-        $this->assertEquals([], $str->theStrvals([ [ [] ] ]));
+        $this->assertEquals([ '1' ], $str->theStrvals([ [ 1 ] ], null, true));
+        $this->assertEquals([ '1' ], $str->theStrvals([ [ 1.0 ] ], null, true));
+        $this->assertEquals([ '1.1' ], $str->theStrvals([ [ 1.1 ] ], null, true));
+        $this->assertEquals([ '' ], $str->theStrvals([ [ '' ] ], null, true));
+        $this->assertEquals([ 'hello' ], $str->theStrvals([ [ 'hello' ] ], null, true));
+        $this->assertEquals([ 'hello', 'hello' ], $str->theStrvals([ [ 'hello' ], 'hello' ], null, true));
+        $this->assertEquals([], $str->theStrvals([ [ [] ] ], null, true));
     }
 
     public function testBadTheStrvals()
@@ -96,14 +96,14 @@ class StrTest extends AbstractTestCase
         $this->assertEquals([ '1.1' ], $str->theWordvals([ 1.1 ]));
         $this->assertEquals([ 'hello' ], $str->theWordvals([ 'hello' ]));
         $this->assertEquals([ 'hello', 'hello' ], $str->theWordvals([ 'hello', 'hello' ]));
-        $this->assertEquals([], $str->theWordvals([ [] ]));
+        $this->assertEquals([], $str->theWordvals([ [] ], null, true));
 
-        $this->assertEquals([ '1' ], $str->theWordvals([ [ 1 ] ]));
-        $this->assertEquals([ '1' ], $str->theWordvals([ [ 1.0 ] ]));
-        $this->assertEquals([ '1.1' ], $str->theWordvals([ [ 1.1 ] ]));
-        $this->assertEquals([ 'hello' ], $str->theWordvals([ [ 'hello' ] ]));
-        $this->assertEquals([ 'hello', 'hello' ], $str->theWordvals([ [ 'hello' ], 'hello' ]));
-        $this->assertEquals([], $str->theWordvals([ [ [] ] ]));
+        $this->assertEquals([ '1' ], $str->theWordvals([ [ 1 ] ], null, true));
+        $this->assertEquals([ '1' ], $str->theWordvals([ [ 1.0 ] ], null, true));
+        $this->assertEquals([ '1.1' ], $str->theWordvals([ [ 1.1 ] ], null, true));
+        $this->assertEquals([ 'hello' ], $str->theWordvals([ [ 'hello' ] ], null, true));
+        $this->assertEquals([ 'hello', 'hello' ], $str->theWordvals([ [ 'hello' ], 'hello' ], null, true));
+        $this->assertEquals([], $str->theWordvals([]));
     }
 
     public function testBadTheWordvals()

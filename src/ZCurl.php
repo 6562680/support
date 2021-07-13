@@ -477,10 +477,11 @@ class ZCurl implements ICurl
     /**
      * @param resource|\CurlHandle|array $curls
      * @param null|bool                  $uniq
+     * @param null|bool                  $recursive
      *
      * @return resource[]|\CurlHandle[]
      */
-    public function curls($curls, $uniq = null) : array
+    public function curls($curls, bool $uniq = null, bool $recursive = null) : array
     {
         $result = [];
 
@@ -488,13 +489,21 @@ class ZCurl implements ICurl
             ? $curls
             : [ $curls ];
 
-        array_walk_recursive($curls, function ($curl) use (&$result) {
-            if (null !== $this->filter->filterCurl($curl)) {
-                $result[ (int) $curl ] = $curl;
+        if ($recursive) {
+            array_walk_recursive($curls, function ($item) use (&$result) {
+                if (null !== $this->filter->filterCurl($item)) {
+                    $result[ (int) $item ] = $item;
+                }
+            });
+        } else {
+            foreach ( $curls as $item ) {
+                if (null !== $this->filter->filterCurl($item)) {
+                    $result[ (int) $item ] = $item;
+                }
             }
-        });
+        }
 
-        if ($uniq ?? false) {
+        if ($uniq) {
             $distinct = $this->php->distinct($result);
 
             foreach ( $result as $idx => $val ) {
@@ -510,10 +519,11 @@ class ZCurl implements ICurl
     /**
      * @param resource|\CurlHandle|array $curls
      * @param null|bool                  $uniq
+     * @param null|bool                  $recursive
      *
      * @return resource[]|\CurlHandle[]
      */
-    public function theCurls($curls, $uniq = null) : array
+    public function theCurls($curls, bool $uniq = null, bool $recursive = null) : array
     {
         $result = [];
 
@@ -521,15 +531,25 @@ class ZCurl implements ICurl
             ? $curls
             : [ $curls ];
 
-        array_walk_recursive($curls, function ($curl) use (&$result) {
-            $this->filter
-                ->assert([ 'Each item should be curl handle: %s', $curl ])
-                ->assertCurl($curl);
+        if ($recursive) {
+            array_walk_recursive($curls, function ($item) use (&$result) {
+                $this->filter
+                    ->assert([ 'Each item should be Curl handle/resource: %s', $item ])
+                    ->assertCurl($item);
 
-            $result[ (int) $curl ] = $curl;
-        });
+                $result[ (int) $item ] = $item;
+            });
+        } else {
+            foreach ( $curls as $item ) {
+                $this->filter
+                    ->assert([ 'Each item should be Curl handle/resource: %s', $item ])
+                    ->assertCurl($item);
 
-        if ($uniq ?? false) {
+                $result[ (int) $item ] = $item;
+            }
+        }
+
+        if ($uniq) {
             $distinct = $this->php->distinct($result);
 
             foreach ( $result as $idx => $val ) {

@@ -219,6 +219,13 @@ interface IAssert
     public function assertWord($value): ?string;
 
     /**
+     * @param string|mixed $value
+     *
+     * @return string
+     */
+    public function assertUtf8($value): ?string;
+
+    /**
      * @param int|string|mixed $value
      *
      * @return int|float|string
@@ -309,6 +316,17 @@ interface IAssert
     public function assertAssoc($assoc, callable $of = null): ?array;
 
     /**
+     * Array that contains array
+     *
+     * @param array|mixed $array
+     *
+     * @return array
+     */
+    public function assertDeepArray($array): ?array;
+
+    /**
+     * Array that can be safely serialized
+     *
      * @param array|mixed $array
      *
      * @return array
@@ -443,6 +461,13 @@ interface IAssert
      * @return object
      */
     public function assertThrowable($value);
+
+    /**
+     * @param object|mixed $value
+     *
+     * @return object
+     */
+    public function assertError($value);
 
     /**
      * @param object|mixed $value

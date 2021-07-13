@@ -66,7 +66,7 @@ interface ILoader
      *
      * @return ZLoader
      */
-    public function addContract(string $contract, ...$classes);
+    public function addContract(string $contract, $classes);
 
     /**
      * @param string|object   $value
@@ -93,12 +93,12 @@ interface ILoader
     public function isInstanceOf($value, $classes): bool;
 
     /**
-     * @param string|mixed $contract
-     * @param object|mixed $object
+     * @param string|mixed $object
+     * @param object|mixed $contract
      *
      * @return bool
      */
-    public function isContact($contract, $object): bool;
+    public function isContact($object, $contract): bool;
 
     /**
      * @param string|object   $value
@@ -125,12 +125,12 @@ interface ILoader
     public function filterInstanceOf($object, $classes): ?object;
 
     /**
-     * @param string|mixed $contract
      * @param object|mixed $object
+     * @param string|mixed $contract
      *
      * @return null|object
      */
-    public function filterContract($contract, $object): ?object;
+    public function filterContract($object, $contract): ?object;
 
     /**
      * @param string|object   $value
@@ -157,12 +157,12 @@ interface ILoader
     public function assertInstanceOf($object, $classes): object;
 
     /**
-     * @param string|mixed $contract
      * @param object|mixed $object
+     * @param string|mixed $contract
      *
      * @return object
      */
-    public function assertContract($contract, $object): object;
+    public function assertContract($object, $contract): object;
 
     /**
      * @param string|object|\ReflectionClass $classOrObject

@@ -269,23 +269,25 @@ class Curl
     /**
      * @param resource|\CurlHandle|array $curls
      * @param null|bool                  $uniq
+     * @param null|bool                  $recursive
      *
      * @return resource[]|\CurlHandle[]
      */
-    public static function curls($curls, $uniq = null): array
+    public static function curls($curls, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->curls($curls, $uniq);
+        return static::getInstance()->curls($curls, $uniq, $recursive);
     }
 
     /**
      * @param resource|\CurlHandle|array $curls
      * @param null|bool                  $uniq
+     * @param null|bool                  $recursive
      *
      * @return resource[]|\CurlHandle[]
      */
-    public static function theCurls($curls, $uniq = null): array
+    public static function theCurls($curls, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->theCurls($curls, $uniq);
+        return static::getInstance()->theCurls($curls, $uniq, $recursive);
     }
 
     /**

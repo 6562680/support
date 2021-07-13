@@ -263,10 +263,10 @@ class ZLoader implements ILoader
      *
      * @return static
      */
-    public function addContract(string $contract, ...$classes)
+    public function addContract(string $contract, $classes)
     {
         $contract = $this->str->theWordval($contract);
-        $classes = $this->str->theWordvals(...$classes);
+        $classes = $this->str->theWordvals($classes, true);
 
         foreach ( $classes as $class ) {
             $class = $this->theClassVal($class);
@@ -318,14 +318,14 @@ class ZLoader implements ILoader
     }
 
     /**
-     * @param string|mixed $contract
-     * @param object|mixed $object
+     * @param string|mixed $object
+     * @param object|mixed $contract
      *
      * @return bool
      */
-    public function isContact($contract, $object) : bool
+    public function isContact($object, $contract) : bool
     {
-        return null !== $this->filterContract($contract, $object);
+        return null !== $this->filterContract($object, $contract);
     }
 
 
@@ -397,18 +397,18 @@ class ZLoader implements ILoader
     }
 
     /**
-     * @param string|mixed $contract
      * @param object|mixed $object
+     * @param string|mixed $contract
      *
      * @return null|object
      */
-    public function filterContract($contract, $object) : ?object
+    public function filterContract($object, $contract) : ?object
     {
-        if (! is_string($contract)) {
+        if (! is_object($object)) {
             return null;
         }
 
-        if (! is_object($object)) {
+        if (! is_string($contract)) {
             return null;
         }
 
@@ -479,16 +479,16 @@ class ZLoader implements ILoader
     }
 
     /**
-     * @param string|mixed $contract
      * @param object|mixed $object
+     * @param string|mixed $contract
      *
      * @return object
      */
-    public function assertContract($contract, $object) : object
+    public function assertContract($object, $contract) : object
     {
-        if (null === $this->filterContract($contract, $object)) {
+        if (null === $this->filterContract($object, $contract)) {
             throw new InvalidArgumentException(
-                [ 'Object does not match registered contract (%s): %s', $contract, $object ]
+                [ 'Object does not match registered contract (%s): %s', $object, $contract ]
             );
         }
 

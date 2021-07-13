@@ -115,23 +115,25 @@ class Arr
     /**
      * @param int|string|array $keys
      * @param null|bool        $uniq
+     * @param null|bool        $recursive
      *
      * @return string[]
      */
-    public static function keyvals($keys, $uniq = null): array
+    public static function keyvals($keys, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->keyvals($keys, $uniq);
+        return static::getInstance()->keyvals($keys, $uniq, $recursive);
     }
 
     /**
      * @param int|string|array $keys
      * @param null|bool        $uniq
+     * @param null|bool        $recursive
      *
      * @return string[]
      */
-    public static function theKeyvals($keys, $uniq = null): array
+    public static function theKeyvals($keys, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->theKeyvals($keys, $uniq);
+        return static::getInstance()->theKeyvals($keys, $uniq, $recursive);
     }
 
     /**
@@ -204,25 +206,25 @@ class Arr
     }
 
     /**
-     * @param string|string[]|array $keys
+     * @param string|string[]|array $path
      * @param string|string[]|array $separators
      *
      * @return array
      */
-    public static function path($keys, $separators = '.'): array
+    public static function path($path, $separators = '.'): array
     {
-        return static::getInstance()->path($keys, $separators);
+        return static::getInstance()->path($path, $separators);
     }
 
     /**
-     * @param string|string[]|array $keys
+     * @param string|string[]|array $path
      * @param string|string[]|array $separators
      *
      * @return string
      */
-    public static function pathkey($keys, $separators = '.'): string
+    public static function pathkey($path, $separators = '.'): string
     {
-        return static::getInstance()->pathkey($keys, $separators);
+        return static::getInstance()->pathkey($path, $separators);
     }
 
     /**
@@ -319,6 +321,16 @@ class Arr
     public static function combineMap(array $keys, iterable $collection, bool $drop = null): array
     {
         return static::getInstance()->combineMap($keys, $collection, $drop);
+    }
+
+    /**
+     * @param array $arr
+     *
+     * @return void
+     */
+    public static function reverse(array &$arr): void
+    {
+        static::getInstance()->reverse($arr);
     }
 
     /**

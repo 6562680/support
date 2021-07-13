@@ -147,16 +147,6 @@ class Php
     }
 
     /**
-     * @param mixed ...$values
-     *
-     * @return array
-     */
-    public static function flatval(...$values): array
-    {
-        return static::getInstance()->flatval(...$values);
-    }
-
-    /**
      * @param mixed ...$items
      *
      * @return array
@@ -205,6 +195,26 @@ class Php
      *
      * @return array
      */
+    public static function queueVal(...$values): array
+    {
+        return static::getInstance()->queueVal(...$values);
+    }
+
+    /**
+     * @param mixed ...$values
+     *
+     * @return array
+     */
+    public static function stackVal(...$values): array
+    {
+        return static::getInstance()->stackVal(...$values);
+    }
+
+    /**
+     * @param mixed ...$values
+     *
+     * @return array
+     */
     public static function unique(...$values): array
     {
         return static::getInstance()->unique(...$values);
@@ -241,6 +251,8 @@ class Php
     }
 
     /**
+     * unique() с сохранением ключей
+     *
      * @param mixed ...$values
      *
      * @return array

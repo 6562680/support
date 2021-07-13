@@ -233,6 +233,16 @@ abstract class GeneratedType implements \Gzhegow\Support\IType
     }
 
     /**
+     * @param string|mixed $value
+     *
+     * @return bool
+     */
+    public function isUtf8($value): ?bool
+    {
+        return null !== $this->filter->filterUtf8($value);
+    }
+
+    /**
      * @param int|string|mixed $value
      *
      * @return bool
@@ -359,6 +369,20 @@ abstract class GeneratedType implements \Gzhegow\Support\IType
     }
 
     /**
+     * Array that contains array
+     *
+     * @param array|mixed $array
+     *
+     * @return bool
+     */
+    public function isDeepArray($array): ?bool
+    {
+        return null !== $this->filter->filterDeepArray($array);
+    }
+
+    /**
+     * Array that can be safely serialized
+     *
      * @param array|mixed $array
      *
      * @return bool
@@ -546,6 +570,16 @@ abstract class GeneratedType implements \Gzhegow\Support\IType
     public function isThrowable($value): bool
     {
         return null !== $this->filter->filterThrowable($value);
+    }
+
+    /**
+     * @param object|mixed $value
+     *
+     * @return bool
+     */
+    public function isError($value): bool
+    {
+        return null !== $this->filter->filterError($value);
     }
 
     /**

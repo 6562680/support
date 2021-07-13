@@ -90,9 +90,9 @@ class Loader
      *
      * @return ZLoader
      */
-    public static function addContract(string $contract, ...$classes)
+    public static function addContract(string $contract, $classes)
     {
-        return static::getInstance()->addContract($contract, ...$classes);
+        return static::getInstance()->addContract($contract, $classes);
     }
 
     /**
@@ -129,14 +129,14 @@ class Loader
     }
 
     /**
-     * @param string|mixed $contract
-     * @param object|mixed $object
+     * @param string|mixed $object
+     * @param object|mixed $contract
      *
      * @return bool
      */
-    public static function isContact($contract, $object): bool
+    public static function isContact($object, $contract): bool
     {
-        return static::getInstance()->isContact($contract, $object);
+        return static::getInstance()->isContact($object, $contract);
     }
 
     /**
@@ -173,14 +173,14 @@ class Loader
     }
 
     /**
-     * @param string|mixed $contract
      * @param object|mixed $object
+     * @param string|mixed $contract
      *
      * @return null|object
      */
-    public static function filterContract($contract, $object): ?object
+    public static function filterContract($object, $contract): ?object
     {
-        return static::getInstance()->filterContract($contract, $object);
+        return static::getInstance()->filterContract($object, $contract);
     }
 
     /**
@@ -217,14 +217,14 @@ class Loader
     }
 
     /**
-     * @param string|mixed $contract
      * @param object|mixed $object
+     * @param string|mixed $contract
      *
      * @return object
      */
-    public static function assertContract($contract, $object): object
+    public static function assertContract($object, $contract): object
     {
-        return static::getInstance()->assertContract($contract, $object);
+        return static::getInstance()->assertContract($object, $contract);
     }
 
     /**

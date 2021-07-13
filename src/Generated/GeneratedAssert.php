@@ -424,6 +424,24 @@ abstract class GeneratedAssert implements \Gzhegow\Support\IAssert
     }
 
     /**
+     * @param string|mixed $value
+     *
+     * @return string
+     */
+    public function assertUtf8($value): ?string
+    {
+        if (null === ( $filtered = $this->filter->filterUtf8($value) )) {
+            throw $this->getThrowableOr(
+                new InvalidArgumentException($this->getErrorOr(
+                    'Invalid Utf8 passed: %s', ...func_get_args()
+                ))
+            );
+        }
+
+        return $filtered;
+    }
+
+    /**
      * @param int|string|mixed $value
      *
      * @return int|float|string
@@ -646,6 +664,28 @@ abstract class GeneratedAssert implements \Gzhegow\Support\IAssert
     }
 
     /**
+     * Array that contains array
+     *
+     * @param array|mixed $array
+     *
+     * @return array
+     */
+    public function assertDeepArray($array): ?array
+    {
+        if (null === ( $filtered = $this->filter->filterDeepArray($array) )) {
+            throw $this->getThrowableOr(
+                new InvalidArgumentException($this->getErrorOr(
+                    'Invalid DeepArray passed: %s', ...func_get_args()
+                ))
+            );
+        }
+
+        return $filtered;
+    }
+
+    /**
+     * Array that can be safely serialized
+     *
      * @param array|mixed $array
      *
      * @return array
@@ -972,6 +1012,24 @@ abstract class GeneratedAssert implements \Gzhegow\Support\IAssert
             throw $this->getThrowableOr(
                 new InvalidArgumentException($this->getErrorOr(
                     'Invalid Throwable passed: %s', ...func_get_args()
+                ))
+            );
+        }
+
+        return $filtered;
+    }
+
+    /**
+     * @param object|mixed $value
+     *
+     * @return object
+     */
+    public function assertError($value)
+    {
+        if (null === ( $filtered = $this->filter->filterError($value) )) {
+            throw $this->getThrowableOr(
+                new InvalidArgumentException($this->getErrorOr(
+                    'Invalid Error passed: %s', ...func_get_args()
                 ))
             );
         }

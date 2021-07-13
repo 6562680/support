@@ -34,7 +34,7 @@ class ZNum implements INum
 
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|float|mixed $value
      *
      * @return null|int|float
      */
@@ -52,7 +52,7 @@ class ZNum implements INum
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|float|mixed $value
      *
      * @return null|int|float
      */
@@ -70,7 +70,7 @@ class ZNum implements INum
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|float|mixed $value
      *
      * @return null|int|float
      */
@@ -88,7 +88,7 @@ class ZNum implements INum
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|float|mixed $value
      *
      * @return null|int|float
      */
@@ -107,7 +107,7 @@ class ZNum implements INum
 
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|float|mixed $value
      *
      * @return int|float
      */
@@ -123,7 +123,7 @@ class ZNum implements INum
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|float|mixed $value
      *
      * @return int|float
      */
@@ -139,7 +139,7 @@ class ZNum implements INum
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|float|mixed $value
      *
      * @return int|float
      */
@@ -155,7 +155,7 @@ class ZNum implements INum
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|float|mixed $value
      *
      * @return int|float
      */
@@ -172,7 +172,7 @@ class ZNum implements INum
 
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|mixed $value
      *
      * @return null|int
      */
@@ -190,7 +190,7 @@ class ZNum implements INum
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|mixed $value
      *
      * @return null|int
      */
@@ -208,7 +208,7 @@ class ZNum implements INum
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|mixed $value
      *
      * @return null|int
      */
@@ -226,7 +226,7 @@ class ZNum implements INum
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|mixed $value
      *
      * @return null|int
      */
@@ -245,7 +245,7 @@ class ZNum implements INum
 
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|mixed $value
      *
      * @return int
      */
@@ -261,7 +261,7 @@ class ZNum implements INum
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|mixed $value
      *
      * @return int
      */
@@ -277,7 +277,7 @@ class ZNum implements INum
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|mixed $value
      *
      * @return int
      */
@@ -293,7 +293,7 @@ class ZNum implements INum
     }
 
     /**
-     * @param int|float|string|mixed $value
+     * @param int|mixed $value
      *
      * @return int
      */
@@ -310,7 +310,7 @@ class ZNum implements INum
 
 
     /**
-     * @param mixed $value
+     * @param int|mixed $value
      *
      * @return null|int
      */
@@ -326,7 +326,7 @@ class ZNum implements INum
     }
 
     /**
-     * @param mixed $value
+     * @param float|mixed $value
      *
      * @return null|float
      */
@@ -342,7 +342,7 @@ class ZNum implements INum
     }
 
     /**
-     * @param mixed $value
+     * @param int|float|mixed $value
      *
      * @return null|int|float
      */
@@ -358,7 +358,7 @@ class ZNum implements INum
     }
 
     /**
-     * @param mixed $value
+     * @param int|float|string|mixed $value
      *
      * @return null|string
      */
@@ -368,82 +368,86 @@ class ZNum implements INum
             return null;
         }
 
+        // @gzhegow
+        // use numval or numericval directly
+        // hope, we dont have numeric values that cannot be converted to int or float
         return strval($value);
     }
 
 
     /**
-     * @param mixed $value
+     * @param int|mixed $value
      *
      * @return int
      */
     public function theIntval($value) : int
     {
-        if (null === ( $intval = $this->intval($value) )) {
+        if (null === ( $val = $this->intval($value) )) {
             throw new InvalidArgumentException(
                 [ 'Value should be convertable to intval: %s', $value ],
             );
         }
 
-        return $intval;
+        return $val;
     }
 
     /**
-     * @param mixed $value
+     * @param float|mixed $value
      *
      * @return float
      */
     public function theFloatval($value) : float
     {
-        if (null === ( $floatval = $this->floatval($value) )) {
+        if (null === ( $val = $this->floatval($value) )) {
             throw new InvalidArgumentException(
                 [ 'Value should be convertable to floatval: %s', $value ],
             );
         }
 
-        return $floatval;
+        return $val;
     }
 
     /**
-     * @param mixed $value
+     * @param int|float|mixed $value
      *
      * @return int|float
      */
     public function theNumval($value) // : int|float
     {
-        if (null === ( $numberval = $this->numval($value) )) {
-            throw new InvalidArgumentException(
-                [ 'Value should be convertable to int or float: %s', $value ],
-            );
-        }
-
-        return $numberval;
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return string
-     */
-    public function theNumericval($value) : string
-    {
-        if (null === ( $numval = $this->numericval($value) )) {
+        if (null === ( $val = $this->numval($value) )) {
             throw new InvalidArgumentException(
                 [ 'Value should be convertable to numval: %s', $value ],
             );
         }
 
-        return $numval;
+        return $val;
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return string
+     */
+    public function theNumericval($value) : string
+    {
+        if (null === ( $val = $this->numericval($value) )) {
+            throw new InvalidArgumentException(
+                [ 'Value should be convertable to numericval: %s', $value ],
+            );
+        }
+
+        return $val;
     }
 
 
     /**
      * @param int|array $integers
      * @param null|bool $uniq
+     * @param null|bool $recursive
      *
      * @return int[]
      */
-    public function intvals($integers, $uniq = null) : array
+    public function intvals($integers, bool $uniq = null, bool $recursive = null) : array
     {
         $result = [];
 
@@ -451,13 +455,21 @@ class ZNum implements INum
             ? $integers
             : [ $integers ];
 
-        array_walk_recursive($integers, function ($integer) use (&$result) {
-            if (null !== ( $intval = $this->intval($integer) )) {
-                $result[] = $intval;
+        if ($recursive) {
+            array_walk_recursive($integers, function ($item) use (&$result) {
+                if (null !== ( $val = $this->intval($item) )) {
+                    $result[] = $val;
+                }
+            });
+        } else {
+            foreach ( $integers as $item ) {
+                if (null !== ( $val = $this->intval($item) )) {
+                    $result[] = $val;
+                }
             }
-        });
+        }
 
-        if ($uniq ?? false) {
+        if ($uniq) {
             $arr = [];
             foreach ( $result as $i ) {
                 $arr[ $i ] = true;
@@ -471,10 +483,11 @@ class ZNum implements INum
     /**
      * @param float|array $floats
      * @param null|bool   $uniq
+     * @param null|bool   $recursive
      *
      * @return float[]
      */
-    public function floatvals($floats, $uniq = null) : array
+    public function floatvals($floats, bool $uniq = null, bool $recursive = null) : array
     {
         $result = [];
 
@@ -482,13 +495,21 @@ class ZNum implements INum
             ? $floats
             : [ $floats ];
 
-        array_walk_recursive($floats, function ($float) use (&$result) {
-            if (null !== ( $floatval = $this->floatval($float) )) {
-                $result[] = $floatval;
+        if ($recursive) {
+            array_walk_recursive($floats, function ($item) use (&$result) {
+                if (null !== ( $val = $this->floatval($item) )) {
+                    $result[] = $val;
+                }
+            });
+        } else {
+            foreach ( $floats as $item ) {
+                if (null !== ( $val = $this->floatval($item) )) {
+                    $result[] = $val;
+                }
             }
-        });
+        }
 
-        if ($uniq ?? false) {
+        if ($uniq) {
             $arr = [];
             foreach ( $result as $i ) {
                 $arr[ $i ] = true;
@@ -500,12 +521,13 @@ class ZNum implements INum
     }
 
     /**
-     * @param int|float|string|array $numbers
-     * @param null|bool              $uniq
+     * @param int|float|array $numbers
+     * @param null|bool       $uniq
+     * @param null|bool       $recursive
      *
      * @return int[]|float[]
      */
-    public function numvals($numbers, $uniq = null) : array
+    public function numvals($numbers, bool $uniq = null, bool $recursive = null) : array
     {
         $result = [];
 
@@ -513,13 +535,21 @@ class ZNum implements INum
             ? $numbers
             : [ $numbers ];
 
-        array_walk_recursive($numbers, function ($number) use (&$result) {
-            if (null !== ( $numval = $this->numval($number) )) {
-                $result[] = $numval;
+        if ($recursive) {
+            array_walk_recursive($numbers, function ($item) use (&$result) {
+                if (null !== ( $val = $this->numval($item) )) {
+                    $result[] = $val;
+                }
+            });
+        } else {
+            foreach ( $numbers as $item ) {
+                if (null !== ( $val = $this->numval($item) )) {
+                    $result[] = $val;
+                }
             }
-        });
+        }
 
-        if ($uniq ?? false) {
+        if ($uniq) {
             $arr = [];
             foreach ( $result as $i ) {
                 $arr[ $i ] = true;
@@ -533,10 +563,11 @@ class ZNum implements INum
     /**
      * @param int|float|string|array $numbers
      * @param null|bool              $uniq
+     * @param null|bool              $recursive
      *
      * @return string[]
      */
-    public function numericvals($numbers, $uniq = null) : array
+    public function numericvals($numbers, bool $uniq = null, bool $recursive = null) : array
     {
         $result = [];
 
@@ -544,13 +575,21 @@ class ZNum implements INum
             ? $numbers
             : [ $numbers ];
 
-        array_walk_recursive($numbers, function ($number) use (&$result) {
-            if (null !== ( $numval = $this->numericval($number) )) {
-                $result[] = $numval;
+        if ($recursive) {
+            array_walk_recursive($numbers, function ($item) use (&$result) {
+                if (null !== ( $val = $this->numericval($item) )) {
+                    $result[] = $val;
+                }
+            });
+        } else {
+            foreach ( $numbers as $item ) {
+                if (null !== ( $val = $this->numericval($item) )) {
+                    $result[] = $val;
+                }
             }
-        });
+        }
 
-        if ($uniq ?? false) {
+        if ($uniq) {
             $arr = [];
             foreach ( $result as $i ) {
                 $arr[ $i ] = true;
@@ -563,24 +602,31 @@ class ZNum implements INum
 
 
     /**
-     * @param int|array $intvals
+     * @param int|array $integers
      * @param null|bool $uniq
+     * @param null|bool $recursive
      *
      * @return int[]
      */
-    public function theIntvals($intvals, $uniq = null) : array
+    public function theIntvals($integers, bool $uniq = null, bool $recursive = null) : array
     {
         $result = [];
 
-        $intvals = is_array($intvals)
-            ? $intvals
-            : [ $intvals ];
+        $integers = is_array($integers)
+            ? $integers
+            : [ $integers ];
 
-        array_walk_recursive($intvals, function ($integer) use (&$result) {
-            $result[] = $this->theIntval($integer);
-        });
+        if ($recursive) {
+            array_walk_recursive($integers, function ($item) use (&$result) {
+                $result[] = $this->theIntval($item);
+            });
+        } else {
+            foreach ( $integers as $item ) {
+                $result[] = $this->theIntval($item);
+            }
+        }
 
-        if ($uniq ?? false) {
+        if ($uniq) {
             $arr = [];
             foreach ( $result as $i ) {
                 $arr[ $i ] = true;
@@ -592,24 +638,31 @@ class ZNum implements INum
     }
 
     /**
-     * @param float|array $floatvals
+     * @param float|array $floats
      * @param null|bool   $uniq
+     * @param null|bool   $recursive
      *
      * @return float[]
      */
-    public function theFloatvals($floatvals, $uniq = null) : array
+    public function theFloatvals($floats, bool $uniq = null, bool $recursive = null) : array
     {
         $result = [];
 
-        $floatvals = is_array($floatvals)
-            ? $floatvals
-            : [ $floatvals ];
+        $floats = is_array($floats)
+            ? $floats
+            : [ $floats ];
 
-        array_walk_recursive($floatvals, function ($float) use (&$result) {
-            $result[] = $this->theFloatval($float);
-        });
+        if ($recursive) {
+            array_walk_recursive($floats, function ($item) use (&$result) {
+                $result[] = $this->theFloatval($item);
+            });
+        } else {
+            foreach ( $floats as $item ) {
+                $result[] = $this->theFloatval($item);
+            }
+        }
 
-        if ($uniq ?? false) {
+        if ($uniq) {
             $arr = [];
             foreach ( $result as $i ) {
                 $arr[ $i ] = true;
@@ -621,24 +674,31 @@ class ZNum implements INum
     }
 
     /**
-     * @param float|array $numbervals
-     * @param null|bool   $uniq
+     * @param int|float|array $numbers
+     * @param null|bool       $uniq
+     * @param null|bool       $recursive
      *
      * @return int[]|float[]
      */
-    public function theNumvals($numbervals, $uniq = null) : array
+    public function theNumvals($numbers, bool $uniq = null, bool $recursive = null) : array
     {
         $result = [];
 
-        $numbervals = is_array($numbervals)
-            ? $numbervals
-            : [ $numbervals ];
+        $numbers = is_array($numbers)
+            ? $numbers
+            : [ $numbers ];
 
-        array_walk_recursive($numbervals, function ($number) use (&$result) {
-            $result[] = $this->theNumval($number);
-        });
+        if ($recursive) {
+            array_walk_recursive($numbers, function ($item) use (&$result) {
+                $result[] = $this->theNumval($item);
+            });
+        } else {
+            foreach ( $numbers as $item ) {
+                $result[] = $this->theNumval($item);
+            }
+        }
 
-        if ($uniq ?? false) {
+        if ($uniq) {
             $arr = [];
             foreach ( $result as $i ) {
                 $arr[ $i ] = true;
@@ -650,24 +710,31 @@ class ZNum implements INum
     }
 
     /**
-     * @param int|float|string|array $numvals
+     * @param int|float|string|array $numbers
      * @param null|bool              $uniq
+     * @param null|bool              $recursive
      *
      * @return string[]
      */
-    public function theNumericvals($numvals, $uniq = null) : array
+    public function theNumericvals($numbers, bool $uniq = null, bool $recursive = null) : array
     {
         $result = [];
 
-        $numvals = is_array($numvals)
-            ? $numvals
-            : [ $numvals ];
+        $numbers = is_array($numbers)
+            ? $numbers
+            : [ $numbers ];
 
-        array_walk_recursive($numvals, function ($number) use (&$result) {
-            $result[] = $this->theNumericval($number);
-        });
+        if ($recursive) {
+            array_walk_recursive($numbers, function ($item) use (&$result) {
+                $result[] = $this->theNumericval($item);
+            });
+        } else {
+            foreach ( $numbers as $item ) {
+                $result[] = $this->theNumericval($item);
+            }
+        }
 
-        if ($uniq ?? false) {
+        if ($uniq) {
             $arr = [];
             foreach ( $result as $i ) {
                 $arr[ $i ] = true;

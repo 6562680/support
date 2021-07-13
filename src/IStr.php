@@ -30,9 +30,14 @@ interface IStr
     public function getSeparators(): string;
 
     /**
-     * @return string
+     * @return array
      */
-    public function getVowels(): string;
+    public function getAccents(): array;
+
+    /**
+     * @return array
+     */
+    public function getVowels(): array;
 
     /**
      * @param mixed $value
@@ -79,50 +84,56 @@ interface IStr
     /**
      * @param string|array $strings
      * @param null|bool    $uniq
+     * @param null|bool    $recursive
      *
      * @return string[]
      */
-    public function strvals($strings, $uniq = null): array;
+    public function strvals($strings, bool $uniq = null, bool $recursive = null): array;
 
     /**
      * @param string|array $words
      * @param null|bool    $uniq
+     * @param null|bool    $recursive
      *
      * @return string[]
      */
-    public function wordvals($words, $uniq = null): array;
+    public function wordvals($words, bool $uniq = null, bool $recursive = null): array;
 
     /**
      * @param string|array $trims
      * @param null|bool    $uniq
+     * @param null|bool    $recursive
      *
      * @return string[]
      */
-    public function trimvals($trims, $uniq = null): array;
+    public function trimvals($trims, bool $uniq = null, bool $recursive = null): array;
 
     /**
      * @param string|array $strings
      * @param null|bool    $uniq
+     * @param null|bool    $recursive
      *
      * @return string[]
      */
-    public function theStrvals($strings, $uniq = null): array;
+    public function theStrvals($strings, bool $uniq = null, bool $recursive = null): array;
 
     /**
      * @param string|array $words
      * @param null|bool    $uniq
+     * @param null|bool    $recursive
      *
      * @return string[]
      */
-    public function theWordvals($words, $uniq = null): array;
+    public function theWordvals($words, bool $uniq = null, bool $recursive = null): array;
 
     /**
      * @param string|array $trims
      * @param null|bool    $uniq
+     * @param null|bool    $recursive
      *
      * @return string[]
      */
-    public function theTrimvals($trims, $uniq = null): array;
+    public function theTrimvals($trims, bool $uniq = null, bool $recursive = null): array;
 
     /**
      * фикс. стандартная функция не поддерживает лимит замен
@@ -474,14 +485,14 @@ interface IStr
      * @return string
      */
     public function concatSkip(
-        array $strings,
+        $strings,
         string $delimiter = null,
         string $lastDelimiter = null,
         string $wrapper = null
     ): string;
 
     /**
-     * урезает английское слово(-а) до префикса из нескольких букв - когда имя индекса в бд слишком длинное
+     * урезает английское слово до префикса из нескольких букв - когда имя индекса в бд слишком длинное
      *
      * @param string   $string
      * @param null|int $len
@@ -593,6 +604,13 @@ interface IStr
      * @return string
      */
     public function slugCase(string $string, string $delimiter = null, string $locale = null): string;
+
+    /**
+     * @param string $string
+     *
+     * @return string
+     */
+    public function unaccent(string $string): string;
 
     /**
      * @param string   $singular

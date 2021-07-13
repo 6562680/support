@@ -182,6 +182,13 @@ interface IType
     public function isWord($value): ?bool;
 
     /**
+     * @param string|mixed $value
+     *
+     * @return bool
+     */
+    public function isUtf8($value): ?bool;
+
+    /**
      * @param int|string|mixed $value
      *
      * @return bool
@@ -272,6 +279,17 @@ interface IType
     public function isAssoc($assoc, callable $of = null): ?bool;
 
     /**
+     * Array that contains array
+     *
+     * @param array|mixed $array
+     *
+     * @return bool
+     */
+    public function isDeepArray($array): ?bool;
+
+    /**
+     * Array that can be safely serialized
+     *
      * @param array|mixed $array
      *
      * @return bool
@@ -406,6 +424,13 @@ interface IType
      * @return bool
      */
     public function isThrowable($value): bool;
+
+    /**
+     * @param object|mixed $value
+     *
+     * @return bool
+     */
+    public function isError($value): bool;
 
     /**
      * @param object|mixed $value

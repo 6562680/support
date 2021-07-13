@@ -240,6 +240,16 @@ class Filter
     }
 
     /**
+     * @param string|mixed $value
+     *
+     * @return null|string
+     */
+    public static function filterUtf8($value): ?string
+    {
+        return static::getInstance()->filterUtf8($value);
+    }
+
+    /**
      * @param int|string|mixed $value
      *
      * @return null|int|float|string
@@ -366,6 +376,20 @@ class Filter
     }
 
     /**
+     * Array that contains array
+     *
+     * @param array|mixed $array
+     *
+     * @return null|array
+     */
+    public static function filterDeepArray($array): ?array
+    {
+        return static::getInstance()->filterDeepArray($array);
+    }
+
+    /**
+     * Array that can be safely serialized
+     *
      * @param array|mixed $array
      *
      * @return null|array
@@ -553,6 +577,16 @@ class Filter
     public static function filterThrowable($value)
     {
         return static::getInstance()->filterThrowable($value);
+    }
+
+    /**
+     * @param object|mixed $value
+     *
+     * @return null|object
+     */
+    public static function filterError($value)
+    {
+        return static::getInstance()->filterError($value);
     }
 
     /**

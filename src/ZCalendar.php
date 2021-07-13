@@ -80,8 +80,8 @@ class ZCalendar implements ICalendar
      * Constructor
      *
      * @param IFilter $filter
-     * @param INum    $php
-     * @param IPhp    $num
+     * @param INum    $num
+     * @param IPhp    $php
      * @param IStr    $str
      */
     public function __construct(
@@ -135,8 +135,8 @@ class ZCalendar implements ICalendar
         $parsedA = $this->dateVal($a);
         $parsedB = $this->dateVal($b);
 
-        $isDateA = is_a($parsedA, \DateTime::class);
-        $isDateB = is_a($parsedB, \DateTime::class);
+        $isDateA = $parsedA instanceof \DateTime;
+        $isDateB = $parsedB instanceof \DateTime;
 
         if ($isDateB - $isDateA) {
             $result = false;
@@ -173,8 +173,8 @@ class ZCalendar implements ICalendar
         $parsedA = $this->dateVal($a);
         $parsedB = $this->dateVal($b);
 
-        $isDateA = is_a($parsedA, \DateTime::class);
-        $isDateB = is_a($parsedB, \DateTime::class);
+        $isDateA = $parsedA instanceof \DateTime;
+        $isDateB = $parsedB instanceof \DateTime;
 
         if ($cmp = ( $isDateB - $isDateA )) {
             $result = $cmp < 0;
@@ -210,8 +210,8 @@ class ZCalendar implements ICalendar
         $parsedA = $this->dateVal($a);
         $parsedB = $this->dateVal($b);
 
-        $isDateA = is_a($parsedA, \DateTime::class);
-        $isDateB = is_a($parsedB, \DateTime::class);
+        $isDateA = $parsedA instanceof \DateTime;
+        $isDateB = $parsedB instanceof \DateTime;
 
         if ($cmp = ( $isDateB - $isDateA )) {
             $result = $cmp < 0;
@@ -251,8 +251,8 @@ class ZCalendar implements ICalendar
         $parsedA = $this->dateVal($a);
         $parsedB = $this->dateVal($b);
 
-        $isDateA = is_a($parsedA, \DateTime::class);
-        $isDateB = is_a($parsedB, \DateTime::class);
+        $isDateA = $parsedA instanceof \DateTime;
+        $isDateB = $parsedB instanceof \DateTime;
 
         if ($cmp = ( $isDateB - $isDateA )) {
             $result = $cmp > 0;
@@ -288,8 +288,8 @@ class ZCalendar implements ICalendar
         $parsedA = $this->dateVal($a);
         $parsedB = $this->dateVal($b);
 
-        $isDateA = $this->isDateTime($parsedA);
-        $isDateB = $this->isDateTime($parsedB);
+        $isDateA = $parsedA instanceof \DateTime;
+        $isDateB = $parsedB instanceof \DateTime;
 
         if ($cmp = ( $isDateB - $isDateA )) {
             $result = $cmp > 0;
@@ -325,7 +325,7 @@ class ZCalendar implements ICalendar
     public function isBetween($date, ...$dates) : bool
     {
         $date = $this->theDateVal($date);
-        $dates = $this->theDatevals($dates, true);
+        $dates = $this->theDatevals($dates, true, true);
 
         $min = min($dates);
         $max = max($dates);
@@ -461,11 +461,11 @@ class ZCalendar implements ICalendar
      */
     public function filterDateTimeInterface($date) : ?\DateTimeInterface
     {
-        $result = is_a($date, \DateTimeInterface::class)
-            ? $date
-            : null;
+        if ($date instanceof \DateTimeInterface) {
+            return $date;
+        }
 
-        return $result;
+        return null;
     }
 
     /**
@@ -475,11 +475,11 @@ class ZCalendar implements ICalendar
      */
     public function filterDateTimeImmutable($date) : ?\DateTimeImmutable
     {
-        $result = is_a($date, \DateTimeImmutable::class)
-            ? $date
-            : null;
+        if ($date instanceof \DateTimeImmutable) {
+            return $date;
+        }
 
-        return $result;
+        return null;
     }
 
     /**
@@ -489,11 +489,11 @@ class ZCalendar implements ICalendar
      */
     public function filterDateTime($date) : ?\DateTime
     {
-        $result = is_a($date, \DateTime::class)
-            ? $date
-            : null;
+        if ($date instanceof \DateTime) {
+            return $date;
+        }
 
-        return $result;
+        return null;
     }
 
     /**
@@ -503,11 +503,11 @@ class ZCalendar implements ICalendar
      */
     public function filterDateTimeZone($timezone) : ?\DateTimeZone
     {
-        $result = is_a($timezone, \DateTimeZone::class)
-            ? $timezone
-            : null;
+        if ($timezone instanceof \DateTimeZone) {
+            return $timezone;
+        }
 
-        return $result;
+        return null;
     }
 
     /**
@@ -517,11 +517,11 @@ class ZCalendar implements ICalendar
      */
     public function filterDateInterval($interval) : ?\DateInterval
     {
-        $result = is_a($interval, \DateInterval::class)
-            ? $interval
-            : null;
+        if ($interval instanceof \DateInterval) {
+            return $interval;
+        }
 
-        return $result;
+        return null;
     }
 
 
@@ -583,31 +583,35 @@ class ZCalendar implements ICalendar
 
 
     /**
-     * @param \DateTime|mixed $date
+     * @param \DateTimeInterface|mixed $date
      *
      * @return \DateTimeInterface
      */
     public function assertDateTimeInterface($date) : \DateTimeInterface
     {
-        if (null === ( $filtered = $this->filterDateTime($date) )) {
-            throw new InvalidArgumentException([ 'Invalid DateTime passed: %s', $date ]);
+        if (null === $this->filterDateTimeInterface($date)) {
+            throw new InvalidArgumentException(
+                [ 'Invalid DateTimeInterface passed: %s', $date ]
+            );
         }
 
-        return $filtered;
+        return $date;
     }
 
     /**
-     * @param \DateTime|mixed $date
+     * @param \DateTimeImmutable|mixed $date
      *
-     * @return \DateTime
+     * @return \DateTimeImmutable
      */
-    public function assertDateTimeImmutable($date) : \DateTime
+    public function assertDateTimeImmutable($date) : \DateTimeImmutable
     {
-        if (null === ( $filtered = $this->filterDateTime($date) )) {
-            throw new InvalidArgumentException([ 'Invalid DateTime passed: %s', $date ]);
+        if (null === $this->filterDateTimeImmutable($date)) {
+            throw new InvalidArgumentException(
+                [ 'Invalid DateTimeImmutable passed: %s', $date ]
+            );
         }
 
-        return $filtered;
+        return $date;
     }
 
     /**
@@ -617,11 +621,13 @@ class ZCalendar implements ICalendar
      */
     public function assertDateTime($date) : \DateTime
     {
-        if (null === ( $filtered = $this->filterDateTime($date) )) {
-            throw new InvalidArgumentException([ 'Invalid DateTime passed: %s', $date ]);
+        if (null === $this->filterDateTime($date)) {
+            throw new InvalidArgumentException(
+                [ 'Invalid DateTime passed: %s', $date ]
+            );
         }
 
-        return $filtered;
+        return $date;
     }
 
     /**
@@ -631,11 +637,13 @@ class ZCalendar implements ICalendar
      */
     public function assertDateTimeZone($timezone) : \DateTimeZone
     {
-        if (null === ( $filtered = $this->filterDateTimeZone($timezone) )) {
-            throw new InvalidArgumentException([ 'Invalid DateTimeZone passed: %s', $timezone ]);
+        if (null === $this->filterDateTimeZone($timezone)) {
+            throw new InvalidArgumentException(
+                [ 'Invalid DateTimeZone passed: %s', $timezone ]
+            );
         }
 
-        return $filtered;
+        return $timezone;
     }
 
     /**
@@ -645,11 +653,13 @@ class ZCalendar implements ICalendar
      */
     public function assertDateInterval($interval) : \DateInterval
     {
-        if (null === ( $filtered = $this->filterDateInterval($interval) )) {
-            throw new InvalidArgumentException([ 'Invalid DateInterval passed: %s', $interval ]);
+        if (null === $this->filterDateInterval($interval)) {
+            throw new InvalidArgumentException(
+                [ 'Invalid DateInterval passed: %s', $interval ]
+            );
         }
 
-        return $filtered;
+        return $interval;
     }
 
 
@@ -660,11 +670,13 @@ class ZCalendar implements ICalendar
      */
     public function assertIDate($date) // : int|float|string|\DateTimeImmutable
     {
-        if (null === ( $filtered = $this->filterIDate($date) )) {
-            throw new InvalidArgumentException([ 'Invalid Dateval passed: %s', $date ]);
+        if (null === $this->filterIDate($date)) {
+            throw new InvalidArgumentException(
+                [ 'Invalid DateTimeImmutable passed: %s', $date ]
+            );
         }
 
-        return $filtered;
+        return $date;
     }
 
     /**
@@ -674,11 +686,13 @@ class ZCalendar implements ICalendar
      */
     public function assertDate($date) // : int|float|string|\DateTime
     {
-        if (null === ( $filtered = $this->filterDate($date) )) {
-            throw new InvalidArgumentException([ 'Invalid Dateval passed: %s', $date ]);
+        if (null === $this->filterDate($date)) {
+            throw new InvalidArgumentException(
+                [ 'Invalid DateTime passed: %s', $date ]
+            );
         }
 
-        return $filtered;
+        return $date;
     }
 
     /**
@@ -688,11 +702,13 @@ class ZCalendar implements ICalendar
      */
     public function assertTimezone($timezone) // : string|\DateTimeZone
     {
-        if (null === ( $filtered = $this->filterTimezone($timezone) )) {
-            throw new InvalidArgumentException([ 'Invalid Timezoneval passed: %s', $timezone ]);
+        if (null === $this->filterTimezone($timezone)) {
+            throw new InvalidArgumentException(
+                [ 'Invalid DateTimeZone passed: %s', $timezone ]
+            );
         }
 
-        return $filtered;
+        return $timezone;
     }
 
     /**
@@ -702,11 +718,13 @@ class ZCalendar implements ICalendar
      */
     public function assertInterval($interval) // : string|\DateInterval
     {
-        if (null === ( $filtered = $this->filterInterval($interval) )) {
-            throw new InvalidArgumentException([ 'Invalid Interval passed: %s', $interval ]);
+        if (null === $this->filterInterval($interval)) {
+            throw new InvalidArgumentException(
+                [ 'Invalid DateInterval passed: %s', $interval ]
+            );
         }
 
-        return $filtered;
+        return $interval;
     }
 
 
@@ -722,8 +740,8 @@ class ZCalendar implements ICalendar
             $dateVal = null
                 ?? $this->tryDateFromInstance($date, $timezone)
                 ?? $this->tryDateFromInt($date, $timezone)
-                ?? $this->tryDateFromFloat($date, $timezone)
-                ?? $this->tryDateFromString($date, $timezone);
+                ?? $this->tryDateFromString($date, $timezone)
+                ?? $this->tryDateFromFloat($date, $timezone);
 
             if ($dateVal) {
                 $iDateVal = \DateTimeImmutable::createFromMutable($dateVal);
@@ -748,8 +766,8 @@ class ZCalendar implements ICalendar
             $dateVal = null
                 ?? $this->tryDateFromInstance($date, $timezone)
                 ?? $this->tryDateFromInt($date, $timezone)
-                ?? $this->tryDateFromFloat($date, $timezone)
-                ?? $this->tryDateFromString($date, $timezone);
+                ?? $this->tryDateFromString($date, $timezone)
+                ?? $this->tryDateFromFloat($date, $timezone);
         }
 
         return $dateVal;
@@ -793,11 +811,13 @@ class ZCalendar implements ICalendar
      */
     public function theIDateVal($date, $timezone = null) : \DateTimeImmutable
     {
-        if (null === ( $result = $this->iDateVal($date, $timezone) )) {
-            throw new InvalidArgumentException([ 'Invalid IDate passed: %s', $date ]);
+        if (null === ( $val = $this->iDateVal($date, $timezone) )) {
+            throw new InvalidArgumentException(
+                [ 'Invalid IDate passed: %s', $date ]
+            );
         }
 
-        return $result;
+        return $val;
     }
 
     /**
@@ -808,11 +828,13 @@ class ZCalendar implements ICalendar
      */
     public function theDateVal($date, $timezone = null) : \DateTime
     {
-        if (null === ( $result = $this->dateVal($date, $timezone) )) {
-            throw new InvalidArgumentException([ 'Invalid DateTime passed: %s', $date ]);
+        if (null === ( $val = $this->dateVal($date, $timezone) )) {
+            throw new InvalidArgumentException(
+                [ 'Invalid DateTime passed: %s', $date ]
+            );
         }
 
-        return $result;
+        return $val;
     }
 
     /**
@@ -824,13 +846,13 @@ class ZCalendar implements ICalendar
      */
     public function theTimezoneVal($timezone, bool $isDst = null, int $utcOffset = null) : \DateTimeZone
     {
-        if (null === ( $result = $this->timezoneVal($timezone, $isDst, $utcOffset) )) {
+        if (null === ( $val = $this->timezoneVal($timezone, $isDst, $utcOffset) )) {
             throw new InvalidArgumentException(
                 [ 'Invalid DateTimeZone passed: %s [ %s / %s ]', $timezone, $isDst, $utcOffset ]
             );
         }
 
-        return $result;
+        return $val;
     }
 
     /**
@@ -841,21 +863,22 @@ class ZCalendar implements ICalendar
      */
     public function theIntervalVal($interval, string $unit = null) : \DateInterval
     {
-        if (null === ( $result = $this->intervalVal($interval, $unit) )) {
+        if (null === ( $val = $this->intervalVal($interval, $unit) )) {
             throw new InvalidArgumentException([ 'Invalid DateInterval passed: %s', $interval ]);
         }
 
-        return $result;
+        return $val;
     }
 
 
     /**
      * @param int|float|string|\DateTimeInterface|array $dates
      * @param null|bool                                 $uniq
+     * @param null|bool                                 $recursive
      *
      * @return \DateTimeInterface[]
      */
-    public function datevals($dates, $uniq = null) : array
+    public function datevals($dates, bool $uniq = null, bool $recursive = null) : array
     {
         $result = [];
 
@@ -864,17 +887,26 @@ class ZCalendar implements ICalendar
             : [ $dates ];
 
         $input = [];
-        array_walk_recursive($dates, function ($date) use (&$input, &$result) {
-            if (null !== ( $dateval = $this->dateVal($date) )) {
-                $input[] = $date;
-                $result[] = $dateval;
+        if ($recursive) {
+            array_walk_recursive($dates, function ($item) use (&$result, &$input) {
+                if (null !== ( $val = $this->dateVal($item) )) {
+                    $input[] = $item;
+                    $result[] = $val;
+                }
+            });
+        } else {
+            foreach ( $dates as $item ) {
+                if (null !== ( $val = $this->dateVal($item) )) {
+                    $input[] = $item;
+                    $result[] = $val;
+                }
             }
-        });
+        }
 
-        if ($uniq ?? false) {
+        if ($uniq) {
             $input = $this->php->distinct($input);
 
-            foreach ( $result as $idx => $val ) {
+            foreach ( $result as $idx => $i ) {
                 if (! isset($input[ $idx ])) {
                     unset($result[ $idx ]);
                 }
@@ -889,10 +921,11 @@ class ZCalendar implements ICalendar
     /**
      * @param int|float|string|\DateTimeInterface|array $dates
      * @param null|bool                                 $uniq
+     * @param null|bool                                 $recursive
      *
      * @return \DateTimeInterface[]
      */
-    public function theDatevals($dates, $uniq = null) : array
+    public function theDatevals($dates, bool $uniq = null, bool $recursive = null) : array
     {
         $result = [];
 
@@ -901,17 +934,26 @@ class ZCalendar implements ICalendar
             : [ $dates ];
 
         $input = [];
-        array_walk_recursive($dates, function ($date) use (&$input, &$result) {
-            $theDate = $this->theDateVal($date);
+        if ($recursive) {
+            array_walk_recursive($dates, function ($item) use (&$result, &$input) {
+                $val = $this->theDateVal($item);
 
-            $input[] = $date;
-            $result[] = $theDate;
-        });
+                $input[] = $item;
+                $result[] = $val;
+            });
+        } else {
+            foreach ( $dates as $item ) {
+                $val = $this->theDateVal($item);
 
-        if ($uniq ?? false) {
+                $input[] = $item;
+                $result[] = $val;
+            }
+        }
+
+        if ($uniq) {
             $input = $this->php->distinct($input);
 
-            foreach ( $result as $idx => $val ) {
+            foreach ( $result as $idx => $i ) {
                 if (! isset($input[ $idx ])) {
                     unset($result[ $idx ]);
                 }
@@ -927,10 +969,11 @@ class ZCalendar implements ICalendar
     /**
      * @param int|float|string|\DateTimeInterface|array $dates
      * @param null|bool                                 $uniq
+     * @param null|bool                                 $recursive
      *
      * @return \DateTimeImmutable[]
      */
-    public function iDatevals($dates, $uniq = null) : array
+    public function iDatevals($dates, bool $uniq = null, bool $recursive = null) : array
     {
         $result = [];
 
@@ -939,17 +982,26 @@ class ZCalendar implements ICalendar
             : [ $dates ];
 
         $input = [];
-        array_walk_recursive($dates, function ($date) use (&$input, &$result) {
-            if (null !== ( $dateval = $this->iDateVal($date) )) {
-                $input[] = $date;
-                $result[] = $dateval;
+        if ($recursive) {
+            array_walk_recursive($dates, function ($item) use (&$result, &$input) {
+                if (null !== ( $val = $this->iDateVal($item) )) {
+                    $input[] = $item;
+                    $result[] = $val;
+                }
+            });
+        } else {
+            foreach ( $dates as $item ) {
+                if (null !== ( $val = $this->iDateVal($item) )) {
+                    $input[] = $item;
+                    $result[] = $val;
+                }
             }
-        });
+        }
 
-        if ($uniq ?? false) {
+        if ($uniq) {
             $input = $this->php->distinct($input);
 
-            foreach ( $result as $idx => $val ) {
+            foreach ( $result as $idx => $i ) {
                 if (! isset($input[ $idx ])) {
                     unset($result[ $idx ]);
                 }
@@ -964,10 +1016,11 @@ class ZCalendar implements ICalendar
     /**
      * @param int|float|string|\DateTimeInterface|array $dates
      * @param null|bool                                 $uniq
+     * @param null|bool                                 $recursive
      *
      * @return \DateTimeImmutable[]
      */
-    public function theIDatevals($dates, $uniq = null) : array
+    public function theIDatevals($dates, bool $uniq = null, bool $recursive = null) : array
     {
         $result = [];
 
@@ -976,17 +1029,26 @@ class ZCalendar implements ICalendar
             : [ $dates ];
 
         $input = [];
-        array_walk_recursive($dates, function ($date) use (&$input, &$result) {
-            $theDate = $this->theIDateVal($date);
+        if ($recursive) {
+            array_walk_recursive($dates, function ($item) use (&$result, &$input) {
+                $val = $this->theIDateVal($item);
 
-            $input[] = $date;
-            $result[] = $theDate;
-        });
+                $input[] = $item;
+                $result[] = $val;
+            });
+        } else {
+            foreach ( $dates as $item ) {
+                $val = $this->theIDateVal($item);
 
-        if ($uniq ?? false) {
+                $input[] = $item;
+                $result[] = $val;
+            }
+        }
+
+        if ($uniq) {
             $input = $this->php->distinct($input);
 
-            foreach ( $result as $idx => $val ) {
+            foreach ( $result as $idx => $i ) {
                 if (! isset($input[ $idx ])) {
                     unset($result[ $idx ]);
                 }
@@ -1019,10 +1081,11 @@ class ZCalendar implements ICalendar
     /**
      * @param \DateTime|array $dates
      * @param null|bool       $uniq
+     * @param null|bool       $recursive
      *
      * @return \DateTime[]
      */
-    public function dates($dates, $uniq = null) : array
+    public function dates($dates, bool $uniq = null, bool $recursive = null) : array
     {
         $result = [];
 
@@ -1030,13 +1093,21 @@ class ZCalendar implements ICalendar
             ? $dates
             : [ $dates ];
 
-        array_walk_recursive($dates, function ($date) use (&$result) {
-            if (null !== $this->filterDateTime($date)) {
-                $result[] = $date;
+        if ($recursive) {
+            array_walk_recursive($dates, function ($item) use (&$result) {
+                if (null !== $this->filterDateTime($item)) {
+                    $result[] = $item;
+                }
+            });
+        } else {
+            foreach ( $dates as $item ) {
+                if (null !== $this->filterDateTime($item)) {
+                    $result[] = $item;
+                }
             }
-        });
+        }
 
-        if ($uniq ?? false) {
+        if ($uniq) {
             $result = $this->php->distinct($result);
             $result = array_values($result);
         }
@@ -1047,10 +1118,11 @@ class ZCalendar implements ICalendar
     /**
      * @param \DateTime|array $dates
      * @param null|bool       $uniq
+     * @param null|bool       $recursive
      *
      * @return \DateTime[]
      */
-    public function theDates($dates, $uniq = null) : array
+    public function theDates($dates, bool $uniq = null, bool $recursive = null) : array
     {
         $result = [];
 
@@ -1058,13 +1130,21 @@ class ZCalendar implements ICalendar
             ? $dates
             : [ $dates ];
 
-        array_walk_recursive($dates, function ($date) use (&$result) {
-            if (null !== $this->assertDateTime($date)) {
-                $result[] = $date;
-            }
-        });
+        if ($recursive) {
+            array_walk_recursive($dates, function ($item) use (&$result) {
+                $this->assertDateTime($item);
 
-        if ($uniq ?? false) {
+                $result[] = $item;
+            });
+        } else {
+            foreach ( $dates as $item ) {
+                $this->assertDateTime($item);
+
+                $result[] = $item;
+            }
+        }
+
+        if ($uniq) {
             $result = $this->php->distinct($result);
             $result = array_values($result);
         }
@@ -1076,10 +1156,11 @@ class ZCalendar implements ICalendar
     /**
      * @param \DateTimeImmutable|array $dates
      * @param null|bool                $uniq
+     * @param null|bool                $recursive
      *
      * @return \DateTimeImmutable[]
      */
-    public function iDates($dates, $uniq = null) : array
+    public function iDates($dates, bool $uniq = null, bool $recursive = null) : array
     {
         $result = [];
 
@@ -1087,13 +1168,21 @@ class ZCalendar implements ICalendar
             ? $dates
             : [ $dates ];
 
-        array_walk_recursive($dates, function ($date) use (&$result) {
-            if (null !== $this->filterDateTimeImmutable($date)) {
-                $result[] = $date;
+        if ($recursive) {
+            array_walk_recursive($dates, function ($item) use (&$result) {
+                if (null !== $this->filterDateTimeImmutable($item)) {
+                    $result[] = $item;
+                }
+            });
+        } else {
+            foreach ( $dates as $item ) {
+                if (null !== $this->filterDateTimeImmutable($item)) {
+                    $result[] = $item;
+                }
             }
-        });
+        }
 
-        if ($uniq ?? false) {
+        if ($uniq) {
             $result = $this->php->distinct($result);
             $result = array_values($result);
         }
@@ -1104,10 +1193,11 @@ class ZCalendar implements ICalendar
     /**
      * @param \DateTimeImmutable|array $dates
      * @param null|bool                $uniq
+     * @param null|bool                $recursive
      *
      * @return \DateTimeImmutable[]
      */
-    public function theIDates($dates, $uniq = null) : array
+    public function theIDates($dates, bool $uniq = null, bool $recursive = null) : array
     {
         $result = [];
 
@@ -1115,13 +1205,21 @@ class ZCalendar implements ICalendar
             ? $dates
             : [ $dates ];
 
-        array_walk_recursive($dates, function ($date) use (&$result) {
-            if (null !== $this->assertDateTimeImmutable($date)) {
-                $result[] = $date;
-            }
-        });
+        if ($recursive) {
+            array_walk_recursive($dates, function ($item) use (&$result) {
+                $this->assertDateTimeImmutable($item);
 
-        if ($uniq ?? false) {
+                $result[] = $item;
+            });
+        } else {
+            foreach ( $dates as $item ) {
+                $this->assertDateTimeImmutable($item);
+
+                $result[] = $item;
+            }
+        }
+
+        if ($uniq) {
             $result = $this->php->distinct($result);
             $result = array_values($result);
         }
@@ -1133,10 +1231,11 @@ class ZCalendar implements ICalendar
     /**
      * @param \DateTimeInterface|array $dates
      * @param null|bool                $uniq
+     * @param null|bool                $recursive
      *
      * @return \DateTimeInterface[]
      */
-    public function datesAll($dates, $uniq = null) : array
+    public function datesAll($dates, bool $uniq = null, bool $recursive = null) : array
     {
         $result = [];
 
@@ -1144,13 +1243,21 @@ class ZCalendar implements ICalendar
             ? $dates
             : [ $dates ];
 
-        array_walk_recursive($dates, function ($date) use (&$result) {
-            if (null !== $this->filterDateTimeInterface($date)) {
-                $result[] = $date;
+        if ($recursive) {
+            array_walk_recursive($dates, function ($item) use (&$result) {
+                if (null !== $this->filterDateTimeInterface($item)) {
+                    $result[] = $item;
+                }
+            });
+        } else {
+            foreach ( $dates as $item ) {
+                if (null !== $this->filterDateTimeInterface($item)) {
+                    $result[] = $item;
+                }
             }
-        });
+        }
 
-        if ($uniq ?? false) {
+        if ($uniq) {
             $result = $this->php->distinct($result);
             $result = array_values($result);
         }
@@ -1161,10 +1268,11 @@ class ZCalendar implements ICalendar
     /**
      * @param int|float|string|\DateTimeInterface|array $dates
      * @param null|bool                                 $uniq
+     * @param null|bool                                 $recursive
      *
      * @return \DateTimeInterface[]
      */
-    public function theDatesAll($dates, $uniq = null) : array
+    public function theDatesAll($dates, bool $uniq = null, bool $recursive = null) : array
     {
         $result = [];
 
@@ -1172,13 +1280,21 @@ class ZCalendar implements ICalendar
             ? $dates
             : [ $dates ];
 
-        array_walk_recursive($dates, function ($date) use (&$result) {
-            if (null !== $this->assertDateTimeInterface($date)) {
-                $result[] = $date;
-            }
-        });
+        if ($recursive) {
+            array_walk_recursive($dates, function ($item) use (&$result) {
+                $this->assertDateTimeInterface($item);
 
-        if ($uniq ?? false) {
+                $result[] = $item;
+            });
+        } else {
+            foreach ( $dates as $item ) {
+                $this->assertDateTimeInterface($item);
+
+                $result[] = $item;
+            }
+        }
+
+        if ($uniq) {
             $result = $this->php->distinct($result);
             $result = array_values($result);
         }
@@ -1509,11 +1625,11 @@ class ZCalendar implements ICalendar
 
         $dateTimeZone = $this->theTimezoneVal($timezone);
 
-        [ $int, $microseconds ] = explode('.', sprintf('%f', $float)) + [ null, null ];
+        $decimals = 6;
 
-        $microseconds = str_pad(
-            substr($microseconds, 0, 6), 6, '0'
-        );
+        [ $int, $microseconds ] = explode('.', sprintf('%.' . $decimals . 'f', $float)) + [ null, null ];
+
+        $microseconds = str_pad(substr($microseconds, 0, $decimals), $decimals, '0');
 
         $dateTime = $this->nowInstant($dateTimeZone);
 
@@ -1559,28 +1675,25 @@ class ZCalendar implements ICalendar
      */
     protected function tryDateFromStringNumeric($numeric, $timezone = null) : ?\DateTime
     {
-        if (! is_string($numeric)) return null;
-        if ('' === $numeric) return null;
-        if (! is_numeric($numeric)) return null;
+        if (null === ( $numval = $this->num->numval($numeric) )) {
+            return null;
+        }
 
         $timezone = $timezone
             ?? $this->getDefaultTimezone();
 
         $dateTimeZone = $this->theTimezoneVal($timezone);
 
-        if (null !== ( $int = $this->num->intval($numeric) )) {
-            $dateTime = $this->tryDateFromInt($int, $dateTimeZone);
+        $val = null;
 
-            return $dateTime;
+        if (is_int($numval)) {
+            $val = $this->tryDateFromInt($numval, $dateTimeZone);
+
+        } elseif (is_float($numval)) {
+            $val = $this->tryDateFromFloat($numval, $dateTimeZone);
         }
 
-        if (null !== ( $float = $this->num->floatval($numeric) )) {
-            $dateTime = $this->tryDateFromFloat($float, $dateTimeZone);
-
-            return $dateTime;
-        }
-
-        return null;
+        return $val;
     }
 
     /**
@@ -1678,9 +1791,9 @@ class ZCalendar implements ICalendar
         if ('' === $string) return null;
 
         $dateTimeZone = null
-            ?? $this->tryTimezoneFromStringNumeric($string, $isDst)
             ?? $this->tryTimezoneFromStringName($string)
-            ?? $this->tryTimezoneFromStringAbbr($string, $isDst, $utcOffset);
+            ?? $this->tryTimezoneFromStringAbbr($string, $isDst, $utcOffset)
+            ?? $this->tryTimezoneFromStringNumeric($string, $isDst);
 
         return $dateTimeZone;
     }
@@ -1693,17 +1806,13 @@ class ZCalendar implements ICalendar
      */
     protected function tryTimezoneFromStringNumeric($numeric, bool $isDst = null) : ?\DateTimeZone
     {
-        // if (! is_string($number)) return null;
-        // if ('' === $number) return null;
-        if (! is_numeric($numeric)) return null;
-
-        if (null !== ( $numval = $this->num->numericval($numeric) )) {
-            $dateTimeZone = $this->tryTimezoneFromNumeric($numval, $isDst);
-
-            return $dateTimeZone;
+        if (null === ( $val = $this->num->numericval($numeric) )) {
+            return null;
         }
 
-        return null;
+        $dateTimeZone = $this->tryTimezoneFromNumeric($val, $isDst);
+
+        return $dateTimeZone;
     }
 
     /**
@@ -1715,7 +1824,6 @@ class ZCalendar implements ICalendar
     {
         if (! is_string($name)) return null;
         if ('' === $name) return null;
-        if (is_numeric($name)) return null;
 
         if (false === ( $dateTimeZone = timezone_open($name) )) {
             return null;
@@ -1735,7 +1843,6 @@ class ZCalendar implements ICalendar
     {
         if (! is_string($abbr)) return null;
         if ('' === $abbr) return null;
-        if (is_numeric($abbr)) return null;
 
         if (false === ( $timezoneName = timezone_name_from_abbr($abbr, $utcOffset, $isDst) )) {
             return null;
@@ -1763,10 +1870,10 @@ class ZCalendar implements ICalendar
         $dateTimeZone = $this->getDefaultTimezone();
 
         $dateDefault = $this->theDateVal('now');
-        $dateDefaultAbbreviation = strtolower($dateDefault->format('T'));
+        $dateUtc = $this->theDateVal('now', new \DateTimeZone('UTC'));
 
-        $dateTimeUtc = $this->theDateVal('now', new \DateTimeZone('UTC'));
-        $dateDefaultUtcOffset = $dateTimeZone->getOffset($dateTimeUtc) + ( $numvalRound * 3600 );
+        $dateDefaultAbbreviation = strtolower($dateDefault->format('T'));
+        $dateDefaultUtcOffset = $dateTimeZone->getOffset($dateUtc) + ( $numvalRound * 3600 );
 
         $timezones = [];
         foreach ( timezone_abbreviations_list() as $abbreviation => $cities ) {
@@ -1818,7 +1925,7 @@ class ZCalendar implements ICalendar
      */
     protected function tryIntervalFromInstance($instance) : ?\DateInterval
     {
-        if (! is_a($instance, \DateInterval::class)) return null;
+        if (! ( $instance instanceof \DateInterval )) return null;
 
         return $instance;
     }

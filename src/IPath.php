@@ -75,25 +75,25 @@ interface IPath
     public function normalize(string $path): string;
 
     /**
-     * @param string|string[] ...$strvals
+     * @param string|string[] ...$strings
      *
      * @return array
      */
-    public function split(...$strvals): array;
+    public function split(...$strings): array;
 
     /**
-     * @param string|string[] ...$strvals
+     * @param string|string[] ...$strings
      *
      * @return string
      */
-    public function join(...$strvals): string;
+    public function join(...$strings): string;
 
     /**
-     * @param string|string[] ...$strvals
+     * @param string|string[] ...$strings
      *
      * @return string
      */
-    public function concat(...$strvals): string;
+    public function concat(...$strings): string;
 
     /**
      * @param string   $path

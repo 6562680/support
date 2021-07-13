@@ -220,25 +220,27 @@ class Math
     }
 
     /**
-     * @param string|array $strings
+     * @param string|array $numerics
      * @param null|bool    $uniq
+     * @param null|bool    $recursive
      *
      * @return Bcval[]
      */
-    public static function bcvals($strings, $uniq = null): array
+    public static function bcvals($numerics, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->bcvals($strings, $uniq);
+        return static::getInstance()->bcvals($numerics, $uniq, $recursive);
     }
 
     /**
-     * @param string|array $strings
+     * @param string|array $numerics
      * @param null|bool    $uniq
+     * @param null|bool    $recursive
      *
      * @return Bcval[]
      */
-    public static function theBcvals($strings, $uniq = null): array
+    public static function theBcvals($numerics, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->theBcvals($strings, $uniq);
+        return static::getInstance()->theBcvals($numerics, $uniq, $recursive);
     }
 
     /**

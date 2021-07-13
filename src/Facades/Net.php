@@ -74,23 +74,25 @@ class Net
     /**
      * @param string|array $httpMethods
      * @param null|bool    $uniq
+     * @param null|bool    $recursive
      *
      * @return string[]
      */
-    public static function httpMethodVals($httpMethods, $uniq = null): array
+    public static function httpMethodVals($httpMethods, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->httpMethodVals($httpMethods, $uniq);
+        return static::getInstance()->httpMethodVals($httpMethods, $uniq, $recursive);
     }
 
     /**
      * @param string|array $httpMethods
      * @param null|bool    $uniq
+     * @param null|bool    $recursive
      *
      * @return string[]
      */
-    public static function theHttpMethodVals($httpMethods, $uniq = null): array
+    public static function theHttpMethodVals($httpMethods, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->theHttpMethodVals($httpMethods, $uniq);
+        return static::getInstance()->theHttpMethodVals($httpMethods, $uniq, $recursive);
     }
 
     /**

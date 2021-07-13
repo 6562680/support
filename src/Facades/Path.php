@@ -105,33 +105,33 @@ class Path
     }
 
     /**
-     * @param string|string[] ...$strvals
+     * @param string|string[] ...$strings
      *
      * @return array
      */
-    public static function split(...$strvals): array
+    public static function split(...$strings): array
     {
-        return static::getInstance()->split(...$strvals);
+        return static::getInstance()->split(...$strings);
     }
 
     /**
-     * @param string|string[] ...$strvals
+     * @param string|string[] ...$strings
      *
      * @return string
      */
-    public static function join(...$strvals): string
+    public static function join(...$strings): string
     {
-        return static::getInstance()->join(...$strvals);
+        return static::getInstance()->join(...$strings);
     }
 
     /**
-     * @param string|string[] ...$strvals
+     * @param string|string[] ...$strings
      *
      * @return string
      */
-    public static function concat(...$strvals): string
+    public static function concat(...$strings): string
     {
-        return static::getInstance()->concat(...$strvals);
+        return static::getInstance()->concat(...$strings);
     }
 
     /**

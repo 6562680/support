@@ -56,18 +56,20 @@ interface INet
     /**
      * @param string|array $httpMethods
      * @param null|bool    $uniq
+     * @param null|bool    $recursive
      *
      * @return string[]
      */
-    public function httpMethodVals($httpMethods, $uniq = null): array;
+    public function httpMethodVals($httpMethods, bool $uniq = null, bool $recursive = null): array;
 
     /**
      * @param string|array $httpMethods
      * @param null|bool    $uniq
+     * @param null|bool    $recursive
      *
      * @return string[]
      */
-    public function theHttpMethodVals($httpMethods, $uniq = null): array;
+    public function theHttpMethodVals($httpMethods, bool $uniq = null, bool $recursive = null): array;
 
     /**
      * @param string $header

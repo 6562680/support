@@ -255,6 +255,16 @@ class Type
     }
 
     /**
+     * @param string|mixed $value
+     *
+     * @return bool
+     */
+    public static function isUtf8($value): ?bool
+    {
+        return static::getInstance()->isUtf8($value);
+    }
+
+    /**
      * @param int|string|mixed $value
      *
      * @return bool
@@ -381,6 +391,20 @@ class Type
     }
 
     /**
+     * Array that contains array
+     *
+     * @param array|mixed $array
+     *
+     * @return bool
+     */
+    public static function isDeepArray($array): ?bool
+    {
+        return static::getInstance()->isDeepArray($array);
+    }
+
+    /**
+     * Array that can be safely serialized
+     *
      * @param array|mixed $array
      *
      * @return bool
@@ -568,6 +592,16 @@ class Type
     public static function isThrowable($value): bool
     {
         return static::getInstance()->isThrowable($value);
+    }
+
+    /**
+     * @param object|mixed $value
+     *
+     * @return bool
+     */
+    public static function isError($value): bool
+    {
+        return static::getInstance()->isError($value);
     }
 
     /**

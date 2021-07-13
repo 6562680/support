@@ -152,10 +152,11 @@ class ZNet implements INet
     /**
      * @param string|array $httpMethods
      * @param null|bool    $uniq
+     * @param null|bool    $recursive
      *
      * @return string[]
      */
-    public function httpMethodVals($httpMethods, $uniq = null) : array
+    public function httpMethodVals($httpMethods, bool $uniq = null, bool $recursive = null) : array
     {
         $result = [];
 
@@ -163,13 +164,21 @@ class ZNet implements INet
             ? $httpMethods
             : [ $httpMethods ];
 
-        array_walk_recursive($httpMethods, function ($httpMethod) use (&$result) {
-            if (null !== ( $strval = $this->httpMethodVal($httpMethod) )) {
-                $result[] = $strval;
+        if ($recursive) {
+            array_walk_recursive($httpMethods, function ($item) use (&$result) {
+                if (null !== ( $val = $this->httpMethodVal($item) )) {
+                    $result[] = $val;
+                }
+            });
+        } else {
+            foreach ( $httpMethods as $item ) {
+                if (null !== ( $val = $this->httpMethodVal($item) )) {
+                    $result[] = $val;
+                }
             }
-        });
+        }
 
-        if ($uniq ?? false) {
+        if ($uniq) {
             $arr = [];
             foreach ( $result as $i ) {
                 $arr[ $i ] = true;
@@ -183,10 +192,11 @@ class ZNet implements INet
     /**
      * @param string|array $httpMethods
      * @param null|bool    $uniq
+     * @param null|bool    $recursive
      *
      * @return string[]
      */
-    public function theHttpMethodVals($httpMethods, $uniq = null) : array
+    public function theHttpMethodVals($httpMethods, bool $uniq = null, bool $recursive = null) : array
     {
         $result = [];
 
@@ -194,11 +204,17 @@ class ZNet implements INet
             ? $httpMethods
             : [ $httpMethods ];
 
-        array_walk_recursive($httpMethods, function ($httpMethod) use (&$result) {
-            $result[] = $this->theHttpMethodVal($httpMethod);
-        });
+        if ($recursive) {
+            array_walk_recursive($httpMethods, function ($item) use (&$result) {
+                $result[] = $this->theHttpMethodVal($item);
+            });
+        } else {
+            foreach ( $httpMethods as $item ) {
+                $result[] = $this->theHttpMethodVal($item);
+            }
+        }
 
-        if ($uniq ?? false) {
+        if ($uniq) {
             $arr = [];
             foreach ( $result as $i ) {
                 $arr[ $i ] = true;

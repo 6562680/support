@@ -294,7 +294,7 @@ class Calendar
     }
 
     /**
-     * @param \DateTime|mixed $date
+     * @param \DateTimeInterface|mixed $date
      *
      * @return \DateTimeInterface
      */
@@ -304,11 +304,11 @@ class Calendar
     }
 
     /**
-     * @param \DateTime|mixed $date
+     * @param \DateTimeImmutable|mixed $date
      *
-     * @return \DateTime
+     * @return \DateTimeImmutable
      */
-    public static function assertDateTimeImmutable($date): \DateTime
+    public static function assertDateTimeImmutable($date): \DateTimeImmutable
     {
         return static::getInstance()->assertDateTimeImmutable($date);
     }
@@ -476,45 +476,49 @@ class Calendar
     /**
      * @param int|float|string|\DateTimeInterface|array $dates
      * @param null|bool                                 $uniq
+     * @param null|bool                                 $recursive
      *
      * @return \DateTimeInterface[]
      */
-    public static function datevals($dates, $uniq = null): array
+    public static function datevals($dates, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->datevals($dates, $uniq);
+        return static::getInstance()->datevals($dates, $uniq, $recursive);
     }
 
     /**
      * @param int|float|string|\DateTimeInterface|array $dates
      * @param null|bool                                 $uniq
+     * @param null|bool                                 $recursive
      *
      * @return \DateTimeInterface[]
      */
-    public static function theDatevals($dates, $uniq = null): array
+    public static function theDatevals($dates, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->theDatevals($dates, $uniq);
+        return static::getInstance()->theDatevals($dates, $uniq, $recursive);
     }
 
     /**
      * @param int|float|string|\DateTimeInterface|array $dates
      * @param null|bool                                 $uniq
+     * @param null|bool                                 $recursive
      *
      * @return \DateTimeImmutable[]
      */
-    public static function iDatevals($dates, $uniq = null): array
+    public static function iDatevals($dates, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->iDatevals($dates, $uniq);
+        return static::getInstance()->iDatevals($dates, $uniq, $recursive);
     }
 
     /**
      * @param int|float|string|\DateTimeInterface|array $dates
      * @param null|bool                                 $uniq
+     * @param null|bool                                 $recursive
      *
      * @return \DateTimeImmutable[]
      */
-    public static function theIDatevals($dates, $uniq = null): array
+    public static function theIDatevals($dates, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->theIDatevals($dates, $uniq);
+        return static::getInstance()->theIDatevals($dates, $uniq, $recursive);
     }
 
     /**
@@ -532,67 +536,73 @@ class Calendar
     /**
      * @param \DateTime|array $dates
      * @param null|bool       $uniq
+     * @param null|bool       $recursive
      *
      * @return \DateTime[]
      */
-    public static function dates($dates, $uniq = null): array
+    public static function dates($dates, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->dates($dates, $uniq);
+        return static::getInstance()->dates($dates, $uniq, $recursive);
     }
 
     /**
      * @param \DateTime|array $dates
      * @param null|bool       $uniq
+     * @param null|bool       $recursive
      *
      * @return \DateTime[]
      */
-    public static function theDates($dates, $uniq = null): array
+    public static function theDates($dates, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->theDates($dates, $uniq);
+        return static::getInstance()->theDates($dates, $uniq, $recursive);
     }
 
     /**
      * @param \DateTimeImmutable|array $dates
      * @param null|bool                $uniq
+     * @param null|bool                $recursive
      *
      * @return \DateTimeImmutable[]
      */
-    public static function iDates($dates, $uniq = null): array
+    public static function iDates($dates, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->iDates($dates, $uniq);
+        return static::getInstance()->iDates($dates, $uniq, $recursive);
     }
 
     /**
      * @param \DateTimeImmutable|array $dates
      * @param null|bool                $uniq
+     * @param null|bool                $recursive
      *
      * @return \DateTimeImmutable[]
      */
-    public static function theIDates($dates, $uniq = null): array
+    public static function theIDates($dates, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->theIDates($dates, $uniq);
+        return static::getInstance()->theIDates($dates, $uniq, $recursive);
     }
 
     /**
      * @param \DateTimeInterface|array $dates
      * @param null|bool                $uniq
+     * @param null|bool                $recursive
      *
      * @return \DateTimeInterface[]
      */
-    public static function datesAll($dates, $uniq = null): array
+    public static function datesAll($dates, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->datesAll($dates, $uniq);
+        return static::getInstance()->datesAll($dates, $uniq, $recursive);
     }
 
     /**
      * @param int|float|string|\DateTimeInterface|array $dates
      * @param null|bool                                 $uniq
+     * @param null|bool                                 $recursive
      *
      * @return \DateTimeInterface[]
      */
-    public static function theDatesAll($dates, $uniq = null): array
+    public static function theDatesAll($dates, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->theDatesAll($dates, $uniq);
+        return static::getInstance()->theDatesAll($dates, $uniq, $recursive);
     }
 
     /**

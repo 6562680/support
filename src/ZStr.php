@@ -18,17 +18,7 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
  */
 class ZStr implements IStr
 {
-    const CASE_LOWER = MB_CASE_LOWER;
-    const CASE_UPPER = MB_CASE_UPPER;
-
     const INTERNAL_ENCODING = 'UTF-8';
-
-    const REPLACER = "\0";
-
-    const THE_CASE_LIST = [
-        self::CASE_LOWER => true,
-        self::CASE_UPPER => true,
-    ];
 
 
     /**
@@ -95,24 +85,115 @@ class ZStr implements IStr
 
 
     /**
-     * @return string
+     * @return array
      */
-    public function getVowels() : string
+    public function getAccents() : array
+    {
+        $list = [
+            '' => '£',
+
+            'a' => 'àáâãāăȧảǎȁąạḁẚầấẫẩằắẵẳǡǟǻậặǽǣ',
+            'A' => 'ÀÁÂÃĀĂȦẢǍȀĄẠḀAʾẦẤẪẨẰẮẴẲǠǞǺẬẶǼǢ',
+
+            'aa' => 'å',
+            'Aa' => 'Å',
+
+            'ae' => 'äæ',
+            'Ae' => 'ÄÆ',
+
+            'c' => 'çćĉċč',
+            'C' => 'ÇĆĈĊČ',
+
+            'd' => 'ďđ',
+            'D' => 'ĎĐ',
+
+            'e' => 'èéêẽēĕėëẻěȅȇẹȩęḙḛềếễểḕḗệḝёє',
+            'E' => 'ÈÉÊẼĒĔĖËẺĚȄȆẸȨĘḘḚỀẾỄỂḔḖỆḜЁЄ€',
+
+            'g' => 'ĝğġģ',
+            'G' => 'ĜĞĠĢ',
+
+            'h' => 'ĥħ',
+            'H' => 'ĤĦ',
+
+            'i' => 'ìíîĩīĭïỉǐịįȉȋḭḯї',
+            'I' => 'ÌÍÎĨĪĬÏỈǏỊĮȈȊḬḮЇ',
+
+            'ij' => 'ĳ',
+            'IJ' => 'Ĳ',
+
+            'j' => 'ĵ',
+            'J' => 'Ĵ',
+
+            'k' => 'ķĸ',
+            'K' => 'Ķ',
+
+            'l' => 'ĺļľŀł',
+            'L' => 'ĹĻĽĿŁ',
+
+            'n' => 'ñńņňŊ',
+            'N' => 'ÑŃŅŇŉŋ',
+
+            'o' => 'òóôõōŏȯỏőǒȍȏơǫọøồốỗổȱȫȭṍṏṑṓờớỡởợǭộǿ',
+            'O' => 'ÒÓÔÕŌŎȮỎŐǑȌȎƠǪỌØỒỐỖỔȰȪȬṌṎṐṒỜỚỠỞỢǬỘǾ',
+
+            'oe' => 'öœ',
+            'Oe' => 'Ö',
+            'OE' => 'Œ',
+
+            'r' => 'ŕŗř',
+            'R' => 'ŔŖŘ',
+
+            's' => 'śŝşšſ',
+            'S' => 'ŚŜŞŠ',
+
+            'ss' => 'ß',
+
+            't' => 'ţťŧ',
+            'T' => 'ŢŤŦ',
+
+            'u' => 'ùúûũūŭủůűǔȕȗưụṳųṷṵṹṻǖǜǘǖǚừứữửựў',
+            'U' => 'ÙÚÛŨŪŬỦŮŰǓȔȖƯỤṲŲṶṴṸṺǕǛǗǕǙỪỨỮỬỰЎ',
+
+            'ue' => 'ü',
+            'Ue' => 'Ü',
+
+            'w' => 'ŵ',
+            'W' => 'Ŵ',
+
+            'y' => 'ýÿŷ',
+            'Y' => 'ÝŶŸ',
+
+            'z' => 'źżž',
+            'Z' => 'ŹŻŽ',
+        ];
+
+        return $list;
+    }
+
+    /**
+     * @return array
+     */
+    public function getVowels() : array
     {
         $list = [
             'a' => 'aàáâãāăȧäảåǎȁąạḁẚầấẫẩằắẵẳǡǟǻậặæǽǣая',
+            'A' => 'AÀÁÂÃĀĂȦÄẢÅǍȀĄẠḀAʾẦẤẪẨẰẮẴẲǠǞǺẬẶÆǼǢАЯ',
+
             'e' => 'eèéêẽēĕėëẻěȅȇẹȩęḙḛềếễểḕḗệḝеёє',
+            'E' => 'EÈÉÊẼĒĔĖËẺĚȄȆẸȨĘḘḚỀẾỄỂḔḖỆḜЕЁЄ€',
+
             'i' => 'iìíîĩīĭïỉǐịįȉȋḭḯиыії',
+            'I' => 'IÌÍÎĨĪĬÏỈǏỊĮȈȊḬḮИЫІЇ',
+
             'o' => 'oòóôõōŏȯöỏőǒȍȏơǫọøồốỗổȱȫȭṍṏṑṓờớỡởợǭộǿœо',
+            'O' => 'OÒÓÔÕŌŎȮÖỎŐǑȌȎƠǪỌØỒỐỖỔȰȪȬṌṎṐṒỜỚỠỞỢǬỘǾŒО',
+
             'u' => 'uùúûũūŭüủůűǔȕȗưụṳųṷṵṹṻǖǜǘǖǚừứữửựуюў',
+            'U' => 'UÙÚÛŨŪŬÜỦŮŰǓȔȖƯỤṲŲṶṴṸṺǕǛǗǕǙỪỨỮỬỰУЮЎ',
         ];
 
-        $vowels = '';
-        foreach ( $list as $l ) {
-            $vowels .= mb_strtolower($l) . mb_strtoupper($l);
-        }
-
-        return $vowels;
+        return $list;
     }
 
 
@@ -172,13 +253,13 @@ class ZStr implements IStr
      */
     public function theStrval($value) : string
     {
-        if (null === ( $strval = $this->strval($value) )) {
+        if (null === ( $val = $this->strval($value) )) {
             throw new InvalidArgumentException(
                 [ 'Value should be convertable to strval: %s', $value ],
             );
         }
 
-        return $strval;
+        return $val;
     }
 
     /**
@@ -188,13 +269,13 @@ class ZStr implements IStr
      */
     public function theWordval($value) : string
     {
-        if (null === ( $wordval = $this->wordval($value) )) {
+        if (null === ( $val = $this->wordval($value) )) {
             throw new InvalidArgumentException(
                 [ 'Value should be convertable to wordval: %s', $value ],
             );
         }
 
-        return $wordval;
+        return $val;
     }
 
     /**
@@ -204,23 +285,24 @@ class ZStr implements IStr
      */
     public function theTrimval($value) : string
     {
-        if (null === ( $trimval = $this->trimval($value) )) {
+        if (null === ( $val = $this->trimval($value) )) {
             throw new InvalidArgumentException(
                 [ 'Value should be convertable to trimval: %s', $value ],
             );
         }
 
-        return $trimval;
+        return $val;
     }
 
 
     /**
      * @param string|array $strings
      * @param null|bool    $uniq
+     * @param null|bool    $recursive
      *
      * @return string[]
      */
-    public function strvals($strings, $uniq = null) : array
+    public function strvals($strings, bool $uniq = null, bool $recursive = null) : array
     {
         $result = [];
 
@@ -228,13 +310,21 @@ class ZStr implements IStr
             ? $strings
             : [ $strings ];
 
-        array_walk_recursive($strings, function ($string) use (&$result) {
-            if (null !== ( $strval = $this->strval($string) )) {
-                $result[] = $strval;
+        if ($recursive) {
+            array_walk_recursive($strings, function ($item) use (&$result) {
+                if (null !== ( $val = $this->strval($item) )) {
+                    $result[] = $val;
+                }
+            });
+        } else {
+            foreach ( $strings as $item ) {
+                if (null !== ( $val = $this->strval($item) )) {
+                    $result[] = $val;
+                }
             }
-        });
+        }
 
-        if ($uniq ?? false) {
+        if ($uniq) {
             $arr = [];
             foreach ( $result as $i ) {
                 $arr[ $i ] = true;
@@ -248,10 +338,11 @@ class ZStr implements IStr
     /**
      * @param string|array $words
      * @param null|bool    $uniq
+     * @param null|bool    $recursive
      *
      * @return string[]
      */
-    public function wordvals($words, $uniq = null) : array
+    public function wordvals($words, bool $uniq = null, bool $recursive = null) : array
     {
         $result = [];
 
@@ -259,13 +350,21 @@ class ZStr implements IStr
             ? $words
             : [ $words ];
 
-        array_walk_recursive($words, function ($word) use (&$result) {
-            if (null !== ( $wordval = $this->wordval($word) )) {
-                $result[] = $wordval;
+        if ($recursive) {
+            array_walk_recursive($words, function ($item) use (&$result) {
+                if (null !== ( $val = $this->wordval($item) )) {
+                    $result[] = $val;
+                }
+            });
+        } else {
+            foreach ( $words as $item ) {
+                if (null !== ( $val = $this->wordval($item) )) {
+                    $result[] = $val;
+                }
             }
-        });
+        }
 
-        if ($uniq ?? false) {
+        if ($uniq) {
             $arr = [];
             foreach ( $result as $i ) {
                 $arr[ $i ] = true;
@@ -279,10 +378,11 @@ class ZStr implements IStr
     /**
      * @param string|array $trims
      * @param null|bool    $uniq
+     * @param null|bool    $recursive
      *
      * @return string[]
      */
-    public function trimvals($trims, $uniq = null) : array
+    public function trimvals($trims, bool $uniq = null, bool $recursive = null) : array
     {
         $result = [];
 
@@ -290,13 +390,27 @@ class ZStr implements IStr
             ? $trims
             : [ $trims ];
 
-        array_walk_recursive($trims, function ($trim) use (&$result) {
-            if (null !== ( $trimval = $this->trimval($trim) )) {
-                $result[] = $trimval;
+        if ($recursive) {
+            array_walk_recursive($trims, function ($item) use (&$result) {
+                if (null !== ( $val = $this->trimval($item) )) {
+                    $result[] = $val;
+                }
+            });
+        } else {
+            foreach ( $trims as $item ) {
+                if (null !== ( $val = $this->trimval($item) )) {
+                    $result[] = $val;
+                }
             }
-        });
+        }
 
-        if ($uniq ?? false) {
+        foreach ( $trims as $trim ) {
+            if (null !== ( $val = $this->trimval($trim) )) {
+                $result[] = $val;
+            }
+        }
+
+        if ($uniq) {
             $arr = [];
             foreach ( $result as $i ) {
                 $arr[ $i ] = true;
@@ -311,10 +425,11 @@ class ZStr implements IStr
     /**
      * @param string|array $strings
      * @param null|bool    $uniq
+     * @param null|bool    $recursive
      *
      * @return string[]
      */
-    public function theStrvals($strings, $uniq = null) : array
+    public function theStrvals($strings, bool $uniq = null, bool $recursive = null) : array
     {
         $result = [];
 
@@ -322,11 +437,17 @@ class ZStr implements IStr
             ? $strings
             : [ $strings ];
 
-        array_walk_recursive($strings, function ($string) use (&$result) {
-            $result[] = $this->theStrval($string);
-        });
+        if ($recursive) {
+            array_walk_recursive($strings, function ($item) use (&$result) {
+                $result[] = $this->theStrval($item);
+            });
+        } else {
+            foreach ( $strings as $item ) {
+                $result[] = $this->theStrval($item);
+            }
+        }
 
-        if ($uniq ?? false) {
+        if ($uniq) {
             $arr = [];
             foreach ( $result as $i ) {
                 $arr[ $i ] = true;
@@ -340,10 +461,11 @@ class ZStr implements IStr
     /**
      * @param string|array $words
      * @param null|bool    $uniq
+     * @param null|bool    $recursive
      *
      * @return string[]
      */
-    public function theWordvals($words, $uniq = null) : array
+    public function theWordvals($words, bool $uniq = null, bool $recursive = null) : array
     {
         $result = [];
 
@@ -351,11 +473,17 @@ class ZStr implements IStr
             ? $words
             : [ $words ];
 
-        array_walk_recursive($words, function ($word) use (&$result) {
-            $result[] = $this->theWordval($word);
-        });
+        if ($recursive) {
+            array_walk_recursive($words, function ($item) use (&$result) {
+                $result[] = $this->theWordval($item);
+            });
+        } else {
+            foreach ( $words as $item ) {
+                $result[] = $this->theWordval($item);
+            }
+        }
 
-        if ($uniq ?? false) {
+        if ($uniq) {
             $arr = [];
             foreach ( $result as $i ) {
                 $arr[ $i ] = true;
@@ -369,10 +497,11 @@ class ZStr implements IStr
     /**
      * @param string|array $trims
      * @param null|bool    $uniq
+     * @param null|bool    $recursive
      *
      * @return string[]
      */
-    public function theTrimvals($trims, $uniq = null) : array
+    public function theTrimvals($trims, bool $uniq = null, bool $recursive = null) : array
     {
         $result = [];
 
@@ -380,11 +509,17 @@ class ZStr implements IStr
             ? $trims
             : [ $trims ];
 
-        array_walk_recursive($trims, function ($trim) use (&$result) {
-            $result[] = $this->theTrimval($trim);
-        });
+        if ($recursive) {
+            array_walk_recursive($trims, function ($item) use (&$result) {
+                $result[] = $this->theTrimval($item);
+            });
+        } else {
+            foreach ( $trims as $item ) {
+                $result[] = $this->theTrimval($item);
+            }
+        }
 
-        if ($uniq ?? false) {
+        if ($uniq) {
             $arr = [];
             foreach ( $result as $i ) {
                 $arr[ $i ] = true;
@@ -1171,7 +1306,7 @@ class ZStr implements IStr
      */
     public function implode(string $delimiter, ...$strings) : string
     {
-        $result = $this->theStrvals($strings);
+        $result = $this->theStrvals($strings, null, true);
 
         if ('' !== $delimiter) {
             foreach ( $result as $idx => $val ) {
@@ -1194,7 +1329,7 @@ class ZStr implements IStr
      */
     public function implodeSkip(string $delimiter, ...$strings) : string
     {
-        $result = $this->strvals($strings);
+        $result = $this->strvals($strings, null, true);
 
         if ('' !== $delimiter) {
             foreach ( $result as $idx => $val ) {
@@ -1222,7 +1357,7 @@ class ZStr implements IStr
      */
     public function join(string $delimiter, ...$strings) : string
     {
-        $result = $this->theStrvals($strings);
+        $result = $this->theStrvals($strings, null, true);
         $result = array_filter($result, 'strlen');
 
         if ('' !== $delimiter) {
@@ -1246,7 +1381,7 @@ class ZStr implements IStr
      */
     public function joinSkip(string $delimiter, ...$strings) : string
     {
-        $result = $this->strvals($strings);
+        $result = $this->strvals($strings, null, true);
         $result = array_filter($result, 'strlen');
 
         if ('' !== $delimiter) {
@@ -1286,7 +1421,7 @@ class ZStr implements IStr
         $lastDelimiter = $lastDelimiter ?? $delimiter;
         $wrapper = $wrapper ?? '';
 
-        $result = $this->theWordvals($strings);
+        $result = $this->theWordvals($strings, null, true);
         $result = array_filter($result, 'strlen');
 
         $last = null;
@@ -1318,7 +1453,7 @@ class ZStr implements IStr
      * @return string
      */
     public function concatSkip(
-        array $strings,
+        $strings,
         string $delimiter = null,
         string $lastDelimiter = null,
         string $wrapper = null
@@ -1328,7 +1463,7 @@ class ZStr implements IStr
         $lastDelimiter = $lastDelimiter ?? $delimiter;
         $wrapper = $wrapper ?? '';
 
-        $result = $this->wordvals($strings);
+        $result = $this->wordvals($strings, null, true);
         $result = array_filter($result, 'strlen');
 
         $last = null;
@@ -1351,7 +1486,7 @@ class ZStr implements IStr
 
 
     /**
-     * урезает английское слово(-а) до префикса из нескольких букв - когда имя индекса в бд слишком длинное
+     * урезает английское слово до префикса из нескольких букв - когда имя индекса в бд слишком длинное
      *
      * @param string   $string
      * @param null|int $len
@@ -1365,14 +1500,14 @@ class ZStr implements IStr
         $len = $len ?? 3;
         $len = max(0, $len);
 
-        $source = preg_replace('/[\p{C}\p{P}\p{S}\p{Z}]/', '', $string);
+        $source = preg_replace('/(?:[^\w]|[_])+/', '', $string);
         $sourceLetters = mb_str_split($source);
 
         $len = min($len, count($sourceLetters));
 
         if (0 === $len) return '';
 
-        $vowels = $this->getVowels();
+        $vowels = implode('', $this->getVowels());
 
         $sourceConsonants = [];
         $sourceVowels = [];
@@ -1420,8 +1555,7 @@ class ZStr implements IStr
      */
     public function compact($strings, $delimiters = null, int $limit = null) : string
     {
-        $list = $this->strvals($strings);
-        $list = array_filter($list, 'strlen');
+        $list = $this->wordvals($strings);
 
         if (null !== $delimiters) {
             $list = $this->explode($delimiters, $list);
@@ -1627,6 +1761,126 @@ class ZStr implements IStr
         $result = $this->slugger()->slug($string, $delimiter, $locale);
 
         return $result;
+    }
+
+
+    /**
+     * @param string $string
+     *
+     * @return string
+     */
+    public function unaccent(string $string) : string
+    {
+        if (preg_match('/[\x80-\xff]/', $string) === false) {
+            return $string;
+        }
+
+        if (null !== $this->filter->filterUtf8($string)) {
+            $replacements = [];
+            foreach ( $this->getAccents() as $replacement => $letters ) {
+                foreach ( str_split($letters) as $search ) {
+                    $replacements[ $search ] = $replacements;
+                }
+            }
+
+            $string = strtr($string, $replacements);
+
+        } else {
+            $characters = [];
+
+            // Assume ISO-8859-1 if not UTF-8
+
+            $characters[ 'in' ] =
+                chr(128)
+                . chr(131)
+                . chr(138)
+                . chr(142)
+                . chr(154)
+                . chr(158)
+                . chr(159)
+                . chr(162)
+                . chr(165)
+                . chr(181)
+                . chr(192)
+                . chr(193)
+                . chr(194)
+                . chr(195)
+                . chr(196)
+                . chr(197)
+                . chr(199)
+                . chr(200)
+                . chr(201)
+                . chr(202)
+                . chr(203)
+                . chr(204)
+                . chr(205)
+                . chr(206)
+                . chr(207)
+                . chr(209)
+                . chr(210)
+                . chr(211)
+                . chr(212)
+                . chr(213)
+                . chr(214)
+                . chr(216)
+                . chr(217)
+                . chr(218)
+                . chr(219)
+                . chr(220)
+                . chr(221)
+                . chr(224)
+                . chr(225)
+                . chr(226)
+                . chr(227)
+                . chr(228)
+                . chr(229)
+                . chr(231)
+                . chr(232)
+                . chr(233)
+                . chr(234)
+                . chr(235)
+                . chr(236)
+                . chr(237)
+                . chr(238)
+                . chr(239)
+                . chr(241)
+                . chr(242)
+                . chr(243)
+                . chr(244)
+                . chr(245)
+                . chr(246)
+                . chr(248)
+                . chr(249)
+                . chr(250)
+                . chr(251)
+                . chr(252)
+                . chr(253)
+                . chr(255);
+
+            $characters[ 'out' ] = 'EfSZszYcYuAAAAAACEEEEIIIINOOOOOOUUUUYaaaaaaceeeeiiiinoooooouuuuyy';
+
+            $string = strtr($string, $characters[ 'in' ], $characters[ 'out' ]);
+
+            $doubleChars = [];
+
+            $doubleChars[ 'in' ] = [
+                chr(140),
+                chr(156),
+                chr(198),
+                chr(208),
+                chr(222),
+                chr(223),
+                chr(230),
+                chr(240),
+                chr(254),
+            ];
+
+            $doubleChars[ 'out' ] = [ 'OE', 'oe', 'AE', 'DH', 'TH', 'ss', 'ae', 'dh', 'th' ];
+
+            $string = str_replace($doubleChars[ 'in' ], $doubleChars[ 'out' ], $string);
+        }
+
+        return $string;
     }
 
 

@@ -85,18 +85,20 @@ interface IArr
     /**
      * @param int|string|array $keys
      * @param null|bool        $uniq
+     * @param null|bool        $recursive
      *
      * @return string[]
      */
-    public function keyvals($keys, $uniq = null): array;
+    public function keyvals($keys, bool $uniq = null, bool $recursive = null): array;
 
     /**
      * @param int|string|array $keys
      * @param null|bool        $uniq
+     * @param null|bool        $recursive
      *
      * @return string[]
      */
-    public function theKeyvals($keys, $uniq = null): array;
+    public function theKeyvals($keys, bool $uniq = null, bool $recursive = null): array;
 
     /**
      * @param string|array $path
@@ -150,20 +152,20 @@ interface IArr
     public function &put(?array &$dst, $path, $value);
 
     /**
-     * @param string|string[]|array $keys
+     * @param string|string[]|array $path
      * @param string|string[]|array $separators
      *
      * @return array
      */
-    public function path($keys, $separators = '.'): array;
+    public function path($path, $separators = '.'): array;
 
     /**
-     * @param string|string[]|array $keys
+     * @param string|string[]|array $path
      * @param string|string[]|array $separators
      *
      * @return string
      */
-    public function pathkey($keys, $separators = '.'): string;
+    public function pathkey($path, $separators = '.'): string;
 
     /**
      * @param string|string[]|array $separators
@@ -236,6 +238,13 @@ interface IArr
      * @return array
      */
     public function combineMap(array $keys, iterable $collection, bool $drop = null): array;
+
+    /**
+     * @param array $arr
+     *
+     * @return void
+     */
+    public function reverse(array &$arr): void;
 
     /**
      * обменивает местами номер элемента массива и номер ключа в массиве

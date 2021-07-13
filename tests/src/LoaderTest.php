@@ -114,8 +114,8 @@ class LoaderTest extends AbstractTestCase
         $b = new class extends \SplPriorityQueue {
         };
 
-        $this->assertEquals(true, $loader->isContact('myContract', $a));
-        $this->assertEquals(true, $loader->isContact('myContract', $b));
+        $this->assertEquals(true, $loader->isContact($a, 'myContract'));
+        $this->assertEquals(true, $loader->isContact($b, 'myContract'));
     }
 
 
@@ -174,8 +174,8 @@ class LoaderTest extends AbstractTestCase
         $b = new class extends \SplPriorityQueue {
         };
 
-        $this->assertEquals($a, $loader->filterContract('myContract', $a));
-        $this->assertEquals($b, $loader->filterContract('myContract', $b));
+        $this->assertEquals($a, $loader->filterContract($a, 'myContract'));
+        $this->assertEquals($b, $loader->filterContract($b, 'myContract'));
     }
 
 

@@ -416,24 +416,35 @@ class ZMath implements IMath
 
 
     /**
-     * @param string|array $strings
+     * @param string|array $numerics
      * @param null|bool    $uniq
+     * @param null|bool    $recursive
      *
      * @return Bcval[]
      */
-    public function bcvals($strings, $uniq = null) : array
+    public function bcvals($numerics, bool $uniq = null, bool $recursive = null) : array
     {
         $result = [];
 
-        $strings = is_array($strings)
-            ? $strings
-            : [ $strings ];
+        $numerics = is_array($numerics)
+            ? $numerics
+            : [ $numerics ];
 
-        array_walk_recursive($strings, function ($string) use (&$result) {
-            $result[] = $this->bcval($string);
-        });
+        if ($recursive) {
+            array_walk_recursive($numerics, function ($item) use (&$result) {
+                if (null !== ( $val = $this->bcval($item) )) {
+                    $result[] = $val;
+                }
+            });
+        } else {
+            foreach ( $numerics as $item ) {
+                if (null !== ( $val = $this->bcval($item) )) {
+                    $result[] = $val;
+                }
+            }
+        }
 
-        if ($uniq ?? false) {
+        if ($uniq) {
             $arr = [];
             foreach ( $result as $i ) {
                 $arr[ strval($i) ] = true;
@@ -445,24 +456,31 @@ class ZMath implements IMath
     }
 
     /**
-     * @param string|array $strings
+     * @param string|array $numerics
      * @param null|bool    $uniq
+     * @param null|bool    $recursive
      *
      * @return Bcval[]
      */
-    public function theBcvals($strings, $uniq = null) : array
+    public function theBcvals($numerics, bool $uniq = null, bool $recursive = null) : array
     {
         $result = [];
 
-        $strings = is_array($strings)
-            ? $strings
-            : [ $strings ];
+        $numerics = is_array($numerics)
+            ? $numerics
+            : [ $numerics ];
 
-        array_walk_recursive($strings, function ($string) use (&$result) {
-            $result[] = $this->theBcval($string);
-        });
+        if ($recursive) {
+            array_walk_recursive($numerics, function ($item) use (&$result) {
+                $result[] = $this->theBcval($item);
+            });
+        } else {
+            foreach ( $numerics as $item ) {
+                $result[] = $this->theBcval($item);
+            }
+        }
 
-        if ($uniq ?? false) {
+        if ($uniq) {
             $arr = [];
             foreach ( $result as $i ) {
                 $arr[ strval($i) ] = true;
@@ -685,7 +703,7 @@ class ZMath implements IMath
      */
     public function max(...$values) // : ?int|float
     {
-        $numvals = $this->num->theNumvals(...$values);
+        $numvals = $this->num->theNumvals($values, null, true);
 
         $result = $numvals
             ? max($numvals)
@@ -701,7 +719,7 @@ class ZMath implements IMath
      */
     public function min(...$values) // : int|float
     {
-        $numvals = $this->num->theNumvals(...$values);
+        $numvals = $this->num->theNumvals($values, null, true);
 
         $result = $numvals
             ? min($numvals)
@@ -718,7 +736,7 @@ class ZMath implements IMath
      */
     public function sum(...$values) // : int|float
     {
-        $numvals = $this->num->theNumvals(...$values);
+        $numvals = $this->num->theNumvals($values, null, true);
 
         $result = $numvals
             ? array_sum($numvals)
@@ -734,7 +752,7 @@ class ZMath implements IMath
      */
     public function avg(...$values) : float
     {
-        $numvals = $this->num->theNumvals(...$values);
+        $numvals = $this->num->theNumvals($values, null, true);
 
         $avg = null;
 
@@ -754,7 +772,7 @@ class ZMath implements IMath
      */
     public function median(...$values) // : ?int|float
     {
-        $numvals = $this->num->theNumvals(...$values);
+        $numvals = $this->num->theNumvals($values, null, true);
 
         $median = null;
 
@@ -858,7 +876,7 @@ class ZMath implements IMath
      */
     public function rates(...$rates) : array
     {
-        $ratesNum = $this->num->theNumvals(...$rates);
+        $ratesNum = $this->num->theNumvals($rates, null, true);
 
         if (! $ratesNum) {
             throw new InvalidArgumentException(
@@ -893,7 +911,7 @@ class ZMath implements IMath
      */
     public function ratesZero(...$rates) : array
     {
-        $ratesNum = $this->num->theNumvals(...$rates);
+        $ratesNum = $this->num->theNumvals($rates, null, true);
 
         if (! $ratesNum) {
             throw new InvalidArgumentException(

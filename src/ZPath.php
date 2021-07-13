@@ -201,11 +201,11 @@ class ZPath implements IPath
 
 
     /**
-     * @param string|string[] ...$strvals
+     * @param string|string[] ...$strings
      *
      * @return array
      */
-    public function split(...$strvals) : array
+    public function split(...$strings) : array
     {
         $separators = $this->separators();
         $separatorsImplode = implode('', $separators);
@@ -213,7 +213,7 @@ class ZPath implements IPath
         // network: \\c\\documents
         // path: dir;./dir;~/dir;/dir
         // url: ftp://web;//web
-        [ $protocol, $list ] = $this->protocol(...$strvals);
+        [ $protocol, $list ] = $this->protocol(...$strings);
 
         $split = $this->str->explode($separators, $list);
 
@@ -237,11 +237,11 @@ class ZPath implements IPath
     }
 
     /**
-     * @param string|string[] ...$strvals
+     * @param string|string[] ...$strings
      *
      * @return string
      */
-    public function join(...$strvals) : string
+    public function join(...$strings) : string
     {
         $separators = $this->separators();
         $separatorsImplode = implode('', $separators);
@@ -249,7 +249,7 @@ class ZPath implements IPath
         // network: \\c\\documents
         // path: dir;./dir;~/dir;/dir
         // url: ftp://web;//web
-        [ $protocol, $list ] = $this->protocol(...$strvals);
+        [ $protocol, $list ] = $this->protocol(...$strings);
 
         foreach ( $list as $idx => $l ) {
             $list[ $idx ] = ltrim($l, $separatorsImplode);
@@ -266,15 +266,15 @@ class ZPath implements IPath
 
 
     /**
-     * @param string|string[] ...$strvals
+     * @param string|string[] ...$strings
      *
      * @return string
      */
-    public function concat(...$strvals) : string
+    public function concat(...$strings) : string
     {
         $separators = $this->separators();
 
-        $words = $this->str->strvals($strvals);
+        $words = $this->str->strvals($strings, null, true);
         $words = array_filter($words, 'strlen');
 
         $result = array_shift($words);
@@ -392,9 +392,9 @@ class ZPath implements IPath
      */
     public function protocol(...$strings) : array
     {
-        $separators = $this->separators();
+        $list = $this->str->theStrvals($strings, null, true);
 
-        $list = $this->str->theStrvals($strings);
+        $separators = $this->separators();
 
         $delimiters = implode('', $separators);
 

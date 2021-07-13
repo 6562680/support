@@ -210,18 +210,18 @@ interface ICalendar
     public function filterInterval($interval);
 
     /**
-     * @param \DateTime|mixed $date
+     * @param \DateTimeInterface|mixed $date
      *
      * @return \DateTimeInterface
      */
     public function assertDateTimeInterface($date): \DateTimeInterface;
 
     /**
-     * @param \DateTime|mixed $date
+     * @param \DateTimeImmutable|mixed $date
      *
-     * @return \DateTime
+     * @return \DateTimeImmutable
      */
-    public function assertDateTimeImmutable($date): \DateTime;
+    public function assertDateTimeImmutable($date): \DateTimeImmutable;
 
     /**
      * @param \DateTime|mixed $date
@@ -341,34 +341,38 @@ interface ICalendar
     /**
      * @param int|float|string|\DateTimeInterface|array $dates
      * @param null|bool                                 $uniq
+     * @param null|bool                                 $recursive
      *
      * @return \DateTimeInterface[]
      */
-    public function datevals($dates, $uniq = null): array;
+    public function datevals($dates, bool $uniq = null, bool $recursive = null): array;
 
     /**
      * @param int|float|string|\DateTimeInterface|array $dates
      * @param null|bool                                 $uniq
+     * @param null|bool                                 $recursive
      *
      * @return \DateTimeInterface[]
      */
-    public function theDatevals($dates, $uniq = null): array;
+    public function theDatevals($dates, bool $uniq = null, bool $recursive = null): array;
 
     /**
      * @param int|float|string|\DateTimeInterface|array $dates
      * @param null|bool                                 $uniq
+     * @param null|bool                                 $recursive
      *
      * @return \DateTimeImmutable[]
      */
-    public function iDatevals($dates, $uniq = null): array;
+    public function iDatevals($dates, bool $uniq = null, bool $recursive = null): array;
 
     /**
      * @param int|float|string|\DateTimeInterface|array $dates
      * @param null|bool                                 $uniq
+     * @param null|bool                                 $recursive
      *
      * @return \DateTimeImmutable[]
      */
-    public function theIDatevals($dates, $uniq = null): array;
+    public function theIDatevals($dates, bool $uniq = null, bool $recursive = null): array;
 
     /**
      * @param int|float|string|\DateTimeInterface|mixed $date
@@ -382,50 +386,56 @@ interface ICalendar
     /**
      * @param \DateTime|array $dates
      * @param null|bool       $uniq
+     * @param null|bool       $recursive
      *
      * @return \DateTime[]
      */
-    public function dates($dates, $uniq = null): array;
+    public function dates($dates, bool $uniq = null, bool $recursive = null): array;
 
     /**
      * @param \DateTime|array $dates
      * @param null|bool       $uniq
+     * @param null|bool       $recursive
      *
      * @return \DateTime[]
      */
-    public function theDates($dates, $uniq = null): array;
+    public function theDates($dates, bool $uniq = null, bool $recursive = null): array;
 
     /**
      * @param \DateTimeImmutable|array $dates
      * @param null|bool                $uniq
+     * @param null|bool                $recursive
      *
      * @return \DateTimeImmutable[]
      */
-    public function iDates($dates, $uniq = null): array;
+    public function iDates($dates, bool $uniq = null, bool $recursive = null): array;
 
     /**
      * @param \DateTimeImmutable|array $dates
      * @param null|bool                $uniq
+     * @param null|bool                $recursive
      *
      * @return \DateTimeImmutable[]
      */
-    public function theIDates($dates, $uniq = null): array;
+    public function theIDates($dates, bool $uniq = null, bool $recursive = null): array;
 
     /**
      * @param \DateTimeInterface|array $dates
      * @param null|bool                $uniq
+     * @param null|bool                $recursive
      *
      * @return \DateTimeInterface[]
      */
-    public function datesAll($dates, $uniq = null): array;
+    public function datesAll($dates, bool $uniq = null, bool $recursive = null): array;
 
     /**
      * @param int|float|string|\DateTimeInterface|array $dates
      * @param null|bool                                 $uniq
+     * @param null|bool                                 $recursive
      *
      * @return \DateTimeInterface[]
      */
-    public function theDatesAll($dates, $uniq = null): array;
+    public function theDatesAll($dates, bool $uniq = null, bool $recursive = null): array;
 
     /**
      * @param int|float|string|\DateTimeInterface|mixed $dateA

@@ -29,13 +29,13 @@ class NumTest extends AbstractTestCase
         $this->assertEquals([ 1 ], $num->theIntvals([ 1.0 ]));
         $this->assertEquals([ '1' ], $num->theIntvals([ '1' ]));
         $this->assertEquals([ '1.0' ], $num->theIntvals([ '1.0' ]));
-        $this->assertEquals([], $num->theIntvals([ [] ]));
+        $this->assertEquals([], $num->theIntvals([ [] ], null, true));
 
-        $this->assertEquals([ '1' ], $num->theIntvals([ [ 1 ] ]));
-        $this->assertEquals([ '1' ], $num->theIntvals([ [ 1.0 ] ]));
-        $this->assertEquals([ '1' ], $num->theIntvals([ [ '1' ] ]));
-        $this->assertEquals([ '1.0' ], $num->theIntvals([ [ '1.0' ] ]));
-        $this->assertEquals([], $num->theIntvals([ [ [] ] ]));
+        $this->assertEquals([ '1' ], $num->theIntvals([ [ 1 ] ], null, true));
+        $this->assertEquals([ '1' ], $num->theIntvals([ [ 1.0 ] ], null, true));
+        $this->assertEquals([ '1' ], $num->theIntvals([ [ '1' ] ], null, true));
+        $this->assertEquals([ '1.0' ], $num->theIntvals([ [ '1.0' ] ], null, true));
+        $this->assertEquals([], $num->theIntvals([ [ [] ] ], null, true));
     }
 
     public function testBadTheIntvals()
@@ -110,15 +110,15 @@ class NumTest extends AbstractTestCase
         $this->assertEquals([ '1' ], $num->theFloatvals([ '1' ]));
         $this->assertEquals([ '1.0' ], $num->theFloatvals([ '1.0' ]));
         $this->assertEquals([ '1.1' ], $num->theFloatvals([ '1.1' ]));
-        $this->assertEquals([], $num->theFloatvals([ [] ]));
+        $this->assertEquals([], $num->theFloatvals([ [] ], null, true));
 
-        $this->assertEquals([ '1' ], $num->theFloatvals([ [ 1 ] ]));
-        $this->assertEquals([ '1' ], $num->theFloatvals([ [ 1.0 ] ]));
-        $this->assertEquals([ '1.1' ], $num->theFloatvals([ [ 1.1 ] ]));
-        $this->assertEquals([ '1' ], $num->theFloatvals([ [ '1' ] ]));
-        $this->assertEquals([ '1.0' ], $num->theFloatvals([ [ '1.0' ] ]));
-        $this->assertEquals([ '1.1' ], $num->theFloatvals([ [ '1.1' ] ]));
-        $this->assertEquals([], $num->theFloatvals([ [ [] ] ]));
+        $this->assertEquals([ '1' ], $num->theFloatvals([ [ 1 ] ], null, true));
+        $this->assertEquals([ '1' ], $num->theFloatvals([ [ 1.0 ] ], null, true));
+        $this->assertEquals([ '1.1' ], $num->theFloatvals([ [ 1.1 ] ], null, true));
+        $this->assertEquals([ '1' ], $num->theFloatvals([ [ '1' ] ], null, true));
+        $this->assertEquals([ '1.0' ], $num->theFloatvals([ [ '1.0' ] ], null, true));
+        $this->assertEquals([ '1.1' ], $num->theFloatvals([ [ '1.1' ] ], null, true));
+        $this->assertEquals([], $num->theFloatvals([ [ [] ] ], null, true));
     }
 
     public function testBadTheFloatvals()
@@ -193,15 +193,15 @@ class NumTest extends AbstractTestCase
         $this->assertEquals([ '1' ], $num->theNumericvals([ '1' ]));
         $this->assertEquals([ '1.0' ], $num->theNumericvals([ '1.0' ]));
         $this->assertEquals([ '1.1' ], $num->theNumericvals([ '1.1' ]));
-        $this->assertEquals([], $num->theNumericvals([ [] ]));
+        $this->assertEquals([], $num->theNumericvals([ [] ], null, true));
 
-        $this->assertEquals([ '1' ], $num->theNumericvals([ [ 1 ] ]));
-        $this->assertEquals([ '1' ], $num->theNumericvals([ [ 1.0 ] ]));
-        $this->assertEquals([ '1.1' ], $num->theNumericvals([ [ 1.1 ] ]));
-        $this->assertEquals([ '1' ], $num->theNumericvals([ [ '1' ] ]));
-        $this->assertEquals([ '1.0' ], $num->theNumericvals([ [ '1.0' ] ]));
-        $this->assertEquals([ '1.1' ], $num->theNumericvals([ [ '1.1' ] ]));
-        $this->assertEquals([], $num->theNumericvals([ [ [] ] ]));
+        $this->assertEquals([ '1' ], $num->theNumericvals([ [ 1 ] ], null, true));
+        $this->assertEquals([ '1' ], $num->theNumericvals([ [ 1.0 ] ], null, true));
+        $this->assertEquals([ '1.1' ], $num->theNumericvals([ [ 1.1 ] ], null, true));
+        $this->assertEquals([ '1' ], $num->theNumericvals([ [ '1' ] ], null, true));
+        $this->assertEquals([ '1.0' ], $num->theNumericvals([ [ '1.0' ] ], null, true));
+        $this->assertEquals([ '1.1' ], $num->theNumericvals([ [ '1.1' ] ], null, true));
+        $this->assertEquals([], $num->theNumericvals([ [ [] ] ], null, true));
     }
 
     public function testBadTheNumvals()

@@ -307,6 +307,16 @@ class Assert
     }
 
     /**
+     * @param string|mixed $value
+     *
+     * @return string
+     */
+    public static function assertUtf8($value): ?string
+    {
+        return static::getInstance()->assertUtf8($value);
+    }
+
+    /**
      * @param int|string|mixed $value
      *
      * @return int|float|string
@@ -433,6 +443,20 @@ class Assert
     }
 
     /**
+     * Array that contains array
+     *
+     * @param array|mixed $array
+     *
+     * @return array
+     */
+    public static function assertDeepArray($array): ?array
+    {
+        return static::getInstance()->assertDeepArray($array);
+    }
+
+    /**
+     * Array that can be safely serialized
+     *
      * @param array|mixed $array
      *
      * @return array
@@ -620,6 +644,16 @@ class Assert
     public static function assertThrowable($value)
     {
         return static::getInstance()->assertThrowable($value);
+    }
+
+    /**
+     * @param object|mixed $value
+     *
+     * @return object
+     */
+    public static function assertError($value)
+    {
+        return static::getInstance()->assertError($value);
     }
 
     /**

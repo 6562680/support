@@ -41,9 +41,12 @@ class PhpTest extends AbstractTestCase
         $php = $this->getPhp();
 
         $map = [];
+
         $keys = [ null, 0, 0.0, '', 'a' ];
         foreach ( $keys as $key ) {
-            $map[] = array_combine($keys, array_fill(0, count($keys), $key));
+            $map[] = array_combine($keys,
+                array_fill(0, count($keys), $key)
+            );
         }
 
         $this->assertEquals([ 0, 'a', 0.0 ], $php->enumval($map));
