@@ -744,15 +744,15 @@ class Fs
     }
 
     /**
-     * @param string|\SplFileInfo $dir
-     * @param null|bool|\Closure  $keep
-     * @param null|bool           $recursive
+     * @param string|\SplFileInfo      $dir
+     * @param null|bool|\Closure|array $keepers
+     * @param null|bool                $recursive
      *
      * @return array
      */
-    public static function rmdir($dir, $keep = null, bool $recursive = null): array
+    public static function rmdir($dir, $keepers = null, bool $recursive = null): array
     {
-        return static::getInstance()->rmdir($dir, $keep, $recursive);
+        return static::getInstance()->rmdir($dir, $keepers, $recursive);
     }
 
     /**

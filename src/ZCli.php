@@ -196,23 +196,21 @@ class ZCli implements ICli
     }
 
     /**
-     * @param string|\SplFileInfo $dir
-     * @param null|bool|\Closure  $keep
-     * @param null|bool           $recursive
-     * @param null|string         $yesRemove
+     * @param string|\SplFileInfo      $dir
+     * @param null|bool|\Closure|array $keepers
+     * @param null|bool                $recursive
+     * @param null|string              $yesRemove
      *
      * @return array
      */
-    public function rmdir($dir, $keep = null, bool $recursive = null, string &$yesRemove = null) : array
+    public function rmdir($dir, $keepers = null, bool $recursive = null, string &$yesRemove = null) : array
     {
-        $keep = $keep ?? false;
         $yesRemove = $yesRemove ?? 'n';
+        $keepers = is_array($keepers)
+            ? $keepers
+            : [ $keepers ];
 
-        $report = $this->fs->rmdir($dir, function (\SplFileInfo $spl) use ($keep, &$yesRemove) {
-            $isKeep = null
-                ?? ( $keep instanceof \Closure ? $keep($spl) : null )
-                ?? (bool) $keep;
-
+        $keepers[] = function (\SplFileInfo $spl, bool $isKeep) use (&$yesRemove) {
             if (! $isKeep) {
                 $message = $spl->isDir()
                     ? "Deleting directory: %s\n%s\nAre you sure?"
@@ -225,7 +223,9 @@ class ZCli implements ICli
             }
 
             return $isKeep;
-        });
+        };
+
+        $report = $this->fs->rmdir($dir, $keepers, $recursive);
 
         return $report;
     }

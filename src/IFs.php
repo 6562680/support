@@ -527,13 +527,13 @@ interface IFs
     public function mkdir(string $dirname, int $mode = null, bool $recursive = null, $context = null): string;
 
     /**
-     * @param string|\SplFileInfo $dir
-     * @param null|bool|\Closure  $keep
-     * @param null|bool           $recursive
+     * @param string|\SplFileInfo      $dir
+     * @param null|bool|\Closure|array $keepers
+     * @param null|bool                $recursive
      *
      * @return array
      */
-    public function rmdir($dir, $keep = null, bool $recursive = null): array;
+    public function rmdir($dir, $keepers = null, bool $recursive = null): array;
 
     /**
      * @param resource $readableA

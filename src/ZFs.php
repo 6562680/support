@@ -1447,72 +1447,83 @@ class ZFs implements IFs
     }
 
     /**
-     * @param string|\SplFileInfo $dir
-     * @param null|bool|\Closure  $keep
-     * @param null|bool           $recursive
+     * @param string|\SplFileInfo      $dir
+     * @param null|bool|\Closure|array $keepers
+     * @param null|bool                $recursive
      *
      * @return array
      */
-    public function rmdir($dir, $keep = null, bool $recursive = null) : array
+    public function rmdir($dir, $keepers = null, bool $recursive = null) : array
     {
-        $keep = $keep ?? false;
         $recursive = $recursive ?? true;
+        $keepers = is_array($keepers)
+            ? $keepers
+            : [ $keepers ];
 
-        if (null === ( $selfRealpath = $this->pathDirVal($dir) )) {
+        if (null === ( $realpathSelf = $this->pathDirVal($dir) )) {
+            // directory not exists
             return [];
         }
 
         $report = [];
 
-        $directories = [];
-
         $it = $recursive
-            ? new \RecursiveIteratorIterator(
-                new \RecursiveDirectoryIterator($selfRealpath, \RecursiveDirectoryIterator::SKIP_DOTS),
-                \RecursiveIteratorIterator::CHILD_FIRST
-            )
-            : new \DirectoryIterator($selfRealpath);
+            ? new \RecursiveDirectoryIterator($realpathSelf, \RecursiveDirectoryIterator::SKIP_DOTS)
+            : new \DirectoryIterator($realpathSelf);
 
-        foreach ( $it as $spl ) {
+        $iit = $recursive
+            ? new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::CHILD_FIRST)
+            : $it;
+
+        $index = [];
+        $queue = [ 'files' => [], 'directories' => [] ];
+        foreach ( $iit as $spl ) {
             $realpath = $spl->getRealPath();
-            $parentRealpath = dirname($realpath);
+            $index[ $realpath ] = false;
 
-            $isKeep = null
-                ?? ( $keep instanceof \Closure ? $keep($spl) : null )
-                ?? (bool) $keep;
+            $spl->isDir()
+                ? ( $queue[ 'directories' ][ $realpath ] = $spl )
+                : ( $queue[ 'files' ][ $realpath ] = $spl );
+        }
+        $queue[ 'directories' ][ $realpathSelf ] = new \SplFileInfo($realpathSelf);
 
-            $directories[ $parentRealpath ] = $directories[ $parentRealpath ] ?? false;
-
-            if ($isKeep) {
-                $directories[ $selfRealpath ] = true;
-
-                $parent = $parentRealpath;
-                while ( $parent !== $selfRealpath ) {
-                    $directories[ $parent ] = true;
-                    $parent = dirname($parent);
-                }
-
-            } elseif ($spl->isDir()) {
-                $directories[ $realpath ] = $directories[ $realpath ] ?? false;
-
-            } else {
-                $report[] = $realpath;
-
-                unlink($realpath);
-            }
+        foreach ( $keepers as $idx => $keep ) {
+            $keepers[ $idx ] = null
+                ?? ( $keep instanceof \Closure ? $keep : null )
+                ?? function () use ($keep) {
+                    return (bool) $keep;
+                };
         }
 
-        uksort($directories, function ($a, $b) {
-            return 0
-                ?: mb_substr_count($b, DIRECTORY_SEPARATOR) - mb_substr_count($a, DIRECTORY_SEPARATOR);
-        });
+        while ( null !== key($queue) ) {
+            $array = current($queue);
+            next($queue);
 
-        foreach ( $directories as $realpath => $isKeep ) {
-            if ($isKeep) continue;
+            foreach ( $array as $spl ) {
+                $realpath = $spl->getRealpath();
 
-            $report[] = $realpath;
+                $isKeep = $index[ $realpath ]
+                    || array_reduce($keepers, function (bool $carry, \Closure $keeper) use ($spl) {
+                        return (bool) $keeper($spl, $carry);
+                    }, false);
 
-            rmdir($realpath);
+                if (! $isKeep) {
+                    $report[] = $realpath;
+
+                    $spl->isDir()
+                        ? rmdir($realpath)
+                        : unlink($realpath);
+
+                } else {
+                    $index[ $realpathSelf ] = true;
+
+                    $parent = $realpath;
+                    while ( $parent !== $realpathSelf ) {
+                        $index[ $parent ] = true;
+                        $parent = dirname($parent);
+                    }
+                }
+            }
         }
 
         return $report;

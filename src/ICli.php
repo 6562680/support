@@ -60,14 +60,14 @@ interface ICli
     ): string;
 
     /**
-     * @param string|\SplFileInfo $dir
-     * @param null|bool|\Closure  $keep
-     * @param null|bool           $recursive
-     * @param null|string         $yesRemove
+     * @param string|\SplFileInfo      $dir
+     * @param null|bool|\Closure|array $keepers
+     * @param null|bool                $recursive
+     * @param null|string              $yesRemove
      *
      * @return array
      */
-    public function rmdir($dir, $keep = null, bool $recursive = null, string &$yesRemove = null): array;
+    public function rmdir($dir, $keepers = null, bool $recursive = null, string &$yesRemove = null): array;
 
     /**
      * @param string      $message
