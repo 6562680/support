@@ -1474,19 +1474,23 @@ class ZFs implements IFs
             | \FilesystemIterator::KEY_AS_PATHNAME
             | \FilesystemIterator::CURRENT_AS_FILEINFO;
 
-        $its = [
-            $itFiles = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($realpathSelf, $flags)),
-            $itDirectories = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($realpathSelf, $flags), \RecursiveIteratorIterator::CHILD_FIRST),
-        ];
+        // files
+        $its[] = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($realpathSelf, $flags));
+        // directories
+        $its[] = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($realpathSelf, $flags),
+            \RecursiveIteratorIterator::CHILD_FIRST
+        );
+
         if (! $recursive) {
-            $itFiles->setMaxDepth(0);
-            $itDirectories->setMaxDepth(0);
+            foreach ( $its as $it ) {
+                $it->setMaxDepth(0);
+            }
         }
 
         $spl = null;
         $reducer = function (bool $carry, $keeper) use (&$spl) {
             return null
-                ?? ( $keeper instanceof \Closure ? $keeper($spl, $carry) : null )
+                ?? ( $keeper instanceof \Closure ? ( (bool) $keeper($spl, $carry) ) : null )
                 ?? (bool) $keeper;
         };
 
