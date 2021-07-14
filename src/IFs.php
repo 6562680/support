@@ -25,32 +25,41 @@ interface IFs
     /**
      * @param null|string $rootPath
      * @param null|string $backupPath
+     * @param null|string $backupPathBase
      *
      * @return ZFs
      */
-    public function clone(?string $rootPath, ?string $backupPath);
+    public function clone(?string $rootPath, ?string $backupPath, ?string $backupPathBase);
 
     /**
      * @param null|string $rootPath
      * @param null|string $backupPath
+     * @param null|string $backupPathBase
      *
      * @return ZFs
      */
-    public function with(?string $rootPath, ?string $backupPath);
+    public function with(?string $rootPath, ?string $backupPath, ?string $backupPathBase);
 
     /**
-     * @param string $absolutePath
+     * @param string $realpath
      *
      * @return ZFs
      */
-    public function withRootPath(string $absolutePath);
+    public function withRootPath(string $realpath);
 
     /**
-     * @param string $path
+     * @param string $realpath
      *
      * @return ZFs
      */
-    public function withBackupPath(string $path);
+    public function withBackupPath(string $realpath);
+
+    /**
+     * @param string $realpath
+     *
+     * @return ZFs
+     */
+    public function withBackupPathBase(string $realpath);
 
     /**
      * @return string
@@ -519,11 +528,12 @@ interface IFs
 
     /**
      * @param string|\SplFileInfo $dir
-     * @param null|bool|\Closure  $recursive
+     * @param null|\Closure       $keep
+     * @param null|bool           $recursive
      *
      * @return array
      */
-    public function rmdir($dir, $recursive = null): array;
+    public function rmdir($dir, $keep = null, bool $recursive = null): array;
 
     /**
      * @param resource $readableA

@@ -31,43 +31,55 @@ class Fs
     /**
      * @param null|string $rootPath
      * @param null|string $backupPath
+     * @param null|string $backupPathBase
      *
      * @return ZFs
      */
-    public static function clone(?string $rootPath, ?string $backupPath)
+    public static function clone(?string $rootPath, ?string $backupPath, ?string $backupPathBase)
     {
-        return static::getInstance()->clone($rootPath, $backupPath);
+        return static::getInstance()->clone($rootPath, $backupPath, $backupPathBase);
     }
 
     /**
      * @param null|string $rootPath
      * @param null|string $backupPath
+     * @param null|string $backupPathBase
      *
      * @return ZFs
      */
-    public static function with(?string $rootPath, ?string $backupPath)
+    public static function with(?string $rootPath, ?string $backupPath, ?string $backupPathBase)
     {
-        return static::getInstance()->with($rootPath, $backupPath);
+        return static::getInstance()->with($rootPath, $backupPath, $backupPathBase);
     }
 
     /**
-     * @param string $absolutePath
+     * @param string $realpath
      *
      * @return ZFs
      */
-    public static function withRootPath(string $absolutePath)
+    public static function withRootPath(string $realpath)
     {
-        return static::getInstance()->withRootPath($absolutePath);
+        return static::getInstance()->withRootPath($realpath);
     }
 
     /**
-     * @param string $path
+     * @param string $realpath
      *
      * @return ZFs
      */
-    public static function withBackupPath(string $path)
+    public static function withBackupPath(string $realpath)
     {
-        return static::getInstance()->withBackupPath($path);
+        return static::getInstance()->withBackupPath($realpath);
+    }
+
+    /**
+     * @param string $realpath
+     *
+     * @return ZFs
+     */
+    public static function withBackupPathBase(string $realpath)
+    {
+        return static::getInstance()->withBackupPathBase($realpath);
     }
 
     /**
@@ -733,13 +745,14 @@ class Fs
 
     /**
      * @param string|\SplFileInfo $dir
-     * @param null|bool|\Closure  $recursive
+     * @param null|\Closure       $keep
+     * @param null|bool           $recursive
      *
      * @return array
      */
-    public static function rmdir($dir, $recursive = null): array
+    public static function rmdir($dir, $keep = null, bool $recursive = null): array
     {
-        return static::getInstance()->rmdir($dir, $recursive);
+        return static::getInstance()->rmdir($dir, $keep, $recursive);
     }
 
     /**

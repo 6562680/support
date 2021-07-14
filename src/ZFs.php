@@ -43,10 +43,15 @@ class ZFs implements IFs
      * @var string
      */
     protected $rootPath = '';
+
     /**
      * @var string
      */
     protected $backupPath;
+    /**
+     * @var string
+     */
+    protected $backupPathBase;
 
 
     /**
@@ -73,7 +78,9 @@ class ZFs implements IFs
     public function reset()
     {
         $this->rootPath = '';
+
         $this->backupPath = null;
+        $this->backupPathBase = null;
 
         return $this;
     }
@@ -82,15 +89,17 @@ class ZFs implements IFs
     /**
      * @param null|string $rootPath
      * @param null|string $backupPath
+     * @param null|string $backupPathBase
      *
      * @return static
      */
-    public function clone(?string $rootPath, ?string $backupPath)
+    public function clone(?string $rootPath, ?string $backupPath, ?string $backupPathBase)
     {
         $instance = clone $this;
 
         if (isset($rootPath)) $instance->withRootPath($rootPath);
         if (isset($backupPath)) $instance->withBackupPath($backupPath);
+        if (isset($backupPathBase)) $instance->withBackupPathBase($backupPathBase);
 
         return $instance;
     }
@@ -99,49 +108,57 @@ class ZFs implements IFs
     /**
      * @param null|string $rootPath
      * @param null|string $backupPath
+     * @param null|string $backupPathBase
      *
      * @return static
      */
-    public function with(?string $rootPath, ?string $backupPath)
+    public function with(?string $rootPath, ?string $backupPath, ?string $backupPathBase)
     {
         $this->reset();
 
         if (isset($rootPath)) $this->withRootPath($rootPath);
         if (isset($backupPath)) $this->withBackupPath($backupPath);
+        if (isset($backupPathBase)) $this->withBackupPathBase($backupPath);
 
         return $this;
     }
 
 
     /**
-     * @param string $absolutePath
+     * @param string $realpath
      *
      * @return static
      */
-    public function withRootPath(string $absolutePath)
+    public function withRootPath(string $realpath)
     {
-        $realpath = $this->thePathDirVal($absolutePath);
+        $realpath = $this->thePathDirVal($realpath);
 
         $this->rootPath = $realpath;
 
         return $this;
     }
 
+
     /**
-     * @param string $path
+     * @param string $realpath
      *
      * @return static
      */
-    public function withBackupPath(string $path)
+    public function withBackupPath(string $realpath)
     {
-        if (null !== ( $realpath = $this->pathDirVal($path) )) {
-            $this->backupPath = $realpath;
+        $this->backupPath = $this->thePathDirVal($realpath);
 
-        } else {
-            $subpath = $this->thePathVal($path);
+        return $this;
+    }
 
-            $this->backupPath = $subpath;
-        }
+    /**
+     * @param string $realpath
+     *
+     * @return static
+     */
+    public function withBackupPathBase(string $realpath)
+    {
+        $this->backupPathBase = $this->thePathDirVal($realpath);
 
         return $this;
     }
@@ -1283,7 +1300,6 @@ class ZFs implements IFs
     {
         $backup = $backup ?? true;
 
-        $realpath = null;
         $backupPath = null;
         if (file_exists($filepath)) {
             $realpath = realpath($filepath);
@@ -1295,18 +1311,25 @@ class ZFs implements IFs
             }
 
             if ($backup) {
-                $dirPath = dirname($filepath);
+                $dirPath = dirname($realpath);
 
-                if ($this->backupPath) {
-                    $dirPath = is_dir($this->backupPath)
-                        ? $this->backupPath
-                        : $this->pathConcat($dirPath, $this->backupPath);
-                }
+                $relativeDirPath = null
+                    ?? ( strlen($this->backupPathBase) ? $this->pathRelative($dirPath, $this->backupPathBase) : null )
+                    ?? ( strlen($this->rootPath) ? $this->pathRelative($dirPath, $this->rootPath) : null )
+                    ?? '';
 
-                $backupPath = $dirPath . DIRECTORY_SEPARATOR
+                $newDirpath = null
+                    ?? ( ( $this->backupPath && $relativeDirPath ) ? $this->pathJoin($this->backupPath, $relativeDirPath) : null )
+                    ?? ( $this->backupPath ? $this->pathConcat($this->backupPath, $dirPath) : null )
+                    ?? ( $relativeDirPath ? $this->pathJoin($dirPath, $relativeDirPath) : null )
+                    ?? $dirPath;
+
+                $this->mkdir($newDirpath);
+
+                $backupPath = $newDirpath . DIRECTORY_SEPARATOR
                     . basename($realpath) . '.backup' . date('Ymd_His');
 
-                copy($realpath, $backupPath);
+                rename($realpath, $backupPath);
 
                 $backupPath = realpath($backupPath);
 
@@ -1425,81 +1448,71 @@ class ZFs implements IFs
 
     /**
      * @param string|\SplFileInfo $dir
-     * @param null|bool|\Closure  $recursive
+     * @param null|\Closure       $keep
+     * @param null|bool           $recursive
      *
      * @return array
      */
-    public function rmdir($dir, $recursive = null) : array
+    public function rmdir($dir, $keep = null, bool $recursive = null) : array
     {
+        $keep = $keep ?? false;
+        $recursive = $recursive ?? true;
+
         if (null === ( $selfRealpath = $this->pathDirVal($dir) )) {
             return [];
         }
 
         $report = [];
 
+        $directories = [];
 
-        if (! $recursive) {
-            try {
-                rmdir($dir);
-            }
-            catch ( \Throwable $e ) {
-                throw new FilesystemException($e->getMessage(), null, $e);
-            }
-        } else {
-            $keepFilter = null;
+        $it = $recursive
+            ? new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($selfRealpath, \RecursiveDirectoryIterator::SKIP_DOTS),
+                \RecursiveIteratorIterator::CHILD_FIRST
+            )
+            : new \DirectoryIterator($selfRealpath);
 
-            if ($recursive instanceof \Closure) {
-                $keepFilter = $recursive;
-            }
+        foreach ( $it as $spl ) {
+            $realpath = $spl->getRealPath();
+            $parentRealpath = dirname($realpath);
 
-            $directories = [];
+            $isKeep = null
+                ?? ( $keep instanceof \Closure ? $keep($spl) : null )
+                ?? (bool) $keep;
 
-            $it = new \RecursiveDirectoryIterator($selfRealpath, \RecursiveDirectoryIterator::SKIP_DOTS);
-            $iit = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::CHILD_FIRST);
+            $directories[ $parentRealpath ] = $directories[ $parentRealpath ] ?? false;
 
-            foreach ( $iit as $spl ) {
-                /** @var \SplFileInfo $spl */
+            if ($isKeep) {
+                $directories[ $selfRealpath ] = true;
 
-                $realpath = $spl->getRealPath();
-                $dirRealpath = dirname($realpath);
-
-                $isKeep = $keepFilter
-                    ? $keepFilter($spl)
-                    : false;
-
-                $directories[ $dirRealpath ] = $directories[ $dirRealpath ] ?? false;
-
-                if ($isKeep) {
-                    $directories[ $selfRealpath ] = true;
-
-                    $parent = $dirRealpath;
-                    while ( $parent !== $selfRealpath ) {
-                        $directories[ $parent ] = true;
-                        $parent = dirname($parent);
-                    }
-
-                } elseif ($spl->isDir()) {
-                    $directories[ $realpath ] = $directories[ $realpath ] ?? false;
-
-                } else {
-                    $report[] = $realpath;
-
-                    unlink($realpath);
+                $parent = $parentRealpath;
+                while ( $parent !== $selfRealpath ) {
+                    $directories[ $parent ] = true;
+                    $parent = dirname($parent);
                 }
-            }
 
-            uksort($directories, function ($a, $b) {
-                return 0
-                    ?: mb_substr_count($b, DIRECTORY_SEPARATOR) - mb_substr_count($a, DIRECTORY_SEPARATOR);
-            });
+            } elseif ($spl->isDir()) {
+                $directories[ $realpath ] = $directories[ $realpath ] ?? false;
 
-            foreach ( $directories as $realpath => $isKeep ) {
-                if ($isKeep) continue;
-
+            } else {
                 $report[] = $realpath;
 
-                rmdir($realpath);
+                unlink($realpath);
             }
+        }
+
+        uksort($directories, function ($a, $b) {
+            return 0
+                ?: mb_substr_count($b, DIRECTORY_SEPARATOR) - mb_substr_count($a, DIRECTORY_SEPARATOR);
+        });
+
+        foreach ( $directories as $realpath => $isKeep ) {
+            if ($isKeep) continue;
+
+            $report[] = $realpath;
+
+            rmdir($realpath);
         }
 
         return $report;

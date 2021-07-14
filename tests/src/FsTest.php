@@ -193,10 +193,10 @@ class FsTest extends AbstractTestCase
     {
         $fs = $this->getFs();
 
-        $dir = $fs->mkdir(__DIR__ . '/../storage/fs/fileGet');
-        $file = $dir . '/hello.txt';
+        $directory = $fs->mkdir(__DIR__ . '/../storage/fs/fileGet');
+        $file = $directory . '/hello.txt';
 
-        $fs->mkdir($dir);
+        $fs->mkdir($directory);
 
         file_put_contents($file, '123');
 
@@ -204,26 +204,56 @@ class FsTest extends AbstractTestCase
 
         $this->assertEquals('123', $content);
 
-        $fs->rmdir($dir, true);
+        $fs->rmdir($directory);
     }
 
     public function testFilePut()
     {
         $fs = $this->getFs();
 
-        $dir = $fs->mkdir(__DIR__ . '/../storage/fs/filePut');
-        $file = $dir . '/hello.txt';
+        $root = __DIR__ . '/../storage/fs';
+        $fs->withRootPath(__DIR__ . '/../storage/fs');
 
-        $fs->mkdir($dir);
+        $directory = $fs->mkdir($root . '/filePut/test');
+        $fs->mkdir($directory);
 
-        $fs->filePut($file, '123');
+        $file = $directory . '/hello.txt';
 
-        $content = file_get_contents($file);
 
+        $filepath = $fs->filePut($file, __CLASS__);
         $this->assertFileExists($file);
-        $this->assertEquals('123', $content);
+        $this->assertFileExists($filepath);
 
-        $fs->rmdir($dir, true);
+        $content = file_get_contents($filepath);
+        $this->assertEquals(__CLASS__, $content);
+
+
+        $backupDirPath = __DIR__ . '/../storage/fs/filePut_backup';
+        $fs->mkdir($backupDirPath);
+        $fs->withBackupPath($backupDirPath);
+
+        $backupPath = $fs->filePut($file, __CLASS__);
+        $this->assertFileExists($file);
+        $this->assertFileExists($filepath);
+        $this->assertFileExists($backupPath);
+
+        $content = file_get_contents($backupPath);
+        $this->assertEquals(__CLASS__, $content);
+
+
+        $backupDirPathBase = __DIR__ . '/../storage/fs/filePut';
+        $fs->withBackupPathBase($backupDirPathBase);
+
+        $backupPath = $fs->filePut($file, __CLASS__);
+        $this->assertFileExists($file);
+        $this->assertFileExists($filepath);
+        $this->assertFileExists($backupPath);
+
+        $content = file_get_contents($backupPath);
+        $this->assertEquals(__CLASS__, $content);
+
+
+        $fs->rmdir($directory);
     }
 
 
@@ -237,7 +267,7 @@ class FsTest extends AbstractTestCase
 
         $this->assertDirectoryExists($dir);
 
-        $fs->rmdir($directory, true);
+        $fs->rmdir($directory);
     }
 
     public function testRmdir()
@@ -322,7 +352,7 @@ class FsTest extends AbstractTestCase
             $this->assertFileDoesNotExist($file);
         }
 
-        $fs->rmdir($directory, true);
+        $fs->rmdir($directory);
 
         $this->assertDirectoryDoesNotExist($directory);
     }

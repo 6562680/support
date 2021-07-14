@@ -4,6 +4,7 @@ namespace Gzhegow\Support\Tests;
 
 use Gzhegow\Support\ZArr;
 use Gzhegow\Support\IArr;
+use Gzhegow\Support\Exceptions\Error;
 use Gzhegow\Support\Exceptions\Logic\OutOfRangeException;
 use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
@@ -895,7 +896,7 @@ class ArrTest extends AbstractTestCase
     {
         $arr = $this->getArr();
 
-        $this->expectError();
+        $this->expectException(Error::class);
 
         $arr->indexed(new \StdClass());
     }

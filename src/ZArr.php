@@ -126,24 +126,17 @@ class ZArr implements IArr
     {
         return function (&$value) {
             switch ( true ):
-                case is_string($value):
-                    break;
-
-                case ( is_float($value) && is_nan($value) ):
-                    $value = 'NaN';
-                    break;
-
                 case is_null($value):
-                case is_bool($value):
-                case is_int($value):
-                case is_float($value):
+                case is_scalar($value):
                     $value = strval($value);
                     break;
 
+                case ( [] === $value ):
+                    $value = '[]';
+                    break;
+
                 default:
-                    throw new Error(
-                        [ 'Unable to index passed element: %s', $value ]
-                    );
+                    throw new Error([ 'Unable to index passed element: %s', $value ]);
 
             endswitch;
         };

@@ -103,16 +103,16 @@ class Inflector implements InflectorInterface
      *
      * @return null|array
      */
-    protected function pluralizeSymfonyInflector(string $singular, $limit = null, $offset = 0) : ?array
+    protected function pluralizeSymfonyInflector(string $singular, $limit = null, $offset = null) : ?array
     {
-        if (! interface_exists($interface = static::SYMFONY_INFLECTOR)) {
+        if (! interface_exists(static::SYMFONY_INFLECTOR)) {
             return null;
         }
 
         $limit = $limit ?? 0;
         $offset = intval($offset ?? 0);
 
-        $array = $this->symfonyInflector()->pluralize($singular);
+        $array = $this->symfonyInflector()->{'pluralize'}($singular);
 
         $result = [];
         foreach ( $array as $i => $string ) {
@@ -135,14 +135,14 @@ class Inflector implements InflectorInterface
      */
     protected function singularizeSymfonyInflector(string $plural, $limit = null, $offset = 0) : ?array
     {
-        if (! interface_exists($interface = static::SYMFONY_INFLECTOR)) {
+        if (! interface_exists(static::SYMFONY_INFLECTOR)) {
             return null;
         }
 
         $limit = $limit ?? 0;
         $offset = intval($offset ?? 0);
 
-        $array = $this->symfonyInflector()->singularize($plural);
+        $array = $this->symfonyInflector()->{'singularize'}($plural);
 
         $result = [];
         foreach ( $array as $i => $string ) {

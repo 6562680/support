@@ -178,7 +178,6 @@ class ZPath implements IPath
     {
         $path = $this->optimize($path);
 
-        $strvals[] = '';
         $items = [];
         foreach ( explode($this->separator, $path) as $part ) {
             if ('.' == $part) {
