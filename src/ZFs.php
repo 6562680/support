@@ -1315,7 +1315,6 @@ class ZFs implements IFs
 
                 $relativeDirPath = null
                     ?? ( strlen($this->backupPathBase) ? $this->pathRelative($dirPath, $this->backupPathBase) : null )
-                    ?? ( strlen($this->rootPath) ? $this->pathRelative($dirPath, $this->rootPath) : null )
                     ?? '';
 
                 $newDirpath = null
@@ -1455,37 +1454,15 @@ class ZFs implements IFs
      */
     public function rmdir($dir, $keepers = null, bool $recursive = null) : array
     {
-        $recursive = $recursive ?? true;
-        $keepers = is_array($keepers)
-            ? $keepers
-            : [ $keepers ];
-
         if (null === ( $realpathSelf = $this->pathDirVal($dir) )) {
             // directory not exists
             return [];
         }
 
-        $report = [];
-
-        $it = $recursive
-            ? new \RecursiveDirectoryIterator($realpathSelf, \RecursiveDirectoryIterator::SKIP_DOTS)
-            : new \DirectoryIterator($realpathSelf);
-
-        $iit = $recursive
-            ? new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::CHILD_FIRST)
-            : $it;
-
-        $index = [];
-        $queue = [ 'files' => [], 'directories' => [] ];
-        foreach ( $iit as $spl ) {
-            $realpath = $spl->getRealPath();
-            $index[ $realpath ] = false;
-
-            $spl->isDir()
-                ? ( $queue[ 'directories' ][ $realpath ] = $spl )
-                : ( $queue[ 'files' ][ $realpath ] = $spl );
-        }
-        $queue[ 'directories' ][ $realpathSelf ] = new \SplFileInfo($realpathSelf);
+        $recursive = $recursive ?? true;
+        $keepers = is_array($keepers)
+            ? $keepers
+            : [ $keepers ];
 
         foreach ( $keepers as $idx => $keep ) {
             $keepers[ $idx ] = null
@@ -1495,34 +1472,61 @@ class ZFs implements IFs
                 };
         }
 
-        while ( null !== key($queue) ) {
-            $array = current($queue);
-            next($queue);
+        $report = [];
 
-            foreach ( $array as $spl ) {
-                $realpath = $spl->getRealpath();
+        $flags = 0
+            | \FilesystemIterator::SKIP_DOTS
+            | \FilesystemIterator::KEY_AS_PATHNAME
+            | \FilesystemIterator::CURRENT_AS_FILEINFO;
 
-                $isKeep = $index[ $realpath ]
-                    || array_reduce($keepers, function (bool $carry, \Closure $keeper) use ($spl) {
-                        return (bool) $keeper($spl, $carry);
-                    }, false);
+        $it = $recursive
+            ? new \RecursiveDirectoryIterator($realpathSelf, $flags)
+            : new \FilesystemIterator($realpathSelf, $flags);
 
-                if (! $isKeep) {
-                    $report[] = $realpath;
+        $iit = $recursive
+            ? new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::CHILD_FIRST)
+            : $it;
 
-                    $spl->isDir()
-                        ? rmdir($realpath)
-                        : unlink($realpath);
+        $keepIndex = [];
+        foreach ( $iit as $spl ) {
+            $realpath = $spl->getRealPath();
 
-                } else {
-                    $index[ $realpathSelf ] = true;
+            $keepIndex[ $realpath ] = $keepIndex[ $realpath ] ?? false;
 
-                    $parent = $realpath;
-                    while ( $parent !== $realpathSelf ) {
-                        $index[ $parent ] = true;
-                        $parent = dirname($parent);
-                    }
+            $isKeep = $keepIndex[ $realpath ]
+                || array_reduce($keepers, function (bool $carry, \Closure $keeper) use ($spl) {
+                    return (bool) $keeper($spl, $carry);
+                }, false);
+
+            if ($isKeep) {
+                $keepIndex[ $realpathSelf ] = true;
+
+                $parent = $realpath;
+                while ( $parent !== $realpathSelf ) {
+                    $keepIndex[ $parent ] = true;
+                    $parent = dirname($parent);
                 }
+
+            } else {
+                $report[] = $realpath;
+
+                $spl->isDir()
+                    ? rmdir($realpath)
+                    : unlink($realpath);
+            }
+        }
+
+        $keepIndex[ $realpathSelf ] = $keepIndex[ $realpathSelf ] ?? false;
+
+        if (! $keepIndex[ $realpathSelf ]) {
+            $spl = new \SplFileInfo($realpathSelf);
+
+            $isKeep = array_reduce($keepers, function (bool $carry, \Closure $keeper) use ($spl) {
+                return (bool) $keeper($spl, $carry);
+            }, false);
+
+            if (! $isKeep) {
+                rmdir($realpathSelf);
             }
         }
 

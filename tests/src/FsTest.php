@@ -235,12 +235,13 @@ class FsTest extends AbstractTestCase
         $backupPath = $fs->filePut($file, __CLASS__);
         $this->assertFileExists($file);
         $this->assertFileExists($filepath);
+        $this->assertFileExists($backupPath);
 
         $content = file_get_contents($filepath);
         $this->assertEquals(__CLASS__, $content);
 
 
-        // $fs->withRootPath($root);
+        // now set the backup path
         $fs->withBackupPath($directoryBackup);
 
         $backupPath = $fs->filePut($file, __CLASS__);
@@ -252,6 +253,7 @@ class FsTest extends AbstractTestCase
         $this->assertEquals(__CLASS__, $content);
 
 
+        // now set the backup path base to keep folder structure
         $backupDirPathBase = __DIR__ . '/../storage/fs/filePut';
         $fs->withBackupPathBase($backupDirPathBase);
 
