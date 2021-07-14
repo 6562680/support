@@ -3,6 +3,7 @@
 namespace Gzhegow\Support\Domain\Str;
 
 use Gzhegow\Support\Exceptions\RuntimeException;
+use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 
 
 /**
@@ -60,16 +61,17 @@ class Inflector implements InflectorInterface
      * @param null|int $offset
      * @param null|int $limit
      *
-     * @return null|string|array
+     * @return array
      */
-    public function pluralize(string $singular, $limit = null, $offset = 0) : ?array
+    public function pluralize(string $singular, $limit = null, $offset = null) : array
     {
-        $result = null;
+        $result = [];
 
         try {
             $result = $this->pluralizeSymfonyInflector($singular, $limit, $offset);
         }
         catch ( \Throwable $e ) {
+            throw new BadMethodCallException($e->getMessage(), null, $e);
         }
 
         return $result;
@@ -80,16 +82,17 @@ class Inflector implements InflectorInterface
      * @param null|int $offset
      * @param null|int $limit
      *
-     * @return null|string|array
+     * @return null|array
      */
-    public function singularize(string $plural, $limit = null, $offset = 0) : ?array
+    public function singularize(string $plural, $limit = null, $offset = null) : array
     {
-        $result = null;
+        $result = [];
 
         try {
             $result = $this->singularizeSymfonyInflector($plural, $limit, $offset);
         }
         catch ( \Throwable $e ) {
+            throw new BadMethodCallException($e->getMessage(), null, $e);
         }
 
         return $result;

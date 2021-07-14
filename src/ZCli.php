@@ -213,7 +213,7 @@ class ZCli implements ICli
                 ?? ( $keep instanceof \Closure ? $keep($spl) : null )
                 ?? (bool) $keep;
 
-            if ($isKeep) {
+            if (! $isKeep) {
                 $message = $spl->isDir()
                     ? "Deleting directory: %s\n%s\nAre you sure?"
                     : "Deleting file: %s\n%s\nAre you sure?";
@@ -221,7 +221,7 @@ class ZCli implements ICli
                 $realpath = $spl->getRealPath();
                 $message = sprintf($message, basename($realpath), $this->fs->secure($realpath));
 
-                $isKeep = $this->yes($message, $yesRemove);
+                $isKeep = ! $this->yes($message, $yesRemove);
             }
 
             return $isKeep;

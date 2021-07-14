@@ -615,18 +615,18 @@ interface IStr
     /**
      * @param string   $singular
      * @param null|int $limit
-     * @param int      $offset
+     * @param null|int $offset
      *
-     * @return null|string|array
+     * @return array
      */
-    public function pluralize(string $singular, $limit = null, $offset = 0);
+    public function pluralize(string $singular, $limit = null, $offset = null): array;
 
     /**
      * @param string   $plural
      * @param null|int $limit
-     * @param int      $offset
+     * @param null|int $offset
      *
-     * @return null|string|array
+     * @return array
      */
-    public function singularize(string $plural, $limit = null, $offset = 0);
+    public function singularize(string $plural, $limit = null, $offset = null): array;
 }

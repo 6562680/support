@@ -1887,11 +1887,11 @@ class ZStr implements IStr
     /**
      * @param string   $singular
      * @param null|int $limit
-     * @param int      $offset
+     * @param null|int $offset
      *
-     * @return null|string|array
+     * @return array
      */
-    public function pluralize(string $singular, $limit = null, $offset = 0) // : ?string|array
+    public function pluralize(string $singular, $limit = null, $offset = null) : array
     {
         $result = $this->inflector()->pluralize($singular, $limit, $offset);
 
@@ -1901,11 +1901,11 @@ class ZStr implements IStr
     /**
      * @param string   $plural
      * @param null|int $limit
-     * @param int      $offset
+     * @param null|int $offset
      *
-     * @return null|string|array
+     * @return array
      */
-    public function singularize(string $plural, $limit = null, $offset = 0) // : ?string|array
+    public function singularize(string $plural, $limit = null, $offset = null) : array
     {
         $result = $this->inflector()->singularize($plural, $limit, $offset);
 

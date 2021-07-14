@@ -789,11 +789,11 @@ class Str
     /**
      * @param string   $singular
      * @param null|int $limit
-     * @param int      $offset
+     * @param null|int $offset
      *
-     * @return null|string|array
+     * @return array
      */
-    public static function pluralize(string $singular, $limit = null, $offset = 0)
+    public static function pluralize(string $singular, $limit = null, $offset = null): array
     {
         return static::getInstance()->pluralize($singular, $limit, $offset);
     }
@@ -801,11 +801,11 @@ class Str
     /**
      * @param string   $plural
      * @param null|int $limit
-     * @param int      $offset
+     * @param null|int $offset
      *
-     * @return null|string|array
+     * @return array
      */
-    public static function singularize(string $plural, $limit = null, $offset = 0)
+    public static function singularize(string $plural, $limit = null, $offset = null): array
     {
         return static::getInstance()->singularize($plural, $limit, $offset);
     }
