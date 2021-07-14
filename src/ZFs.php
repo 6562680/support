@@ -1459,72 +1459,72 @@ class ZFs implements IFs
             return [];
         }
 
-        $recursive = $recursive ?? true;
+        $recursive = $recursive ?? true; // delete recursive
+        $keepers = $keepers ?? false; // true means `do not delete`
         $keepers = is_array($keepers)
             ? $keepers
             : [ $keepers ];
 
-        foreach ( $keepers as $idx => $keep ) {
-            $keepers[ $idx ] = null
-                ?? ( $keep instanceof \Closure ? $keep : null )
-                ?? function () use ($keep) {
-                    return (bool) $keep;
-                };
-        }
-
         $report = [];
+
+        $keepIndex = [];
 
         $flags = 0
             | \FilesystemIterator::SKIP_DOTS
             | \FilesystemIterator::KEY_AS_PATHNAME
             | \FilesystemIterator::CURRENT_AS_FILEINFO;
 
-        $it = $recursive
-            ? new \RecursiveDirectoryIterator($realpathSelf, $flags)
-            : new \FilesystemIterator($realpathSelf, $flags);
+        $its = [
+            $itFiles = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($realpathSelf, $flags)),
+            $itDirectories = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($realpathSelf, $flags), \RecursiveIteratorIterator::CHILD_FIRST),
+        ];
+        if (! $recursive) {
+            $itFiles->setMaxDepth(0);
+            $itDirectories->setMaxDepth(0);
+        }
 
-        $iit = $recursive
-            ? new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::CHILD_FIRST)
-            : $it;
+        $spl = null;
+        $reducer = function (bool $carry, $keeper) use (&$spl) {
+            return null
+                ?? ( $keeper instanceof \Closure ? $keeper($spl, $carry) : null )
+                ?? (bool) $keeper;
+        };
 
-        $keepIndex = [];
-        foreach ( $iit as $spl ) {
-            $realpath = $spl->getRealPath();
+        foreach ( $its as $it ) {
+            foreach ( $it as $spl ) {
+                $realpath = $spl->getRealPath();
 
-            $keepIndex[ $realpath ] = $keepIndex[ $realpath ] ?? false;
+                $keepIndex[ $realpath ] = $keepIndex[ $realpath ]
+                    ?? false;
 
-            $isKeep = $keepIndex[ $realpath ]
-                || array_reduce($keepers, function (bool $carry, \Closure $keeper) use ($spl) {
-                    return (bool) $keeper($spl, $carry);
-                }, false);
+                $isKeep = $keepIndex[ $realpath ]
+                    || array_reduce($keepers, $reducer, false);
 
-            if ($isKeep) {
-                $keepIndex[ $realpathSelf ] = true;
+                if ($isKeep) {
+                    $keepIndex[ $realpathSelf ] = true;
 
-                $parent = $realpath;
-                while ( $parent !== $realpathSelf ) {
-                    $keepIndex[ $parent ] = true;
-                    $parent = dirname($parent);
+                    $parent = $realpath;
+                    while ( $parent !== $realpathSelf ) {
+                        $keepIndex[ $parent ] = true;
+                        $parent = dirname($parent);
+                    }
+                } else {
+                    $report[] = $realpath;
+
+                    $spl->isDir()
+                        ? rmdir($realpath)
+                        : unlink($realpath);
                 }
-
-            } else {
-                $report[] = $realpath;
-
-                $spl->isDir()
-                    ? rmdir($realpath)
-                    : unlink($realpath);
             }
         }
 
-        $keepIndex[ $realpathSelf ] = $keepIndex[ $realpathSelf ] ?? false;
+        $keepIndex[ $realpathSelf ] = $keepIndex[ $realpathSelf ]
+            ?? false;
 
         if (! $keepIndex[ $realpathSelf ]) {
             $spl = new \SplFileInfo($realpathSelf);
 
-            $isKeep = array_reduce($keepers, function (bool $carry, \Closure $keeper) use ($spl) {
-                return (bool) $keeper($spl, $carry);
-            }, false);
-
+            $isKeep = array_reduce($keepers, $reducer, false);
             if (! $isKeep) {
                 rmdir($realpathSelf);
             }

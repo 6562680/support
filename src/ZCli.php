@@ -205,7 +205,7 @@ class ZCli implements ICli
      */
     public function rmdir($dir, $keepers = null, bool $recursive = null, string &$yesRemove = null) : array
     {
-        $yesRemove = $yesRemove ?? 'n';
+        $keepers = $keepers ?? false;
         $keepers = is_array($keepers)
             ? $keepers
             : [ $keepers ];
