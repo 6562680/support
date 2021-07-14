@@ -98,6 +98,14 @@ class ZLoader implements ILoader
             $map[ '\\' . ltrim($class, '\\') ] = true;
         }
 
+        foreach ( get_declared_interfaces() as $class ) {
+            $map[ '\\' . ltrim($class, '\\') ] = true;
+        }
+
+        foreach ( get_declared_traits() as $class ) {
+            $map[ '\\' . ltrim($class, '\\') ] = true;
+        }
+
         return $map;
     }
 
@@ -515,7 +523,7 @@ class ZLoader implements ILoader
             $val = $class;
         }
 
-        if (class_exists($val)) {
+        if (class_exists($val, false)) {
             if (strlen($val) && $prefixed) {
                 $val = '\\' . ltrim($val, '\\');
             }

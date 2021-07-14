@@ -13,6 +13,11 @@ use Gzhegow\Support\Exceptions\Runtime\UnexpectedValueException;
  */
 class Slugger implements SluggerInterface
 {
+    const SYMFONY_ASCII_SLUGGER     = 'Symfony\Component\String\Slugger\AsciiSlugger';
+    const SYMFONY_BINARY_STRING     = 'Symfony\Component\String\BinaryString';
+    const SYMFONY_SLUGGER_INTERFACE = 'Symfony\Component\String\Slugger\SluggerInterface';
+
+
     /**
      * @var IStr
      */
@@ -48,17 +53,14 @@ class Slugger implements SluggerInterface
      * Constructor
      *
      * @param IStr $str
-     *
      * @param IPhp $php
      */
     public function __construct(
         IStr $str,
-
         IPhp $php
     )
     {
         $this->str = $str;
-
         $this->php = $php;
     }
 
@@ -240,7 +242,7 @@ class Slugger implements SluggerInterface
         ];
 
         if ($symfonySlugger) {
-            if (! interface_exists($interface = 'Symfony\Component\String\Slugger\SluggerInterface')) {
+            if (! interface_exists($interface = static::SYMFONY_SLUGGER_INTERFACE)) {
                 throw new RuntimeException([ 'Please, run following: %s', $commands ]);
             }
 
@@ -252,7 +254,7 @@ class Slugger implements SluggerInterface
         }
 
         if (! $this->symfonySlugger) {
-            if (! class_exists($class = 'Symfony\Component\String\Slugger\AsciiSlugger')) {
+            if (! class_exists($class = static::SYMFONY_ASCII_SLUGGER)) {
                 throw new RuntimeException([ 'Please, run following: %s', $commands ]);
             }
 
@@ -317,14 +319,14 @@ class Slugger implements SluggerInterface
      */
     protected function translitSymfonySlugger(string $string, string $delimiter = null, string $locale = null) : ?string
     {
-        if (! interface_exists($interface = 'Symfony\Component\String\Slugger\SluggerInterface')) {
+        if (! interface_exists($interface = static::SYMFONY_SLUGGER_INTERFACE)) {
             return null;
         }
 
         $delimiter = $delimiter ?? '-';
 
         $isUTF = true;
-        if (class_exists($class = 'Symfony\Component\String\BinaryString')) {
+        if (class_exists($class = static::SYMFONY_BINARY_STRING)) {
             $isUTF = ( new $class($string) )->{$method = 'isUtf8'}();
         }
 

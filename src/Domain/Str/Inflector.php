@@ -11,8 +11,8 @@ use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
  */
 class Inflector implements InflectorInterface
 {
-    const SYMFONY_ENGLISH_INFLECTOR = '\Symfony\Component\String\Inflector\EnglishInflector';
-    const SYMFONY_INFLECTOR         = '\Symfony\Component\String\Inflector\InflectorInterface';
+    const SYMFONY_ENGLISH_INFLECTOR   = '\Symfony\Component\String\Inflector\EnglishInflector';
+    const SYMFONY_INFLECTOR_INTERFACE = '\Symfony\Component\String\Inflector\InflectorInterface';
 
 
     /**
@@ -33,12 +33,12 @@ class Inflector implements InflectorInterface
         ];
 
         if ($symfonyInflector) {
-            if (! interface_exists(static::SYMFONY_INFLECTOR)) {
+            if (! interface_exists(static::SYMFONY_INFLECTOR_INTERFACE)) {
                 throw new RuntimeException([ 'Please, run following: %s', $commands ]);
             }
 
-            if (! is_a($symfonyInflector, static::SYMFONY_INFLECTOR)) {
-                throw new RuntimeException([ 'Slugger should implements %s: %s', static::SYMFONY_INFLECTOR, $symfonyInflector ]);
+            if (! is_a($symfonyInflector, static::SYMFONY_INFLECTOR_INTERFACE)) {
+                throw new RuntimeException([ 'Slugger should implements %s: %s', static::SYMFONY_INFLECTOR_INTERFACE, $symfonyInflector ]);
             }
 
             $this->symfonyInflector = $symfonyInflector;
@@ -108,7 +108,7 @@ class Inflector implements InflectorInterface
      */
     protected function pluralizeSymfonyInflector(string $singular, $limit = null, $offset = null) : ?array
     {
-        if (! interface_exists(static::SYMFONY_INFLECTOR)) {
+        if (! interface_exists(static::SYMFONY_INFLECTOR_INTERFACE)) {
             return null;
         }
 
@@ -138,7 +138,7 @@ class Inflector implements InflectorInterface
      */
     protected function singularizeSymfonyInflector(string $plural, $limit = null, $offset = 0) : ?array
     {
-        if (! interface_exists(static::SYMFONY_INFLECTOR)) {
+        if (! interface_exists(static::SYMFONY_INFLECTOR_INTERFACE)) {
             return null;
         }
 
