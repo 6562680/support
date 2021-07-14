@@ -1319,9 +1319,9 @@ class ZFs implements IFs
                     ?? '';
 
                 $newDirpath = null
-                    ?? ( ( $this->backupPath && $relativeDirPath ) ? $this->pathJoin($this->backupPath, $relativeDirPath) : null )
-                    ?? ( $this->backupPath ? $this->pathConcat($this->backupPath, $dirPath) : null )
-                    ?? ( $relativeDirPath ? $this->pathJoin($dirPath, $relativeDirPath) : null )
+                    ?? ( ( strlen($this->backupPath) && strlen($relativeDirPath) ) ? $this->pathJoin($this->backupPath, $relativeDirPath) : null )
+                    ?? ( strlen($this->backupPath) ? $this->backupPath : null )
+                    ?? ( strlen($relativeDirPath) ? $this->pathJoin($dirPath, $relativeDirPath) : null )
                     ?? $dirPath;
 
                 $this->mkdir($newDirpath);
@@ -1448,7 +1448,7 @@ class ZFs implements IFs
 
     /**
      * @param string|\SplFileInfo $dir
-     * @param null|\Closure       $keep
+     * @param null|bool|\Closure  $keep
      * @param null|bool           $recursive
      *
      * @return array

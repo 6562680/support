@@ -197,20 +197,21 @@ class ZCli implements ICli
 
     /**
      * @param string|\SplFileInfo $dir
-     * @param null|bool|\Closure  $recursive
+     * @param null|bool|\Closure  $keep
+     * @param null|bool           $recursive
      * @param null|string         $yesRemove
      *
      * @return array
      */
-    public function rmdir($dir, $recursive = null, string &$yesRemove = null) : array
+    public function rmdir($dir, $keep = null, bool $recursive = null, string &$yesRemove = null) : array
     {
+        $keep = $keep ?? false;
         $yesRemove = $yesRemove ?? 'n';
 
-        $report = $this->fs->rmdir($dir, function (\SplFileInfo $spl) use ($recursive, &$yesRemove) {
+        $report = $this->fs->rmdir($dir, function (\SplFileInfo $spl) use ($keep, &$yesRemove) {
             $isKeep = null
-                ?? ( ( null === $recursive ) ? false : null )
-                ?? ( $recursive instanceof \Closure ? $recursive($spl) : null )
-                ?? ( (bool) $recursive );
+                ?? ( $keep instanceof \Closure ? $keep($spl) : null )
+                ?? (bool) $keep;
 
             if ($isKeep) {
                 $message = $spl->isDir()

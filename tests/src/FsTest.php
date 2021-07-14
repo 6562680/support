@@ -18,10 +18,10 @@ class FsTest extends AbstractTestCase
     {
         $fs = $this->getFs();
 
-        $dir = __DIR__ . '/../storage/fs/pathval';
+        $directory = __DIR__ . '/../storage/fs/pathval';
 
-        $dirpath = $dir . '/dir';
-        $filepath = $dir . '/file.html';
+        $dirpath = $directory . '/dir';
+        $filepath = $directory . '/file.html';
 
         $fs->mkdir($dirpath, 0775, true);
         touch($filepath);
@@ -38,17 +38,17 @@ class FsTest extends AbstractTestCase
         $this->assertEquals(realpath($dirpath), $fs->pathDirVal($dirpath));
         $this->assertEquals(null, $fs->pathLinkVal($dirpath));
 
-        $fs->rmdir($dir, true);
+        $fs->rmdir($directory);
     }
 
     public function testSplval()
     {
         $fs = $this->getFs();
 
-        $dir = __DIR__ . '/../storage/fs/pathval';
+        $directory = __DIR__ . '/../storage/fs/pathval';
 
-        $dirpath = $dir . '/dir';
-        $filepath = $dir . '/file.html';
+        $dirpath = $directory . '/dir';
+        $filepath = $directory . '/file.html';
 
         $fs->mkdir($dirpath, 0775, true);
         touch($filepath);
@@ -65,7 +65,7 @@ class FsTest extends AbstractTestCase
         $this->assertInstanceOf(\SplFileInfo::class, $fs->splDirVal($dirpath));
         $this->assertEquals(null, $fs->splLinkVal($dirpath));
 
-        $fs->rmdir($dir, true);
+        $fs->rmdir($directory);
     }
 
 
@@ -212,13 +212,15 @@ class FsTest extends AbstractTestCase
         $fs = $this->getFs();
 
         $root = __DIR__ . '/../storage/fs';
-        $fs->withRootPath(__DIR__ . '/../storage/fs');
+        $directory = $root . '/filePut';
+        $directoryBackup = $root . '/filePut.backup';
+        $subdirectory = $directory . '/1';
 
-        $directory = $fs->mkdir($root . '/filePut/test');
-        $fs->mkdir($directory);
+        $fs->mkdir($subdirectory);
+        $fs->mkdir($directoryBackup);
 
-        $file = $directory . '/hello.txt';
 
+        $file = $subdirectory . '/hello.txt';
 
         $filepath = $fs->filePut($file, __CLASS__);
         $this->assertFileExists($file);
@@ -228,9 +230,18 @@ class FsTest extends AbstractTestCase
         $this->assertEquals(__CLASS__, $content);
 
 
-        $backupDirPath = __DIR__ . '/../storage/fs/filePut_backup';
-        $fs->mkdir($backupDirPath);
-        $fs->withBackupPath($backupDirPath);
+        $file = $subdirectory . '/hello.txt';
+
+        $backupPath = $fs->filePut($file, __CLASS__);
+        $this->assertFileExists($file);
+        $this->assertFileExists($filepath);
+
+        $content = file_get_contents($filepath);
+        $this->assertEquals(__CLASS__, $content);
+
+
+        // $fs->withRootPath($root);
+        $fs->withBackupPath($directoryBackup);
 
         $backupPath = $fs->filePut($file, __CLASS__);
         $this->assertFileExists($file);
@@ -252,7 +263,7 @@ class FsTest extends AbstractTestCase
         $content = file_get_contents($backupPath);
         $this->assertEquals(__CLASS__, $content);
 
-
+        $fs->rmdir($directoryBackup);
         $fs->rmdir($directory);
     }
 

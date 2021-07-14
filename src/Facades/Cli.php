@@ -78,14 +78,15 @@ class Cli
 
     /**
      * @param string|\SplFileInfo $dir
-     * @param null|bool|\Closure  $recursive
+     * @param null|bool|\Closure  $keep
+     * @param null|bool           $recursive
      * @param null|string         $yesRemove
      *
      * @return array
      */
-    public static function rmdir($dir, $recursive = null, string &$yesRemove = null): array
+    public static function rmdir($dir, $keep = null, bool $recursive = null, string &$yesRemove = null): array
     {
-        return static::getInstance()->rmdir($dir, $recursive, $yesRemove);
+        return static::getInstance()->rmdir($dir, $keep, $recursive, $yesRemove);
     }
 
     /**

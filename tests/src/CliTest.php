@@ -55,7 +55,7 @@ class CliTest extends AbstractTestCase
 
         $cli->rmdir($directory, function (\SplFileInfo $spl) use ($realpath2) {
             return $spl->getRealPath() === $realpath2;
-        }, $noninteractive);
+        }, null, $noninteractive);
 
         $this->assertFileExists($realpath2);
         $this->assertDirectoryExists($directory);

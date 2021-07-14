@@ -528,7 +528,7 @@ interface IFs
 
     /**
      * @param string|\SplFileInfo $dir
-     * @param null|\Closure       $keep
+     * @param null|bool|\Closure  $keep
      * @param null|bool           $recursive
      *
      * @return array
