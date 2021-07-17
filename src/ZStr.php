@@ -1722,11 +1722,21 @@ class ZStr implements IStr
             return '';
         }
 
-        $result = preg_replace('/\p{Lu}/', ' $0', lcfirst($result));
-        $result = preg_replace('/(?:[^\w' . preg_quote($separator . $keep, '/') . ']|[_])+/', ' ', $result);
+        $utf8Flag = ( null !== $this->filter->filterUtf8($result) ) ? 'u' : '';
 
-        if (strlen($separator)) {
-            $result = preg_replace('/[' . $separator . ' ]+/', ' ', $result);
+        $hasSeparator = strlen($separator) > 0;
+        $hasKeep = strlen($keep) > 0;
+
+        $separatorKeepRegex = '';
+        if ($hasSeparator || $hasKeep) {
+            $separatorKeepRegex = preg_quote($separator . $keep, '/');
+        }
+
+        $result = preg_replace('/\p{Lu}/' . $utf8Flag, ' $0', lcfirst($result));
+        $result = preg_replace('/(?:[^\w' . $separatorKeepRegex . ']|[_])+/' . $utf8Flag, ' ', $result);
+
+        if ($hasSeparator) {
+            $result = preg_replace('/[' . $separator . ' ]+/' . $utf8Flag, ' ', $result);
         }
 
         return $result;

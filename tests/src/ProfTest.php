@@ -18,32 +18,42 @@ class ProfTest extends AbstractTestCase
     {
         $profiler = $this->getProf();
 
-        $profiler->tick();
-        $profiler->tick();
+        $profiler->tick(__METHOD__);
+        $profiler->tick(__METHOD__);
 
         $report = $profiler->report(0);
+        $reportDecimals = $profiler->report(6);
 
-        $this->assertTrue(0 === strpos($report[ 1 ], '+ 0 | ' . __METHOD__));
+        $cut = str_replace(' | ' . __METHOD__, '', $report[ 1 ]);
+
+        $cutDecimals = str_replace(' | ' . __METHOD__, '', $reportDecimals[ 1 ]);
+        $numberDecimals = ltrim($cutDecimals, '+ ');
+
+        $this->assertEquals('+ 1', $cut);
+        $this->assertGreaterThan(0.000001, $numberDecimals);
     }
 
     public function testProfileComment()
     {
         $profiler = $this->getProf();
 
-        $profiler->tick('Hello');
-        $profiler->tick('Hello');
+        $profiler->tick('^ Hello');
+        $profiler->tick('$ Hello');
+
         usleep(500000);
-        $profiler->tick('Hello');
-        $profiler->tick('Hello');
+
+        $profiler->tick('^ Hello');
+        $profiler->tick('$ Hello');
 
         $report = $profiler->report(1);
 
         $expect = [
-            "+ 0 | Hello",
-            "+ 0.5 | Hello",
-            "+ 0 | Hello",
+            $report[ 0 ],
+            "+ 0.1 | $ Hello",
+            "+ 0.6 | ^ Hello",
+            "+ 0.1 | $ Hello",
         ];
 
-        $this->assertEquals($expect, array_slice($report, 1));
+        $this->assertEquals($expect, $report);
     }
 }

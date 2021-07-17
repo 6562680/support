@@ -249,7 +249,7 @@ class SupportFactory implements SupportFactoryInterface
     public function newProf() : IProf
     {
         return new ZProf(
-            $this->getCalendar()
+            $this->getMath(),
         );
     }
 

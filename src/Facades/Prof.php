@@ -11,6 +11,7 @@
 
 namespace Gzhegow\Support\Facades;
 
+use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\IProf;
 use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\ZProf;
@@ -22,7 +23,7 @@ class Prof
      *
      * @return float
      */
-    public static function tick(string $comment = null): float
+    public static function tick(?string $comment = ''): float
     {
         return static::getInstance()->tick($comment);
     }

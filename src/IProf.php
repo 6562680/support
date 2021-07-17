@@ -11,6 +11,8 @@
 
 namespace Gzhegow\Support;
 
+use Gzhegow\Support\Exceptions\RuntimeException;
+
 interface IProf
 {
     /**
@@ -18,7 +20,7 @@ interface IProf
      *
      * @return float
      */
-    public function tick(string $comment = null): float;
+    public function tick(?string $comment = ''): float;
 
     /**
      * @param null|int $decimals

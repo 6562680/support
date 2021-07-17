@@ -7,6 +7,9 @@
 namespace Gzhegow\Support;
 
 
+use Gzhegow\Support\Exceptions\RuntimeException;
+
+
 /**
  * ZProf
  */
@@ -16,6 +19,10 @@ class ZProf implements IProf
      * @var ICalendar
      */
     protected $calendar;
+    /**
+     * @var IMath
+     */
+    protected $math;
 
 
     /**
@@ -31,13 +38,13 @@ class ZProf implements IProf
     /**
      * Constructor
      *
-     * @param ICalendar $calendar
+     * @param IMath $math
      */
     public function __construct(
-        ICalendar $calendar
+        IMath $math
     )
     {
-        $this->calendar = $calendar;
+        $this->math = $math;
     }
 
 
@@ -46,7 +53,7 @@ class ZProf implements IProf
      *
      * @return float
      */
-    public function tick(string $comment = null) : float
+    public function tick(?string $comment = '') : float
     {
         if (null === $comment) {
             [ 1 => $prev ] = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
@@ -78,18 +85,35 @@ class ZProf implements IProf
 
         $report = [];
 
-        $current = null;
-        foreach ( $this->ticks as $idx => $float ) {
-            $dt = $this->calendar->theDateVal($float);
+        $prev = null;
+        reset($this->ticks);
+        while ( null !== ( $idx = key($this->ticks) ) ) {
+            $float = current($this->ticks);
+
             $comment = $this->tickComments[ $idx ];
 
-            $time = $current
-                ? '+ ' . round(abs($this->calendar->diff($current, $dt)), $decimals)
-                : $dt->format(\DateTimeInterface::RFC3339_EXTENDED);
+            if ($prev) {
+                $dec = $decimals ? ( 1 / pow(10, $decimals) ) : 1;
+                $time = '+ ' . ( round($float - $prev, $decimals) + $dec );
 
-            $report[] = sprintf('%s | %s', $time, $comment);
+            } else {
+                $micro = sprintf("%06d", ( $float - floor($float) ) * 1000000);
 
-            $current = $dt;
+                try {
+                    $dt = new \DateTime(date('Y-m-d H:i:s.' . $micro, $float));
+                }
+                catch ( \Exception $e ) {
+                    throw new RuntimeException($e->getMessage(), null, $e);
+                }
+
+                $time = $dt->format(\DateTimeInterface::RFC3339_EXTENDED);
+            }
+
+            $report[] = $time . ' | ' . $comment;
+
+            next($this->ticks);
+
+            $prev = $float;
         }
 
         return $report;
