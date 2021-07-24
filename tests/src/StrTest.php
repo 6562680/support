@@ -1017,8 +1017,28 @@ class StrTest extends AbstractTestCase
 
         $this->assertEquals([ 'worlds' ], $str->pluralize('world'));
         $this->assertEquals([ 'persons', 'people' ], $str->pluralize('person'));
+        $this->assertEquals([ 'personFiles' ], $str->pluralize('personFile'));
+
         $this->assertEquals([ 'persons' ], $str->pluralize('person', 1));
         $this->assertEquals([ 1 => 'people' ], $str->pluralize('person', 1, 1));
+
+
+        $str->inflector()->doctrineInflector(null);
+
+        $this->assertEquals('worlds', $str->inflector()->doctrineInflector()->pluralize('world'));
+        $this->assertEquals('people', $str->inflector()->doctrineInflector()->pluralize('person'));
+        $this->assertEquals('personFiles', $str->inflector()->doctrineInflector()->pluralize('personFile'));
+
+        $str->inflector()->doctrineInflector();
+
+
+        $str->inflector()->symfonyInflector(null);
+
+        $this->assertEquals([ 'worlds' ], $str->inflector()->symfonyInflector()->pluralize('world'));
+        $this->assertEquals([ 'persons', 'people' ], $str->inflector()->symfonyInflector()->pluralize('person'));
+        $this->assertEquals([ 'personFiles' ], $str->inflector()->symfonyInflector()->pluralize('personFile'));
+
+        $str->inflector()->symfonyInflector();
     }
 
     public function testSingularize()
@@ -1027,5 +1047,24 @@ class StrTest extends AbstractTestCase
 
         $this->assertEquals([ 'world' ], $str->singularize('worlds'));
         $this->assertEquals([ 'person' ], $str->singularize('people'));
+        $this->assertEquals([ 'personFile' ], $str->singularize('personFiles'));
+
+
+        $str->inflector()->doctrineInflector(null);
+
+        $this->assertEquals('world', $str->inflector()->doctrineInflector()->singularize('worlds'));
+        $this->assertEquals('person', $str->inflector()->doctrineInflector()->singularize('people'));
+        $this->assertEquals('personFile', $str->inflector()->doctrineInflector()->singularize('personFiles'));
+
+        $str->inflector()->doctrineInflector();
+
+
+        $str->inflector()->symfonyInflector(null);
+
+        $this->assertEquals([ 'world' ], $str->singularize('worlds'));
+        $this->assertEquals([ 'person' ], $str->singularize('people'));
+        $this->assertEquals([ 'personFile' ], $str->singularize('personFiles'));
+
+        $str->inflector()->symfonyInflector();
     }
 }

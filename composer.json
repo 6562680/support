@@ -30,7 +30,8 @@
     "symfony/translation-contracts": "^2.4",
     
     "nette/php-generator": "^3.5",
-    "nikic/php-parser": "^4.10"
+    "nikic/php-parser": "^4.10",
+    "doctrine/inflector": "^2.0"
   },
   
   "autoload": {
