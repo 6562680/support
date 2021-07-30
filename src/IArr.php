@@ -25,7 +25,7 @@ interface IArr
     public function reset();
 
     /**
-     * @param $indexer
+     * @param null|callable $indexer
      *
      * @return ZArr
      */

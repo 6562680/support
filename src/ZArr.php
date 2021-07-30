@@ -70,14 +70,14 @@ class ZArr implements IArr
      */
     public function reset()
     {
-        $this->indexer = $this->loadIndexerDefault();
+        $this->indexer = null;
 
         return $this;
     }
 
 
     /**
-     * @param $indexer
+     * @param null|callable $indexer
      *
      * @return static
      */
@@ -120,34 +120,10 @@ class ZArr implements IArr
 
 
     /**
-     * @return \Closure
-     */
-    protected function loadIndexerDefault()
-    {
-        return function (&$value) {
-            switch ( true ):
-                case is_null($value):
-                case is_scalar($value):
-                    $value = strval($value);
-                    break;
-
-                case ( [] === $value ):
-                    $value = '[]';
-                    break;
-
-                default:
-                    throw new Error([ 'Unable to index passed element: %s', $value ]);
-
-            endswitch;
-        };
-    }
-
-
-    /**
      * @param mixed      $value
      * @param int|string $idx
      * @param int        $ordering
-     * @param int        $priority
+     * @param null|int   $priority
      * @param null|int   $idxInt
      *
      * @return ExpandValue
@@ -560,9 +536,20 @@ class ZArr implements IArr
     {
         $list = $this->php->listval(...$values);
 
-        $this->walk_recursive($list, $this->indexer);
+        foreach ( $list as $i => $v ) {
+            if (is_scalar($v)) {
+                $list[ $i ] = (string) $v;
 
-        return json_encode($list);
+            } elseif (! is_null($v)) {
+                throw new Error([ 'Item should be null or scalar: %s', $v ]);
+            }
+        }
+
+        $indexed = $this->indexer
+            ? call_user_func($this->indexer, $list)
+            : json_encode($list);
+
+        return $indexed;
     }
 
 
@@ -624,7 +611,7 @@ class ZArr implements IArr
                 continue;
             }
 
-            $result[ $i ] = $array[ $i ];
+            $result[ $i ] = $item;
         }
 
         return $result;
@@ -1005,7 +992,7 @@ class ZArr implements IArr
         $it = new \RecursiveArrayIterator($iterable, $flags);
         $iit = new \RecursiveIteratorIterator($it, $mode, $flags);
 
-        foreach ( $iit as $key => $value ) {
+        foreach ( $iit as $value ) {
             $fullpath = [];
 
             for ( $i = 0; $i < $iit->getDepth(); $i++ ) {
@@ -1172,7 +1159,7 @@ class ZArr implements IArr
                     ? $index
                     : $lastIntIdx;
 
-                $values[] = $this->newExpandValue($val, $index, $pos++, $isNew = 1, $indexInteger);
+                $values[] = $this->newExpandValue($val, $index, $pos++, 1, $indexInteger);
 
                 $lastIntIdx = $indexInteger;
             }
@@ -1185,7 +1172,7 @@ class ZArr implements IArr
                 ? $index
                 : $lastIntIdx;
 
-            $values[] = $this->newExpandValue($val, $index, $pos++, $isNew = 0, $indexInteger);
+            $values[] = $this->newExpandValue($val, $index, $pos++, 0, $indexInteger);
 
             $lastIntIdx = $indexInteger;
         }

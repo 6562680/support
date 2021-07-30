@@ -328,7 +328,7 @@ class ZPhp implements IPhp
         $result = [];
 
         $list = [];
-        foreach ( $items as $idx => $item ) {
+        foreach ( $items as $item ) {
             if (null === $this->filter->filterList($item)) {
                 $list[] = $item;
 

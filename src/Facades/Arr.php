@@ -31,7 +31,7 @@ class Arr
     }
 
     /**
-     * @param $indexer
+     * @param null|callable $indexer
      *
      * @return ZArr
      */
