@@ -32,7 +32,6 @@ class ZStr implements IStr
      */
     protected $php;
 
-
     /**
      * @var SluggerInterface
      */
@@ -41,6 +40,11 @@ class ZStr implements IStr
      * @var InflectorInterface
      */
     protected $inflector;
+
+    /**
+     * @var array
+     */
+    protected $cacheCase = [];
 
 
     /**
@@ -53,6 +57,8 @@ class ZStr implements IStr
     )
     {
         $this->filter = $filter;
+
+        $this->loadInternalEncoding();
     }
 
 
@@ -1717,29 +1723,35 @@ class ZStr implements IStr
             return '';
         }
 
-        $result = trim(implode(' ', $strings));
-        if (! strlen($result)) {
+        $string = trim(implode(' ', $strings));
+
+        if (! strlen($string)) {
             return '';
         }
 
-        $utf8Flag = ( null !== $this->filter->filterUtf8($result) ) ? 'u' : '';
+        $cacheKey = $string . '.' . $keep . '.' . $separator;
+        if (! isset($this->cacheCase[ $cacheKey ])) {
+            $utf8Flag = ( null !== $this->filter->filterUtf8($string) ) ? 'u' : '';
 
-        $hasSeparator = strlen($separator) > 0;
-        $hasKeep = strlen($keep) > 0;
+            $hasSeparator = strlen($separator) > 0;
+            $hasKeep = strlen($keep) > 0;
 
-        $separatorKeepRegex = '';
-        if ($hasSeparator || $hasKeep) {
-            $separatorKeepRegex = preg_quote($separator . $keep, '/');
+            $separatorKeepRegex = '';
+            if ($hasSeparator || $hasKeep) {
+                $separatorKeepRegex = preg_quote($separator . $keep, '/');
+            }
+
+            $result = preg_replace('/\p{Lu}/' . $utf8Flag, ' $0', lcfirst($string));
+            $result = preg_replace('/(?:[^\w' . $separatorKeepRegex . ']|[_])+/' . $utf8Flag, ' ', $result);
+
+            if ($hasSeparator) {
+                $result = preg_replace('/[' . $separator . ' ]+/' . $utf8Flag, ' ', $result);
+            }
+
+            $this->cacheCase[ $cacheKey ] = $result;
         }
 
-        $result = preg_replace('/\p{Lu}/' . $utf8Flag, ' $0', lcfirst($result));
-        $result = preg_replace('/(?:[^\w' . $separatorKeepRegex . ']|[_])+/' . $utf8Flag, ' ', $result);
-
-        if ($hasSeparator) {
-            $result = preg_replace('/[' . $separator . ' ]+/' . $utf8Flag, ' ', $result);
-        }
-
-        return $result;
+        return $this->cacheCase[ $cacheKey ];
     }
 
 
