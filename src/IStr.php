@@ -15,6 +15,7 @@ use Gzhegow\Support\Domain\Str\Inflector;
 use Gzhegow\Support\Domain\Str\InflectorInterface;
 use Gzhegow\Support\Domain\Str\Slugger;
 use Gzhegow\Support\Domain\Str\SluggerInterface;
+use Gzhegow\Support\Exceptions\LogicException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 interface IStr
@@ -533,6 +534,35 @@ interface IStr
     ): array;
 
     /**
+     * @param string $string
+     *
+     * @return string
+     */
+    public function unaccent(string $string): string;
+
+    /**
+     * PascalCase, non-regex version
+     *
+     * @param string|string[] $words
+     * @param null|string     $separator
+     * @param null|string     $spaces
+     *
+     * @return string
+     */
+    public function pascal($words, string $separator = null, string $spaces = null): string;
+
+    /**
+     * camelCase (non-regex version)
+     *
+     * @param string|string[] $words
+     * @param null|string     $separator
+     * @param null|string     $spaces
+     *
+     * @return string
+     */
+    public function camel($words, string $separator = null, string $spaces = null): string;
+
+    /**
      * PascalCase
      *
      * @param string|array $strings
@@ -541,7 +571,7 @@ interface IStr
      *
      * @return string
      */
-    public function pascal($strings, string $keep = null, string $separator = null): string;
+    public function pascalCase($strings, string $keep = null, string $separator = null): string;
 
     /**
      * camelCase
@@ -552,7 +582,7 @@ interface IStr
      *
      * @return string
      */
-    public function camel($strings, string $keep = null, string $separator = null): string;
+    public function camelCase($strings, string $keep = null, string $separator = null): string;
 
     /**
      * snake_case
@@ -563,7 +593,7 @@ interface IStr
      *
      * @return string
      */
-    public function snake($strings, string $keep = null, string $separator = null): string;
+    public function snakeCase($strings, string $keep = null, string $separator = null): string;
 
     /**
      * kebab-case
@@ -574,7 +604,7 @@ interface IStr
      *
      * @return string
      */
-    public function kebab($strings, string $keep = null, string $separator = null): string;
+    public function kebabCase($strings, string $keep = null, string $separator = null): string;
 
     /**
      * 'space case'
@@ -585,7 +615,7 @@ interface IStr
      *
      * @return string
      */
-    public function space($strings, string $keep = null, string $separator = null): string;
+    public function spaceCase($words, string $keep = null, string $separator = null): string;
 
     /**
      * @param string      $string
@@ -603,14 +633,7 @@ interface IStr
      *
      * @return string
      */
-    public function slugCase(string $string, string $delimiter = null, string $locale = null): string;
-
-    /**
-     * @param string $string
-     *
-     * @return string
-     */
-    public function unaccent(string $string): string;
+    public function slugify(string $string, string $delimiter = null, string $locale = null): string;
 
     /**
      * @param string   $singular

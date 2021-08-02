@@ -565,16 +565,6 @@ class Type
     }
 
     /**
-     * @param string|mixed $class
-     *
-     * @return bool
-     */
-    public static function isClass($class): ?bool
-    {
-        return static::getInstance()->isClass($class);
-    }
-
-    /**
      * @param string|mixed $className
      *
      * @return bool
@@ -582,6 +572,16 @@ class Type
     public static function isClassName($className): ?bool
     {
         return static::getInstance()->isClassName($className);
+    }
+
+    /**
+     * @param string|mixed $class
+     *
+     * @return bool
+     */
+    public static function isClassFQN($class): ?bool
+    {
+        return static::getInstance()->isClassFQN($class);
     }
 
     /**

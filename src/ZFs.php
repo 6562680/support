@@ -195,10 +195,21 @@ class ZFs implements IFs
      *
      * @return bool
      */
+    public function isFilename($value) : bool
+    {
+        return null !== $this->filterFilename($value);
+    }
+
+    /**
+     * @param string $value
+     *
+     * @return bool
+     */
     public function isPath($value) : bool
     {
         return null !== $this->filterPath($value);
     }
+
 
     /**
      * @param string $value
@@ -256,6 +267,34 @@ class ZFs implements IFs
      *
      * @return null|string
      */
+    public function filterFilename($value) : ?string
+    {
+        if (null === $this->filter->filterWord($value)) {
+            return null;
+        }
+
+        if (false === ctype_print($value)) {
+            return null;
+        }
+
+        if ($this->isWindows()) {
+            $regex = preg_quote(self::getForbiddenSymbolsFilenameWindows(), '/');
+
+            $test = $value;
+
+            if (preg_match('/[' . $regex . ']/', $test)) {
+                return null;
+            }
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param string $value
+     *
+     * @return null|string
+     */
     public function filterPath($value) : ?string
     {
         if (null === $this->filter->filterWord($value)) {
@@ -270,6 +309,7 @@ class ZFs implements IFs
             $regex = preg_quote(self::getForbiddenSymbolsFilenameWindows(), '/');
 
             $test = implode('', $this->pathSplit($value));
+
             if (preg_match('/[' . $regex . ']/', $test)) {
                 return null;
             }
@@ -277,6 +317,7 @@ class ZFs implements IFs
 
         return $value;
     }
+
 
     /**
      * @param string $value
@@ -421,11 +462,11 @@ class ZFs implements IFs
      *
      * @return string
      */
-    public function assertPath($value) : string
+    public function assertFilename($value) : string
     {
-        if (null === $this->filterPath($value)) {
+        if (null === $this->filterFilename($value)) {
             throw new InvalidArgumentException(
-                [ 'Invalid path: %s', $this->secure($value) ]
+                [ 'Invalid Filename: %s', $this->secure($value) ]
             );
         }
 
@@ -437,11 +478,28 @@ class ZFs implements IFs
      *
      * @return string
      */
+    public function assertPath($value) : string
+    {
+        if (null === $this->filterPath($value)) {
+            throw new InvalidArgumentException(
+                [ 'Invalid Path: %s', $this->secure($value) ]
+            );
+        }
+
+        return $value;
+    }
+
+
+    /**
+     * @param string $value
+     *
+     * @return string
+     */
     public function assertPathFileExists($value) : string
     {
         if (null === $this->filterPathFileExists($value)) {
             throw new InvalidArgumentException(
-                [ 'Invalid path or file/dir/link not found: %s', $this->secure($value) ]
+                [ 'Invalid Path or File/Dir/Link not found: %s', $this->secure($value) ]
             );
         }
 
@@ -457,7 +515,7 @@ class ZFs implements IFs
     {
         if (null === $this->filterPathDir($value)) {
             throw new InvalidArgumentException(
-                [ 'Invalid path or dir not found: %s', $this->secure($value) ]
+                [ 'Invalid Path or Directory not found: %s', $this->secure($value) ]
             );
         }
 
@@ -473,7 +531,7 @@ class ZFs implements IFs
     {
         if (null === $this->filterPathLink($value)) {
             throw new InvalidArgumentException(
-                [ 'Invalid path or link not found: %s', $this->secure($value) ]
+                [ 'Invalid Path or Symlink/Hardlink not found: %s', $this->secure($value) ]
             );
         }
 
@@ -489,7 +547,7 @@ class ZFs implements IFs
     {
         if (null === $this->filterPathFile($value)) {
             throw new InvalidArgumentException(
-                [ 'Invalid path or file not found: %s', $this->secure($value) ]
+                [ 'Invalid Path or File not found: %s', $this->secure($value) ]
             );
         }
 
@@ -505,13 +563,31 @@ class ZFs implements IFs
     {
         if (null === $this->filterPathImage($value)) {
             throw new InvalidArgumentException(
-                [ 'Invalid path or image not found: %s', $this->secure($value) ]
+                [ 'Invalid Path or Image not found: %s', $this->secure($value) ]
             );
         }
 
         return $value;
     }
 
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return null|string
+     */
+    public function filenameVal($pathOrSpl) : ?string
+    {
+        if (null !== ( $spl = $this->filter->filterFileInfo($pathOrSpl) )) {
+            return $spl->getFilename();
+        }
+
+        if (null !== $this->filterFilename($pathOrSpl)) {
+            return $pathOrSpl;
+        }
+
+        return null;
+    }
 
     /**
      * @param string|\SplFileInfo $pathOrSpl
@@ -530,6 +606,7 @@ class ZFs implements IFs
 
         return null;
     }
+
 
     /**
      * @param string|\SplFileInfo $pathOrSpl
@@ -794,7 +871,7 @@ class ZFs implements IFs
         }
 
         if (null !== ( $spl = $this->filter->filterFileObject($pathOrSpl) )) {
-            if ($spl->isFile() && strlen($this->filterPathImage($realpath = $spl->getRealPath()))) {
+            if ($spl->isFile() && strlen($this->filterPathImage($spl->getRealPath()))) {
                 return $spl;
             }
         }
@@ -812,11 +889,11 @@ class ZFs implements IFs
      *
      * @return string
      */
-    public function thePathVal($pathOrSpl) : string
+    public function theFilenameVal($pathOrSpl) : string
     {
-        if (null === ( $val = $this->pathVal($pathOrSpl) )) {
+        if (null === ( $val = $this->filenameVal($pathOrSpl) )) {
             throw new InvalidArgumentException(
-                [ 'Value should be convertable to path: %s', $pathOrSpl ],
+                [ 'Value should be convertable to Filename: %s', $pathOrSpl ],
             );
         }
 
@@ -828,11 +905,28 @@ class ZFs implements IFs
      *
      * @return string
      */
+    public function thePathVal($pathOrSpl) : string
+    {
+        if (null === ( $val = $this->pathVal($pathOrSpl) )) {
+            throw new InvalidArgumentException(
+                [ 'Value should be convertable to Path: %s', $pathOrSpl ],
+            );
+        }
+
+        return $val;
+    }
+
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return string
+     */
     public function thePathFileExistsVal($pathOrSpl) : string
     {
         if (null === ( $val = $this->pathFileExistsVal($pathOrSpl) )) {
             throw new InvalidArgumentException(
-                [ 'Value should be convertable to path and file should exists: %s', $pathOrSpl ],
+                [ 'Value should be convertable to Path and file should exists: %s', $pathOrSpl ],
             );
         }
 
@@ -848,7 +942,7 @@ class ZFs implements IFs
     {
         if (null === ( $val = $this->pathDirVal($pathOrSpl) )) {
             throw new InvalidArgumentException(
-                [ 'Value should be convertable to path and be directory: %s', $pathOrSpl ],
+                [ 'Value should be convertable to Path and be Directory: %s', $pathOrSpl ],
             );
         }
 
@@ -864,7 +958,7 @@ class ZFs implements IFs
     {
         if (null === ( $val = $this->pathLinkVal($pathOrSpl) )) {
             throw new InvalidArgumentException(
-                [ 'Value should be convertable to path and be symlink/hardlink: %s', $pathOrSpl ],
+                [ 'Value should be convertable to Path and be Symlink/Hardlink: %s', $pathOrSpl ],
             );
         }
 
@@ -880,7 +974,7 @@ class ZFs implements IFs
     {
         if (null === ( $val = $this->pathFileVal($pathOrSpl) )) {
             throw new InvalidArgumentException(
-                [ 'Value should be convertable to path and be file: %s', $pathOrSpl ],
+                [ 'Value should be convertable to Path and be File: %s', $pathOrSpl ],
             );
         }
 
@@ -896,7 +990,7 @@ class ZFs implements IFs
     {
         if (null === ( $val = $this->pathImageVal($pathOrSpl) )) {
             throw new InvalidArgumentException(
-                [ 'Value should be convertable to path and be image: %s', $pathOrSpl ],
+                [ 'Value should be convertable to Path and be Image: %s', $pathOrSpl ],
             );
         }
 
@@ -945,7 +1039,7 @@ class ZFs implements IFs
     {
         if (null === ( $val = $this->splDirVal($pathOrSpl) )) {
             throw new InvalidArgumentException(
-                [ 'Value should be convertable to \SplFileObject and be directory: %s', $pathOrSpl ],
+                [ 'Value should be convertable to \SplFileObject and be Directory: %s', $pathOrSpl ],
             );
         }
 
@@ -961,7 +1055,7 @@ class ZFs implements IFs
     {
         if (null === ( $val = $this->splLinkVal($pathOrSpl) )) {
             throw new InvalidArgumentException(
-                [ 'Value should be convertable to \SplFileObject and be symlink/hardlink: %s', $pathOrSpl ],
+                [ 'Value should be convertable to \SplFileObject and be Symlink/Hardlink: %s', $pathOrSpl ],
             );
         }
 
@@ -977,7 +1071,7 @@ class ZFs implements IFs
     {
         if (null === ( $val = $this->splFileVal($pathOrSpl) )) {
             throw new InvalidArgumentException(
-                [ 'Value should be convertable to \SplFileObject and be file: %s', $pathOrSpl ],
+                [ 'Value should be convertable to \SplFileObject and be File: %s', $pathOrSpl ],
             );
         }
 
@@ -993,7 +1087,7 @@ class ZFs implements IFs
     {
         if (null === ( $val = $this->splImageVal($pathOrSpl) )) {
             throw new InvalidArgumentException(
-                [ 'Value should be convertable to \SplFileObject and be image: %s', $pathOrSpl ],
+                [ 'Value should be convertable to \SplFileObject and be Image: %s', $pathOrSpl ],
             );
         }
 

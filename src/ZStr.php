@@ -8,6 +8,7 @@ namespace Gzhegow\Support;
 
 use Gzhegow\Support\Domain\Str\Slugger;
 use Gzhegow\Support\Domain\Str\Inflector;
+use Gzhegow\Support\Exceptions\LogicException;
 use Gzhegow\Support\Domain\Str\SluggerInterface;
 use Gzhegow\Support\Domain\Str\InflectorInterface;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
@@ -1626,167 +1627,6 @@ class ZStr implements IStr
 
 
     /**
-     * PascalCase
-     *
-     * @param string|array $strings
-     * @param null|string  $keep
-     * @param null|string  $separator
-     *
-     * @return string
-     */
-    public function pascal($strings, string $keep = null, string $separator = null) : string
-    {
-        $separator = $separator ?? '';
-
-        $result = $this->space($strings, $keep, $separator);
-
-        $result = array_map('ucfirst', explode(' ', $result));
-        $result = implode($separator, $result);
-
-        return $result;
-    }
-
-    /**
-     * camelCase
-     *
-     * @param string|array $strings
-     * @param null|string  $keep
-     * @param null|string  $separator
-     *
-     * @return string
-     */
-    public function camel($strings, string $keep = null, string $separator = null) : string
-    {
-        $result = $this->pascal($strings, $keep, $separator);
-
-        $result = lcfirst($result);
-
-        return $result;
-    }
-
-
-    /**
-     * snake_case
-     *
-     * @param string|array $strings
-     * @param null|string  $separator
-     * @param null|string  $keep
-     *
-     * @return string
-     */
-    public function snake($strings, string $keep = null, string $separator = null) : string
-    {
-        $separator = $separator ?? '_';
-
-        $result = $this->space($strings, $keep, $separator);
-
-        $result = array_map('lcfirst', explode(' ', $result));
-        $result = implode($separator, $result);
-
-        return $result;
-    }
-
-    /**
-     * kebab-case
-     *
-     * @param string|array $strings
-     * @param null|string  $separator
-     * @param null|string  $keep
-     *
-     * @return string
-     */
-    public function kebab($strings, string $keep = null, string $separator = null) : string
-    {
-        $separator = $separator ?? '-';
-
-        $result = $this->snake($strings, $keep, $separator);
-
-        return $result;
-    }
-
-
-    /**
-     * 'space case'
-     *
-     * @param string|array $strings
-     * @param null|string  $separator
-     * @param null|string  $keep
-     *
-     * @return string
-     */
-    public function space($strings, string $keep = null, string $separator = null) : string
-    {
-        $separator = $separator ?? '';
-        $keep = $keep ?? '';
-
-        if (! $strings = $this->wordvals($strings)) {
-            return '';
-        }
-
-        $string = trim(implode(' ', $strings));
-
-        if (! strlen($string)) {
-            return '';
-        }
-
-        $cacheKey = $string . '.' . $keep . '.' . $separator;
-        if (! isset($this->cacheCase[ $cacheKey ])) {
-            $utf8Flag = ( null !== $this->filter->filterUtf8($string) ) ? 'u' : '';
-
-            $hasSeparator = strlen($separator) > 0;
-            $hasKeep = strlen($keep) > 0;
-
-            $separatorKeepRegex = '';
-            if ($hasSeparator || $hasKeep) {
-                $separatorKeepRegex = preg_quote($separator . $keep, '/');
-            }
-
-            $result = preg_replace('/\p{Lu}/' . $utf8Flag, ' $0', lcfirst($string));
-            $result = preg_replace('/(?:[^\w' . $separatorKeepRegex . ']|[_])+/' . $utf8Flag, ' ', $result);
-
-            if ($hasSeparator) {
-                $result = preg_replace('/[' . $separator . ' ]+/' . $utf8Flag, ' ', $result);
-            }
-
-            $this->cacheCase[ $cacheKey ] = $result;
-        }
-
-        return $this->cacheCase[ $cacheKey ];
-    }
-
-
-    /**
-     * @param string      $string
-     * @param null|string $delimiter
-     * @param null|string $locale
-     *
-     * @return string
-     */
-    public function slug(string $string, string $delimiter = null, string $locale = null) : string
-    {
-        $result = $this->slugger()->slug($string, $delimiter, $locale);
-
-        $result = strtolower($result);
-
-        return $result;
-    }
-
-    /**
-     * @param string      $string
-     * @param null|string $delimiter
-     * @param null|string $locale
-     *
-     * @return string
-     */
-    public function slugCase(string $string, string $delimiter = null, string $locale = null) : string
-    {
-        $result = $this->slugger()->slug($string, $delimiter, $locale);
-
-        return $result;
-    }
-
-
-    /**
      * @param string $string
      *
      * @return string
@@ -1903,6 +1743,241 @@ class ZStr implements IStr
         }
 
         return $string;
+    }
+
+
+    /**
+     * PascalCase, non-regex version
+     *
+     * @param string|string[] $words
+     * @param null|string     $separator
+     * @param null|string     $spaces
+     *
+     * @return string
+     */
+    public function pascal($words, string $separator = null, string $spaces = null) : string
+    {
+        $words = is_array($words)
+            ? $words
+            : [ $words ];
+
+        $separator = $separator ?? '';
+
+        $spaces = $spaces ?? '_-';
+        $spaces = ' ' . $spaces;
+
+        foreach ( $words as $word ) {
+            if (! is_string($word)) {
+                throw new InvalidArgumentException(
+                    [ 'Each Word should be string: ', $words ]
+                );
+            }
+        }
+
+        if (mb_strlen($separator) > 1) {
+            throw new InvalidArgumentException(
+                [ 'Separator should be one letter: ', $separator ]
+            );
+        }
+
+        $separators = $spaces . $separator;
+
+        $result = implode(' ', $words);
+        $result = ucwords($result, $separators);
+
+        $result = $separator
+            ? strtr($result, $separators, str_repeat($separator, mb_strlen($separators)))
+            : str_replace(str_split($separators), '', $result);
+
+        return $result;
+    }
+
+    /**
+     * camelCase (non-regex version)
+     *
+     * @param string|string[] $words
+     * @param null|string     $separator
+     * @param null|string     $spaces
+     *
+     * @return string
+     */
+    public function camel($words, string $separator = null, string $spaces = null) : string
+    {
+        $result = $this->pascal($words, $separator, $spaces);
+
+        $result = lcfirst($result);
+
+        return $result;
+    }
+
+
+    /**
+     * PascalCase
+     *
+     * @param string|array $strings
+     * @param null|string  $keep
+     * @param null|string  $separator
+     *
+     * @return string
+     */
+    public function pascalCase($strings, string $keep = null, string $separator = null) : string
+    {
+        $separator = $separator ?? '';
+
+        $result = $this->spaceCase($strings, $keep, $separator);
+
+        $result = ucwords($result, ' ');
+        $result = str_replace(' ', $separator, $result);
+
+        return $result;
+    }
+
+    /**
+     * camelCase
+     *
+     * @param string|array $strings
+     * @param null|string  $keep
+     * @param null|string  $separator
+     *
+     * @return string
+     */
+    public function camelCase($strings, string $keep = null, string $separator = null) : string
+    {
+        $result = $this->pascalCase($strings, $keep, $separator);
+
+        $result = lcfirst($result);
+
+        return $result;
+    }
+
+
+    /**
+     * snake_case
+     *
+     * @param string|array $strings
+     * @param null|string  $separator
+     * @param null|string  $keep
+     *
+     * @return string
+     */
+    public function snakeCase($strings, string $keep = null, string $separator = null) : string
+    {
+        $separator = $separator ?? '_';
+
+        $result = $this->spaceCase($strings, $keep, $separator);
+
+        $result = array_map('lcfirst', explode(' ', $result));
+        $result = implode($separator, $result);
+
+        return $result;
+    }
+
+    /**
+     * kebab-case
+     *
+     * @param string|array $strings
+     * @param null|string  $separator
+     * @param null|string  $keep
+     *
+     * @return string
+     */
+    public function kebabCase($strings, string $keep = null, string $separator = null) : string
+    {
+        $separator = $separator ?? '-';
+
+        $result = $this->snakeCase($strings, $keep, $separator);
+
+        return $result;
+    }
+
+
+    /**
+     * 'space case'
+     *
+     * @param string|array $strings
+     * @param null|string  $separator
+     * @param null|string  $keep
+     *
+     * @return string
+     */
+    public function spaceCase($words, string $keep = null, string $separator = null) : string
+    {
+        $words = is_array($words)
+            ? $words
+            : [ $words ];
+
+        $separator = $separator ?? '';
+        $keep = $keep ?? '';
+
+        foreach ( $words as $word ) {
+            if (! is_string($word)) {
+                throw new InvalidArgumentException(
+                    [ 'Each Word should be string: ', $words ]
+                );
+            }
+        }
+
+        if (mb_strlen($separator) > 1) {
+            throw new InvalidArgumentException(
+                [ 'Separator should be one letter: ', $separator ]
+            );
+        }
+
+        $string = implode(' ', $words);
+
+        $cacheKey = $string . '.' . $keep . '.' . $separator;
+        if (! isset($this->cacheCase[ $cacheKey ])) {
+            $utf8Flag = ( null !== $this->filter->filterUtf8($string) ) ? 'u' : '';
+
+            $hasSeparator = strlen($separator);
+
+            $separatorKeepRegex = '';
+            if ($hasSeparator || strlen($keep)) {
+                $separatorKeepRegex = preg_quote($separator . $keep, '/');
+            }
+
+            $result = preg_replace('/\p{Lu}/' . $utf8Flag, ' $0', lcfirst($string));
+            $result = preg_replace('/(?:[^\w' . $separatorKeepRegex . ']|[_])+/' . $utf8Flag, ' ', $result);
+
+            if ($hasSeparator) {
+                $result = preg_replace('/[' . $separator . ' ]+/' . $utf8Flag, ' ', $result);
+            }
+
+            $this->cacheCase[ $cacheKey ] = $result;
+        }
+
+        return $this->cacheCase[ $cacheKey ];
+    }
+
+
+    /**
+     * @param string      $string
+     * @param null|string $delimiter
+     * @param null|string $locale
+     *
+     * @return string
+     */
+    public function slug(string $string, string $delimiter = null, string $locale = null) : string
+    {
+        $result = $this->slugger()->slug($string, $delimiter, $locale);
+
+        $result = strtolower($result);
+
+        return $result;
+    }
+
+    /**
+     * @param string      $string
+     * @param null|string $delimiter
+     * @param null|string $locale
+     *
+     * @return string
+     */
+    public function slugify(string $string, string $delimiter = null, string $locale = null) : string
+    {
+        $result = $this->slugger()->slug($string, $delimiter, $locale);
+
+        return $result;
     }
 
 

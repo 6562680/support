@@ -111,6 +111,16 @@ class Fs
      *
      * @return bool
      */
+    public static function isFilename($value): bool
+    {
+        return static::getInstance()->isFilename($value);
+    }
+
+    /**
+     * @param string $value
+     *
+     * @return bool
+     */
     public static function isPath($value): bool
     {
         return static::getInstance()->isPath($value);
@@ -164,6 +174,16 @@ class Fs
     public static function isPathImage($value): bool
     {
         return static::getInstance()->isPathImage($value);
+    }
+
+    /**
+     * @param string $value
+     *
+     * @return null|string
+     */
+    public static function filterFilename($value): ?string
+    {
+        return static::getInstance()->filterFilename($value);
     }
 
     /**
@@ -248,6 +268,16 @@ class Fs
      *
      * @return string
      */
+    public static function assertFilename($value): string
+    {
+        return static::getInstance()->assertFilename($value);
+    }
+
+    /**
+     * @param string $value
+     *
+     * @return string
+     */
     public static function assertPath($value): string
     {
         return static::getInstance()->assertPath($value);
@@ -301,6 +331,16 @@ class Fs
     public static function assertPathImage($value): string
     {
         return static::getInstance()->assertPathImage($value);
+    }
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return null|string
+     */
+    public static function filenameVal($pathOrSpl): ?string
+    {
+        return static::getInstance()->filenameVal($pathOrSpl);
     }
 
     /**
@@ -421,6 +461,16 @@ class Fs
     public static function splImageVal($pathOrSpl): ?\SplFileObject
     {
         return static::getInstance()->splImageVal($pathOrSpl);
+    }
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return string
+     */
+    public static function theFilenameVal($pathOrSpl): string
+    {
+        return static::getInstance()->theFilenameVal($pathOrSpl);
     }
 
     /**

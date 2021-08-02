@@ -165,22 +165,6 @@ interface ILoader
     public function assertContract($object, $contract): object;
 
     /**
-     * @param string|object|\ReflectionClass $classOrObject
-     * @param null|bool                      $prefixed
-     *
-     * @return null|string
-     */
-    public function classVal($classOrObject, bool $prefixed = null): ?string;
-
-    /**
-     * @param string|object|\ReflectionClass $classOrObject
-     * @param null|bool                      $prefixed
-     *
-     * @return string
-     */
-    public function theClassVal($classOrObject, bool $prefixed = null): string;
-
-    /**
      * @param object|\ReflectionClass $object
      * @param null|bool               $prefixed
      *
@@ -192,9 +176,89 @@ interface ILoader
      * @param object|\ReflectionClass $object
      * @param null|bool               $prefixed
      *
+     * @return null|string
+     */
+    public function objectInterfaceVal($object, bool $prefixed = null): ?string;
+
+    /**
+     * @param object|\ReflectionClass $object
+     * @param null|bool               $prefixed
+     *
+     * @return null|string
+     */
+    public function objectTraitVal($object, bool $prefixed = null): ?string;
+
+    /**
+     * @param object|\ReflectionClass $object
+     * @param null|bool               $prefixed
+     *
      * @return string
      */
     public function theObjectClassVal($object, bool $prefixed = null): string;
+
+    /**
+     * @param object|\ReflectionClass $object
+     * @param null|bool               $prefixed
+     *
+     * @return string
+     */
+    public function theObjectInterfaceVal($object, bool $prefixed = null): string;
+
+    /**
+     * @param object|\ReflectionClass $object
+     * @param null|bool               $prefixed
+     *
+     * @return string
+     */
+    public function theObjectTraitVal($object, bool $prefixed = null): string;
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param null|bool                      $prefixed
+     *
+     * @return null|string
+     */
+    public function classVal($classOrObject, bool $prefixed = null): ?string;
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param null|bool                      $prefixed
+     *
+     * @return null|string
+     */
+    public function interfaceVal($classOrObject, bool $prefixed = null): ?string;
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param null|bool                      $prefixed
+     *
+     * @return null|string
+     */
+    public function traitVal($classOrObject, bool $prefixed = null): ?string;
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param null|bool                      $prefixed
+     *
+     * @return string
+     */
+    public function theClassVal($classOrObject, bool $prefixed = null): string;
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param null|bool                      $prefixed
+     *
+     * @return string
+     */
+    public function theInterfaceVal($classOrObject, bool $prefixed = null): string;
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param null|bool                      $prefixed
+     *
+     * @return string
+     */
+    public function theTraitVal($classOrObject, bool $prefixed = null): string;
 
     /**
      * @param string|object|\ReflectionClass $classOrObject
@@ -213,6 +277,22 @@ interface ILoader
      * @return null|string
      */
     public function theUseClassVal($classOrObject, $declaredClassOrObject, bool $prefixed = null): string;
+
+    /**
+     * @param string|object $classOrObject
+     * @param null|bool     $recursive
+     *
+     * @return array
+     */
+    public function classTraits($classOrObject, bool $recursive = null): ?array;
+
+    /**
+     * @param string    $traitFQN
+     * @param null|bool $recursive
+     *
+     * @return array
+     */
+    public function traitTraits($traitFQN, bool $recursive = null): ?array;
 
     /**
      * @param string|object $classOrObject

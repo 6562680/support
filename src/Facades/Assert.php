@@ -617,16 +617,6 @@ class Assert
     }
 
     /**
-     * @param string|mixed $class
-     *
-     * @return string
-     */
-    public static function assertClass($class): ?string
-    {
-        return static::getInstance()->assertClass($class);
-    }
-
-    /**
      * @param string|mixed $className
      *
      * @return string
@@ -634,6 +624,16 @@ class Assert
     public static function assertClassName($className): ?string
     {
         return static::getInstance()->assertClassName($className);
+    }
+
+    /**
+     * @param string|mixed $class
+     *
+     * @return string
+     */
+    public static function assertClassFQN($class): ?string
+    {
+        return static::getInstance()->assertClassFQN($class);
     }
 
     /**

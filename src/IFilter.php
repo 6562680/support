@@ -394,18 +394,18 @@ interface IFilter
     public function filterHandler($handler, InvokableInfo &$invokableInfo = null): ?string;
 
     /**
-     * @param string|mixed $class
-     *
-     * @return null|string
-     */
-    public function filterClass($class): ?string;
-
-    /**
      * @param string|mixed $className
      *
      * @return null|string
      */
     public function filterClassName($className): ?string;
+
+    /**
+     * @param string|mixed $class
+     *
+     * @return null|string
+     */
+    public function filterClassFQN($class): ?string;
 
     /**
      * @param object|mixed $value

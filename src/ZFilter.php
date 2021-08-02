@@ -1129,38 +1129,6 @@ class ZFilter implements IFilter
 
 
     /**
-     * @param string|mixed $class
-     *
-     * @return null|string
-     */
-    public function filterClass($class) : ?string
-    {
-        if (null === $this->filterWord($class)) {
-            return null;
-        }
-
-        $phpClass = ltrim($class, '\\');
-
-        if (ctype_digit(substr($phpClass, 0, 1))) {
-            return null;
-        }
-
-        $validate = preg_replace('~[a-z0-9_\x80-\xff]*~iu', '', $class);
-
-        $letters = '' === $validate
-            ? []
-            : str_split($validate);
-
-        foreach ( $letters as $letter ) {
-            if ($letter !== '\\') {
-                return null;
-            }
-        }
-
-        return $class;
-    }
-
-    /**
      * @param string|mixed $className
      *
      * @return null|string
@@ -1176,6 +1144,38 @@ class ZFilter implements IFilter
         }
 
         return null;
+    }
+
+    /**
+     * @param string|mixed $class
+     *
+     * @return null|string
+     */
+    public function filterClassFQN($class) : ?string
+    {
+        if (null === $this->filterWord($class)) {
+            return null;
+        }
+
+        $phpClass = ltrim($class, '\\');
+
+        $firstLetter = substr($phpClass, 0, 1);
+        if (ctype_digit($firstLetter)) {
+            return null;
+        }
+
+        $test = preg_replace('~[a-z0-9_\x80-\xff]*~iu', '', $class);
+
+        $letters = '' === $test
+            ? [] : str_split($test);
+
+        foreach ( $letters as $letter ) {
+            if ($letter !== '\\') {
+                return null;
+            }
+        }
+
+        return $class;
     }
 
 

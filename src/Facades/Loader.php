@@ -228,28 +228,6 @@ class Loader
     }
 
     /**
-     * @param string|object|\ReflectionClass $classOrObject
-     * @param null|bool                      $prefixed
-     *
-     * @return null|string
-     */
-    public static function classVal($classOrObject, bool $prefixed = null): ?string
-    {
-        return static::getInstance()->classVal($classOrObject, $prefixed);
-    }
-
-    /**
-     * @param string|object|\ReflectionClass $classOrObject
-     * @param null|bool                      $prefixed
-     *
-     * @return string
-     */
-    public static function theClassVal($classOrObject, bool $prefixed = null): string
-    {
-        return static::getInstance()->theClassVal($classOrObject, $prefixed);
-    }
-
-    /**
      * @param object|\ReflectionClass $object
      * @param null|bool               $prefixed
      *
@@ -264,11 +242,121 @@ class Loader
      * @param object|\ReflectionClass $object
      * @param null|bool               $prefixed
      *
+     * @return null|string
+     */
+    public static function objectInterfaceVal($object, bool $prefixed = null): ?string
+    {
+        return static::getInstance()->objectInterfaceVal($object, $prefixed);
+    }
+
+    /**
+     * @param object|\ReflectionClass $object
+     * @param null|bool               $prefixed
+     *
+     * @return null|string
+     */
+    public static function objectTraitVal($object, bool $prefixed = null): ?string
+    {
+        return static::getInstance()->objectTraitVal($object, $prefixed);
+    }
+
+    /**
+     * @param object|\ReflectionClass $object
+     * @param null|bool               $prefixed
+     *
      * @return string
      */
     public static function theObjectClassVal($object, bool $prefixed = null): string
     {
         return static::getInstance()->theObjectClassVal($object, $prefixed);
+    }
+
+    /**
+     * @param object|\ReflectionClass $object
+     * @param null|bool               $prefixed
+     *
+     * @return string
+     */
+    public static function theObjectInterfaceVal($object, bool $prefixed = null): string
+    {
+        return static::getInstance()->theObjectInterfaceVal($object, $prefixed);
+    }
+
+    /**
+     * @param object|\ReflectionClass $object
+     * @param null|bool               $prefixed
+     *
+     * @return string
+     */
+    public static function theObjectTraitVal($object, bool $prefixed = null): string
+    {
+        return static::getInstance()->theObjectTraitVal($object, $prefixed);
+    }
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param null|bool                      $prefixed
+     *
+     * @return null|string
+     */
+    public static function classVal($classOrObject, bool $prefixed = null): ?string
+    {
+        return static::getInstance()->classVal($classOrObject, $prefixed);
+    }
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param null|bool                      $prefixed
+     *
+     * @return null|string
+     */
+    public static function interfaceVal($classOrObject, bool $prefixed = null): ?string
+    {
+        return static::getInstance()->interfaceVal($classOrObject, $prefixed);
+    }
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param null|bool                      $prefixed
+     *
+     * @return null|string
+     */
+    public static function traitVal($classOrObject, bool $prefixed = null): ?string
+    {
+        return static::getInstance()->traitVal($classOrObject, $prefixed);
+    }
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param null|bool                      $prefixed
+     *
+     * @return string
+     */
+    public static function theClassVal($classOrObject, bool $prefixed = null): string
+    {
+        return static::getInstance()->theClassVal($classOrObject, $prefixed);
+    }
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param null|bool                      $prefixed
+     *
+     * @return string
+     */
+    public static function theInterfaceVal($classOrObject, bool $prefixed = null): string
+    {
+        return static::getInstance()->theInterfaceVal($classOrObject, $prefixed);
+    }
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param null|bool                      $prefixed
+     *
+     * @return string
+     */
+    public static function theTraitVal($classOrObject, bool $prefixed = null): string
+    {
+        return static::getInstance()->theTraitVal($classOrObject, $prefixed);
     }
 
     /**
@@ -293,6 +381,28 @@ class Loader
     public static function theUseClassVal($classOrObject, $declaredClassOrObject, bool $prefixed = null): string
     {
         return static::getInstance()->theUseClassVal($classOrObject, $declaredClassOrObject, $prefixed);
+    }
+
+    /**
+     * @param string|object $classOrObject
+     * @param null|bool     $recursive
+     *
+     * @return array
+     */
+    public static function classTraits($classOrObject, bool $recursive = null): ?array
+    {
+        return static::getInstance()->classTraits($classOrObject, $recursive);
+    }
+
+    /**
+     * @param string    $traitFQN
+     * @param null|bool $recursive
+     *
+     * @return array
+     */
+    public static function traitTraits($traitFQN, bool $recursive = null): ?array
+    {
+        return static::getInstance()->traitTraits($traitFQN, $recursive);
     }
 
     /**

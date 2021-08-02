@@ -405,18 +405,18 @@ interface IType
     public function isHandler($handler, InvokableInfo &$invokableInfo = null): ?bool;
 
     /**
-     * @param string|mixed $class
-     *
-     * @return bool
-     */
-    public function isClass($class): ?bool;
-
-    /**
      * @param string|mixed $className
      *
      * @return bool
      */
     public function isClassName($className): ?bool;
+
+    /**
+     * @param string|mixed $class
+     *
+     * @return bool
+     */
+    public function isClassFQN($class): ?bool;
 
     /**
      * @param object|mixed $value

@@ -81,6 +81,13 @@ interface IFs
      *
      * @return bool
      */
+    public function isFilename($value): bool;
+
+    /**
+     * @param string $value
+     *
+     * @return bool
+     */
     public function isPath($value): bool;
 
     /**
@@ -117,6 +124,13 @@ interface IFs
      * @return bool
      */
     public function isPathImage($value): bool;
+
+    /**
+     * @param string $value
+     *
+     * @return null|string
+     */
+    public function filterFilename($value): ?string;
 
     /**
      * @param string $value
@@ -176,6 +190,13 @@ interface IFs
      *
      * @return string
      */
+    public function assertFilename($value): string;
+
+    /**
+     * @param string $value
+     *
+     * @return string
+     */
     public function assertPath($value): string;
 
     /**
@@ -212,6 +233,13 @@ interface IFs
      * @return string
      */
     public function assertPathImage($value): string;
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return null|string
+     */
+    public function filenameVal($pathOrSpl): ?string;
 
     /**
      * @param string|\SplFileInfo $pathOrSpl
@@ -296,6 +324,13 @@ interface IFs
      * @return null|\SplFileObject
      */
     public function splImageVal($pathOrSpl): ?\SplFileObject;
+
+    /**
+     * @param string|\SplFileInfo $pathOrSpl
+     *
+     * @return string
+     */
+    public function theFilenameVal($pathOrSpl): string;
 
     /**
      * @param string|\SplFileInfo $pathOrSpl

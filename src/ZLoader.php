@@ -188,8 +188,6 @@ class ZLoader implements ILoader
 
                 $use = [];
                 $alias = [];
-
-                continue;
             }
         }
 
@@ -505,52 +503,6 @@ class ZLoader implements ILoader
 
 
     /**
-     * @param string|object|\ReflectionClass $classOrObject
-     * @param null|bool                      $prefixed
-     *
-     * @return null|string
-     */
-    public function classVal($classOrObject, bool $prefixed = null) : ?string
-    {
-        $prefixed = $prefixed ?? true;
-
-        $val = null;
-
-        if (null !== ( $class = $this->filter->filterClass($classOrObject) )) {
-            $val = $class;
-
-        } elseif (null !== ( $class = $this->objectClassVal($classOrObject) )) {
-            $val = $class;
-        }
-
-        if (class_exists($val, false)) {
-            if (strlen($val) && $prefixed) {
-                $val = '\\' . ltrim($val, '\\');
-            }
-        }
-
-        return $val;
-    }
-
-    /**
-     * @param string|object|\ReflectionClass $classOrObject
-     * @param null|bool                      $prefixed
-     *
-     * @return string
-     */
-    public function theClassVal($classOrObject, bool $prefixed = null) : string
-    {
-        if (null === ( $val = $this->classVal($classOrObject, $prefixed) )) {
-            throw new InvalidArgumentException(
-                [ 'Invalid ClassOrObject passed: %s', $classOrObject ]
-            );
-        }
-
-        return $val;
-    }
-
-
-    /**
      * @param object|\ReflectionClass $object
      * @param null|bool               $prefixed
      *
@@ -563,9 +515,10 @@ class ZLoader implements ILoader
         $val = null;
 
         if (is_object($object)) {
-            if (null !== ( $reflectionClass = $this->filter->filterReflectionClass($object) )) {
-                $val = $reflectionClass->getName();
-
+            if ($reflectionClass = $this->filter->filterReflectionClass($object)) {
+                if (! ( $reflectionClass->isInterface() || $reflectionClass->isTrait() )) {
+                    $val = $reflectionClass->getName();
+                }
             } else {
                 $val = get_class($object);
             }
@@ -582,13 +535,236 @@ class ZLoader implements ILoader
      * @param object|\ReflectionClass $object
      * @param null|bool               $prefixed
      *
+     * @return null|string
+     */
+    public function objectInterfaceVal($object, bool $prefixed = null) : ?string
+    {
+        $prefixed = $prefixed ?? true;
+
+        $val = null;
+
+        if (is_object($object)) {
+            $reflectionClass = $this->filter->filterReflectionClass($object);
+
+            if ($reflectionClass && $reflectionClass->isInterface()) {
+                $val = $reflectionClass->getName();
+            }
+        }
+
+        if (strlen($val) && $prefixed) {
+            $val = '\\' . ltrim($val, '\\');
+        }
+
+        return $val;
+    }
+
+    /**
+     * @param object|\ReflectionClass $object
+     * @param null|bool               $prefixed
+     *
+     * @return null|string
+     */
+    public function objectTraitVal($object, bool $prefixed = null) : ?string
+    {
+        $prefixed = $prefixed ?? true;
+
+        $val = null;
+
+        if (is_object($object)) {
+            $reflectionClass = $this->filter->filterReflectionClass($object);
+
+            if ($reflectionClass && $reflectionClass->isTrait()) {
+                $val = $reflectionClass->getName();
+            }
+        }
+
+        if (strlen($val) && $prefixed) {
+            $val = '\\' . ltrim($val, '\\');
+        }
+
+        return $val;
+    }
+
+
+    /**
+     * @param object|\ReflectionClass $object
+     * @param null|bool               $prefixed
+     *
      * @return string
      */
     public function theObjectClassVal($object, bool $prefixed = null) : string
     {
         if (null === ( $val = $this->objectClassVal($object, $prefixed) )) {
             throw new InvalidArgumentException(
-                [ 'Invalid Object passed: %s', $object ]
+                [ 'Unable to get ClassFQN from Object: %s', $object ]
+            );
+        }
+
+        return $val;
+    }
+
+    /**
+     * @param object|\ReflectionClass $object
+     * @param null|bool               $prefixed
+     *
+     * @return string
+     */
+    public function theObjectInterfaceVal($object, bool $prefixed = null) : string
+    {
+        if (null === ( $val = $this->objectInterfaceVal($object, $prefixed) )) {
+            throw new InvalidArgumentException(
+                [ 'Unable to get InterfaceFQN from Object: %s', $object ]
+            );
+        }
+
+        return $val;
+    }
+
+    /**
+     * @param object|\ReflectionClass $object
+     * @param null|bool               $prefixed
+     *
+     * @return string
+     */
+    public function theObjectTraitVal($object, bool $prefixed = null) : string
+    {
+        if (null === ( $val = $this->objectTraitVal($object, $prefixed) )) {
+            throw new InvalidArgumentException(
+                [ 'Unable to get TraitFQN from Object: %s', $object ]
+            );
+        }
+
+        return $val;
+    }
+
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param null|bool                      $prefixed
+     *
+     * @return null|string
+     */
+    public function classVal($classOrObject, bool $prefixed = null) : ?string
+    {
+        $prefixed = $prefixed ?? true;
+
+        $val = null;
+
+        if (is_string($classOrObject) && class_exists($classOrObject)) {
+            $val = $prefixed
+                ? '\\' . ltrim($classOrObject, '\\')
+                : $classOrObject;
+
+        } elseif ($class = $this->objectClassVal($classOrObject)) {
+            $val = $class;
+
+        } elseif ($class = $this->filter->filterClassFQN($classOrObject)) {
+            $val = $class;
+        }
+
+        return $val;
+    }
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param null|bool                      $prefixed
+     *
+     * @return null|string
+     */
+    public function interfaceVal($classOrObject, bool $prefixed = null) : ?string
+    {
+        $prefixed = $prefixed ?? true;
+
+        $val = null;
+
+        if (is_string($classOrObject) && interface_exists($classOrObject)) {
+            $val = $prefixed
+                ? '\\' . ltrim($classOrObject, '\\')
+                : $classOrObject;
+
+        } elseif ($class = $this->objectInterfaceVal($classOrObject)) {
+            $val = $class;
+
+        } elseif ($class = $this->filter->filterClassFQN($classOrObject)) {
+            $val = $class;
+        }
+
+        return $val;
+    }
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param null|bool                      $prefixed
+     *
+     * @return null|string
+     */
+    public function traitVal($classOrObject, bool $prefixed = null) : ?string
+    {
+        $prefixed = $prefixed ?? true;
+
+        $val = null;
+
+        if (is_string($classOrObject) && trait_exists($classOrObject)) {
+            $val = $prefixed
+                ? '\\' . ltrim($val, '\\')
+                : $val;
+
+        } elseif ($class = $this->objectTraitVal($classOrObject)) {
+            $val = $class;
+
+        } elseif ($class = $this->filter->filterClassFQN($classOrObject)) {
+            $val = $class;
+        }
+
+        return $val;
+    }
+
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param null|bool                      $prefixed
+     *
+     * @return string
+     */
+    public function theClassVal($classOrObject, bool $prefixed = null) : string
+    {
+        if (null === ( $val = $this->classVal($classOrObject, $prefixed) )) {
+            throw new InvalidArgumentException(
+                [ 'Unable to get ClassFQN from ClassOrObject: %s', $classOrObject ]
+            );
+        }
+
+        return $val;
+    }
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param null|bool                      $prefixed
+     *
+     * @return string
+     */
+    public function theInterfaceVal($classOrObject, bool $prefixed = null) : string
+    {
+        if (null === ( $val = $this->interfaceVal($classOrObject, $prefixed) )) {
+            throw new InvalidArgumentException(
+                [ 'Unable to get InterfaceFQN from ClassOrObject: %s', $classOrObject ]
+            );
+        }
+
+        return $val;
+    }
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param null|bool                      $prefixed
+     *
+     * @return string
+     */
+    public function theTraitVal($classOrObject, bool $prefixed = null) : string
+    {
+        if (null === ( $val = $this->traitVal($classOrObject, $prefixed) )) {
+            throw new InvalidArgumentException(
+                [ 'Unable to get TraitFQN from ClassOrObject: %s', $classOrObject ]
             );
         }
 
@@ -665,6 +841,61 @@ class ZLoader implements ILoader
         }
 
         return $val;
+    }
+
+
+    /**
+     * @param string|object $classOrObject
+     * @param null|bool     $recursive
+     *
+     * @return array
+     */
+    public function classTraits($classOrObject, bool $recursive = null) : ?array
+    {
+        $recursive = $recursive ?? false;
+
+        if (! $class = $this->classVal($classOrObject)) {
+            return null;
+        }
+
+        $results = [];
+
+        $sources = class_parents($class);
+        $sources = array_reverse($sources);
+        $sources += [ $class => $class ];
+
+        foreach ( $sources as $class ) {
+            $results += $this->traitTraits($class, $recursive);
+        }
+
+        $results = array_unique($results);
+
+        return $results;
+    }
+
+    /**
+     * @param string    $traitFQN
+     * @param null|bool $recursive
+     *
+     * @return array
+     */
+    public function traitTraits($traitFQN, bool $recursive = null) : ?array
+    {
+        $recursive = $recursive ?? false;
+
+        if (! $traitFQN = $this->traitVal($traitFQN)) {
+            return null;
+        }
+
+        $traits = class_uses($traitFQN) ?: [];
+
+        if ($recursive) {
+            foreach ( $traits as $traitFQN ) {
+                $traits += $this->traitTraits($traitFQN, $recursive);
+            }
+        }
+
+        return $traits;
     }
 
 

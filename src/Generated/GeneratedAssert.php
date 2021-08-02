@@ -966,24 +966,6 @@ abstract class GeneratedAssert implements \Gzhegow\Support\IAssert
     }
 
     /**
-     * @param string|mixed $class
-     *
-     * @return string
-     */
-    public function assertClass($class): ?string
-    {
-        if (null === ( $filtered = $this->filter->filterClass($class) )) {
-            throw $this->getThrowableOr(
-                new InvalidArgumentException($this->getErrorOr(
-                    'Invalid Class passed: %s', ...func_get_args()
-                ))
-            );
-        }
-
-        return $filtered;
-    }
-
-    /**
      * @param string|mixed $className
      *
      * @return string
@@ -994,6 +976,24 @@ abstract class GeneratedAssert implements \Gzhegow\Support\IAssert
             throw $this->getThrowableOr(
                 new InvalidArgumentException($this->getErrorOr(
                     'Invalid ClassName passed: %s', ...func_get_args()
+                ))
+            );
+        }
+
+        return $filtered;
+    }
+
+    /**
+     * @param string|mixed $class
+     *
+     * @return string
+     */
+    public function assertClassFQN($class): ?string
+    {
+        if (null === ( $filtered = $this->filter->filterClassFQN($class) )) {
+            throw $this->getThrowableOr(
+                new InvalidArgumentException($this->getErrorOr(
+                    'Invalid ClassFQN passed: %s', ...func_get_args()
                 ))
             );
         }

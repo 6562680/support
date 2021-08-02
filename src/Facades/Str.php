@@ -15,6 +15,7 @@ use Gzhegow\Support\Domain\Str\Inflector;
 use Gzhegow\Support\Domain\Str\InflectorInterface;
 use Gzhegow\Support\Domain\Str\Slugger;
 use Gzhegow\Support\Domain\Str\SluggerInterface;
+use Gzhegow\Support\Exceptions\LogicException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\IStr;
 use Gzhegow\Support\SupportFactory;
@@ -683,6 +684,44 @@ class Str
     }
 
     /**
+     * @param string $string
+     *
+     * @return string
+     */
+    public static function unaccent(string $string): string
+    {
+        return static::getInstance()->unaccent($string);
+    }
+
+    /**
+     * PascalCase, non-regex version
+     *
+     * @param string|string[] $words
+     * @param null|string     $separator
+     * @param null|string     $spaces
+     *
+     * @return string
+     */
+    public static function pascal($words, string $separator = null, string $spaces = null): string
+    {
+        return static::getInstance()->pascal($words, $separator, $spaces);
+    }
+
+    /**
+     * camelCase (non-regex version)
+     *
+     * @param string|string[] $words
+     * @param null|string     $separator
+     * @param null|string     $spaces
+     *
+     * @return string
+     */
+    public static function camel($words, string $separator = null, string $spaces = null): string
+    {
+        return static::getInstance()->camel($words, $separator, $spaces);
+    }
+
+    /**
      * PascalCase
      *
      * @param string|array $strings
@@ -691,9 +730,9 @@ class Str
      *
      * @return string
      */
-    public static function pascal($strings, string $keep = null, string $separator = null): string
+    public static function pascalCase($strings, string $keep = null, string $separator = null): string
     {
-        return static::getInstance()->pascal($strings, $keep, $separator);
+        return static::getInstance()->pascalCase($strings, $keep, $separator);
     }
 
     /**
@@ -705,9 +744,9 @@ class Str
      *
      * @return string
      */
-    public static function camel($strings, string $keep = null, string $separator = null): string
+    public static function camelCase($strings, string $keep = null, string $separator = null): string
     {
-        return static::getInstance()->camel($strings, $keep, $separator);
+        return static::getInstance()->camelCase($strings, $keep, $separator);
     }
 
     /**
@@ -719,9 +758,9 @@ class Str
      *
      * @return string
      */
-    public static function snake($strings, string $keep = null, string $separator = null): string
+    public static function snakeCase($strings, string $keep = null, string $separator = null): string
     {
-        return static::getInstance()->snake($strings, $keep, $separator);
+        return static::getInstance()->snakeCase($strings, $keep, $separator);
     }
 
     /**
@@ -733,9 +772,9 @@ class Str
      *
      * @return string
      */
-    public static function kebab($strings, string $keep = null, string $separator = null): string
+    public static function kebabCase($strings, string $keep = null, string $separator = null): string
     {
-        return static::getInstance()->kebab($strings, $keep, $separator);
+        return static::getInstance()->kebabCase($strings, $keep, $separator);
     }
 
     /**
@@ -747,9 +786,9 @@ class Str
      *
      * @return string
      */
-    public static function space($strings, string $keep = null, string $separator = null): string
+    public static function spaceCase($words, string $keep = null, string $separator = null): string
     {
-        return static::getInstance()->space($strings, $keep, $separator);
+        return static::getInstance()->spaceCase($words, $keep, $separator);
     }
 
     /**
@@ -771,19 +810,9 @@ class Str
      *
      * @return string
      */
-    public static function slugCase(string $string, string $delimiter = null, string $locale = null): string
+    public static function slugify(string $string, string $delimiter = null, string $locale = null): string
     {
-        return static::getInstance()->slugCase($string, $delimiter, $locale);
-    }
-
-    /**
-     * @param string $string
-     *
-     * @return string
-     */
-    public static function unaccent(string $string): string
-    {
-        return static::getInstance()->unaccent($string);
+        return static::getInstance()->slugify($string, $delimiter, $locale);
     }
 
     /**

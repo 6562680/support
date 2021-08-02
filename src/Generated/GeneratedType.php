@@ -543,16 +543,6 @@ abstract class GeneratedType implements \Gzhegow\Support\IType
     }
 
     /**
-     * @param string|mixed $class
-     *
-     * @return bool
-     */
-    public function isClass($class): ?bool
-    {
-        return null !== $this->filter->filterClass($class);
-    }
-
-    /**
      * @param string|mixed $className
      *
      * @return bool
@@ -560,6 +550,16 @@ abstract class GeneratedType implements \Gzhegow\Support\IType
     public function isClassName($className): ?bool
     {
         return null !== $this->filter->filterClassName($className);
+    }
+
+    /**
+     * @param string|mixed $class
+     *
+     * @return bool
+     */
+    public function isClassFQN($class): ?bool
+    {
+        return null !== $this->filter->filterClassFQN($class);
     }
 
     /**

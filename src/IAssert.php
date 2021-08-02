@@ -442,18 +442,18 @@ interface IAssert
     public function assertHandler($handler, InvokableInfo &$invokableInfo = null): ?string;
 
     /**
-     * @param string|mixed $class
-     *
-     * @return string
-     */
-    public function assertClass($class): ?string;
-
-    /**
      * @param string|mixed $className
      *
      * @return string
      */
     public function assertClassName($className): ?string;
+
+    /**
+     * @param string|mixed $class
+     *
+     * @return string
+     */
+    public function assertClassFQN($class): ?string;
 
     /**
      * @param object|mixed $value

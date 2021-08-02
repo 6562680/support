@@ -550,16 +550,6 @@ class Filter
     }
 
     /**
-     * @param string|mixed $class
-     *
-     * @return null|string
-     */
-    public static function filterClass($class): ?string
-    {
-        return static::getInstance()->filterClass($class);
-    }
-
-    /**
      * @param string|mixed $className
      *
      * @return null|string
@@ -567,6 +557,16 @@ class Filter
     public static function filterClassName($className): ?string
     {
         return static::getInstance()->filterClassName($className);
+    }
+
+    /**
+     * @param string|mixed $class
+     *
+     * @return null|string
+     */
+    public static function filterClassFQN($class): ?string
+    {
+        return static::getInstance()->filterClassFQN($class);
     }
 
     /**

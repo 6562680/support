@@ -867,6 +867,8 @@ class StrTest extends AbstractTestCase
     {
         $str = $this->getStr();
 
+        $this->assertEquals('helloId', $str->camel([ 'hello', 'id' ]));
+
         $this->assertEquals('helloworld', $str->camel('helloworld'));
         $this->assertEquals('helloWorld', $str->camel('HelloWorld'));
         $this->assertEquals('helloWorld', $str->camel('hello-world'));
@@ -875,23 +877,29 @@ class StrTest extends AbstractTestCase
         $this->assertEquals('helloWorld', $str->camel('Hello World'));
         $this->assertEquals('helloWorld', $str->camel('Hello_World'));
 
-        $this->assertEquals('hello.world', $str->camel('hello.world', '.'));
         $this->assertEquals('hello.World', $str->camel('Hello.World', '.'));
-        $this->assertEquals('helloworld.foo', $str->camel('helloworld.foo', '.'));
-        $this->assertEquals('helloWorld.foo', $str->camel('HelloWorld.foo', '.'));
-        $this->assertEquals('helloWorld.foo', $str->camel('hello world.foo', '.'));
-        $this->assertEquals('helloWorld.foo', $str->camel('hello-world.foo', '.'));
-        $this->assertEquals('helloWorld.foo', $str->camel('hello_world.foo', '.'));
-        $this->assertEquals('helloWorld.foo', $str->camel('Hello-World.foo', '.'));
-        $this->assertEquals('helloWorld.foo', $str->camel('Hello World.foo', '.'));
-        $this->assertEquals('helloWorld.foo', $str->camel('Hello_World.foo', '.'));
+        $this->assertEquals('hello.World', $str->camelCase('Hello.World', '.'));
 
-        $this->assertEquals('helloId', $str->camel([ 'hello', 'id' ]));
+        // camel
+        $this->assertEquals('hello.World', $str->camel('hello.world', '.'));
+        // but camelCase
+        $this->assertEquals('hello.world', $str->camelCase('hello.world', '.'));
+
+        $this->assertEquals('helloworld.foo', $str->camelCase('helloworld.foo', '.'));
+        $this->assertEquals('helloWorld.foo', $str->camelCase('HelloWorld.foo', '.'));
+        $this->assertEquals('helloWorld.foo', $str->camelCase('hello world.foo', '.'));
+        $this->assertEquals('helloWorld.foo', $str->camelCase('hello-world.foo', '.'));
+        $this->assertEquals('helloWorld.foo', $str->camelCase('hello_world.foo', '.'));
+        $this->assertEquals('helloWorld.foo', $str->camelCase('Hello-World.foo', '.'));
+        $this->assertEquals('helloWorld.foo', $str->camelCase('Hello World.foo', '.'));
+        $this->assertEquals('helloWorld.foo', $str->camelCase('Hello_World.foo', '.'));
     }
 
     public function testPascal()
     {
         $str = $this->getStr();
+
+        $this->assertEquals('HelloId', $str->pascal([ 'hello', 'id' ]));
 
         $this->assertEquals('Helloworld', $str->pascal('helloworld'));
         $this->assertEquals('HelloWorld', $str->pascal('HelloWorld'));
@@ -901,18 +909,24 @@ class StrTest extends AbstractTestCase
         $this->assertEquals('HelloWorld', $str->pascal('Hello World'));
         $this->assertEquals('HelloWorld', $str->pascal('Hello_World'));
 
-        $this->assertEquals('Hello.world', $str->pascal('hello.world', '.'));
         $this->assertEquals('Hello.World', $str->pascal('Hello.World', '.'));
-        $this->assertEquals('Helloworld.foo', $str->pascal('helloworld.foo', '.'));
-        $this->assertEquals('HelloWorld.foo', $str->pascal('HelloWorld.foo', '.'));
-        $this->assertEquals('HelloWorld.foo', $str->pascal('hello world.foo', '.'));
-        $this->assertEquals('HelloWorld.foo', $str->pascal('hello-world.foo', '.'));
-        $this->assertEquals('HelloWorld.foo', $str->pascal('hello_world.foo', '.'));
-        $this->assertEquals('HelloWorld.foo', $str->pascal('Hello-World.foo', '.'));
-        $this->assertEquals('HelloWorld.foo', $str->pascal('Hello World.foo', '.'));
-        $this->assertEquals('HelloWorld.foo', $str->pascal('Hello_World.foo', '.'));
+        $this->assertEquals('Hello.World', $str->pascalCase('Hello.World', '.'));
 
-        $this->assertEquals('HelloId', $str->pascal([ 'hello', 'id' ]));
+        // pascal
+        $this->assertEquals('Hello.World', $str->pascal('hello.world', '.'));
+        $this->assertEquals('Helloworld.Foo', $str->pascal('helloworld.foo', '.'));
+        $this->assertEquals('HelloWorld.Foo', $str->pascal('HelloWorld.foo', '.'));
+        // but pascalCase
+        $this->assertEquals('Hello.world', $str->pascalCase('hello.world', '.'));
+        $this->assertEquals('Helloworld.foo', $str->pascalCase('helloworld.foo', '.'));
+        $this->assertEquals('HelloWorld.foo', $str->pascalCase('HelloWorld.foo', '.'));
+
+        $this->assertEquals('HelloWorld.foo', $str->pascalCase('hello world.foo', '.'));
+        $this->assertEquals('HelloWorld.foo', $str->pascalCase('hello-world.foo', '.'));
+        $this->assertEquals('HelloWorld.foo', $str->pascalCase('hello_world.foo', '.'));
+        $this->assertEquals('HelloWorld.foo', $str->pascalCase('Hello-World.foo', '.'));
+        $this->assertEquals('HelloWorld.foo', $str->pascalCase('Hello World.foo', '.'));
+        $this->assertEquals('HelloWorld.foo', $str->pascalCase('Hello_World.foo', '.'));
     }
 
 
@@ -920,76 +934,76 @@ class StrTest extends AbstractTestCase
     {
         $str = $this->getStr();
 
-        $this->assertEquals('helloworld', $str->snake('helloworld'));
-        $this->assertEquals('hello_world', $str->snake('HelloWorld'));
-        $this->assertEquals('hello_world', $str->snake('hello-world'));
-        $this->assertEquals('hello_world', $str->snake('hello_world'));
-        $this->assertEquals('hello_world', $str->snake('Hello-World'));
-        $this->assertEquals('hello_world', $str->snake('Hello World'));
-        $this->assertEquals('hello_world', $str->snake('Hello_World'));
+        $this->assertEquals('helloworld', $str->snakeCase('helloworld'));
+        $this->assertEquals('hello_world', $str->snakeCase('HelloWorld'));
+        $this->assertEquals('hello_world', $str->snakeCase('hello-world'));
+        $this->assertEquals('hello_world', $str->snakeCase('hello_world'));
+        $this->assertEquals('hello_world', $str->snakeCase('Hello-World'));
+        $this->assertEquals('hello_world', $str->snakeCase('Hello World'));
+        $this->assertEquals('hello_world', $str->snakeCase('Hello_World'));
 
-        $this->assertEquals('hello.world', $str->snake('hello.world', '.'));
-        $this->assertEquals('hello._world', $str->snake('Hello.World', '.'));
-        $this->assertEquals('helloworld.foo', $str->snake('helloworld.foo', '.'));
-        $this->assertEquals('hello_world.foo', $str->snake('HelloWorld.foo', '.'));
-        $this->assertEquals('hello_world.foo', $str->snake('hello world.foo', '.'));
-        $this->assertEquals('hello_world.foo', $str->snake('hello-world.foo', '.'));
-        $this->assertEquals('hello_world.foo', $str->snake('hello_world.foo', '.'));
-        $this->assertEquals('hello_world.foo', $str->snake('Hello-World.foo', '.'));
-        $this->assertEquals('hello_world.foo', $str->snake('Hello World.foo', '.'));
-        $this->assertEquals('hello_world.foo', $str->snake('Hello_World.foo', '.'));
+        $this->assertEquals('hello.world', $str->snakeCase('hello.world', '.'));
+        $this->assertEquals('hello._world', $str->snakeCase('Hello.World', '.'));
+        $this->assertEquals('helloworld.foo', $str->snakeCase('helloworld.foo', '.'));
+        $this->assertEquals('hello_world.foo', $str->snakeCase('HelloWorld.foo', '.'));
+        $this->assertEquals('hello_world.foo', $str->snakeCase('hello world.foo', '.'));
+        $this->assertEquals('hello_world.foo', $str->snakeCase('hello-world.foo', '.'));
+        $this->assertEquals('hello_world.foo', $str->snakeCase('hello_world.foo', '.'));
+        $this->assertEquals('hello_world.foo', $str->snakeCase('Hello-World.foo', '.'));
+        $this->assertEquals('hello_world.foo', $str->snakeCase('Hello World.foo', '.'));
+        $this->assertEquals('hello_world.foo', $str->snakeCase('Hello_World.foo', '.'));
 
-        $this->assertEquals('hello.world', $str->snake('hello.world', null, '.'));
-        $this->assertEquals('hello.world', $str->snake('Hello.World', null, '.'));
-        $this->assertEquals('helloworld.foo', $str->snake('helloworld.foo', null, '.'));
-        $this->assertEquals('hello.world.foo', $str->snake('HelloWorld.foo', null, '.'));
-        $this->assertEquals('hello.world.foo', $str->snake('hello world.foo', null, '.'));
-        $this->assertEquals('hello.world.foo', $str->snake('hello-world.foo', null, '.'));
-        $this->assertEquals('hello.world.foo', $str->snake('hello_world.foo', null, '.'));
-        $this->assertEquals('hello.world.foo', $str->snake('Hello-World.foo', null, '.'));
-        $this->assertEquals('hello.world.foo', $str->snake('Hello World.foo', null, '.'));
-        $this->assertEquals('hello.world.foo', $str->snake('Hello_World.foo', null, '.'));
+        $this->assertEquals('hello.world', $str->snakeCase('hello.world', null, '.'));
+        $this->assertEquals('hello.world', $str->snakeCase('Hello.World', null, '.'));
+        $this->assertEquals('helloworld.foo', $str->snakeCase('helloworld.foo', null, '.'));
+        $this->assertEquals('hello.world.foo', $str->snakeCase('HelloWorld.foo', null, '.'));
+        $this->assertEquals('hello.world.foo', $str->snakeCase('hello world.foo', null, '.'));
+        $this->assertEquals('hello.world.foo', $str->snakeCase('hello-world.foo', null, '.'));
+        $this->assertEquals('hello.world.foo', $str->snakeCase('hello_world.foo', null, '.'));
+        $this->assertEquals('hello.world.foo', $str->snakeCase('Hello-World.foo', null, '.'));
+        $this->assertEquals('hello.world.foo', $str->snakeCase('Hello World.foo', null, '.'));
+        $this->assertEquals('hello.world.foo', $str->snakeCase('Hello_World.foo', null, '.'));
 
-        $this->assertEquals('hello_id', $str->snake([ 'hello', 'id' ]));
-        $this->assertEquals('hello.id', $str->snake([ 'hello', 'id' ], null, '.'));
+        $this->assertEquals('hello_id', $str->snakeCase([ 'hello', 'id' ]));
+        $this->assertEquals('hello.id', $str->snakeCase([ 'hello', 'id' ], null, '.'));
     }
 
     public function testKebab()
     {
         $str = $this->getStr();
 
-        $this->assertEquals('helloworld', $str->kebab('helloworld'));
-        $this->assertEquals('hello-world', $str->kebab('HelloWorld'));
-        $this->assertEquals('hello-world', $str->kebab('hello-world'));
-        $this->assertEquals('hello-world', $str->kebab('hello_world'));
-        $this->assertEquals('hello-world', $str->kebab('Hello-World'));
-        $this->assertEquals('hello-world', $str->kebab('Hello World'));
-        $this->assertEquals('hello-world', $str->kebab('Hello_World'));
+        $this->assertEquals('helloworld', $str->kebabCase('helloworld'));
+        $this->assertEquals('hello-world', $str->kebabCase('HelloWorld'));
+        $this->assertEquals('hello-world', $str->kebabCase('hello-world'));
+        $this->assertEquals('hello-world', $str->kebabCase('hello_world'));
+        $this->assertEquals('hello-world', $str->kebabCase('Hello-World'));
+        $this->assertEquals('hello-world', $str->kebabCase('Hello World'));
+        $this->assertEquals('hello-world', $str->kebabCase('Hello_World'));
 
-        $this->assertEquals('hello.world', $str->kebab('hello.world', '.'));
-        $this->assertEquals('hello.-world', $str->kebab('Hello.World', '.'));
-        $this->assertEquals('helloworld.foo', $str->kebab('helloworld.foo', '.'));
-        $this->assertEquals('hello-world.foo', $str->kebab('HelloWorld.foo', '.'));
-        $this->assertEquals('hello-world.foo', $str->kebab('hello world.foo', '.'));
-        $this->assertEquals('hello-world.foo', $str->kebab('hello-world.foo', '.'));
-        $this->assertEquals('hello-world.foo', $str->kebab('hello_world.foo', '.'));
-        $this->assertEquals('hello-world.foo', $str->kebab('Hello-World.foo', '.'));
-        $this->assertEquals('hello-world.foo', $str->kebab('Hello World.foo', '.'));
-        $this->assertEquals('hello-world.foo', $str->kebab('Hello_World.foo', '.'));
+        $this->assertEquals('hello.world', $str->kebabCase('hello.world', '.'));
+        $this->assertEquals('hello.-world', $str->kebabCase('Hello.World', '.'));
+        $this->assertEquals('helloworld.foo', $str->kebabCase('helloworld.foo', '.'));
+        $this->assertEquals('hello-world.foo', $str->kebabCase('HelloWorld.foo', '.'));
+        $this->assertEquals('hello-world.foo', $str->kebabCase('hello world.foo', '.'));
+        $this->assertEquals('hello-world.foo', $str->kebabCase('hello-world.foo', '.'));
+        $this->assertEquals('hello-world.foo', $str->kebabCase('hello_world.foo', '.'));
+        $this->assertEquals('hello-world.foo', $str->kebabCase('Hello-World.foo', '.'));
+        $this->assertEquals('hello-world.foo', $str->kebabCase('Hello World.foo', '.'));
+        $this->assertEquals('hello-world.foo', $str->kebabCase('Hello_World.foo', '.'));
 
-        $this->assertEquals('hello.world', $str->kebab('hello.world', null, '.'));
-        $this->assertEquals('hello.world', $str->kebab('Hello.World', null, '.'));
-        $this->assertEquals('helloworld.foo', $str->kebab('helloworld.foo', null, '.'));
-        $this->assertEquals('hello.world.foo', $str->kebab('HelloWorld.foo', null, '.'));
-        $this->assertEquals('hello.world.foo', $str->kebab('hello world.foo', null, '.'));
-        $this->assertEquals('hello.world.foo', $str->kebab('hello-world.foo', null, '.'));
-        $this->assertEquals('hello.world.foo', $str->kebab('hello_world.foo', null, '.'));
-        $this->assertEquals('hello.world.foo', $str->kebab('Hello-World.foo', null, '.'));
-        $this->assertEquals('hello.world.foo', $str->kebab('Hello World.foo', null, '.'));
-        $this->assertEquals('hello.world.foo', $str->kebab('Hello_World.foo', null, '.'));
+        $this->assertEquals('hello.world', $str->kebabCase('hello.world', null, '.'));
+        $this->assertEquals('hello.world', $str->kebabCase('Hello.World', null, '.'));
+        $this->assertEquals('helloworld.foo', $str->kebabCase('helloworld.foo', null, '.'));
+        $this->assertEquals('hello.world.foo', $str->kebabCase('HelloWorld.foo', null, '.'));
+        $this->assertEquals('hello.world.foo', $str->kebabCase('hello world.foo', null, '.'));
+        $this->assertEquals('hello.world.foo', $str->kebabCase('hello-world.foo', null, '.'));
+        $this->assertEquals('hello.world.foo', $str->kebabCase('hello_world.foo', null, '.'));
+        $this->assertEquals('hello.world.foo', $str->kebabCase('Hello-World.foo', null, '.'));
+        $this->assertEquals('hello.world.foo', $str->kebabCase('Hello World.foo', null, '.'));
+        $this->assertEquals('hello.world.foo', $str->kebabCase('Hello_World.foo', null, '.'));
 
-        $this->assertEquals('hello-id', $str->kebab([ 'hello', 'id' ]));
-        $this->assertEquals('hello.id', $str->kebab([ 'hello', 'id' ], null, '.'));
+        $this->assertEquals('hello-id', $str->kebabCase([ 'hello', 'id' ]));
+        $this->assertEquals('hello.id', $str->kebabCase([ 'hello', 'id' ], null, '.'));
     }
 
 
@@ -1002,12 +1016,12 @@ class StrTest extends AbstractTestCase
         $this->assertEquals('set', $str->slug('Сеть'));
     }
 
-    public function testSlugCase()
+    public function testSlugify()
     {
         $str = $this->getStr();
 
-        $this->assertEquals('Privet-Mir', $str->slugCase('Привет Мир'));
-        $this->assertEquals('Workspace-settings', $str->slugCase('Wôrķšƥáçè ~~sèťtïñğš~~'));
+        $this->assertEquals('Privet-Mir', $str->slugify('Привет Мир'));
+        $this->assertEquals('Workspace-settings', $str->slugify('Wôrķšƥáçè ~~sèťtïñğš~~'));
     }
 
 
