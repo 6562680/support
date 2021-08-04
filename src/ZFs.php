@@ -1518,20 +1518,22 @@ class ZFs implements IFs
      */
     public function mkdir(string $dirname, int $mode = null, bool $recursive = null, $context = null) : string
     {
+        $dirname = $this->thePathVal($dirname);
         $mode = $mode ?? static::RWX_DIR;
         $recursive = $recursive ?? true;
 
         if (! is_dir($dirname)) {
             if (file_exists($dirname)) {
-                throw new FilesystemException([
-                    'Unable to create directory, same file exists: %s',
-                    $this->secure($dirname),
-                ]);
+                throw new FilesystemException(
+                    [ 'Unable to create directory, same file exists: %s', $this->secure($dirname) ]
+                );
             }
 
             $context
                 ? mkdir($dirname, $mode, $recursive, $context)
                 : mkdir($dirname, $mode, $recursive);
+
+            chmod($dirname, $mode);
         }
 
         $result = realpath($dirname);
@@ -1570,6 +1572,7 @@ class ZFs implements IFs
 
         // files
         $its[] = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($realpathSelf, $flags));
+
         // directories
         $its[] = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($realpathSelf, $flags),
             \RecursiveIteratorIterator::CHILD_FIRST
