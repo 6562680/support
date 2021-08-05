@@ -249,9 +249,9 @@ class Type
      *
      * @return bool
      */
-    public static function isWord($value): ?bool
+    public static function isLetter($value): ?bool
     {
-        return static::getInstance()->isWord($value);
+        return static::getInstance()->isLetter($value);
     }
 
     /**
@@ -259,9 +259,9 @@ class Type
      *
      * @return bool
      */
-    public static function isUtf8($value): ?bool
+    public static function isWord($value): ?bool
     {
-        return static::getInstance()->isUtf8($value);
+        return static::getInstance()->isWord($value);
     }
 
     /**
@@ -319,6 +319,16 @@ class Type
      *
      * @return bool
      */
+    public static function isLetterval($value): ?bool
+    {
+        return static::getInstance()->isLetterval($value);
+    }
+
+    /**
+     * @param string|mixed $value
+     *
+     * @return bool
+     */
     public static function isWordval($value): ?bool
     {
         return static::getInstance()->isWordval($value);
@@ -332,6 +342,16 @@ class Type
     public static function isTrimval($value): ?bool
     {
         return static::getInstance()->isTrimval($value);
+    }
+
+    /**
+     * @param string|mixed $value
+     *
+     * @return bool
+     */
+    public static function isUtf8($value): ?bool
+    {
+        return static::getInstance()->isUtf8($value);
     }
 
     /**

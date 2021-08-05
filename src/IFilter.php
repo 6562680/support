@@ -168,14 +168,14 @@ interface IFilter
      *
      * @return null|string
      */
-    public function filterWord($value): ?string;
+    public function filterLetter($value): ?string;
 
     /**
      * @param string|mixed $value
      *
      * @return null|string
      */
-    public function filterUtf8($value): ?string;
+    public function filterWord($value): ?string;
 
     /**
      * @param int|string|mixed $value
@@ -217,6 +217,13 @@ interface IFilter
      *
      * @return null|string
      */
+    public function filterLetterval($value): ?string;
+
+    /**
+     * @param string|mixed $value
+     *
+     * @return null|string
+     */
     public function filterWordval($value): ?string;
 
     /**
@@ -225,6 +232,13 @@ interface IFilter
      * @return null|string
      */
     public function filterTrimval($value): ?string;
+
+    /**
+     * @param string|mixed $value
+     *
+     * @return null|string
+     */
+    public function filterUtf8($value): ?string;
 
     /**
      * \Generator может передать любой объект в качестве ключа для foreach, пригодится

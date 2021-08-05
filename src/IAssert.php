@@ -216,14 +216,14 @@ interface IAssert
      *
      * @return string
      */
-    public function assertWord($value): ?string;
+    public function assertLetter($value): ?string;
 
     /**
      * @param string|mixed $value
      *
      * @return string
      */
-    public function assertUtf8($value): ?string;
+    public function assertWord($value): ?string;
 
     /**
      * @param int|string|mixed $value
@@ -265,6 +265,13 @@ interface IAssert
      *
      * @return string
      */
+    public function assertLetterval($value): ?string;
+
+    /**
+     * @param string|mixed $value
+     *
+     * @return string
+     */
     public function assertWordval($value): ?string;
 
     /**
@@ -273,6 +280,13 @@ interface IAssert
      * @return string
      */
     public function assertTrimval($value): ?string;
+
+    /**
+     * @param string|mixed $value
+     *
+     * @return string
+     */
+    public function assertUtf8($value): ?string;
 
     /**
      * \Generator может передать любой объект в качестве ключа для foreach, пригодится

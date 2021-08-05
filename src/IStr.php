@@ -52,6 +52,13 @@ interface IStr
      *
      * @return null|string
      */
+    public function letterval($value): ?string;
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|string
+     */
     public function wordval($value): ?string;
 
     /**
@@ -67,6 +74,13 @@ interface IStr
      * @return string
      */
     public function theStrval($value): string;
+
+    /**
+     * @param mixed $value
+     *
+     * @return string
+     */
+    public function theLetterval($value): string;
 
     /**
      * @param mixed $value
@@ -92,6 +106,15 @@ interface IStr
     public function strvals($strings, bool $uniq = null, bool $recursive = null): array;
 
     /**
+     * @param string|array $letters
+     * @param null|bool    $uniq
+     * @param null|bool    $recursive
+     *
+     * @return string[]
+     */
+    public function lettervals($letters, bool $uniq = null, bool $recursive = null): array;
+
+    /**
      * @param string|array $words
      * @param null|bool    $uniq
      * @param null|bool    $recursive
@@ -108,6 +131,15 @@ interface IStr
      * @return string[]
      */
     public function trimvals($trims, bool $uniq = null, bool $recursive = null): array;
+
+    /**
+     * @param string|array $letters
+     * @param null|bool    $uniq
+     * @param null|bool    $recursive
+     *
+     * @return string[]
+     */
+    public function theLettervals($letters, bool $uniq = null, bool $recursive = null): array;
 
     /**
      * @param string|array $strings

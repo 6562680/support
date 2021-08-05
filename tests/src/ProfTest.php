@@ -30,7 +30,7 @@ class ProfTest extends AbstractTestCase
         $numberDecimals = ltrim($cutDecimals, '+ ');
 
         $this->assertEquals('+ 1', $cut);
-        $this->assertGreaterThan(0.000001, $numberDecimals);
+        $this->assertGreaterThanOrEqual(0.000001, $numberDecimals);
     }
 
     public function testProfileComment()

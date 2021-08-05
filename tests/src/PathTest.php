@@ -83,6 +83,14 @@ class PathTest extends AbstractTestCase
         $this->assertEquals("1${ds}2${ds}3${ds}4", $path->concat('1/2/3', '/2/3/4'));
         $this->assertEquals("1${ds}2${ds}3${ds}4", $path->concat('1/2/3', '/1/2/3/4'));
         $this->assertEquals("1${ds}2${ds}3${ds}0${ds}1${ds}2${ds}3${ds}4", $path->concat('1/2/3', '/0/1/2/3/4'));
+
+        $this->assertEquals("${ds}1${ds}2${ds}3", $path->concat('/1/2/3', ''));
+        $this->assertEquals("${ds}1${ds}2${ds}3", $path->concat('/1/2/3', '/'));
+        $this->assertEquals("${ds}1${ds}2${ds}3${ds}1", $path->concat('/1/2/3', '1'));
+        $this->assertEquals("${ds}1${ds}2${ds}3${ds}4", $path->concat('/1/2/3', '3/4'));
+        $this->assertEquals("${ds}1${ds}2${ds}3${ds}4", $path->concat('/1/2/3', '2/3/4'));
+        $this->assertEquals("${ds}1${ds}2${ds}3${ds}4", $path->concat('/1/2/3', '1/2/3/4'));
+        $this->assertEquals("${ds}1${ds}2${ds}3${ds}0${ds}1${ds}2${ds}3${ds}4", $path->concat('/1/2/3', '0/1/2/3/4'));
     }
 
 

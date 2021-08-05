@@ -179,14 +179,14 @@ interface IType
      *
      * @return bool
      */
-    public function isWord($value): ?bool;
+    public function isLetter($value): ?bool;
 
     /**
      * @param string|mixed $value
      *
      * @return bool
      */
-    public function isUtf8($value): ?bool;
+    public function isWord($value): ?bool;
 
     /**
      * @param int|string|mixed $value
@@ -228,6 +228,13 @@ interface IType
      *
      * @return bool
      */
+    public function isLetterval($value): ?bool;
+
+    /**
+     * @param string|mixed $value
+     *
+     * @return bool
+     */
     public function isWordval($value): ?bool;
 
     /**
@@ -236,6 +243,13 @@ interface IType
      * @return bool
      */
     public function isTrimval($value): ?bool;
+
+    /**
+     * @param string|mixed $value
+     *
+     * @return bool
+     */
+    public function isUtf8($value): ?bool;
 
     /**
      * \Generator может передать любой объект в качестве ключа для foreach, пригодится

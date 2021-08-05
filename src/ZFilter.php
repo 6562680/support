@@ -412,9 +412,9 @@ class ZFilter implements IFilter
      *
      * @return null|string
      */
-    public function filterWord($value) : ?string
+    public function filterLetter($value) : ?string
     {
-        if (is_string($value) && ( '' !== $value )) {
+        if (is_string($value) && ( mb_strlen($value) === 1 )) {
             return $value;
         }
 
@@ -426,42 +426,13 @@ class ZFilter implements IFilter
      *
      * @return null|string
      */
-    public function filterUtf8($value) : ?string
+    public function filterWord($value) : ?string
     {
-        if (! is_string($value)) {
-            return null;
-
-        } elseif ('' === $value) {
-            return null;
+        if (is_string($value) && ( '' !== $value )) {
+            return $value;
         }
 
-        for ( $i = 0; $i < strlen($value); $i++ ) {
-            if (ord($value[ $i ]) < 0x80) {
-                continue; // 0bbbbbbb
-            }
-
-            if (( ord($value[ $i ]) & 0xE0 ) === 0xC0) {
-                $n = 1; // 110bbbbb
-            } elseif (( ord($value[ $i ]) & 0xF0 ) === 0xE0) {
-                $n = 2; // 1110bbbb
-            } elseif (( ord($value[ $i ]) & 0xF8 ) === 0xF0) {
-                $n = 3; // 11110bbb
-            } elseif (( ord($value[ $i ]) & 0xFC ) === 0xF8) {
-                $n = 4; // 111110bb
-            } elseif (( ord($value[ $i ]) & 0xFE ) === 0xFC) {
-                $n = 5; // 1111110b
-            } else {
-                return null; // Does not match any model
-            }
-
-            for ( $j = 0; $j < $n; $j++ ) { // n bytes matching 10bbbbbb follow ?
-                if (++$i === strlen($value) || ( ( ord($value[ $i ]) & 0xC0 ) !== 0x80 )) {
-                    return null;
-                }
-            }
-        }
-
-        return $value;
+        return null;
     }
 
 
@@ -540,25 +511,35 @@ class ZFilter implements IFilter
             return $value;
         }
 
-        if (is_null($value)) {
-            return null; // becomes '' and causes data lost
-
-        } elseif (is_bool($value)) {
-            return null; // becomes '' on false and causes data lost
-
-        } elseif (is_array($value)) {
-            return null; // becomes 'Array' and causes data lost
-        }
-
-        try {
-            if (false !== settype($value, 'string')) {
-                return $value; // __toString()
+        if (is_object($value)) {
+            try {
+                if (false !== settype($value, 'string')) {
+                    return $value; // __toString()
+                }
             }
-        }
-        catch ( \Throwable $e ) {
+            catch ( \Throwable $e ) {
+            }
         }
 
         return null;
+    }
+
+    /**
+     * @param string|mixed $value
+     *
+     * @return null|string
+     */
+    public function filterLetterval($value) : ?string
+    {
+        if (null === $this->filterStrval($value)) {
+            return null;
+        }
+
+        if (mb_strlen(strval($value)) !== 1) {
+            return null;
+        }
+
+        return $value;
     }
 
     /**
@@ -594,6 +575,50 @@ class ZFilter implements IFilter
 
         if ('' === trim($value)) {
             return null;
+        }
+
+        return $value;
+    }
+
+
+    /**
+     * @param string|mixed $value
+     *
+     * @return null|string
+     */
+    public function filterUtf8($value) : ?string
+    {
+        if (! is_string($value)) {
+            return null;
+
+        } elseif ('' === $value) {
+            return null;
+        }
+
+        for ( $i = 0; $i < strlen($value); $i++ ) {
+            if (ord($value[ $i ]) < 0x80) {
+                continue; // 0bbbbbbb
+            }
+
+            if (( ord($value[ $i ]) & 0xE0 ) === 0xC0) {
+                $n = 1; // 110bbbbb
+            } elseif (( ord($value[ $i ]) & 0xF0 ) === 0xE0) {
+                $n = 2; // 1110bbbb
+            } elseif (( ord($value[ $i ]) & 0xF8 ) === 0xF0) {
+                $n = 3; // 11110bbb
+            } elseif (( ord($value[ $i ]) & 0xFC ) === 0xF8) {
+                $n = 4; // 111110bb
+            } elseif (( ord($value[ $i ]) & 0xFE ) === 0xFC) {
+                $n = 5; // 1111110b
+            } else {
+                return null; // Does not match any model
+            }
+
+            for ( $j = 0; $j < $n; $j++ ) { // n bytes matching 10bbbbbb follow ?
+                if (++$i === strlen($value) || ( ( ord($value[ $i ]) & 0xC0 ) !== 0x80 )) {
+                    return null;
+                }
+            }
         }
 
         return $value;

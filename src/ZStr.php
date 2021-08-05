@@ -225,6 +225,22 @@ class ZStr implements IStr
      *
      * @return null|string
      */
+    public function letterval($value) : ?string
+    {
+        if (null === $this->filter->filterLetterval($value)) {
+            return null;
+        }
+
+        $result = strval($value);
+
+        return $result;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|string
+     */
     public function wordval($value) : ?string
     {
         if (null === $this->filter->filterWordval($value)) {
@@ -263,6 +279,22 @@ class ZStr implements IStr
         if (null === ( $val = $this->strval($value) )) {
             throw new InvalidArgumentException(
                 [ 'Value should be convertable to strval: %s', $value ],
+            );
+        }
+
+        return $val;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return string
+     */
+    public function theLetterval($value) : string
+    {
+        if (null === ( $val = $this->letterval($value) )) {
+            throw new InvalidArgumentException(
+                [ 'Value should be convertable to letterval: %s', $value ],
             );
         }
 
@@ -326,6 +358,46 @@ class ZStr implements IStr
         } else {
             foreach ( $strings as $item ) {
                 if (null !== ( $val = $this->strval($item) )) {
+                    $result[] = $val;
+                }
+            }
+        }
+
+        if ($uniq) {
+            $arr = [];
+            foreach ( $result as $i ) {
+                $arr[ $i ] = true;
+            }
+            $result = array_keys($arr);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string|array $letters
+     * @param null|bool    $uniq
+     * @param null|bool    $recursive
+     *
+     * @return string[]
+     */
+    public function lettervals($letters, bool $uniq = null, bool $recursive = null) : array
+    {
+        $result = [];
+
+        $letters = is_array($letters)
+            ? $letters
+            : [ $letters ];
+
+        if ($recursive) {
+            array_walk_recursive($letters, function ($item) use (&$result) {
+                if (null !== ( $val = $this->letterval($item) )) {
+                    $result[] = $val;
+                }
+            });
+        } else {
+            foreach ( $letters as $item ) {
+                if (null !== ( $val = $this->letterval($item) )) {
                     $result[] = $val;
                 }
             }
@@ -428,6 +500,42 @@ class ZStr implements IStr
         return $result;
     }
 
+
+    /**
+     * @param string|array $letters
+     * @param null|bool    $uniq
+     * @param null|bool    $recursive
+     *
+     * @return string[]
+     */
+    public function theLettervals($letters, bool $uniq = null, bool $recursive = null) : array
+    {
+        $result = [];
+
+        $letters = is_array($letters)
+            ? $letters
+            : [ $letters ];
+
+        if ($recursive) {
+            array_walk_recursive($letters, function ($item) use (&$result) {
+                $result[] = $this->theLetterval($item);
+            });
+        } else {
+            foreach ( $letters as $item ) {
+                $result[] = $this->theLetterval($item);
+            }
+        }
+
+        if ($uniq) {
+            $arr = [];
+            foreach ( $result as $i ) {
+                $arr[ $i ] = true;
+            }
+            $result = array_keys($arr);
+        }
+
+        return $result;
+    }
 
     /**
      * @param string|array $strings

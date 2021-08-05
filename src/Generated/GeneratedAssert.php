@@ -410,12 +410,12 @@ abstract class GeneratedAssert implements \Gzhegow\Support\IAssert
      *
      * @return string
      */
-    public function assertWord($value): ?string
+    public function assertLetter($value): ?string
     {
-        if (null === ( $filtered = $this->filter->filterWord($value) )) {
+        if (null === ( $filtered = $this->filter->filterLetter($value) )) {
             throw $this->getThrowableOr(
                 new InvalidArgumentException($this->getErrorOr(
-                    'Invalid Word passed: %s', ...func_get_args()
+                    'Invalid Letter passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -428,12 +428,12 @@ abstract class GeneratedAssert implements \Gzhegow\Support\IAssert
      *
      * @return string
      */
-    public function assertUtf8($value): ?string
+    public function assertWord($value): ?string
     {
-        if (null === ( $filtered = $this->filter->filterUtf8($value) )) {
+        if (null === ( $filtered = $this->filter->filterWord($value) )) {
             throw $this->getThrowableOr(
                 new InvalidArgumentException($this->getErrorOr(
-                    'Invalid Utf8 passed: %s', ...func_get_args()
+                    'Invalid Word passed: %s', ...func_get_args()
                 ))
             );
         }
@@ -536,6 +536,24 @@ abstract class GeneratedAssert implements \Gzhegow\Support\IAssert
      *
      * @return string
      */
+    public function assertLetterval($value): ?string
+    {
+        if (null === ( $filtered = $this->filter->filterLetterval($value) )) {
+            throw $this->getThrowableOr(
+                new InvalidArgumentException($this->getErrorOr(
+                    'Invalid Letterval passed: %s', ...func_get_args()
+                ))
+            );
+        }
+
+        return $filtered;
+    }
+
+    /**
+     * @param string|mixed $value
+     *
+     * @return string
+     */
     public function assertWordval($value): ?string
     {
         if (null === ( $filtered = $this->filter->filterWordval($value) )) {
@@ -560,6 +578,24 @@ abstract class GeneratedAssert implements \Gzhegow\Support\IAssert
             throw $this->getThrowableOr(
                 new InvalidArgumentException($this->getErrorOr(
                     'Invalid Trimval passed: %s', ...func_get_args()
+                ))
+            );
+        }
+
+        return $filtered;
+    }
+
+    /**
+     * @param string|mixed $value
+     *
+     * @return string
+     */
+    public function assertUtf8($value): ?string
+    {
+        if (null === ( $filtered = $this->filter->filterUtf8($value) )) {
+            throw $this->getThrowableOr(
+                new InvalidArgumentException($this->getErrorOr(
+                    'Invalid Utf8 passed: %s', ...func_get_args()
                 ))
             );
         }

@@ -110,7 +110,7 @@ class ZPath implements IPath
      */
     public function withSeparator(string $separator)
     {
-        $this->str->theWordval($separator);
+        $this->str->theLetterval($separator);
 
         $this->separator = $separator;
 
@@ -124,13 +124,7 @@ class ZPath implements IPath
      */
     public function withDelimiters(array $delimiters)
     {
-        $list = $this->str->theWordvals($delimiters, true);
-
-        if (! $list) {
-            throw new InvalidArgumentException(
-                [ 'At least one delimiter should be passed: %s', $delimiters ]
-            );
-        }
+        $list = $this->str->theLettervals($delimiters, true);
 
         $this->delimiters = $list;
 
@@ -272,40 +266,44 @@ class ZPath implements IPath
     public function concat(...$strings) : string
     {
         $separators = $this->separators();
+        $separatorsImplode = implode('', $separators);
 
-        $words = $this->str->strvals($strings, null, true);
-        $words = array_filter($words, 'strlen');
+        $words = $this->str->wordvals($strings, null, true);
 
-        $result = array_shift($words);
+        $left = rtrim(array_shift($words), $separatorsImplode);
+        $leftSplit = $this->str->explode($separators, $left);
 
-        $resultSteps = $this->str->explode($separators, $result);
-        $resultSteps = array_values(array_filter($resultSteps, 'strlen'));
+        foreach ( $words as $right ) {
+            $right = trim($right, $separatorsImplode);
+            $rightSplit = $this->str->explode($separators, $right);
 
-        foreach ( $words as $word ) {
-            $wordSteps = $this->str->explode($separators, $word);
-            $wordSteps = array_values(array_filter($wordSteps, 'strlen'));
+            $last = end($leftSplit);
+            $i = key($leftSplit);
+            if (false !== ( $ii = array_search($last, $rightSplit) )) {
+                $match = [];
 
-            $len = count($wordSteps);
-
-            while ( $len ) {
-                $resultSplit = array_slice($resultSteps, -1 * $len);
-                $wordSplit = array_slice($wordSteps, 0, $len);
-
-                if ($resultSplit === $wordSplit) {
-                    $resultSteps = array_merge($resultSteps,
-                        array_slice($wordSteps, $len)
-                    );
-
-                    continue 2;
+                while ( $ii >= 0 ) {
+                    if ($leftSplit[ $i-- ] === $rightSplit[ $ii ]) {
+                        $match[ $ii-- ] = true;
+                    } else {
+                        break;
+                    }
                 }
 
-                $len--;
+                if ($ii === -1) {
+                    foreach ( $match as $ii => $bool ) {
+                        unset($rightSplit[ $ii ]);
+                    }
+                }
             }
 
-            $resultSteps = array_merge($resultSteps, $wordSteps);
+            foreach ( $rightSplit as $word ) {
+                $leftSplit[] = $word;
+            }
         }
 
-        $result = $this->str->join($this->separator, $resultSteps);
+        $result = $this->str->implode($this->separator, $leftSplit);
+        $result = rtrim($result, $separatorsImplode);
 
         return $result;
     }

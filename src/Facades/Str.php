@@ -70,6 +70,16 @@ class Str
      *
      * @return null|string
      */
+    public static function letterval($value): ?string
+    {
+        return static::getInstance()->letterval($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return null|string
+     */
     public static function wordval($value): ?string
     {
         return static::getInstance()->wordval($value);
@@ -93,6 +103,16 @@ class Str
     public static function theStrval($value): string
     {
         return static::getInstance()->theStrval($value);
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return string
+     */
+    public static function theLetterval($value): string
+    {
+        return static::getInstance()->theLetterval($value);
     }
 
     /**
@@ -128,6 +148,18 @@ class Str
     }
 
     /**
+     * @param string|array $letters
+     * @param null|bool    $uniq
+     * @param null|bool    $recursive
+     *
+     * @return string[]
+     */
+    public static function lettervals($letters, bool $uniq = null, bool $recursive = null): array
+    {
+        return static::getInstance()->lettervals($letters, $uniq, $recursive);
+    }
+
+    /**
      * @param string|array $words
      * @param null|bool    $uniq
      * @param null|bool    $recursive
@@ -149,6 +181,18 @@ class Str
     public static function trimvals($trims, bool $uniq = null, bool $recursive = null): array
     {
         return static::getInstance()->trimvals($trims, $uniq, $recursive);
+    }
+
+    /**
+     * @param string|array $letters
+     * @param null|bool    $uniq
+     * @param null|bool    $recursive
+     *
+     * @return string[]
+     */
+    public static function theLettervals($letters, bool $uniq = null, bool $recursive = null): array
+    {
+        return static::getInstance()->theLettervals($letters, $uniq, $recursive);
     }
 
     /**

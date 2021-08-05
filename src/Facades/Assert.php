@@ -301,9 +301,9 @@ class Assert
      *
      * @return string
      */
-    public static function assertWord($value): ?string
+    public static function assertLetter($value): ?string
     {
-        return static::getInstance()->assertWord($value);
+        return static::getInstance()->assertLetter($value);
     }
 
     /**
@@ -311,9 +311,9 @@ class Assert
      *
      * @return string
      */
-    public static function assertUtf8($value): ?string
+    public static function assertWord($value): ?string
     {
-        return static::getInstance()->assertUtf8($value);
+        return static::getInstance()->assertWord($value);
     }
 
     /**
@@ -371,6 +371,16 @@ class Assert
      *
      * @return string
      */
+    public static function assertLetterval($value): ?string
+    {
+        return static::getInstance()->assertLetterval($value);
+    }
+
+    /**
+     * @param string|mixed $value
+     *
+     * @return string
+     */
     public static function assertWordval($value): ?string
     {
         return static::getInstance()->assertWordval($value);
@@ -384,6 +394,16 @@ class Assert
     public static function assertTrimval($value): ?string
     {
         return static::getInstance()->assertTrimval($value);
+    }
+
+    /**
+     * @param string|mixed $value
+     *
+     * @return string
+     */
+    public static function assertUtf8($value): ?string
+    {
+        return static::getInstance()->assertUtf8($value);
     }
 
     /**

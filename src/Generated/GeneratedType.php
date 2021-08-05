@@ -227,9 +227,9 @@ abstract class GeneratedType implements \Gzhegow\Support\IType
      *
      * @return bool
      */
-    public function isWord($value): ?bool
+    public function isLetter($value): ?bool
     {
-        return null !== $this->filter->filterWord($value);
+        return null !== $this->filter->filterLetter($value);
     }
 
     /**
@@ -237,9 +237,9 @@ abstract class GeneratedType implements \Gzhegow\Support\IType
      *
      * @return bool
      */
-    public function isUtf8($value): ?bool
+    public function isWord($value): ?bool
     {
-        return null !== $this->filter->filterUtf8($value);
+        return null !== $this->filter->filterWord($value);
     }
 
     /**
@@ -297,6 +297,16 @@ abstract class GeneratedType implements \Gzhegow\Support\IType
      *
      * @return bool
      */
+    public function isLetterval($value): ?bool
+    {
+        return null !== $this->filter->filterLetterval($value);
+    }
+
+    /**
+     * @param string|mixed $value
+     *
+     * @return bool
+     */
     public function isWordval($value): ?bool
     {
         return null !== $this->filter->filterWordval($value);
@@ -310,6 +320,16 @@ abstract class GeneratedType implements \Gzhegow\Support\IType
     public function isTrimval($value): ?bool
     {
         return null !== $this->filter->filterTrimval($value);
+    }
+
+    /**
+     * @param string|mixed $value
+     *
+     * @return bool
+     */
+    public function isUtf8($value): ?bool
+    {
+        return null !== $this->filter->filterUtf8($value);
     }
 
     /**

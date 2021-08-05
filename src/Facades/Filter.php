@@ -234,9 +234,9 @@ class Filter
      *
      * @return null|string
      */
-    public static function filterWord($value): ?string
+    public static function filterLetter($value): ?string
     {
-        return static::getInstance()->filterWord($value);
+        return static::getInstance()->filterLetter($value);
     }
 
     /**
@@ -244,9 +244,9 @@ class Filter
      *
      * @return null|string
      */
-    public static function filterUtf8($value): ?string
+    public static function filterWord($value): ?string
     {
-        return static::getInstance()->filterUtf8($value);
+        return static::getInstance()->filterWord($value);
     }
 
     /**
@@ -304,6 +304,16 @@ class Filter
      *
      * @return null|string
      */
+    public static function filterLetterval($value): ?string
+    {
+        return static::getInstance()->filterLetterval($value);
+    }
+
+    /**
+     * @param string|mixed $value
+     *
+     * @return null|string
+     */
     public static function filterWordval($value): ?string
     {
         return static::getInstance()->filterWordval($value);
@@ -317,6 +327,16 @@ class Filter
     public static function filterTrimval($value): ?string
     {
         return static::getInstance()->filterTrimval($value);
+    }
+
+    /**
+     * @param string|mixed $value
+     *
+     * @return null|string
+     */
+    public static function filterUtf8($value): ?string
+    {
+        return static::getInstance()->filterUtf8($value);
     }
 
     /**
