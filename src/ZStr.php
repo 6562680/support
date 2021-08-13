@@ -1127,7 +1127,6 @@ class ZStr implements IStr
 
     /**
      * ищет подстроку в строке и разбивает по ней результат
-     * if ($explode = $str->contains('hello', 'h')) {} // ['', 'ello']
      *
      * @param string      $haystack
      * @param string|null $needle
@@ -1143,10 +1142,6 @@ class ZStr implements IStr
         if ('' === $haystack) return [];
         if ('' === $needle) return [ $haystack ];
 
-        $limit = null !== $limit
-            ? max(0, $limit)
-            : null;
-
         $strCase = $ignoreCase
             ? str_ireplace($needle, $needle, $haystack)
             : $haystack;
@@ -1156,7 +1151,7 @@ class ZStr implements IStr
         if (false !== mb_strpos($haystack, $needle)) {
             $result = null
                 ?? ( '' === $needle ? [ $haystack ] : null )
-                ?? ( $limit ? explode($needle, $strCase, $limit) : null )
+                ?? ( isset($limit) ? explode($needle, $strCase, $limit) : null )
                 ?? ( explode($needle, $strCase) );
         }
 
@@ -1319,7 +1314,43 @@ class ZStr implements IStr
 
 
     /**
-     * рекурсивно разрывает строку в многоуровневый массив вне зависимости от того найдено совпадение или нет (explode recursive)
+     * разбивает строку/строки в один массив по разделителю/разделителям
+     *
+     * @param string|array $delimiters
+     * @param string|array $strings
+     * @param null|bool    $ignoreCase
+     * @param null|int     $limit
+     *
+     * @return array
+     */
+    public function explode($delimiters, $strings, bool $ignoreCase = null, int $limit = null) : array
+    {
+        $delimiters = $this->theStrvals($delimiters, true);
+
+        $sources = is_array($strings)
+            ? $strings
+            : [ $strings ];
+
+        $result = [];
+
+        foreach ( $sources as $source ) {
+            $source = $ignoreCase
+                ? str_ireplace($delimiters, "\0", $source)
+                : str_replace($delimiters, "\0", $source);
+
+            $result = array_merge($result,
+                isset($limit)
+                    ? explode("\0", $source, $limit)
+                    : explode("\0", $source)
+            );
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * разбивает строку/строки в массив по разделителю/разделителям рекурсивно
      *
      * @param string|array $delimiters
      * @param string|array $strings
@@ -1328,16 +1359,16 @@ class ZStr implements IStr
      *
      * @return array
      */
-    public function separate($delimiters, $strings, bool $ignoreCase = null, int $limit = null) : array
+    public function gap($delimiters, $strings, bool $ignoreCase = null, int $limit = null) : array
     {
         $delimiters = $this->theStrvals($delimiters, true);
 
-        $strings = ( $isArray = is_array($strings) )
+        $result = ( $isArray = is_array($strings) )
             ? $strings
             : [ $strings ];
 
         foreach ( $delimiters as $delimiter ) {
-            array_walk_recursive($strings, function (string &$ref) use ($delimiter, $ignoreCase, $limit) {
+            array_walk_recursive($result, function (string &$ref) use ($delimiter, $ignoreCase, $limit) {
                 if ($split = $this->contains($ref, $delimiter, $ignoreCase, $limit)) {
                     $ref = $split;
 
@@ -1348,35 +1379,14 @@ class ZStr implements IStr
         }
 
         $result = $isArray
-            ? $strings
-            : reset($strings);
+            ? $result
+            : reset($result);
 
         return $result;
     }
 
     /**
-     * @param string|array $delimiters
-     * @param string|array $strings
-     * @param null|bool    $ignoreCase
-     * @param null|int     $limit
-     *
-     * @return array
-     */
-    public function explode($delimiters, $strings, bool $ignoreCase = null, int $limit = null) : array
-    {
-        $segragated = $this->separate($delimiters, $strings, $ignoreCase, $limit);
-
-        $result = [];
-        array_walk_recursive($segragated, function ($v) use (&$result) {
-            $result[] = $v;
-        });
-
-        return $result;
-    }
-
-
-    /**
-     * разбирает значение заголовка во вложенный массив, если разделители найдены в каждой подстроке
+     * разбивает строку/строки в массив по разделителю/разделителям рекурсивно, только если разделители найдены
      *
      * @param string|array $delimiters
      * @param string       $strings
@@ -1385,16 +1395,16 @@ class ZStr implements IStr
      *
      * @return string|array
      */
-    public function partition($delimiters, $strings, bool $ignoreCase = null, int $limit = null) // : string|array
+    public function gapSkip($delimiters, $strings, bool $ignoreCase = null, int $limit = null) // : string|array
     {
         $delimiters = $this->theStrvals($delimiters, true);
 
-        $strings = ( $isArray = is_array($strings) )
+        $result = ( $isArray = is_array($strings) )
             ? $strings
             : [ $strings ];
 
         foreach ( $delimiters as $delimiter ) {
-            array_walk_recursive($strings, function (string &$ref) use ($delimiter, $ignoreCase, $limit) {
+            array_walk_recursive($result, function (string &$ref) use ($delimiter, $ignoreCase, $limit) {
                 if ('' !== $delimiter) {
                     if ($split = $this->contains($ref, $delimiter, $ignoreCase, $limit)) {
                         $ref = $split;
@@ -1404,8 +1414,8 @@ class ZStr implements IStr
         }
 
         $result = $isArray
-            ? $strings
-            : reset($strings);
+            ? $result
+            : reset($result);
 
         return $result;
     }

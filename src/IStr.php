@@ -339,7 +339,6 @@ interface IStr
 
     /**
      * ищет подстроку в строке и разбивает по ней результат
-     * if ($explode = $str->contains('hello', 'h')) {} // ['', 'ello']
      *
      * @param string      $haystack
      * @param string|null $needle
@@ -417,18 +416,8 @@ interface IStr
     public function wrap(string $str, $wraps, bool $ignoreCase = null): string;
 
     /**
-     * рекурсивно разрывает строку в многоуровневый массив вне зависимости от того найдено совпадение или нет (explode recursive)
+     * разбивает строку/строки в один массив по разделителю/разделителям
      *
-     * @param string|array $delimiters
-     * @param string|array $strings
-     * @param null|bool    $ignoreCase
-     * @param int|null     $limit
-     *
-     * @return array
-     */
-    public function separate($delimiters, $strings, bool $ignoreCase = null, int $limit = null): array;
-
-    /**
      * @param string|array $delimiters
      * @param string|array $strings
      * @param null|bool    $ignoreCase
@@ -439,7 +428,19 @@ interface IStr
     public function explode($delimiters, $strings, bool $ignoreCase = null, int $limit = null): array;
 
     /**
-     * разбирает значение заголовка во вложенный массив, если разделители найдены в каждой подстроке
+     * разбивает строку/строки в массив по разделителю/разделителям рекурсивно
+     *
+     * @param string|array $delimiters
+     * @param string|array $strings
+     * @param null|bool    $ignoreCase
+     * @param int|null     $limit
+     *
+     * @return array
+     */
+    public function gap($delimiters, $strings, bool $ignoreCase = null, int $limit = null): array;
+
+    /**
+     * разбивает строку/строки в массив по разделителю/разделителям рекурсивно, только если разделители найдены
      *
      * @param string|array $delimiters
      * @param string       $strings
@@ -448,7 +449,7 @@ interface IStr
      *
      * @return string|array
      */
-    public function partition($delimiters, $strings, bool $ignoreCase = null, int $limit = null);
+    public function gapSkip($delimiters, $strings, bool $ignoreCase = null, int $limit = null);
 
     /**
      * '1, 2, 3', включая пустые строки, исключение если нельзя привести к строке

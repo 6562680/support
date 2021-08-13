@@ -370,11 +370,9 @@ class StrTest extends AbstractTestCase
         $this->assertEquals([ '', '' ], $str->contains('world', 'world'));
         $this->assertEquals([ 'hello ', '' ], $str->contains('hello world', 'world'));
 
-        $this->assertEquals([], $str->contains('Hello', 'hello', null, false));
-
         $this->assertEquals([], $str->contains('Word', 'World', null, false));
-        $this->assertEquals([ '', '' ], $str->contains('World', 'World', null, false));
-        $this->assertEquals([ 'Hello ', '' ], $str->contains('Hello World', 'World', null, false));
+        $this->assertEquals([ 'World' ], $str->contains('World', 'World', null, false));
+        $this->assertEquals([ 'Hello World' ], $str->contains('Hello World', 'World', null, false));
     }
 
 
@@ -509,68 +507,6 @@ class StrTest extends AbstractTestCase
     }
 
 
-    public function testSegregate()
-    {
-        $str = $this->getStr();
-
-        $this->assertEquals([ 'dadbdcd' ], $str->explode('', 'dadbdcd'));
-        $this->assertEquals([ 'dadbdcd' ], $str->explode([ '' ], 'dadbdcd'));
-
-        $this->assertEquals([ 'dadbdcd' ], $str->explode('?', 'dadbdcd'));
-        $this->assertEquals([ 'dadbdcd' ], $str->explode([ '?' ], 'dadbdcd'));
-
-        $this->assertEquals([ 'd', 'dbdcd' ], $str->explode('a', 'dadbdcd'));
-        $this->assertEquals([ 'd', 'dbdcd' ], $str->explode([ 'a' ], 'dadbdcd'));
-
-        $this->assertEquals([ 'd', 'd', 'dcd' ], $str->explode([ 'a', 'b' ], 'dadbdcd'));
-        $this->assertEquals([ 'd', 'd', 'd', 'd' ], $str->explode([ 'a', 'b', 'c' ], 'dadbdcd'));
-    }
-
-    public function testBadSegregate()
-    {
-        $str = $this->getStr();
-
-        $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $this->assertEquals([ 'dadbdcd' ], $str->explode(null, 'dadbdcd'));
-        });
-
-        $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $this->assertEquals([ 'dadbdcd' ], $str->explode([ null ], 'dadbdcd'));
-        });
-    }
-
-
-    public function testSeparate()
-    {
-        $str = $this->getStr();
-
-        $this->assertEquals([ 'dadbdcd' ], $str->separate('', 'dadbdcd'));
-        $this->assertEquals([ 'dadbdcd' ], $str->separate([ '' ], 'dadbdcd'));
-
-        $this->assertEquals([ 'dadbdcd' ], $str->separate('?', 'dadbdcd'));
-        $this->assertEquals([ 'dadbdcd' ], $str->separate([ '?' ], 'dadbdcd'));
-
-        $this->assertEquals([ 'd', 'dbdcd' ], $str->separate('a', 'dadbdcd'));
-        $this->assertEquals([ 'd', 'dbdcd' ], $str->separate([ 'a' ], 'dadbdcd'));
-
-        $this->assertEquals([ [ 'd' ], [ 'd', 'dcd' ] ], $str->separate([ 'a', 'b' ], 'dadbdcd'));
-        $this->assertEquals([ [ [ 'd' ] ], [ [ 'd' ], [ 'd', 'd' ] ] ], $str->separate([ 'a', 'b', 'c' ], 'dadbdcd'));
-    }
-
-    public function testBadSeparate()
-    {
-        $str = $this->getStr();
-
-        $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->separate(null, 'dadbdcd');
-        });
-
-        $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->separate([ null ], 'dadbdcd');
-        });
-    }
-
-
     public function testExplode()
     {
         $str = $this->getStr();
@@ -593,42 +529,74 @@ class StrTest extends AbstractTestCase
         $str = $this->getStr();
 
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->explode(null, 'dadbdcd');
+            $this->assertEquals([ 'dadbdcd' ], $str->explode(null, 'dadbdcd'));
         });
 
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->explode([ null ], 'dadbdcd');
+            $this->assertEquals([ 'dadbdcd' ], $str->explode([ null ], 'dadbdcd'));
         });
     }
 
 
-    public function testPartition()
+    public function testGap()
     {
         $str = $this->getStr();
 
-        $this->assertEquals('dadbdcd', $str->partition('', 'dadbdcd'));
-        $this->assertEquals('dadbdcd', $str->partition([ '' ], 'dadbdcd'));
+        $this->assertEquals([ 'dadbdcd' ], $str->gap('', 'dadbdcd'));
+        $this->assertEquals([ 'dadbdcd' ], $str->gap([ '' ], 'dadbdcd'));
 
-        $this->assertEquals('dadbdcd', $str->partition('?', 'dadbdcd'));
-        $this->assertEquals('dadbdcd', $str->partition([ '?' ], 'dadbdcd'));
+        $this->assertEquals([ 'dadbdcd' ], $str->gap('?', 'dadbdcd'));
+        $this->assertEquals([ 'dadbdcd' ], $str->gap([ '?' ], 'dadbdcd'));
 
-        $this->assertEquals([ 'd', 'dbdcd' ], $str->partition('a', 'dadbdcd'));
-        $this->assertEquals([ 'd', 'dbdcd' ], $str->partition([ 'a' ], 'dadbdcd'));
+        $this->assertEquals([ 'd', 'dbdcd' ], $str->gap('a', 'dadbdcd'));
+        $this->assertEquals([ 'd', 'dbdcd' ], $str->gap([ 'a' ], 'dadbdcd'));
 
-        $this->assertEquals([ 'd', [ 'd', 'dcd' ] ], $str->partition([ 'a', 'b' ], 'dadbdcd'));
-        $this->assertEquals([ 'd', [ 'd', [ 'd', 'd' ] ] ], $str->partition([ 'a', 'b', 'c' ], 'dadbdcd'));
+        $this->assertEquals([ [ 'd' ], [ 'd', 'dcd' ] ], $str->gap([ 'a', 'b' ], 'dadbdcd'));
+        $this->assertEquals([ [ [ 'd' ] ], [ [ 'd' ], [ 'd', 'd' ] ] ], $str->gap([ 'a', 'b', 'c' ], 'dadbdcd'));
     }
 
-    public function testBadPartition()
+    public function testBadGap()
     {
         $str = $this->getStr();
 
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->partition(null, 'dadbdcd');
+            $str->gap(null, 'dadbdcd');
         });
 
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->partition([ null ], 'dadbdcd');
+            $str->gap([ null ], 'dadbdcd');
+        });
+    }
+
+
+
+    public function testGapSkip()
+    {
+        $str = $this->getStr();
+
+        $this->assertEquals('dadbdcd', $str->gapSkip('', 'dadbdcd'));
+        $this->assertEquals('dadbdcd', $str->gapSkip([ '' ], 'dadbdcd'));
+
+        $this->assertEquals('dadbdcd', $str->gapSkip('?', 'dadbdcd'));
+        $this->assertEquals('dadbdcd', $str->gapSkip([ '?' ], 'dadbdcd'));
+
+        $this->assertEquals([ 'd', 'dbdcd' ], $str->gapSkip('a', 'dadbdcd'));
+        $this->assertEquals([ 'd', 'dbdcd' ], $str->gapSkip([ 'a' ], 'dadbdcd'));
+
+        $this->assertEquals([ 'd', [ 'd', 'dcd' ] ], $str->gapSkip([ 'a', 'b' ], 'dadbdcd'));
+        $this->assertEquals([ 'd', [ 'd', [ 'd', 'd' ] ] ], $str->gapSkip([ 'a', 'b', 'c' ], 'dadbdcd'));
+    }
+
+    public function testBadGapSkip()
+    {
+        $str = $this->getStr();
+
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->gapSkip(null, 'dadbdcd');
+        });
+
+        $this->assertException(InvalidArgumentException::class, function () use ($str) {
+            $str->gapSkip([ null ], 'dadbdcd');
         });
     }
 

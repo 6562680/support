@@ -447,7 +447,6 @@ class Str
 
     /**
      * ищет подстроку в строке и разбивает по ней результат
-     * if ($explode = $str->contains('hello', 'h')) {} // ['', 'ello']
      *
      * @param string      $haystack
      * @param string|null $needle
@@ -546,21 +545,8 @@ class Str
     }
 
     /**
-     * рекурсивно разрывает строку в многоуровневый массив вне зависимости от того найдено совпадение или нет (explode recursive)
+     * разбивает строку/строки в один массив по разделителю/разделителям
      *
-     * @param string|array $delimiters
-     * @param string|array $strings
-     * @param null|bool    $ignoreCase
-     * @param int|null     $limit
-     *
-     * @return array
-     */
-    public static function separate($delimiters, $strings, bool $ignoreCase = null, int $limit = null): array
-    {
-        return static::getInstance()->separate($delimiters, $strings, $ignoreCase, $limit);
-    }
-
-    /**
      * @param string|array $delimiters
      * @param string|array $strings
      * @param null|bool    $ignoreCase
@@ -574,7 +560,22 @@ class Str
     }
 
     /**
-     * разбирает значение заголовка во вложенный массив, если разделители найдены в каждой подстроке
+     * разбивает строку/строки в массив по разделителю/разделителям рекурсивно
+     *
+     * @param string|array $delimiters
+     * @param string|array $strings
+     * @param null|bool    $ignoreCase
+     * @param int|null     $limit
+     *
+     * @return array
+     */
+    public static function gap($delimiters, $strings, bool $ignoreCase = null, int $limit = null): array
+    {
+        return static::getInstance()->gap($delimiters, $strings, $ignoreCase, $limit);
+    }
+
+    /**
+     * разбивает строку/строки в массив по разделителю/разделителям рекурсивно, только если разделители найдены
      *
      * @param string|array $delimiters
      * @param string       $strings
@@ -583,9 +584,9 @@ class Str
      *
      * @return string|array
      */
-    public static function partition($delimiters, $strings, bool $ignoreCase = null, int $limit = null)
+    public static function gapSkip($delimiters, $strings, bool $ignoreCase = null, int $limit = null)
     {
-        return static::getInstance()->partition($delimiters, $strings, $ignoreCase, $limit);
+        return static::getInstance()->gapSkip($delimiters, $strings, $ignoreCase, $limit);
     }
 
     /**
