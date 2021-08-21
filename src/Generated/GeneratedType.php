@@ -573,13 +573,13 @@ abstract class GeneratedType implements \Gzhegow\Support\IType
     }
 
     /**
-     * @param string|mixed $class
+     * @param string|mixed $classFullname
      *
      * @return bool
      */
-    public function isClassFQN($class): ?bool
+    public function isClassFullname($classFullname): ?bool
     {
-        return null !== $this->filter->filterClassFQN($class);
+        return null !== $this->filter->filterClassFullname($classFullname);
     }
 
     /**

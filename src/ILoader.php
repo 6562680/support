@@ -11,6 +11,7 @@
 
 namespace Gzhegow\Support;
 
+use Gzhegow\Support\Exceptions\LogicException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\RuntimeException;
 
@@ -66,7 +67,7 @@ interface ILoader
      *
      * @return ZLoader
      */
-    public function addContract(string $contract, $classes);
+    public function addContract(string $contract, ...$classes);
 
     /**
      * @param string|object   $value
@@ -74,7 +75,7 @@ interface ILoader
      *
      * @return bool
      */
-    public function isClassOf($value, $classes): bool;
+    public function isClassOneOf($value, $classes): bool;
 
     /**
      * @param string|object   $value
@@ -82,7 +83,7 @@ interface ILoader
      *
      * @return bool
      */
-    public function isSubclassOf($value, $classes): bool;
+    public function isSubclassOneOf($value, $classes): bool;
 
     /**
      * @param object          $value
@@ -90,7 +91,7 @@ interface ILoader
      *
      * @return bool
      */
-    public function isInstanceOf($value, $classes): bool;
+    public function isInstanceOneOf($value, $classes): bool;
 
     /**
      * @param string|mixed $object
@@ -98,7 +99,7 @@ interface ILoader
      *
      * @return bool
      */
-    public function isContact($object, $contract): bool;
+    public function isContract($object, $contract): bool;
 
     /**
      * @param string|object   $value
@@ -106,7 +107,7 @@ interface ILoader
      *
      * @return null|string|object
      */
-    public function filterClassOf($value, $classes);
+    public function filterClassOneOf($value, $classes);
 
     /**
      * @param string|object   $value
@@ -114,7 +115,7 @@ interface ILoader
      *
      * @return null|string|object
      */
-    public function filterSubclassOf($value, $classes);
+    public function filterSubclassOneOf($value, $classes);
 
     /**
      * @param object          $object
@@ -122,7 +123,7 @@ interface ILoader
      *
      * @return null|object
      */
-    public function filterInstanceOf($object, $classes): ?object;
+    public function filterInstanceOneOf($object, $classes): ?object;
 
     /**
      * @param object|mixed $object
@@ -138,7 +139,7 @@ interface ILoader
      *
      * @return string|object
      */
-    public function assertClassOf($value, $classes);
+    public function assertClassOneOf($value, $classes);
 
     /**
      * @param string|object   $value
@@ -146,7 +147,7 @@ interface ILoader
      *
      * @return string|object
      */
-    public function assertSubclassOf($value, $classes);
+    public function assertSubclassOneOf($value, $classes);
 
     /**
      * @param object          $object
@@ -154,7 +155,7 @@ interface ILoader
      *
      * @return object
      */
-    public function assertInstanceOf($object, $classes): object;
+    public function assertInstanceOneOf($object, $classes): object;
 
     /**
      * @param object|mixed $object
@@ -166,117 +167,167 @@ interface ILoader
 
     /**
      * @param object|\ReflectionClass $object
-     * @param null|bool               $prefixed
+     * @param null|bool               $root
      *
      * @return null|string
      */
-    public function objectClassVal($object, bool $prefixed = null): ?string;
+    public function objectClassVal($object, bool $root = null): ?string;
 
     /**
      * @param object|\ReflectionClass $object
-     * @param null|bool               $prefixed
+     * @param null|bool               $root
      *
      * @return null|string
      */
-    public function objectInterfaceVal($object, bool $prefixed = null): ?string;
+    public function objectClassOnlyVal($object, bool $root = null): ?string;
 
     /**
      * @param object|\ReflectionClass $object
-     * @param null|bool               $prefixed
+     * @param null|bool               $root
      *
      * @return null|string
      */
-    public function objectTraitVal($object, bool $prefixed = null): ?string;
+    public function objectInterfaceOnlyVal($object, bool $root = null): ?string;
 
     /**
      * @param object|\ReflectionClass $object
-     * @param null|bool               $prefixed
+     * @param null|bool               $root
      *
-     * @return string
+     * @return null|string
      */
-    public function theObjectClassVal($object, bool $prefixed = null): string;
+    public function objectTraitOnlyVal($object, bool $root = null): ?string;
 
     /**
      * @param object|\ReflectionClass $object
-     * @param null|bool               $prefixed
+     * @param null|bool               $root
      *
      * @return string
      */
-    public function theObjectInterfaceVal($object, bool $prefixed = null): string;
+    public function theObjectClassVal($object, bool $root = null): string;
 
     /**
      * @param object|\ReflectionClass $object
-     * @param null|bool               $prefixed
+     * @param null|bool               $root
      *
      * @return string
      */
-    public function theObjectTraitVal($object, bool $prefixed = null): string;
+    public function theObjectClassOnlyVal($object, bool $root = null): string;
+
+    /**
+     * @param object|\ReflectionClass $object
+     * @param null|bool               $root
+     *
+     * @return string
+     */
+    public function theObjectInterfaceOnlyVal($object, bool $root = null): string;
+
+    /**
+     * @param object|\ReflectionClass $object
+     * @param null|bool               $root
+     *
+     * @return string
+     */
+    public function theObjectTraitOnlyVal($object, bool $root = null): string;
 
     /**
      * @param string|object|\ReflectionClass $classOrObject
-     * @param null|bool                      $prefixed
+     * @param null|bool                      $root
      *
      * @return null|string
      */
-    public function classVal($classOrObject, bool $prefixed = null): ?string;
+    public function classVal($classOrObject, bool $root = null): ?string;
 
     /**
      * @param string|object|\ReflectionClass $classOrObject
-     * @param null|bool                      $prefixed
+     * @param null|bool                      $root
      *
      * @return null|string
      */
-    public function interfaceVal($classOrObject, bool $prefixed = null): ?string;
+    public function classFullnameVal($classOrObject, bool $root = null): ?string;
 
     /**
      * @param string|object|\ReflectionClass $classOrObject
-     * @param null|bool                      $prefixed
+     * @param null|bool                      $root
+     *
+     * @return string
+     */
+    public function theClassVal($classOrObject, bool $root = null): string;
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param null|bool                      $root
+     *
+     * @return string
+     */
+    public function theClassFullnameVal($classOrObject, bool $root = null): string;
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param null|bool                      $root
      *
      * @return null|string
      */
-    public function traitVal($classOrObject, bool $prefixed = null): ?string;
+    public function classOnlyVal($classOrObject, bool $root = null): ?string;
 
     /**
      * @param string|object|\ReflectionClass $classOrObject
-     * @param null|bool                      $prefixed
+     * @param null|bool                      $root
      *
-     * @return string
+     * @return null|string
      */
-    public function theClassVal($classOrObject, bool $prefixed = null): string;
+    public function interfaceOnlyVal($classOrObject, bool $root = null): ?string;
 
     /**
      * @param string|object|\ReflectionClass $classOrObject
-     * @param null|bool                      $prefixed
+     * @param null|bool                      $root
      *
-     * @return string
+     * @return null|string
      */
-    public function theInterfaceVal($classOrObject, bool $prefixed = null): string;
+    public function traitOnlyVal($classOrObject, bool $root = null): ?string;
 
     /**
      * @param string|object|\ReflectionClass $classOrObject
-     * @param null|bool                      $prefixed
+     * @param null|bool                      $root
      *
      * @return string
      */
-    public function theTraitVal($classOrObject, bool $prefixed = null): string;
+    public function theClassOnlyVal($classOrObject, bool $root = null): string;
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param null|bool                      $root
+     *
+     * @return string
+     */
+    public function theInterfaceOnlyVal($classOrObject, bool $root = null): string;
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param null|bool                      $root
+     *
+     * @return string
+     */
+    public function theTraitOnlyVal($classOrObject, bool $root = null): string;
+
+    /**
+     * Получает имя класса из списка `use` для указанного `declaredClass`
+     *
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param string|object|\ReflectionClass $declaredClassOrObject
+     * @param null|bool                      $root
+     *
+     * @return null|string
+     */
+    public function useClassVal($classOrObject, $declaredClassOrObject, bool $root = null): ?string;
 
     /**
      * @param string|object|\ReflectionClass $classOrObject
      * @param string|object|\ReflectionClass $declaredClassOrObject
-     * @param null|bool                      $prefixed
+     * @param null|bool                      $root
      *
      * @return null|string
      */
-    public function useClassVal($classOrObject, $declaredClassOrObject, bool $prefixed = null): ?string;
-
-    /**
-     * @param string|object|\ReflectionClass $classOrObject
-     * @param string|object|\ReflectionClass $declaredClassOrObject
-     * @param null|bool                      $prefixed
-     *
-     * @return null|string
-     */
-    public function theUseClassVal($classOrObject, $declaredClassOrObject, bool $prefixed = null): string;
+    public function theUseClassVal($classOrObject, $declaredClassOrObject, bool $root = null): string;
 
     /**
      * @param string|object $classOrObject
@@ -287,19 +338,19 @@ interface ILoader
     public function classTraits($classOrObject, bool $recursive = null): ?array;
 
     /**
-     * @param string    $traitFQN
+     * @param string    $traitFullname
      * @param null|bool $recursive
      *
      * @return array
      */
-    public function traitTraits($traitFQN, bool $recursive = null): ?array;
+    public function traitTraits($traitFullname, bool $recursive = null): ?array;
 
     /**
      * @param string|object $classOrObject
      *
      * @return string[]
      */
-    public function nsClass($classOrObject): array;
+    public function namespaceClass($classOrObject): array;
 
     /**
      * @param string|object $classOrObject
@@ -374,12 +425,12 @@ interface ILoader
     public function pathBasename(string $path, string $suffix = null, int $level = null): string;
 
     /**
-     * @param string|object $classOrObject
-     * @param string|null   $base
+     * @param string      $path
+     * @param string|null $base
      *
      * @return string
      */
-    public function pathRelative($classOrObject, string $base = null): ?string;
+    public function pathRelative(string $path, string $base = null): ?string;
 
     /**
      * @param string $filepath

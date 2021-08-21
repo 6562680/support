@@ -24,14 +24,14 @@ class FilterTest extends AbstractTestCase
         $globalClass = '\StdClass';
         $currentGlobalClass = '\\' . __CLASS__;
 
-        $this->assertEquals(null, $filter->filterClassFQN(null));
-        $this->assertEquals(null, $filter->filterClassFQN(0));
-        $this->assertEquals(null, $filter->filterClassFQN(''));
-        $this->assertEquals(null, $filter->filterClassFQN('0'));
+        $this->assertEquals(null, $filter->filterClassFullname(null));
+        $this->assertEquals(null, $filter->filterClassFullname(0));
+        $this->assertEquals(null, $filter->filterClassFullname(''));
+        $this->assertEquals(null, $filter->filterClassFullname('0'));
 
-        $this->assertIsString($filter->filterClassFQN($class));
-        $this->assertIsString($filter->filterClassFQN($currentClass));
-        $this->assertIsString($filter->filterClassFQN($globalClass));
-        $this->assertIsString($filter->filterClassFQN($currentGlobalClass));
+        $this->assertIsString($filter->filterClassFullname($class));
+        $this->assertIsString($filter->filterClassFullname($currentClass));
+        $this->assertIsString($filter->filterClassFullname($globalClass));
+        $this->assertIsString($filter->filterClassFullname($currentGlobalClass));
     }
 }

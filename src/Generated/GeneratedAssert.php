@@ -1020,16 +1020,16 @@ abstract class GeneratedAssert implements \Gzhegow\Support\IAssert
     }
 
     /**
-     * @param string|mixed $class
+     * @param string|mixed $classFullname
      *
      * @return string
      */
-    public function assertClassFQN($class): ?string
+    public function assertClassFullname($classFullname): ?string
     {
-        if (null === ( $filtered = $this->filter->filterClassFQN($class) )) {
+        if (null === ( $filtered = $this->filter->filterClassFullname($classFullname) )) {
             throw $this->getThrowableOr(
                 new InvalidArgumentException($this->getErrorOr(
-                    'Invalid ClassFQN passed: %s', ...func_get_args()
+                    'Invalid ClassFullname passed: %s', ...func_get_args()
                 ))
             );
         }

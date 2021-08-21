@@ -39,23 +39,17 @@ class LoaderTest extends AbstractTestCase
     {
         $loader = $this->getLoader();
 
-        $class = 'stdClass';
-        $object = new \StdClass();
-        $globalClass = '\\' . $class;
+        $class = ZLoader::class;
+        $rootClass = '\\' . $class;
+        $object = $loader;
+        $reflectionClass = new \ReflectionClass($loader);
+        $className = 'ZLoader';
 
-        $currentClass = __CLASS__;
-        $currentGlobalClass = '\\' . __CLASS__;
-        $currentReflectionClass = new \ReflectionClass($this);
-        $currentClassName = $loader->className($currentClass);
-
-        $this->assertEquals($globalClass, $loader->useClassVal($class, __CLASS__));
-        $this->assertEquals($globalClass, $loader->useClassVal($object, __CLASS__));
-        $this->assertEquals($globalClass, $loader->useClassVal($globalClass, __CLASS__));
-
-        $this->assertEquals($currentGlobalClass, $loader->useClassVal($currentClass, __CLASS__));
-        $this->assertEquals($currentGlobalClass, $loader->useClassVal($currentGlobalClass, __CLASS__));
-        $this->assertEquals($currentGlobalClass, $loader->useClassVal($currentReflectionClass, __CLASS__));
-        $this->assertEquals($currentGlobalClass, $loader->useClassVal($currentClassName, __CLASS__));
+        $this->assertEquals($rootClass, $loader->useClassVal($class, __CLASS__));
+        $this->assertEquals($rootClass, $loader->useClassVal($object, __CLASS__));
+        $this->assertEquals($rootClass, $loader->useClassVal($rootClass, __CLASS__));
+        $this->assertEquals($rootClass, $loader->useClassVal($reflectionClass, __CLASS__));
+        $this->assertEquals($rootClass, $loader->useClassVal($className, __CLASS__));
     }
 
 
@@ -69,9 +63,9 @@ class LoaderTest extends AbstractTestCase
         };
         $c = 'StdClass';
 
-        $this->assertEquals(true, $loader->isClassOf($a, [ \StdClass::class, \SplPriorityQueue::class ]));
-        $this->assertEquals(true, $loader->isClassOf($b, [ \StdClass::class, \SplPriorityQueue::class ]));
-        $this->assertEquals(true, $loader->isClassOf($c, [ \StdClass::class, \SplPriorityQueue::class ]));
+        $this->assertEquals(true, $loader->isClassOneOf($a, [ \StdClass::class, \SplPriorityQueue::class ]));
+        $this->assertEquals(true, $loader->isClassOneOf($b, [ \StdClass::class, \SplPriorityQueue::class ]));
+        $this->assertEquals(true, $loader->isClassOneOf($c, [ \StdClass::class, \SplPriorityQueue::class ]));
     }
 
     public function testIsSubclassOf()
@@ -84,9 +78,9 @@ class LoaderTest extends AbstractTestCase
         };
         $c = 'StdClass';
 
-        $this->assertEquals(true, $loader->isSubclassOf($a, [ \StdClass::class, \SplPriorityQueue::class ]));
-        $this->assertEquals(true, $loader->isSubclassOf($b, [ \StdClass::class, \SplPriorityQueue::class ]));
-        $this->assertEquals(false, $loader->isSubclassOf($c, [ \StdClass::class, \SplPriorityQueue::class ]));
+        $this->assertEquals(true, $loader->isSubclassOneOf($a, [ \StdClass::class, \SplPriorityQueue::class ]));
+        $this->assertEquals(true, $loader->isSubclassOneOf($b, [ \StdClass::class, \SplPriorityQueue::class ]));
+        $this->assertEquals(false, $loader->isSubclassOneOf($c, [ \StdClass::class, \SplPriorityQueue::class ]));
     }
 
     public function testIsInstanceOf()
@@ -98,8 +92,8 @@ class LoaderTest extends AbstractTestCase
         $b = new class extends \SplPriorityQueue {
         };
 
-        $this->assertEquals(true, $loader->isInstanceOf($a, [ \StdClass::class, \SplPriorityQueue::class ]));
-        $this->assertEquals(true, $loader->isInstanceOf($b, [ \StdClass::class, \SplPriorityQueue::class ]));
+        $this->assertEquals(true, $loader->isInstanceOneOf($a, [ \StdClass::class, \SplPriorityQueue::class ]));
+        $this->assertEquals(true, $loader->isInstanceOneOf($b, [ \StdClass::class, \SplPriorityQueue::class ]));
     }
 
     public function testIsContract()
@@ -114,8 +108,8 @@ class LoaderTest extends AbstractTestCase
         $b = new class extends \SplPriorityQueue {
         };
 
-        $this->assertEquals(true, $loader->isContact($a, 'myContract'));
-        $this->assertEquals(true, $loader->isContact($b, 'myContract'));
+        $this->assertEquals(true, $loader->isContract($a, 'myContract'));
+        $this->assertEquals(true, $loader->isContract($b, 'myContract'));
     }
 
 
@@ -129,9 +123,9 @@ class LoaderTest extends AbstractTestCase
         };
         $c = 'StdClass';
 
-        $this->assertEquals($a, $loader->filterClassOf($a, [ \StdClass::class, \SplPriorityQueue::class ]));
-        $this->assertEquals($b, $loader->filterClassOf($b, [ \StdClass::class, \SplPriorityQueue::class ]));
-        $this->assertEquals($c, $loader->filterClassOf($c, [ \StdClass::class, \SplPriorityQueue::class ]));
+        $this->assertEquals($a, $loader->filterClassOneOf($a, [ \StdClass::class, \SplPriorityQueue::class ]));
+        $this->assertEquals($b, $loader->filterClassOneOf($b, [ \StdClass::class, \SplPriorityQueue::class ]));
+        $this->assertEquals($c, $loader->filterClassOneOf($c, [ \StdClass::class, \SplPriorityQueue::class ]));
     }
 
     public function testFilterSubclassOf()
@@ -144,9 +138,9 @@ class LoaderTest extends AbstractTestCase
         };
         $c = 'StdClass';
 
-        $this->assertEquals($a, $loader->filterSubclassOf($a, [ \StdClass::class, \SplPriorityQueue::class ]));
-        $this->assertEquals($b, $loader->filterSubclassOf($b, [ \StdClass::class, \SplPriorityQueue::class ]));
-        $this->assertEquals(null, $loader->filterSubclassOf($c, [ \StdClass::class, \SplPriorityQueue::class ]));
+        $this->assertEquals($a, $loader->filterSubclassOneOf($a, [ \StdClass::class, \SplPriorityQueue::class ]));
+        $this->assertEquals($b, $loader->filterSubclassOneOf($b, [ \StdClass::class, \SplPriorityQueue::class ]));
+        $this->assertEquals(null, $loader->filterSubclassOneOf($c, [ \StdClass::class, \SplPriorityQueue::class ]));
     }
 
     public function testFilterInstanceOf()
@@ -158,8 +152,8 @@ class LoaderTest extends AbstractTestCase
         $b = new class extends \SplPriorityQueue {
         };
 
-        $this->assertEquals($a, $loader->filterInstanceOf($a, [ \StdClass::class, \SplPriorityQueue::class ]));
-        $this->assertEquals($b, $loader->filterInstanceOf($b, [ \StdClass::class, \SplPriorityQueue::class ]));
+        $this->assertEquals($a, $loader->filterInstanceOneOf($a, [ \StdClass::class, \SplPriorityQueue::class ]));
+        $this->assertEquals($b, $loader->filterInstanceOneOf($b, [ \StdClass::class, \SplPriorityQueue::class ]));
     }
 
     public function testFilterContract()
@@ -188,10 +182,10 @@ class LoaderTest extends AbstractTestCase
         $c = 'A\\B\\C\\D';
         $d = '\\A\\B\\C\\D';
 
-        $this->assertEquals([ 'Gzhegow\Support\Tests', 'LoaderTest' ], $loader->nsClass($a));
-        $this->assertEquals([ 'Gzhegow\Support', 'ZLoader' ], $loader->nsClass($b));
-        $this->assertEquals([ 'A\\B\\C', 'D' ], $loader->nsClass($c));
-        $this->assertEquals([ 'A\\B\\C', 'D' ], $loader->nsClass($d));
+        $this->assertEquals([ 'Gzhegow\Support\Tests', 'LoaderTest' ], $loader->namespaceClass($a));
+        $this->assertEquals([ 'Gzhegow\Support', 'ZLoader' ], $loader->namespaceClass($b));
+        $this->assertEquals([ 'A\\B\\C', 'D' ], $loader->namespaceClass($c));
+        $this->assertEquals([ 'A\\B\\C', 'D' ], $loader->namespaceClass($d));
     }
 
     public function testNamespace()

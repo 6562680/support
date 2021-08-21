@@ -595,13 +595,13 @@ class Type
     }
 
     /**
-     * @param string|mixed $class
+     * @param string|mixed $classFullname
      *
      * @return bool
      */
-    public static function isClassFQN($class): ?bool
+    public static function isClassFullname($classFullname): ?bool
     {
-        return static::getInstance()->isClassFQN($class);
+        return static::getInstance()->isClassFullname($classFullname);
     }
 
     /**

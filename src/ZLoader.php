@@ -6,6 +6,7 @@
 
 namespace Gzhegow\Support;
 
+use Gzhegow\Support\Exceptions\LogicException;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
@@ -24,12 +25,10 @@ class ZLoader implements ILoader
      */
     protected $str;
 
-
     /**
      * @var IPath
      */
     protected $path;
-
 
     /**
      * @var array
@@ -38,21 +37,12 @@ class ZLoader implements ILoader
     /**
      * @var array
      */
-    protected $useStatements;
+    protected $useStatements = [];
 
     /**
      * @var array
      */
     protected $contracts = [];
-
-    /**
-     * @var string
-     */
-    protected $includeFilepath;
-    /**
-     * @var array
-     */
-    protected $includeData = [];
 
 
     /**
@@ -79,7 +69,7 @@ class ZLoader implements ILoader
     public function reset()
     {
         $this->declaredClasses = null;
-        $this->useStatements = null;
+        $this->useStatements = [];
 
         $this->contracts = [];
 
@@ -269,7 +259,7 @@ class ZLoader implements ILoader
      *
      * @return static
      */
-    public function addContract(string $contract, $classes)
+    public function addContract(string $contract, ...$classes)
     {
         $contract = $this->str->theWordval($contract);
         $classes = $this->str->theWordvals($classes, true);
@@ -296,9 +286,9 @@ class ZLoader implements ILoader
      *
      * @return bool
      */
-    public function isClassOf($value, $classes) : bool
+    public function isClassOneOf($value, $classes) : bool
     {
-        return null !== $this->filterClassOf($value, $classes);
+        return null !== $this->filterClassOneOf($value, $classes);
     }
 
     /**
@@ -307,9 +297,9 @@ class ZLoader implements ILoader
      *
      * @return bool
      */
-    public function isSubclassOf($value, $classes) : bool
+    public function isSubclassOneOf($value, $classes) : bool
     {
-        return null !== $this->filterSubclassOf($value, $classes);
+        return null !== $this->filterSubclassOneOf($value, $classes);
     }
 
     /**
@@ -318,10 +308,11 @@ class ZLoader implements ILoader
      *
      * @return bool
      */
-    public function isInstanceOf($value, $classes) : bool
+    public function isInstanceOneOf($value, $classes) : bool
     {
-        return null !== $this->filterInstanceOf($value, $classes);
+        return null !== $this->filterInstanceOneOf($value, $classes);
     }
+
 
     /**
      * @param string|mixed $object
@@ -329,7 +320,7 @@ class ZLoader implements ILoader
      *
      * @return bool
      */
-    public function isContact($object, $contract) : bool
+    public function isContract($object, $contract) : bool
     {
         return null !== $this->filterContract($object, $contract);
     }
@@ -341,7 +332,7 @@ class ZLoader implements ILoader
      *
      * @return null|string|object
      */
-    public function filterClassOf($value, $classes) // : ?string|object
+    public function filterClassOneOf($value, $classes) // : ?string|object
     {
         $list = $this->str->theWordvals($classes, true);
 
@@ -365,7 +356,7 @@ class ZLoader implements ILoader
      *
      * @return null|string|object
      */
-    public function filterSubclassOf($value, $classes) // : ?string|object
+    public function filterSubclassOneOf($value, $classes) // : ?string|object
     {
         $list = $this->str->theWordvals($classes, true);
 
@@ -389,7 +380,7 @@ class ZLoader implements ILoader
      *
      * @return null|object
      */
-    public function filterInstanceOf($object, $classes) : ?object
+    public function filterInstanceOneOf($object, $classes) : ?object
     {
         $list = $this->str->theWordvals($classes, true);
 
@@ -401,6 +392,7 @@ class ZLoader implements ILoader
 
         return null;
     }
+
 
     /**
      * @param object|mixed $object
@@ -418,7 +410,7 @@ class ZLoader implements ILoader
             return null;
         }
 
-        $result = $this->filterInstanceOf($object, $this->contracts[ $contract ] ?? []);
+        $result = $this->filterInstanceOneOf($object, $this->contracts[ $contract ] ?? []);
 
         return $result;
     }
@@ -430,9 +422,9 @@ class ZLoader implements ILoader
      *
      * @return string|object
      */
-    public function assertClassOf($value, $classes) // : ?string|object
+    public function assertClassOneOf($value, $classes) // : ?string|object
     {
-        if (null === $this->filterClassOf($value, $classes)) {
+        if (null === $this->filterClassOneOf($value, $classes)) {
             throw new InvalidArgumentException('Value should be class of: '
                 . '[' . implode(', ', is_array($classes)
                     ? $classes
@@ -450,9 +442,9 @@ class ZLoader implements ILoader
      *
      * @return string|object
      */
-    public function assertSubclassOf($value, $classes) // : ?string|object
+    public function assertSubclassOneOf($value, $classes) // : ?string|object
     {
-        if (null === $this->filterSubclassOf($value, $classes)) {
+        if (null === $this->filterSubclassOneOf($value, $classes)) {
             throw new InvalidArgumentException('Value should be subclass of: '
                 . '[' . implode(', ', is_array($classes)
                     ? $classes
@@ -470,9 +462,9 @@ class ZLoader implements ILoader
      *
      * @return object
      */
-    public function assertInstanceOf($object, $classes) : object
+    public function assertInstanceOneOf($object, $classes) : object
     {
-        if (null === $this->filterInstanceOf($object, $classes)) {
+        if (null === $this->filterInstanceOneOf($object, $classes)) {
             throw new InvalidArgumentException('Value should be instance of: '
                 . '[' . implode(', ', is_array($classes)
                     ? $classes
@@ -483,6 +475,7 @@ class ZLoader implements ILoader
 
         return $object;
     }
+
 
     /**
      * @param object|mixed $object
@@ -504,13 +497,44 @@ class ZLoader implements ILoader
 
     /**
      * @param object|\ReflectionClass $object
-     * @param null|bool               $prefixed
+     * @param null|bool               $root
      *
      * @return null|string
      */
-    public function objectClassVal($object, bool $prefixed = null) : ?string
+    public function objectClassVal($object, bool $root = null) : ?string
     {
-        $prefixed = $prefixed ?? true;
+        $root = $root ?? true;
+
+        $val = null;
+
+        if (is_object($object)) {
+            if ($reflectionClass = $this->filter->filterReflectionClass($object)) {
+                $val = $reflectionClass->getName();
+
+            } else {
+                $val = get_class($object);
+            }
+
+            if ($val) {
+                $val = $root
+                    ? '\\' . ltrim($val, '\\')
+                    : ltrim($val, '\\');
+            }
+        }
+
+        return $val;
+    }
+
+
+    /**
+     * @param object|\ReflectionClass $object
+     * @param null|bool               $root
+     *
+     * @return null|string
+     */
+    public function objectClassOnlyVal($object, bool $root = null) : ?string
+    {
+        $root = $root ?? true;
 
         $val = null;
 
@@ -519,13 +543,16 @@ class ZLoader implements ILoader
                 if (! ( $reflectionClass->isInterface() || $reflectionClass->isTrait() )) {
                     $val = $reflectionClass->getName();
                 }
+
             } else {
                 $val = get_class($object);
             }
-        }
 
-        if (strlen($val) && $prefixed) {
-            $val = '\\' . ltrim($val, '\\');
+            if ($val) {
+                $val = $root
+                    ? '\\' . ltrim($val, '\\')
+                    : ltrim($val, '\\');
+            }
         }
 
         return $val;
@@ -533,13 +560,13 @@ class ZLoader implements ILoader
 
     /**
      * @param object|\ReflectionClass $object
-     * @param null|bool               $prefixed
+     * @param null|bool               $root
      *
      * @return null|string
      */
-    public function objectInterfaceVal($object, bool $prefixed = null) : ?string
+    public function objectInterfaceOnlyVal($object, bool $root = null) : ?string
     {
-        $prefixed = $prefixed ?? true;
+        $root = $root ?? true;
 
         $val = null;
 
@@ -549,10 +576,12 @@ class ZLoader implements ILoader
             if ($reflectionClass && $reflectionClass->isInterface()) {
                 $val = $reflectionClass->getName();
             }
-        }
 
-        if (strlen($val) && $prefixed) {
-            $val = '\\' . ltrim($val, '\\');
+            if ($val) {
+                $val = $root
+                    ? '\\' . ltrim($val, '\\')
+                    : ltrim($val, '\\');
+            }
         }
 
         return $val;
@@ -560,13 +589,13 @@ class ZLoader implements ILoader
 
     /**
      * @param object|\ReflectionClass $object
-     * @param null|bool               $prefixed
+     * @param null|bool               $root
      *
      * @return null|string
      */
-    public function objectTraitVal($object, bool $prefixed = null) : ?string
+    public function objectTraitOnlyVal($object, bool $root = null) : ?string
     {
-        $prefixed = $prefixed ?? true;
+        $root = $root ?? true;
 
         $val = null;
 
@@ -576,10 +605,12 @@ class ZLoader implements ILoader
             if ($reflectionClass && $reflectionClass->isTrait()) {
                 $val = $reflectionClass->getName();
             }
-        }
 
-        if (strlen($val) && $prefixed) {
-            $val = '\\' . ltrim($val, '\\');
+            if ($val) {
+                $val = $root
+                    ? '\\' . ltrim($val, '\\')
+                    : ltrim($val, '\\');
+            }
         }
 
         return $val;
@@ -588,15 +619,33 @@ class ZLoader implements ILoader
 
     /**
      * @param object|\ReflectionClass $object
-     * @param null|bool               $prefixed
+     * @param null|bool               $root
      *
      * @return string
      */
-    public function theObjectClassVal($object, bool $prefixed = null) : string
+    public function theObjectClassVal($object, bool $root = null) : string
     {
-        if (null === ( $val = $this->objectClassVal($object, $prefixed) )) {
+        if (null === ( $val = $this->objectClassOnlyVal($object, $root) )) {
             throw new InvalidArgumentException(
-                [ 'Unable to get ClassFQN from Object: %s', $object ]
+                [ 'Unable to get Class/Interface/Trait Fullname from Object: %s', $object ]
+            );
+        }
+
+        return $val;
+    }
+
+
+    /**
+     * @param object|\ReflectionClass $object
+     * @param null|bool               $root
+     *
+     * @return string
+     */
+    public function theObjectClassOnlyVal($object, bool $root = null) : string
+    {
+        if (null === ( $val = $this->objectClassOnlyVal($object, $root) )) {
+            throw new InvalidArgumentException(
+                [ 'Unable to get ClassFullname from Object: %s', $object ]
             );
         }
 
@@ -605,15 +654,15 @@ class ZLoader implements ILoader
 
     /**
      * @param object|\ReflectionClass $object
-     * @param null|bool               $prefixed
+     * @param null|bool               $root
      *
      * @return string
      */
-    public function theObjectInterfaceVal($object, bool $prefixed = null) : string
+    public function theObjectInterfaceOnlyVal($object, bool $root = null) : string
     {
-        if (null === ( $val = $this->objectInterfaceVal($object, $prefixed) )) {
+        if (null === ( $val = $this->objectInterfaceOnlyVal($object, $root) )) {
             throw new InvalidArgumentException(
-                [ 'Unable to get InterfaceFQN from Object: %s', $object ]
+                [ 'Unable to get InterfaceFullname from Object: %s', $object ]
             );
         }
 
@@ -622,15 +671,15 @@ class ZLoader implements ILoader
 
     /**
      * @param object|\ReflectionClass $object
-     * @param null|bool               $prefixed
+     * @param null|bool               $root
      *
      * @return string
      */
-    public function theObjectTraitVal($object, bool $prefixed = null) : string
+    public function theObjectTraitOnlyVal($object, bool $root = null) : string
     {
-        if (null === ( $val = $this->objectTraitVal($object, $prefixed) )) {
+        if (null === ( $val = $this->objectTraitOnlyVal($object, $root) )) {
             throw new InvalidArgumentException(
-                [ 'Unable to get TraitFQN from Object: %s', $object ]
+                [ 'Unable to get TraitFullname from Object: %s', $object ]
             );
         }
 
@@ -640,97 +689,209 @@ class ZLoader implements ILoader
 
     /**
      * @param string|object|\ReflectionClass $classOrObject
-     * @param null|bool                      $prefixed
+     * @param null|bool                      $root
      *
      * @return null|string
      */
-    public function classVal($classOrObject, bool $prefixed = null) : ?string
+    public function classVal($classOrObject, bool $root = null) : ?string
     {
-        $prefixed = $prefixed ?? true;
+        $root = $root ?? true;
 
         $val = null;
 
-        if (is_string($classOrObject) && class_exists($classOrObject)) {
-            $val = $prefixed
-                ? '\\' . ltrim($classOrObject, '\\')
-                : $classOrObject;
+        if (is_string($classOrObject)) {
+            // check class/interface/trait exists
+            if (is_a($classOrObject, $classOrObject, true)) {
+                $val = $classOrObject;
+            }
 
-        } elseif ($class = $this->objectClassVal($classOrObject)) {
-            $val = $class;
-
-        } elseif ($class = $this->filter->filterClassFQN($classOrObject)) {
+        } elseif ($class = $this->objectClassOnlyVal($classOrObject, $root)) {
             $val = $class;
         }
 
-        return $val;
-    }
-
-    /**
-     * @param string|object|\ReflectionClass $classOrObject
-     * @param null|bool                      $prefixed
-     *
-     * @return null|string
-     */
-    public function interfaceVal($classOrObject, bool $prefixed = null) : ?string
-    {
-        $prefixed = $prefixed ?? true;
-
-        $val = null;
-
-        if (is_string($classOrObject) && interface_exists($classOrObject)) {
-            $val = $prefixed
-                ? '\\' . ltrim($classOrObject, '\\')
-                : $classOrObject;
-
-        } elseif ($class = $this->objectInterfaceVal($classOrObject)) {
-            $val = $class;
-
-        } elseif ($class = $this->filter->filterClassFQN($classOrObject)) {
-            $val = $class;
-        }
-
-        return $val;
-    }
-
-    /**
-     * @param string|object|\ReflectionClass $classOrObject
-     * @param null|bool                      $prefixed
-     *
-     * @return null|string
-     */
-    public function traitVal($classOrObject, bool $prefixed = null) : ?string
-    {
-        $prefixed = $prefixed ?? true;
-
-        $val = null;
-
-        if (is_string($classOrObject) && trait_exists($classOrObject)) {
-            $val = $prefixed
+        if ($val) {
+            $val = $root
                 ? '\\' . ltrim($val, '\\')
-                : $val;
+                : ltrim($val, '\\');
+        }
 
-        } elseif ($class = $this->objectTraitVal($classOrObject)) {
+        return $val;
+    }
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param null|bool                      $root
+     *
+     * @return null|string
+     */
+    public function classFullnameVal($classOrObject, bool $root = null) : ?string
+    {
+        $root = $root ?? true;
+
+        $val = null;
+
+        $class = $classOrObject;
+        $object = $classOrObject;
+
+        if (is_string($class)) {
+            if ($classFullname = $this->filter->filterClassFullname($class)) {
+                $val = $classFullname;
+            }
+
+        } elseif ($class = $this->objectClassVal($object, $root)) {
+            $val = $class;
+        }
+
+        if ($val) {
+            $val = $root
+                ? '\\' . ltrim($val, '\\')
+                : ltrim($val, '\\');
+        }
+
+        return $val;
+    }
+
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param null|bool                      $root
+     *
+     * @return string
+     */
+    public function theClassVal($classOrObject, bool $root = null) : string
+    {
+        if (null === ( $val = $this->classVal($classOrObject, $root) )) {
+            throw new InvalidArgumentException(
+                [ 'Unable to get Class/Interface/Trait Fullname from ClassOrObject: %s', $classOrObject ]
+            );
+        }
+
+        return $val;
+    }
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param null|bool                      $root
+     *
+     * @return string
+     */
+    public function theClassFullnameVal($classOrObject, bool $root = null) : string
+    {
+        if (null === ( $val = $this->classFullnameVal($classOrObject, $root) )) {
+            throw new InvalidArgumentException(
+                [ 'Unable to get Class/Interface/Trait Fullname from ClassOrObject: %s', $classOrObject ]
+            );
+        }
+
+        return $val;
+    }
+
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param null|bool                      $root
+     *
+     * @return null|string
+     */
+    public function classOnlyVal($classOrObject, bool $root = null) : ?string
+    {
+        $root = $root ?? true;
+
+        $val = null;
+
+        $class = $classOrObject;
+        $object = $classOrObject;
+
+        if (is_string($class) && class_exists($class)) {
             $val = $class;
 
-        } elseif ($class = $this->filter->filterClassFQN($classOrObject)) {
+        } elseif ($class = $this->objectClassOnlyVal($object, $root)) {
             $val = $class;
         }
 
+        if ($val) {
+            $val = $root
+                ? '\\' . ltrim($val, '\\')
+                : ltrim($val, '\\');
+        }
+
+        return $val;
+    }
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param null|bool                      $root
+     *
+     * @return null|string
+     */
+    public function interfaceOnlyVal($classOrObject, bool $root = null) : ?string
+    {
+        $root = $root ?? true;
+
+        $val = null;
+
+        $class = $classOrObject;
+        $object = $classOrObject;
+
+        if (is_string($class) && interface_exists($class)) {
+            $val = $class;
+
+        } elseif ($interface = $this->objectInterfaceOnlyVal($object, $root)) {
+            $val = $interface;
+        }
+
+        if ($val) {
+            $val = $root
+                ? '\\' . ltrim($val, '\\')
+                : ltrim($val, '\\');
+        }
+
+        return $val;
+    }
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param null|bool                      $root
+     *
+     * @return null|string
+     */
+    public function traitOnlyVal($classOrObject, bool $root = null) : ?string
+    {
+        $root = $root ?? true;
+
+        $val = null;
+
+        $class = $classOrObject;
+        $object = $classOrObject;
+
+        if (is_string($class) && trait_exists($class)) {
+            $val = $class;
+
+        } elseif ($trait = $this->objectTraitOnlyVal($object, $root)) {
+            $val = $trait;
+        }
+
+        if ($val) {
+            $val = $root
+                ? '\\' . ltrim($val, '\\')
+                : ltrim($val, '\\');
+        }
+
         return $val;
     }
 
 
     /**
      * @param string|object|\ReflectionClass $classOrObject
-     * @param null|bool                      $prefixed
+     * @param null|bool                      $root
      *
      * @return string
      */
-    public function theClassVal($classOrObject, bool $prefixed = null) : string
+    public function theClassOnlyVal($classOrObject, bool $root = null) : string
     {
-        if (null === ( $val = $this->classVal($classOrObject, $prefixed) )) {
+        if (null === ( $val = $this->classOnlyVal($classOrObject, $root) )) {
             throw new InvalidArgumentException(
-                [ 'Unable to get ClassFQN from ClassOrObject: %s', $classOrObject ]
+                [ 'Unable to get Class Fullname from ClassOrObject: %s', $classOrObject ]
             );
         }
 
@@ -739,15 +900,15 @@ class ZLoader implements ILoader
 
     /**
      * @param string|object|\ReflectionClass $classOrObject
-     * @param null|bool                      $prefixed
+     * @param null|bool                      $root
      *
      * @return string
      */
-    public function theInterfaceVal($classOrObject, bool $prefixed = null) : string
+    public function theInterfaceOnlyVal($classOrObject, bool $root = null) : string
     {
-        if (null === ( $val = $this->interfaceVal($classOrObject, $prefixed) )) {
+        if (null === ( $val = $this->interfaceOnlyVal($classOrObject, $root) )) {
             throw new InvalidArgumentException(
-                [ 'Unable to get InterfaceFQN from ClassOrObject: %s', $classOrObject ]
+                [ 'Unable to get Interface Fullname from ClassOrObject: %s', $classOrObject ]
             );
         }
 
@@ -756,15 +917,15 @@ class ZLoader implements ILoader
 
     /**
      * @param string|object|\ReflectionClass $classOrObject
-     * @param null|bool                      $prefixed
+     * @param null|bool                      $root
      *
      * @return string
      */
-    public function theTraitVal($classOrObject, bool $prefixed = null) : string
+    public function theTraitOnlyVal($classOrObject, bool $root = null) : string
     {
-        if (null === ( $val = $this->traitVal($classOrObject, $prefixed) )) {
+        if (null === ( $val = $this->traitOnlyVal($classOrObject, $root) )) {
             throw new InvalidArgumentException(
-                [ 'Unable to get TraitFQN from ClassOrObject: %s', $classOrObject ]
+                [ 'Unable to get Trait Fullname from ClassOrObject: %s', $classOrObject ]
             );
         }
 
@@ -773,17 +934,19 @@ class ZLoader implements ILoader
 
 
     /**
+     * Получает имя класса из списка `use` для указанного `declaredClass`
+     *
      * @param string|object|\ReflectionClass $classOrObject
      * @param string|object|\ReflectionClass $declaredClassOrObject
-     * @param null|bool                      $prefixed
+     * @param null|bool                      $root
      *
      * @return null|string
      */
-    public function useClassVal($classOrObject, $declaredClassOrObject, bool $prefixed = null) : ?string
+    public function useClassVal($classOrObject, $declaredClassOrObject, bool $root = null) : ?string
     {
-        $prefixed = $prefixed ?? true;
+        $root = $root ?? true;
 
-        if (null === ( $class = $this->classVal($classOrObject, $prefixed) )) {
+        if (null === ( $class = $this->classFullnameVal($classOrObject) )) {
             return null;
         }
 
@@ -791,34 +954,24 @@ class ZLoader implements ILoader
             return null;
         }
 
-        if (class_exists($class)) {
-            return $class;
-        }
-
-        if ('\\' === $class) {
-            return $class;
-        }
-
         $val = null;
 
         $useStatements = $this->getUseStatements($declaredClass);
 
-        [
-            $declaredClassNamespace,
-            $declaredClassName,
-        ] = $this->nsClass($declaredClass);
-
-        $classOrNamespaceAlias = explode('\\', $declaredClassName)[ 0 ];
-
-        $namespace = null
-            ?? $useStatements[ $classOrNamespaceAlias ]
-            ?? $declaredClassNamespace;
-
-        if (class_exists($class = $namespace . '\\' . $class)) {
-            $val = $class;
+        $className = $this->className($class);
+        if (! isset($useStatements[ $className ])) {
+            return null;
         }
 
-        if (strlen($val) && $prefixed) {
+        $useClass = null
+            ?? $useStatements[ $className ]
+            ?? $this->namespace($declaredClass) . '\\' . $className;
+
+        if (class_exists($useClass)) {
+            $val = $useClass;
+        }
+
+        if ($val && $root) {
             $val = '\\' . ltrim($val, '\\');
         }
 
@@ -828,15 +981,15 @@ class ZLoader implements ILoader
     /**
      * @param string|object|\ReflectionClass $classOrObject
      * @param string|object|\ReflectionClass $declaredClassOrObject
-     * @param null|bool                      $prefixed
+     * @param null|bool                      $root
      *
      * @return null|string
      */
-    public function theUseClassVal($classOrObject, $declaredClassOrObject, bool $prefixed = null) : string
+    public function theUseClassVal($classOrObject, $declaredClassOrObject, bool $root = null) : string
     {
-        if (null === ( $val = $this->useClassVal($classOrObject, $declaredClassOrObject, $prefixed) )) {
+        if (null === ( $val = $this->useClassVal($classOrObject, $declaredClassOrObject, $root) )) {
             throw new InvalidArgumentException(
-                [ 'Invalid ClassOrObject passed: %s', $classOrObject ]
+                [ 'Unable to get class fullname from class_uses() passed: %s / %s', $classOrObject, $declaredClassOrObject ]
             );
         }
 
@@ -854,7 +1007,7 @@ class ZLoader implements ILoader
     {
         $recursive = $recursive ?? false;
 
-        if (! $class = $this->classVal($classOrObject)) {
+        if (! $class = $this->classOnlyVal($classOrObject)) {
             return null;
         }
 
@@ -865,7 +1018,9 @@ class ZLoader implements ILoader
         $sources += [ $class => $class ];
 
         foreach ( $sources as $class ) {
-            $results += $this->traitTraits($class, $recursive);
+            $results = array_merge($results,
+                $this->traitTraits($class, $recursive) ?? []
+            );
         }
 
         $results = array_unique($results);
@@ -874,28 +1029,32 @@ class ZLoader implements ILoader
     }
 
     /**
-     * @param string    $traitFQN
+     * @param string    $traitFullname
      * @param null|bool $recursive
      *
      * @return array
      */
-    public function traitTraits($traitFQN, bool $recursive = null) : ?array
+    public function traitTraits($traitFullname, bool $recursive = null) : ?array
     {
         $recursive = $recursive ?? false;
 
-        if (! $traitFQN = $this->traitVal($traitFQN)) {
+        if (! $trait = $this->traitOnlyVal($traitFullname)) {
             return null;
         }
 
-        $traits = class_uses($traitFQN) ?: [];
+        $results = class_uses($trait) ?: [];
 
         if ($recursive) {
-            foreach ( $traits as $traitFQN ) {
-                $traits += $this->traitTraits($traitFQN, $recursive);
+            foreach ( $results as $trait ) {
+                $results = array_merge($results,
+                    $this->traitTraits($trait, $recursive) ?? []
+                );
             }
         }
 
-        return $traits;
+        $results = array_unique($results);
+
+        return $results;
     }
 
 
@@ -904,11 +1063,9 @@ class ZLoader implements ILoader
      *
      * @return string[]
      */
-    public function nsClass($classOrObject) : array
+    public function namespaceClass($classOrObject) : array
     {
-        if (null === ( $class = $this->classVal($classOrObject) )) {
-            throw new InvalidArgumentException('Class should be classval or object');
-        }
+        $class = $this->theClassFullnameVal($classOrObject);
 
         $namespace = '';
         $class = ltrim($class, '\\');
@@ -928,9 +1085,7 @@ class ZLoader implements ILoader
      */
     public function namespace($classOrObject) : string
     {
-        if (null === ( $class = $this->classVal($classOrObject) )) {
-            throw new InvalidArgumentException('Class should be classval or object');
-        }
+        $class = $this->theClassFullnameVal($classOrObject);
 
         $namespace = '';
         $class = ltrim($class, '\\');
@@ -949,7 +1104,7 @@ class ZLoader implements ILoader
      */
     public function className($classOrObject) : string
     {
-        $class = $this->theClassVal($classOrObject);
+        $class = $this->theClassFullnameVal($classOrObject);
 
         $class = ltrim($class, '\\');
 
@@ -1068,20 +1223,14 @@ class ZLoader implements ILoader
 
 
     /**
-     * @param string|object $classOrObject
-     * @param string|null   $base
+     * @param string      $path
+     * @param string|null $base
      *
      * @return string
      */
-    public function pathRelative($classOrObject, string $base = null) : ?string
+    public function pathRelative(string $path, string $base = null) : ?string
     {
-        if (null === ( $class = $this->classVal($classOrObject, false) )) {
-            throw new InvalidArgumentException(
-                [ 'Class should be valid class name or object: %s', $classOrObject ]
-            );
-        }
-
-        $result = $this->path()->relative($class, $base);
+        $result = $this->path()->relative($path, $base);
 
         return $result;
     }
@@ -1095,18 +1244,25 @@ class ZLoader implements ILoader
      */
     public function include(string $filepath, array $data = [])
     {
-        $this->includeFilepath = $filepath;
-        $this->includeData = $data;
+        // $this
+        $result = ( new class( $filepath, $data ) {
+            protected $filepath;
+            protected $data;
 
-        $result = function () {
-            extract($this->includeData);
+            public function __construct($filepath, $data)
+            {
+                $this->filepath = $filepath;
+                $this->data = $data;
+            }
 
-            /** @noinspection PhpIncludeInspection */
-            return include $this->includeFilepath;
-        };
+            public function __invoke()
+            {
+                extract($this->data);
 
-        $this->includeFilepath = null;
-        $this->includeData = [];
+                /** @noinspection PhpIncludeInspection */
+                return include $this->filepath;
+            }
+        } )();
 
         return $result;
     }
@@ -1119,18 +1275,27 @@ class ZLoader implements ILoader
      */
     public function includeOnce(string $filepath, array $data = [])
     {
-        $this->includeFilepath = $filepath;
-        $this->includeData = $data;
+        // $this
+        $result = ( new class( $filepath, $data ) {
+            protected $filepath;
+            protected $data;
 
-        $result = function () {
-            extract($this->includeData);
+            public function __construct($filepath, $data)
+            {
+                $this->filepath = $filepath;
+                $this->data = $data;
+            }
 
-            /** @noinspection PhpIncludeInspection */
-            return include_once $this->includeFilepath;
-        };
+            public function __invoke()
+            {
+                static $result;
 
-        $this->includeFilepath = null;
-        $this->includeData = [];
+                extract($this->data);
+
+                /** @noinspection PhpIncludeInspection */
+                return $result ?? include_once $this->filepath;
+            }
+        } )();
 
         return $result;
     }
@@ -1144,18 +1309,25 @@ class ZLoader implements ILoader
      */
     public function require(string $filepath, array $data = [])
     {
-        $this->includeFilepath = $filepath;
-        $this->includeData = $data;
+        // $this
+        $result = ( new class( $filepath, $data ) {
+            protected $filepath;
+            protected $data;
 
-        $result = ( function () {
-            extract($this->includeData);
+            public function __construct($filepath, $data)
+            {
+                $this->filepath = $filepath;
+                $this->data = $data;
+            }
 
-            /** @noinspection PhpIncludeInspection */
-            return require $this->includeFilepath;
-        } );
+            public function __invoke()
+            {
+                extract($this->data);
 
-        $this->includeFilepath = null;
-        $this->includeData = [];
+                /** @noinspection PhpIncludeInspection */
+                return require $this->filepath;
+            }
+        } )();
 
         return $result;
     }
@@ -1168,18 +1340,27 @@ class ZLoader implements ILoader
      */
     public function requireOnce(string $filepath, array $data = [])
     {
-        $this->includeFilepath = $filepath;
-        $this->includeData = $data;
+        // $this
+        $result = ( new class( $filepath, $data ) {
+            protected $filepath;
+            protected $data;
 
-        $result = ( function () {
-            extract($this->includeData);
+            public function __construct($filepath, $data)
+            {
+                $this->filepath = $filepath;
+                $this->data = $data;
+            }
 
-            /** @noinspection PhpIncludeInspection */
-            return require_once $this->includeFilepath;
-        } );
+            public function __invoke()
+            {
+                static $result;
 
-        $this->includeFilepath = null;
-        $this->includeData = [];
+                extract($this->data);
+
+                /** @noinspection PhpIncludeInspection */
+                return $result ?? require_once $this->filepath;
+            }
+        } )();
 
         return $result;
     }

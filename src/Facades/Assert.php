@@ -647,13 +647,13 @@ class Assert
     }
 
     /**
-     * @param string|mixed $class
+     * @param string|mixed $classFullname
      *
      * @return string
      */
-    public static function assertClassFQN($class): ?string
+    public static function assertClassFullname($classFullname): ?string
     {
-        return static::getInstance()->assertClassFQN($class);
+        return static::getInstance()->assertClassFullname($classFullname);
     }
 
     /**

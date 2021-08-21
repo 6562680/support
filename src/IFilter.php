@@ -415,11 +415,11 @@ interface IFilter
     public function filterClassName($className): ?string;
 
     /**
-     * @param string|mixed $class
+     * @param string|mixed $classFullname
      *
      * @return null|string
      */
-    public function filterClassFQN($class): ?string;
+    public function filterClassFullname($classFullname): ?string;
 
     /**
      * @param object|mixed $value

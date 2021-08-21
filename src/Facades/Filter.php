@@ -580,13 +580,13 @@ class Filter
     }
 
     /**
-     * @param string|mixed $class
+     * @param string|mixed $classFullname
      *
      * @return null|string
      */
-    public static function filterClassFQN($class): ?string
+    public static function filterClassFullname($classFullname): ?string
     {
-        return static::getInstance()->filterClassFQN($class);
+        return static::getInstance()->filterClassFullname($classFullname);
     }
 
     /**

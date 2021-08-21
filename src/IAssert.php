@@ -463,11 +463,11 @@ interface IAssert
     public function assertClassName($className): ?string;
 
     /**
-     * @param string|mixed $class
+     * @param string|mixed $classFullname
      *
      * @return string
      */
-    public function assertClassFQN($class): ?string;
+    public function assertClassFullname($classFullname): ?string;
 
     /**
      * @param object|mixed $value

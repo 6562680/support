@@ -11,6 +11,7 @@
 
 namespace Gzhegow\Support\Facades;
 
+use Gzhegow\Support\Exceptions\LogicException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\ILoader;
@@ -90,9 +91,9 @@ class Loader
      *
      * @return ZLoader
      */
-    public static function addContract(string $contract, $classes)
+    public static function addContract(string $contract, ...$classes)
     {
-        return static::getInstance()->addContract($contract, $classes);
+        return static::getInstance()->addContract($contract, ...$classes);
     }
 
     /**
@@ -101,9 +102,9 @@ class Loader
      *
      * @return bool
      */
-    public static function isClassOf($value, $classes): bool
+    public static function isClassOneOf($value, $classes): bool
     {
-        return static::getInstance()->isClassOf($value, $classes);
+        return static::getInstance()->isClassOneOf($value, $classes);
     }
 
     /**
@@ -112,9 +113,9 @@ class Loader
      *
      * @return bool
      */
-    public static function isSubclassOf($value, $classes): bool
+    public static function isSubclassOneOf($value, $classes): bool
     {
-        return static::getInstance()->isSubclassOf($value, $classes);
+        return static::getInstance()->isSubclassOneOf($value, $classes);
     }
 
     /**
@@ -123,9 +124,9 @@ class Loader
      *
      * @return bool
      */
-    public static function isInstanceOf($value, $classes): bool
+    public static function isInstanceOneOf($value, $classes): bool
     {
-        return static::getInstance()->isInstanceOf($value, $classes);
+        return static::getInstance()->isInstanceOneOf($value, $classes);
     }
 
     /**
@@ -134,9 +135,9 @@ class Loader
      *
      * @return bool
      */
-    public static function isContact($object, $contract): bool
+    public static function isContract($object, $contract): bool
     {
-        return static::getInstance()->isContact($object, $contract);
+        return static::getInstance()->isContract($object, $contract);
     }
 
     /**
@@ -145,9 +146,9 @@ class Loader
      *
      * @return null|string|object
      */
-    public static function filterClassOf($value, $classes)
+    public static function filterClassOneOf($value, $classes)
     {
-        return static::getInstance()->filterClassOf($value, $classes);
+        return static::getInstance()->filterClassOneOf($value, $classes);
     }
 
     /**
@@ -156,9 +157,9 @@ class Loader
      *
      * @return null|string|object
      */
-    public static function filterSubclassOf($value, $classes)
+    public static function filterSubclassOneOf($value, $classes)
     {
-        return static::getInstance()->filterSubclassOf($value, $classes);
+        return static::getInstance()->filterSubclassOneOf($value, $classes);
     }
 
     /**
@@ -167,9 +168,9 @@ class Loader
      *
      * @return null|object
      */
-    public static function filterInstanceOf($object, $classes): ?object
+    public static function filterInstanceOneOf($object, $classes): ?object
     {
-        return static::getInstance()->filterInstanceOf($object, $classes);
+        return static::getInstance()->filterInstanceOneOf($object, $classes);
     }
 
     /**
@@ -189,9 +190,9 @@ class Loader
      *
      * @return string|object
      */
-    public static function assertClassOf($value, $classes)
+    public static function assertClassOneOf($value, $classes)
     {
-        return static::getInstance()->assertClassOf($value, $classes);
+        return static::getInstance()->assertClassOneOf($value, $classes);
     }
 
     /**
@@ -200,9 +201,9 @@ class Loader
      *
      * @return string|object
      */
-    public static function assertSubclassOf($value, $classes)
+    public static function assertSubclassOneOf($value, $classes)
     {
-        return static::getInstance()->assertSubclassOf($value, $classes);
+        return static::getInstance()->assertSubclassOneOf($value, $classes);
     }
 
     /**
@@ -211,9 +212,9 @@ class Loader
      *
      * @return object
      */
-    public static function assertInstanceOf($object, $classes): object
+    public static function assertInstanceOneOf($object, $classes): object
     {
-        return static::getInstance()->assertInstanceOf($object, $classes);
+        return static::getInstance()->assertInstanceOneOf($object, $classes);
     }
 
     /**
@@ -229,158 +230,226 @@ class Loader
 
     /**
      * @param object|\ReflectionClass $object
-     * @param null|bool               $prefixed
+     * @param null|bool               $root
      *
      * @return null|string
      */
-    public static function objectClassVal($object, bool $prefixed = null): ?string
+    public static function objectClassVal($object, bool $root = null): ?string
     {
-        return static::getInstance()->objectClassVal($object, $prefixed);
+        return static::getInstance()->objectClassVal($object, $root);
     }
 
     /**
      * @param object|\ReflectionClass $object
-     * @param null|bool               $prefixed
+     * @param null|bool               $root
      *
      * @return null|string
      */
-    public static function objectInterfaceVal($object, bool $prefixed = null): ?string
+    public static function objectClassOnlyVal($object, bool $root = null): ?string
     {
-        return static::getInstance()->objectInterfaceVal($object, $prefixed);
+        return static::getInstance()->objectClassOnlyVal($object, $root);
     }
 
     /**
      * @param object|\ReflectionClass $object
-     * @param null|bool               $prefixed
+     * @param null|bool               $root
      *
      * @return null|string
      */
-    public static function objectTraitVal($object, bool $prefixed = null): ?string
+    public static function objectInterfaceOnlyVal($object, bool $root = null): ?string
     {
-        return static::getInstance()->objectTraitVal($object, $prefixed);
+        return static::getInstance()->objectInterfaceOnlyVal($object, $root);
     }
 
     /**
      * @param object|\ReflectionClass $object
-     * @param null|bool               $prefixed
+     * @param null|bool               $root
      *
-     * @return string
+     * @return null|string
      */
-    public static function theObjectClassVal($object, bool $prefixed = null): string
+    public static function objectTraitOnlyVal($object, bool $root = null): ?string
     {
-        return static::getInstance()->theObjectClassVal($object, $prefixed);
+        return static::getInstance()->objectTraitOnlyVal($object, $root);
     }
 
     /**
      * @param object|\ReflectionClass $object
-     * @param null|bool               $prefixed
+     * @param null|bool               $root
      *
      * @return string
      */
-    public static function theObjectInterfaceVal($object, bool $prefixed = null): string
+    public static function theObjectClassVal($object, bool $root = null): string
     {
-        return static::getInstance()->theObjectInterfaceVal($object, $prefixed);
+        return static::getInstance()->theObjectClassVal($object, $root);
     }
 
     /**
      * @param object|\ReflectionClass $object
-     * @param null|bool               $prefixed
+     * @param null|bool               $root
      *
      * @return string
      */
-    public static function theObjectTraitVal($object, bool $prefixed = null): string
+    public static function theObjectClassOnlyVal($object, bool $root = null): string
     {
-        return static::getInstance()->theObjectTraitVal($object, $prefixed);
+        return static::getInstance()->theObjectClassOnlyVal($object, $root);
+    }
+
+    /**
+     * @param object|\ReflectionClass $object
+     * @param null|bool               $root
+     *
+     * @return string
+     */
+    public static function theObjectInterfaceOnlyVal($object, bool $root = null): string
+    {
+        return static::getInstance()->theObjectInterfaceOnlyVal($object, $root);
+    }
+
+    /**
+     * @param object|\ReflectionClass $object
+     * @param null|bool               $root
+     *
+     * @return string
+     */
+    public static function theObjectTraitOnlyVal($object, bool $root = null): string
+    {
+        return static::getInstance()->theObjectTraitOnlyVal($object, $root);
     }
 
     /**
      * @param string|object|\ReflectionClass $classOrObject
-     * @param null|bool                      $prefixed
+     * @param null|bool                      $root
      *
      * @return null|string
      */
-    public static function classVal($classOrObject, bool $prefixed = null): ?string
+    public static function classVal($classOrObject, bool $root = null): ?string
     {
-        return static::getInstance()->classVal($classOrObject, $prefixed);
+        return static::getInstance()->classVal($classOrObject, $root);
     }
 
     /**
      * @param string|object|\ReflectionClass $classOrObject
-     * @param null|bool                      $prefixed
+     * @param null|bool                      $root
      *
      * @return null|string
      */
-    public static function interfaceVal($classOrObject, bool $prefixed = null): ?string
+    public static function classFullnameVal($classOrObject, bool $root = null): ?string
     {
-        return static::getInstance()->interfaceVal($classOrObject, $prefixed);
+        return static::getInstance()->classFullnameVal($classOrObject, $root);
     }
 
     /**
      * @param string|object|\ReflectionClass $classOrObject
-     * @param null|bool                      $prefixed
+     * @param null|bool                      $root
+     *
+     * @return string
+     */
+    public static function theClassVal($classOrObject, bool $root = null): string
+    {
+        return static::getInstance()->theClassVal($classOrObject, $root);
+    }
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param null|bool                      $root
+     *
+     * @return string
+     */
+    public static function theClassFullnameVal($classOrObject, bool $root = null): string
+    {
+        return static::getInstance()->theClassFullnameVal($classOrObject, $root);
+    }
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param null|bool                      $root
      *
      * @return null|string
      */
-    public static function traitVal($classOrObject, bool $prefixed = null): ?string
+    public static function classOnlyVal($classOrObject, bool $root = null): ?string
     {
-        return static::getInstance()->traitVal($classOrObject, $prefixed);
+        return static::getInstance()->classOnlyVal($classOrObject, $root);
     }
 
     /**
      * @param string|object|\ReflectionClass $classOrObject
-     * @param null|bool                      $prefixed
+     * @param null|bool                      $root
      *
-     * @return string
+     * @return null|string
      */
-    public static function theClassVal($classOrObject, bool $prefixed = null): string
+    public static function interfaceOnlyVal($classOrObject, bool $root = null): ?string
     {
-        return static::getInstance()->theClassVal($classOrObject, $prefixed);
+        return static::getInstance()->interfaceOnlyVal($classOrObject, $root);
     }
 
     /**
      * @param string|object|\ReflectionClass $classOrObject
-     * @param null|bool                      $prefixed
+     * @param null|bool                      $root
      *
-     * @return string
+     * @return null|string
      */
-    public static function theInterfaceVal($classOrObject, bool $prefixed = null): string
+    public static function traitOnlyVal($classOrObject, bool $root = null): ?string
     {
-        return static::getInstance()->theInterfaceVal($classOrObject, $prefixed);
+        return static::getInstance()->traitOnlyVal($classOrObject, $root);
     }
 
     /**
      * @param string|object|\ReflectionClass $classOrObject
-     * @param null|bool                      $prefixed
+     * @param null|bool                      $root
      *
      * @return string
      */
-    public static function theTraitVal($classOrObject, bool $prefixed = null): string
+    public static function theClassOnlyVal($classOrObject, bool $root = null): string
     {
-        return static::getInstance()->theTraitVal($classOrObject, $prefixed);
+        return static::getInstance()->theClassOnlyVal($classOrObject, $root);
+    }
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param null|bool                      $root
+     *
+     * @return string
+     */
+    public static function theInterfaceOnlyVal($classOrObject, bool $root = null): string
+    {
+        return static::getInstance()->theInterfaceOnlyVal($classOrObject, $root);
+    }
+
+    /**
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param null|bool                      $root
+     *
+     * @return string
+     */
+    public static function theTraitOnlyVal($classOrObject, bool $root = null): string
+    {
+        return static::getInstance()->theTraitOnlyVal($classOrObject, $root);
+    }
+
+    /**
+     * Получает имя класса из списка `use` для указанного `declaredClass`
+     *
+     * @param string|object|\ReflectionClass $classOrObject
+     * @param string|object|\ReflectionClass $declaredClassOrObject
+     * @param null|bool                      $root
+     *
+     * @return null|string
+     */
+    public static function useClassVal($classOrObject, $declaredClassOrObject, bool $root = null): ?string
+    {
+        return static::getInstance()->useClassVal($classOrObject, $declaredClassOrObject, $root);
     }
 
     /**
      * @param string|object|\ReflectionClass $classOrObject
      * @param string|object|\ReflectionClass $declaredClassOrObject
-     * @param null|bool                      $prefixed
+     * @param null|bool                      $root
      *
      * @return null|string
      */
-    public static function useClassVal($classOrObject, $declaredClassOrObject, bool $prefixed = null): ?string
+    public static function theUseClassVal($classOrObject, $declaredClassOrObject, bool $root = null): string
     {
-        return static::getInstance()->useClassVal($classOrObject, $declaredClassOrObject, $prefixed);
-    }
-
-    /**
-     * @param string|object|\ReflectionClass $classOrObject
-     * @param string|object|\ReflectionClass $declaredClassOrObject
-     * @param null|bool                      $prefixed
-     *
-     * @return null|string
-     */
-    public static function theUseClassVal($classOrObject, $declaredClassOrObject, bool $prefixed = null): string
-    {
-        return static::getInstance()->theUseClassVal($classOrObject, $declaredClassOrObject, $prefixed);
+        return static::getInstance()->theUseClassVal($classOrObject, $declaredClassOrObject, $root);
     }
 
     /**
@@ -395,14 +464,14 @@ class Loader
     }
 
     /**
-     * @param string    $traitFQN
+     * @param string    $traitFullname
      * @param null|bool $recursive
      *
      * @return array
      */
-    public static function traitTraits($traitFQN, bool $recursive = null): ?array
+    public static function traitTraits($traitFullname, bool $recursive = null): ?array
     {
-        return static::getInstance()->traitTraits($traitFQN, $recursive);
+        return static::getInstance()->traitTraits($traitFullname, $recursive);
     }
 
     /**
@@ -410,9 +479,9 @@ class Loader
      *
      * @return string[]
      */
-    public static function nsClass($classOrObject): array
+    public static function namespaceClass($classOrObject): array
     {
-        return static::getInstance()->nsClass($classOrObject);
+        return static::getInstance()->namespaceClass($classOrObject);
     }
 
     /**
@@ -518,14 +587,14 @@ class Loader
     }
 
     /**
-     * @param string|object $classOrObject
-     * @param string|null   $base
+     * @param string      $path
+     * @param string|null $base
      *
      * @return string
      */
-    public static function pathRelative($classOrObject, string $base = null): ?string
+    public static function pathRelative(string $path, string $base = null): ?string
     {
-        return static::getInstance()->pathRelative($classOrObject, $base);
+        return static::getInstance()->pathRelative($path, $base);
     }
 
     /**

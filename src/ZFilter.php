@@ -1172,24 +1172,24 @@ class ZFilter implements IFilter
     }
 
     /**
-     * @param string|mixed $class
+     * @param string|mixed $classFullname
      *
      * @return null|string
      */
-    public function filterClassFQN($class) : ?string
+    public function filterClassFullname($classFullname) : ?string
     {
-        if (null === $this->filterWord($class)) {
+        if (null === $this->filterWord($classFullname)) {
             return null;
         }
 
-        $phpClass = ltrim($class, '\\');
+        $phpClass = ltrim($classFullname, '\\');
 
         $firstLetter = substr($phpClass, 0, 1);
         if (ctype_digit($firstLetter)) {
             return null;
         }
 
-        $test = preg_replace('~[a-z0-9_\x80-\xff]*~iu', '', $class);
+        $test = preg_replace('~[a-z0-9_\x80-\xff]*~iu', '', $classFullname);
 
         $letters = '' === $test
             ? [] : str_split($test);
@@ -1200,7 +1200,7 @@ class ZFilter implements IFilter
             }
         }
 
-        return $class;
+        return $classFullname;
     }
 
 

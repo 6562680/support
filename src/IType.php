@@ -426,11 +426,11 @@ interface IType
     public function isClassName($className): ?bool;
 
     /**
-     * @param string|mixed $class
+     * @param string|mixed $classFullname
      *
      * @return bool
      */
-    public function isClassFQN($class): ?bool;
+    public function isClassFullname($classFullname): ?bool;
 
     /**
      * @param object|mixed $value
