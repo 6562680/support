@@ -24,9 +24,9 @@ class Format
      *
      * @return string
      */
-    public static function niceSize($filesize): string
+    public static function textFilesize($filesize): string
     {
-        return static::getInstance()->niceSize($filesize);
+        return static::getInstance()->textFilesize($filesize);
     }
 
     /**

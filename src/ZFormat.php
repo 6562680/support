@@ -38,18 +38,17 @@ class ZFormat implements IFormat
      *
      * @return string
      */
-    public function niceSize($filesize) : string
+    public function textFilesize($filesize) : string
     {
         $filesize = $this->num->theNumericval($filesize);
 
-        $multiplier = 0;
-        while ( $filesize / 1024 > 0.9 ) {
-            $filesize = $filesize / 1024;
-
-            $multiplier++;
+        $pow = 0;
+        while ( ( $result = ( $filesize / 1024 ) ) > 1 ) {
+            $filesize = $result;
+            $pow++;
         }
 
-        $result = round($filesize) . array_search($multiplier, static::getUnits());
+        $result = round($filesize) . static::getUnits()[ $pow ];
 
         return $result;
     }
@@ -92,25 +91,15 @@ class ZFormat implements IFormat
     protected static function getUnits() : array
     {
         return [
-            'B' => 0,
-
-            'Kb' => 1,
-            'Mb' => 2,
-            'Gb' => 3,
-            'Tb' => 4,
-            'Pb' => 5,
-            'Eb' => 6,
-            'Zb' => 7,
-            'Yb' => 8,
-
-            'K' => 1,
-            'M' => 2,
-            'G' => 3,
-            'T' => 4,
-            'P' => 5,
-            'E' => 6,
-            'Z' => 7,
-            'Y' => 8,
+            'b',
+            'Kb',
+            'Mb',
+            'Gb',
+            'Tb',
+            'Pb',
+            'Eb',
+            'Zb',
+            'Yb',
         ];
     }
 }

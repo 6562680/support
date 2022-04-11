@@ -237,7 +237,10 @@ class ZNet implements INet
             return null;
         }
 
-        $server_key = $this->str->prepend(strtoupper($this->str->snake($header)), 'HTTP_');
+        $server_key = $this->str->prepend(
+            strtoupper($this->str->snakeCase($header)),
+            'HTTP_'
+        );
 
         $result = null
             ?? $_SERVER[ $server_key ]
@@ -281,9 +284,7 @@ class ZNet implements INet
      */
     public function useragent() : ?string
     {
-        return isset($_SERVER[ 'HTTP_USER_AGENT' ])
-            ? $_SERVER[ 'HTTP_USER_AGENT' ]
-            : null;
+        return $_SERVER[ 'HTTP_USER_AGENT' ] ?? null;
     }
 
 

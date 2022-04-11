@@ -490,15 +490,16 @@ class ZCurl implements ICurl
             : [ $curls ];
 
         if ($recursive) {
-            array_walk_recursive($curls, function ($item) use (&$result) {
+            array_walk_recursive($curls, function ($item, $idx) use (&$result) {
                 if (null !== $this->filter->filterCurl($item)) {
-                    $result[ (int) $item ] = $item;
+                    $result[ $idx ] = $item;
                 }
             });
+
         } else {
-            foreach ( $curls as $item ) {
+            foreach ( $curls as $idx => $item ) {
                 if (null !== $this->filter->filterCurl($item)) {
-                    $result[ (int) $item ] = $item;
+                    $result[ $idx ] = $item;
                 }
             }
         }
@@ -532,20 +533,21 @@ class ZCurl implements ICurl
             : [ $curls ];
 
         if ($recursive) {
-            array_walk_recursive($curls, function ($item) use (&$result) {
+            array_walk_recursive($curls, function ($item, $idx) use (&$result) {
                 $this->filter
                     ->assert([ 'Each item should be Curl handle/resource: %s', $item ])
                     ->assertCurl($item);
 
-                $result[ (int) $item ] = $item;
+                $result[ $idx ] = $item;
             });
+
         } else {
-            foreach ( $curls as $item ) {
+            foreach ( $curls as $idx => $item ) {
                 $this->filter
                     ->assert([ 'Each item should be Curl handle/resource: %s', $item ])
                     ->assertCurl($item);
 
-                $result[ (int) $item ] = $item;
+                $result[ $idx ] = $item;
             }
         }
 

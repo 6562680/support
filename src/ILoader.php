@@ -11,7 +11,6 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Exceptions\LogicException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\RuntimeException;
 
@@ -47,13 +46,6 @@ interface ILoader
     public function getContract(string $contract): array;
 
     /**
-     * @param string $contract
-     *
-     * @return null|array
-     */
-    public function existsContract($contract): ?array;
-
-    /**
      * @param string       $contract
      * @param string|array $classes
      *
@@ -68,102 +60,6 @@ interface ILoader
      * @return ZLoader
      */
     public function addContract(string $contract, ...$classes);
-
-    /**
-     * @param string|object   $value
-     * @param string|string[] $classes
-     *
-     * @return bool
-     */
-    public function isClassOneOf($value, $classes): bool;
-
-    /**
-     * @param string|object   $value
-     * @param string|string[] $classes
-     *
-     * @return bool
-     */
-    public function isSubclassOneOf($value, $classes): bool;
-
-    /**
-     * @param object          $value
-     * @param string|string[] $classes
-     *
-     * @return bool
-     */
-    public function isInstanceOneOf($value, $classes): bool;
-
-    /**
-     * @param string|mixed $object
-     * @param object|mixed $contract
-     *
-     * @return bool
-     */
-    public function isContract($object, $contract): bool;
-
-    /**
-     * @param string|object   $value
-     * @param string|string[] $classes
-     *
-     * @return null|string|object
-     */
-    public function filterClassOneOf($value, $classes);
-
-    /**
-     * @param string|object   $value
-     * @param string|string[] $classes
-     *
-     * @return null|string|object
-     */
-    public function filterSubclassOneOf($value, $classes);
-
-    /**
-     * @param object          $object
-     * @param string|string[] $classes
-     *
-     * @return null|object
-     */
-    public function filterInstanceOneOf($object, $classes): ?object;
-
-    /**
-     * @param object|mixed $object
-     * @param string|mixed $contract
-     *
-     * @return null|object
-     */
-    public function filterContract($object, $contract): ?object;
-
-    /**
-     * @param string|object   $value
-     * @param string|string[] ...$classes
-     *
-     * @return string|object
-     */
-    public function assertClassOneOf($value, $classes);
-
-    /**
-     * @param string|object   $value
-     * @param string|string[] ...$classes
-     *
-     * @return string|object
-     */
-    public function assertSubclassOneOf($value, $classes);
-
-    /**
-     * @param object          $object
-     * @param string|string[] ...$classes
-     *
-     * @return object
-     */
-    public function assertInstanceOneOf($object, $classes): object;
-
-    /**
-     * @param object|mixed $object
-     * @param string|mixed $contract
-     *
-     * @return object
-     */
-    public function assertContract($object, $contract): object;
 
     /**
      * @param object|\ReflectionClass $object
@@ -328,6 +224,109 @@ interface ILoader
      * @return null|string
      */
     public function theUseClassVal($classOrObject, $declaredClassOrObject, bool $root = null): string;
+
+    /**
+     * @param string|object   $value
+     * @param string|string[] $classes
+     *
+     * @return bool
+     */
+    public function isClassOneOf($value, $classes): bool;
+
+    /**
+     * @param string|object   $value
+     * @param string|string[] $classes
+     *
+     * @return bool
+     */
+    public function isSubclassOneOf($value, $classes): bool;
+
+    /**
+     * @param object          $value
+     * @param string|string[] $classes
+     *
+     * @return bool
+     */
+    public function isInstanceOneOf($value, $classes): bool;
+
+    /**
+     * @param string|mixed $object
+     * @param object|mixed $contract
+     *
+     * @return bool
+     */
+    public function isContract($object, $contract): bool;
+
+    /**
+     * @param string|object   $value
+     * @param string|string[] $classes
+     *
+     * @return null|string|object
+     */
+    public function filterClassOneOf($value, $classes);
+
+    /**
+     * @param string|object   $value
+     * @param string|string[] $classes
+     *
+     * @return null|string|object
+     */
+    public function filterSubclassOneOf($value, $classes);
+
+    /**
+     * @param object          $object
+     * @param string|string[] $classes
+     *
+     * @return null|object
+     */
+    public function filterInstanceOneOf($object, $classes): ?object;
+
+    /**
+     * @param object|mixed $object
+     * @param string|mixed $contract
+     *
+     * @return null|object
+     */
+    public function filterContract($object, $contract): ?object;
+
+    /**
+     * @param string|object   $value
+     * @param string|string[] ...$classes
+     *
+     * @return string|object
+     */
+    public function assertClassOneOf($value, $classes);
+
+    /**
+     * @param string|object   $value
+     * @param string|string[] ...$classes
+     *
+     * @return string|object
+     */
+    public function assertSubclassOneOf($value, $classes);
+
+    /**
+     * @param object          $object
+     * @param string|string[] ...$classes
+     *
+     * @return object
+     */
+    public function assertInstanceOneOf($object, $classes): object;
+
+    /**
+     * @param object|mixed $object
+     * @param string|mixed $contract
+     *
+     * @return object
+     */
+    public function assertContract($object, $contract): object;
+
+    /**
+     * @param string $contract
+     *
+     * @return null|array
+     */
+    public function existsContract($contract): ?array;
 
     /**
      * @param string|object $classOrObject

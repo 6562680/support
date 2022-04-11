@@ -11,7 +11,6 @@
 
 namespace Gzhegow\Support\Facades;
 
-use Gzhegow\Support\Exceptions\LogicException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\ILoader;
@@ -65,16 +64,6 @@ class Loader
     }
 
     /**
-     * @param string $contract
-     *
-     * @return null|array
-     */
-    public static function existsContract($contract): ?array
-    {
-        return static::getInstance()->existsContract($contract);
-    }
-
-    /**
      * @param string       $contract
      * @param string|array $classes
      *
@@ -94,138 +83,6 @@ class Loader
     public static function addContract(string $contract, ...$classes)
     {
         return static::getInstance()->addContract($contract, ...$classes);
-    }
-
-    /**
-     * @param string|object   $value
-     * @param string|string[] $classes
-     *
-     * @return bool
-     */
-    public static function isClassOneOf($value, $classes): bool
-    {
-        return static::getInstance()->isClassOneOf($value, $classes);
-    }
-
-    /**
-     * @param string|object   $value
-     * @param string|string[] $classes
-     *
-     * @return bool
-     */
-    public static function isSubclassOneOf($value, $classes): bool
-    {
-        return static::getInstance()->isSubclassOneOf($value, $classes);
-    }
-
-    /**
-     * @param object          $value
-     * @param string|string[] $classes
-     *
-     * @return bool
-     */
-    public static function isInstanceOneOf($value, $classes): bool
-    {
-        return static::getInstance()->isInstanceOneOf($value, $classes);
-    }
-
-    /**
-     * @param string|mixed $object
-     * @param object|mixed $contract
-     *
-     * @return bool
-     */
-    public static function isContract($object, $contract): bool
-    {
-        return static::getInstance()->isContract($object, $contract);
-    }
-
-    /**
-     * @param string|object   $value
-     * @param string|string[] $classes
-     *
-     * @return null|string|object
-     */
-    public static function filterClassOneOf($value, $classes)
-    {
-        return static::getInstance()->filterClassOneOf($value, $classes);
-    }
-
-    /**
-     * @param string|object   $value
-     * @param string|string[] $classes
-     *
-     * @return null|string|object
-     */
-    public static function filterSubclassOneOf($value, $classes)
-    {
-        return static::getInstance()->filterSubclassOneOf($value, $classes);
-    }
-
-    /**
-     * @param object          $object
-     * @param string|string[] $classes
-     *
-     * @return null|object
-     */
-    public static function filterInstanceOneOf($object, $classes): ?object
-    {
-        return static::getInstance()->filterInstanceOneOf($object, $classes);
-    }
-
-    /**
-     * @param object|mixed $object
-     * @param string|mixed $contract
-     *
-     * @return null|object
-     */
-    public static function filterContract($object, $contract): ?object
-    {
-        return static::getInstance()->filterContract($object, $contract);
-    }
-
-    /**
-     * @param string|object   $value
-     * @param string|string[] ...$classes
-     *
-     * @return string|object
-     */
-    public static function assertClassOneOf($value, $classes)
-    {
-        return static::getInstance()->assertClassOneOf($value, $classes);
-    }
-
-    /**
-     * @param string|object   $value
-     * @param string|string[] ...$classes
-     *
-     * @return string|object
-     */
-    public static function assertSubclassOneOf($value, $classes)
-    {
-        return static::getInstance()->assertSubclassOneOf($value, $classes);
-    }
-
-    /**
-     * @param object          $object
-     * @param string|string[] ...$classes
-     *
-     * @return object
-     */
-    public static function assertInstanceOneOf($object, $classes): object
-    {
-        return static::getInstance()->assertInstanceOneOf($object, $classes);
-    }
-
-    /**
-     * @param object|mixed $object
-     * @param string|mixed $contract
-     *
-     * @return object
-     */
-    public static function assertContract($object, $contract): object
-    {
-        return static::getInstance()->assertContract($object, $contract);
     }
 
     /**
@@ -450,6 +307,148 @@ class Loader
     public static function theUseClassVal($classOrObject, $declaredClassOrObject, bool $root = null): string
     {
         return static::getInstance()->theUseClassVal($classOrObject, $declaredClassOrObject, $root);
+    }
+
+    /**
+     * @param string|object   $value
+     * @param string|string[] $classes
+     *
+     * @return bool
+     */
+    public static function isClassOneOf($value, $classes): bool
+    {
+        return static::getInstance()->isClassOneOf($value, $classes);
+    }
+
+    /**
+     * @param string|object   $value
+     * @param string|string[] $classes
+     *
+     * @return bool
+     */
+    public static function isSubclassOneOf($value, $classes): bool
+    {
+        return static::getInstance()->isSubclassOneOf($value, $classes);
+    }
+
+    /**
+     * @param object          $value
+     * @param string|string[] $classes
+     *
+     * @return bool
+     */
+    public static function isInstanceOneOf($value, $classes): bool
+    {
+        return static::getInstance()->isInstanceOneOf($value, $classes);
+    }
+
+    /**
+     * @param string|mixed $object
+     * @param object|mixed $contract
+     *
+     * @return bool
+     */
+    public static function isContract($object, $contract): bool
+    {
+        return static::getInstance()->isContract($object, $contract);
+    }
+
+    /**
+     * @param string|object   $value
+     * @param string|string[] $classes
+     *
+     * @return null|string|object
+     */
+    public static function filterClassOneOf($value, $classes)
+    {
+        return static::getInstance()->filterClassOneOf($value, $classes);
+    }
+
+    /**
+     * @param string|object   $value
+     * @param string|string[] $classes
+     *
+     * @return null|string|object
+     */
+    public static function filterSubclassOneOf($value, $classes)
+    {
+        return static::getInstance()->filterSubclassOneOf($value, $classes);
+    }
+
+    /**
+     * @param object          $object
+     * @param string|string[] $classes
+     *
+     * @return null|object
+     */
+    public static function filterInstanceOneOf($object, $classes): ?object
+    {
+        return static::getInstance()->filterInstanceOneOf($object, $classes);
+    }
+
+    /**
+     * @param object|mixed $object
+     * @param string|mixed $contract
+     *
+     * @return null|object
+     */
+    public static function filterContract($object, $contract): ?object
+    {
+        return static::getInstance()->filterContract($object, $contract);
+    }
+
+    /**
+     * @param string|object   $value
+     * @param string|string[] ...$classes
+     *
+     * @return string|object
+     */
+    public static function assertClassOneOf($value, $classes)
+    {
+        return static::getInstance()->assertClassOneOf($value, $classes);
+    }
+
+    /**
+     * @param string|object   $value
+     * @param string|string[] ...$classes
+     *
+     * @return string|object
+     */
+    public static function assertSubclassOneOf($value, $classes)
+    {
+        return static::getInstance()->assertSubclassOneOf($value, $classes);
+    }
+
+    /**
+     * @param object          $object
+     * @param string|string[] ...$classes
+     *
+     * @return object
+     */
+    public static function assertInstanceOneOf($object, $classes): object
+    {
+        return static::getInstance()->assertInstanceOneOf($object, $classes);
+    }
+
+    /**
+     * @param object|mixed $object
+     * @param string|mixed $contract
+     *
+     * @return object
+     */
+    public static function assertContract($object, $contract): object
+    {
+        return static::getInstance()->assertContract($object, $contract);
+    }
+
+    /**
+     * @param string $contract
+     *
+     * @return null|array
+     */
+    public static function existsContract($contract): ?array
+    {
+        return static::getInstance()->existsContract($contract);
     }
 
     /**

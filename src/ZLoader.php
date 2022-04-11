@@ -6,7 +6,6 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Exceptions\LogicException;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
@@ -228,17 +227,6 @@ class ZLoader implements ILoader
 
 
     /**
-     * @param string $contract
-     *
-     * @return null|array
-     */
-    public function existsContract($contract) : ?array
-    {
-        return $this->contracts[ $contract ] ?? null;
-    }
-
-
-    /**
      * @param string       $contract
      * @param string|array $classes
      *
@@ -281,221 +269,6 @@ class ZLoader implements ILoader
 
 
     /**
-     * @param string|object   $value
-     * @param string|string[] $classes
-     *
-     * @return bool
-     */
-    public function isClassOneOf($value, $classes) : bool
-    {
-        return null !== $this->filterClassOneOf($value, $classes);
-    }
-
-    /**
-     * @param string|object   $value
-     * @param string|string[] $classes
-     *
-     * @return bool
-     */
-    public function isSubclassOneOf($value, $classes) : bool
-    {
-        return null !== $this->filterSubclassOneOf($value, $classes);
-    }
-
-    /**
-     * @param object          $value
-     * @param string|string[] $classes
-     *
-     * @return bool
-     */
-    public function isInstanceOneOf($value, $classes) : bool
-    {
-        return null !== $this->filterInstanceOneOf($value, $classes);
-    }
-
-
-    /**
-     * @param string|mixed $object
-     * @param object|mixed $contract
-     *
-     * @return bool
-     */
-    public function isContract($object, $contract) : bool
-    {
-        return null !== $this->filterContract($object, $contract);
-    }
-
-
-    /**
-     * @param string|object   $value
-     * @param string|string[] $classes
-     *
-     * @return null|string|object
-     */
-    public function filterClassOneOf($value, $classes) // : ?string|object
-    {
-        $list = $this->str->theWordvals($classes, true);
-
-        $allowString = ( null !== ( $strval = $this->str->strval($value) ) );
-
-        foreach ( $list as $class ) {
-            if ($allowString && is_a($strval, $class, true)) {
-                return $value;
-
-            } elseif (is_a($value, $class)) {
-                return $value;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * @param string|object   $value
-     * @param string|string[] $classes
-     *
-     * @return null|string|object
-     */
-    public function filterSubclassOneOf($value, $classes) // : ?string|object
-    {
-        $list = $this->str->theWordvals($classes, true);
-
-        $allowString = ( null !== ( $strval = $this->str->strval($value) ) );
-
-        foreach ( $list as $class ) {
-            if ($allowString && is_subclass_of($strval, $class, true)) {
-                return $value;
-
-            } elseif (is_subclass_of($value, $class)) {
-                return $value;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * @param object          $object
-     * @param string|string[] $classes
-     *
-     * @return null|object
-     */
-    public function filterInstanceOneOf($object, $classes) : ?object
-    {
-        $list = $this->str->theWordvals($classes, true);
-
-        foreach ( $list as $class ) {
-            if ($object instanceof $class) {
-                return $object;
-            }
-        }
-
-        return null;
-    }
-
-
-    /**
-     * @param object|mixed $object
-     * @param string|mixed $contract
-     *
-     * @return null|object
-     */
-    public function filterContract($object, $contract) : ?object
-    {
-        if (! is_object($object)) {
-            return null;
-        }
-
-        if (! is_string($contract)) {
-            return null;
-        }
-
-        $result = $this->filterInstanceOneOf($object, $this->contracts[ $contract ] ?? []);
-
-        return $result;
-    }
-
-
-    /**
-     * @param string|object   $value
-     * @param string|string[] ...$classes
-     *
-     * @return string|object
-     */
-    public function assertClassOneOf($value, $classes) // : ?string|object
-    {
-        if (null === $this->filterClassOneOf($value, $classes)) {
-            throw new InvalidArgumentException('Value should be class of: '
-                . '[' . implode(', ', is_array($classes)
-                    ? $classes
-                    : [ $classes ]
-                ) . ']'
-            );
-        }
-
-        return $value;
-    }
-
-    /**
-     * @param string|object   $value
-     * @param string|string[] ...$classes
-     *
-     * @return string|object
-     */
-    public function assertSubclassOneOf($value, $classes) // : ?string|object
-    {
-        if (null === $this->filterSubclassOneOf($value, $classes)) {
-            throw new InvalidArgumentException('Value should be subclass of: '
-                . '[' . implode(', ', is_array($classes)
-                    ? $classes
-                    : [ $classes ]
-                ) . ']'
-            );
-        }
-
-        return $value;
-    }
-
-    /**
-     * @param object          $object
-     * @param string|string[] ...$classes
-     *
-     * @return object
-     */
-    public function assertInstanceOneOf($object, $classes) : object
-    {
-        if (null === $this->filterInstanceOneOf($object, $classes)) {
-            throw new InvalidArgumentException('Value should be instance of: '
-                . '[' . implode(', ', is_array($classes)
-                    ? $classes
-                    : [ $classes ]
-                ) . ']'
-            );
-        }
-
-        return $object;
-    }
-
-
-    /**
-     * @param object|mixed $object
-     * @param string|mixed $contract
-     *
-     * @return object
-     */
-    public function assertContract($object, $contract) : object
-    {
-        if (null === $this->filterContract($object, $contract)) {
-            throw new InvalidArgumentException(
-                [ 'Object does not match registered contract (%s): %s', $object, $contract ]
-            );
-        }
-
-        return $object;
-    }
-
-
-    /**
      * @param object|\ReflectionClass $object
      * @param null|bool               $root
      *
@@ -524,7 +297,6 @@ class ZLoader implements ILoader
 
         return $val;
     }
-
 
     /**
      * @param object|\ReflectionClass $object
@@ -633,7 +405,6 @@ class ZLoader implements ILoader
 
         return $val;
     }
-
 
     /**
      * @param object|\ReflectionClass $object
@@ -994,6 +765,232 @@ class ZLoader implements ILoader
         }
 
         return $val;
+    }
+
+
+    /**
+     * @param string|object   $value
+     * @param string|string[] $classes
+     *
+     * @return bool
+     */
+    public function isClassOneOf($value, $classes) : bool
+    {
+        return null !== $this->filterClassOneOf($value, $classes);
+    }
+
+    /**
+     * @param string|object   $value
+     * @param string|string[] $classes
+     *
+     * @return bool
+     */
+    public function isSubclassOneOf($value, $classes) : bool
+    {
+        return null !== $this->filterSubclassOneOf($value, $classes);
+    }
+
+    /**
+     * @param object          $value
+     * @param string|string[] $classes
+     *
+     * @return bool
+     */
+    public function isInstanceOneOf($value, $classes) : bool
+    {
+        return null !== $this->filterInstanceOneOf($value, $classes);
+    }
+
+
+    /**
+     * @param string|mixed $object
+     * @param object|mixed $contract
+     *
+     * @return bool
+     */
+    public function isContract($object, $contract) : bool
+    {
+        return null !== $this->filterContract($object, $contract);
+    }
+
+
+    /**
+     * @param string|object   $value
+     * @param string|string[] $classes
+     *
+     * @return null|string|object
+     */
+    public function filterClassOneOf($value, $classes) // : ?string|object
+    {
+        $list = $this->str->theWordvals($classes, true);
+
+        $allowString = ( null !== ( $strval = $this->str->strval($value) ) );
+
+        foreach ( $list as $class ) {
+            if ($allowString && is_a($strval, $class, true)) {
+                return $value;
+
+            } elseif (is_a($value, $class)) {
+                return $value;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param string|object   $value
+     * @param string|string[] $classes
+     *
+     * @return null|string|object
+     */
+    public function filterSubclassOneOf($value, $classes) // : ?string|object
+    {
+        $list = $this->str->theWordvals($classes, true);
+
+        $allowString = ( null !== ( $strval = $this->str->strval($value) ) );
+
+        foreach ( $list as $class ) {
+            if ($allowString && is_subclass_of($strval, $class, true)) {
+                return $value;
+
+            } elseif (is_subclass_of($value, $class)) {
+                return $value;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param object          $object
+     * @param string|string[] $classes
+     *
+     * @return null|object
+     */
+    public function filterInstanceOneOf($object, $classes) : ?object
+    {
+        $list = $this->str->theWordvals($classes, true);
+
+        foreach ( $list as $class ) {
+            if ($object instanceof $class) {
+                return $object;
+            }
+        }
+
+        return null;
+    }
+
+
+    /**
+     * @param object|mixed $object
+     * @param string|mixed $contract
+     *
+     * @return null|object
+     */
+    public function filterContract($object, $contract) : ?object
+    {
+        if (! is_object($object)) {
+            return null;
+        }
+
+        if (! is_string($contract)) {
+            return null;
+        }
+
+        $result = $this->filterInstanceOneOf($object, $this->contracts[ $contract ] ?? []);
+
+        return $result;
+    }
+
+
+    /**
+     * @param string|object   $value
+     * @param string|string[] ...$classes
+     *
+     * @return string|object
+     */
+    public function assertClassOneOf($value, $classes) // : ?string|object
+    {
+        if (null === $this->filterClassOneOf($value, $classes)) {
+            throw new InvalidArgumentException('Value should be class of: '
+                . '[' . implode(', ', is_array($classes)
+                    ? $classes
+                    : [ $classes ]
+                ) . ']'
+            );
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param string|object   $value
+     * @param string|string[] ...$classes
+     *
+     * @return string|object
+     */
+    public function assertSubclassOneOf($value, $classes) // : ?string|object
+    {
+        if (null === $this->filterSubclassOneOf($value, $classes)) {
+            throw new InvalidArgumentException('Value should be subclass of: '
+                . '[' . implode(', ', is_array($classes)
+                    ? $classes
+                    : [ $classes ]
+                ) . ']'
+            );
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param object          $object
+     * @param string|string[] ...$classes
+     *
+     * @return object
+     */
+    public function assertInstanceOneOf($object, $classes) : object
+    {
+        if (null === $this->filterInstanceOneOf($object, $classes)) {
+            throw new InvalidArgumentException('Value should be instance of: '
+                . '[' . implode(', ', is_array($classes)
+                    ? $classes
+                    : [ $classes ]
+                ) . ']'
+            );
+        }
+
+        return $object;
+    }
+
+
+    /**
+     * @param object|mixed $object
+     * @param string|mixed $contract
+     *
+     * @return object
+     */
+    public function assertContract($object, $contract) : object
+    {
+        if (null === $this->filterContract($object, $contract)) {
+            throw new InvalidArgumentException(
+                [ 'Object does not match registered contract (%s): %s', $object, $contract ]
+            );
+        }
+
+        return $object;
+    }
+
+
+    /**
+     * @param string $contract
+     *
+     * @return null|array
+     */
+    public function existsContract($contract) : ?array
+    {
+        return $this->contracts[ $contract ] ?? null;
     }
 
 

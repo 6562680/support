@@ -20,7 +20,7 @@ interface IFormat
      *
      * @return string
      */
-    public function niceSize($filesize): string;
+    public function textFilesize($filesize): string;
 
     /**
      * Формирует условие для SQL LIKE %val% запроса, экранируя проценты и подчеркивания

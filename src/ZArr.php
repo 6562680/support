@@ -845,6 +845,8 @@ class ZArr implements IArr
      */
     public function dotarr(iterable $iterable, $separators = '.') : array
     {
+        /** @var array $fullpath */
+
         $result = [];
 
         $nodes = [];
