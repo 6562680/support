@@ -420,7 +420,7 @@ interface IMath
     public function bcsqrt($val, int $scale = null): Bcval;
 
     /**
-     * Получает минуса или пустой строки если число отрицательное
+     * Получает символ "минус", если число отрицательное, или пустую строку
      *
      * @param int|float|string|Bcval|mixed $number
      *
@@ -535,9 +535,19 @@ interface IMath
     public function bcrand($from, $to = null, int $scale = null): Bcval;
 
     /**
-     * Уменьшение по "правилу денег"
-     * Урежет дробную часть
-     * Обычный floor отбрасывает всю и уменьшает число на единицу даже если отрицательное
+     * Округление по "правилу денег". Обычный round для отрицательных работает в обратную сторону
+     * Эта функция учитывает "потерянную копейку", 1.0005 может быть округлено до 1.01 вместо 1.00 (по математическим правилам)
+     *
+     * @param int|float|string|Bcval|mixed $number
+     * @param null|int                     $scale
+     *
+     * @return Bcval
+     */
+    public function bcmoneyround($number, int $scale = null): Bcval;
+
+    /**
+     * Уменьшение по "правилу денег". Обычный floor для отрицательных работает в обратную сторону
+     * Эта функция учитывает "потерянную копейку", 1.0005 может быть округлено до 1.01 вместо 1.00 (по математическим правилам)
      *
      * @param int|float|string|Bcval|mixed $number
      * @param null|int                     $scale
@@ -547,8 +557,8 @@ interface IMath
     public function bcmoneyfloor($number, int $scale = null): Bcval;
 
     /**
-     * Увеличение по "правилу денег"
-     * Округлит 1.00000001 до 1.01 (если нужно два знака после запятой)
+     * Увеличение по "правилу денег". Обычный ceil для отрицательных работает в обратную сторону
+     * Эта функция учитывает "потерянную копейку", 1.0005 может быть округлено до 1.01 вместо 1.00 (по математическим правилам)
      *
      * @param int|float|string|Bcval|mixed $number
      * @param null|int                     $scale

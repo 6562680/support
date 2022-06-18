@@ -550,7 +550,9 @@ class ZMath implements IMath
 
         $ctype = str_replace([ '-', '.' ], '', $parsed);
         if (! ctype_digit($ctype)) {
-            [ 'NAN: contains something except numbers and symbols `-`,`.`: %s', $number ];
+            throw new InvalidArgumentException(
+                [ 'NAN: contains something except numbers and symbols `-`,`.`: %s', $number ]
+            );
         }
 
         return $parsed;
@@ -620,7 +622,7 @@ class ZMath implements IMath
      */
     public function round($number, int $scale = null) // : int|float
     {
-        $scale = $this->theScaleVal($scale ?? 0);
+        $scale = $this->theScaleVal($scale);
 
         $numval = $this->num->theNumval($number);
 
@@ -639,25 +641,13 @@ class ZMath implements IMath
      */
     public function floor($number, int $scale = null) // : int|float
     {
-        $scale = $this->theScaleVal($scale ?? 0);
+        $scale = $this->theScaleVal($scale);
 
         $numval = $this->num->theNumval($number);
 
-        $result = $numval;
+        $pow = pow(10, $scale);
 
-        if (intval($numval) !== $numval) {
-            $fmod = floatval(strval(
-                $this->bcadd($numval, 0, $scale)
-            ));
-
-            $bonus = $numval != $fmod
-                ? ( 1 / pow(10, $scale) )
-                : 0;
-
-            $result = $numval < 0
-                ? $fmod - $bonus
-                : $fmod;
-        }
+        $result = floor($numval * $pow) / $pow;
 
         return $result;
     }
@@ -672,25 +662,13 @@ class ZMath implements IMath
      */
     public function ceil($number, int $scale = null) // : int|float
     {
-        $scale = $this->theScaleVal($scale ?? 0);
+        $scale = $this->theScaleVal($scale);
 
         $numval = $this->num->theNumval($number);
 
-        $result = $numval;
+        $pow = pow(10, $scale);
 
-        if (intval($numval) !== $numval) {
-            $fmod = floatval(strval(
-                $this->bcadd($numval, 0, $scale)
-            ));
-
-            $bonus = $numval != $fmod
-                ? ( 1 / pow(10, $scale) )
-                : 0;
-
-            $result = $numval > 0
-                ? $fmod + $bonus
-                : $fmod;
-        }
+        $result = ceil($numval * $pow) / $pow;
 
         return $result;
     }
@@ -1271,7 +1249,7 @@ class ZMath implements IMath
 
 
     /**
-     * Получает минуса или пустой строки если число отрицательное
+     * Получает символ "минус", если число отрицательное, или пустую строку
      *
      * @param int|float|string|Bcval|mixed $number
      *
@@ -1280,13 +1258,6 @@ class ZMath implements IMath
     public function bcminus($number) : string
     {
         $bcval = $this->theBcval($number);
-
-        if (! $bcval->hasMinus()) {
-            $minus = strpos($bcval, '-') === 0
-                ? '-' : '';
-
-            $bcval->withMinus($minus);
-        }
 
         $minus = $bcval->getMinus();
 
@@ -1304,19 +1275,6 @@ class ZMath implements IMath
     {
         $bcval = $this->theBcval($number);
 
-        if (! $bcval->hasAbs()) {
-            $minus = strpos($bcval, '-') === 0
-                ? '-'
-                : '';
-
-            $abs = $minus
-                ? substr($bcval, 1)
-                : $bcval;
-
-            $bcval->withMinus($minus);
-            $bcval->withAbs($abs);
-        }
-
         $abs = $bcval->getAbs();
 
         return $abs;
@@ -1333,13 +1291,14 @@ class ZMath implements IMath
      */
     public function bcround($number, int $scale = null) : Bcval
     {
-        $scale = $this->theScaleVal($scale ?? 0);
+        $scale = $this->theScaleVal($scale);
 
         $bcval = $this->theBcval($number);
 
-        $bcround = $bcval;
+        if (! $hasDecimals = false !== strpos($bcval, '.')) {
+            $bcround = $bcval;
 
-        if ($hasDecimals = false !== strpos($bcval, '.')) {
+        } else {
             $bcround = $this->bcminus($bcval)
                 ? $this->bcsub($bcval, '0.' . str_repeat('0', $scale) . '5', $scale)
                 : $this->bcadd($bcval, '0.' . str_repeat('0', $scale) . '5', $scale);
@@ -1358,21 +1317,25 @@ class ZMath implements IMath
      */
     public function bcfloor($number, int $scale = null) : Bcval
     {
-        $scale = $this->theScaleVal($scale ?? 0);
+        $scale = $this->theScaleVal($scale);
 
         $bcval = $this->theBcval($number);
 
-        $bcfloor = $bcval;
+        if (! $hasDecimals = false !== strpos($bcval, '.')) {
+            $bcfloor = $bcval;
 
-        if ($hasDecimals = false !== strpos($bcval, '.')) {
-            $fmod = $this->bcadd($bcval, 0, $scale);
-            $bonus = $this->bccomp($bcval, $fmod) // scale will be calculated
-                ? ( 1 / pow(10, $scale) )
-                : 0;
+        } else {
+            $bcfloor = ($minus = $this->bcminus($bcval))
+                ? $this->bcsub($bcval, '0.' . str_repeat('0', $scale) . '5', $scale)
+                : $this->bcadd($bcval, '0', $scale);
 
-            $bcfloor = ( -1 === $this->bccomp($bcval, 0) )
-                ? $this->bcsub($fmod, $bonus, $scale)
-                : $fmod;
+            $bonus = 0 === $this->bccomp($bcval, $bcfloor)
+                ? 0
+                : 1 / pow(10, $scale);
+
+            $bcfloor = $minus
+                ? $this->bcsub($bcval, $bonus, $scale)
+                : $bcfloor;
         }
 
         return $bcfloor;
@@ -1388,21 +1351,25 @@ class ZMath implements IMath
      */
     public function bcceil($number, int $scale = null) : Bcval
     {
-        $scale = $this->theScaleVal($scale ?? 0);
+        $scale = $this->theScaleVal($scale);
 
         $bcval = $this->theBcval($number);
 
-        $bcceil = $bcval;
+        if (! $hasDecimals = false !== strpos($bcval, '.')) {
+            $bcceil = $bcval;
 
-        if ($hasDecimals = false !== strpos($bcval, '.')) {
-            $fmod = $this->bcadd($bcval, 0, $scale);
-            $bonus = $this->bccomp($bcval, $fmod) // scale will be calculated
-                ? ( 1 / pow(10, $scale) )
-                : 0;
+        } else {
+            $bcceil = ($minus = $this->bcminus($bcval))
+                ? $this->bcsub($bcval, '0', $scale)
+                : $this->bcadd($bcval, '0.' . str_repeat('0', $scale) . '5', $scale);
 
-            $bcceil = ( -1 === $this->bccomp($bcval, 0) )
-                ? $fmod
-                : $this->bcadd($fmod, $bonus, $scale);
+            $bonus = 0 === $this->bccomp($bcval, $bcceil)
+                ? 0
+                : 1 / pow(10, $scale);
+
+            $bcceil = $minus
+                ? $bcceil
+                : $this->bcadd($bcval, $bonus, $scale);
         }
 
         return $bcceil;
@@ -1610,14 +1577,14 @@ class ZMath implements IMath
 
         $pow = pow(10, $this->fraclen([ $from, $to ]));
 
-        $fromto = [
-            $this->bcmul($from, $pow),
-            $this->bcmul($to, $pow),
-        ];
+        $bcFrom = $this->bcmul($from, $pow);
+        $bcTo = $this->bcmul($to, $pow);
 
-        natsort($fromto);
+        $bcFromTo = [ $bcFrom->getValue(), $bcTo->getValue() ];
 
-        $result = mt_rand($fromto);
+        natsort($bcFromTo);
+
+        $result = mt_rand(...$bcFromTo);
 
         $result = $this->bcdiv($result, $pow, $scale);
 
@@ -1626,9 +1593,28 @@ class ZMath implements IMath
 
 
     /**
-     * Уменьшение по "правилу денег"
-     * Урежет дробную часть
-     * Обычный floor отбрасывает всю и уменьшает число на единицу даже если отрицательное
+     * Округление по "правилу денег". Обычный round для отрицательных работает в обратную сторону
+     * Эта функция учитывает "потерянную копейку", 1.0005 может быть округлено до 1.01 вместо 1.00 (по математическим правилам)
+     *
+     * @param int|float|string|Bcval|mixed $number
+     * @param null|int                     $scale
+     *
+     * @return Bcval
+     */
+    public function bcmoneyround($number, int $scale = null) : Bcval
+    {
+        $scale = $this->theScaleVal($scale);
+
+        $result = $this->bcround($this->bcabs($number), $scale);
+
+        $result->withMinus($this->bcminus($number));
+
+        return $result;
+    }
+
+    /**
+     * Уменьшение по "правилу денег". Обычный floor для отрицательных работает в обратную сторону
+     * Эта функция учитывает "потерянную копейку", 1.0005 может быть округлено до 1.01 вместо 1.00 (по математическим правилам)
      *
      * @param int|float|string|Bcval|mixed $number
      * @param null|int                     $scale
@@ -1637,16 +1623,35 @@ class ZMath implements IMath
      */
     public function bcmoneyfloor($number, int $scale = null) : Bcval
     {
-        $scale = $this->theScaleVal($scale ?? 0);
+        $scale = $this->theScaleVal($scale);
 
-        $result = $this->bcadd($number, 0, $scale);
+        $numberAbs = $this->bcabs($number);
 
-        return $result;
+        $bcval = $this->theBcval($numberAbs);
+
+        if (! $hasDecimals = false !== strpos($bcval, '.')) {
+            $bcmoneyfloor = $bcval;
+
+        } else {
+            $bcvalNew = $this->bcadd($bcval, 0, $scale);
+
+            $bonus = $this->bccomp($bcval, $bcvalNew)
+                ? ( 1 / pow(10, $scale) )
+                : 0;
+
+            $bcmoneyfloor = $this->bcminus($bcval)
+                ? $this->bcsub($bcvalNew, $bonus, $scale)
+                : $bcvalNew;
+        }
+
+        $bcmoneyfloor->withMinus($this->bcminus($number));
+
+        return $bcmoneyfloor;
     }
 
     /**
-     * Увеличение по "правилу денег"
-     * Округлит 1.00000001 до 1.01 (если нужно два знака после запятой)
+     * Увеличение по "правилу денег". Обычный ceil для отрицательных работает в обратную сторону
+     * Эта функция учитывает "потерянную копейку", 1.0005 может быть округлено до 1.01 вместо 1.00 (по математическим правилам)
      *
      * @param int|float|string|Bcval|mixed $number
      * @param null|int                     $scale
@@ -1655,14 +1660,32 @@ class ZMath implements IMath
      */
     public function bcmoneyceil($number, int $scale = null) : Bcval
     {
-        $scale = $this->theScaleVal($scale ?? 0);
+        $scale = $this->theScaleVal($scale);
 
-        $result = $this->bcceil($this->bcabs($number), $scale);
+        $numberAbs = $this->bcabs($number);
 
-        $result->withMinus($this->bcminus($number));
+        $bcval = $this->theBcval($numberAbs);
 
-        return $result;
+        if (! $hasDecimals = false !== strpos($bcval, '.')) {
+            $bcmoneyceil = $bcval;
+
+        } else {
+            $bcvalNew = $this->bcadd($bcval, 0, $scale);
+
+            $bonus = $this->bccomp($bcval, $bcvalNew)
+                ? ( 1 / pow(10, $scale) )
+                : 0;
+
+            $bcmoneyceil = $this->bcminus($bcval)
+                ? $bcvalNew
+                : $this->bcadd($bcvalNew, $bonus, $scale);
+        }
+
+        $bcmoneyceil->withMinus($this->bcminus($number));
+
+        return $bcmoneyceil;
     }
+
 
     /**
      * Разбивает сумму между получателями

@@ -138,30 +138,123 @@ class MathTest extends AbstractTestCase
     {
         $math = $this->getMath();
 
-        $this->assertEquals(1, $math->round(0.5));
-        $this->assertEquals(0, $math->round(0.01));
-        $this->assertEquals(-1, $math->round(-0.5));
-        $this->assertEquals(0, $math->round(-0.01));
+        $this->assertEquals(0, strval($math->round(0.01)));
+        $this->assertEquals(0, strval($math->round(-0.01)));
+        $this->assertEquals(0, strval($math->round(0.01, 1)));
+        $this->assertEquals(0, strval($math->round(-0.01, 1)));
+        $this->assertEquals(0.01, strval($math->round(0.01, 2)));
+        $this->assertEquals(-0.01, strval($math->round(-0.01, 2)));
+        $this->assertEquals(0.01, strval($math->round(0.01, 3)));
+        $this->assertEquals(-0.01, strval($math->round(-0.01, 3)));
+
+        $this->assertEquals(0, strval($math->round(0.0001)));
+        $this->assertEquals(0, strval($math->round(-0.0001)));
+        $this->assertEquals(0, strval($math->round(0.0001, 1)));
+        $this->assertEquals(0, strval($math->round(-0.0001, 1)));
+        $this->assertEquals(0.0001, strval($math->round(0.0001, 4)));
+        $this->assertEquals(-0.0001, strval($math->round(-0.0001, 4)));
+        $this->assertEquals(0.0001, strval($math->round(0.0001, 5)));
+        $this->assertEquals(-0.0001, strval($math->round(-0.0001, 5)));
+
+        $this->assertEquals(1, strval($math->round(1.05)));
+        $this->assertEquals(-1, strval($math->round(-1.05)));
+        $this->assertEquals(1.1, strval($math->round(1.05, 1)));
+        $this->assertEquals(-1.1, strval($math->round(-1.05, 1)));
+        $this->assertEquals(1.05, strval($math->round(1.05, 2)));
+        $this->assertEquals(-1.05, strval($math->round(-1.05, 2)));
+        $this->assertEquals(1.05, strval($math->round(1.05, 3)));
+        $this->assertEquals(-1.05, strval($math->round(-1.05, 3)));
+
+        $this->assertEquals(1, strval($math->round(1.0005)));
+        $this->assertEquals(-1, strval($math->round(-1.0005)));
+        $this->assertEquals(1, strval($math->round(1.0005, 1)));
+        $this->assertEquals(-1, strval($math->round(-1.0005, 1)));
+        $this->assertEquals(1.0005, strval($math->round(1.0005, 4)));
+        $this->assertEquals(-1.0005, strval($math->round(-1.0005, 4)));
+        $this->assertEquals(1.0005, strval($math->round(1.0005, 5)));
+        $this->assertEquals(-1.0005, strval($math->round(-1.0005, 5)));
     }
 
     public function testFloor()
     {
         $math = $this->getMath();
 
-        $this->assertEquals(1, $math->floor(1.5));
-        $this->assertEquals(0, $math->floor(0.01));
-        $this->assertEquals(-2, $math->floor(-1.5));
-        $this->assertEquals(-1, $math->floor(-0.01));
+        $this->assertEquals(0, strval($math->floor(0.01)));
+        $this->assertEquals(-1, strval($math->floor(-0.01)));
+        $this->assertEquals(0, strval($math->floor(0.01, 1)));
+        $this->assertEquals(-0.1, strval($math->floor(-0.01, 1)));
+        $this->assertEquals(0.01, strval($math->floor(0.01, 2)));
+        $this->assertEquals(-0.01, strval($math->floor(-0.01, 2)));
+        $this->assertEquals(0.01, strval($math->floor(0.01, 3)));
+        $this->assertEquals(-0.01, strval($math->floor(-0.01, 3)));
+
+        $this->assertEquals(0, strval($math->floor(0.0001)));
+        $this->assertEquals(-1, strval($math->floor(-0.0001)));
+        $this->assertEquals(0, strval($math->floor(0.0001, 1)));
+        $this->assertEquals(-0.1, strval($math->floor(-0.0001, 1)));
+        $this->assertEquals(0.0001, strval($math->floor(0.0001, 4)));
+        $this->assertEquals(-0.0001, strval($math->floor(-0.0001, 4)));
+        $this->assertEquals(0.0001, strval($math->floor(0.0001, 5)));
+        $this->assertEquals(-0.0001, strval($math->floor(-0.0001, 5)));
+
+        $this->assertEquals(1, strval($math->floor(1.05)));
+        $this->assertEquals(-2, strval($math->floor(-1.05)));
+        $this->assertEquals(1, strval($math->floor(1.05, 1)));
+        $this->assertEquals(-1.1, strval($math->floor(-1.05, 1)));
+        $this->assertEquals(1.05, strval($math->floor(1.05, 2)));
+        $this->assertEquals(-1.05, strval($math->floor(-1.05, 2)));
+        $this->assertEquals(1.05, strval($math->floor(1.05, 3)));
+        $this->assertEquals(-1.05, strval($math->floor(-1.05, 3)));
+
+        $this->assertEquals(1, strval($math->floor(1.0005)));
+        $this->assertEquals(-2, strval($math->floor(-1.0005)));
+        $this->assertEquals(1, strval($math->floor(1.0005, 1)));
+        $this->assertEquals(-1.1, strval($math->floor(-1.0005, 1)));
+        $this->assertEquals(1.0005, strval($math->floor(1.0005, 4)));
+        $this->assertEquals(-1.0005, strval($math->floor(-1.0005, 4)));
+        $this->assertEquals(1.0005, strval($math->floor(1.0005, 5)));
+        $this->assertEquals(-1.0005, strval($math->floor(-1.0005, 5)));
     }
 
     public function testCeil()
     {
         $math = $this->getMath();
 
-        $this->assertEquals(2, $math->ceil(1.5));
-        $this->assertEquals(1, $math->ceil(0.01));
-        $this->assertEquals(-1, $math->ceil(-1.5));
-        $this->assertEquals(0, $math->ceil(-0.01));
+        $this->assertEquals(1, strval($math->ceil(0.01)));
+        $this->assertEquals(0, strval($math->ceil(-0.01)));
+        $this->assertEquals(0.1, strval($math->ceil(0.01, 1)));
+        $this->assertEquals(0, strval($math->ceil(-0.01, 1)));
+        $this->assertEquals(0.01, strval($math->ceil(0.01, 2)));
+        $this->assertEquals(-0.01, strval($math->ceil(-0.01, 2)));
+        $this->assertEquals(0.01, strval($math->ceil(0.01, 3)));
+        $this->assertEquals(-0.01, strval($math->ceil(-0.01, 3)));
+
+        $this->assertEquals(1, strval($math->ceil(0.0001)));
+        $this->assertEquals(0, strval($math->ceil(-0.0001)));
+        $this->assertEquals(0.1, strval($math->ceil(0.0001, 1)));
+        $this->assertEquals(0, strval($math->ceil(-0.0001, 1)));
+        $this->assertEquals(0.0001, strval($math->ceil(0.0001, 4)));
+        $this->assertEquals(-0.0001, strval($math->ceil(-0.0001, 4)));
+        $this->assertEquals(0.0001, strval($math->ceil(0.0001, 5)));
+        $this->assertEquals(-0.0001, strval($math->ceil(-0.0001, 5)));
+
+        $this->assertEquals(2, strval($math->ceil(1.05)));
+        $this->assertEquals(-1, strval($math->ceil(-1.05)));
+        $this->assertEquals(1.1, strval($math->ceil(1.05, 1)));
+        $this->assertEquals(-1, strval($math->ceil(-1.05, 1)));
+        $this->assertEquals(1.05, strval($math->ceil(1.05, 2)));
+        $this->assertEquals(-1.05, strval($math->ceil(-1.05, 2)));
+        $this->assertEquals(1.05, strval($math->ceil(1.05, 3)));
+        $this->assertEquals(-1.05, strval($math->ceil(-1.05, 3)));
+
+        $this->assertEquals(2, strval($math->ceil(1.0005)));
+        $this->assertEquals(-1, strval($math->ceil(-1.0005)));
+        $this->assertEquals(1.1, strval($math->ceil(1.0005, 1)));
+        $this->assertEquals(-1, strval($math->ceil(-1.0005, 1)));
+        $this->assertEquals(1.0005, strval($math->ceil(1.0005, 4)));
+        $this->assertEquals(-1.0005, strval($math->ceil(-1.0005, 4)));
+        $this->assertEquals(1.0005, strval($math->ceil(1.0005, 5)));
+        $this->assertEquals(-1.0005, strval($math->ceil(-1.0005, 5)));
     }
 
 
@@ -214,30 +307,123 @@ class MathTest extends AbstractTestCase
     {
         $math = $this->getMath();
 
-        $this->assertEquals(1, strval($math->bcround(0.5)));
         $this->assertEquals(0, strval($math->bcround(0.01)));
-        $this->assertEquals(-1, strval($math->bcround(-0.5)));
         $this->assertEquals(0, strval($math->bcround(-0.01)));
+        $this->assertEquals(0, strval($math->bcround(0.01, 1)));
+        $this->assertEquals(0, strval($math->bcround(-0.01, 1)));
+        $this->assertEquals(0.01, strval($math->bcround(0.01, 2)));
+        $this->assertEquals(-0.01, strval($math->bcround(-0.01, 2)));
+        $this->assertEquals(0.01, strval($math->bcround(0.01, 3)));
+        $this->assertEquals(-0.01, strval($math->bcround(-0.01, 3)));
+
+        $this->assertEquals(0, strval($math->bcround(0.0001)));
+        $this->assertEquals(0, strval($math->bcround(-0.0001)));
+        $this->assertEquals(0, strval($math->bcround(0.0001, 1)));
+        $this->assertEquals(0, strval($math->bcround(-0.0001, 1)));
+        $this->assertEquals(0.0001, strval($math->bcround(0.0001, 4)));
+        $this->assertEquals(-0.0001, strval($math->bcround(-0.0001, 4)));
+        $this->assertEquals(0.0001, strval($math->bcround(0.0001, 5)));
+        $this->assertEquals(-0.0001, strval($math->bcround(-0.0001, 5)));
+
+        $this->assertEquals(1, strval($math->bcround(1.05)));
+        $this->assertEquals(-1, strval($math->bcround(-1.05)));
+        $this->assertEquals(1.1, strval($math->bcround(1.05, 1)));
+        $this->assertEquals(-1.1, strval($math->bcround(-1.05, 1)));
+        $this->assertEquals(1.05, strval($math->bcround(1.05, 2)));
+        $this->assertEquals(-1.05, strval($math->bcround(-1.05, 2)));
+        $this->assertEquals(1.05, strval($math->bcround(1.05, 3)));
+        $this->assertEquals(-1.05, strval($math->bcround(-1.05, 3)));
+
+        $this->assertEquals(1, strval($math->bcround(1.0005)));
+        $this->assertEquals(-1, strval($math->bcround(-1.0005)));
+        $this->assertEquals(1, strval($math->bcround(1.0005, 1)));
+        $this->assertEquals(-1, strval($math->bcround(-1.0005, 1)));
+        $this->assertEquals(1.0005, strval($math->bcround(1.0005, 4)));
+        $this->assertEquals(-1.0005, strval($math->bcround(-1.0005, 4)));
+        $this->assertEquals(1.0005, strval($math->bcround(1.0005, 5)));
+        $this->assertEquals(-1.0005, strval($math->bcround(-1.0005, 5)));
     }
 
     public function testBcfloor()
     {
         $math = $this->getMath();
 
-        $this->assertEquals(1, strval($math->bcfloor(1.5)));
         $this->assertEquals(0, strval($math->bcfloor(0.01)));
-        $this->assertEquals(-2, strval($math->bcfloor(-1.5)));
         $this->assertEquals(-1, strval($math->bcfloor(-0.01)));
+        $this->assertEquals(0, strval($math->bcfloor(0.01, 1)));
+        $this->assertEquals(-0.1, strval($math->bcfloor(-0.01, 1)));
+        $this->assertEquals(0.01, strval($math->bcfloor(0.01, 2)));
+        $this->assertEquals(-0.01, strval($math->bcfloor(-0.01, 2)));
+        $this->assertEquals(0.01, strval($math->bcfloor(0.01, 3)));
+        $this->assertEquals(-0.01, strval($math->bcfloor(-0.01, 3)));
+
+        $this->assertEquals(0, strval($math->bcfloor(0.0001)));
+        $this->assertEquals(-1, strval($math->bcfloor(-0.0001)));
+        $this->assertEquals(0, strval($math->bcfloor(0.0001, 1)));
+        $this->assertEquals(-0.1, strval($math->bcfloor(-0.0001, 1)));
+        $this->assertEquals(0.0001, strval($math->bcfloor(0.0001, 4)));
+        $this->assertEquals(-0.0001, strval($math->bcfloor(-0.0001, 4)));
+        $this->assertEquals(0.0001, strval($math->bcfloor(0.0001, 5)));
+        $this->assertEquals(-0.0001, strval($math->bcfloor(-0.0001, 5)));
+
+        $this->assertEquals(1, strval($math->bcfloor(1.05)));
+        $this->assertEquals(-2, strval($math->bcfloor(-1.05)));
+        $this->assertEquals(1, strval($math->bcfloor(1.05, 1)));
+        $this->assertEquals(-1.1, strval($math->bcfloor(-1.05, 1)));
+        $this->assertEquals(1.05, strval($math->bcfloor(1.05, 2)));
+        $this->assertEquals(-1.05, strval($math->bcfloor(-1.05, 2)));
+        $this->assertEquals(1.05, strval($math->bcfloor(1.05, 3)));
+        $this->assertEquals(-1.05, strval($math->bcfloor(-1.05, 3)));
+
+        $this->assertEquals(1, strval($math->bcfloor(1.0005)));
+        $this->assertEquals(-2, strval($math->bcfloor(-1.0005)));
+        $this->assertEquals(1, strval($math->bcfloor(1.0005, 1)));
+        $this->assertEquals(-1.1, strval($math->bcfloor(-1.0005, 1)));
+        $this->assertEquals(1.0005, strval($math->bcfloor(1.0005, 4)));
+        $this->assertEquals(-1.0005, strval($math->bcfloor(-1.0005, 4)));
+        $this->assertEquals(1.0005, strval($math->bcfloor(1.0005, 5)));
+        $this->assertEquals(-1.0005, strval($math->bcfloor(-1.0005, 5)));
     }
 
     public function testBcceil()
     {
         $math = $this->getMath();
 
-        $this->assertEquals(2, strval($math->bcceil(1.5)));
         $this->assertEquals(1, strval($math->bcceil(0.01)));
-        $this->assertEquals(-1, strval($math->bcceil(-1.5)));
         $this->assertEquals(0, strval($math->bcceil(-0.01)));
+        $this->assertEquals(0.1, strval($math->bcceil(0.01, 1)));
+        $this->assertEquals(0, strval($math->bcceil(-0.01, 1)));
+        $this->assertEquals(0.01, strval($math->bcceil(0.01, 2)));
+        $this->assertEquals(-0.01, strval($math->bcceil(-0.01, 2)));
+        $this->assertEquals(0.01, strval($math->bcceil(0.01, 3)));
+        $this->assertEquals(-0.01, strval($math->bcceil(-0.01, 3)));
+
+        $this->assertEquals(1, strval($math->bcceil(0.0001)));
+        $this->assertEquals(0, strval($math->bcceil(-0.0001)));
+        $this->assertEquals(0.1, strval($math->bcceil(0.0001, 1)));
+        $this->assertEquals(0, strval($math->bcceil(-0.0001, 1)));
+        $this->assertEquals(0.0001, strval($math->bcceil(0.0001, 4)));
+        $this->assertEquals(-0.0001, strval($math->bcceil(-0.0001, 4)));
+        $this->assertEquals(0.0001, strval($math->bcceil(0.0001, 5)));
+        $this->assertEquals(-0.0001, strval($math->bcceil(-0.0001, 5)));
+
+        $this->assertEquals(2, strval($math->bcceil(1.05)));
+        $this->assertEquals(-1, strval($math->bcceil(-1.05)));
+        $this->assertEquals(1.1, strval($math->bcceil(1.05, 1)));
+        $this->assertEquals(-1, strval($math->bcceil(-1.05, 1)));
+        $this->assertEquals(1.05, strval($math->bcceil(1.05, 2)));
+        $this->assertEquals(-1.05, strval($math->bcceil(-1.05, 2)));
+        $this->assertEquals(1.05, strval($math->bcceil(1.05, 3)));
+        $this->assertEquals(-1.05, strval($math->bcceil(-1.05, 3)));
+
+        $this->assertEquals(2, strval($math->bcceil(1.0005)));
+        $this->assertEquals(-1, strval($math->bcceil(-1.0005)));
+        $this->assertEquals(1.1, strval($math->bcceil(1.0005, 1)));
+        $this->assertEquals(-1, strval($math->bcceil(-1.0005, 1)));
+        $this->assertEquals(1.0005, strval($math->bcceil(1.0005, 4)));
+        $this->assertEquals(-1.0005, strval($math->bcceil(-1.0005, 4)));
+        $this->assertEquals(1.0005, strval($math->bcceil(1.0005, 5)));
+        $this->assertEquals(-1.0005, strval($math->bcceil(-1.0005, 5)));
     }
 
 
@@ -337,30 +523,38 @@ class MathTest extends AbstractTestCase
     {
         $math = $this->getMath();
 
-        $this->assertEquals(1, strval($math->bcmoneyfloor(1.5)));
         $this->assertEquals(0, strval($math->bcmoneyfloor(0.01)));
-        $this->assertEquals(-1, strval($math->bcmoneyfloor(-1.5)));
         $this->assertEquals(0, strval($math->bcmoneyfloor(-0.01)));
-
-        $this->assertEquals(1.5, strval($math->bcmoneyfloor(1.5, 1)));
         $this->assertEquals(0, strval($math->bcmoneyfloor(0.01, 1)));
-        $this->assertEquals(-1.5, strval($math->bcmoneyfloor(-1.5, 1)));
         $this->assertEquals(0, strval($math->bcmoneyfloor(-0.01, 1)));
+        $this->assertEquals(0, strval($math->bcmoneyfloor(0.0001, 2)));
+        $this->assertEquals(0, strval($math->bcmoneyfloor(-0.0001, 2)));
+
+        $this->assertEquals(1, strval($math->bcmoneyfloor(1.05)));
+        $this->assertEquals(-1, strval($math->bcmoneyfloor(-1.05)));
+        $this->assertEquals(1, strval($math->bcmoneyfloor(1.05, 1)));
+        $this->assertEquals(-1, strval($math->bcmoneyfloor(-1.05, 1)));
+        $this->assertEquals(1, strval($math->bcmoneyfloor(1.0005, 2)));
+        $this->assertEquals(-1, strval($math->bcmoneyfloor(-1.0005, 2)));
     }
 
     public function testBcmoneyceil()
     {
         $math = $this->getMath();
 
-        $this->assertEquals(2, strval($math->bcmoneyceil(1.5)));
         $this->assertEquals(1, strval($math->bcmoneyceil(0.01)));
-        $this->assertEquals(-2, strval($math->bcmoneyceil(-1.5)));
         $this->assertEquals(-1, strval($math->bcmoneyceil(-0.01)));
-
-        $this->assertEquals(1.5, strval($math->bcmoneyceil(1.5, 1)));
         $this->assertEquals(0.1, strval($math->bcmoneyceil(0.01, 1)));
-        $this->assertEquals(-1.5, strval($math->bcmoneyceil(-1.5, 1)));
         $this->assertEquals(-0.1, strval($math->bcmoneyceil(-0.01, 1)));
+        $this->assertEquals(0.01, strval($math->bcmoneyceil(0.0001, 2)));
+        $this->assertEquals(-0.01, strval($math->bcmoneyceil(-0.0001, 2)));
+
+        $this->assertEquals(2, strval($math->bcmoneyceil(1.05)));
+        $this->assertEquals(-2, strval($math->bcmoneyceil(-1.05)));
+        $this->assertEquals(1.1, strval($math->bcmoneyceil(1.05, 1)));
+        $this->assertEquals(-1.1, strval($math->bcmoneyceil(-1.05, 1)));
+        $this->assertEquals(1.01, strval($math->bcmoneyceil(1.0005, 2)));
+        $this->assertEquals(-1.01, strval($math->bcmoneyceil(-1.0005, 2)));
     }
 
     public function testBcmoneyshare()

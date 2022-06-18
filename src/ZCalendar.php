@@ -1603,6 +1603,7 @@ class ZCalendar implements ICalendar
             (int) $dateTime->format('s') // 00-59 -> int -> 0-59
         );
 
+        // if we set incorrect time date becomes false
         if (false === $dateTime) {
             return null;
         }
@@ -1708,9 +1709,8 @@ class ZCalendar implements ICalendar
         if ('' === $datestring) return null;
         if (false === strtotime($datestring, time())) return null;
 
-        // if you modify that both dates with relative datestring
-        // they are different when compare
-        // dates are equal otherwise
+        // if you modify that both dates with same relative datestring they are different when compare
+        // otherwise if it is not a relative datestring - dates will be equal
         $a = ( new \DateTime('1970-01-01T00:00:00Z') )->modify($datestring);
         $b = ( new \DateTime('1971-12-25T00:00:00Z') )->modify($datestring);
         if ($a == $b) {
@@ -1741,22 +1741,23 @@ class ZCalendar implements ICalendar
         if (! is_string($format)) return null;
         if ('' === $format) return null;
 
-        $timezone = $timezone
-            ?? $this->getDefaultTimezone();
-
-        $dateTimeZone = $this->theTimezoneVal($timezone);
-
-        // be aware - timezone will bind instantly here
         foreach ( static::getFormatsNoTimezone() as $formatNoTimezone => $enabled ) {
+            $dateTimeZone = $this->theTimezoneVal($timezone ?? $this->getDefaultTimezone());
+
+            // be careful - timezone will be bound instantly here
             if ($dateTime = $this->dateRead($formatNoTimezone, $format, $dateTimeZone)) {
                 return $dateTime;
             }
         }
 
-        // be careful - timezone will be changed here
         foreach ( static::getFormatsTimezone() as $formatTimezone => $enabled ) {
             if ($dateTime = $this->dateRead($formatTimezone, $format)) {
-                $dateTime->setTimezone($dateTimeZone);
+                if (null !== $timezone) {
+                    $dateTimeZone = $this->theTimezoneVal($timezone);
+
+                    // be careful - timezone will be changed here
+                    $dateTime->setTimezone($dateTimeZone);
+                }
 
                 return $dateTime;
             }

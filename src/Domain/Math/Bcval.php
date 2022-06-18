@@ -37,7 +37,9 @@ class Bcval
             throw new InvalidArgumentException('Value should be non-empty string');
         }
 
-        $this->value = $value;
+        $this->value = '-0' === $value
+            ? '0'
+            : $value;
     }
 
 
@@ -99,6 +101,14 @@ class Bcval
      */
     public function getAbs() : string
     {
+        if (null === $this->abs) {
+            $minus = $this->getMinus();
+
+            $this->abs = $minus
+                ? substr($this->value, 1)
+                : $this->value;
+        }
+
         return $this->abs;
     }
 
@@ -107,6 +117,12 @@ class Bcval
      */
     public function getMinus() : string
     {
+        if (null === $this->minus) {
+            $this->minus = 0 === strpos($this->value, '-')
+                ? '-'
+                : '';
+        }
+
         return $this->minus;
     }
 

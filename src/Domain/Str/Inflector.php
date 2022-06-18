@@ -12,7 +12,6 @@ use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 class Inflector implements InflectorInterface
 {
     const DOCTRINE_INFLECTOR          = '\Doctrine\Inflector\Inflector';
-    const SYMFONY_ENGLISH_INFLECTOR   = '\Symfony\Component\String\Inflector\EnglishInflector';
     const SYMFONY_INFLECTOR_INTERFACE = '\Symfony\Component\String\Inflector\InflectorInterface';
 
 
@@ -37,9 +36,9 @@ class Inflector implements InflectorInterface
 
 
     /**
-     * @param \Symfony\Component\String\Inflector\InflectorInterface $doctrineInflector
+     * @param \Doctrine\Inflector\Inflector $doctrineInflector
      *
-     * @return \Symfony\Component\String\Inflector\InflectorInterface
+     * @return \Doctrine\Inflector\Inflector
      */
     public function doctrineInflector($doctrineInflector = null)
     {
@@ -65,16 +64,16 @@ class Inflector implements InflectorInterface
                 throw new RuntimeException([ 'Please, run following: %s', $commands ]);
             }
 
-            $cachedInflector = '\Doctrine\Inflector\CachedWordInflector';
+            $cachedWordInflector = '\Doctrine\Inflector\CachedWordInflector';
             $rulesetInflector = '\Doctrine\Inflector\RulesetInflector';
-            $rules = '\Doctrine\Inflector\Rules\English\Rules';
+            $englishRules = '\Doctrine\Inflector\Rules\English\Rules';
 
             $inflector = new $class(
-                new $cachedInflector(new $rulesetInflector(
-                    $rules::{'getSingularRuleset'}()
+                new $cachedWordInflector(new $rulesetInflector(
+                    $englishRules::{'getSingularRuleset'}()
                 )),
-                new $cachedInflector(new $rulesetInflector(
-                    $rules::{'getPluralRuleset'}()
+                new $cachedWordInflector(new $rulesetInflector(
+                    $englishRules::{'getPluralRuleset'}()
                 ))
             );
 
@@ -109,7 +108,9 @@ class Inflector implements InflectorInterface
             $this->symfonyInflector = $symfonyInflector;
 
         } elseif (! $this->symfonyInflector) {
-            if (! class_exists($class = static::SYMFONY_ENGLISH_INFLECTOR)) {
+            $engishInflector = '\Symfony\Component\String\Inflector\EnglishInflector';
+
+            if (! class_exists($class = $engishInflector)) {
                 throw new RuntimeException([ 'Please, run following: %s', $commands ]);
             }
 
@@ -134,12 +135,12 @@ class Inflector implements InflectorInterface
         $limit = $limit ?? 0;
         $offset = intval($offset ?? 0);
 
-        $array = array_merge($array, $this->pluralizeSimpleInflector($singular));
+        $array = array_merge($array, $this->pluralizeViaSimpleInflector($singular));
 
         try {
             $array = array_merge($array, null
-                ?? $this->pluralizeDoctrineInflector($singular)
-                ?? $this->pluralizeSymfonyInflector($singular)
+                ?? $this->pluralizeViaDoctrineInflector($singular)
+                ?? $this->pluralizeViaSymfonyInflector($singular)
             );
         }
         catch ( \Throwable $e ) {
@@ -176,12 +177,12 @@ class Inflector implements InflectorInterface
         $limit = $limit ?? 0;
         $offset = intval($offset ?? 0);
 
-        $array = array_merge($array, $this->singularizeSimpleInflector($plural));
+        $array = array_merge($array, $this->singularizeViaSimpleInflector($plural));
 
         try {
             $array = array_merge($array, null
-                ?? $this->singularizeDoctrineInflector($plural)
-                ?? $this->singularizeSymfonyInflector($plural)
+                ?? $this->singularizeViaDoctrineInflector($plural)
+                ?? $this->singularizeViaSymfonyInflector($plural)
             );
         }
         catch ( \Throwable $e ) {
@@ -210,7 +211,7 @@ class Inflector implements InflectorInterface
      *
      * @return null|array
      */
-    protected function pluralizeSimpleInflector(string $singular) : ?array
+    protected function pluralizeViaSimpleInflector(string $singular) : ?array
     {
         $result = [];
 
@@ -230,7 +231,7 @@ class Inflector implements InflectorInterface
      *
      * @return null|array
      */
-    protected function singularizeSimpleInflector(string $plural) : ?array
+    protected function singularizeViaSimpleInflector(string $plural) : ?array
     {
         $result = [];
 
@@ -247,7 +248,7 @@ class Inflector implements InflectorInterface
      *
      * @return null|array
      */
-    protected function pluralizeDoctrineInflector(string $singular) : ?array
+    protected function pluralizeViaDoctrineInflector(string $singular) : ?array
     {
         if (! class_exists(static::DOCTRINE_INFLECTOR)) {
             return null;
@@ -269,7 +270,7 @@ class Inflector implements InflectorInterface
      *
      * @return null|array
      */
-    protected function singularizeDoctrineInflector(string $plural) : ?array
+    protected function singularizeViaDoctrineInflector(string $plural) : ?array
     {
         if (! class_exists(static::DOCTRINE_INFLECTOR)) {
             return null;
@@ -292,7 +293,7 @@ class Inflector implements InflectorInterface
      *
      * @return null|array
      */
-    protected function pluralizeSymfonyInflector(string $singular) : ?array
+    protected function pluralizeViaSymfonyInflector(string $singular) : ?array
     {
         if (! interface_exists(static::SYMFONY_INFLECTOR_INTERFACE)) {
             return null;
@@ -316,7 +317,7 @@ class Inflector implements InflectorInterface
      *
      * @return null|array
      */
-    protected function singularizeSymfonyInflector(string $plural) : ?array
+    protected function singularizeViaSymfonyInflector(string $plural) : ?array
     {
         if (! interface_exists(static::SYMFONY_INFLECTOR_INTERFACE)) {
             return null;

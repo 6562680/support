@@ -2,7 +2,7 @@
 
 namespace Gzhegow\Support;
 
-use Psr\Container\ContainerInterface;
+use Gzhegow\Support\Exceptions\RuntimeException;
 
 
 /**
@@ -10,8 +10,11 @@ use Psr\Container\ContainerInterface;
  */
 class SupportFactory implements SupportFactoryInterface
 {
+    const PSR_CONTAINER_INTERFACE = '\Psr\Container\ContainerInterface';
+
+
     /**
-     * @var null|ContainerInterface
+     * @var null|\Psr\Container\ContainerInterface
      */
     protected $container;
 
@@ -19,11 +22,17 @@ class SupportFactory implements SupportFactoryInterface
     /**
      * Constructor
      *
-     * @param null|ContainerInterface $container
+     * @param null|\Psr\Container\ContainerInterface $container
      */
-    public function __construct(?ContainerInterface $container)
+    public function __construct($container = null)
     {
-        $this->container = $container;
+        if (null !== $container) {
+            if (! is_a($container, static::PSR_CONTAINER_INTERFACE)) {
+                throw new RuntimeException('Container should implements ' . static::PSR_CONTAINER_INTERFACE);
+            }
+
+            $this->container = $container;
+        }
     }
 
 
@@ -525,7 +534,7 @@ class SupportFactory implements SupportFactoryInterface
      */
     protected function containerGet(string $id)
     {
-        return $this->containerHas($id)
+        return $this->container && $this->container->has($id)
             ? $this->container->get($id)
             : null;
     }
