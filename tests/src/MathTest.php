@@ -519,42 +519,45 @@ class MathTest extends AbstractTestCase
     }
 
 
-    public function testBcmoneyfloor()
+    public function testBcmoneyround()
     {
         $math = $this->getMath();
 
-        $this->assertEquals(0, strval($math->bcmoneyfloor(0.01)));
-        $this->assertEquals(0, strval($math->bcmoneyfloor(-0.01)));
-        $this->assertEquals(0, strval($math->bcmoneyfloor(0.01, 1)));
-        $this->assertEquals(0, strval($math->bcmoneyfloor(-0.01, 1)));
-        $this->assertEquals(0, strval($math->bcmoneyfloor(0.0001, 2)));
-        $this->assertEquals(0, strval($math->bcmoneyfloor(-0.0001, 2)));
+        $this->assertEquals(1, strval($math->bcmoneyround(0.01)));
+        $this->assertEquals(-1, strval($math->bcmoneyround(-0.01)));
+        $this->assertEquals(0.1, strval($math->bcmoneyround(0.01, 1)));
+        $this->assertEquals(-0.1, strval($math->bcmoneyround(-0.01, 1)));
+        $this->assertEquals(0.01, strval($math->bcmoneyround(0.01, 2)));
+        $this->assertEquals(-0.01, strval($math->bcmoneyround(-0.01, 2)));
+        $this->assertEquals(0.01, strval($math->bcmoneyround(0.01, 3)));
+        $this->assertEquals(-0.01, strval($math->bcmoneyround(-0.01, 3)));
 
-        $this->assertEquals(1, strval($math->bcmoneyfloor(1.05)));
-        $this->assertEquals(-1, strval($math->bcmoneyfloor(-1.05)));
-        $this->assertEquals(1, strval($math->bcmoneyfloor(1.05, 1)));
-        $this->assertEquals(-1, strval($math->bcmoneyfloor(-1.05, 1)));
-        $this->assertEquals(1, strval($math->bcmoneyfloor(1.0005, 2)));
-        $this->assertEquals(-1, strval($math->bcmoneyfloor(-1.0005, 2)));
-    }
+        $this->assertEquals(1, strval($math->bcmoneyround(0.0001)));
+        $this->assertEquals(-1, strval($math->bcmoneyround(-0.0001)));
+        $this->assertEquals(0.1, strval($math->bcmoneyround(0.0001, 1)));
+        $this->assertEquals(-0.1, strval($math->bcmoneyround(-0.0001, 1)));
+        $this->assertEquals(0.0001, strval($math->bcmoneyround(0.0001, 4)));
+        $this->assertEquals(-0.0001, strval($math->bcmoneyround(-0.0001, 4)));
+        $this->assertEquals(0.0001, strval($math->bcmoneyround(0.0001, 5)));
+        $this->assertEquals(-0.0001, strval($math->bcmoneyround(-0.0001, 5)));
 
-    public function testBcmoneyceil()
-    {
-        $math = $this->getMath();
+        $this->assertEquals(2, strval($math->bcmoneyround(1.05)));
+        $this->assertEquals(-2, strval($math->bcmoneyround(-1.05)));
+        $this->assertEquals(1.1, strval($math->bcmoneyround(1.05, 1)));
+        $this->assertEquals(-1.1, strval($math->bcmoneyround(-1.05, 1)));
+        $this->assertEquals(1.05, strval($math->bcmoneyround(1.05, 2)));
+        $this->assertEquals(-1.05, strval($math->bcmoneyround(-1.05, 2)));
+        $this->assertEquals(1.05, strval($math->bcmoneyround(1.05, 3)));
+        $this->assertEquals(-1.05, strval($math->bcmoneyround(-1.05, 3)));
 
-        $this->assertEquals(1, strval($math->bcmoneyceil(0.01)));
-        $this->assertEquals(-1, strval($math->bcmoneyceil(-0.01)));
-        $this->assertEquals(0.1, strval($math->bcmoneyceil(0.01, 1)));
-        $this->assertEquals(-0.1, strval($math->bcmoneyceil(-0.01, 1)));
-        $this->assertEquals(0.01, strval($math->bcmoneyceil(0.0001, 2)));
-        $this->assertEquals(-0.01, strval($math->bcmoneyceil(-0.0001, 2)));
-
-        $this->assertEquals(2, strval($math->bcmoneyceil(1.05)));
-        $this->assertEquals(-2, strval($math->bcmoneyceil(-1.05)));
-        $this->assertEquals(1.1, strval($math->bcmoneyceil(1.05, 1)));
-        $this->assertEquals(-1.1, strval($math->bcmoneyceil(-1.05, 1)));
-        $this->assertEquals(1.01, strval($math->bcmoneyceil(1.0005, 2)));
-        $this->assertEquals(-1.01, strval($math->bcmoneyceil(-1.0005, 2)));
+        $this->assertEquals(2, strval($math->bcmoneyround(1.0005)));
+        $this->assertEquals(-2, strval($math->bcmoneyround(-1.0005)));
+        $this->assertEquals(1.1, strval($math->bcmoneyround(1.0005, 1)));
+        $this->assertEquals(-1.1, strval($math->bcmoneyround(-1.0005, 1)));
+        $this->assertEquals(1.0005, strval($math->bcmoneyround(1.0005, 4)));
+        $this->assertEquals(-1.0005, strval($math->bcmoneyround(-1.0005, 4)));
+        $this->assertEquals(1.0005, strval($math->bcmoneyround(1.0005, 5)));
+        $this->assertEquals(-1.0005, strval($math->bcmoneyround(-1.0005, 5)));
     }
 
     public function testBcmoneyshare()

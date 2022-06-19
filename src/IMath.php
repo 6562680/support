@@ -535,8 +535,8 @@ interface IMath
     public function bcrand($from, $to = null, int $scale = null): Bcval;
 
     /**
-     * Округление по "правилу денег". Обычный round для отрицательных работает в обратную сторону
-     * Эта функция учитывает "потерянную копейку", 1.0005 может быть округлено до 1.01 вместо 1.00 (по математическим правилам)
+     * Округление по "правилу денег"
+     * Эта функция учитывает "потерянную копейку", 1.0005 будет округлено до 1.01 вместо 1.00 (по математическим правилам)
      *
      * @param int|float|string|Bcval|mixed $number
      * @param null|int                     $scale
@@ -544,28 +544,6 @@ interface IMath
      * @return Bcval
      */
     public function bcmoneyround($number, int $scale = null): Bcval;
-
-    /**
-     * Уменьшение по "правилу денег". Обычный floor для отрицательных работает в обратную сторону
-     * Эта функция учитывает "потерянную копейку", 1.0005 может быть округлено до 1.01 вместо 1.00 (по математическим правилам)
-     *
-     * @param int|float|string|Bcval|mixed $number
-     * @param null|int                     $scale
-     *
-     * @return Bcval
-     */
-    public function bcmoneyfloor($number, int $scale = null): Bcval;
-
-    /**
-     * Увеличение по "правилу денег". Обычный ceil для отрицательных работает в обратную сторону
-     * Эта функция учитывает "потерянную копейку", 1.0005 может быть округлено до 1.01 вместо 1.00 (по математическим правилам)
-     *
-     * @param int|float|string|Bcval|mixed $number
-     * @param null|int                     $scale
-     *
-     * @return Bcval
-     */
-    public function bcmoneyceil($number, int $scale = null): Bcval;
 
     /**
      * Разбивает сумму между получателями
