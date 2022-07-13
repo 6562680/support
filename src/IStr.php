@@ -15,7 +15,6 @@ use Gzhegow\Support\Domain\Str\Inflector;
 use Gzhegow\Support\Domain\Str\InflectorInterface;
 use Gzhegow\Support\Domain\Str\Slugger;
 use Gzhegow\Support\Domain\Str\SluggerInterface;
-use Gzhegow\Support\Exceptions\LogicException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 interface IStr
@@ -437,7 +436,7 @@ interface IStr
      *
      * @return array
      */
-    public function gap($delimiters, $strings, bool $ignoreCase = null, int $limit = null): array;
+    public function explodeRecursive($delimiters, $strings, bool $ignoreCase = null, int $limit = null): array;
 
     /**
      * разбивает строку/строки в массив по разделителю/разделителям рекурсивно, только если разделители найдены
@@ -449,7 +448,7 @@ interface IStr
      *
      * @return string|array
      */
-    public function gapSkip($delimiters, $strings, bool $ignoreCase = null, int $limit = null);
+    public function explodeRecursiveSkip($delimiters, $strings, bool $ignoreCase = null, int $limit = null);
 
     /**
      * '1, 2, 3', включая пустые строки, исключение если нельзя привести к строке
@@ -544,7 +543,7 @@ interface IStr
      *
      * @return string
      */
-    public function compact($strings, $delimiters = null, int $limit = null): string;
+    public function prefixCompact($strings, $delimiters = null, int $limit = null): string;
 
     /**
      * ищет все совпадения начинающиеся с "подстроки" и заканчивающиеся на "подстроку"

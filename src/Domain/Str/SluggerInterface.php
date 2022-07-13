@@ -13,7 +13,7 @@ interface SluggerInterface
      * @param null|string $delimiter
      * @param null|string $locale
      *
-     * @return string
+     * @return null|string
      */
-    public function slug(string $string, string $delimiter = null, string $locale = null) : string;
+    public function slug(string $string, string $delimiter = null, string $locale = null) : ?string;
 }

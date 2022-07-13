@@ -38,7 +38,8 @@ class Slugger implements SluggerInterface
     /**
      * @var string|callable
      */
-    protected $defaultLocale;
+    protected $localeDefault;
+
     /**
      * @var array|callable
      */
@@ -47,6 +48,10 @@ class Slugger implements SluggerInterface
      * @var array|callable
      */
     protected $symbolsMap = [];
+    /**
+     * @var array|callable
+     */
+    protected $ignoreSymbols = [];
 
 
     /**
@@ -68,58 +73,42 @@ class Slugger implements SluggerInterface
     /**
      * @return null|string
      */
-    public function getDefaultLocale() : ?string
+    public function getLocaleDefault() : ?string
     {
-        $defaultLocale = null
-            ?? ( is_callable($this->defaultLocale) ? call_user_func($this->defaultLocale) : null )
-            ?? ( is_string($this->defaultLocale) ? $this->defaultLocale : null )
+        $localeDefault = null
+            ?? ( is_callable($this->localeDefault) ? call_user_func($this->localeDefault) : null )
+            ?? ( is_string($this->localeDefault) ? $this->localeDefault : null )
             ?? null;
 
-        return $defaultLocale;
+        return $localeDefault;
     }
+
+    /**
+     * @return null|string
+     */
+    public function getLocaleDefaultFromPhp() : ?string
+    {
+        $localeDefault = null;
+
+        if (extension_loaded('intl') && function_exists($func = 'locale_get_default')) {
+            $localeDefault = $func();
+
+        } elseif ('C' !== ( $locale = setlocale(LC_ALL, 0) )) {
+            $localeDefault = $locale;
+        }
+
+        return $localeDefault;
+    }
+
 
     /**
      * @return array
      */
-    public function getSequencesMap() : array
+    public function getSequencesMapNative() : array
     {
-        $sequencesMap = array_merge(
-            $default = $this->sequenceMapDefault(),
-            $new = null
-                ?? ( is_callable($this->sequencesMap) ? call_user_func($this->sequencesMap) : null )
-                ?? ( is_array($this->sequencesMap) ? $this->sequencesMap : null )
-                ?? []
-        );
+        $sequencesMap = $this->fetchSequenceMapNative();
 
-        $sequences = [];
-        foreach ( $sequencesMap as $sequence ) {
-            $keys = array_keys($sequence);
-            $sequence = array_values($sequence);
-
-            $keysCase = [];
-            foreach ( $keys as $idx => $letter ) {
-                $keysCase[ $idx ][] = $letter;
-                $keysCase[ $idx ][] = mb_strtoupper($letter);
-            }
-
-            $sequenceCase = [];
-            foreach ( $sequence as $idx => $letter ) {
-                $sequenceCase[ $idx ][] = $letter;
-                $sequenceCase[ $idx ][] = mb_strtoupper($letter);
-            }
-
-            $keysCase = $this->php->sequence(...$keysCase);
-            $sequenceCase = $this->php->sequence(...$sequenceCase);
-
-            foreach ( array_keys($keysCase) as $idx ) {
-                $search = implode('', $keysCase[ $idx ]);
-                $replacement = implode('', $sequenceCase[ $idx ]);
-
-                if (( $search !== $replacement ) && ! isset($sequences[ $replacement ])) {
-                    $sequences[ $search ] = $replacement;
-                }
-            }
-        }
+        $sequences = $this->prepareSequencesMap($sequencesMap);
 
         return $sequences;
     }
@@ -127,74 +116,79 @@ class Slugger implements SluggerInterface
     /**
      * @return array
      */
-    public function getSymbolsMap() : array
+    public function getSequencesMap() : array
     {
-        $symbolsMap = array_merge(
-            $default = $this->symbolsMapDefault(),
-            $new = null
-                ?? ( is_callable($this->symbolsMap) ? call_user_func($this->symbolsMap) : null )
-                ?? ( is_array($this->symbolsMap) ? $this->symbolsMap : null )
-                ?? []
-        );
+        $sequencesMap = null
+            ?? ( is_callable($this->sequencesMap) ? call_user_func($this->sequencesMap) : null )
+            ?? ( is_array($this->sequencesMap) ? $this->sequencesMap : null )
+            ?? [];
 
-        $map = [];
-        foreach ( $symbolsMap as $a => $b ) {
-            $aLower = mb_strtolower($a);
-            $aUpper = mb_strtoupper($a);
+        $sequences = $this->prepareSequencesMap($sequencesMap);
 
-            $b = is_array($b) ? $b : [ $b ];
-
-            $list = [];
-            foreach ( $b as $bb ) {
-                $list = array_merge($list, $this->str->split($bb));
-            }
-
-            foreach ( $list as $bb ) {
-                $bbLen = mb_strlen($bb);
-                $bbLower = mb_strtolower($bb);
-                $bbUpper = mb_strtoupper($bb);
-
-                // incorrect: ß -> 'SS'
-                if (false
-                    || ( $bbLen !== mb_strlen($bbLower) )
-                    || ( $bbLen !== mb_strlen($bbUpper) )
-                ) {
-                    throw new UnexpectedValueException([
-                        'Case change cause lenght difference, you should move pair into sequence: %s / %s',
-                        [ $a => $bb ],
-                        [ $bb, $bbLower, $bbUpper ],
-                    ]);
-                }
-
-                if (! isset($map[ $bbLower ])) {
-                    $map[ $aLower ][] = $bbLower;
-                }
-
-                if (! isset($map[ $bbUpper ])) {
-                    $map[ $aUpper ][] = $bbUpper;
-                }
-            }
-        }
-
-        return $map;
+        return $sequences;
     }
 
 
     /**
-     * @param array|\Closure $defaultLocale
+     * @return array
+     */
+    public function getSymbolsMapNative() : array
+    {
+        $symbolsMap = $this->fetchSymbolsMapNative();
+
+        $symbols = $this->prepareSymbolsMap($symbolsMap);
+
+        return $symbols;
+    }
+
+    /**
+     * @return array
+     */
+    public function getSymbolsMap() : array
+    {
+        $symbolsMap = null
+            ?? ( is_callable($this->symbolsMap) ? call_user_func($this->symbolsMap) : null )
+            ?? ( is_array($this->symbolsMap) ? $this->symbolsMap : null )
+            ?? [];
+
+        $symbols = $this->prepareSymbolsMap($symbolsMap);
+
+        return $symbols;
+    }
+
+
+    /**
+     * @return array
+     */
+    public function getIgnoreSymbols() : array
+    {
+        $ignoreSymbols = null
+            ?? ( is_callable($this->ignoreSymbols) ? call_user_func($this->ignoreSymbols) : null )
+            ?? ( is_array($this->ignoreSymbols) ? $this->ignoreSymbols : null )
+            ?? [];
+
+        $ignore = $this->prepareIgnoreSymbols($ignoreSymbols);
+
+        return $ignore;
+    }
+
+
+    /**
+     * @param array|\Closure $localeDefault
      *
      * @return static
      */
-    public function defaultLocale($defaultLocale)
+    public function localeDefault($localeDefault)
     {
-        if (! ( is_string($defaultLocale) || is_callable($defaultLocale) )) {
+        if (! ( is_string($localeDefault) || is_callable($localeDefault) )) {
             return $this;
         }
 
-        $this->defaultLocale = $defaultLocale;
+        $this->localeDefault = $localeDefault;
 
         return $this;
     }
+
 
     /**
      * @param array|\Closure $sequencesMap
@@ -224,6 +218,22 @@ class Slugger implements SluggerInterface
         }
 
         $this->symbolsMap = $symbolsMap;
+
+        return $this;
+    }
+
+    /**
+     * @param array|\Closure $ignoreSymbols
+     *
+     * @return static
+     */
+    public function ignoreSymbols($ignoreSymbols)
+    {
+        if (! ( is_array($ignoreSymbols) || is_callable($ignoreSymbols) )) {
+            return $this;
+        }
+
+        $this->ignoreSymbols = $ignoreSymbols;
 
         return $this;
     }
@@ -258,17 +268,15 @@ class Slugger implements SluggerInterface
                 throw new RuntimeException([ 'Please, run following: %s', $commands ]);
             }
 
-            $defaultLocale = null;
-            if ('C' !== ( $locale = setlocale(LC_ALL, 0) )) {
-                $defaultLocale = $locale;
-            }
+            $defaultLocale = null
+                ?? $this->getLocaleDefault()
+                ?? $this->getLocaleDefaultFromPhp()
+                ?? 'en';
 
-            $func = 'locale_get_default';
-            if (extension_loaded('intl') && function_exists($func)) {
-                $defaultLocale = $func();
-            }
-
-            $this->symfonySlugger = new $class($defaultLocale, $this->getSymbolsMap());
+            $this->symfonySlugger = new $class($defaultLocale, array_combine(
+                $this->getIgnoreSymbols(),
+                $this->getIgnoreSymbols()
+            ));
         }
 
         return $this->symfonySlugger;
@@ -280,31 +288,19 @@ class Slugger implements SluggerInterface
      * @param null|string $delimiter
      * @param null|string $locale
      *
-     * @return string
+     * @return null|string
      */
-    public function slug(string $string, string $delimiter = null, string $locale = null) : string
+    public function slug(string $string, string $delimiter = null, string $locale = null) : ?string
     {
-        $delimiter = $delimiter ?? '-';
+        $translitSymfonySlugger = null;
+        $translitTransliterator = null;
+        $translitNative = null;
 
-        if (null !== ( $slug = $this->translitSymfonySlugger($string, $delimiter, $locale) )) {
-            return $slug;
-
-        } else {
-            $result = null
-                ?? $this->translitTransliterator($string)
-                // ?? $this->translitIconv($string)
-                ?? $this->translitNative($string);
-
-            $replacer = '-';
-
-            $result = preg_replace('/' . preg_quote($delimiter, '/') . '/u', $replacer, $result);
-            $result = preg_replace('/[^\\p{L}\d]+/u', $replacer, $result);
-            $result = preg_replace('/([^a-z0-9])/iu', $replacer, $result);
-
-            $result = trim($result, $replacer);
-
-            $result = preg_replace('/' . preg_quote($replacer, '/') . '/u', $delimiter, $result);
-        }
+        $result = null
+            // ?? ($translitSymfonySlugger = $this->translitSymfonySlugger($string, $delimiter, $locale))
+            // ?? ( $translitTransliterator = $this->translitTransliterator($string, $delimiter, $locale) )
+            ?? ( $translitNative = $this->translitNative($string, $delimiter, $locale) ) //
+        ;
 
         return $result;
     }
@@ -319,24 +315,23 @@ class Slugger implements SluggerInterface
      */
     protected function translitSymfonySlugger(string $string, string $delimiter = null, string $locale = null) : ?string
     {
+        if (! strlen($string)) return '';
+
         if (! interface_exists($interface = static::SYMFONY_SLUGGER_INTERFACE)) {
             return null;
         }
 
+        if (! class_exists($class = static::SYMFONY_BINARY_STRING)) {
+            return null;
+        }
+
+        // @gzhegow > symfony transliterator fails if `intl` is not exists and string is in UTF encoding
+        $isUTF = ( new $class($string) )->{$method = 'isUtf8'}();
+        if ($isUTF && ! ( extension_loaded('intl') && function_exists($func = 'transliterator_transliterate') )) {
+            return null;
+        }
+
         $delimiter = $delimiter ?? '-';
-
-        $isUTF = true;
-        if (class_exists($class = static::SYMFONY_BINARY_STRING)) {
-            $isUTF = ( new $class($string) )->{$method = 'isUtf8'}();
-        }
-
-        if ($isUTF) {
-            $func = 'transliterator_transliterate';
-
-            if (! ( extension_loaded('intl') && function_exists($func) )) {
-                return null;
-            }
-        }
 
         $result = $this->symfonySlugger()->slug($string, $delimiter, $locale)->toString();
 
@@ -344,18 +339,63 @@ class Slugger implements SluggerInterface
     }
 
     /**
-     * @param string $string
+     * @param string      $string
+     * @param null|string $delimiter
+     * @param null|string $locale
      *
      * @return null|string
      */
-    protected function translitTransliterator(string $string) : ?string
+    protected function translitTransliterator(string $string, string $delimiter = null, string $locale = null) : ?string
     {
-        $func = 'transliterator_transliterate';
+        if (! strlen($string)) return '';
 
-        if (! ( extension_loaded('intl') && function_exists($func) )) {
+        if (! ( extension_loaded('intl') && function_exists($func = 'transliterator_transliterate') )) {
             return null;
         }
 
+        $delimiter = $delimiter ?? '-';
+
+        $result = $string;
+
+        $result = $this->transliterateTransliterator($result, $delimiter, $locale);
+        $result = $this->transliterateUser($result, $delimiter, $locale);
+        $result = $this->transliterateDelimiter($result, $delimiter, $locale);
+
+        return $result;
+    }
+
+    /**
+     * @param string      $string
+     * @param null|string $delimiter
+     * @param null|string $locale
+     *
+     * @return string
+     */
+    protected function translitNative(string $string, string $delimiter = null, string $locale = null) : string
+    {
+        if (! strlen($string)) return '';
+
+        $delimiter = $delimiter ?? '-';
+
+        $result = $string;
+
+        $result = $this->transliterateNative($result, $delimiter, $locale);
+        $result = $this->transliterateUser($result, $delimiter, $locale);
+        $result = $this->transliterateDelimiter($result, $delimiter, $locale);
+
+        return $result;
+    }
+
+
+    /**
+     * @param string      $string
+     * @param null|string $delimiter
+     * @param null|string $locale
+     *
+     * @return string
+     */
+    protected function transliterateTransliterator(string $string, string $delimiter = null, string $locale = null) : string
+    {
         $join = [];
 
         // split unicode accents and symbols, e.g. "Å" > "A°"
@@ -374,24 +414,55 @@ class Slugger implements SluggerInterface
 
         $join = implode('; ', $join);
 
+        $func = 'transliterator_transliterate';
         $result = $func($join, $string);
 
         return $result;
     }
 
+
     /**
-     * @param string $string
+     * @param string      $string
+     * @param null|string $delimiter
+     * @param null|string $locale
      *
      * @return string
      */
-    protected function translitNative(string $string) : string
+    protected function transliterateNative(string $string, string $delimiter = null, string $locale = null) : string
     {
         $result = $string;
 
-        $sequncesMap = $this->getSequencesMap();
+        $sequncesMap = $this->getSequencesMapNative();
         $result = str_replace(
             array_keys($sequncesMap),
             array_values($sequncesMap),
+            $result
+        );
+
+        $symbolsMap = $this->getSymbolsMapNative();
+        foreach ( $symbolsMap as $replacement => $search ) {
+            $result = str_replace($search, $replacement, $result);
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * @param string      $string
+     * @param null|string $delimiter
+     * @param null|string $locale
+     *
+     * @return string
+     */
+    protected function transliterateUser(string $string, string $delimiter = null, string $locale = null) : string
+    {
+        $result = $string;
+
+        $sequencesMap = $this->getSequencesMap();
+        $result = str_replace(
+            array_keys($sequencesMap),
+            array_values($sequencesMap),
             $result
         );
 
@@ -403,11 +474,154 @@ class Slugger implements SluggerInterface
         return $result;
     }
 
+    /**
+     * @param string      $string
+     * @param null|string $delimiter
+     * @param null|string $locale
+     *
+     * @return string
+     */
+    protected function transliterateDelimiter(string $string, string $delimiter = null, string $locale = null) : string
+    {
+        $result = $string;
+
+        $replacer = "\0";
+
+        $result = preg_replace('~' . preg_quote($delimiter, '/') . '~u', $replacer, $result);
+
+        $ignoreSymbols = $this->getIgnoreSymbols();
+        $ignoreSymbols = preg_quote(implode('', $ignoreSymbols), '/');
+
+        $result = preg_replace('~[^\p{L}\d' . $ignoreSymbols . ']+~u', $replacer, $result);
+
+        $result = trim($result, $replacer);
+
+        $result = str_replace($replacer, $delimiter, $result);
+
+        return $result;
+    }
+
+
+    /**
+     * @param array $sequencesMap
+     *
+     * @return array
+     */
+    protected function prepareSequencesMap(array $sequencesMap) : array
+    {
+        $sequences = [];
+
+        foreach ( $sequencesMap as $sequence ) {
+            $keys = array_keys($sequence);
+            $sequence = array_values($sequence);
+
+            $keysCase = [];
+            foreach ( $keys as $idx => $letter ) {
+                $keysCase[ $idx ][] = $letter;
+                $keysCase[ $idx ][] = mb_strtoupper($letter);
+            }
+
+            $sequenceCase = [];
+            foreach ( $sequence as $idx => $letter ) {
+                $sequenceCase[ $idx ][] = $letter;
+                $sequenceCase[ $idx ][] = mb_strtoupper($letter);
+            }
+
+            $keysCase = $this->php->sequence(...$keysCase);
+            $sequenceCase = $this->php->sequence(...$sequenceCase);
+
+            foreach ( array_keys($keysCase) as $idx ) {
+                $search = implode('', $keysCase[ $idx ]);
+                $replacement = implode('', $sequenceCase[ $idx ]);
+
+                if (( $search !== $replacement ) && ! isset($sequences[ $replacement ])) {
+                    $sequences[ $search ] = $replacement;
+                }
+            }
+        }
+
+        return $sequences;
+    }
+
+
+    /**
+     * @param array $symbolsMap
+     *
+     * @return array
+     */
+    protected function prepareSymbolsMap(array $symbolsMap)
+    {
+        $symbols = [];
+
+        foreach ( $symbolsMap as $a => $b ) {
+            $aLower = mb_strtolower($a);
+            $aUpper = mb_strtoupper($a);
+
+            $b = is_array($b) ? $b : [ $b ];
+
+            $list = [];
+            foreach ( $b as $bb ) {
+                $list = array_merge($list, $this->str->split($bb));
+            }
+
+            foreach ( $list as $bb ) {
+                $bbLen = mb_strlen($bb);
+                $bbLower = mb_strtolower($bb);
+                $bbUpper = mb_strtoupper($bb);
+
+                // incorrect: ß -> 'SS'
+                if (false
+                    || ( $bbLen !== mb_strlen($bbLower) )
+                    || ( $bbLen !== mb_strlen($bbUpper) )
+                ) {
+                    throw new UnexpectedValueException([
+                        'Case change cause unexpected lenght difference, you should move pair into sequenceMap: %s / %s',
+                        [ $a => $bb ],
+                        [ $bb, $bbLower, $bbUpper ],
+                    ]);
+                }
+
+                if (! isset($symbols[ $bbLower ])) {
+                    $symbols[ $aLower ][] = $bbLower;
+                }
+
+                if (! isset($symbols[ $bbUpper ])) {
+                    $symbols[ $aUpper ][] = $bbUpper;
+                }
+            }
+        }
+
+        return $symbols;
+    }
+
+
+    /**
+     * @param string|string[] $ignoreSymbols
+     *
+     * @return array
+     */
+    protected function prepareIgnoreSymbols($ignoreSymbols) : array
+    {
+        $ignoreSymbols = is_iterable($ignoreSymbols)
+            ? $ignoreSymbols
+            : ( $ignoreSymbols ? [ $ignoreSymbols ] : [] );
+
+        $ignore = [];
+
+        foreach ( $ignoreSymbols as $symbol ) {
+            foreach ( $this->str->split($symbol) as $sym ) {
+                $ignore[ $sym ] = true;
+            }
+        }
+
+        return array_keys($ignore);
+    }
+
 
     /**
      * @return string[]
      */
-    protected function sequenceMapDefault() : array
+    protected function fetchSequenceMapNative() : array
     {
         return [
             'ый' => [ 'ы' => 'i', 'й' => 'y' ],
@@ -423,7 +637,7 @@ class Slugger implements SluggerInterface
     /**
      * @return string[]
      */
-    protected function symbolsMapDefault() : array
+    protected function fetchSymbolsMapNative() : array
     {
         return [
             ' ' => 'ъь',

@@ -538,65 +538,65 @@ class StrTest extends AbstractTestCase
     }
 
 
-    public function testGap()
+    public function testExplodeRecursive()
     {
         $str = $this->getStr();
 
-        $this->assertEquals([ 'dadbdcd' ], $str->gap('', 'dadbdcd'));
-        $this->assertEquals([ 'dadbdcd' ], $str->gap([ '' ], 'dadbdcd'));
+        $this->assertEquals([ 'dadbdcd' ], $str->explodeRecursive('', 'dadbdcd'));
+        $this->assertEquals([ 'dadbdcd' ], $str->explodeRecursive([ '' ], 'dadbdcd'));
 
-        $this->assertEquals([ 'dadbdcd' ], $str->gap('?', 'dadbdcd'));
-        $this->assertEquals([ 'dadbdcd' ], $str->gap([ '?' ], 'dadbdcd'));
+        $this->assertEquals([ 'dadbdcd' ], $str->explodeRecursive('?', 'dadbdcd'));
+        $this->assertEquals([ 'dadbdcd' ], $str->explodeRecursive([ '?' ], 'dadbdcd'));
 
-        $this->assertEquals([ 'd', 'dbdcd' ], $str->gap('a', 'dadbdcd'));
-        $this->assertEquals([ 'd', 'dbdcd' ], $str->gap([ 'a' ], 'dadbdcd'));
+        $this->assertEquals([ 'd', 'dbdcd' ], $str->explodeRecursive('a', 'dadbdcd'));
+        $this->assertEquals([ 'd', 'dbdcd' ], $str->explodeRecursive([ 'a' ], 'dadbdcd'));
 
-        $this->assertEquals([ [ 'd' ], [ 'd', 'dcd' ] ], $str->gap([ 'a', 'b' ], 'dadbdcd'));
-        $this->assertEquals([ [ [ 'd' ] ], [ [ 'd' ], [ 'd', 'd' ] ] ], $str->gap([ 'a', 'b', 'c' ], 'dadbdcd'));
+        $this->assertEquals([ [ 'd' ], [ 'd', 'dcd' ] ], $str->explodeRecursive([ 'a', 'b' ], 'dadbdcd'));
+        $this->assertEquals([ [ [ 'd' ] ], [ [ 'd' ], [ 'd', 'd' ] ] ], $str->explodeRecursive([ 'a', 'b', 'c' ], 'dadbdcd'));
     }
 
-    public function testBadGap()
+    public function testBadExplodeRecursive()
     {
         $str = $this->getStr();
 
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->gap(null, 'dadbdcd');
+            $str->explodeRecursive(null, 'dadbdcd');
         });
 
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->gap([ null ], 'dadbdcd');
+            $str->explodeRecursive([ null ], 'dadbdcd');
         });
     }
 
 
 
-    public function testGapSkip()
+    public function testExplodeRecursiveSkip()
     {
         $str = $this->getStr();
 
-        $this->assertEquals('dadbdcd', $str->gapSkip('', 'dadbdcd'));
-        $this->assertEquals('dadbdcd', $str->gapSkip([ '' ], 'dadbdcd'));
+        $this->assertEquals('dadbdcd', $str->explodeRecursiveSkip('', 'dadbdcd'));
+        $this->assertEquals('dadbdcd', $str->explodeRecursiveSkip([ '' ], 'dadbdcd'));
 
-        $this->assertEquals('dadbdcd', $str->gapSkip('?', 'dadbdcd'));
-        $this->assertEquals('dadbdcd', $str->gapSkip([ '?' ], 'dadbdcd'));
+        $this->assertEquals('dadbdcd', $str->explodeRecursiveSkip('?', 'dadbdcd'));
+        $this->assertEquals('dadbdcd', $str->explodeRecursiveSkip([ '?' ], 'dadbdcd'));
 
-        $this->assertEquals([ 'd', 'dbdcd' ], $str->gapSkip('a', 'dadbdcd'));
-        $this->assertEquals([ 'd', 'dbdcd' ], $str->gapSkip([ 'a' ], 'dadbdcd'));
+        $this->assertEquals([ 'd', 'dbdcd' ], $str->explodeRecursiveSkip('a', 'dadbdcd'));
+        $this->assertEquals([ 'd', 'dbdcd' ], $str->explodeRecursiveSkip([ 'a' ], 'dadbdcd'));
 
-        $this->assertEquals([ 'd', [ 'd', 'dcd' ] ], $str->gapSkip([ 'a', 'b' ], 'dadbdcd'));
-        $this->assertEquals([ 'd', [ 'd', [ 'd', 'd' ] ] ], $str->gapSkip([ 'a', 'b', 'c' ], 'dadbdcd'));
+        $this->assertEquals([ 'd', [ 'd', 'dcd' ] ], $str->explodeRecursiveSkip([ 'a', 'b' ], 'dadbdcd'));
+        $this->assertEquals([ 'd', [ 'd', [ 'd', 'd' ] ] ], $str->explodeRecursiveSkip([ 'a', 'b', 'c' ], 'dadbdcd'));
     }
 
-    public function testBadGapSkip()
+    public function testBadExplodeRecursiveSkip()
     {
         $str = $this->getStr();
 
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->gapSkip(null, 'dadbdcd');
+            $str->explodeRecursiveSkip(null, 'dadbdcd');
         });
 
         $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->gapSkip([ null ], 'dadbdcd');
+            $str->explodeRecursiveSkip([ null ], 'dadbdcd');
         });
     }
 
@@ -821,13 +821,13 @@ class StrTest extends AbstractTestCase
         $this->assertEquals('usrp', $str->prefix('user_operator', 4));
     }
 
-    public function testCompact()
+    public function textPrefixCompact()
     {
         $str = $this->getStr();
 
-        $this->assertEquals('usropr', $str->compact('user_operator', '_'));
-        $this->assertEquals('usropr', $str->compact('user_operator', '_', 3));
-        $this->assertEquals('useroprt', $str->compact('user_operator', '_', 4));
+        $this->assertEquals('usropr', $str->prefixCompact('user_operator', '_'));
+        $this->assertEquals('usropr', $str->prefixCompact('user_operator', '_', 3));
+        $this->assertEquals('useroprt', $str->prefixCompact('user_operator', '_', 4));
     }
 
 
@@ -978,18 +978,29 @@ class StrTest extends AbstractTestCase
     public function testSlug()
     {
         $str = $this->getStr();
+        $slugger = $str->slugger();
 
         $this->assertEquals('privet-mir', $str->slug('Привет Мир'));
         $this->assertEquals('workspace-settings', $str->slug('Wôrķšƥáçè ~~sèťtïñğš~~'));
         $this->assertEquals('set', $str->slug('Сеть'));
+
+        $this->assertEquals('privet-mir', $str->slug('Привет.Мир'));
+        $slugger->ignoreSymbols([ '.', ',' ]);
+        $this->assertEquals('privet.mir', $str->slug('Привет.Мир'));
     }
 
     public function testSlugify()
     {
         $str = $this->getStr();
+        $slugger = $str->slugger();
 
         $this->assertEquals('Privet-Mir', $str->slugify('Привет Мир'));
         $this->assertEquals('Workspace-settings', $str->slugify('Wôrķšƥáçè ~~sèťtïñğš~~'));
+        $this->assertEquals('Set', $str->slugify('Сеть'));
+
+        $this->assertEquals('Privet-Mir', $str->slugify('Привет.Мир'));
+        $slugger->ignoreSymbols([ '.', ',' ]);
+        $this->assertEquals('Privet.Mir', $str->slugify('Привет.Мир'));
     }
 
 

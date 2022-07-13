@@ -8,7 +8,6 @@ namespace Gzhegow\Support;
 
 use Gzhegow\Support\Domain\Str\Slugger;
 use Gzhegow\Support\Domain\Str\Inflector;
-use Gzhegow\Support\Exceptions\LogicException;
 use Gzhegow\Support\Domain\Str\SluggerInterface;
 use Gzhegow\Support\Domain\Str\InflectorInterface;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
@@ -1150,7 +1149,6 @@ class ZStr implements IStr
 
         if (false !== mb_strpos($haystack, $needle)) {
             $result = null
-                ?? ( '' === $needle ? [ $haystack ] : null )
                 ?? ( isset($limit) ? explode($needle, $strCase, $limit) : null )
                 ?? ( explode($needle, $strCase) );
         }
@@ -1329,7 +1327,7 @@ class ZStr implements IStr
 
         $sources = is_array($strings)
             ? $strings
-            : [ $strings ];
+            : ( $strings ? [ $strings ] : [] );
 
         $result = [];
 
@@ -1348,7 +1346,6 @@ class ZStr implements IStr
         return $result;
     }
 
-
     /**
      * разбивает строку/строки в массив по разделителю/разделителям рекурсивно
      *
@@ -1359,17 +1356,20 @@ class ZStr implements IStr
      *
      * @return array
      */
-    public function gap($delimiters, $strings, bool $ignoreCase = null, int $limit = null) : array
+    public function explodeRecursive($delimiters, $strings, bool $ignoreCase = null, int $limit = null) : array
     {
         $delimiters = $this->theStrvals($delimiters, true);
 
         $result = ( $isArray = is_array($strings) )
             ? $strings
-            : [ $strings ];
+            : ( $strings ? [ $strings ] : [] );
 
         foreach ( $delimiters as $delimiter ) {
             array_walk_recursive($result, function (string &$ref) use ($delimiter, $ignoreCase, $limit) {
-                if ($split = $this->contains($ref, $delimiter, $ignoreCase, $limit)) {
+                if ('' === $delimiter) {
+                    $ref = [ $ref ];
+
+                } elseif ($split = $this->contains($ref, $delimiter, $ignoreCase, $limit)) {
                     $ref = $split;
 
                 } else {
@@ -1395,20 +1395,20 @@ class ZStr implements IStr
      *
      * @return string|array
      */
-    public function gapSkip($delimiters, $strings, bool $ignoreCase = null, int $limit = null) // : string|array
+    public function explodeRecursiveSkip($delimiters, $strings, bool $ignoreCase = null, int $limit = null) // : string|array
     {
         $delimiters = $this->theStrvals($delimiters, true);
 
         $result = ( $isArray = is_array($strings) )
             ? $strings
-            : [ $strings ];
+            : ( $strings ? [ $strings ] : [] );
 
         foreach ( $delimiters as $delimiter ) {
             array_walk_recursive($result, function (string &$ref) use ($delimiter, $ignoreCase, $limit) {
-                if ('' !== $delimiter) {
-                    if ($split = $this->contains($ref, $delimiter, $ignoreCase, $limit)) {
-                        $ref = $split;
-                    }
+                if ('' === $delimiter) return;
+
+                if ($split = $this->contains($ref, $delimiter, $ignoreCase, $limit)) {
+                    $ref = $split;
                 }
             });
         }
@@ -1678,7 +1678,7 @@ class ZStr implements IStr
      *
      * @return string
      */
-    public function compact($strings, $delimiters = null, int $limit = null) : string
+    public function prefixCompact($strings, $delimiters = null, int $limit = null) : string
     {
         $list = $this->wordvals($strings);
 

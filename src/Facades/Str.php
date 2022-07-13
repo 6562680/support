@@ -15,7 +15,6 @@ use Gzhegow\Support\Domain\Str\Inflector;
 use Gzhegow\Support\Domain\Str\InflectorInterface;
 use Gzhegow\Support\Domain\Str\Slugger;
 use Gzhegow\Support\Domain\Str\SluggerInterface;
-use Gzhegow\Support\Exceptions\LogicException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\IStr;
 use Gzhegow\Support\SupportFactory;
@@ -569,9 +568,9 @@ class Str
      *
      * @return array
      */
-    public static function gap($delimiters, $strings, bool $ignoreCase = null, int $limit = null): array
+    public static function explodeRecursive($delimiters, $strings, bool $ignoreCase = null, int $limit = null): array
     {
-        return static::getInstance()->gap($delimiters, $strings, $ignoreCase, $limit);
+        return static::getInstance()->explodeRecursive($delimiters, $strings, $ignoreCase, $limit);
     }
 
     /**
@@ -584,9 +583,9 @@ class Str
      *
      * @return string|array
      */
-    public static function gapSkip($delimiters, $strings, bool $ignoreCase = null, int $limit = null)
+    public static function explodeRecursiveSkip($delimiters, $strings, bool $ignoreCase = null, int $limit = null)
     {
-        return static::getInstance()->gapSkip($delimiters, $strings, $ignoreCase, $limit);
+        return static::getInstance()->explodeRecursiveSkip($delimiters, $strings, $ignoreCase, $limit);
     }
 
     /**
@@ -701,9 +700,9 @@ class Str
      *
      * @return string
      */
-    public static function compact($strings, $delimiters = null, int $limit = null): string
+    public static function prefixCompact($strings, $delimiters = null, int $limit = null): string
     {
-        return static::getInstance()->compact($strings, $delimiters, $limit);
+        return static::getInstance()->prefixCompact($strings, $delimiters, $limit);
     }
 
     /**
