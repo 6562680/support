@@ -134,13 +134,13 @@ class Blueprint
 
 
     /**
-     * @param string $url
-     * @param mixed  $data
-     * @param array  $headers
+     * @param string     $url
+     * @param mixed      $data
+     * @param null|array $headers
      *
      * @return resource|\CurlHandle
      */
-    public function get(string $url, $data = null, array $headers = [])
+    public function get(string $url, $data = null, array $headers = null)
     {
         return $this->request($this->net::METHOD_GET, $url, $data, $headers);
     }
@@ -158,100 +158,102 @@ class Blueprint
 
 
     /**
-     * @param string $url
-     * @param array  $headers
+     * @param string     $url
+     * @param null|array $headers
      *
      * @return resource|\CurlHandle
      */
-    public function head(string $url, array $headers = [])
+    public function head(string $url, array $headers = null)
     {
         return $this->request($this->net::METHOD_HEAD, $url, null, $headers);
     }
 
     /**
-     * @param string $url
-     * @param array  $headers
+     * @param string     $url
+     * @param null|array $headers
      *
      * @return resource|\CurlHandle
      */
-    public function options(string $url, array $headers = [])
+    public function options(string $url, array $headers = null)
     {
         return $this->request($this->net::METHOD_OPTIONS, $url, null, $headers);
     }
 
 
     /**
-     * @param string $url
-     * @param mixed  $data
-     * @param array  $headers
+     * @param string     $url
+     * @param mixed      $data
+     * @param null|array $headers
      *
      * @return resource|\CurlHandle
      */
-    public function post(string $url, $data = null, array $headers = [])
+    public function post(string $url, $data = null, array $headers = null)
     {
         return $this->request($this->net::METHOD_POST, $url, $data, $headers);
     }
 
     /**
-     * @param string $url
-     * @param mixed  $data
-     * @param array  $headers
+     * @param string     $url
+     * @param mixed      $data
+     * @param null|array $headers
      *
      * @return resource|\CurlHandle
      */
-    public function patch(string $url, $data = null, array $headers = [])
+    public function patch(string $url, $data = null, array $headers = null)
     {
         return $this->request($this->net::METHOD_PATCH, $url, $data, $headers);
     }
 
     /**
-     * @param string $url
-     * @param mixed  $data
-     * @param array  $headers
+     * @param string     $url
+     * @param mixed      $data
+     * @param null|array $headers
      *
      * @return resource|\CurlHandle
      */
-    public function put(string $url, $data = null, array $headers = [])
+    public function put(string $url, $data = null, array $headers = null)
     {
         return $this->request($this->net::METHOD_PUT, $url, $data, $headers);
     }
 
     /**
-     * @param string $url
-     * @param array  $headers
+     * @param string     $url
+     * @param null|array $headers
      *
      * @return resource|\CurlHandle
      */
-    public function delete(string $url, array $headers = [])
+    public function delete(string $url, array $headers = null)
     {
         return $this->request($this->net::METHOD_DELETE, $url, null, $headers);
     }
 
 
     /**
-     * @param string $url
-     * @param mixed  $data
-     * @param array  $headers
+     * @param string     $url
+     * @param mixed      $data
+     * @param null|array $headers
      *
      * @return resource|\CurlHandle
      */
-    public function purge(string $url, $data = null, array $headers = [])
+    public function purge(string $url, $data = null, array $headers = null)
     {
         return $this->request($this->net::METHOD_PURGE, $url, $data, $headers);
     }
 
 
     /**
-     * @param string $method
-     * @param string $url
-     * @param mixed  $data
-     * @param array  $headers
+     * @param string     $method
+     * @param string     $url
+     * @param mixed      $data
+     * @param null|array $headers
      *
      * @return resource|\CurlHandle
      */
-    public function request(string $method, string $url, $data = null, array $headers = [])
+    public function request(string $method, string $url, $data = null, array $headers = null)
     {
         $httpMethod = $this->net->theHttpMethodVal($method);
+
+        $headers = $headers ?? [];
 
         $isMethodOptions = ( $this->net::METHOD_OPTIONS === $httpMethod );
         $isMethodHead = ( $this->net::METHOD_HEAD === $httpMethod );

@@ -6,6 +6,7 @@
 
 namespace Gzhegow\Support;
 
+use Gzhegow\Support\Domain\Curl\Result;
 use Gzhegow\Support\Domain\Curl\Manager;
 use Gzhegow\Support\Domain\Curl\Blueprint;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
@@ -174,13 +175,13 @@ class ZCurl implements ICurl
 
 
     /**
-     * @param string $url
-     * @param mixed  $data
-     * @param array  $headers
+     * @param string     $url
+     * @param mixed      $data
+     * @param null|array $headers
      *
      * @return resource
      */
-    public function get(string $url, $data = null, array $headers = [])
+    public function get(string $url, $data = null, array $headers = null)
     {
         return $this->blueprint->get($url, $data, $headers);
     }
@@ -188,97 +189,97 @@ class ZCurl implements ICurl
 
 
     /**
-     * @param string $url
-     * @param array  $headers
+     * @param string     $url
+     * @param null|array $headers
      *
      * @return resource|\CurlHandle
      */
-    public function head(string $url, array $headers = [])
+    public function head(string $url, array $headers = null)
     {
         return $this->blueprint->head($url, $headers);
     }
 
     /**
-     * @param string $url
-     * @param array  $headers
+     * @param string     $url
+     * @param null|array $headers
      *
      * @return resource|\CurlHandle
      */
-    public function options(string $url, array $headers = [])
+    public function options(string $url, array $headers = null)
     {
         return $this->blueprint->options($url, $headers);
     }
 
 
     /**
-     * @param string $url
-     * @param mixed  $data
-     * @param array  $headers
+     * @param string     $url
+     * @param mixed      $data
+     * @param null|array $headers
      *
      * @return resource|\CurlHandle
      */
-    public function post(string $url, $data = null, array $headers = [])
+    public function post(string $url, $data = null, array $headers = null)
     {
         return $this->blueprint->post($url, $data, $headers);
     }
 
     /**
-     * @param string $url
-     * @param mixed  $data
-     * @param array  $headers
+     * @param string     $url
+     * @param mixed      $data
+     * @param null|array $headers
      *
      * @return resource|\CurlHandle
      */
-    public function patch(string $url, $data = null, array $headers = [])
+    public function patch(string $url, $data = null, array $headers = null)
     {
         return $this->blueprint->patch($url, $data, $headers);
     }
 
     /**
-     * @param string $url
-     * @param mixed  $data
-     * @param array  $headers
+     * @param string     $url
+     * @param mixed      $data
+     * @param null|array $headers
      *
      * @return resource|\CurlHandle
      */
-    public function put(string $url, $data = null, array $headers = [])
+    public function put(string $url, $data = null, array $headers = null)
     {
         return $this->blueprint->put($url, $data, $headers);
     }
 
     /**
-     * @param string $url
-     * @param array  $headers
+     * @param string     $url
+     * @param null|array $headers
      *
      * @return resource|\CurlHandle
      */
-    public function delete(string $url, array $headers = [])
+    public function delete(string $url, array $headers = null)
     {
         return $this->blueprint->delete($url, $headers);
     }
 
     /**
-     * @param string $url
-     * @param mixed  $data
-     * @param array  $headers
+     * @param string     $url
+     * @param mixed      $data
+     * @param null|array $headers
      *
      * @return resource|\CurlHandle
      */
-    public function purge(string $url, $data = null, array $headers = [])
+    public function purge(string $url, $data = null, array $headers = null)
     {
         return $this->blueprint->purge($url, $data, $headers);
     }
 
 
     /**
-     * @param string $method
-     * @param string $url
-     * @param mixed  $data
-     * @param array  $headers
+     * @param string     $method
+     * @param string     $url
+     * @param mixed      $data
+     * @param null|array $headers
      *
      * @return resource|\CurlHandle
      */
-    public function request(string $method, string $url, $data = null, array $headers = [])
+    public function request(string $method, string $url, $data = null, array $headers = null)
     {
         return $this->blueprint->request($method, $url, $data, $headers);
     }
@@ -357,23 +358,17 @@ class ZCurl implements ICurl
      * @param int|float|string|array     $sleeps
      * @param resource|\CurlHandle|array $curls
      *
-     * @return array
+     * @return Result[]
      */
-    public function batch($limits, $sleeps, $curls) : array
+    public function execBatch($limits, $sleeps, $curls) : array
     {
         $results = [];
-        $urls = [];
-        $hh = [];
 
-        foreach ( $this->batchwalk($limits, $sleeps, $curls) as $result ) {
-            [ $resultsCurrent, $urlsCurrent, $hhCurrent ] = $result;
-
+        foreach ( $this->execBatchwalk($limits, $sleeps, $curls) as $resultsCurrent ) {
             $results += $resultsCurrent;
-            $urls += $urlsCurrent;
-            $hh += $hhCurrent;
         }
 
-        return [ $results, $urls, $hh ];
+        return $results;
     }
 
     /**
@@ -381,9 +376,9 @@ class ZCurl implements ICurl
      * @param int|float|string|array     $sleeps
      * @param resource|\CurlHandle|array $curls
      *
-     * @return \Generator
+     * @return \Generator|Result[]
      */
-    public function batchwalk($limits, $sleeps, $curls) : \Generator
+    public function execBatchwalk($limits, $sleeps, $curls) : \Generator
     {
         $limits = is_array($limits)
             ? $limits
@@ -400,7 +395,7 @@ class ZCurl implements ICurl
         $curls = $this->theCurls($curls);
 
         $limitMin = max(1, min($limits));
-        $limitMax = max(1, max($limits));
+        $limitMax = max(1, ...$limits);
 
         do {
             $limitCurrent = rand($limitMin, $limitMax);
@@ -417,9 +412,7 @@ class ZCurl implements ICurl
                 }
             }
 
-            [ $responsesCurrent, $urlsCurrent, $hhCurrent ] = $this->multi($curlsCurrent);
-
-            yield [ $responsesCurrent, $urlsCurrent, $hhCurrent ];
+            yield $this->execMulti($curlsCurrent);
 
             if ($curls) {
                 $this->php->sleep($sleeps);
@@ -427,23 +420,22 @@ class ZCurl implements ICurl
         } while ( $curls );
     }
 
-
     /**
      * @param resource|\CurlHandle|array $curls
      *
-     * @return array
+     * @return Result[]
      */
-    public function multi($curls) : array
+    public function execMulti($curls) : array
     {
         $curls = $this->theCurls($curls);
 
         $master = curl_multi_init();
 
-        $hh = [];
-        $urls = [];
+        $results = [];
         foreach ( $curls as $index => $ch ) {
-            $hh[ $index ] = $ch;
-            $urls[ $index ] = $this->info($ch, CURLINFO_EFFECTIVE_URL);
+            $results[ $index ] = $result = new Result();
+            $result->url = $this->info($ch, CURLINFO_EFFECTIVE_URL);
+            $result->ch = $ch;
 
             // add handler to multi
             curl_multi_add_handle($master, $ch);
@@ -459,18 +451,16 @@ class ZCurl implements ICurl
         } while ( $running && $mrc == CURLM_OK );
 
         // parse responses
-        $results = [];
-        foreach ( $hh as $index => $ch ) {
-            $results[ $index ] = curl_multi_getcontent($ch);
+        foreach ( $results as $result ) {
+            $result->content = curl_multi_getcontent($result->ch);
 
-            curl_multi_remove_handle($master, $ch);
+            curl_multi_remove_handle($master, $result->ch);
         }
 
         // close loop
         curl_multi_close($master);
 
-        // result
-        return [ $results, $urls, $hh ];
+        return $results;
     }
 
 

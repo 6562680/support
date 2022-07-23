@@ -13,6 +13,7 @@ namespace Gzhegow\Support\Facades;
 
 use Gzhegow\Support\Domain\Curl\Blueprint;
 use Gzhegow\Support\Domain\Curl\Manager;
+use Gzhegow\Support\Domain\Curl\Result;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\ICurl;
 use Gzhegow\Support\SupportFactory;
@@ -87,107 +88,107 @@ class Curl
     }
 
     /**
-     * @param string $url
-     * @param mixed  $data
-     * @param array  $headers
+     * @param string     $url
+     * @param mixed      $data
+     * @param null|array $headers
      *
      * @return resource
      */
-    public static function get(string $url, $data = null, array $headers = [])
+    public static function get(string $url, $data = null, array $headers = null)
     {
         return static::getInstance()->get($url, $data, $headers);
     }
 
     /**
-     * @param string $url
-     * @param array  $headers
+     * @param string     $url
+     * @param null|array $headers
      *
      * @return resource|\CurlHandle
      */
-    public static function head(string $url, array $headers = [])
+    public static function head(string $url, array $headers = null)
     {
         return static::getInstance()->head($url, $headers);
     }
 
     /**
-     * @param string $url
-     * @param array  $headers
+     * @param string     $url
+     * @param null|array $headers
      *
      * @return resource|\CurlHandle
      */
-    public static function options(string $url, array $headers = [])
+    public static function options(string $url, array $headers = null)
     {
         return static::getInstance()->options($url, $headers);
     }
 
     /**
-     * @param string $url
-     * @param mixed  $data
-     * @param array  $headers
+     * @param string     $url
+     * @param mixed      $data
+     * @param null|array $headers
      *
      * @return resource|\CurlHandle
      */
-    public static function post(string $url, $data = null, array $headers = [])
+    public static function post(string $url, $data = null, array $headers = null)
     {
         return static::getInstance()->post($url, $data, $headers);
     }
 
     /**
-     * @param string $url
-     * @param mixed  $data
-     * @param array  $headers
+     * @param string     $url
+     * @param mixed      $data
+     * @param null|array $headers
      *
      * @return resource|\CurlHandle
      */
-    public static function patch(string $url, $data = null, array $headers = [])
+    public static function patch(string $url, $data = null, array $headers = null)
     {
         return static::getInstance()->patch($url, $data, $headers);
     }
 
     /**
-     * @param string $url
-     * @param mixed  $data
-     * @param array  $headers
+     * @param string     $url
+     * @param mixed      $data
+     * @param null|array $headers
      *
      * @return resource|\CurlHandle
      */
-    public static function put(string $url, $data = null, array $headers = [])
+    public static function put(string $url, $data = null, array $headers = null)
     {
         return static::getInstance()->put($url, $data, $headers);
     }
 
     /**
-     * @param string $url
-     * @param array  $headers
+     * @param string     $url
+     * @param null|array $headers
      *
      * @return resource|\CurlHandle
      */
-    public static function delete(string $url, array $headers = [])
+    public static function delete(string $url, array $headers = null)
     {
         return static::getInstance()->delete($url, $headers);
     }
 
     /**
-     * @param string $url
-     * @param mixed  $data
-     * @param array  $headers
+     * @param string     $url
+     * @param mixed      $data
+     * @param null|array $headers
      *
      * @return resource|\CurlHandle
      */
-    public static function purge(string $url, $data = null, array $headers = [])
+    public static function purge(string $url, $data = null, array $headers = null)
     {
         return static::getInstance()->purge($url, $data, $headers);
     }
 
     /**
-     * @param string $method
-     * @param string $url
-     * @param mixed  $data
-     * @param array  $headers
+     * @param string     $method
+     * @param string     $url
+     * @param mixed      $data
+     * @param null|array $headers
      *
      * @return resource|\CurlHandle
      */
-    public static function request(string $method, string $url, $data = null, array $headers = [])
+    public static function request(string $method, string $url, $data = null, array $headers = null)
     {
         return static::getInstance()->request($method, $url, $data, $headers);
     }
@@ -237,11 +238,11 @@ class Curl
      * @param int|float|string|array     $sleeps
      * @param resource|\CurlHandle|array $curls
      *
-     * @return array
+     * @return Result[]
      */
-    public static function batch($limits, $sleeps, $curls): array
+    public static function execBatch($limits, $sleeps, $curls): array
     {
-        return static::getInstance()->batch($limits, $sleeps, $curls);
+        return static::getInstance()->execBatch($limits, $sleeps, $curls);
     }
 
     /**
@@ -249,21 +250,21 @@ class Curl
      * @param int|float|string|array     $sleeps
      * @param resource|\CurlHandle|array $curls
      *
-     * @return \Generator
+     * @return \Generator|Result[]
      */
-    public static function batchwalk($limits, $sleeps, $curls): \Generator
+    public static function execBatchwalk($limits, $sleeps, $curls): \Generator
     {
-        yield from static::getInstance()->batchwalk($limits, $sleeps, $curls);
+        yield from static::getInstance()->execBatchwalk($limits, $sleeps, $curls);
     }
 
     /**
      * @param resource|\CurlHandle|array $curls
      *
-     * @return array
+     * @return Result[]
      */
-    public static function multi($curls): array
+    public static function execMulti($curls): array
     {
-        return static::getInstance()->multi($curls);
+        return static::getInstance()->execMulti($curls);
     }
 
     /**

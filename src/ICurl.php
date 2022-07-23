@@ -13,6 +13,7 @@ namespace Gzhegow\Support;
 
 use Gzhegow\Support\Domain\Curl\Blueprint;
 use Gzhegow\Support\Domain\Curl\Manager;
+use Gzhegow\Support\Domain\Curl\Result;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 interface ICurl
@@ -63,83 +64,83 @@ interface ICurl
     public function getBlueprint(): Blueprint;
 
     /**
-     * @param string $url
-     * @param mixed  $data
-     * @param array  $headers
+     * @param string     $url
+     * @param mixed      $data
+     * @param null|array $headers
      *
      * @return resource
      */
-    public function get(string $url, $data = null, array $headers = []);
+    public function get(string $url, $data = null, array $headers = null);
 
     /**
-     * @param string $url
-     * @param array  $headers
+     * @param string     $url
+     * @param null|array $headers
      *
      * @return resource|\CurlHandle
      */
-    public function head(string $url, array $headers = []);
+    public function head(string $url, array $headers = null);
 
     /**
-     * @param string $url
-     * @param array  $headers
+     * @param string     $url
+     * @param null|array $headers
      *
      * @return resource|\CurlHandle
      */
-    public function options(string $url, array $headers = []);
+    public function options(string $url, array $headers = null);
 
     /**
-     * @param string $url
-     * @param mixed  $data
-     * @param array  $headers
+     * @param string     $url
+     * @param mixed      $data
+     * @param null|array $headers
      *
      * @return resource|\CurlHandle
      */
-    public function post(string $url, $data = null, array $headers = []);
+    public function post(string $url, $data = null, array $headers = null);
 
     /**
-     * @param string $url
-     * @param mixed  $data
-     * @param array  $headers
+     * @param string     $url
+     * @param mixed      $data
+     * @param null|array $headers
      *
      * @return resource|\CurlHandle
      */
-    public function patch(string $url, $data = null, array $headers = []);
+    public function patch(string $url, $data = null, array $headers = null);
 
     /**
-     * @param string $url
-     * @param mixed  $data
-     * @param array  $headers
+     * @param string     $url
+     * @param mixed      $data
+     * @param null|array $headers
      *
      * @return resource|\CurlHandle
      */
-    public function put(string $url, $data = null, array $headers = []);
+    public function put(string $url, $data = null, array $headers = null);
 
     /**
-     * @param string $url
-     * @param array  $headers
+     * @param string     $url
+     * @param null|array $headers
      *
      * @return resource|\CurlHandle
      */
-    public function delete(string $url, array $headers = []);
+    public function delete(string $url, array $headers = null);
 
     /**
-     * @param string $url
-     * @param mixed  $data
-     * @param array  $headers
+     * @param string     $url
+     * @param mixed      $data
+     * @param null|array $headers
      *
      * @return resource|\CurlHandle
      */
-    public function purge(string $url, $data = null, array $headers = []);
+    public function purge(string $url, $data = null, array $headers = null);
 
     /**
-     * @param string $method
-     * @param string $url
-     * @param mixed  $data
-     * @param array  $headers
+     * @param string     $method
+     * @param string     $url
+     * @param mixed      $data
+     * @param null|array $headers
      *
      * @return resource|\CurlHandle
      */
-    public function request(string $method, string $url, $data = null, array $headers = []);
+    public function request(string $method, string $url, $data = null, array $headers = null);
 
     /**
      * @return Manager
@@ -174,25 +175,25 @@ interface ICurl
      * @param int|float|string|array     $sleeps
      * @param resource|\CurlHandle|array $curls
      *
-     * @return array
+     * @return Result[]
      */
-    public function batch($limits, $sleeps, $curls): array;
+    public function execBatch($limits, $sleeps, $curls): array;
 
     /**
      * @param int|string|array           $limits
      * @param int|float|string|array     $sleeps
      * @param resource|\CurlHandle|array $curls
      *
-     * @return \Generator
+     * @return \Generator|Result[]
      */
-    public function batchwalk($limits, $sleeps, $curls): \Generator;
+    public function execBatchwalk($limits, $sleeps, $curls): \Generator;
 
     /**
      * @param resource|\CurlHandle|array $curls
      *
-     * @return array
+     * @return Result[]
      */
-    public function multi($curls): array;
+    public function execMulti($curls): array;
 
     /**
      * @param resource|\CurlHandle|array $curls
