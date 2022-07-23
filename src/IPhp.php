@@ -47,6 +47,52 @@ interface IPhp
     public function isFactory(\Closure $func, string $returnType): bool;
 
     /**
+     * @param mixed ...$items
+     *
+     * @return array
+     */
+    public function listval(...$items): array;
+
+    /**
+     * @param mixed ...$lists
+     *
+     * @return array
+     */
+    public function listvals(...$lists): array;
+
+    /**
+     * Превращает enum-список любой вложенности (значения могут быть в ключах или в полях) в список уникальных значений
+     *
+     * @param mixed ...$items
+     *
+     * @return array
+     */
+    public function enumval(...$items): array;
+
+    /**
+     * Превращает каждый аргумент с помощью enumval
+     *
+     * @param mixed ...$enums
+     *
+     * @return array
+     */
+    public function enumvals(...$enums): array;
+
+    /**
+     * @param mixed ...$values
+     *
+     * @return array
+     */
+    public function queueVal(...$values): array;
+
+    /**
+     * @param mixed ...$values
+     *
+     * @return array
+     */
+    public function stackVal(...$values): array;
+
+    /**
      * @param string|mixed $phpKeyword
      *
      * @return null|string
@@ -106,52 +152,6 @@ interface IPhp
      * @return \Closure
      */
     public function assertFactory(\Closure $func, $returnType): \Closure;
-
-    /**
-     * @param mixed ...$items
-     *
-     * @return array
-     */
-    public function listval(...$items): array;
-
-    /**
-     * @param mixed ...$lists
-     *
-     * @return array
-     */
-    public function listvals(...$lists): array;
-
-    /**
-     * Превращает enum-список любой вложенности (значения могут быть в ключах или в полях) в список уникальных значений
-     *
-     * @param mixed ...$items
-     *
-     * @return array
-     */
-    public function enumval(...$items): array;
-
-    /**
-     * Превращает каждый аргумент с помощью enumval
-     *
-     * @param mixed ...$enums
-     *
-     * @return array
-     */
-    public function enumvals(...$enums): array;
-
-    /**
-     * @param mixed ...$values
-     *
-     * @return array
-     */
-    public function queueVal(...$values): array;
-
-    /**
-     * @param mixed ...$values
-     *
-     * @return array
-     */
-    public function stackVal(...$values): array;
 
     /**
      * @param mixed ...$values
@@ -299,45 +299,12 @@ interface IPhp
     public function theKwparamsFlatten(...$arguments): array;
 
     /**
-     * @param int|float|int[]|float[] $sleeps
+     * @param int|float $min
+     * @param int|float ...$max
      *
      * @return ZPhp
      */
-    public function sleep(...$sleeps);
-
-    /**
-     * выполняет функцию как шаг array_filter
-     *
-     * @param null|callable $func
-     * @param               $arg
-     * @param array         $arguments
-     *
-     * @return bool|array
-     */
-    public function filter(?callable $func, $arg, ...$arguments): bool;
-
-    /**
-     * выполняет функцию как шаг array_map
-     *
-     * @param null|callable $func
-     * @param               $arg
-     * @param array         $arguments
-     *
-     * @return mixed
-     */
-    public function map(?callable $func, $arg, ...$arguments);
-
-    /**
-     * выполняет функцию как шаг array_reduce
-     *
-     * @param null|callable $func
-     * @param               $arg
-     * @param null          $carry
-     * @param array         $arguments
-     *
-     * @return mixed
-     */
-    public function reduce(?callable $func, $arg, $carry = null, ...$arguments);
+    public function sleep($min, ...$max);
 
     /**
      * bind
@@ -374,6 +341,40 @@ interface IPhp
      * @return mixed
      */
     public function apply(callable $func, array $arguments);
+
+    /**
+     * выполняет функцию как шаг array_filter
+     *
+     * @param null|callable $func
+     * @param               $arg
+     * @param array         $arguments
+     *
+     * @return bool|array
+     */
+    public function callFilter(?callable $func, $arg, ...$arguments): bool;
+
+    /**
+     * выполняет функцию как шаг array_map
+     *
+     * @param null|callable $func
+     * @param               $arg
+     * @param array         $arguments
+     *
+     * @return mixed
+     */
+    public function callMap(?callable $func, $arg, ...$arguments);
+
+    /**
+     * выполняет функцию как шаг array_reduce
+     *
+     * @param null|callable $func
+     * @param               $arg
+     * @param null          $carry
+     * @param array         $arguments
+     *
+     * @return mixed
+     */
+    public function callReduce(?callable $func, $arg, $carry = null, ...$arguments);
 
     /**
      * @param \ReflectionProperty $reflectionProperty

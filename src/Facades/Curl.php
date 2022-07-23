@@ -13,32 +13,12 @@ namespace Gzhegow\Support\Facades;
 
 use Gzhegow\Support\Domain\Curl\Blueprint;
 use Gzhegow\Support\Domain\Curl\Manager;
-use Gzhegow\Support\Domain\Curl\Result;
-use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\ICurl;
 use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\ZCurl;
 
 class Curl
 {
-    /**
-     * @return ZCurl
-     */
-    public static function reset()
-    {
-        return static::getInstance()->reset();
-    }
-
-    /**
-     * @param null|Blueprint $blueprint
-     *
-     * @return ZCurl
-     */
-    public static function clone(?Blueprint $blueprint)
-    {
-        return static::getInstance()->clone($blueprint);
-    }
-
     /**
      * @param null|Blueprint $blueprint
      *
@@ -57,6 +37,24 @@ class Curl
     public static function withBlueprint(Blueprint $blueprint)
     {
         return static::getInstance()->withBlueprint($blueprint);
+    }
+
+    /**
+     * @return ZCurl
+     */
+    public static function reset()
+    {
+        return static::getInstance()->reset();
+    }
+
+    /**
+     * @param null|Blueprint $blueprint
+     *
+     * @return ZCurl
+     */
+    public static function clone(?Blueprint $blueprint)
+    {
+        return static::getInstance()->clone($blueprint);
     }
 
     /**
@@ -234,33 +232,9 @@ class Curl
     }
 
     /**
-     * @param int|string|array           $limits
-     * @param int|float|string|array     $sleeps
      * @param resource|\CurlHandle|array $curls
      *
-     * @return Result[]
-     */
-    public static function execBatch($limits, $sleeps, $curls): array
-    {
-        return static::getInstance()->execBatch($limits, $sleeps, $curls);
-    }
-
-    /**
-     * @param int|string|array           $limits
-     * @param int|float|string|array     $sleeps
-     * @param resource|\CurlHandle|array $curls
-     *
-     * @return \Generator|Result[]
-     */
-    public static function execBatchwalk($limits, $sleeps, $curls): \Generator
-    {
-        yield from static::getInstance()->execBatchwalk($limits, $sleeps, $curls);
-    }
-
-    /**
-     * @param resource|\CurlHandle|array $curls
-     *
-     * @return Result[]
+     * @return string[]
      */
     public static function execMulti($curls): array
     {

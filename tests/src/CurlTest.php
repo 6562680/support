@@ -2,6 +2,8 @@
 
 namespace Gzhegow\Support\Tests;
 
+use Gzhegow\Support\ZPhp;
+use Gzhegow\Support\IPhp;
 use Gzhegow\Support\ZCurl;
 use Gzhegow\Support\ICurl;
 
@@ -12,6 +14,12 @@ class CurlTest extends AbstractTestCase
     {
         return ZCurl::getInstance();
     }
+
+    protected function getPhp() : IPhp
+    {
+        return ZPhp::getInstance();
+    }
+
 
     /**
      * @return bool
@@ -32,6 +40,7 @@ class CurlTest extends AbstractTestCase
 
         return static::$isOnline;
     }
+
 
     public function testGet()
     {
@@ -163,7 +172,7 @@ class CurlTest extends AbstractTestCase
         $results = $curl->execMulti($hh);
 
         $responses = array_map(function ($result) {
-            return json_decode($result->content, true);
+            return json_decode($result, true);
         }, $results);
         $responseKeys = array_keys($responses);
         $responseCodes = array_map(function ($ch) {
@@ -186,6 +195,7 @@ class CurlTest extends AbstractTestCase
         $this->assertTrue($this->isOnline(), 'Connection timeout');
 
         $curl = $this->getCurl();
+        $php = $this->getPhp();
 
         $hh[] = $curl->get('https://my-json-server.typicode.com/typicode/demo/posts');
         $hh[] = $curl->get('https://my-json-server.typicode.com/typicode/demo/posts');
@@ -196,10 +206,21 @@ class CurlTest extends AbstractTestCase
             true
         );
 
-        $results = $curl->execBatch(2, 1, $hh);
+        $results = [];
+
+        $queue = $hh;
+        while ($slice = array_slice($queue, 0, 2, true)) {
+            foreach (array_keys($slice) as $idx) {
+                unset($queue[ $idx ]);
+            }
+
+            $results += $curl->execMulti($slice);
+
+            $php->sleep(1);
+        }
 
         $responses = array_map(function ($result) {
-            return json_decode($result->content, true);
+            return json_decode($result, true);
         }, $results);
         $responseKeys = array_keys($responses);
         $responseCodes = array_map(function ($ch) {

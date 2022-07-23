@@ -6,10 +6,8 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Domain\Curl\Result;
 use Gzhegow\Support\Domain\Curl\Manager;
 use Gzhegow\Support\Domain\Curl\Blueprint;
-use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
@@ -69,6 +67,31 @@ class ZCurl implements ICurl
         $this->reset();
     }
 
+    /**
+     * @param null|Blueprint $blueprint
+     *
+     * @return static
+     */
+    public function with(?Blueprint $blueprint)
+    {
+        $this->reset();
+
+        if (isset($blueprint)) $this->withBlueprint($blueprint);
+
+        return $this;
+    }
+
+    /**
+     * @param Blueprint $blueprint
+     *
+     * @return static
+     */
+    public function withBlueprint(Blueprint $blueprint)
+    {
+        $this->blueprint = $blueprint;
+
+        return $this;
+    }
 
     /**
      * @return static
@@ -88,7 +111,6 @@ class ZCurl implements ICurl
         return $this;
     }
 
-
     /**
      * @param null|Blueprint $blueprint
      *
@@ -102,35 +124,6 @@ class ZCurl implements ICurl
 
         return $instance;
     }
-
-
-    /**
-     * @param null|Blueprint $blueprint
-     *
-     * @return static
-     */
-    public function with(?Blueprint $blueprint)
-    {
-        $this->reset();
-
-        if (isset($blueprint)) $this->withBlueprint($blueprint);
-
-        return $this;
-    }
-
-
-    /**
-     * @param Blueprint $blueprint
-     *
-     * @return static
-     */
-    public function withBlueprint(Blueprint $blueprint)
-    {
-        $this->blueprint = $blueprint;
-
-        return $this;
-    }
-
 
     /**
      * @param array $curlOptArray
@@ -354,76 +347,9 @@ class ZCurl implements ICurl
 
 
     /**
-     * @param int|string|array           $limits
-     * @param int|float|string|array     $sleeps
      * @param resource|\CurlHandle|array $curls
      *
-     * @return Result[]
-     */
-    public function execBatch($limits, $sleeps, $curls) : array
-    {
-        $results = [];
-
-        foreach ( $this->execBatchwalk($limits, $sleeps, $curls) as $resultsCurrent ) {
-            $results += $resultsCurrent;
-        }
-
-        return $results;
-    }
-
-    /**
-     * @param int|string|array           $limits
-     * @param int|float|string|array     $sleeps
-     * @param resource|\CurlHandle|array $curls
-     *
-     * @return \Generator|Result[]
-     */
-    public function execBatchwalk($limits, $sleeps, $curls) : \Generator
-    {
-        $limits = is_array($limits)
-            ? $limits
-            : [ $limits ];
-
-        foreach ( $limits as $limit ) {
-            if (null === $this->filter->filterIntval($limit)) {
-                throw new InvalidArgumentException(
-                    [ 'Each limit should be int: %s', $limit ]
-                );
-            }
-        }
-
-        $curls = $this->theCurls($curls);
-
-        $limitMin = max(1, min($limits));
-        $limitMax = max(1, ...$limits);
-
-        do {
-            $limitCurrent = rand($limitMin, $limitMax);
-
-            $i = 0;
-            $curlsCurrent = [];
-            while ( null !== ( $key = key($curls) ) ) {
-                $curlsCurrent[ $key ] = $curls[ $key ];
-
-                unset($curls[ $key ]);
-
-                if (++$i === $limitCurrent) {
-                    break;
-                }
-            }
-
-            yield $this->execMulti($curlsCurrent);
-
-            if ($curls) {
-                $this->php->sleep($sleeps);
-            }
-        } while ( $curls );
-    }
-
-    /**
-     * @param resource|\CurlHandle|array $curls
-     *
-     * @return Result[]
+     * @return string[]
      */
     public function execMulti($curls) : array
     {
@@ -431,17 +357,10 @@ class ZCurl implements ICurl
 
         $master = curl_multi_init();
 
-        $results = [];
-        foreach ( $curls as $index => $ch ) {
-            $results[ $index ] = $result = new Result();
-            $result->url = $this->info($ch, CURLINFO_EFFECTIVE_URL);
-            $result->ch = $ch;
-
-            // add handler to multi
+        foreach ( $curls as $ch ) {
             curl_multi_add_handle($master, $ch);
         }
 
-        // start requests
         do {
             $mrc = curl_multi_exec($master, $running);
 
@@ -450,14 +369,13 @@ class ZCurl implements ICurl
             }
         } while ( $running && $mrc == CURLM_OK );
 
-        // parse responses
-        foreach ( $results as $result ) {
-            $result->content = curl_multi_getcontent($result->ch);
+        $results = [];
+        foreach ( $curls as $idx => $ch ) {
+            $results[ $idx ] = curl_multi_getcontent($ch);
 
-            curl_multi_remove_handle($master, $result->ch);
+            curl_multi_remove_handle($master, $ch);
         }
 
-        // close loop
         curl_multi_close($master);
 
         return $results;

@@ -123,6 +123,166 @@ class ZPhp implements IPhp
         return null !== $this->filterFactory($func, $returnType);
     }
 
+    /**
+     * @param mixed ...$items
+     *
+     * @return array
+     */
+    public function listval(...$items) : array
+    {
+        $result = [];
+
+        $list = [];
+        foreach ( $items as $item ) {
+            if (null === $this->filter->filterList($item)) {
+                $list[] = $item;
+
+            } else {
+                foreach ( $item as $val ) {
+                    $list[] = $val;
+                }
+            }
+        }
+
+        foreach ( $list as $val ) {
+            if (! is_null($val)) {
+                $result[] = $val;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param mixed ...$lists
+     *
+     * @return array
+     */
+    public function listvals(...$lists) : array
+    {
+        $result = [];
+
+        foreach ( $lists as $idx => $list ) {
+            $result[ $idx ] = $this->listval($list);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Превращает enum-список любой вложенности (значения могут быть в ключах или в полях) в список уникальных значений
+     *
+     * @param mixed ...$items
+     *
+     * @return array
+     */
+    public function enumval(...$items) : array
+    {
+        $result = [];
+
+        array_walk_recursive($items, function ($val, $key) use (&$result) {
+            if (null === $val
+                || false === $val
+                || '' === $val
+            ) {
+                return;
+            }
+
+            $value = null
+                ?? ( true === $val ? $key : null )
+                ?? $this->filter->filterWord($key)
+                ?? $this->filter->filterWordOrNum($val)
+                ?? $this->filter->filterInt($key);
+
+            if (null === $value) {
+                return;
+            }
+
+            $result[ $this->hash($value) ] = $value;
+        });
+
+        $result = array_values($result);
+
+        return $result;
+    }
+
+    /**
+     * Превращает каждый аргумент с помощью enumval
+     *
+     * @param mixed ...$enums
+     *
+     * @return array
+     */
+    public function enumvals(...$enums) : array
+    {
+        $result = [];
+
+        foreach ( $enums as $idx => $map ) {
+            $result[ $idx ] = $this->enumval($map);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param mixed ...$values
+     *
+     * @return array
+     */
+    public function queueVal(...$values) : array
+    {
+        $result = [];
+
+        while ( null !== key($values) ) {
+            $current = array_shift($values);
+
+            if (is_iterable($current)) {
+                while ( null !== key($current) ) {
+                    $values[] = current($current);
+                    next($current);
+                }
+
+            } else {
+                $result[] = $current;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param mixed ...$values
+     *
+     * @return array
+     */
+    public function stackVal(...$values) : array
+    {
+        $stack = [];
+
+        end($values);
+        while ( null !== key($values) ) {
+            $stack[] = current($values);
+            prev($values);
+        }
+
+        $result = [];
+        while ( null !== key($stack) ) {
+            $current = array_pop($stack);
+
+            if (is_iterable($current)) {
+                end($current);
+                while ( null !== key($current) ) {
+                    $stack[] = current($current);
+                    prev($current);
+                }
+
+            } else {
+                $result[] = $current;
+            }
+        }
+
+        return $result;
+    }
 
     /**
      * @param string|mixed $phpKeyword
@@ -153,7 +313,6 @@ class ZPhp implements IPhp
 
         return $phpKeyword;
     }
-
 
     /**
      * проверяет возвращаемый тип у замыкания
@@ -222,7 +381,6 @@ class ZPhp implements IPhp
         return $result;
     }
 
-
     /**
      * @param mixed &$value
      *
@@ -251,7 +409,6 @@ class ZPhp implements IPhp
         return $value;
     }
 
-
     /**
      * @param mixed &$value
      *
@@ -265,7 +422,6 @@ class ZPhp implements IPhp
 
         return $value;
     }
-
 
     /**
      * @param string $key
@@ -281,7 +437,6 @@ class ZPhp implements IPhp
 
         return $array[ $key ];
     }
-
 
     /**
      * @param string|mixed $phpKeyword
@@ -299,7 +454,6 @@ class ZPhp implements IPhp
         return $phpKeyword;
     }
 
-
     /**
      * @param \Closure $func
      * @param string   $returnType
@@ -316,171 +470,6 @@ class ZPhp implements IPhp
 
         return $func;
     }
-
-
-    /**
-     * @param mixed ...$items
-     *
-     * @return array
-     */
-    public function listval(...$items) : array
-    {
-        $result = [];
-
-        $list = [];
-        foreach ( $items as $item ) {
-            if (null === $this->filter->filterList($item)) {
-                $list[] = $item;
-
-            } else {
-                foreach ( $item as $val ) {
-                    $list[] = $val;
-                }
-            }
-        }
-
-        foreach ( $list as $val ) {
-            if (! is_null($val)) {
-                $result[] = $val;
-            }
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param mixed ...$lists
-     *
-     * @return array
-     */
-    public function listvals(...$lists) : array
-    {
-        $result = [];
-
-        foreach ( $lists as $idx => $list ) {
-            $result[ $idx ] = $this->listval($list);
-        }
-
-        return $result;
-    }
-
-
-    /**
-     * Превращает enum-список любой вложенности (значения могут быть в ключах или в полях) в список уникальных значений
-     *
-     * @param mixed ...$items
-     *
-     * @return array
-     */
-    public function enumval(...$items) : array
-    {
-        $result = [];
-
-        array_walk_recursive($items, function ($val, $key) use (&$result) {
-            if (null === $val
-                || false === $val
-                || '' === $val
-            ) {
-                return;
-            }
-
-            $value = null
-                ?? ( true === $val ? $key : null )
-                ?? $this->filter->filterWord($key)
-                ?? $this->filter->filterWordOrNum($val)
-                ?? $this->filter->filterInt($key);
-
-            if (null === $value) {
-                return;
-            }
-
-            $result[ $this->hash($value) ] = $value;
-        });
-
-        $result = array_values($result);
-
-        return $result;
-    }
-
-    /**
-     * Превращает каждый аргумент с помощью enumval
-     *
-     * @param mixed ...$enums
-     *
-     * @return array
-     */
-    public function enumvals(...$enums) : array
-    {
-        $result = [];
-
-        foreach ( $enums as $idx => $map ) {
-            $result[ $idx ] = $this->enumval($map);
-        }
-
-        return $result;
-    }
-
-
-    /**
-     * @param mixed ...$values
-     *
-     * @return array
-     */
-    public function queueVal(...$values) : array
-    {
-        $result = [];
-
-        while ( null !== key($values) ) {
-            $current = array_shift($values);
-
-            if (is_iterable($current)) {
-                while ( null !== key($current) ) {
-                    $values[] = current($current);
-                    next($current);
-                }
-
-            } else {
-                $result[] = $current;
-            }
-        }
-
-        return $result;
-    }
-
-    /**
-     * @param mixed ...$values
-     *
-     * @return array
-     */
-    public function stackVal(...$values) : array
-    {
-        $stack = [];
-
-        end($values);
-        while ( null !== key($values) ) {
-            $stack[] = current($values);
-            prev($values);
-        }
-
-        $result = [];
-        while ( null !== key($stack) ) {
-            $current = array_pop($stack);
-
-            if (is_iterable($current)) {
-                end($current);
-                while ( null !== key($current) ) {
-                    $stack[] = current($current);
-                    prev($current);
-                }
-
-            } else {
-                $result[] = $current;
-            }
-        }
-
-        return $result;
-    }
-
 
     /**
      * @param mixed ...$values
@@ -968,13 +957,14 @@ class ZPhp implements IPhp
 
 
     /**
-     * @param int|float|int[]|float[] $sleeps
+     * @param int|float $min
+     * @param int|float ...$max
      *
      * @return static
      */
-    public function sleep(...$sleeps)
+    public function sleep($min, ...$max)
     {
-        $sleeps = $this->listval(...$sleeps);
+        $sleeps = $this->listval($min, ...$max);
 
         foreach ( $sleeps as $sleep ) {
             if (! is_numeric($sleep)) {
@@ -985,7 +975,7 @@ class ZPhp implements IPhp
         }
 
         $sleepMin = max(0, min($sleeps));
-        $sleepMax = max(0, max($sleeps));
+        $sleepMax = max(0, ...$sleeps);
 
         $sleepCurrent = $sleepMin;
 
@@ -1005,74 +995,6 @@ class ZPhp implements IPhp
         }
 
         return $this;
-    }
-
-
-    /**
-     * выполняет функцию как шаг array_filter
-     *
-     * @param null|callable $func
-     * @param               $arg
-     * @param array         $arguments
-     *
-     * @return bool|array
-     */
-    public function filter(?callable $func, $arg, ...$arguments) : bool
-    {
-        if (! $func) {
-            return empty($arg);
-        }
-
-        $result = (bool) call_user_func(
-            $this->bind($func, $arg, ...$arguments)
-        );
-
-        return $result;
-    }
-
-    /**
-     * выполняет функцию как шаг array_map
-     *
-     * @param null|callable $func
-     * @param               $arg
-     * @param array         $arguments
-     *
-     * @return mixed
-     */
-    public function map(?callable $func, $arg, ...$arguments) // : mixed
-    {
-        if (! $func) {
-            return $arg;
-        }
-
-        $result = call_user_func(
-            $this->bind($func, $arg, ...$arguments)
-        );
-
-        return $result;
-    }
-
-    /**
-     * выполняет функцию как шаг array_reduce
-     *
-     * @param null|callable $func
-     * @param               $arg
-     * @param null          $carry
-     * @param array         $arguments
-     *
-     * @return mixed
-     */
-    public function reduce(?callable $func, $arg, $carry = null, ...$arguments) // : mixed
-    {
-        if (! $func) {
-            return $carry;
-        }
-
-        $result = call_user_func(
-            $this->bind($func, $carry, $arg, ...$arguments)
-        );
-
-        return $result;
     }
 
 
@@ -1152,6 +1074,74 @@ class ZPhp implements IPhp
     public function apply(callable $func, array $arguments) // : mixed
     {
         return call_user_func($this->bind($func, ...$arguments));
+    }
+
+
+    /**
+     * выполняет функцию как шаг array_filter
+     *
+     * @param null|callable $func
+     * @param               $arg
+     * @param array         $arguments
+     *
+     * @return bool|array
+     */
+    public function callFilter(?callable $func, $arg, ...$arguments) : bool
+    {
+        if (! $func) {
+            return empty($arg);
+        }
+
+        $result = (bool) call_user_func(
+            $this->bind($func, $arg, ...$arguments)
+        );
+
+        return $result;
+    }
+
+    /**
+     * выполняет функцию как шаг array_map
+     *
+     * @param null|callable $func
+     * @param               $arg
+     * @param array         $arguments
+     *
+     * @return mixed
+     */
+    public function callMap(?callable $func, $arg, ...$arguments) // : mixed
+    {
+        if (! $func) {
+            return $arg;
+        }
+
+        $result = call_user_func(
+            $this->bind($func, $arg, ...$arguments)
+        );
+
+        return $result;
+    }
+
+    /**
+     * выполняет функцию как шаг array_reduce
+     *
+     * @param null|callable $func
+     * @param               $arg
+     * @param null          $carry
+     * @param array         $arguments
+     *
+     * @return mixed
+     */
+    public function callReduce(?callable $func, $arg, $carry = null, ...$arguments) // : mixed
+    {
+        if (! $func) {
+            return $carry;
+        }
+
+        $result = call_user_func(
+            $this->bind($func, $carry, $arg, ...$arguments)
+        );
+
+        return $result;
     }
 
 

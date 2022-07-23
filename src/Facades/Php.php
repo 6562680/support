@@ -62,6 +62,70 @@ class Php
     }
 
     /**
+     * @param mixed ...$items
+     *
+     * @return array
+     */
+    public static function listval(...$items): array
+    {
+        return static::getInstance()->listval(...$items);
+    }
+
+    /**
+     * @param mixed ...$lists
+     *
+     * @return array
+     */
+    public static function listvals(...$lists): array
+    {
+        return static::getInstance()->listvals(...$lists);
+    }
+
+    /**
+     * Превращает enum-список любой вложенности (значения могут быть в ключах или в полях) в список уникальных значений
+     *
+     * @param mixed ...$items
+     *
+     * @return array
+     */
+    public static function enumval(...$items): array
+    {
+        return static::getInstance()->enumval(...$items);
+    }
+
+    /**
+     * Превращает каждый аргумент с помощью enumval
+     *
+     * @param mixed ...$enums
+     *
+     * @return array
+     */
+    public static function enumvals(...$enums): array
+    {
+        return static::getInstance()->enumvals(...$enums);
+    }
+
+    /**
+     * @param mixed ...$values
+     *
+     * @return array
+     */
+    public static function queueVal(...$values): array
+    {
+        return static::getInstance()->queueVal(...$values);
+    }
+
+    /**
+     * @param mixed ...$values
+     *
+     * @return array
+     */
+    public static function stackVal(...$values): array
+    {
+        return static::getInstance()->stackVal(...$values);
+    }
+
+    /**
      * @param string|mixed $phpKeyword
      *
      * @return null|string
@@ -144,70 +208,6 @@ class Php
     public static function assertFactory(\Closure $func, $returnType): \Closure
     {
         return static::getInstance()->assertFactory($func, $returnType);
-    }
-
-    /**
-     * @param mixed ...$items
-     *
-     * @return array
-     */
-    public static function listval(...$items): array
-    {
-        return static::getInstance()->listval(...$items);
-    }
-
-    /**
-     * @param mixed ...$lists
-     *
-     * @return array
-     */
-    public static function listvals(...$lists): array
-    {
-        return static::getInstance()->listvals(...$lists);
-    }
-
-    /**
-     * Превращает enum-список любой вложенности (значения могут быть в ключах или в полях) в список уникальных значений
-     *
-     * @param mixed ...$items
-     *
-     * @return array
-     */
-    public static function enumval(...$items): array
-    {
-        return static::getInstance()->enumval(...$items);
-    }
-
-    /**
-     * Превращает каждый аргумент с помощью enumval
-     *
-     * @param mixed ...$enums
-     *
-     * @return array
-     */
-    public static function enumvals(...$enums): array
-    {
-        return static::getInstance()->enumvals(...$enums);
-    }
-
-    /**
-     * @param mixed ...$values
-     *
-     * @return array
-     */
-    public static function queueVal(...$values): array
-    {
-        return static::getInstance()->queueVal(...$values);
-    }
-
-    /**
-     * @param mixed ...$values
-     *
-     * @return array
-     */
-    public static function stackVal(...$values): array
-    {
-        return static::getInstance()->stackVal(...$values);
     }
 
     /**
@@ -413,56 +413,14 @@ class Php
     }
 
     /**
-     * @param int|float|int[]|float[] $sleeps
+     * @param int|float $min
+     * @param int|float ...$max
      *
      * @return ZPhp
      */
-    public static function sleep(...$sleeps)
+    public static function sleep($min, ...$max)
     {
-        return static::getInstance()->sleep(...$sleeps);
-    }
-
-    /**
-     * выполняет функцию как шаг array_filter
-     *
-     * @param null|callable $func
-     * @param               $arg
-     * @param array         $arguments
-     *
-     * @return bool|array
-     */
-    public static function filter(?callable $func, $arg, ...$arguments): bool
-    {
-        return static::getInstance()->filter($func, $arg, ...$arguments);
-    }
-
-    /**
-     * выполняет функцию как шаг array_map
-     *
-     * @param null|callable $func
-     * @param               $arg
-     * @param array         $arguments
-     *
-     * @return mixed
-     */
-    public static function map(?callable $func, $arg, ...$arguments)
-    {
-        return static::getInstance()->map($func, $arg, ...$arguments);
-    }
-
-    /**
-     * выполняет функцию как шаг array_reduce
-     *
-     * @param null|callable $func
-     * @param               $arg
-     * @param null          $carry
-     * @param array         $arguments
-     *
-     * @return mixed
-     */
-    public static function reduce(?callable $func, $arg, $carry = null, ...$arguments)
-    {
-        return static::getInstance()->reduce($func, $arg, $carry, ...$arguments);
+        return static::getInstance()->sleep($min, ...$max);
     }
 
     /**
@@ -508,6 +466,49 @@ class Php
     public static function apply(callable $func, array $arguments)
     {
         return static::getInstance()->apply($func, $arguments);
+    }
+
+    /**
+     * выполняет функцию как шаг array_filter
+     *
+     * @param null|callable $func
+     * @param               $arg
+     * @param array         $arguments
+     *
+     * @return bool|array
+     */
+    public static function callFilter(?callable $func, $arg, ...$arguments): bool
+    {
+        return static::getInstance()->callFilter($func, $arg, ...$arguments);
+    }
+
+    /**
+     * выполняет функцию как шаг array_map
+     *
+     * @param null|callable $func
+     * @param               $arg
+     * @param array         $arguments
+     *
+     * @return mixed
+     */
+    public static function callMap(?callable $func, $arg, ...$arguments)
+    {
+        return static::getInstance()->callMap($func, $arg, ...$arguments);
+    }
+
+    /**
+     * выполняет функцию как шаг array_reduce
+     *
+     * @param null|callable $func
+     * @param               $arg
+     * @param null          $carry
+     * @param array         $arguments
+     *
+     * @return mixed
+     */
+    public static function callReduce(?callable $func, $arg, $carry = null, ...$arguments)
+    {
+        return static::getInstance()->callReduce($func, $arg, $carry, ...$arguments);
     }
 
     /**

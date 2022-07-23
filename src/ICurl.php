@@ -13,23 +13,9 @@ namespace Gzhegow\Support;
 
 use Gzhegow\Support\Domain\Curl\Blueprint;
 use Gzhegow\Support\Domain\Curl\Manager;
-use Gzhegow\Support\Domain\Curl\Result;
-use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 interface ICurl
 {
-    /**
-     * @return ZCurl
-     */
-    public function reset();
-
-    /**
-     * @param null|Blueprint $blueprint
-     *
-     * @return ZCurl
-     */
-    public function clone(?Blueprint $blueprint);
-
     /**
      * @param null|Blueprint $blueprint
      *
@@ -43,6 +29,18 @@ interface ICurl
      * @return ZCurl
      */
     public function withBlueprint(Blueprint $blueprint);
+
+    /**
+     * @return ZCurl
+     */
+    public function reset();
+
+    /**
+     * @param null|Blueprint $blueprint
+     *
+     * @return ZCurl
+     */
+    public function clone(?Blueprint $blueprint);
 
     /**
      * @param array $curlOptArray
@@ -171,27 +169,9 @@ interface ICurl
     public function info($curl, $opt = null);
 
     /**
-     * @param int|string|array           $limits
-     * @param int|float|string|array     $sleeps
      * @param resource|\CurlHandle|array $curls
      *
-     * @return Result[]
-     */
-    public function execBatch($limits, $sleeps, $curls): array;
-
-    /**
-     * @param int|string|array           $limits
-     * @param int|float|string|array     $sleeps
-     * @param resource|\CurlHandle|array $curls
-     *
-     * @return \Generator|Result[]
-     */
-    public function execBatchwalk($limits, $sleeps, $curls): \Generator;
-
-    /**
-     * @param resource|\CurlHandle|array $curls
-     *
-     * @return Result[]
+     * @return string[]
      */
     public function execMulti($curls): array;
 
