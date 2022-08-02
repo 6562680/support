@@ -56,7 +56,7 @@ class CurlTest extends AbstractTestCase
         );
 
         $response = curl_exec($ch);
-        $responseCode = $curl->curlInfoOpt($ch, CURLINFO_HTTP_CODE);
+        $responseCode = $curl->curlinfoOpt($ch, CURLINFO_HTTP_CODE);
 
         curl_close($ch);
 
@@ -81,7 +81,7 @@ class CurlTest extends AbstractTestCase
         );
 
         $response = curl_exec($ch);
-        $responseCode = $curl->curlInfoOpt($ch, CURLINFO_HTTP_CODE);
+        $responseCode = $curl->curlinfoOpt($ch, CURLINFO_HTTP_CODE);
 
         curl_close($ch);
 
@@ -103,7 +103,7 @@ class CurlTest extends AbstractTestCase
         $responseJson = json_decode('{"id":1}', true);
 
         $response = curl_exec($ch);
-        $responseCode = $curl->curlInfoOpt($ch, CURLINFO_HTTP_CODE);
+        $responseCode = $curl->curlinfoOpt($ch, CURLINFO_HTTP_CODE);
 
         curl_close($ch);
 
@@ -125,7 +125,7 @@ class CurlTest extends AbstractTestCase
         $responseJson = json_decode('{"id":1,"title":"Post 1"}', true);
 
         $response = curl_exec($ch);
-        $responseCode = $curl->curlInfoOpt($ch, CURLINFO_HTTP_CODE);
+        $responseCode = $curl->curlinfoOpt($ch, CURLINFO_HTTP_CODE);
 
         curl_close($ch);
 
@@ -146,13 +146,14 @@ class CurlTest extends AbstractTestCase
         $responseJson = json_decode('{}', true);
 
         $response = curl_exec($ch);
-        $responseCode = $curl->curlInfoOpt($ch, CURLINFO_HTTP_CODE);
+        $responseCode = $curl->curlinfoOpt($ch, CURLINFO_HTTP_CODE);
 
         curl_close($ch);
 
         $this->assertEquals($responseJson, json_decode($response, true));
         $this->assertEquals(200, $responseCode);
     }
+
 
     public function testMulti()
     {
@@ -209,10 +210,8 @@ class CurlTest extends AbstractTestCase
         $results = [];
 
         $queue = $hh;
-        while ($slice = array_slice($queue, 0, 2, true)) {
-            foreach (array_keys($slice) as $idx) {
-                unset($queue[ $idx ]);
-            }
+        while ( $slice = array_slice($queue, 0, 2, true) ) {
+            $queue = array_diff_key($queue, $slice);
 
             $results += $curl->execMulti($slice);
 
@@ -238,32 +237,36 @@ class CurlTest extends AbstractTestCase
         $this->assertEquals([ 200, 200, 200 ], $responseCodes);
     }
 
+
     public function testGetWithQueryAndHeaders()
     {
         $this->assertTrue($this->isOnline(), 'Connection timeout');
 
         $curl = $this->getCurl();
 
-        $ch1 = $curl->get('https://my-json-server.typicode.com/typicode/demo/posts', [ 'array' ], [
-            'Accept' => 'application/json',
-        ]);
-        $ch2 = $curl->get('https://my-json-server.typicode.com/typicode/demo/posts', [ 'dict' => 'text' ], [
-            'Accept' => 'application/json',
-        ]);
+        $h1 = $curl->get(
+            'https://my-json-server.typicode.com/typicode/demo/posts',
+            [ 'array' ],
+            [ 'Accept' => 'application/json' ]
+        );
+        $h2 = $curl->get('https://my-json-server.typicode.com/typicode/demo/posts',
+            [ 'dict' => 'text' ],
+            [ 'Accept' => 'application/json' ]
+        );
 
         $responseJson = json_decode(
             '[{"id":1,"title":"Post 1"},{"id":2,"title":"Post 2"},{"id":3,"title":"Post 3"}]',
             true
         );
 
-        $response1 = curl_exec($ch1);
-        $response2 = curl_exec($ch2);
+        $response1 = curl_exec($h1);
+        $response2 = curl_exec($h2);
 
-        $responseCode1 = $curl->curlInfoOpt($ch1, CURLINFO_HTTP_CODE);
-        $responseCode2 = $curl->curlInfoOpt($ch2, CURLINFO_HTTP_CODE);
+        $responseCode1 = $curl->curlinfoOpt($h1, CURLINFO_HTTP_CODE);
+        $responseCode2 = $curl->curlinfoOpt($h2, CURLINFO_HTTP_CODE);
 
-        curl_close($ch1);
-        curl_close($ch2);
+        curl_close($h1);
+        curl_close($h2);
 
         $this->assertEquals($responseJson, json_decode($response1, true));
         $this->assertEquals($responseJson, json_decode($response2, true));
@@ -271,6 +274,38 @@ class CurlTest extends AbstractTestCase
         $this->assertEquals(200, $responseCode1);
         $this->assertEquals(200, $responseCode2);
     }
+
+    public function testGetWithBlueprint()
+    {
+        $this->assertTrue($this->isOnline(), 'Connection timeout');
+
+        $curl = $this->getCurl();
+
+        $cbp = $curl->getBlueprint();
+        $cbp->addCurloptArray([
+            CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36',
+        ]);
+
+        $h = $curl->get(
+            'https://my-json-server.typicode.com/typicode/demo/posts',
+            [ 'array' ],
+            [ 'Accept' => 'application/json' ]
+        );
+
+        $responseJson = json_decode(
+            '[{"id":1,"title":"Post 1"},{"id":2,"title":"Post 2"},{"id":3,"title":"Post 3"}]',
+            true
+        );
+
+        $response = curl_exec($h);
+        $responseCode = $curl->curlinfoOpt($h, CURLINFO_HTTP_CODE);
+        curl_close($h);
+
+        $this->assertEquals($responseJson, json_decode($response, true));
+
+        $this->assertEquals(200, $responseCode);
+    }
+
 
     /**
      * @var string

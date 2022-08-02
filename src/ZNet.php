@@ -60,51 +60,51 @@ class ZNet implements INet
 
     /**
      * @param string $ip
-     *
-     * @return bool
-     */
-    public function isIp(string $ip) : bool
-    {
-        if ('' === $ip) return false;
-
-        return filter_var($ip, FILTER_VALIDATE_IP);
-    }
-
-    /**
-     * @param string $mask
-     * @param null   $subnet_ip
-     * @param null   $cidr
-     *
-     * @return bool
-     */
-    public function isMask(string $mask, &$subnet_ip = null, &$cidr = null) : bool
-    {
-        if ('' === $mask) return false;
-
-        [ $subnet_ip, $cidr ] = explode('/', $mask) + [ null, 32 ];
-
-        $cidr = (int) $cidr;
-        if ($cidr < 0) return false;
-        if ($cidr > 32) return false;
-
-        return true;
-    }
-
-
-    /**
-     * @param string $ip
      * @param string $mask
      *
      * @return bool
      */
     public function isInSubnet(string $ip, string $mask) : bool
     {
-        if (! $this->isIp($ip)) return false;
-        if (! $this->isMask($mask, $subnet_ip, $cidr)) return true;
+        if (null === $this->filterIp($ip)) return false;
+        if (null === ( $maskArray = $this->filterMask($mask) )) return true;
+
+        [ $subnet_ip, $cidr ] = $maskArray;
 
         $bitmask = -1 << 32 - $cidr;
 
         return ( ip2long($ip) & $bitmask ) === ( ip2long($subnet_ip) & $bitmask );
+    }
+
+
+    /**
+     * @param string $ip
+     *
+     * @return null|string
+     */
+    public function filterIp(string $ip) : ?string
+    {
+        if ('' === $ip) return null;
+
+        return filter_var($ip, FILTER_VALIDATE_IP);
+    }
+
+    /**
+     * @param string $mask
+     *
+     * @return null|array
+     */
+    public function filterMask(string $mask) : ?array
+    {
+        if ('' === $mask) return null;
+
+        [ $subnet_ip, $cidr ] = explode('/', $mask) + [ null, 32 ];
+
+        $cidr = (int) $cidr;
+        if ($cidr < 0) return null;
+        if ($cidr > 32) return null;
+
+        return [ $subnet_ip, $cidr ];
     }
 
 

@@ -11,24 +11,25 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Domain\Curl\Blueprint;
-use Gzhegow\Support\Domain\Curl\Manager;
+use Gzhegow\Support\Domain\Curl\CurlBlueprint;
+use Gzhegow\Support\Domain\Curl\CurloptManager;
+use Gzhegow\Support\Domain\Curl\CurloptManagerInterface;
 
 interface ICurl
 {
     /**
-     * @param null|Blueprint $blueprint
+     * @param null|CurlBlueprint $blueprint
      *
      * @return ZCurl
      */
-    public function with(?Blueprint $blueprint);
+    public function with(?CurlBlueprint $blueprint);
 
     /**
-     * @param Blueprint $blueprint
+     * @param CurlBlueprint $blueprint
      *
      * @return ZCurl
      */
-    public function withBlueprint(Blueprint $blueprint);
+    public function withBlueprint(CurlBlueprint $blueprint);
 
     /**
      * @return ZCurl
@@ -36,30 +37,25 @@ interface ICurl
     public function reset();
 
     /**
-     * @param null|Blueprint $blueprint
+     * @param null|CurlBlueprint $blueprint
      *
      * @return ZCurl
      */
-    public function clone(?Blueprint $blueprint);
+    public function clone(?CurlBlueprint $blueprint);
 
     /**
-     * @param array $curlOptArray
+     * @param null|array $curloptArray
      *
-     * @return Blueprint
+     * @return CurlBlueprint
      */
-    public function newBlueprint(array $curlOptArray = []): Blueprint;
+    public function newBlueprint(array $curloptArray = null): CurlBlueprint;
 
     /**
-     * @param array $curlOptArray
+     * @param null|array $curloptArray
      *
-     * @return Blueprint
+     * @return CurlBlueprint
      */
-    public function cloneBlueprint(array $curlOptArray = []): Blueprint;
-
-    /**
-     * @return Blueprint
-     */
-    public function getBlueprint(): Blueprint;
+    public function cloneBlueprint(array $curloptArray = null): CurlBlueprint;
 
     /**
      * @param string     $url
@@ -69,6 +65,30 @@ interface ICurl
      * @return resource
      */
     public function get(string $url, $data = null, array $headers = null);
+
+    /**
+     * @return CurlBlueprint
+     */
+    public function getBlueprint(): CurlBlueprint;
+
+    /**
+     * @param null|bool $verbose
+     *
+     * @return array
+     */
+    public function getCurloptArray(bool $verbose = null): array;
+
+    /**
+     * @return array
+     */
+    public function getCurloptArrayDefault(): array;
+
+    /**
+     * @param null|CurloptManagerInterface $curloptManager
+     *
+     * @return CurloptManagerInterface
+     */
+    public function curloptManager(CurloptManagerInterface $curloptManager = null): CurloptManagerInterface;
 
     /**
      * @param string     $url
@@ -141,32 +161,19 @@ interface ICurl
     public function request(string $method, string $url, $data = null, array $headers = null);
 
     /**
-     * @return Manager
-     */
-    public function formatter(): Manager;
-
-    /**
      * @param resource $ch
      *
      * @return null|array
      */
-    public function curlInfo($ch): ?array;
+    public function curlinfo($ch): ?array;
 
     /**
      * @param resource   $ch
-     * @param int|string $opt
+     * @param int|string $curlopt
      *
      * @return null|mixed|array
      */
-    public function curlInfoOpt($ch, $opt);
-
-    /**
-     * @param resource   $curl
-     * @param int|string $opt
-     *
-     * @return null|string|string[]
-     */
-    public function info($curl, $opt = null);
+    public function curlinfoOpt($ch, $curlopt);
 
     /**
      * @param resource|\CurlHandle|array $curls
@@ -182,7 +189,7 @@ interface ICurl
      *
      * @return resource[]|\CurlHandle[]
      */
-    public function curls($curls, bool $uniq = null, bool $recursive = null): array;
+    public function aCurls($curls, bool $uniq = null, bool $recursive = null): array;
 
     /**
      * @param resource|\CurlHandle|array $curls

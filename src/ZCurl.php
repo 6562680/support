@@ -6,8 +6,9 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Domain\Curl\Manager;
-use Gzhegow\Support\Domain\Curl\Blueprint;
+use Gzhegow\Support\Domain\Curl\CurlBlueprint;
+use Gzhegow\Support\Domain\Curl\CurloptManager;
+use Gzhegow\Support\Domain\Curl\CurloptManagerInterface;
 
 
 /**
@@ -32,16 +33,15 @@ class ZCurl implements ICurl
      */
     protected $php;
 
-
     /**
-     * @var Manager
-     */
-    protected $formatter;
-
-    /**
-     * @var Blueprint
+     * @var CurlBlueprint
      */
     protected $blueprint;
+
+    /**
+     * @var CurloptManagerInterface
+     */
+    protected $curloptManager;
 
 
     /**
@@ -67,12 +67,13 @@ class ZCurl implements ICurl
         $this->reset();
     }
 
+
     /**
-     * @param null|Blueprint $blueprint
+     * @param null|CurlBlueprint $blueprint
      *
      * @return static
      */
-    public function with(?Blueprint $blueprint)
+    public function with(?CurlBlueprint $blueprint)
     {
         $this->reset();
 
@@ -82,41 +83,39 @@ class ZCurl implements ICurl
     }
 
     /**
-     * @param Blueprint $blueprint
+     * @param CurlBlueprint $blueprint
      *
      * @return static
      */
-    public function withBlueprint(Blueprint $blueprint)
+    public function withBlueprint(CurlBlueprint $blueprint)
     {
         $this->blueprint = $blueprint;
 
         return $this;
     }
 
+
     /**
      * @return static
      */
     public function reset()
     {
-        $this->formatter = $this->formatter();
-        $this->blueprint = $this->newBlueprint([
-            CURLOPT_HEADER         => 0,
-            CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_FOLLOWLOCATION => 1,
-            CURLOPT_SSL_VERIFYHOST => 0,
-            CURLOPT_SSL_VERIFYPEER => 0,
-            CURLOPT_TIMEOUT        => 5,
-        ]);
+        $this->curloptManager = $this->curloptManager();
+
+        $this->blueprint = $this->newBlueprint(
+            $this->getCurloptArrayDefault()
+        );
 
         return $this;
     }
 
+
     /**
-     * @param null|Blueprint $blueprint
+     * @param null|CurlBlueprint $blueprint
      *
      * @return static
      */
-    public function clone(?Blueprint $blueprint)
+    public function clone(?CurlBlueprint $blueprint)
     {
         $instance = clone $this;
 
@@ -125,45 +124,41 @@ class ZCurl implements ICurl
         return $instance;
     }
 
+
     /**
-     * @param array $curlOptArray
+     * @param null|array $curloptArray
      *
-     * @return Blueprint
+     * @return CurlBlueprint
      */
-    public function newBlueprint(array $curlOptArray = []) : Blueprint
+    public function newBlueprint(array $curloptArray = null) : CurlBlueprint
     {
-        return new Blueprint(
+        $curloptArray = $curloptArray ?? [];
+
+        return new CurlBlueprint(
             $this->arr,
             $this->filter,
             $this->net,
 
-            $this->formatter,
+            $this->curloptManager,
 
-            $curlOptArray
+            $curloptArray
         );
     }
 
     /**
-     * @param array $curlOptArray
+     * @param null|array $curloptArray
      *
-     * @return Blueprint
+     * @return CurlBlueprint
      */
-    public function cloneBlueprint(array $curlOptArray = []) : Blueprint
+    public function cloneBlueprint(array $curloptArray = null) : CurlBlueprint
     {
+        $curloptArray = $curloptArray ?? [];
+
         $clone = clone $this->blueprint;
 
-        $clone->setOptArray($curlOptArray);
+        $clone->setCurloptArray($curloptArray);
 
         return $clone;
-    }
-
-
-    /**
-     * @return Blueprint
-     */
-    public function getBlueprint() : Blueprint
-    {
-        return $this->blueprint;
     }
 
 
@@ -179,6 +174,60 @@ class ZCurl implements ICurl
         return $this->blueprint->get($url, $data, $headers);
     }
 
+
+    /**
+     * @return CurlBlueprint
+     */
+    public function getBlueprint() : CurlBlueprint
+    {
+        return $this->blueprint;
+    }
+
+
+    /**
+     * @param null|bool $verbose
+     *
+     * @return array
+     */
+    public function getCurloptArray(bool $verbose = null) : array
+    {
+        return $this->blueprint->getCurloptArray($verbose);
+    }
+
+    /**
+     * @return array
+     */
+    public function getCurloptArrayDefault() : array
+    {
+        return [
+            CURLOPT_HEADER         => 0,
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_FOLLOWLOCATION => 1,
+            CURLOPT_SSL_VERIFYHOST => 0,
+            CURLOPT_SSL_VERIFYPEER => 0,
+            CURLOPT_TIMEOUT        => 5,
+        ];
+    }
+
+
+    /**
+     * @param null|CurloptManagerInterface $curloptManager
+     *
+     * @return CurloptManagerInterface
+     */
+    public function curloptManager(CurloptManagerInterface $curloptManager = null) : CurloptManagerInterface
+    {
+        $this->curloptManager = $curloptManager ?? $this->curloptManager;
+
+        if (! isset($this->curloptManager)) {
+            $this->curloptManager = new CurloptManager(
+                $this->filter,
+                $this->php,
+            );
+        }
+
+        return $this->curloptManager;
+    }
 
 
     /**
@@ -202,7 +251,6 @@ class ZCurl implements ICurl
     {
         return $this->blueprint->options($url, $headers);
     }
-
 
     /**
      * @param string     $url
@@ -263,7 +311,6 @@ class ZCurl implements ICurl
         return $this->blueprint->purge($url, $data, $headers);
     }
 
-
     /**
      * @param string     $method
      * @param string     $url
@@ -279,27 +326,11 @@ class ZCurl implements ICurl
 
 
     /**
-     * @return Manager
-     */
-    public function formatter() : Manager
-    {
-        if (! isset($this->formatter)) {
-            $this->formatter = new Manager(
-                $this->filter,
-                $this->php,
-            );
-        }
-
-        return $this->formatter;
-    }
-
-
-    /**
      * @param resource $ch
      *
      * @return null|array
      */
-    public function curlInfo($ch) : ?array
+    public function curlinfo($ch) : ?array
     {
         if (null === $this->filter->filterCurl($ch)) {
             return null;
@@ -312,37 +343,24 @@ class ZCurl implements ICurl
 
     /**
      * @param resource   $ch
-     * @param int|string $opt
+     * @param int|string $curlopt
      *
      * @return null|mixed|array
      */
-    public function curlInfoOpt($ch, $opt)
+    public function curlinfoOpt($ch, $curlopt)
     {
         if (null === $this->filter->filterCurl($ch)) {
             return null;
         }
 
-        $result = ( null !== ( $infoCode = $this->formatter->curlInfoCodeVal($opt) ) )
-            ? curl_getinfo($ch, $infoCode)
-            : curl_getinfo($ch)[ $infoCode ];
+        $curlinfoCode = $this->curloptManager->curlinfoCodeVal($curlopt);
+        $curlinfoKey = $curlopt;
+
+        $result = null
+            ?? ( ( null !== $curlinfoCode ) ? curl_getinfo($ch, $curlinfoCode) : null )
+            ?? curl_getinfo($ch)[ $curlinfoKey ];
 
         return $result ?: null;
-    }
-
-
-    /**
-     * @param resource   $curl
-     * @param int|string $opt
-     *
-     * @return null|string|string[]
-     */
-    public function info($curl, $opt = null)
-    {
-        $result = $opt
-            ? $this->curlInfoOpt($curl, $opt)
-            : $this->curlInfo($curl);
-
-        return $result;
     }
 
 
@@ -389,7 +407,7 @@ class ZCurl implements ICurl
      *
      * @return resource[]|\CurlHandle[]
      */
-    public function curls($curls, bool $uniq = null, bool $recursive = null) : array
+    public function aCurls($curls, bool $uniq = null, bool $recursive = null) : array
     {
         $result = [];
 
@@ -473,6 +491,7 @@ class ZCurl implements ICurl
     }
 
 
+
     /**
      * @return ICurl
      */
@@ -480,4 +499,7 @@ class ZCurl implements ICurl
     {
         return SupportFactory::getInstance()->getCurl();
     }
+
+
+
 }

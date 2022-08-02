@@ -17,27 +17,25 @@ interface INet
 {
     /**
      * @param string $ip
-     *
-     * @return bool
-     */
-    public function isIp(string $ip): bool;
-
-    /**
-     * @param string $mask
-     * @param null   $subnet_ip
-     * @param null   $cidr
-     *
-     * @return bool
-     */
-    public function isMask(string $mask, &$subnet_ip = null, &$cidr = null): bool;
-
-    /**
-     * @param string $ip
      * @param string $mask
      *
      * @return bool
      */
     public function isInSubnet(string $ip, string $mask): bool;
+
+    /**
+     * @param string $ip
+     *
+     * @return null|string
+     */
+    public function filterIp(string $ip): ?string;
+
+    /**
+     * @param string $mask
+     *
+     * @return null|array
+     */
+    public function filterMask(string $mask): ?array;
 
     /**
      * @param string $httpMethod

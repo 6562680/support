@@ -11,8 +11,9 @@
 
 namespace Gzhegow\Support\Facades;
 
-use Gzhegow\Support\Domain\Curl\Blueprint;
-use Gzhegow\Support\Domain\Curl\Manager;
+use Gzhegow\Support\Domain\Curl\CurlBlueprint;
+use Gzhegow\Support\Domain\Curl\CurloptManager;
+use Gzhegow\Support\Domain\Curl\CurloptManagerInterface;
 use Gzhegow\Support\ICurl;
 use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\ZCurl;
@@ -20,21 +21,21 @@ use Gzhegow\Support\ZCurl;
 class Curl
 {
     /**
-     * @param null|Blueprint $blueprint
+     * @param null|CurlBlueprint $blueprint
      *
      * @return ZCurl
      */
-    public static function with(?Blueprint $blueprint)
+    public static function with(?CurlBlueprint $blueprint)
     {
         return static::getInstance()->with($blueprint);
     }
 
     /**
-     * @param Blueprint $blueprint
+     * @param CurlBlueprint $blueprint
      *
      * @return ZCurl
      */
-    public static function withBlueprint(Blueprint $blueprint)
+    public static function withBlueprint(CurlBlueprint $blueprint)
     {
         return static::getInstance()->withBlueprint($blueprint);
     }
@@ -48,41 +49,33 @@ class Curl
     }
 
     /**
-     * @param null|Blueprint $blueprint
+     * @param null|CurlBlueprint $blueprint
      *
      * @return ZCurl
      */
-    public static function clone(?Blueprint $blueprint)
+    public static function clone(?CurlBlueprint $blueprint)
     {
         return static::getInstance()->clone($blueprint);
     }
 
     /**
-     * @param array $curlOptArray
+     * @param null|array $curloptArray
      *
-     * @return Blueprint
+     * @return CurlBlueprint
      */
-    public static function newBlueprint(array $curlOptArray = []): Blueprint
+    public static function newBlueprint(array $curloptArray = null): CurlBlueprint
     {
-        return static::getInstance()->newBlueprint($curlOptArray);
+        return static::getInstance()->newBlueprint($curloptArray);
     }
 
     /**
-     * @param array $curlOptArray
+     * @param null|array $curloptArray
      *
-     * @return Blueprint
+     * @return CurlBlueprint
      */
-    public static function cloneBlueprint(array $curlOptArray = []): Blueprint
+    public static function cloneBlueprint(array $curloptArray = null): CurlBlueprint
     {
-        return static::getInstance()->cloneBlueprint($curlOptArray);
-    }
-
-    /**
-     * @return Blueprint
-     */
-    public static function getBlueprint(): Blueprint
-    {
-        return static::getInstance()->getBlueprint();
+        return static::getInstance()->cloneBlueprint($curloptArray);
     }
 
     /**
@@ -95,6 +88,42 @@ class Curl
     public static function get(string $url, $data = null, array $headers = null)
     {
         return static::getInstance()->get($url, $data, $headers);
+    }
+
+    /**
+     * @return CurlBlueprint
+     */
+    public static function getBlueprint(): CurlBlueprint
+    {
+        return static::getInstance()->getBlueprint();
+    }
+
+    /**
+     * @param null|bool $verbose
+     *
+     * @return array
+     */
+    public static function getCurloptArray(bool $verbose = null): array
+    {
+        return static::getInstance()->getCurloptArray($verbose);
+    }
+
+    /**
+     * @return array
+     */
+    public static function getCurloptArrayDefault(): array
+    {
+        return static::getInstance()->getCurloptArrayDefault();
+    }
+
+    /**
+     * @param null|CurloptManagerInterface $curloptManager
+     *
+     * @return CurloptManagerInterface
+     */
+    public static function curloptManager(CurloptManagerInterface $curloptManager = null): CurloptManagerInterface
+    {
+        return static::getInstance()->curloptManager($curloptManager);
     }
 
     /**
@@ -192,43 +221,24 @@ class Curl
     }
 
     /**
-     * @return Manager
-     */
-    public static function formatter(): Manager
-    {
-        return static::getInstance()->formatter();
-    }
-
-    /**
      * @param resource $ch
      *
      * @return null|array
      */
-    public static function curlInfo($ch): ?array
+    public static function curlinfo($ch): ?array
     {
-        return static::getInstance()->curlInfo($ch);
+        return static::getInstance()->curlinfo($ch);
     }
 
     /**
      * @param resource   $ch
-     * @param int|string $opt
+     * @param int|string $curlopt
      *
      * @return null|mixed|array
      */
-    public static function curlInfoOpt($ch, $opt)
+    public static function curlinfoOpt($ch, $curlopt)
     {
-        return static::getInstance()->curlInfoOpt($ch, $opt);
-    }
-
-    /**
-     * @param resource   $curl
-     * @param int|string $opt
-     *
-     * @return null|string|string[]
-     */
-    public static function info($curl, $opt = null)
-    {
-        return static::getInstance()->info($curl, $opt);
+        return static::getInstance()->curlinfoOpt($ch, $curlopt);
     }
 
     /**
@@ -248,9 +258,9 @@ class Curl
      *
      * @return resource[]|\CurlHandle[]
      */
-    public static function curls($curls, bool $uniq = null, bool $recursive = null): array
+    public static function aCurls($curls, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->curls($curls, $uniq, $recursive);
+        return static::getInstance()->aCurls($curls, $uniq, $recursive);
     }
 
     /**

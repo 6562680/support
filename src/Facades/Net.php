@@ -20,28 +20,6 @@ class Net
 {
     /**
      * @param string $ip
-     *
-     * @return bool
-     */
-    public static function isIp(string $ip): bool
-    {
-        return static::getInstance()->isIp($ip);
-    }
-
-    /**
-     * @param string $mask
-     * @param null   $subnet_ip
-     * @param null   $cidr
-     *
-     * @return bool
-     */
-    public static function isMask(string $mask, &$subnet_ip = null, &$cidr = null): bool
-    {
-        return static::getInstance()->isMask($mask, $subnet_ip, $cidr);
-    }
-
-    /**
-     * @param string $ip
      * @param string $mask
      *
      * @return bool
@@ -49,6 +27,26 @@ class Net
     public static function isInSubnet(string $ip, string $mask): bool
     {
         return static::getInstance()->isInSubnet($ip, $mask);
+    }
+
+    /**
+     * @param string $ip
+     *
+     * @return null|string
+     */
+    public static function filterIp(string $ip): ?string
+    {
+        return static::getInstance()->filterIp($ip);
+    }
+
+    /**
+     * @param string $mask
+     *
+     * @return null|array
+     */
+    public static function filterMask(string $mask): ?array
+    {
+        return static::getInstance()->filterMask($mask);
     }
 
     /**

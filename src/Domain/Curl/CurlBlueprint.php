@@ -10,9 +10,9 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
- * Blueprint
+ * CurlBlueprint
  */
-class Blueprint
+class CurlBlueprint
 {
     /**
      * @var IArr
@@ -27,107 +27,62 @@ class Blueprint
      */
     protected $net;
 
-
     /**
-     * @var Manager
+     * @var CurloptManager
      */
-    protected $formatter;
-
+    protected $curloptManager;
 
     /**
      * @var array
      */
-    protected $curlOptArrayInit = [];
+    protected $curloptArrayInit = [];
     /**
      * @var array
      */
-    protected $curlOptArray;
+    protected $curloptArray;
 
 
 
     /**
      * Constructor
      *
-     * @param IArr             $arr
-     * @param IFilter          $filter
-     * @param INet             $net
+     * @param IArr           $arr
+     * @param IFilter        $filter
+     * @param INet           $net
      *
-     * @param ManagerInterface $formatter
+     * @param CurloptManager $curloptManager
      *
-     * @param array            $curlOptArray
+     * @param null|array     $curloptArrayInit
      */
     public function __construct(
         IArr $arr,
         IFilter $filter,
         INet $net,
 
-        ManagerInterface $formatter,
+        CurloptManager $curloptManager,
 
-        array $curlOptArray = []
+        array $curloptArrayInit = null
     )
     {
+        $curloptArrayInit = $curloptArrayInit ?? [];
+
         $this->arr = $arr;
         $this->filter = $filter;
         $this->net = $net;
 
-        $this->formatter = $formatter;
+        $this->curloptManager = $curloptManager;
 
-        $this->curlOptArrayInit = $curlOptArray;
-        $this->curlOptArray = $this->curlOptArrayInit;
+        $this->curloptArrayInit = $curloptArrayInit;
+        $this->curloptArray = $this->curloptArrayInit;
     }
 
 
     /**
      * @return static
      */
-    public function resetOptArray()
+    public function resetCurloptArray()
     {
-        $this->curlOptArray = $this->curlOptArrayInit;
-
-        return $this;
-    }
-
-
-    /**
-     * @param bool $verbose
-     *
-     * @return array
-     */
-    public function getOptArray(bool $verbose = false) : array
-    {
-        return $verbose
-            ? $this->formatter->formatOptions($this->curlOptArray)
-            : $this->curlOptArray;
-    }
-
-
-    /**
-     * @param string $opt
-     * @param mixed  $value
-     *
-     * @return static
-     */
-    public function setOpt(string $opt, $value)
-    {
-        if (null === ( $optCode = $this->formatter->curlOptCodeVal($opt) )) {
-            throw new InvalidArgumentException('Invalid CURL option: ' . $opt);
-        }
-
-        $this->curlOptArray[ $optCode ] = $value;
-
-        return $this;
-    }
-
-    /**
-     * @param array $opts
-     *
-     * @return static
-     */
-    public function setOptArray(array $opts)
-    {
-        foreach ( $opts as $opt => $val ) {
-            $this->setOpt($opt, $val);
-        }
+        $this->curloptArray = $this->curloptArrayInit;
 
         return $this;
     }
@@ -147,11 +102,62 @@ class Blueprint
 
 
     /**
+     * @param bool $verbose
+     *
+     * @return array
+     */
+    public function getCurloptArray(bool $verbose = null) : array
+    {
+        $verbose = $verbose ?? false;
+
+        return $verbose
+            ? $this->curloptManager->formatCurloptArray($this->curloptArray)
+            : $this->curloptArray;
+    }
+
+
+    /**
+     * @param int|string $curlopt
+     * @param mixed      $value
+     *
      * @return static
      */
-    public function clearOptArray()
+    public function setCurlopt($curlopt, $value)
     {
-        $this->curlOptArray = [];
+        if (null === ( $optCode = $this->curloptManager->curloptCodeVal($curlopt) )) {
+            throw new InvalidArgumentException('Invalid CURL option: ' . $curlopt);
+        }
+
+        $this->curloptArray[ $optCode ] = $value;
+
+        return $this;
+    }
+
+
+    /**
+     * @param array $curloptArray
+     *
+     * @return static
+     */
+    public function setCurloptArray(array $curloptArray)
+    {
+        $this->curloptArray = [];
+
+        $this->addCurloptArray($curloptArray);
+
+        return $this;
+    }
+
+    /**
+     * @param array $curloptArray
+     *
+     * @return static
+     */
+    public function addCurloptArray(array $curloptArray)
+    {
+        foreach ( $curloptArray as $curlopt => $val ) {
+            $this->setCurlopt($curlopt, $val);
+        }
 
         return $this;
     }
@@ -267,12 +273,12 @@ class Blueprint
             || $isMethodHead
             || $isMethodGet;
 
-        $curlOptArray = [];
-        $curlOptArray[ CURLOPT_CUSTOMREQUEST ] = $httpMethod;
+        $curloptArray = [];
+        $curloptArray[ CURLOPT_CUSTOMREQUEST ] = $httpMethod;
 
         if ($isMethodHead || $isMethodOptions) {
-            $curlOptArray[ CURLOPT_HEADER ] = 1;
-            $curlOptArray[ CURLOPT_NOBODY ] = 1;
+            $curloptArray[ CURLOPT_HEADER ] = 1;
+            $curloptArray[ CURLOPT_NOBODY ] = 1;
         }
 
         $fields = [];
@@ -344,21 +350,21 @@ class Blueprint
                     : $body
                 );
 
-            $curlOptArray[ CURLOPT_POSTFIELDS ] = $requestBody;
+            $curloptArray[ CURLOPT_POSTFIELDS ] = $requestBody;
         }
 
         if ($headers) {
-            $curlOptArray[ CURLOPT_HTTPHEADER ] = $headers;
+            $curloptArray[ CURLOPT_HTTPHEADER ] = $headers;
         }
 
-        $curlOptArray = $this->formatter->mergeOptions(
-            $this->getOptArray(),
-            $curlOptArray
+        $curloptArray = $this->curloptManager->mergeCurloptArrays(
+            $this->getCurloptArray(),
+            $curloptArray
         );
 
         $ch = curl_init($url);
 
-        curl_setopt_array($ch, $curlOptArray);
+        curl_setopt_array($ch, $curloptArray);
 
         return $ch;
     }

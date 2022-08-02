@@ -1,7 +1,6 @@
 <?php
 
-namespace Gzhegow\Support\Domain\Math;
-
+namespace Gzhegow\Support\Domain\Math\ValueObject;
 
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 

@@ -17,13 +17,10 @@ class RegExp
      * @var IPreg
      */
     protected $preg;
-
-
     /**
      * @var IStr
      */
     protected $str;
-
 
     /**
      * @var string[]
@@ -81,15 +78,6 @@ class RegExp
 
 
     /**
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->compile();
-    }
-
-
-    /**
      * @param string|string[] ...$parts
      *
      * @return static
@@ -99,6 +87,14 @@ class RegExp
         $this->concat(...$parts);
 
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->compile();
     }
 
 
@@ -119,6 +115,23 @@ class RegExp
         ];
 
         return $delimiters;
+    }
+
+
+    /**
+     * @param mixed ...$regex
+     *
+     * @return static
+     */
+    protected function add(...$regex)
+    {
+        array_walk_recursive($regex, function (string $r) {
+            $this->preg->isValid($r)
+                ? ( $this->addRegex($r) )
+                : ( $this->regex[] = $r );
+        });
+
+        return $this;
     }
 
 
@@ -172,7 +185,7 @@ class RegExp
 
 
     /**
-     * @param string ...$regex
+     * @param mixed ...$regex
      *
      * @return static
      */
@@ -212,23 +225,6 @@ class RegExp
 
         return $this;
     }
-
-    /**
-     * @param mixed ...$regex
-     *
-     * @return static
-     */
-    protected function add(...$regex)
-    {
-        array_walk_recursive($regex, function (string $r) {
-            $this->preg->isValid($r)
-                ? ( $this->addRegex($r) )
-                : ( $this->regex[] = $r );
-        });
-
-        return $this;
-    }
-
 
     /**
      * @param string|string[] ...$parts
