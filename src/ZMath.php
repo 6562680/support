@@ -142,7 +142,7 @@ class ZMath implements IMath
     /**
      * @param string $value
      *
-     * @return \Gzhegow\Support\Domain\Math\ValueObject\Bcval
+     * @return Bcval
      */
     public function newBcval(string $value) : Bcval
     {
@@ -170,9 +170,9 @@ class ZMath implements IMath
 
 
     /**
-     * @param int|float|string|\Gzhegow\Support\Domain\Math\ValueObject\Bcval|mixed $value
+     * @param int|float|string|Bcval|mixed $value
      *
-     * @return null|\Gzhegow\Support\Domain\Math\ValueObject\Bcval
+     * @return null|Bcval
      */
     public function bcPositiveVal($value) : ?Bcval
     {
@@ -189,9 +189,9 @@ class ZMath implements IMath
     }
 
     /**
-     * @param int|float|string|\Gzhegow\Support\Domain\Math\ValueObject\Bcval|mixed $value
+     * @param int|float|string|Bcval|mixed $value
      *
-     * @return null|\Gzhegow\Support\Domain\Math\ValueObject\Bcval
+     * @return null|Bcval
      */
     public function bcNonNegativeVal($value) : ?Bcval
     {
@@ -208,9 +208,9 @@ class ZMath implements IMath
     }
 
     /**
-     * @param int|float|string|\Gzhegow\Support\Domain\Math\ValueObject\Bcval|mixed $value
+     * @param int|float|string|Bcval|mixed $value
      *
-     * @return null|\Gzhegow\Support\Domain\Math\ValueObject\Bcval
+     * @return null|Bcval
      */
     public function bcNegativeVal($value) : ?Bcval
     {
@@ -227,7 +227,7 @@ class ZMath implements IMath
     }
 
     /**
-     * @param int|float|string|\Gzhegow\Support\Domain\Math\ValueObject\Bcval|mixed $value
+     * @param int|float|string|Bcval|mixed $value
      *
      * @return null|Bcval
      */
@@ -249,7 +249,7 @@ class ZMath implements IMath
     /**
      * @param int|float|string|Bcval|mixed $value
      *
-     * @return \Gzhegow\Support\Domain\Math\ValueObject\Bcval
+     * @return Bcval
      */
     public function theBcPositiveVal($value) : Bcval
     {
@@ -265,7 +265,7 @@ class ZMath implements IMath
     /**
      * @param int|float|string|Bcval|mixed $value
      *
-     * @return \Gzhegow\Support\Domain\Math\ValueObject\Bcval
+     * @return Bcval
      */
     public function theBcNonNegativeVal($value) : Bcval
     {
@@ -279,9 +279,9 @@ class ZMath implements IMath
     }
 
     /**
-     * @param int|float|string|\Gzhegow\Support\Domain\Math\ValueObject\Bcval|mixed $value
+     * @param int|float|string|Bcval|mixed $value
      *
-     * @return \Gzhegow\Support\Domain\Math\ValueObject\Bcval
+     * @return Bcval
      */
     public function theBcNegativeVal($value) : Bcval
     {
@@ -295,9 +295,9 @@ class ZMath implements IMath
     }
 
     /**
-     * @param int|float|string|\Gzhegow\Support\Domain\Math\ValueObject\Bcval|mixed $value
+     * @param int|float|string|Bcval|mixed $value
      *
-     * @return \Gzhegow\Support\Domain\Math\ValueObject\Bcval
+     * @return Bcval
      */
     public function theBcNonPositiveVal($value) : Bcval
     {
@@ -331,8 +331,8 @@ class ZMath implements IMath
     }
 
     /**
-     * @param int|mixed                                                             $scale
-     * @param int|float|string|\Gzhegow\Support\Domain\Math\ValueObject\Bcval|mixed ...$numbers
+     * @param int|mixed                    $scale
+     * @param int|float|string|Bcval|mixed ...$numbers
      *
      * @return int
      */
@@ -349,7 +349,7 @@ class ZMath implements IMath
 
 
     /**
-     * @param int|float|string|\Gzhegow\Support\Domain\Math\ValueObject\Bcval|mixed $number
+     * @param int|float|string|Bcval|mixed $number
      *
      * @return null|Bcval
      */
@@ -401,7 +401,7 @@ class ZMath implements IMath
     /**
      * @param int|float|string|Bcval|mixed $value
      *
-     * @return \Gzhegow\Support\Domain\Math\ValueObject\Bcval
+     * @return Bcval
      */
     public function theBcval($value) : Bcval
     {
@@ -493,10 +493,10 @@ class ZMath implements IMath
 
 
     /**
-     * @param int|float|string|\Gzhegow\Support\Domain\Math\ValueObject\Bcval|mixed $number
-     * @param null|int                                                              $decimals
-     * @param null|string                                                           $decimalSeparator
-     * @param null|string                                                           $thousandSeparator
+     * @param int|float|string|Bcval|mixed $number
+     * @param null|int                     $decimals
+     * @param null|string                  $decimalSeparator
+     * @param null|string                  $thousandSeparator
      *
      * @return string
      */
@@ -562,7 +562,7 @@ class ZMath implements IMath
     /**
      * Возвращает дробную часть числа
      *
-     * @param int|float|string|\Gzhegow\Support\Domain\Math\ValueObject\Bcval|mixed $number
+     * @param int|float|string|Bcval|mixed $number
      *
      * @return string
      */
@@ -582,8 +582,8 @@ class ZMath implements IMath
     /**
      * Определяет максимальное число знаков после запятой из переданных чисел
      *
-     * @param int|float|string|\Gzhegow\Support\Domain\Math\ValueObject\Bcval|array $numbers
-     * @param null|int                                                              $scaleMax
+     * @param int|float|string|Bcval|array $numbers
+     * @param null|int                     $scaleMax
      *
      * @return int
      */
@@ -1069,9 +1069,9 @@ class ZMath implements IMath
 
 
     /**
-     * @param int|float|string|\Gzhegow\Support\Domain\Math\ValueObject\Bcval|mixed $a
-     * @param int|float|string|\Gzhegow\Support\Domain\Math\ValueObject\Bcval|mixed $b
-     * @param null|int                                                              $scale
+     * @param int|float|string|Bcval|mixed $a
+     * @param int|float|string|Bcval|mixed $b
+     * @param null|int                     $scale
      *
      * @return int
      */
@@ -1086,9 +1086,9 @@ class ZMath implements IMath
 
 
     /**
-     * @param int|float|string|Bcval|mixed                                          $a
-     * @param int|float|string|\Gzhegow\Support\Domain\Math\ValueObject\Bcval|mixed $b
-     * @param null|int                                                              $scale
+     * @param int|float|string|Bcval|mixed $a
+     * @param int|float|string|Bcval|mixed $b
+     * @param null|int                     $scale
      *
      * @return Bcval
      */
@@ -1104,9 +1104,9 @@ class ZMath implements IMath
     }
 
     /**
-     * @param int|float|string|\Gzhegow\Support\Domain\Math\ValueObject\Bcval|mixed $a
-     * @param int|float|string|\Gzhegow\Support\Domain\Math\ValueObject\Bcval|mixed $b
-     * @param null|int                                                              $scale
+     * @param int|float|string|Bcval|mixed $a
+     * @param int|float|string|Bcval|mixed $b
+     * @param null|int                     $scale
      *
      * @return Bcval
      */
@@ -1122,11 +1122,11 @@ class ZMath implements IMath
     }
 
     /**
-     * @param int|float|string|Bcval|mixed                                          $a
-     * @param int|float|string|\Gzhegow\Support\Domain\Math\ValueObject\Bcval|mixed $b
-     * @param null|int                                                              $scale
+     * @param int|float|string|Bcval|mixed $a
+     * @param int|float|string|Bcval|mixed $b
+     * @param null|int                     $scale
      *
-     * @return \Gzhegow\Support\Domain\Math\ValueObject\Bcval
+     * @return Bcval
      */
     public function bcmul($a, $b, int $scale = null) : Bcval
     {
@@ -1169,11 +1169,11 @@ class ZMath implements IMath
     }
 
     /**
-     * @param int|float|string|Bcval|mixed                                          $a
-     * @param int|float|string|\Gzhegow\Support\Domain\Math\ValueObject\Bcval|mixed $b
-     * @param null|int                                                              $scale
+     * @param int|float|string|Bcval|mixed $a
+     * @param int|float|string|Bcval|mixed $b
+     * @param null|int                     $scale
      *
-     * @return \Gzhegow\Support\Domain\Math\ValueObject\Bcval
+     * @return Bcval
      */
     public function bcdiv($a, $b, int $scale = null) : Bcval
     {
@@ -1196,11 +1196,11 @@ class ZMath implements IMath
 
 
     /**
-     * @param int|float|string|Bcval|mixed                                          $val
-     * @param int|float|string|\Gzhegow\Support\Domain\Math\ValueObject\Bcval|mixed $exp
-     * @param null|int                                                              $scale
+     * @param int|float|string|Bcval|mixed $val
+     * @param int|float|string|Bcval|mixed $exp
+     * @param null|int                     $scale
      *
-     * @return \Gzhegow\Support\Domain\Math\ValueObject\Bcval
+     * @return Bcval
      */
     public function bcpow($val, $exp, int $scale = null) : Bcval
     {
@@ -1224,10 +1224,10 @@ class ZMath implements IMath
     }
 
     /**
-     * @param int|float|string|\Gzhegow\Support\Domain\Math\ValueObject\Bcval|mixed $val
-     * @param null|int                                                              $scale
+     * @param int|float|string|Bcval|mixed $val
+     * @param null|int                     $scale
      *
-     * @return \Gzhegow\Support\Domain\Math\ValueObject\Bcval
+     * @return Bcval
      */
     public function bcsqrt($val, int $scale = null) : Bcval
     {
@@ -1251,7 +1251,7 @@ class ZMath implements IMath
     /**
      * Получает символ "минус", если число отрицательное, или пустую строку
      *
-     * @param int|float|string|\Gzhegow\Support\Domain\Math\ValueObject\Bcval|mixed $number
+     * @param int|float|string|Bcval|mixed $number
      *
      * @return Bcval
      */
@@ -1267,7 +1267,7 @@ class ZMath implements IMath
     /**
      * Получает значение по модулю от числа
      *
-     * @param int|float|string|\Gzhegow\Support\Domain\Math\ValueObject\Bcval|mixed $number
+     * @param int|float|string|Bcval|mixed $number
      *
      * @return string
      */
@@ -1287,7 +1287,7 @@ class ZMath implements IMath
      * @param int|float|string|Bcval|mixed $number
      * @param null|int                     $scale
      *
-     * @return \Gzhegow\Support\Domain\Math\ValueObject\Bcval
+     * @return Bcval
      */
     public function bcround($number, int $scale = null) : Bcval
     {
@@ -1310,10 +1310,10 @@ class ZMath implements IMath
     /**
      * Округляет в меньшую сторону
      *
-     * @param int|float|string|\Gzhegow\Support\Domain\Math\ValueObject\Bcval|mixed $number
-     * @param null|int                                                              $scale
+     * @param int|float|string|Bcval|mixed $number
+     * @param null|int                     $scale
      *
-     * @return \Gzhegow\Support\Domain\Math\ValueObject\Bcval
+     * @return Bcval
      */
     public function bcfloor($number, int $scale = null) : Bcval
     {
@@ -1344,10 +1344,10 @@ class ZMath implements IMath
     /**
      * Округляет в большую сторону
      *
-     * @param int|float|string|\Gzhegow\Support\Domain\Math\ValueObject\Bcval|mixed $number
-     * @param null|int                                                              $scale
+     * @param int|float|string|Bcval|mixed $number
+     * @param null|int                     $scale
      *
-     * @return \Gzhegow\Support\Domain\Math\ValueObject\Bcval
+     * @return Bcval
      */
     public function bcceil($number, int $scale = null) : Bcval
     {
@@ -1377,8 +1377,8 @@ class ZMath implements IMath
 
 
     /**
-     * @param int|float|string|\Gzhegow\Support\Domain\Math\ValueObject\Bcval|array $numbers
-     * @param null|int                                                              $scale
+     * @param int|float|string|Bcval|array $numbers
+     * @param null|int                     $scale
      *
      * @return null|Bcval
      */
@@ -1400,8 +1400,8 @@ class ZMath implements IMath
     }
 
     /**
-     * @param int|float|string|\Gzhegow\Support\Domain\Math\ValueObject\Bcval|array $numbers
-     * @param null|int                                                              $scale
+     * @param int|float|string|Bcval|array $numbers
+     * @param null|int                     $scale
      *
      * @return null|Bcval
      */
@@ -1427,7 +1427,7 @@ class ZMath implements IMath
      * @param int|float|string|Bcval|array $numbers
      * @param null|int                     $scale
      *
-     * @return \Gzhegow\Support\Domain\Math\ValueObject\Bcval
+     * @return Bcval
      */
     public function bcsum($numbers, int $scale = null) : Bcval
     {
@@ -1449,8 +1449,8 @@ class ZMath implements IMath
     }
 
     /**
-     * @param int|float|string|\Gzhegow\Support\Domain\Math\ValueObject\Bcval|array $numbers
-     * @param null|int                                                              $scale
+     * @param int|float|string|Bcval|array $numbers
+     * @param null|int                     $scale
      *
      * @return Bcval
      */
@@ -1475,7 +1475,7 @@ class ZMath implements IMath
      * @param int|float|string|Bcval|array $numbers
      * @param null|int                     $scale
      *
-     * @return null|\Gzhegow\Support\Domain\Math\ValueObject\Bcval
+     * @return null|Bcval
      */
     public function bcmedian($numbers, int $scale = null) : ?Bcval
     {
@@ -1509,7 +1509,7 @@ class ZMath implements IMath
      * @param null|int|float $sum
      * @param null|int       $scale
      *
-     * @return \Gzhegow\Support\Domain\Math\ValueObject\Bcval
+     * @return Bcval
      */
     public function bcratio($value, $sum = null, int $scale = null) : Bcval
     {
@@ -1541,9 +1541,9 @@ class ZMath implements IMath
     }
 
     /**
-     * @param int|float|string|\Gzhegow\Support\Domain\Math\ValueObject\Bcval|mixed      $value
-     * @param null|int|float|string|\Gzhegow\Support\Domain\Math\ValueObject\Bcval|mixed $sum
-     * @param null|int                                                                   $scale
+     * @param int|float|string|Bcval|mixed      $value
+     * @param null|int|float|string|Bcval|mixed $sum
+     * @param null|int                          $scale
      *
      * @return Bcval
      */
@@ -1558,9 +1558,9 @@ class ZMath implements IMath
 
 
     /**
-     * @param int|float|string|\Gzhegow\Support\Domain\Math\ValueObject\Bcval|mixed $from
-     * @param null|int|float|string|Bcval|mixed                                     $to
-     * @param null|int                                                              $scale
+     * @param int|float|string|Bcval|mixed      $from
+     * @param null|int|float|string|Bcval|mixed $to
+     * @param null|int                          $scale
      *
      * @return Bcval
      */
@@ -1596,10 +1596,10 @@ class ZMath implements IMath
      * Округление по "правилу денег"
      * Эта функция учитывает "потерянную копейку", 1.0005 будет округлено до 1.01 вместо 1.00 (по математическим правилам)
      *
-     * @param int|float|string|\Gzhegow\Support\Domain\Math\ValueObject\Bcval|mixed $number
-     * @param null|int                                                              $scale
+     * @param int|float|string|Bcval|mixed $number
+     * @param null|int                     $scale
      *
-     * @return \Gzhegow\Support\Domain\Math\ValueObject\Bcval
+     * @return Bcval
      */
     public function bcmoneyround($number, int $scale = null) : Bcval
     {
@@ -1633,11 +1633,11 @@ class ZMath implements IMath
      * Если разделить 100 на 3 получается 33.33, 33.33, и 33.33 и 0.01 в периоде
      * Функция позволяет разбить исходное число на три, дробная часть от каждого деления достанется первому
      *
-     * @param int|float|string|\Gzhegow\Support\Domain\Math\ValueObject\Bcval|mixed $sum
-     * @param int|float|string|\Gzhegow\Support\Domain\Math\ValueObject\Bcval|array $rates
-     * @param null|int                                                              $scale
+     * @param int|float|string|Bcval|mixed $sum
+     * @param int|float|string|Bcval|array $rates
+     * @param null|int                     $scale
      *
-     * @return \Gzhegow\Support\Domain\Math\ValueObject\Bcval[]
+     * @return Bcval[]
      */
     public function bcmoneyshare($sum, $rates, int $scale = null) : array
     {
@@ -1690,7 +1690,7 @@ class ZMath implements IMath
     /**
      * @param float|mixed $number
      *
-     * @return null|\Gzhegow\Support\Domain\Math\ValueObject\Bcval
+     * @return null|Bcval
      */
     protected function bcvalInt($number) : ?Bcval
     {
@@ -1719,7 +1719,7 @@ class ZMath implements IMath
     /**
      * @param int|float|string|Bcval|mixed $number
      *
-     * @return null|\Gzhegow\Support\Domain\Math\ValueObject\Bcval
+     * @return null|Bcval
      */
     protected function bcvalNumeric($number) : ?Bcval
     {

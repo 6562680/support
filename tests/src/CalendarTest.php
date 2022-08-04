@@ -163,12 +163,24 @@ class CalendarTest extends AbstractTestCase
     {
         $calendar = $this->getCalendar();
 
-        $now1 = $calendar->nowInstant();
-        $now2 = $calendar->nowInstant();
-        $calendar->add($now2, '1', 'day');
+        $now1 = $calendar->now();
+        $now2 = $calendar->now();
+        $calendar->dateAdd($now2, 1, 'day');
 
-        $this->assertEquals(1, $now2->diff($now1)->d);
+        $this->assertEquals(86400, $calendar->diff($now2, $now1));
     }
+
+    public function testSub()
+    {
+        $calendar = $this->getCalendar();
+
+        $now1 = $calendar->now();
+        $now2 = $calendar->now();
+        $calendar->dateSub($now2, 1, 'day');
+
+        $this->assertEquals(-86400, $calendar->diff($now2, $now1));
+    }
+
 
     public function testDiff()
     {

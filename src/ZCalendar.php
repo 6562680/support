@@ -1062,23 +1062,6 @@ class ZCalendar implements ICalendar
 
 
     /**
-     * @param int|float|string|\DateTimeInterface|mixed $date
-     * @param string|\DateInterval                      $interval
-     * @param null|string                               $unit
-     *
-     * @return \DateTime
-     */
-    public function add($date, $interval, $unit = null) : \DateTimeInterface
-    {
-        $date = $this->theDateVal($date);
-
-        $date->add($this->theIntervalVal($interval, $unit));
-
-        return $date;
-    }
-
-
-    /**
      * @param \DateTime|array $dates
      * @param null|bool       $uniq
      * @param null|bool       $recursive
@@ -1300,6 +1283,40 @@ class ZCalendar implements ICalendar
         }
 
         return $result;
+    }
+
+
+
+    /**
+     * @param int|float|string|\DateTimeInterface|mixed $date
+     * @param string|\DateInterval                      $interval
+     * @param null|string                               $unit
+     *
+     * @return \DateTime
+     */
+    public function dateAdd($date, $interval, $unit = null) : \DateTimeInterface
+    {
+        $date = $this->theDateVal($date);
+
+        $date->add($this->theIntervalVal($interval, $unit));
+
+        return $date;
+    }
+
+    /**
+     * @param int|float|string|\DateTimeInterface|mixed $date
+     * @param string|\DateInterval                      $interval
+     * @param null|string                               $unit
+     *
+     * @return \DateTime
+     */
+    public function dateSub($date, $interval, $unit = null) : \DateTimeInterface
+    {
+        $date = $this->theDateVal($date);
+
+        $date->sub($this->theIntervalVal($interval, $unit));
+
+        return $date;
     }
 
 

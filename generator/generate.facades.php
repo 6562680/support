@@ -2,7 +2,15 @@
 
 require_once __DIR__ . '/generator.php';
 
-$generator = new Gzhegow_Support_Generator();
+require __DIR__ . '/generate.facades.clear.php';
+
+
+$supportFactory = \Gzhegow\Support\SupportFactory::getInstance();
+
+$generator = new Gzhegow_Support_Generator(
+    $supportFactory->getLoader(),
+    $supportFactory->getStr()
+);
 
 
 // list
@@ -32,17 +40,19 @@ $facades = [
     'Uri'      => [ \Gzhegow\Support\IUri::class, \Gzhegow\Support\ZUri::class ],
 ];
 
+// deps
+$printer = new \Nette\PhpGenerator\PsrPrinter();
+
 foreach ( $facades as $facade => $sourceClasses ) {
+    // vars
+    $filepath = __ROOT__ . '/src/Facades/' . $facade . '.php';
+
     // interface
     $interface = array_shift($sourceClasses);
 
     // original
     $originalClass = reset($sourceClasses);
     $originalClassName = substr($originalClass, strrpos($originalClass, '\\') + 1);
-
-
-    // printer
-    $printer = new \Nette\PhpGenerator\PsrPrinter();
 
     // file
     $phpFile = new \Nette\PhpGenerator\PhpFile();
@@ -56,23 +66,22 @@ foreach ( $facades as $facade => $sourceClasses ) {
     ]));
 
     // namespace
-    $phpFile->addNamespace(
-        $namespace = new \Nette\PhpGenerator\PhpNamespace('Gzhegow\\Support\\Facades')
-    );
-    $namespace->addUse(\Gzhegow\Support\SupportFactory::class);
-    $namespace->addUse($interface);
-    foreach ( $sourceClasses as $sourceClass ) {
-        $namespace->addUse($sourceClass);
+    $phpNamespace = new \Nette\PhpGenerator\PhpNamespace('Gzhegow\\Support\\Facades');
 
-        foreach ( $generator->loaderClassUses($sourceClass) as $use ) {
-            $namespace->addUse($use);
+    // class
+    $classTypeFacade = new \Nette\PhpGenerator\ClassType($facade);
+
+    // copy uses
+    $phpNamespace->addUse(\Gzhegow\Support\SupportFactory::class);
+    $phpNamespace->addUse($interface);
+    foreach ( $sourceClasses as $sourceClass ) {
+        $phpNamespace->addUse($sourceClass);
+
+        foreach ( $generator->getLoader()->getUseStatements($sourceClass) as $use ) {
+            $phpNamespace->addUse($use);
         }
     }
 
-    // class
-    $moduleFacade = new \Nette\PhpGenerator\ClassType($facade);
-
-    // copy methods
     // copy methods
     foreach ( $sourceClasses as $sourceClass ) {
         $moduleCopy = \Nette\PhpGenerator\ClassType::from($sourceClass);
@@ -87,7 +96,7 @@ foreach ( $facades as $facade => $sourceClasses ) {
             }
 
             $methodName = $method->getName();
-            if (null !== $generator->strStarts($methodName, '__')) {
+            if (null !== $generator->getStr()->starts($methodName, '__')) {
                 continue;
             }
 
@@ -138,7 +147,7 @@ foreach ( $facades as $facade => $sourceClasses ) {
                 ),
             ]));
 
-            $moduleFacade->addMember($methodNew);
+            $classTypeFacade->addMember($methodNew);
         }
     }
 
@@ -153,17 +162,18 @@ foreach ( $facades as $facade => $sourceClasses ) {
     $method->setBody(implode("\n", [
         sprintf('return SupportFactory::getInstance()->get%s();', $facade),
     ]));
-    $moduleFacade->addMember($method);
+    $classTypeFacade->addMember($method);
 
-    // add to namespace
-    $namespace->add($moduleFacade);
+    // add classType to namespace
+    $phpNamespace->add($classTypeFacade);
+
+    // add phpNamespace to phpFile
+    $phpFile->addNamespace($phpNamespace);
 
     // print
     $content = $printer->printFile($phpFile);
 
     // store
-    $filepath = __ROOT__ . '/src/Facades/' . $facade . '.php';
-
     echo 'Writing file: ' . $filepath . PHP_EOL;
     file_put_contents($filepath, $content);
 }

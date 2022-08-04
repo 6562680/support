@@ -1,13 +1,21 @@
 <?php
 
-
 require_once __DIR__ . '/generator.php';
 
-$generator = new Gzhegow_Support_Generator();
+
+$supportFactory = \Gzhegow\Support\SupportFactory::getInstance();
+
+$generator = new Gzhegow_Support_Generator(
+    $supportFactory->getLoader(),
+    $supportFactory->getStr()
+);
 
 
-// printer
+// deps
 $printer = new \Nette\PhpGenerator\PsrPrinter();
+
+// vars
+$filepath = __ROOT__ . '/src/Generated/GeneratedAssert.php';
 
 // file
 $phpFile = new \Nette\PhpGenerator\PhpFile();
@@ -20,40 +28,41 @@ $phpFile->setComment(implode("\n", [
 ]));
 
 // namespace
-$namespace = new \Nette\PhpGenerator\PhpNamespace('Gzhegow\\Support\\Generated');
-$phpFile->addNamespace($namespace);
-$namespace->addUse(\Gzhegow\Support\IFilter::class);
-$namespace->addUse(\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo::class);
-$namespace->addUse(\Gzhegow\Support\Exceptions\Logic\InvalidArgumentException::class);
+$phpNamespace = new \Nette\PhpGenerator\PhpNamespace('Gzhegow\\Support\\Generated');
 
 // class
-$moduleAssert = \Nette\PhpGenerator\ClassType::withBodiesFrom(Gzhegow_Support_Generator_AssertBlueprint::class);
-$moduleAssert->setName('GeneratedAssert');
-$moduleAssert->setAbstract();
-$moduleAssert->setImplements([ \Gzhegow\Support\IAssert::class ]);
+$classTypeAssert = \Nette\PhpGenerator\ClassType::withBodiesFrom(Gzhegow_Support_Generator_AssertBlueprint::class);
+$classTypeAssert->setName('GeneratedAssert');
+$classTypeAssert->setAbstract();
+$classTypeAssert->setImplements([ \Gzhegow\Support\IAssert::class ]);
+
+// copy uses
+$phpNamespace->addUse(\Gzhegow\Support\IFilter::class);
+$phpNamespace->addUse(\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo::class);
+$phpNamespace->addUse(\Gzhegow\Support\Exceptions\Logic\InvalidArgumentException::class);
 
 // copy methods
-$moduleCopy = \Nette\PhpGenerator\ClassType::from(\Gzhegow\Support\ZFilter::class);
-$moduleCopy->removeMethod('assert');
-$moduleCopy->removeMethod('php');
-$moduleCopy->removeMethod('type');
+$classTypeFilter = \Nette\PhpGenerator\ClassType::from(\Gzhegow\Support\ZFilter::class);
+$classTypeFilter->removeMethod('assert');
+$classTypeFilter->removeMethod('php');
+$classTypeFilter->removeMethod('type');
 //
-$moduleCopy->removeMethod('bind');
-$moduleCopy->removeMethod('call');
+$classTypeFilter->removeMethod('bind');
+$classTypeFilter->removeMethod('call');
 //
-$moduleCopy->removeMethod('filter');
-$moduleCopy->removeMethod('addCustomFilter');
-$moduleCopy->removeMethod('findCustomFilter');
-$moduleCopy->removeMethod('getCustomFilters');
-$moduleCopy->removeMethod('replaceCustomFilter');
+$classTypeFilter->removeMethod('filter');
+$classTypeFilter->removeMethod('addCustomFilter');
+$classTypeFilter->removeMethod('findCustomFilter');
+$classTypeFilter->removeMethod('getCustomFilters');
+$classTypeFilter->removeMethod('replaceCustomFilter');
 //
-$moduleCopy->removeMethod('me');
-foreach ( $moduleCopy->getMethods() as $method ) {
+$classTypeFilter->removeMethod('me');
+foreach ( $classTypeFilter->getMethods() as $method ) {
     if ('__construct' === ( $methodName = $method->getName() )) {
         continue;
     }
 
-    if (null === ( $filterName = $generator->strStarts($methodName, 'filter') )) {
+    if (null === ( $filterName = $generator->getStr()->starts($methodName, 'filter') )) {
         continue;
     }
 
@@ -71,7 +80,7 @@ foreach ( $moduleCopy->getMethods() as $method ) {
 
             $lines[ $i ] = implode($separator, [
                 $parts[ 0 ],
-                ' ' . ( $generator->strStarts($type, 'null|') ?? $type ),
+                ' ' . ( $generator->getStr()->starts($type, 'null|') ?? $type ),
             ]);
         }
     }
@@ -112,17 +121,18 @@ foreach ( $moduleCopy->getMethods() as $method ) {
         ])
     );
 
-    $moduleAssert->addMember($methodNew);
+    $classTypeAssert->addMember($methodNew);
 }
 
-// add to namespace
-$namespace->add($moduleAssert);
+// add to interface to namespace
+$phpNamespace->add($classTypeAssert);
+
+// add namespace to php file
+$phpFile->addNamespace($phpNamespace);
 
 // print
 $content = $printer->printFile($phpFile);
 
 // store
-$filepath = __ROOT__ . '/src/Generated/GeneratedAssert.php';
-
 echo 'Writing file: ' . $filepath . PHP_EOL;
 file_put_contents($filepath, $content);

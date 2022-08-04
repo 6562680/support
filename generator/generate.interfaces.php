@@ -2,7 +2,15 @@
 
 require_once __DIR__ . '/generator.php';
 
-$generator = new Gzhegow_Support_Generator();
+require __DIR__ . '/generate.interfaces.clear.php';
+
+
+$supportFactory = \Gzhegow\Support\SupportFactory::getInstance();
+
+$generator = new Gzhegow_Support_Generator(
+    $supportFactory->getLoader(),
+    $supportFactory->getStr()
+);
 
 
 // list
@@ -32,14 +40,16 @@ $interfaces = [
     'IUri'      => [ \Gzhegow\Support\ZUri::class ],
 ];
 
+// deps
+$printer = new \Nette\PhpGenerator\PsrPrinter();
+
 foreach ( $interfaces as $interface => $sourceClasses ) {
+    // vars
+    $filepath = __ROOT__ . '/src/' . $interface . '.php';
+
     // original
     $originalClass = reset($sourceClasses);
     $originalClassName = substr($originalClass, strrpos($originalClass, '\\') + 1);
-
-
-    // printer
-    $printer = new \Nette\PhpGenerator\PsrPrinter();
 
     // file
     $phpFile = new \Nette\PhpGenerator\PhpFile();
@@ -53,26 +63,26 @@ foreach ( $interfaces as $interface => $sourceClasses ) {
     ]));
 
     // namespace
-    $phpFile->addNamespace(
-        $namespace = new \Nette\PhpGenerator\PhpNamespace('Gzhegow\\Support')
-    );
-    foreach ( $sourceClasses as $sourceClass ) {
-        $namespace->addUse($sourceClass);
-
-        foreach ( $generator->loaderClassUses($sourceClass) as $use ) {
-            $namespace->addUse($use);
-        }
-    }
+    $phpNamespace = new \Nette\PhpGenerator\PhpNamespace('Gzhegow\\Support');
 
     // class
-    $moduleInterface = new \Nette\PhpGenerator\ClassType($interface);
-    $moduleInterface->setInterface();
+    $classTypeInterface = new \Nette\PhpGenerator\ClassType($interface);
+    $classTypeInterface->setInterface();
+
+    // copy uses
+    foreach ( $sourceClasses as $sourceClass ) {
+        $phpNamespace->addUse($sourceClass);
+
+        foreach ( $generator->getLoader()->getUseStatements($sourceClass) as $use ) {
+            $phpNamespace->addUse($use);
+        }
+    }
 
     // copy methods
     foreach ( $sourceClasses as $sourceClass ) {
         $moduleCopy = \Nette\PhpGenerator\ClassType::from($sourceClass);
 
-        // @gzhegow, unable to override interface constant
+        // @gzhegow > unable to override interface constant
         // foreach ( $moduleCopy->getConstants() as $constant ) {
         //     $moduleInterface->addMember($constant);
         // }
@@ -87,7 +97,7 @@ foreach ( $interfaces as $interface => $sourceClasses ) {
             }
 
             $methodName = $method->getName();
-            if (null !== $generator->strStarts($methodName, '__')) {
+            if (null !== $generator->getStr()->starts($methodName, '__')) {
                 continue;
             }
 
@@ -131,19 +141,20 @@ foreach ( $interfaces as $interface => $sourceClasses ) {
             $methodNew->setPublic();
             $methodNew->setComment($methodCommentNew);
 
-            $moduleInterface->addMember($methodNew);
+            $classTypeInterface->addMember($methodNew);
         }
     }
 
-    // add to namespace
-    $namespace->add($moduleInterface);
+    // add to interface to namespace
+    $phpNamespace->add($classTypeInterface);
+
+    // add namespace to php file
+    $phpFile->addNamespace($phpNamespace);
 
     // print
     $content = $printer->printFile($phpFile);
 
     // store
-    $filepath = __ROOT__ . '/src/' . $interface . '.php';
-
     echo 'Writing file: ' . $filepath . PHP_EOL;
     file_put_contents($filepath, $content);
 }

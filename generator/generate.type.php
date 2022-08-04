@@ -3,11 +3,20 @@
 
 require_once __DIR__ . '/generator.php';
 
-$generator = new Gzhegow_Support_Generator();
+
+$supportFactory = \Gzhegow\Support\SupportFactory::getInstance();
+
+$generator = new Gzhegow_Support_Generator(
+    $supportFactory->getLoader(),
+    $supportFactory->getStr()
+);
 
 
-// printer
+// deps
 $printer = new \Nette\PhpGenerator\PsrPrinter();
+
+// vars
+$filepath = __ROOT__ . '/src/Generated/GeneratedType.php';
 
 // file
 $phpFile = new \Nette\PhpGenerator\PhpFile();
@@ -20,38 +29,38 @@ $phpFile->setComment(implode("\n", [
 ]));
 
 // namespace
-$namespace = new \Nette\PhpGenerator\PhpNamespace('Gzhegow\\Support\\Generated');
-$phpFile->addNamespace($namespace);
-$namespace->addUse(\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo::class);
-$namespace->addUse(\Gzhegow\Support\IFilter::class);
+$phpNamespace = new \Nette\PhpGenerator\PhpNamespace('Gzhegow\\Support\\Generated');
+$phpNamespace->addUse(\Gzhegow\Support\Domain\Filter\ValueObject\InvokableInfo::class);
+$phpNamespace->addUse(\Gzhegow\Support\IFilter::class);
+
 // class
-$moduleType = \Nette\PhpGenerator\ClassType::withBodiesFrom(Gzhegow_Support_Generator_TypeBlueprint::class);
-$moduleType->setName('GeneratedType');
-$moduleType->setAbstract();
-$moduleType->setImplements([ \Gzhegow\Support\IType::class ]);
+$classTypeType = \Nette\PhpGenerator\ClassType::withBodiesFrom(Gzhegow_Support_Generator_TypeBlueprint::class);
+$classTypeType->setName('GeneratedType');
+$classTypeType->setAbstract();
+$classTypeType->setImplements([ \Gzhegow\Support\IType::class ]);
 
 // copy methods
-$moduleCopy = \Nette\PhpGenerator\ClassType::from(\Gzhegow\Support\ZFilter::class);
-$moduleCopy->removeMethod('assert');
-$moduleCopy->removeMethod('php');
-$moduleCopy->removeMethod('type');
+$classTypeFilter = \Nette\PhpGenerator\ClassType::from(\Gzhegow\Support\ZFilter::class);
+$classTypeFilter->removeMethod('assert');
+$classTypeFilter->removeMethod('php');
+$classTypeFilter->removeMethod('type');
 //
-$moduleCopy->removeMethod('bind');
-$moduleCopy->removeMethod('call');
+$classTypeFilter->removeMethod('bind');
+$classTypeFilter->removeMethod('call');
 //
-$moduleCopy->removeMethod('filter');
-$moduleCopy->removeMethod('addCustomFilter');
-$moduleCopy->removeMethod('findCustomFilter');
-$moduleCopy->removeMethod('getCustomFilters');
-$moduleCopy->removeMethod('replaceCustomFilter');
+$classTypeFilter->removeMethod('filter');
+$classTypeFilter->removeMethod('addCustomFilter');
+$classTypeFilter->removeMethod('findCustomFilter');
+$classTypeFilter->removeMethod('getCustomFilters');
+$classTypeFilter->removeMethod('replaceCustomFilter');
 //
-$moduleCopy->removeMethod('me');
-foreach ( $moduleCopy->getMethods() as $method ) {
+$classTypeFilter->removeMethod('me');
+foreach ( $classTypeFilter->getMethods() as $method ) {
     if ('__construct' === ( $methodName = $method->getName() )) {
         continue;
     }
 
-    if (null === ( $filterName = $generator->strStarts($methodName, 'filter') )) {
+    if (null === ( $filterName = $generator->getStr()->starts($methodName, 'filter') )) {
         continue;
     }
 
@@ -96,17 +105,18 @@ foreach ( $moduleCopy->getMethods() as $method ) {
         ),
     ]));
 
-    $moduleType->addMember($methodNew);
+    $classTypeType->addMember($methodNew);
 }
 
-// add to namespace
-$namespace->add($moduleType);
+// add to interface to namespace
+$phpNamespace->add($classTypeType);
+
+// add namespace to php file
+$phpFile->addNamespace($phpNamespace);
 
 // print
 $content = $printer->printFile($phpFile);
 
 // store
-$filepath = __ROOT__ . '/src/Generated/GeneratedType.php';
-
 echo 'Writing file: ' . $filepath . PHP_EOL;
 file_put_contents($filepath, $content);

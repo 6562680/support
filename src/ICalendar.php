@@ -375,15 +375,6 @@ interface ICalendar
     public function theIDatevals($dates, bool $uniq = null, bool $recursive = null): array;
 
     /**
-     * @param int|float|string|\DateTimeInterface|mixed $date
-     * @param string|\DateInterval                      $interval
-     * @param null|string                               $unit
-     *
-     * @return \DateTime
-     */
-    public function add($date, $interval, $unit = null): \DateTimeInterface;
-
-    /**
      * @param \DateTime|array $dates
      * @param null|bool       $uniq
      * @param null|bool       $recursive
@@ -436,6 +427,24 @@ interface ICalendar
      * @return \DateTimeInterface[]
      */
     public function theDatesAll($dates, bool $uniq = null, bool $recursive = null): array;
+
+    /**
+     * @param int|float|string|\DateTimeInterface|mixed $date
+     * @param string|\DateInterval                      $interval
+     * @param null|string                               $unit
+     *
+     * @return \DateTime
+     */
+    public function dateAdd($date, $interval, $unit = null): \DateTimeInterface;
+
+    /**
+     * @param int|float|string|\DateTimeInterface|mixed $date
+     * @param string|\DateInterval                      $interval
+     * @param null|string                               $unit
+     *
+     * @return \DateTime
+     */
+    public function dateSub($date, $interval, $unit = null): \DateTimeInterface;
 
     /**
      * @param int|float|string|\DateTimeInterface|mixed $dateA

@@ -1147,7 +1147,7 @@ class ZStr implements IStr
 
         $result = [];
 
-        if (false !== mb_strpos($haystack, $needle)) {
+        if (false !== mb_strpos($strCase, $needle)) {
             $result = null
                 ?? ( isset($limit) ? explode($needle, $strCase, $limit) : null )
                 ?? ( explode($needle, $strCase) );

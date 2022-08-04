@@ -522,18 +522,6 @@ class Calendar
     }
 
     /**
-     * @param int|float|string|\DateTimeInterface|mixed $date
-     * @param string|\DateInterval                      $interval
-     * @param null|string                               $unit
-     *
-     * @return \DateTime
-     */
-    public static function add($date, $interval, $unit = null): \DateTimeInterface
-    {
-        return static::getInstance()->add($date, $interval, $unit);
-    }
-
-    /**
      * @param \DateTime|array $dates
      * @param null|bool       $uniq
      * @param null|bool       $recursive
@@ -603,6 +591,30 @@ class Calendar
     public static function theDatesAll($dates, bool $uniq = null, bool $recursive = null): array
     {
         return static::getInstance()->theDatesAll($dates, $uniq, $recursive);
+    }
+
+    /**
+     * @param int|float|string|\DateTimeInterface|mixed $date
+     * @param string|\DateInterval                      $interval
+     * @param null|string                               $unit
+     *
+     * @return \DateTime
+     */
+    public static function dateAdd($date, $interval, $unit = null): \DateTimeInterface
+    {
+        return static::getInstance()->dateAdd($date, $interval, $unit);
+    }
+
+    /**
+     * @param int|float|string|\DateTimeInterface|mixed $date
+     * @param string|\DateInterval                      $interval
+     * @param null|string                               $unit
+     *
+     * @return \DateTime
+     */
+    public static function dateSub($date, $interval, $unit = null): \DateTimeInterface
+    {
+        return static::getInstance()->dateSub($date, $interval, $unit);
     }
 
     /**

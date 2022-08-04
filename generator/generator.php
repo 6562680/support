@@ -1,6 +1,8 @@
 <?php
 
+use Gzhegow\Support\IStr;
 use Gzhegow\Support\IFilter;
+use Gzhegow\Support\ILoader;
 
 
 defined('__ROOT__') or define('__ROOT__', __DIR__ . '/..');
@@ -14,70 +16,45 @@ require_once __DIR__ . '/../vendor/autoload.php';
 class Gzhegow_Support_Generator
 {
     /**
-     * @param string      $str
-     * @param null|string $needle
-     * @param bool        $ignoreCase
-     *
-     * @return null|string
+     * @var ILoader
      */
-    public function strStarts(string $str, string $needle = null, bool $ignoreCase = true) : ?string
+    protected $loader;
+    /**
+     * @var IStr
+     */
+    protected $str;
+
+
+    /**
+     * Constructor
+     *
+     * @param ILoader $loader
+     * @param IStr    $str
+     */
+    public function __construct(
+        ILoader $loader,
+        IStr $str
+    )
     {
-        $needle = $needle ?? '';
+        $this->loader = $loader;
+        $this->str = $str;
+    }
 
-        if ('' === $str) return null;
-        if ('' === $needle) return $str;
 
-        $pos = $ignoreCase
-            ? mb_stripos($str, $needle)
-            : mb_strpos($str, $needle);
-
-        $result = 0 === $pos
-            ? mb_substr($str, mb_strlen($needle))
-            : null;
-
-        return $result;
+    /**
+     * @return IStr
+     */
+    public function getStr() : IStr
+    {
+        return $this->str;
     }
 
     /**
-     * @param string $class
-     *
-     * @return array
+     * @return ILoader
      */
-    public function loaderClassUses(string $class) : array
+    public function getLoader() : ILoader
     {
-        $uses = [];
-
-        try {
-            $rc = new \ReflectionClass($class);
-        }
-        catch ( ReflectionException $e ) {
-            throw new \RuntimeException('Unable to reflect: ' . $class, null, $e);
-        }
-
-        $filepath = $rc->getFileName();
-
-        $h = fopen($filepath, 'r');
-        while ( ! feof($h) ) {
-            $line = trim(fgets($h));
-
-            if (null !== ( $cut = $this->strStarts($line, 'use ') )) {
-                $uses[] = rtrim($cut, ';');
-            }
-
-            if (false
-                || 0 === stripos($line, 'class ')
-                || 0 === stripos($line, 'interface ')
-                || 0 === stripos($line, 'trait ')
-                || false !== stripos($line, ' trait ')
-                || false !== stripos($line, ' trait ')
-                || false !== stripos($line, ' trait ')
-            ) {
-                break;
-            }
-        }
-        fclose($h);
-
-        return $uses;
+        return $this->loader;
     }
 }
 
