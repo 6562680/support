@@ -20,30 +20,42 @@ use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
 interface IArr
 {
     /**
-     * @return ZArr
-     */
-    public function reset();
-
-    /**
      * @param null|callable $indexer
      *
      * @return ZArr
      */
-    public function clone(?callable $indexer);
+    public function withIndexer(?callable $indexer);
 
     /**
-     * @param null|callable $indexer
+     * @param string|array $path
+     * @param array        $src
+     * @param null|mixed   $default
+     *
+     * @return mixed
+     */
+    public function get($path, array &$src, $default = "\x00");
+
+    /**
+     * @param string|array $path
+     * @param array        $src
+     *
+     * @return bool
+     */
+    public function has($path, array &$src): bool;
+
+    /**
+     * @param null|array   $dst
+     * @param string|array $path
+     * @param mixed        $value
      *
      * @return ZArr
      */
-    public function with(?callable $indexer);
+    public function set(?array &$dst, $path, $value);
 
     /**
-     * @param callable $indexer
-     *
-     * @return ZArr
+     * @return callable
      */
-    public function withIndexer(callable $indexer);
+    public function getIndexer();
 
     /**
      * @param string|array $path
@@ -99,32 +111,6 @@ interface IArr
      * @return string[]
      */
     public function theKeyvals($keys, bool $uniq = null, bool $recursive = null): array;
-
-    /**
-     * @param string|array $path
-     * @param array        $src
-     * @param null|mixed   $default
-     *
-     * @return mixed
-     */
-    public function get($path, array &$src, $default = "\x00");
-
-    /**
-     * @param string|array $path
-     * @param array        $src
-     *
-     * @return bool
-     */
-    public function has($path, array &$src): bool;
-
-    /**
-     * @param null|array   $dst
-     * @param string|array $path
-     * @param mixed        $value
-     *
-     * @return ZArr
-     */
-    public function set(?array &$dst, $path, $value);
 
     /**
      * @param array        $src

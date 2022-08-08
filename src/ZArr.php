@@ -60,19 +60,6 @@ class ZArr implements IArr
         $this->filter = $filter;
         $this->php = $php;
         $this->str = $str;
-
-        $this->reset();
-    }
-
-
-    /**
-     * @return static
-     */
-    public function reset()
-    {
-        $this->indexer = null;
-
-        return $this;
     }
 
 
@@ -81,37 +68,7 @@ class ZArr implements IArr
      *
      * @return static
      */
-    public function clone(?callable $indexer)
-    {
-        $instance = clone $this;
-
-        if (isset($indexer)) $this->withIndexer($indexer);
-
-        return $instance;
-    }
-
-
-    /**
-     * @param null|callable $indexer
-     *
-     * @return static
-     */
-    public function with(?callable $indexer)
-    {
-        $this->reset();
-
-        if (isset($indexer)) $this->withIndexer($indexer);
-
-        return $this;
-    }
-
-
-    /**
-     * @param callable $indexer
-     *
-     * @return static
-     */
-    public function withIndexer(callable $indexer)
+    public function withIndexer(?callable $indexer)
     {
         $this->indexer = $indexer;
 
@@ -133,6 +90,57 @@ class ZArr implements IArr
         $priority = $priority ?? 0;
 
         return new ExpandValue($value, $idx, $ordering, $priority, $idxInt);
+    }
+
+
+    /**
+     * @param string|array $path
+     * @param array        $src
+     * @param null|mixed   $default
+     *
+     * @return mixed
+     */
+    public function get($path, array &$src, $default = "\0") // : mixed
+    {
+        $result = $this->getRef($path, $src, $default);
+
+        return $result;
+    }
+
+    /**
+     * @param string|array $path
+     * @param array        $src
+     *
+     * @return bool
+     */
+    public function has($path, array &$src) : bool
+    {
+        $this->reference($src, $path, $error);
+
+        return $error === static::ERROR_FETCHREF_NO_ERROR;
+    }
+
+    /**
+     * @param null|array   $dst
+     * @param string|array $path
+     * @param mixed        $value
+     *
+     * @return ZArr
+     */
+    public function set(?array &$dst, $path, $value)
+    {
+        $this->put($dst, $path, $value);
+
+        return $this;
+    }
+
+
+    /**
+     * @return callable
+     */
+    public function getIndexer()
+    {
+        return $this->indexer;
     }
 
 
@@ -335,48 +343,6 @@ class ZArr implements IArr
 
 
     /**
-     * @param string|array $path
-     * @param array        $src
-     * @param null|mixed   $default
-     *
-     * @return mixed
-     */
-    public function get($path, array &$src, $default = "\0") // : mixed
-    {
-        $result = $this->getRef($path, $src, $default);
-
-        return $result;
-    }
-
-    /**
-     * @param string|array $path
-     * @param array        $src
-     *
-     * @return bool
-     */
-    public function has($path, array &$src) : bool
-    {
-        $this->reference($src, $path, $error);
-
-        return $error === static::ERROR_FETCHREF_NO_ERROR;
-    }
-
-
-    /**
-     * @param null|array   $dst
-     * @param string|array $path
-     * @param mixed        $value
-     *
-     * @return ZArr
-     */
-    public function set(?array &$dst, $path, $value)
-    {
-        $this->put($dst, $path, $value);
-
-        return $this;
-    }
-
-    /**
      * @param array        $src
      * @param string|array $path
      *
@@ -440,6 +406,7 @@ class ZArr implements IArr
 
         return $result;
     }
+
 
     /**
      * @param null|array   $dst

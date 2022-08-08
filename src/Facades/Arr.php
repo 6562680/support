@@ -23,41 +23,56 @@ use Gzhegow\Support\ZArr;
 class Arr
 {
     /**
-     * @return ZArr
-     */
-    public static function reset()
-    {
-        return static::getInstance()->reset();
-    }
-
-    /**
      * @param null|callable $indexer
      *
      * @return ZArr
      */
-    public static function clone(?callable $indexer)
-    {
-        return static::getInstance()->clone($indexer);
-    }
-
-    /**
-     * @param null|callable $indexer
-     *
-     * @return ZArr
-     */
-    public static function with(?callable $indexer)
-    {
-        return static::getInstance()->with($indexer);
-    }
-
-    /**
-     * @param callable $indexer
-     *
-     * @return ZArr
-     */
-    public static function withIndexer(callable $indexer)
+    public static function withIndexer(?callable $indexer)
     {
         return static::getInstance()->withIndexer($indexer);
+    }
+
+    /**
+     * @param string|array $path
+     * @param array        $src
+     * @param null|mixed   $default
+     *
+     * @return mixed
+     */
+    public static function get($path, array &$src, $default = "\x00")
+    {
+        return static::getInstance()->get($path, $src, $default);
+    }
+
+    /**
+     * @param string|array $path
+     * @param array        $src
+     *
+     * @return bool
+     */
+    public static function has($path, array &$src): bool
+    {
+        return static::getInstance()->has($path, $src);
+    }
+
+    /**
+     * @param null|array   $dst
+     * @param string|array $path
+     * @param mixed        $value
+     *
+     * @return ZArr
+     */
+    public static function set(?array &$dst, $path, $value)
+    {
+        return static::getInstance()->set($dst, $path, $value);
+    }
+
+    /**
+     * @return callable
+     */
+    public static function getIndexer()
+    {
+        return static::getInstance()->getIndexer();
     }
 
     /**
@@ -134,41 +149,6 @@ class Arr
     public static function theKeyvals($keys, bool $uniq = null, bool $recursive = null): array
     {
         return static::getInstance()->theKeyvals($keys, $uniq, $recursive);
-    }
-
-    /**
-     * @param string|array $path
-     * @param array        $src
-     * @param null|mixed   $default
-     *
-     * @return mixed
-     */
-    public static function get($path, array &$src, $default = "\x00")
-    {
-        return static::getInstance()->get($path, $src, $default);
-    }
-
-    /**
-     * @param string|array $path
-     * @param array        $src
-     *
-     * @return bool
-     */
-    public static function has($path, array &$src): bool
-    {
-        return static::getInstance()->has($path, $src);
-    }
-
-    /**
-     * @param null|array   $dst
-     * @param string|array $path
-     * @param mixed        $value
-     *
-     * @return ZArr
-     */
-    public static function set(?array &$dst, $path, $value)
-    {
-        return static::getInstance()->set($dst, $path, $value);
     }
 
     /**

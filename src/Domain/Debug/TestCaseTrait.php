@@ -15,7 +15,9 @@ trait TestCaseTrait
      */
     protected static function boot() : void
     {
+        //
     }
+
 
     /**
      * @param string $className
@@ -31,6 +33,7 @@ trait TestCaseTrait
         return new $class($className);
     }
 
+
     /**
      * @return void
      */
@@ -42,6 +45,7 @@ trait TestCaseTrait
             static::$boot = true;
         }
     }
+
 
     /**
      * @param string        $type
@@ -112,6 +116,7 @@ trait TestCaseTrait
 
         $this->{'assertTrue'}($catched, $message);
     }
+
 
     /**
      * @var bool

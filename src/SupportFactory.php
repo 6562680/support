@@ -15,6 +15,8 @@ class SupportFactory implements SupportFactoryInterface
 
     /**
      * @var null|\Psr\Container\ContainerInterface
+     *
+     * @noinspection PhpFullyQualifiedNameUsageInspection
      */
     protected $container;
 
@@ -23,6 +25,8 @@ class SupportFactory implements SupportFactoryInterface
      * Constructor
      *
      * @param null|\Psr\Container\ContainerInterface $container
+     *
+     * @noinspection PhpFullyQualifiedNameUsageInspection
      */
     public function __construct($container = null)
     {
@@ -37,11 +41,11 @@ class SupportFactory implements SupportFactoryInterface
 
 
     /**
-     * @param SupportFactoryInterface $instance
+     * @param null|SupportFactoryInterface $instance
      *
      * @return void
      */
-    public static function withInstance(SupportFactoryInterface $instance) : void
+    public static function withInstance(?SupportFactoryInterface $instance) : void
     {
         static::$instance[ static::class ] = $instance;
     }
