@@ -360,23 +360,21 @@ class XArr implements IArr
 
         $queue = [ $array ];
         while ( null !== ( $k = key($queue) ) ) {
-            if (is_array($queue[ $k ]) && ( [] !== $queue[ $k ] )) {
-                foreach ( $queue[ $k ] as $value ) {
+            $cur = $queue[ $k ];
+            unset($queue[ $k ]);
+
+            if (is_null($cur) || is_scalar($cur)) {
+                continue;
+
+            } elseif (is_array($cur)) {
+                foreach ( $cur as $value ) {
                     $queue[] = $value;
                 }
 
-            } else {
-                if ([] === $queue[ $k ]
-                    || is_null($queue[ $k ])
-                    || is_scalar($queue[ $k ])
-                ) {
-                    continue;
-                }
-
-                return null;
+                continue;
             }
 
-            unset($queue[ $k ]);
+            return null;
         }
 
         return $array;
@@ -443,7 +441,10 @@ class XArr implements IArr
     public function del(array &$src, ...$path) : ?array
     {
         if (false === $this->delRef($src, ...$path)) {
-            throw new UnderflowException([ 'Unable to delete due to missing/invalid key: %s', $path ]);
+            throw new UnderflowException([
+                'Unable to delete due to missing/invalid key: %s',
+                $path,
+            ]);
         }
 
         return $src;
@@ -1008,27 +1009,30 @@ class XArr implements IArr
      */
     public function combine(array $keys, $values = null, bool $drop = null) : array
     {
-        $drop = $drop ?? false;
-
         $keys = $this->theKeyvals($keys);
+
+        $drop = $drop ?? false;
 
         if (! is_array($values)) {
             $values = array_fill(0, count($keys), $values);
         }
 
-        [ $strkeys, $intkeys ] = $this->getPhp()->kwargs($values);
+        $args = [];
+        foreach ( $values as $i => $v ) {
+            if (is_int($i)) {
+                $args[ $i ] = $v;
+            }
+        }
 
         $result = [];
         foreach ( $keys as $key ) {
-            if (array_key_exists($key, $strkeys)) {
-                $result[ $key ] = $strkeys[ $key ];
+            if (array_key_exists($key, $values)) {
+                $result[ $key ] = $values[ $key ];
 
-            } elseif ($intkeys) {
-                $index = key($intkeys);
-                $result[ $key ] = $intkeys[ $index ];
+            } elseif ($args) {
+                unset($values[ key($args) ]);
 
-                array_shift($intkeys);
-                unset($values[ $index ]);
+                $result[ $key ] = array_shift($args);
 
             } else {
                 $result[ $key ] = null;
@@ -1059,8 +1063,8 @@ class XArr implements IArr
     {
         $result = [];
 
-        foreach ( $it as $idx => $array ) {
-            $result[ $idx ] = $this->combine($keys, $array);
+        foreach ( $it as $idx => $value ) {
+            $result[ $idx ] = $this->combine($keys, $value);
         }
 
         return $result;

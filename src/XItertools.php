@@ -97,7 +97,7 @@ class XItertools implements IItertools
      *
      * @return \Generator
      */
-    public function walk(iterable $it,
+    public function walkeach(iterable $it,
         bool &$continue = null,
         bool $withChildren = null,
         bool $withParents = null,
