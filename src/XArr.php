@@ -1297,6 +1297,8 @@ class XArr implements IArr
             $cur = array_pop($stack);
 
             if (! ( is_array($cur[ 0 ]) && ! empty($cur[ 0 ]) )) {
+                if ($continue) continue;
+
                 if ($withChildren) {
                     yield $cur[ 1 ] => $cur[ 0 ];
                 }

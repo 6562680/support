@@ -123,6 +123,8 @@ class XItertools implements IItertools
                     || ( is_array($cur[ 0 ]) && ( null !== key($cur[ 0 ]) ) )
                 )
             )) {
+                if ($continue) continue;
+
                 if ($withChildren) {
                     yield $cur[ 1 ] => $cur[ 0 ];
                 }
