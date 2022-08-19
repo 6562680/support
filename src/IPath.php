@@ -11,44 +11,33 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+use Gzhegow\Support\Traits\Load\StrLoadTrait;
 
 interface IPath
 {
     /**
-     * @return ZPath
+     * @param null|string $separator
+     *
+     * @return XPath
      */
-    public function reset();
+    public function withSeparator(?string $separator);
 
     /**
-     * @param null|string       $separator
-     * @param null|string|array $delimiters
+     * @param null|string[] $separatorAliases
      *
-     * @return ZPath
+     * @return XPath
      */
-    public function clone(?string $separator, ?array $delimiters);
+    public function withSeparatorAliases(?array $separatorAliases);
 
     /**
-     * @param null|string       $separator
-     * @param null|string|array $delimiters
-     *
-     * @return ZPath
+     * @return string
      */
-    public function with(?string $separator, ?array $delimiters);
+    public function loadSeparator(): string;
 
     /**
-     * @param string $separator
-     *
-     * @return ZPath
+     * @return string[]
      */
-    public function withSeparator(string $separator);
-
-    /**
-     * @param string[] $delimiters
-     *
-     * @return ZPath
-     */
-    public function withDelimiters(array $delimiters);
+    public function loadSeparatorAliases(): array;
 
     /**
      * @return string
@@ -58,7 +47,7 @@ interface IPath
     /**
      * @return string[]
      */
-    public function getDelimiters(): array;
+    public function getSeparatorAliases(): array;
 
     /**
      * @param string $path

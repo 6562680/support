@@ -1,0 +1,3 @@
+*     Main idea of copy-past is same like Psr/Container, once standart is updated some libraries that require older standart becomes uninstallable
+*     So that way i am taking care of standart update and allows using library without `psr/cache` dependency
+*     Also, Psr/Cache defines exception interfaces that is not extend \RuntimeInterface that makes PHPStorm to highlight any method where cache is used, that forces you always try catch it and the highlight still happened

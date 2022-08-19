@@ -5,37 +5,33 @@ require_once __DIR__ . '/generator.php';
 
 $supportFactory = \Gzhegow\Support\SupportFactory::getInstance();
 
-$generator = new Gzhegow_Support_Generator(
-    $supportFactory->getLoader(),
-    $supportFactory->getStr()
-);
+$generator = new Gzhegow_Support_Generator();
 
 
 // list
 $facades = [
-    'Arr'      => [ \Gzhegow\Support\IArr::class, \Gzhegow\Support\ZArr::class ],
-    'Assert'   => [ \Gzhegow\Support\IAssert::class, \Gzhegow\Support\ZAssert::class, \Gzhegow\Support\Generated\GeneratedAssert::class ],
-    'Calendar' => [ \Gzhegow\Support\ICalendar::class, \Gzhegow\Support\ZCalendar::class ],
-    'Cli'      => [ \Gzhegow\Support\ICli::class, \Gzhegow\Support\ZCli::class ],
-    'Cmp'      => [ \Gzhegow\Support\ICmp::class, \Gzhegow\Support\ZCmp::class ],
-    'Criteria' => [ \Gzhegow\Support\ICriteria::class, \Gzhegow\Support\ZCriteria::class ],
-    'Curl'     => [ \Gzhegow\Support\ICurl::class, \Gzhegow\Support\ZCurl::class ],
-    'Debug'    => [ \Gzhegow\Support\IDebug::class, \Gzhegow\Support\ZDebug::class ],
-    'Env'      => [ \Gzhegow\Support\IEnv::class, \Gzhegow\Support\ZEnv::class ],
-    'Filter'   => [ \Gzhegow\Support\IFilter::class, \Gzhegow\Support\ZFilter::class ],
-    'Format'   => [ \Gzhegow\Support\IFormat::class, \Gzhegow\Support\ZFormat::class ],
-    'Fs'       => [ \Gzhegow\Support\IFs::class, \Gzhegow\Support\ZFs::class ],
-    'Loader'   => [ \Gzhegow\Support\ILoader::class, \Gzhegow\Support\ZLoader::class ],
-    'Math'     => [ \Gzhegow\Support\IMath::class, \Gzhegow\Support\ZMath::class ],
-    'Net'      => [ \Gzhegow\Support\INet::class, \Gzhegow\Support\ZNet::class ],
-    'Num'      => [ \Gzhegow\Support\INum::class, \Gzhegow\Support\ZNum::class ],
-    'Path'     => [ \Gzhegow\Support\IPath::class, \Gzhegow\Support\ZPath::class ],
-    'Php'      => [ \Gzhegow\Support\IPhp::class, \Gzhegow\Support\ZPhp::class ],
-    'Preg'     => [ \Gzhegow\Support\IPreg::class, \Gzhegow\Support\ZPreg::class ],
-    'Prof'     => [ \Gzhegow\Support\IProf::class, \Gzhegow\Support\ZProf::class ],
-    'Str'      => [ \Gzhegow\Support\IStr::class, \Gzhegow\Support\ZStr::class ],
-    'Type'     => [ \Gzhegow\Support\IType::class, \Gzhegow\Support\ZType::class, \Gzhegow\Support\Generated\GeneratedType::class ],
-    'Uri'      => [ \Gzhegow\Support\IUri::class, \Gzhegow\Support\ZUri::class ],
+    'Arr'       => [ \Gzhegow\Support\IArr::class, \Gzhegow\Support\XArr::class ],
+    'Cache'     => [ \Gzhegow\Support\ICache::class, \Gzhegow\Support\XCache::class ],
+    'Calendar'  => [ \Gzhegow\Support\ICalendar::class, \Gzhegow\Support\XCalendar::class ],
+    'Cli'       => [ \Gzhegow\Support\ICli::class, \Gzhegow\Support\XCli::class ],
+    'Cmp'       => [ \Gzhegow\Support\ICmp::class, \Gzhegow\Support\XCmp::class ],
+    'Criteria'  => [ \Gzhegow\Support\ICriteria::class, \Gzhegow\Support\XCriteria::class ],
+    'Curl'      => [ \Gzhegow\Support\ICurl::class, \Gzhegow\Support\XCurl::class ],
+    'Debug'     => [ \Gzhegow\Support\IDebug::class, \Gzhegow\Support\XDebug::class ],
+    'Env'       => [ \Gzhegow\Support\IEnv::class, \Gzhegow\Support\XEnv::class ],
+    'Filter'    => [ \Gzhegow\Support\IFilter::class, \Gzhegow\Support\XFilter::class ],
+    'Format'    => [ \Gzhegow\Support\IFormat::class, \Gzhegow\Support\XFormat::class ],
+    'Fs'        => [ \Gzhegow\Support\IFs::class, \Gzhegow\Support\XFs::class ],
+    'Itertools' => [ \Gzhegow\Support\IItertools::class, \Gzhegow\Support\XItertools::class ],
+    'Loader'    => [ \Gzhegow\Support\ILoader::class, \Gzhegow\Support\XLoader::class ],
+    'Math'      => [ \Gzhegow\Support\IMath::class, \Gzhegow\Support\XMath::class ],
+    'Net'       => [ \Gzhegow\Support\INet::class, \Gzhegow\Support\XNet::class ],
+    'Num'       => [ \Gzhegow\Support\INum::class, \Gzhegow\Support\XNum::class ],
+    'Path'      => [ \Gzhegow\Support\IPath::class, \Gzhegow\Support\XPath::class ],
+    'Php'       => [ \Gzhegow\Support\IPhp::class, \Gzhegow\Support\XPhp::class ],
+    'Prof'      => [ \Gzhegow\Support\IProf::class, \Gzhegow\Support\XProf::class ],
+    'Str'       => [ \Gzhegow\Support\IStr::class, \Gzhegow\Support\XStr::class ],
+    'Uri'       => [ \Gzhegow\Support\IUri::class, \Gzhegow\Support\XUri::class ],
 ];
 
 // deps

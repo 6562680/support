@@ -11,8 +11,9 @@ use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
  */
 class Inflector implements InflectorInterface
 {
-    const DOCTRINE_INFLECTOR          = '\Doctrine\Inflector\Inflector';
-    const SYMFONY_INFLECTOR_INTERFACE = '\Symfony\Component\String\Inflector\InflectorInterface';
+    const DOCTRINE_INFLECTOR                  = '\Doctrine\Inflector\Inflector';
+    const SYMFONY_INFLECTOR_ENGLISH_INFLECTOR = '\Symfony\Component\String\Inflector\EnglishInflector';
+    const SYMFONY_INFLECTOR_INTERFACE         = '\Symfony\Component\String\Inflector\InflectorInterface';
 
 
     /**
@@ -26,98 +27,118 @@ class Inflector implements InflectorInterface
 
 
     /**
-     * Constructor
-     */
-    public function __construct()
-    {
-        $this->doctrineInflector();
-        $this->symfonyInflector();
-    }
-
-
-    /**
-     * @param \Doctrine\Inflector\Inflector $doctrineInflector
+     * @param null|object|\Symfony\Component\String\Inflector\InflectorInterface $doctrineInflector
      *
-     * @return \Doctrine\Inflector\Inflector
+     * @return object
      */
-    public function doctrineInflector($doctrineInflector = null)
+    public function withDoctrineInflector(?object $doctrineInflector) : object
     {
-        $commands = [
-            'composer require doctrine/inflector',
-        ];
-
-        if (func_num_args()) {
-            if (isset($doctrineInflector)) {
-                if (! class_exists(static::DOCTRINE_INFLECTOR)) {
-                    throw new RuntimeException([ 'Please, run following: %s', $commands ]);
-                }
-
-                if (! is_a($doctrineInflector, static::DOCTRINE_INFLECTOR)) {
-                    throw new RuntimeException([ 'Inflector should implements %s: %s', static::DOCTRINE_INFLECTOR, $doctrineInflector ]);
-                }
+        if ($doctrineInflector) {
+            if (! is_a($doctrineInflector, $interface = static::DOCTRINE_INFLECTOR)) {
+                throw new RuntimeException([
+                    'Doctrine Inflector should implements %s: %s',
+                    $interface,
+                    $doctrineInflector,
+                ]);
             }
-
-            $this->doctrineInflector = $doctrineInflector;
-
-        } elseif (! $this->doctrineInflector) {
-            if (! class_exists($class = static::DOCTRINE_INFLECTOR)) {
-                throw new RuntimeException([ 'Please, run following: %s', $commands ]);
-            }
-
-            $cachedWordInflector = '\Doctrine\Inflector\CachedWordInflector';
-            $rulesetInflector = '\Doctrine\Inflector\RulesetInflector';
-            $englishRules = '\Doctrine\Inflector\Rules\English\Rules';
-
-            $inflector = new $class(
-                new $cachedWordInflector(new $rulesetInflector(
-                    $englishRules::{'getSingularRuleset'}()
-                )),
-                new $cachedWordInflector(new $rulesetInflector(
-                    $englishRules::{'getPluralRuleset'}()
-                ))
-            );
-
-            $this->doctrineInflector = $inflector;
         }
 
-        return $this->doctrineInflector;
+        $this->doctrineInflector = $doctrineInflector;
+
+        return $this;
     }
 
     /**
-     * @param \Symfony\Component\String\Inflector\InflectorInterface $symfonyInflector
+     * @param null|object|\Symfony\Component\String\Inflector\InflectorInterface $symfonyInflector
      *
+     * @return object
+     */
+    public function withSymfonyInflector(?object $symfonyInflector) : object
+    {
+        if ($symfonyInflector) {
+            if (! is_a($symfonyInflector, $interface = static::SYMFONY_INFLECTOR_INTERFACE)) {
+                throw new RuntimeException([
+                    'Symfony Inflector should implements %s: %s',
+                    $interface,
+                    $symfonyInflector,
+                ]);
+            }
+        }
+
+        $this->symfonyInflector = $symfonyInflector;
+
+        return $this;
+    }
+
+
+    /**
      * @return \Symfony\Component\String\Inflector\InflectorInterface
      */
-    public function symfonyInflector($symfonyInflector = null)
+    public function newDoctrineInflector() : object
     {
         $commands = [
             'composer require symfony/string',
+            'composer require symfony/translation-contracts',
         ];
 
-        if (func_num_args()) {
-            if (isset($symfonyInflector)) {
-                if (! interface_exists(static::SYMFONY_INFLECTOR_INTERFACE)) {
-                    throw new RuntimeException([ 'Please, run following: %s', $commands ]);
-                }
-
-                if (! is_a($symfonyInflector, static::SYMFONY_INFLECTOR_INTERFACE)) {
-                    throw new RuntimeException([ 'Inflector should implements %s: %s', static::SYMFONY_INFLECTOR_INTERFACE, $symfonyInflector ]);
-                }
-            }
-
-            $this->symfonyInflector = $symfonyInflector;
-
-        } elseif (! $this->symfonyInflector) {
-            $engishInflector = '\Symfony\Component\String\Inflector\EnglishInflector';
-
-            if (! class_exists($class = $engishInflector)) {
-                throw new RuntimeException([ 'Please, run following: %s', $commands ]);
-            }
-
-            $this->symfonyInflector = new $class();
+        if (! class_exists($class = static::DOCTRINE_INFLECTOR)) {
+            throw new RuntimeException([
+                'Please, run following: %s',
+                $commands,
+            ]);
         }
 
-        return $this->symfonyInflector;
+        $cachedWordInflector = '\Doctrine\Inflector\CachedWordInflector';
+        $rulesetInflector = '\Doctrine\Inflector\RulesetInflector';
+        $englishRules = '\Doctrine\Inflector\Rules\English\Rules';
+
+        return new $class(
+            new $cachedWordInflector(new $rulesetInflector(
+                $englishRules::{'getSingularRuleset'}()
+            )),
+            new $cachedWordInflector(new $rulesetInflector(
+                $englishRules::{'getPluralRuleset'}()
+            ))
+        );
+    }
+
+    /**
+     * @return \Symfony\Component\String\Inflector\InflectorInterface
+     */
+    public function newSymfonyInflector() : object
+    {
+        $commands = [
+            'composer require symfony/string',
+            'composer require symfony/translation-contracts',
+        ];
+
+        if (! class_exists($class = static::SYMFONY_INFLECTOR_ENGLISH_INFLECTOR)) {
+            throw new RuntimeException([
+                'Please, run following: %s',
+                $commands,
+            ]);
+        }
+
+        return new $class();
+    }
+
+
+    /**
+     * @return \Doctrine\Inflector\Inflector
+     */
+    public function getDoctrineInflector() : object
+    {
+        return $this->doctrineInflector = $this->doctrineInflector
+            ?? $this->newDoctrineInflector();
+    }
+
+    /**
+     * @return \Symfony\Component\String\Inflector\InflectorInterface
+     */
+    public function getSymfonyInflector() : object
+    {
+        return $this->symfonyInflector = $this->symfonyInflector
+            ?? $this->newSymfonyInflector();
     }
 
 
@@ -128,12 +149,12 @@ class Inflector implements InflectorInterface
      *
      * @return array
      */
-    public function pluralize(string $singular, $limit = null, $offset = null) : array
+    public function pluralize(string $singular, int $limit = null, int $offset = null) : array
     {
         $array = [];
 
         $limit = $limit ?? 0;
-        $offset = intval($offset ?? 0);
+        $offset = $offset ?? 0;
 
         $array = array_merge($array, $this->pluralizeViaSimpleInflector($singular));
 
@@ -170,12 +191,12 @@ class Inflector implements InflectorInterface
      *
      * @return null|array
      */
-    public function singularize(string $plural, $limit = null, $offset = null) : array
+    public function singularize(string $plural, int $limit = null, int $offset = null) : array
     {
         $array = [];
 
         $limit = $limit ?? 0;
-        $offset = intval($offset ?? 0);
+        $offset = $offset ?? 0;
 
         $array = array_merge($array, $this->singularizeViaSimpleInflector($plural));
 
@@ -195,7 +216,7 @@ class Inflector implements InflectorInterface
 
         $result = [];
         foreach ( $array as $i => $string ) {
-            if ($i < $offset) continue;
+            if ($offset--) continue;
 
             $result[ $i ] = $string;
 
@@ -254,13 +275,9 @@ class Inflector implements InflectorInterface
             return null;
         }
 
-        $result = [];
+        $string = $this->getDoctrineInflector()->pluralize($singular);
 
-        if ($this->doctrineInflector) {
-            $string = $this->doctrineInflector->{'pluralize'}($singular);
-
-            $result[] = $string;
-        }
+        $result = [ $string ];
 
         return $result;
     }
@@ -276,13 +293,9 @@ class Inflector implements InflectorInterface
             return null;
         }
 
-        $result = [];
+        $string = $this->getDoctrineInflector()->singularize($plural);
 
-        if ($this->doctrineInflector) {
-            $string = $this->doctrineInflector->{'singularize'}($plural);
-
-            $result[] = $string;
-        }
+        $result = [ $string ];
 
         return $result;
     }
@@ -299,15 +312,11 @@ class Inflector implements InflectorInterface
             return null;
         }
 
-        $result = [];
+        $result = $this->getSymfonyInflector()->pluralize($singular);
 
-        if ($this->symfonyInflector) {
-            $result = $this->symfonyInflector->{'pluralize'}($singular);
-
-            usort($result, function ($a, $b) use ($singular) {
-                return similar_text($singular, $b) - similar_text($singular, $a);
-            });
-        }
+        usort($result, function ($a, $b) use ($singular) {
+            return similar_text($singular, $b) - similar_text($singular, $a);
+        });
 
         return $result;
     }
@@ -323,15 +332,11 @@ class Inflector implements InflectorInterface
             return null;
         }
 
-        $result = [];
+        $result = $this->getSymfonyInflector()->singularize($plural);
 
-        if ($this->symfonyInflector) {
-            $result = $this->symfonyInflector->{'singularize'}($plural);
-
-            usort($result, function ($a, $b) use ($plural) {
-                return similar_text($plural, $b) - similar_text($plural, $a);
-            });
-        }
+        usort($result, function ($a, $b) use ($plural) {
+            return similar_text($plural, $b) - similar_text($plural, $a);
+        });
 
         return $result;
     }

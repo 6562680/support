@@ -15,24 +15,18 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\ILoader;
 use Gzhegow\Support\SupportFactory;
-use Gzhegow\Support\ZLoader;
+use Gzhegow\Support\Traits\Load\PathLoadTrait;
+use Gzhegow\Support\Traits\Load\StrLoadTrait;
+use Gzhegow\Support\XLoader;
 
 class Loader
 {
     /**
-     * @return ZLoader
+     * @return XLoader
      */
-    public static function reset()
+    public static function resetDeclaredClasses()
     {
-        return static::getInstance()->reset();
-    }
-
-    /**
-     * @return array
-     */
-    public static function getDeclaredClasses(): array
-    {
-        return static::getInstance()->getDeclaredClasses();
+        return static::getInstance()->resetDeclaredClasses();
     }
 
     /**
@@ -67,7 +61,7 @@ class Loader
      * @param string       $contract
      * @param string|array $classes
      *
-     * @return ZLoader
+     * @return XLoader
      */
     public static function setContract(string $contract, ...$classes)
     {
@@ -78,11 +72,155 @@ class Loader
      * @param string       $contract
      * @param string|array $classes
      *
-     * @return ZLoader
+     * @return XLoader
      */
     public static function addContract(string $contract, ...$classes)
     {
         return static::getInstance()->addContract($contract, ...$classes);
+    }
+
+    /**
+     * @param string|mixed $className
+     *
+     * @return null|string
+     */
+    public static function filterClassName($className): ?string
+    {
+        return static::getInstance()->filterClassName($className);
+    }
+
+    /**
+     * @param string|mixed $classFullname
+     *
+     * @return null|string
+     */
+    public static function filterClassFullname($classFullname): ?string
+    {
+        return static::getInstance()->filterClassFullname($classFullname);
+    }
+
+    /**
+     * @param string|object   $value
+     * @param string|string[] $classes
+     *
+     * @return null|string|object
+     */
+    public static function filterClassOneOf($value, $classes)
+    {
+        return static::getInstance()->filterClassOneOf($value, $classes);
+    }
+
+    /**
+     * @param string|object   $value
+     * @param string|string[] $classes
+     *
+     * @return null|string|object
+     */
+    public static function filterSubclassOneOf($value, $classes)
+    {
+        return static::getInstance()->filterSubclassOneOf($value, $classes);
+    }
+
+    /**
+     * @param object          $object
+     * @param string|string[] $classes
+     *
+     * @return null|object
+     */
+    public static function filterInstanceOneOf($object, $classes): ?object
+    {
+        return static::getInstance()->filterInstanceOneOf($object, $classes);
+    }
+
+    /**
+     * @param object|mixed $object
+     * @param string|mixed $contract
+     *
+     * @return null|object
+     */
+    public static function filterContract($object, $contract): ?object
+    {
+        return static::getInstance()->filterContract($object, $contract);
+    }
+
+    /**
+     * @param \ReflectionClass|mixed $value
+     *
+     * @return null|\ReflectionClass
+     */
+    public static function filterReflectionClass($value): ?\ReflectionClass
+    {
+        return static::getInstance()->filterReflectionClass($value);
+    }
+
+    /**
+     * @param \ReflectionFunction|mixed $value
+     *
+     * @return null|\ReflectionFunction
+     */
+    public static function filterReflectionFunction($value): ?\ReflectionFunction
+    {
+        return static::getInstance()->filterReflectionFunction($value);
+    }
+
+    /**
+     * @param \ReflectionMethod|mixed $value
+     *
+     * @return null|\ReflectionMethod
+     */
+    public static function filterReflectionMethod($value): ?\ReflectionMethod
+    {
+        return static::getInstance()->filterReflectionMethod($value);
+    }
+
+    /**
+     * @param \ReflectionProperty|mixed $value
+     *
+     * @return null|\ReflectionProperty
+     */
+    public static function filterReflectionProperty($value): ?\ReflectionProperty
+    {
+        return static::getInstance()->filterReflectionProperty($value);
+    }
+
+    /**
+     * @param \ReflectionParameter|mixed $value
+     *
+     * @return null|\ReflectionParameter
+     */
+    public static function filterReflectionParameter($value): ?\ReflectionParameter
+    {
+        return static::getInstance()->filterReflectionParameter($value);
+    }
+
+    /**
+     * @param \ReflectionType|mixed $value
+     *
+     * @return null|\ReflectionType
+     */
+    public static function filterReflectionType($value): ?\ReflectionType
+    {
+        return static::getInstance()->filterReflectionType($value);
+    }
+
+    /**
+     * @param mixed $reflectionType
+     *
+     * @return null|\ReflectionUnionType
+     */
+    public static function filterReflectionUnionType($reflectionType)
+    {
+        return static::getInstance()->filterReflectionUnionType($reflectionType);
+    }
+
+    /**
+     * @param mixed $reflectionType
+     *
+     * @return null|\ReflectionNamedType
+     */
+    public static function filterReflectionNamedType($reflectionType)
+    {
+        return static::getInstance()->filterReflectionNamedType($reflectionType);
     }
 
     /**
@@ -310,138 +448,6 @@ class Loader
     }
 
     /**
-     * @param string|object   $value
-     * @param string|string[] $classes
-     *
-     * @return bool
-     */
-    public static function isClassOneOf($value, $classes): bool
-    {
-        return static::getInstance()->isClassOneOf($value, $classes);
-    }
-
-    /**
-     * @param string|object   $value
-     * @param string|string[] $classes
-     *
-     * @return bool
-     */
-    public static function isSubclassOneOf($value, $classes): bool
-    {
-        return static::getInstance()->isSubclassOneOf($value, $classes);
-    }
-
-    /**
-     * @param object          $value
-     * @param string|string[] $classes
-     *
-     * @return bool
-     */
-    public static function isInstanceOneOf($value, $classes): bool
-    {
-        return static::getInstance()->isInstanceOneOf($value, $classes);
-    }
-
-    /**
-     * @param string|mixed $object
-     * @param object|mixed $contract
-     *
-     * @return bool
-     */
-    public static function isContract($object, $contract): bool
-    {
-        return static::getInstance()->isContract($object, $contract);
-    }
-
-    /**
-     * @param string|object   $value
-     * @param string|string[] $classes
-     *
-     * @return null|string|object
-     */
-    public static function filterClassOneOf($value, $classes)
-    {
-        return static::getInstance()->filterClassOneOf($value, $classes);
-    }
-
-    /**
-     * @param string|object   $value
-     * @param string|string[] $classes
-     *
-     * @return null|string|object
-     */
-    public static function filterSubclassOneOf($value, $classes)
-    {
-        return static::getInstance()->filterSubclassOneOf($value, $classes);
-    }
-
-    /**
-     * @param object          $object
-     * @param string|string[] $classes
-     *
-     * @return null|object
-     */
-    public static function filterInstanceOneOf($object, $classes): ?object
-    {
-        return static::getInstance()->filterInstanceOneOf($object, $classes);
-    }
-
-    /**
-     * @param object|mixed $object
-     * @param string|mixed $contract
-     *
-     * @return null|object
-     */
-    public static function filterContract($object, $contract): ?object
-    {
-        return static::getInstance()->filterContract($object, $contract);
-    }
-
-    /**
-     * @param string|object   $value
-     * @param string|string[] ...$classes
-     *
-     * @return string|object
-     */
-    public static function assertClassOneOf($value, $classes)
-    {
-        return static::getInstance()->assertClassOneOf($value, $classes);
-    }
-
-    /**
-     * @param string|object   $value
-     * @param string|string[] ...$classes
-     *
-     * @return string|object
-     */
-    public static function assertSubclassOneOf($value, $classes)
-    {
-        return static::getInstance()->assertSubclassOneOf($value, $classes);
-    }
-
-    /**
-     * @param object          $object
-     * @param string|string[] ...$classes
-     *
-     * @return object
-     */
-    public static function assertInstanceOneOf($object, $classes): object
-    {
-        return static::getInstance()->assertInstanceOneOf($object, $classes);
-    }
-
-    /**
-     * @param object|mixed $object
-     * @param string|mixed $contract
-     *
-     * @return object
-     */
-    public static function assertContract($object, $contract): object
-    {
-        return static::getInstance()->assertContract($object, $contract);
-    }
-
-    /**
      * @param string $contract
      *
      * @return null|array
@@ -501,15 +507,6 @@ class Loader
     public static function className($classOrObject): string
     {
         return static::getInstance()->className($classOrObject);
-    }
-
-    /**
-     * @return \Gzhegow\Support\IPath
-     * @noinspection PhpUnnecessaryFullyQualifiedNameInspection
-     */
-    public static function path(): \Gzhegow\Support\IPath
-    {
-        return static::getInstance()->path();
     }
 
     /**

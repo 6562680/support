@@ -14,20 +14,10 @@ namespace Gzhegow\Support\Facades;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\IProf;
 use Gzhegow\Support\SupportFactory;
-use Gzhegow\Support\ZProf;
+use Gzhegow\Support\XProf;
 
 class Prof
 {
-    /**
-     * @param null|string $comment
-     *
-     * @return float
-     */
-    public static function tick(?string $comment = ''): float
-    {
-        return static::getInstance()->tick($comment);
-    }
-
     /**
      * @param null|int $decimals
      *
@@ -39,11 +29,31 @@ class Prof
     }
 
     /**
-     * @return ZProf
+     * @return XProf
      */
-    public static function flush()
+    public static function reset()
     {
-        return static::getInstance()->flush();
+        return static::getInstance()->reset();
+    }
+
+    /**
+     * @param null|int $decimals
+     *
+     * @return array
+     */
+    public static function flush(int $decimals = null): array
+    {
+        return static::getInstance()->flush($decimals);
+    }
+
+    /**
+     * @param null|string $comment
+     *
+     * @return float
+     */
+    public static function tick(?string $comment = ''): float
+    {
+        return static::getInstance()->tick($comment);
     }
 
     /**

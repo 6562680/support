@@ -11,54 +11,40 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Domain\Math\ValueObject\Bcval;
+use Gzhegow\Support\Domain\Math\ValueObject\MathBcval;
 use Gzhegow\Support\Exceptions\Logic\BadMethodCallException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\Runtime\OutOfBoundsException;
+use Gzhegow\Support\Traits\Load\NumLoadTrait;
+use Gzhegow\Support\Traits\Load\StrLoadTrait;
 
 interface IMath
 {
     /**
-     * @return ZMath
+     * @param null|int $scale
+     *
+     * @return XMath
      */
-    public function reset();
+    public function withScale(?int $scale);
 
     /**
-     * @param null|int $scale
      * @param null|int $scaleMax
      *
-     * @return ZMath
+     * @return XMath
      */
-    public function clone(?int $scale, ?int $scaleMax);
+    public function withScaleMax(?int $scaleMax);
 
     /**
-     * @param null|int $scale
-     * @param null|int $scaleMax
-     *
-     * @return ZMath
+     * @return int
      */
-    public function with(?int $scale, ?int $scaleMax);
+    public function loadScaleMax(): int;
 
     /**
-     * @param int $scale
+     * @param string $validValue
      *
-     * @return ZMath
+     * @return MathBcval
      */
-    public function withScale(int $scale);
-
-    /**
-     * @param int $scaleMax
-     *
-     * @return ZMath
-     */
-    public function withScaleMax(int $scaleMax);
-
-    /**
-     * @param string $value
-     *
-     * @return Bcval
-     */
-    public function newBcval(string $value): Bcval;
+    public function newBcval(string $validValue): MathBcval;
 
     /**
      * @return null|int
@@ -71,137 +57,131 @@ interface IMath
     public function getScaleMax(): int;
 
     /**
-     * @param int|float|string|Bcval|mixed $value
+     * @param string|mixed $value
      *
-     * @return null|Bcval
+     * @return null|string
      */
-    public function bcPositiveVal($value): ?Bcval;
+    public function filterAlgorism($value): ?string;
 
     /**
-     * @param int|float|string|Bcval|mixed $value
+     * @param string|mixed $value
      *
-     * @return null|Bcval
+     * @return null|int|float|string|object
      */
-    public function bcNonNegativeVal($value): ?Bcval;
+    public function filterAlgorismval($value);
 
     /**
-     * @param int|float|string|Bcval|mixed $value
+     * @param int|float|string|MathBcval|mixed $value
      *
-     * @return null|Bcval
+     * @return null|int|float|string|MathBcval
      */
-    public function bcNegativeVal($value): ?Bcval;
+    public function filterBcGt0($value);
 
     /**
-     * @param int|float|string|Bcval|mixed $value
+     * @param int|float|string|MathBcval|mixed $value
      *
-     * @return null|Bcval
+     * @return null|int|float|string|MathBcval
      */
-    public function bcNonPositiveVal($value): ?Bcval;
+    public function filterBcGte0($value);
 
     /**
-     * @param int|float|string|Bcval|mixed $value
+     * @param int|float|string|MathBcval|mixed $value
      *
-     * @return Bcval
+     * @return null|int|float|string|MathBcval
      */
-    public function theBcPositiveVal($value): Bcval;
+    public function filterBcLt0($value);
 
     /**
-     * @param int|float|string|Bcval|mixed $value
+     * @param int|float|string|MathBcval|mixed $value
      *
-     * @return Bcval
+     * @return null|int|float|string|MathBcval
      */
-    public function theBcNonNegativeVal($value): Bcval;
+    public function filterBcLte0($value);
 
     /**
-     * @param int|float|string|Bcval|mixed $value
-     *
-     * @return Bcval
-     */
-    public function theBcNegativeVal($value): Bcval;
-
-    /**
-     * @param int|float|string|Bcval|mixed $value
-     *
-     * @return Bcval
-     */
-    public function theBcNonPositiveVal($value): Bcval;
-
-    /**
-     * @param int|mixed                    $scale
-     * @param int|float|string|Bcval|mixed ...$numbers
+     * @param int|mixed                        $scale
+     * @param int|float|string|MathBcval|mixed ...$numbers
      *
      * @return null|int
      */
-    public function scaleVal($scale, ...$numbers): ?int;
+    public function scaleval($scale, ...$numbers): ?int;
 
     /**
-     * @param int|mixed                    $scale
-     * @param int|float|string|Bcval|mixed ...$numbers
+     * @param int|float|string|MathBcval|mixed $number
+     *
+     * @return null|MathBcval
+     */
+    public function bcval($number): ?MathBcval;
+
+    /**
+     * @param string|mixed $value
+     *
+     * @return null|string
+     */
+    public function algorismval($value): ?string;
+
+    /**
+     * @param int|mixed                        $scale
+     * @param int|float|string|MathBcval|mixed ...$numbers
      *
      * @return int
      */
-    public function theScaleVal($scale, ...$numbers): int;
+    public function theScaleval($scale, ...$numbers): int;
 
     /**
-     * @param int|float|string|Bcval|mixed $number
+     * @param int|float|string|MathBcval|mixed $value
      *
-     * @return null|Bcval
+     * @return MathBcval
      */
-    public function bcval($number): ?Bcval;
+    public function theBcval($value): MathBcval;
 
     /**
-     * @param int|float|string|Bcval|mixed $value
+     * @param string|mixed $value
      *
-     * @return Bcval
+     * @return string
      */
-    public function theBcval($value): Bcval;
+    public function theAlgorismval($value): string;
 
     /**
      * @param string|array $numerics
      * @param null|bool    $uniq
      * @param null|bool    $recursive
      *
-     * @return Bcval[]
+     * @return MathBcval[]
      */
     public function bcvals($numerics, bool $uniq = null, bool $recursive = null): array;
 
     /**
+     * @param string|array $algorisms
+     * @param null|bool    $uniq
+     * @param null|bool    $recursive
+     *
+     * @return string[]
+     */
+    public function algorismvals($algorisms, bool $uniq = null, bool $recursive = null): array;
+
+    /**
      * @param string|array $numerics
      * @param null|bool    $uniq
      * @param null|bool    $recursive
      *
-     * @return Bcval[]
+     * @return MathBcval[]
      */
     public function theBcvals($numerics, bool $uniq = null, bool $recursive = null): array;
 
     /**
-     * @param int|float|string|Bcval|mixed $number
-     * @param null|int                     $decimals
-     * @param null|string                  $decimalSeparator
-     * @param null|string                  $thousandSeparator
+     * @param string|array $algorisms
+     * @param null|bool    $uniq
+     * @param null|bool    $recursive
      *
-     * @return string
+     * @return string[]
      */
-    public function numberFormat(
-        $number,
-        int $decimals = null,
-        string $decimalSeparator = null,
-        string $thousandSeparator = null
-    );
-
-    /**
-     * @param string|mixed $number
-     * @param string|array $decimalsSeparators
-     * @param string|array $thousandsSeparators
-     *
-     * @return string
-     */
-    public function numberParse($number, $decimalsSeparators = null, $thousandsSeparators = null): string;
+    public function theAlgorismvals($algorisms, bool $uniq = null, bool $recursive = null): array;
 
     /**
      * Возвращает дробную часть числа
      *
-     * @param int|float|string|Bcval|mixed $number
+     * @param int|float|string|MathBcval|mixed $number
      *
      * @return string
      */
@@ -210,8 +190,8 @@ interface IMath
     /**
      * Определяет максимальное число знаков после запятой из переданных чисел
      *
-     * @param int|float|string|Bcval|array $numbers
-     * @param null|int                     $scaleMax
+     * @param int|float|string|MathBcval|array $numbers
+     * @param null|int                         $scaleMax
      *
      * @return int
      */
@@ -307,6 +287,183 @@ interface IMath
     public function rand($from, $to = null): float;
 
     /**
+     * @param int|float|string|MathBcval|mixed $a
+     * @param int|float|string|MathBcval|mixed $b
+     * @param null|int                         $scale
+     *
+     * @return int
+     */
+    public function bccomp($a, $b, int $scale = null): int;
+
+    /**
+     * @param int|float|string|MathBcval|mixed $a
+     * @param int|float|string|MathBcval|mixed $b
+     * @param null|int                         $scale
+     *
+     * @return MathBcval
+     */
+    public function bcadd($a, $b, int $scale = null): MathBcval;
+
+    /**
+     * @param int|float|string|MathBcval|mixed $a
+     * @param int|float|string|MathBcval|mixed $b
+     * @param null|int                         $scale
+     *
+     * @return MathBcval
+     */
+    public function bcsub($a, $b, int $scale = null): MathBcval;
+
+    /**
+     * @param int|float|string|MathBcval|mixed $a
+     * @param int|float|string|MathBcval|mixed $b
+     * @param null|int                         $scale
+     *
+     * @return MathBcval
+     */
+    public function bcmul($a, $b, int $scale = null): MathBcval;
+
+    /**
+     * @param int|float|string|MathBcval|mixed $a
+     * @param int|float|string|MathBcval|mixed $b
+     * @param null|int                         $scale
+     *
+     * @return MathBcval
+     */
+    public function bcmod($a, $b, int $scale = null): MathBcval;
+
+    /**
+     * @param int|float|string|MathBcval|mixed $a
+     * @param int|float|string|MathBcval|mixed $b
+     * @param null|int                         $scale
+     *
+     * @return MathBcval
+     */
+    public function bcdiv($a, $b, int $scale = null): MathBcval;
+
+    /**
+     * @param int|float|string|MathBcval|mixed $val
+     * @param int|float|string|MathBcval|mixed $exp
+     * @param null|int                         $scale
+     *
+     * @return MathBcval
+     */
+    public function bcpow($val, $exp, int $scale = null): MathBcval;
+
+    /**
+     * @param int|float|string|MathBcval|mixed $val
+     * @param null|int                         $scale
+     *
+     * @return MathBcval
+     */
+    public function bcsqrt($val, int $scale = null): MathBcval;
+
+    /**
+     * Получает значение по модулю от числа
+     *
+     * @param int|float|string|MathBcval|mixed $number
+     *
+     * @return string
+     */
+    public function bcabs($number): string;
+
+    /**
+     * Округление
+     *
+     * @param int|float|string|MathBcval|mixed $number
+     * @param null|int                         $scale
+     *
+     * @return MathBcval
+     */
+    public function bcround($number, int $scale = null): MathBcval;
+
+    /**
+     * Округляет в меньшую сторону
+     *
+     * @param int|float|string|MathBcval|mixed $number
+     * @param null|int                         $scale
+     *
+     * @return MathBcval
+     */
+    public function bcfloor($number, int $scale = null): MathBcval;
+
+    /**
+     * Округляет в большую сторону
+     *
+     * @param int|float|string|MathBcval|mixed $number
+     * @param null|int                         $scale
+     *
+     * @return MathBcval
+     */
+    public function bcceil($number, int $scale = null): MathBcval;
+
+    /**
+     * @param int|float|string|MathBcval|array $numbers
+     * @param null|int                         $scale
+     *
+     * @return null|MathBcval
+     */
+    public function bcmax($numbers, int $scale = null): ?MathBcval;
+
+    /**
+     * @param int|float|string|MathBcval|array $numbers
+     * @param null|int                         $scale
+     *
+     * @return null|MathBcval
+     */
+    public function bcmin($numbers, int $scale = null): ?MathBcval;
+
+    /**
+     * @param int|float|string|MathBcval|array $numbers
+     * @param null|int                         $scale
+     *
+     * @return MathBcval
+     */
+    public function bcsum($numbers, int $scale = null): MathBcval;
+
+    /**
+     * @param int|float|string|MathBcval|array $numbers
+     * @param null|int                         $scale
+     *
+     * @return MathBcval
+     */
+    public function bcavg($numbers, int $scale = null): MathBcval;
+
+    /**
+     * @param int|float|string|MathBcval|array $numbers
+     * @param null|int                         $scale
+     *
+     * @return null|MathBcval
+     */
+    public function bcmedian($numbers, int $scale = null): ?MathBcval;
+
+    /**
+     * @param int|float      $value
+     * @param null|int|float $sum
+     * @param null|int       $scale
+     *
+     * @return MathBcval
+     */
+    public function bcratio($value, $sum = null, int $scale = null): MathBcval;
+
+    /**
+     * @param int|float|string|MathBcval|mixed      $value
+     * @param null|int|float|string|MathBcval|mixed $sum
+     * @param null|int                              $scale
+     *
+     * @return MathBcval
+     */
+    public function bcpercent($value, $sum = null, int $scale = null): MathBcval;
+
+    /**
+     * @param int|float|string|MathBcval|mixed      $from
+     * @param null|int|float|string|MathBcval|mixed $to
+     * @param null|int                              $scale
+     *
+     * @return MathBcval
+     */
+    public function bcrand($from, $to = null, int $scale = null): MathBcval;
+
+    /**
      * Рассчитывает соотношение долей между собой
      *
      * @param int|float|array $rates
@@ -317,8 +474,8 @@ interface IMath
 
     /**
      * Рассчитывает соотношение долей между собой
-     * Нулевые соотношения получают пропорционально их количества - чем нулей больше, тем меньше каждому
-     * В то же время нули получают тем больше, чем ближе минимальное и максимальное без учета самих нулей
+     * Нули получают пропорционально их количества - чем нулей больше, тем меньше каждому не-нулю
+     * Нули получают тем больше, чем ближе минимальное и максимальное без учета самих нулей
      *
      * @param int|float|array $rates
      *
@@ -327,10 +484,9 @@ interface IMath
     public function ratesZero(...$rates): array;
 
     /**
-     * Очень социалистическая функция :)
      * Балансирует общую сумму между получателями учитывая заранее известные ("замороженные") значения
-     * Заберет у тех, у кого много, раздаст тем, кому мало, недостающее выдаст из суммы
      * Создавалась для взаимозависимого эквалайзера - двигаешь один ползунок - остальные равномерно меняются
+     * Заберет у тех, у кого много, раздаст тем, кому мало, недостающее выдаст из суммы
      *
      * 65; [ 5,10,50 ]; [ ,,20 ]
      * 5x + 10x + 50x = 65
@@ -349,212 +505,77 @@ interface IMath
     public function balance($sum, $ratesNeedle, $ratesFreezes = null): array;
 
     /**
-     * @param int|float|string|Bcval|mixed $a
-     * @param int|float|string|Bcval|mixed $b
-     * @param null|int                     $scale
-     *
-     * @return int
-     */
-    public function bccomp($a, $b, int $scale = null): int;
-
-    /**
-     * @param int|float|string|Bcval|mixed $a
-     * @param int|float|string|Bcval|mixed $b
-     * @param null|int                     $scale
-     *
-     * @return Bcval
-     */
-    public function bcadd($a, $b, int $scale = null): Bcval;
-
-    /**
-     * @param int|float|string|Bcval|mixed $a
-     * @param int|float|string|Bcval|mixed $b
-     * @param null|int                     $scale
-     *
-     * @return Bcval
-     */
-    public function bcsub($a, $b, int $scale = null): Bcval;
-
-    /**
-     * @param int|float|string|Bcval|mixed $a
-     * @param int|float|string|Bcval|mixed $b
-     * @param null|int                     $scale
-     *
-     * @return Bcval
-     */
-    public function bcmul($a, $b, int $scale = null): Bcval;
-
-    /**
-     * @param int|float|string|Bcval|mixed $a
-     * @param int|float|string|Bcval|mixed $b
-     * @param null|int                     $scale
-     *
-     * @return Bcval
-     */
-    public function bcmod($a, $b, int $scale = null);
-
-    /**
-     * @param int|float|string|Bcval|mixed $a
-     * @param int|float|string|Bcval|mixed $b
-     * @param null|int                     $scale
-     *
-     * @return Bcval
-     */
-    public function bcdiv($a, $b, int $scale = null): Bcval;
-
-    /**
-     * @param int|float|string|Bcval|mixed $val
-     * @param int|float|string|Bcval|mixed $exp
-     * @param null|int                     $scale
-     *
-     * @return Bcval
-     */
-    public function bcpow($val, $exp, int $scale = null): Bcval;
-
-    /**
-     * @param int|float|string|Bcval|mixed $val
-     * @param null|int                     $scale
-     *
-     * @return Bcval
-     */
-    public function bcsqrt($val, int $scale = null): Bcval;
-
-    /**
-     * Получает символ "минус", если число отрицательное, или пустую строку
-     *
-     * @param int|float|string|Bcval|mixed $number
-     *
-     * @return Bcval
-     */
-    public function bcminus($number): string;
-
-    /**
-     * Получает значение по модулю от числа
-     *
-     * @param int|float|string|Bcval|mixed $number
+     * @param int|string  $floor
+     * @param string|null $baseCharsTo
+     * @param string      $baseCharsFrom
+     * @param int         $baseShiftTo
+     * @param int         $baseShiftFrom
      *
      * @return string
      */
-    public function bcabs($number): string;
+    public function baseConvertFloor(
+        $floor,
+        string $baseCharsTo = null,
+        string $baseCharsFrom = '0123456789',
+        int $baseShiftTo = 0,
+        int $baseShiftFrom = 0
+    ): string;
 
     /**
-     * Округление
+     * @param int|string  $frac
+     * @param string|null $baseCharsTo
+     * @param string      $baseCharsFrom
+     * @param int|null    $scale
      *
-     * @param int|float|string|Bcval|mixed $number
-     * @param null|int                     $scale
-     *
-     * @return Bcval
+     * @return string
      */
-    public function bcround($number, int $scale = null): Bcval;
+    public function baseConvertFrac(
+        $frac,
+        string $baseCharsTo = null,
+        string $baseCharsFrom = '0123456789',
+        int $scale = null
+    ): string;
 
     /**
-     * Округляет в меньшую сторону
+     * @param int|float|string $num
+     * @param string|null      $baseCharsTo
+     * @param string           $baseCharsFrom
+     * @param int|null         $scale
+     * @param int              $baseShiftTo
+     * @param int              $baseShiftFrom
      *
-     * @param int|float|string|Bcval|mixed $number
-     * @param null|int                     $scale
-     *
-     * @return Bcval
+     * @return string
      */
-    public function bcfloor($number, int $scale = null): Bcval;
-
-    /**
-     * Округляет в большую сторону
-     *
-     * @param int|float|string|Bcval|mixed $number
-     * @param null|int                     $scale
-     *
-     * @return Bcval
-     */
-    public function bcceil($number, int $scale = null): Bcval;
-
-    /**
-     * @param int|float|string|Bcval|array $numbers
-     * @param null|int                     $scale
-     *
-     * @return null|Bcval
-     */
-    public function bcmax($numbers, int $scale = null): ?Bcval;
-
-    /**
-     * @param int|float|string|Bcval|array $numbers
-     * @param null|int                     $scale
-     *
-     * @return null|Bcval
-     */
-    public function bcmin($numbers, int $scale = null): ?Bcval;
-
-    /**
-     * @param int|float|string|Bcval|array $numbers
-     * @param null|int                     $scale
-     *
-     * @return Bcval
-     */
-    public function bcsum($numbers, int $scale = null): Bcval;
-
-    /**
-     * @param int|float|string|Bcval|array $numbers
-     * @param null|int                     $scale
-     *
-     * @return Bcval
-     */
-    public function bcavg($numbers, int $scale = null): Bcval;
-
-    /**
-     * @param int|float|string|Bcval|array $numbers
-     * @param null|int                     $scale
-     *
-     * @return null|Bcval
-     */
-    public function bcmedian($numbers, int $scale = null): ?Bcval;
-
-    /**
-     * @param int|float      $value
-     * @param null|int|float $sum
-     * @param null|int       $scale
-     *
-     * @return Bcval
-     */
-    public function bcratio($value, $sum = null, int $scale = null): Bcval;
-
-    /**
-     * @param int|float|string|Bcval|mixed      $value
-     * @param null|int|float|string|Bcval|mixed $sum
-     * @param null|int                          $scale
-     *
-     * @return Bcval
-     */
-    public function bcpercent($value, $sum = null, int $scale = null): Bcval;
-
-    /**
-     * @param int|float|string|Bcval|mixed      $from
-     * @param null|int|float|string|Bcval|mixed $to
-     * @param null|int                          $scale
-     *
-     * @return Bcval
-     */
-    public function bcrand($from, $to = null, int $scale = null): Bcval;
+    public function baseConvert(
+        $num,
+        string $baseCharsTo = null,
+        string $baseCharsFrom = '0123456789',
+        int $scale = null,
+        int $baseShiftTo = 0,
+        int $baseShiftFrom = 0
+    );
 
     /**
      * Округление по "правилу денег"
      * Эта функция учитывает "потерянную копейку", 1.0005 будет округлено до 1.01 вместо 1.00 (по математическим правилам)
      *
-     * @param int|float|string|Bcval|mixed $number
-     * @param null|int                     $scale
+     * @param int|float|string|MathBcval|mixed $number
+     * @param null|int                         $scale
      *
-     * @return Bcval
+     * @return MathBcval
      */
-    public function bcmoneyround($number, int $scale = null): Bcval;
+    public function bcmoneyround($number, int $scale = null): MathBcval;
 
     /**
      * Разбивает сумму между получателями
      * Если разделить 100 на 3 получается 33.33, 33.33, и 33.33 и 0.01 в периоде
      * Функция позволяет разбить исходное число на три, дробная часть от каждого деления достанется первому
      *
-     * @param int|float|string|Bcval|mixed $sum
-     * @param int|float|string|Bcval|array $rates
-     * @param null|int                     $scale
+     * @param int|float|string|MathBcval|mixed $sum
+     * @param int|float|string|MathBcval|array $rates
+     * @param null|int                         $scale
      *
-     * @return Bcval[]
+     * @return MathBcval[]
      */
     public function bcmoneyshare($sum, $rates, int $scale = null): array;
 }

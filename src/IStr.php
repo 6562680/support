@@ -11,85 +11,190 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Domain\Str\Inflector;
-use Gzhegow\Support\Domain\Str\InflectorInterface;
-use Gzhegow\Support\Domain\Str\Slugger;
-use Gzhegow\Support\Domain\Str\SluggerInterface;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+use Gzhegow\Support\Exceptions\RuntimeException;
+use Gzhegow\Support\Traits\Load\ArrLoadTrait;
+use Gzhegow\Support\Traits\Load\CacheLoadTrait;
+use Gzhegow\Support\Traits\Load\NumLoadTrait;
+use Gzhegow\Support\Traits\Load\Str\InflectorLoadTrait;
+use Gzhegow\Support\Traits\Load\Str\SluggerLoadTrait;
 
 interface IStr
 {
     /**
-     * @return string
+     * @return ICache
      */
-    public function getTrims(): string;
+    public function loadCache(): ICache;
 
     /**
      * @return string
      */
-    public function getSeparators(): string;
+    public function loadTrims(): string;
+
+    /**
+     * @return string
+     */
+    public function loadSeparators(): string;
 
     /**
      * @return array
      */
-    public function getAccents(): array;
+    public function loadAccents(): array;
 
     /**
      * @return array
      */
-    public function getVowels(): array;
+    public function loadVowels(): array;
 
     /**
-     * @param mixed $value
+     * @param string|mixed $value
+     *
+     * @return null|string
+     */
+    public function filterStringUtf8($value): ?string;
+
+    /**
+     * @param string|mixed $value
+     *
+     * @return null|string
+     */
+    public function filterString($value): ?string;
+
+    /**
+     * @param string|mixed $value
+     *
+     * @return null|string
+     */
+    public function filterLetter($value): ?string;
+
+    /**
+     * @param string|mixed $value
+     *
+     * @return null|string
+     */
+    public function filterWord($value): ?string;
+
+    /**
+     * @param int|string|mixed $value
+     *
+     * @return null|int|float|string
+     */
+    public function filterStringOrInt($value);
+
+    /**
+     * @param int|string|mixed $value
+     *
+     * @return null|int|float|string
+     */
+    public function filterLetterOrInt($value);
+
+    /**
+     * @param int|string|mixed $value
+     *
+     * @return null|int|float|string
+     */
+    public function filterWordOrInt($value);
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int|float|string
+     */
+    public function filterStringOrNum($value);
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int|float|string
+     */
+    public function filterLetterOrNum($value);
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int|float|string
+     */
+    public function filterWordOrNum($value);
+
+    /**
+     * @param string|mixed $value
+     *
+     * @return null|int|float|string|object
+     */
+    public function filterStrval($value);
+
+    /**
+     * @param string|mixed $value
+     *
+     * @return null|int|float|string|object
+     */
+    public function filterLetterval($value);
+
+    /**
+     * @param string|mixed $value
+     *
+     * @return null|int|float|string|object
+     */
+    public function filterWordval($value);
+
+    /**
+     * @param string|mixed $value
+     *
+     * @return null|int|float|string|object
+     */
+    public function filterTrimval($value);
+
+    /**
+     * @param string|mixed $value
      *
      * @return null|string
      */
     public function strval($value): ?string;
 
     /**
-     * @param mixed $value
+     * @param string|mixed $value
      *
      * @return null|string
      */
     public function letterval($value): ?string;
 
     /**
-     * @param mixed $value
+     * @param string|mixed $value
      *
      * @return null|string
      */
     public function wordval($value): ?string;
 
     /**
-     * @param mixed $value
+     * @param string|mixed $value
      *
      * @return null|string
      */
     public function trimval($value): ?string;
 
     /**
-     * @param mixed $value
+     * @param string|mixed $value
      *
      * @return string
      */
     public function theStrval($value): string;
 
     /**
-     * @param mixed $value
+     * @param string|mixed $value
      *
      * @return string
      */
     public function theLetterval($value): string;
 
     /**
-     * @param mixed $value
+     * @param string|mixed $value
      *
      * @return string
      */
     public function theWordval($value): string;
 
     /**
-     * @param mixed $value
+     * @param string|mixed $value
      *
      * @return string
      */
@@ -132,15 +237,6 @@ interface IStr
     public function trimvals($trims, bool $uniq = null, bool $recursive = null): array;
 
     /**
-     * @param string|array $letters
-     * @param null|bool    $uniq
-     * @param null|bool    $recursive
-     *
-     * @return string[]
-     */
-    public function theLettervals($letters, bool $uniq = null, bool $recursive = null): array;
-
-    /**
      * @param string|array $strings
      * @param null|bool    $uniq
      * @param null|bool    $recursive
@@ -148,6 +244,15 @@ interface IStr
      * @return string[]
      */
     public function theStrvals($strings, bool $uniq = null, bool $recursive = null): array;
+
+    /**
+     * @param string|array $letters
+     * @param null|bool    $uniq
+     * @param null|bool    $recursive
+     *
+     * @return string[]
+     */
+    public function theLettervals($letters, bool $uniq = null, bool $recursive = null): array;
 
     /**
      * @param string|array $words
@@ -166,6 +271,100 @@ interface IStr
      * @return string[]
      */
     public function theTrimvals($trims, bool $uniq = null, bool $recursive = null): array;
+
+    /**
+     * пишет слово с большой буквы
+     *
+     * @param string      $string
+     * @param null|string $encoding
+     *
+     * @return string
+     */
+    public function lcfirst(string $string, string $encoding = null);
+
+    /**
+     * пишет слово с большой буквы
+     *
+     * @param string      $string
+     * @param null|string $encoding
+     *
+     * @return string
+     */
+    public function ucfirst(string $string, string $encoding = null);
+
+    /**
+     * пишет каждое слово в предложении с малой буквы
+     *
+     * @param string      $string
+     * @param string      $separators
+     * @param null|string $encoding
+     *
+     * @return string
+     */
+    public function lcwords(string $string, string $separators = " \t\r\n\x0C\x0B", string $encoding = null);
+
+    /**
+     * пишет каждое слово в предложении с большой буквы
+     *
+     * @param string      $string
+     * @param string      $separators
+     * @param null|string $encoding
+     *
+     * @return string
+     */
+    public function ucwords(string $string, string $separators = " \t\r\n\x0C\x0B", string $encoding = null);
+
+    /**
+     * стандартная функция возвращает false, если не найдено, false при вычитании приравнивается к 0
+     * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для битового сдвига
+     * usort($array, function ($a, $b) { return $str->strpos($haystack, $a) - $str->strpos($haystack, $b); }}
+     *
+     * @param string   $string
+     * @param string   $needle
+     * @param null|int $offset
+     *
+     * @return int
+     */
+    public function strpos(string $string, string $needle, int $offset = null): int;
+
+    /**
+     * стандартная функция возвращает false, если не найдено, false при вычитании приравнивается к 0
+     * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для битового сдвига
+     * usort($array, function ($a, $b) { return $str->strrpos($haystack, $a) - $str->strrpos($haystack, $b); }}
+     *
+     * @param string   $string
+     * @param string   $needle
+     * @param null|int $offset
+     *
+     * @return int
+     */
+    public function strrpos(string $string, string $needle, int $offset = null): int;
+
+    /**
+     * стандартная функция возвращает false, если не найдено, false при вычитании приравнивается к 0
+     * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для битового сдвига
+     * usort($array, function ($a, $b) { return $str->stripos($haystack, $a) - $str->stripos($haystack, $b); }}
+     *
+     * @param string   $string
+     * @param string   $needle
+     * @param null|int $offset
+     *
+     * @return int
+     */
+    public function stripos(string $string, string $needle, int $offset = null): int;
+
+    /**
+     * стандартная функция возвращает false, если не найдено, false при вычитании приравнивается к 0
+     * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для битового сдвига
+     * usort($array, function ($a, $b) { return $str->strripos($haystack, $a) - $str->strripos($haystack, $b); }}
+     *
+     * @param string   $string
+     * @param string   $needle
+     * @param null|int $offset
+     *
+     * @return int
+     */
+    public function strripos(string $string, string $needle, int $offset = null): int;
 
     /**
      * фикс. стандартная функция не поддерживает лимит замен
@@ -194,225 +393,142 @@ interface IStr
     public function ireplace($strings, $replacements, $subjects, int $limit = null, int &$count = null);
 
     /**
-     * @return \Gzhegow\Support\IPhp
-     * @noinspection PhpUnnecessaryFullyQualifiedNameInspection
-     * @noinspection PhpFullyQualifiedNameUsageInspection
-     */
-    public function php(): IPhp;
-
-    /**
-     * @param null|SluggerInterface $slugger
-     *
-     * @return SluggerInterface
-     */
-    public function slugger(SluggerInterface $slugger = null): SluggerInterface;
-
-    /**
-     * @param null|InflectorInterface $inflector
-     *
-     * @return InflectorInterface
-     */
-    public function inflector(InflectorInterface $inflector = null): InflectorInterface;
-
-    /**
-     * стандартная функция возвращает false, если не найдено, false при вычитании приравнивается к 0
-     * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для битового сдвига
-     * usort($array, function ($a, $b) { return $str->strpos($haystack, $a) - $str->strpos($haystack, $b); }}
-     *
-     * @param string   $haystack
-     * @param string   $needle
-     * @param null|int $offset
-     *
-     * @return int
-     */
-    public function strpos(string $haystack, string $needle, int $offset = null): int;
-
-    /**
-     * стандартная функция возвращает false, если не найдено, false при вычитании приравнивается к 0
-     * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для битового сдвига
-     * usort($array, function ($a, $b) { return $str->strrpos($haystack, $a) - $str->strrpos($haystack, $b); }}
-     *
-     * @param string   $haystack
-     * @param string   $needle
-     * @param null|int $offset
-     *
-     * @return int
-     */
-    public function strrpos(string $haystack, string $needle, int $offset = null): int;
-
-    /**
-     * стандартная функция возвращает false, если не найдено, false при вычитании приравнивается к 0
-     * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для битового сдвига
-     * usort($array, function ($a, $b) { return $str->stripos($haystack, $a) - $str->stripos($haystack, $b); }}
-     *
-     * @param string   $haystack
-     * @param string   $needle
-     * @param null|int $offset
-     *
-     * @return int
-     */
-    public function stripos(string $haystack, string $needle, int $offset = null): int;
-
-    /**
-     * стандартная функция возвращает false, если не найдено, false при вычитании приравнивается к 0
-     * возврат -1 позволяет использовать вычитание в коротком синтаксисе сортировок и тильду для битового сдвига
-     * usort($array, function ($a, $b) { return $str->strripos($haystack, $a) - $str->strripos($haystack, $b); }}
-     *
-     * @param string   $haystack
-     * @param string   $needle
-     * @param null|int $offset
-     *
-     * @return int
-     */
-    public function strripos(string $haystack, string $needle, int $offset = null): int;
-
-    /**
-     * фикс. стандартная функция при попытке разбить пустую строку возвращает массив из пустой строки
-     *
-     * @param string   $string
-     * @param null|int $len
-     *
-     * @return array
-     */
-    public function split(string $string, int $len = null): array;
-
-    /**
      * Обрезает у строки подстроку с начала (ltrim, только для строк а не букв)
      *
-     * @param string      $haystack
+     * @param string      $string
      * @param string|null $needle
      * @param bool|null   $ignoreCase
      * @param int         $limit
      *
      * @return string
      */
-    public function lcrop(string $haystack, string $needle, bool $ignoreCase = null, int $limit = -1): string;
+    public function lcrop(string $string, string $needle, bool $ignoreCase = null, int $limit = -1): string;
 
     /**
      * Обрезает у строки подстроку с конца (rtrim, только для строк а не букв)
      *
-     * @param string      $haystack
+     * @param string      $string
      * @param string|null $needle
      * @param bool|null   $ignoreCase
      * @param int         $limit
      *
      * @return string
      */
-    public function rcrop(string $haystack, string $needle, bool $ignoreCase = null, int $limit = -1): string;
+    public function rcrop(string $string, string $needle, bool $ignoreCase = null, int $limit = -1): string;
 
     /**
      * Обрезает у строки подстроки с обеих сторон (trim, только для строк а не букв)
      *
-     * @param string          $haystack
+     * @param string          $string
      * @param string|string[] $needles
      * @param bool|null       $ignoreCase
      * @param int             $limit
      *
      * @return string
      */
-    public function crop(string $haystack, $needles, bool $ignoreCase = null, int $limit = -1): string;
+    public function crop(string $string, $needles, bool $ignoreCase = null, int $limit = -1): string;
 
     /**
      * если строка начинается на искомую, отрезает ее и возвращает укороченную
      * if (null !== ($substr = $str->ends('hello', 'h'))) {} // 'ello'
      *
-     * @param string      $haystack
+     * @param string      $string
      * @param string|null $needle
      * @param bool|null   $ignoreCase
      *
      * @return null|string
      */
-    public function starts(string $haystack, string $needle, bool $ignoreCase = null): ?string;
+    public function starts(string $string, string $needle, bool $ignoreCase = null): ?string;
 
     /**
      * если строка заканчивается на искомую, отрезает ее и возвращает укороченную
      * if (null !== ($substr = $str->ends('hello', 'o'))) {} // 'hell'
      *
-     * @param string      $haystack
+     * @param string      $string
      * @param string|null $needle
      * @param bool|null   $ignoreCase
      *
      * @return null|string
      */
-    public function ends(string $haystack, string $needle, bool $ignoreCase = null): ?string;
+    public function ends(string $string, string $needle, bool $ignoreCase = null): ?string;
 
     /**
      * ищет подстроку в строке и разбивает по ней результат
      *
-     * @param string      $haystack
+     * @param string      $string
      * @param string|null $needle
      * @param null|int    $limit
      * @param bool|null   $ignoreCase
      *
      * @return array
      */
-    public function contains(string $haystack, string $needle, bool $ignoreCase = null, int $limit = null): array;
+    public function contains(string $string, string $needle, bool $ignoreCase = null, int $limit = null): array;
 
     /**
      * Добавляет подстроку в начале строки
      *
-     * @param string      $str
+     * @param string      $string
      * @param string|null $repeat
-     * @param null|int    $len
+     * @param null|int    $times
      *
      * @return string
      */
-    public function unltrim(string $str, string $repeat = null, int $len = null): string;
+    public function unltrim(string $string, string $repeat = null, int $times = null): string;
 
     /**
      * Добавляет подстроку в конце строки
      *
-     * @param string      $str
+     * @param string      $string
      * @param string|null $repeat
-     * @param null|int    $len
+     * @param null|int    $times
      *
      * @return string
      */
-    public function unrtrim(string $str, string $repeat = null, int $len = null): string;
+    public function unrtrim(string $string, string $repeat = null, int $times = null): string;
 
     /**
      * Оборачивает строку в другие, например в кавычки
      *
-     * @param string          $str
+     * @param string          $string
      * @param string|string[] $repeats
-     * @param null|int        $len
+     * @param null|int        $times
      *
      * @return string
      */
-    public function untrim(string $str, $repeats, int $len = null): string;
+    public function untrim(string $string, $repeats, int $times = null): string;
 
     /**
      * Добавляет подстроку в начало строки, если её уже там нет
      *
-     * @param string      $str
+     * @param string      $string
      * @param string|null $prepend
      * @param bool        $ignoreCase
      *
      * @return string
      */
-    public function prepend(string $str, string $prepend, bool $ignoreCase = null): string;
+    public function prepend(string $string, string $prepend, bool $ignoreCase = null): string;
 
     /**
      * Добавляет подстроку в конец строки, если её уже там нет
      *
-     * @param string      $str
+     * @param string      $string
      * @param string|null $append
      * @param bool        $ignoreCase
      *
      * @return string
      */
-    public function append(string $str, string $append, bool $ignoreCase = null): string;
+    public function append(string $string, string $append, bool $ignoreCase = null): string;
 
     /**
      * Оборачивает строку в подстроки, если их уже там нет
      *
-     * @param string          $str
+     * @param string          $string
      * @param string|string[] $wraps
      * @param bool            $ignoreCase
      *
      * @return string
      */
-    public function wrap(string $str, $wraps, bool $ignoreCase = null): string;
+    public function wrap(string $string, $wraps, bool $ignoreCase = null): string;
 
     /**
      * разбивает строку/строки в один массив по разделителю/разделителям
@@ -439,19 +555,7 @@ interface IStr
     public function explodeRecursive($delimiters, $strings, bool $ignoreCase = null, int $limit = null): array;
 
     /**
-     * разбивает строку/строки в массив по разделителю/разделителям рекурсивно, только если разделители найдены
-     *
-     * @param string|array $delimiters
-     * @param string       $strings
-     * @param null|bool    $ignoreCase
-     * @param int|null     $limit
-     *
-     * @return string|array
-     */
-    public function explodeRecursiveSkip($delimiters, $strings, bool $ignoreCase = null, int $limit = null);
-
-    /**
-     * '1, 2, 3', включая пустые строки, исключение если нельзя привести к строке
+     * '1, 2, 3', включая пустые строки, исключение если нельзя привести к строке, антоним explode
      *
      * @param string       $delimiter
      * @param string|array ...$strings
@@ -461,7 +565,7 @@ interface IStr
     public function implode(string $delimiter, ...$strings): string;
 
     /**
-     * '1, 2, 3', включая пустые строки, пропускает если нельзя привести к строке
+     * '1, 2, 3', включая пустые строки, пропускает если нельзя привести к строке, антоним explodeSkip
      *
      * @param string       $delimiter
      * @param string|array ...$strings
@@ -469,6 +573,26 @@ interface IStr
      * @return string
      */
     public function implodeSkip(string $delimiter, ...$strings): string;
+
+    /**
+     * '1:2,3', включая пустые строки, исключение если нельзя привести к строке, антоним explodeRecursive
+     *
+     * @param string|array $delimiters
+     * @param array        $strings
+     *
+     * @return void
+     */
+    public function implodeRecursive($delimiters, array $strings);
+
+    /**
+     * '1:2,3', включая пустые строки, пропускает если нельзя привести к строке, антоним explodeRecursive
+     *
+     * @param string|array $delimiters
+     * @param array        $strings
+     *
+     * @return void
+     */
+    public function implodeRecursiveSkip($delimiters, array $strings);
 
     /**
      * '1, 2, 3', пропускает пустые строки, исключение если нельзя привести к строке
@@ -489,6 +613,26 @@ interface IStr
      * @return string
      */
     public function joinSkip(string $delimiter, ...$strings): string;
+
+    /**
+     * '1:2,3', включая пустые строки, исключение если нельзя привести к строке, антоним explodeRecursive
+     *
+     * @param string|array $delimiters
+     * @param array        $strings
+     *
+     * @return void
+     */
+    public function joinRecursive($delimiters, array $strings);
+
+    /**
+     * '1:2,3', включая пустые строки, пропускает если нельзя привести к строке, антоним explodeRecursive
+     *
+     * @param string|array $delimiters
+     * @param array        $strings
+     *
+     * @return void
+     */
+    public function joinRecursiveSkip($delimiters, array $strings);
 
     /**
      * "`1`, `2` or `3`", всегда пропускает пустые строки, исключение если нельзя привести к строке
@@ -539,11 +683,11 @@ interface IStr
      *
      * @param string|array      $strings
      * @param null|string|array $delimiters
-     * @param null|int          $limit
+     * @param null|int          $len
      *
      * @return string
      */
-    public function prefixCompact($strings, $delimiters = null, int $limit = null): string;
+    public function prefixCompact($strings, $delimiters = null, int $len = null): string;
 
     /**
      * ищет все совпадения начинающиеся с "подстроки" и заканчивающиеся на "подстроку"
@@ -566,6 +710,8 @@ interface IStr
     ): array;
 
     /**
+     * Функция заменяет "умляут" символы на их соответствующие в ASCII
+     *
      * @param string $string
      *
      * @return string
@@ -647,7 +793,7 @@ interface IStr
      *
      * @return string
      */
-    public function spaceCase($words, string $keep = null, string $separator = null): string;
+    public function spaceCase($strings, string $keep = null, string $separator = null): string;
 
     /**
      * @param string      $string
@@ -684,4 +830,46 @@ interface IStr
      * @return array
      */
     public function singularize(string $plural, $limit = null, $offset = null): array;
+
+    /**
+     * @param string $function
+     *
+     * @return string
+     */
+    public function mb(string $function): string;
+
+    /**
+     * @param string $function
+     * @param mixed  ...$arguments
+     *
+     * @return mixed
+     */
+    public function multibyte(string $function, ...$arguments);
+
+    /**
+     * @param string $mode
+     *
+     * @return void
+     */
+    public function beginMultibyteMode(string $mode);
+
+    /**
+     * @return void
+     */
+    public function endMultibyteMode();
+
+    /**
+     * @param string   $mode
+     * @param \Closure $closure
+     *
+     * @return void
+     */
+    public function multibyteMode(string $mode, \Closure $closure);
+
+    /**
+     * @param string|array|mixed $arguments
+     *
+     * @return string
+     */
+    public function detectMultibyte(...$arguments): string;
 }

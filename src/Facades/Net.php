@@ -14,7 +14,8 @@ namespace Gzhegow\Support\Facades;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\INet;
 use Gzhegow\Support\SupportFactory;
-use Gzhegow\Support\ZNet;
+use Gzhegow\Support\Traits\Load\StrLoadTrait;
+use Gzhegow\Support\XNet;
 
 class Net
 {

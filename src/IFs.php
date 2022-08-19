@@ -14,116 +14,42 @@ namespace Gzhegow\Support;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Exceptions\Runtime\FilesystemException;
+use Gzhegow\Support\Traits\Load\CliLoadTrait;
+use Gzhegow\Support\Traits\Load\PathLoadTrait;
+use Gzhegow\Support\Traits\Load\StrLoadTrait;
 
 interface IFs
 {
     /**
-     * @return ZFs
+     * @param null|string $realpath
+     *
+     * @return XFs
      */
-    public function reset();
+    public function withRootPath(?string $realpath);
 
     /**
-     * @param null|string $rootPath
-     * @param null|string $backupPath
-     * @param null|string $backupPathBase
+     * @param null|string $realpath
      *
-     * @return ZFs
+     * @return XFs
      */
-    public function clone(?string $rootPath, ?string $backupPath, ?string $backupPathBase);
+    public function withBackupPath(?string $realpath);
 
     /**
-     * @param null|string $rootPath
-     * @param null|string $backupPath
-     * @param null|string $backupPathBase
+     * @param null|string $realpath
      *
-     * @return ZFs
+     * @return XFs
      */
-    public function with(?string $rootPath, ?string $backupPath, ?string $backupPathBase);
-
-    /**
-     * @param string $realpath
-     *
-     * @return ZFs
-     */
-    public function withRootPath(string $realpath);
-
-    /**
-     * @param string $realpath
-     *
-     * @return ZFs
-     */
-    public function withBackupPath(string $realpath);
-
-    /**
-     * @param string $realpath
-     *
-     * @return ZFs
-     */
-    public function withBackupPathBase(string $realpath);
+    public function withBackupPathBase(?string $realpath);
 
     /**
      * @return string
      */
-    public function getRoot(): string;
+    public function loadRootPath(): string;
 
     /**
-     * @return bool
+     * @return string
      */
-    public function isWindows(): bool;
-
-    /**
-     * @return bool
-     */
-    public function isNonWindows(): bool;
-
-    /**
-     * @param string $value
-     *
-     * @return bool
-     */
-    public function isFilename($value): bool;
-
-    /**
-     * @param string $value
-     *
-     * @return bool
-     */
-    public function isPath($value): bool;
-
-    /**
-     * @param string $value
-     *
-     * @return bool
-     */
-    public function isPathFileExists($value): bool;
-
-    /**
-     * @param string $value
-     *
-     * @return bool
-     */
-    public function isPathDir($value): bool;
-
-    /**
-     * @param string $value
-     *
-     * @return bool
-     */
-    public function isPathLink($value): bool;
-
-    /**
-     * @param string $value
-     *
-     * @return bool
-     */
-    public function isPathFile($value): bool;
-
-    /**
-     * @param string $value
-     *
-     * @return bool
-     */
-    public function isPathImage($value): bool;
+    public function getRootPath(): string;
 
     /**
      * @param string $value
@@ -176,63 +102,53 @@ interface IFs
     public function filterPathImage($value, $mimetypes = null): ?string;
 
     /**
-     * @return bool
-     */
-    public function assertWindows(): bool;
-
-    /**
-     * @return bool
-     */
-    public function assertNonWindows(): bool;
-
-    /**
-     * @param string $value
+     * @param resource|mixed $h
      *
-     * @return string
+     * @return null|resource
      */
-    public function assertFilename($value): string;
+    public function filterResource($h);
 
     /**
-     * @param string $value
+     * @param resource|mixed $h
      *
-     * @return string
+     * @return null|resource
      */
-    public function assertPath($value): string;
+    public function filterResourceOpened($h);
 
     /**
-     * @param string $value
+     * @param resource|mixed $h
      *
-     * @return string
+     * @return null|resource
      */
-    public function assertPathFileExists($value): string;
+    public function filterResourceClosed($h);
 
     /**
-     * @param string $value
+     * @param resource|mixed $h
      *
-     * @return string
+     * @return null|resource
      */
-    public function assertPathDir($value): string;
+    public function filterResourceReadable($h);
 
     /**
-     * @param string $value
+     * @param resource|mixed $h
      *
-     * @return string
+     * @return null|resource
      */
-    public function assertPathLink($value): string;
+    public function filterResourceWritable($h);
 
     /**
-     * @param string $value
+     * @param \SplFileInfo|mixed $value
      *
-     * @return string
+     * @return null|\SplFileInfo
      */
-    public function assertPathFile($value): string;
+    public function filterFileInfo($value): ?\SplFileInfo;
 
     /**
-     * @param string $value
+     * @param \SplFileObject|mixed $value
      *
-     * @return string
+     * @return null|\SplFileObject
      */
-    public function assertPathImage($value): string;
+    public function filterFileObject($value): ?\SplFileObject;
 
     /**
      * @param string|\SplFileInfo $pathOrSpl
@@ -415,13 +331,6 @@ interface IFs
      * @return \SplFileObject
      */
     public function theSplImageVal($pathOrSpl): \SplFileObject;
-
-    /**
-     * @return \Gzhegow\Support\IPath
-     * @noinspection PhpUnnecessaryFullyQualifiedNameInspection
-     * @noinspection PhpFullyQualifiedNameUsageInspection
-     */
-    public function path(): IPath;
 
     /**
      * @param string $path

@@ -11,26 +11,34 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Domain\Debug\Message;
+use Gzhegow\Support\Domain\Debug\DebugMessage;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 interface IDebug
 {
     /**
-     * @param string|array|mixed $message
-     * @param mixed              ...$arguments
+     * @param string|array $message
+     * @param array        ...$placeholders
      *
-     * @return null|Message
+     * @return DebugMessage
      */
-    public function messageVal($message, ...$arguments): ?Message;
+    public function newDebugMessage($message, ...$placeholders): DebugMessage;
 
     /**
      * @param string|array|mixed $message
-     * @param mixed              ...$arguments
+     * @param mixed              ...$placeholders
      *
-     * @return Message
+     * @return null|DebugMessage
      */
-    public function theMessageVal($message, ...$arguments): Message;
+    public function messageVal($message, ...$placeholders): ?DebugMessage;
+
+    /**
+     * @param string|array|mixed $message
+     * @param mixed              ...$placeholders
+     *
+     * @return DebugMessage
+     */
+    public function theMessageVal($message, ...$placeholders): DebugMessage;
 
     /**
      * @param null|array|\Throwable|mixed $trace
@@ -67,6 +75,16 @@ interface IDebug
     public function args(array $args): array;
 
     /**
+     * Рекурсивно собирает из дерева исключений сообщения в список
+     *
+     * @param null|\Throwable $e
+     * @param null|int        $limit
+     *
+     * @return array
+     */
+    public function extractThrowableMessages(\Throwable $e, int $limit = -1);
+
+    /**
      * Извлекает определенные колонки из debug_backtrace()/$throwable->getTrace()
      * может соединить их через разделитель в строку
      *
@@ -78,7 +96,7 @@ interface IDebug
      *
      * @return array
      */
-    public function traceReport(
+    public function buildTraceReport(
         $trace,
         $columns = null,
         string $implode = null,
@@ -87,23 +105,14 @@ interface IDebug
     ): array;
 
     /**
-     * Рекурсивно собирает из дерева исключений сообщения в список
-     *
-     * @param null|\Throwable $e
-     * @param null|int        $limit
-     *
-     * @return array
-     */
-    public function throwableMessages(\Throwable $e, int $limit = -1);
-
-    /**
      * Возвращает результат var_dump, заменяет все пробелы на один
      *
-     * @param array $arguments
+     * @param           $arg
+     * @param null|bool $return
      *
      * @return string
      */
-    public function varDump(...$arguments): string;
+    public function varDump($arg, bool $return = null): ?string;
 
     /**
      * Запускает print_r, заменяет все пробелы на один
@@ -124,13 +133,4 @@ interface IDebug
      * @return string
      */
     public function varExport($arg, bool $return = null): ?string;
-
-    /**
-     * Заменяет любое число пробелов в тексте на один
-     *
-     * @param string $content
-     *
-     * @return string
-     */
-    public function dom(string $content): string;
 }

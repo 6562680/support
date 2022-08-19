@@ -2,17 +2,15 @@
 
 namespace Gzhegow\Support\Tests;
 
-use Gzhegow\Support\ZPhp;
+use Gzhegow\Support\XPhp;
 use Gzhegow\Support\IPhp;
-use Gzhegow\Support\ZDebug;
-use Gzhegow\Support\ZFilter;
+use Gzhegow\Support\XDebug;
 use Gzhegow\Support\IDebug;
+use Gzhegow\Support\XFilter;
 use Gzhegow\Support\IFilter;
 use Gzhegow\Support\Exceptions\Exception;
 use Gzhegow\Support\Exceptions\LogicException;
 use Gzhegow\Support\Exceptions\RuntimeException;
-use Gzhegow\Support\Tests\Exceptions\MyException;
-use Gzhegow\Support\Tests\Exceptions\MyChildException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
@@ -20,17 +18,17 @@ class ExceptionsTest extends AbstractTestCase
 {
     public function getDebug() : IDebug
     {
-        return ZDebug::getInstance();
+        return XDebug::getInstance();
     }
 
     public function getFilter() : IFilter
     {
-        return ZFilter::getInstance();
+        return XFilter::getInstance();
     }
 
     public function getPhp() : IPhp
     {
-        return ZPhp::getInstance();
+        return XPhp::getInstance();
     }
 
 
@@ -38,7 +36,6 @@ class ExceptionsTest extends AbstractTestCase
     {
         $this->assertException(InvalidArgumentException::class, function () {
             $this->getFilter()
-                ->assert()
                 ->assertWordval('');
         });
 
@@ -61,16 +58,14 @@ class ExceptionsTest extends AbstractTestCase
         $this->expectException(Exception::class);
 
         try {
-            throw $e = new Exception('hello', [ 'world' ]);
+            throw $e = new Exception($payloadExpected = [ $messageExpected = 'hello', [ 'world' ] ]);
         }
         catch ( Exception $e ) {
-            $nameExpected = str_replace('\\', '.', get_class($e));
             $codeExpected = -1;
 
-            static::assertEquals('hello', $e->getMessage());
+            static::assertEquals($messageExpected, $e->getMessage());
             static::assertEquals($codeExpected, $e->getCode());
-            static::assertEquals($nameExpected, $e->getName());
-            static::assertEquals([ 'world' ], $e->getPayload());
+            static::assertEquals($payloadExpected, $e->getPayload());
 
             throw $e;
         }
@@ -81,16 +76,14 @@ class ExceptionsTest extends AbstractTestCase
         $this->expectException(LogicException::class);
 
         try {
-            throw $e = new LogicException('hello', [ 'world' ]);
+            throw $e = new LogicException($payloadExpected = [ $messageExpected = 'hello', [ 'world' ] ]);
         }
         catch ( LogicException $e ) {
-            $nameExpected = str_replace('\\', '.', get_class($e));
             $codeExpected = -1;
 
-            static::assertEquals('hello', $e->getMessage());
+            static::assertEquals($messageExpected, $e->getMessage());
             static::assertEquals($codeExpected, $e->getCode());
-            static::assertEquals($nameExpected, $e->getName());
-            static::assertEquals([ 'world' ], $e->getPayload());
+            static::assertEquals($payloadExpected, $e->getPayload());
 
             throw $e;
         }
@@ -101,57 +94,14 @@ class ExceptionsTest extends AbstractTestCase
         $this->expectException(RuntimeException::class);
 
         try {
-            throw $e = new RuntimeException('hello', [ 'world' ]);
+            throw $e = new RuntimeException($payloadExpected = [ $messageExpected = 'hello', [ 'world' ] ]);
         }
-        catch ( RuntimeException $e ) {
-            $nameExpected = str_replace('\\', '.', get_class($e));
+        catch ( LogicException $e ) {
             $codeExpected = -1;
 
-            static::assertEquals('hello', $e->getMessage());
+            static::assertEquals($messageExpected, $e->getMessage());
             static::assertEquals($codeExpected, $e->getCode());
-            static::assertEquals($nameExpected, $e->getName());
-            static::assertEquals([ 'world' ], $e->getPayload());
-
-            throw $e;
-        }
-    }
-
-
-    public function testMyException()
-    {
-        $this->expectException(Exception::class);
-
-        try {
-            throw $e = new MyException('hello', [ 'world' ]);
-        }
-        catch ( Exception $e ) {
-            $nameExpected = str_replace('\\', '.', get_class($e));
-            $codeExpected = 1;
-
-            static::assertEquals('hello', $e->getMessage());
-            static::assertEquals($codeExpected, $e->getCode());
-            static::assertEquals($nameExpected, $e->getName());
-            static::assertEquals([ 'world' ], $e->getPayload());
-
-            throw $e;
-        }
-    }
-
-    public function testMyChildException()
-    {
-        $this->expectException(Exception::class);
-
-        try {
-            throw $e = new MyChildException('hello', [ 'world' ]);
-        }
-        catch ( Exception $e ) {
-            $nameExpected = str_replace('\\', '.', get_class($e));
-            $codeExpected = 2;
-
-            static::assertEquals('hello', $e->getMessage());
-            static::assertEquals($codeExpected, $e->getCode());
-            static::assertEquals($nameExpected, $e->getName());
-            static::assertEquals([ 'world' ], $e->getPayload());
+            static::assertEquals($payloadExpected, $e->getPayload());
 
             throw $e;
         }
@@ -163,12 +113,18 @@ class ExceptionsTest extends AbstractTestCase
         $this->expectException(Exception::class);
 
         try {
-            throw $e = new Exception([ 'hello: %d, %.1F, %s', 1, 1.1, 'hello' ], [ 'world' ]);
+            throw $e = new Exception($payloadExpected = [
+                $messageOriginal = 'hello: %d, %.1F, %s',
+                1,
+                1.1,
+                'hello',
+                'world',
+            ]);
         }
         catch ( Exception $e ) {
-            static::assertEquals(str_replace('\\', '.', get_class($e)), $e->getName());
             static::assertEquals('hello: 1, 1.1, hello', $e->getMessage());
-            static::assertEquals([ 'world' ], $e->getPayload());
+            static::assertEquals($messageOriginal, $e->getTextOriginal());
+            static::assertEquals($payloadExpected, $e->getPayload());
 
             throw $e;
         }
@@ -180,15 +136,33 @@ class ExceptionsTest extends AbstractTestCase
 
         $this->expectException(Exception::class);
 
+        $e = new Exception([
+            'hello: %d',
+            1,
+            'world',
+        ]);
+
+        $ee = new Exception([
+            'hello: %d, %.1F',
+            1,
+            1.1,
+            'world',
+        ], null, $e);
+
+        $eee = new Exception($expectedPayload = [
+            'hello: %d, %.1F, %s',
+            1,
+            1.1,
+            'hello',
+            'world',
+        ], null, $ee);
+
         try {
-            $e = new Exception([ 'hello: %d', 1 ], [ 'world' ]);
-            $ee = new Exception([ 'hello: %d, %.1F', 1, 1.1 ], [ 'world' ], $e);
-            throw new Exception([ 'hello: %d, %.1F, %s', 1, 1.1, 'hello' ], [ 'world' ], $ee);
+            throw $eee;
         }
         catch ( Exception $e ) {
-            static::assertEquals(str_replace('\\', '.', get_class($e)), $e->getName());
             static::assertEquals('hello: 1, 1.1, hello', $e->getMessage());
-            static::assertEquals([ 'world' ], $e->getPayload());
+            static::assertEquals($expectedPayload, $e->getPayload());
 
             static::assertEquals([
                 "Gzhegow\Support\Exceptions\Exception" => [
@@ -196,62 +170,9 @@ class ExceptionsTest extends AbstractTestCase
                     1 => "hello: 1, 1.1",
                     2 => "hello: 1",
                 ],
-            ], $debug->throwableMessages($e));
+            ], $debug->extractThrowableMessages($e));
 
             throw $e;
         }
-    }
-
-
-    public function testExceptionPipeline()
-    {
-        $self = null;
-        $inc = 0;
-
-        $pipe = function ($exception, $carry) use (&$self, &$inc) {
-            $this->assertEquals($self, $exception);
-            $this->assertEquals($inc, $carry);
-
-            return ++$inc;
-        };
-
-        $parent = new Exception('Parent');
-        $self = new Exception('Child', $payload = new \StdClass(), $pipe, $parent);
-
-        try {
-            throw $self;
-        }
-        catch ( Exception $e ) {
-            $result = $self->process(0);
-        }
-
-        $this->assertEquals(1, $inc);
-        $this->assertEquals(1, $result);
-        $this->assertEquals($parent, $e->getPrevious());
-
-        $self = new Exception('Child', $payload = new \StdClass(), $parent, $pipe);
-
-        try {
-            throw $self;
-        }
-        catch ( Exception $e ) {
-            $result = $self->process($inc);
-        }
-
-        $this->assertEquals(2, $inc);
-        $this->assertEquals(2, $result);
-        $this->assertEquals($parent, $e->getPrevious());
-    }
-
-    public function testBadExceptionPipeline()
-    {
-        $this->assertException(\InvalidArgumentException::class, function () {
-            $previous = new Exception('Parent');
-
-            throw new Exception('Child', $payload = new \StdClass(),
-                $previous,
-                $previous
-            );
-        });
     }
 }

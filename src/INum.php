@@ -12,120 +12,93 @@
 namespace Gzhegow\Support;
 
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+use Gzhegow\Support\Traits\Load\StrLoadTrait;
 
 interface INum
 {
     /**
-     * @param int|float|mixed $value
-     *
-     * @return null|int|float
-     */
-    public function positiveVal($value);
-
-    /**
-     * @param int|float|mixed $value
-     *
-     * @return null|int|float
-     */
-    public function nonNegativeVal($value);
-
-    /**
-     * @param int|float|mixed $value
-     *
-     * @return null|int|float
-     */
-    public function negativeVal($value);
-
-    /**
-     * @param int|float|mixed $value
-     *
-     * @return null|int|float
-     */
-    public function nonPositiveVal($value);
-
-    /**
-     * @param int|float|mixed $value
-     *
-     * @return int|float
-     */
-    public function thePositiveVal($value);
-
-    /**
-     * @param int|float|mixed $value
-     *
-     * @return int|float
-     */
-    public function theNonNegativeVal($value);
-
-    /**
-     * @param int|float|mixed $value
-     *
-     * @return int|float
-     */
-    public function theNegativeVal($value);
-
-    /**
-     * @param int|float|mixed $value
-     *
-     * @return int|float
-     */
-    public function theNonPositiveVal($value);
-
-    /**
      * @param int|mixed $value
      *
      * @return null|int
      */
-    public function positiveIntval($value): ?int;
+    public function filterInt($value): ?int;
 
     /**
-     * @param int|mixed $value
+     * @param float|mixed $value
      *
-     * @return null|int
+     * @return null|float
      */
-    public function nonNegativeIntval($value): ?int;
+    public function filterFloat($value): ?float;
 
     /**
-     * @param int|mixed $value
+     * @param float|mixed $value
      *
-     * @return null|int
+     * @return null|float
      */
-    public function negativeIntval($value): ?int;
+    public function filterNan($value): ?float;
 
     /**
-     * @param int|mixed $value
+     * @param int|float|mixed $value
      *
-     * @return null|int
+     * @return null|int|float
      */
-    public function nonPositiveIntval($value): ?int;
+    public function filterNum($value);
 
     /**
-     * @param int|mixed $value
+     * @param int|string|mixed $value
      *
-     * @return int
+     * @return null|int|string
      */
-    public function thePositiveIntval($value): int;
+    public function filterIntval($value): ?int;
 
     /**
-     * @param int|mixed $value
+     * @param float|string|mixed $value
      *
-     * @return int
+     * @return null|float|string
      */
-    public function theNonNegativeIntval($value): int;
+    public function filterFloatval($value): ?float;
 
     /**
-     * @param int|mixed $value
+     * @param int|float|mixed $value
      *
-     * @return int
+     * @return null|int|float|string
      */
-    public function theNegativeIntval($value): int;
+    public function filterNumval($value);
 
     /**
-     * @param int|mixed $value
+     * @param int|float|string|mixed $value
      *
-     * @return int
+     * @return null|int|float|string
      */
-    public function theNonPositiveIntval($value): int;
+    public function filterNumericval($value);
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int|float
+     */
+    public function filterNumGt0($value);
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int|float
+     */
+    public function filterNumGte0($value);
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int|float
+     */
+    public function filterNumLt0($value);
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int|float
+     */
+    public function filterNumLte0($value);
 
     /**
      * @param int|mixed $value
@@ -211,13 +184,13 @@ interface INum
     public function numvals($numbers, bool $uniq = null, bool $recursive = null): array;
 
     /**
-     * @param int|float|string|array $numbers
+     * @param int|float|string|array $numerics
      * @param null|bool              $uniq
      * @param null|bool              $recursive
      *
      * @return string[]
      */
-    public function numericvals($numbers, bool $uniq = null, bool $recursive = null): array;
+    public function numericvals($numerics, bool $uniq = null, bool $recursive = null): array;
 
     /**
      * @param int|array $integers
@@ -247,11 +220,35 @@ interface INum
     public function theNumvals($numbers, bool $uniq = null, bool $recursive = null): array;
 
     /**
-     * @param int|float|string|array $numbers
+     * @param int|float|string|array $numerics
      * @param null|bool              $uniq
      * @param null|bool              $recursive
      *
      * @return string[]
      */
-    public function theNumericvals($numbers, bool $uniq = null, bool $recursive = null): array;
+    public function theNumericvals($numerics, bool $uniq = null, bool $recursive = null): array;
+
+    /**
+     * @param string|mixed $number
+     * @param string|array $decimalsSeparators
+     * @param string|array $thousandsSeparators
+     *
+     * @return string
+     */
+    public function numberParse($number, $decimalsSeparators = null, $thousandsSeparators = null): string;
+
+    /**
+     * @param int|float|string|mixed $number
+     * @param null|int               $decimals
+     * @param null|string            $decimalSeparator
+     * @param null|string            $thousandSeparator
+     *
+     * @return string
+     */
+    public function numberFormat(
+        $number,
+        int $decimals = null,
+        string $decimalSeparator = null,
+        string $thousandSeparator = null
+    );
 }

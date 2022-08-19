@@ -2,20 +2,15 @@
 
 namespace Gzhegow\Support\Exceptions;
 
-use Throwable;
 use Gzhegow\Support\Domain\Exceptions\ExceptionTrait;
 
 
 /**
  * LogicException
  */
-class LogicException extends \LogicException
+class LogicException extends \LogicException implements
+    LogicThrowable
 {
-    const THE_CODE_LIST = [
-        LogicException::class => -1,
-    ];
-
-
     use ExceptionTrait;
 
 
@@ -23,49 +18,13 @@ class LogicException extends \LogicException
      * Constructor
      *
      * @param string|array $message
-     * @param mixed        $payload
-     * @param mixed        ...$arguments
+     * @param int          $code
+     * @param \Throwable   $previous
      */
-    public function __construct($message, $payload = null, ...$arguments)
+    public function __construct($message = "", $code = null, $previous = null)
     {
-        $code = $this->loadCode();
+        $message = $this->parseMessage($message);
 
-        [ $message, $previous ] = $this->parse($message, $payload, ...$arguments);
-
-        parent::__construct($message, $code, $previous);
-    }
-
-
-    /**
-     * @return int
-     */
-    protected function loadCode() : int
-    {
-        if (0 === ( $code = $this->code )) {
-            $class = get_class($this);
-            $name = str_replace('\\', '.', $class);
-
-            $parentCodes = [];
-            $current = $class;
-            while ( true ) {
-                if (! defined($constName = $current . '::THE_CODE_LIST')) break;
-
-                $parentCodes += constant($constName);
-                $current = get_parent_class($current);
-            }
-
-            $codes = array_replace(
-                $parentCodes,
-                static::THE_CODE_LIST
-            );
-
-            $code = null
-                ?? $codes[ $class ]
-                ?? crc32($name);
-
-            $this->name = $name;
-        }
-
-        return $code;
+        parent::__construct($message, $code ?? -1, $previous);
     }
 }

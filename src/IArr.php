@@ -11,21 +11,16 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Domain\Arr\ValueObject\ExpandValue;
-use Gzhegow\Support\Exceptions\Error;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\Logic\OutOfRangeException;
+use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
+use Gzhegow\Support\Traits\Load\NumLoadTrait;
+use Gzhegow\Support\Traits\Load\PhpLoadTrait;
+use Gzhegow\Support\Traits\Load\StrLoadTrait;
 
 interface IArr
 {
-    /**
-     * @param null|callable $indexer
-     *
-     * @return ZArr
-     */
-    public function withIndexer(?callable $indexer);
-
     /**
      * @param string|array $path
      * @param array        $src
@@ -33,7 +28,7 @@ interface IArr
      *
      * @return mixed
      */
-    public function get($path, array &$src, $default = "\x00");
+    public function get($path, array &$src, $default = null);
 
     /**
      * @param string|array $path
@@ -48,14 +43,25 @@ interface IArr
      * @param string|array $path
      * @param mixed        $value
      *
-     * @return ZArr
+     * @return XArr
      */
     public function set(?array &$dst, $path, $value);
 
     /**
-     * @return callable
+     * @param int   $idx
+     * @param array $src
+     *
+     * @return mixed
      */
-    public function getIndexer();
+    public function getIdx(int $idx, array &$src);
+
+    /**
+     * @param int   $idx
+     * @param array $src
+     *
+     * @return bool
+     */
+    public function hasIdx(int $idx, array &$src): bool;
 
     /**
      * @param string|array $path
@@ -64,7 +70,134 @@ interface IArr
      *
      * @return mixed
      */
-    public function &getRef($path, array &$src, $default = "\x00");
+    public function &getRef($path, array &$src, $default = null);
+
+    /**
+     * @param int   $idx
+     * @param array $src
+     *
+     * @return mixed
+     */
+    public function &getRefIdx(int $idx, array &$src);
+
+    /**
+     * @param null|array   $dst
+     * @param string|array $path
+     * @param mixed        $value
+     *
+     * @return mixed
+     */
+    public function &setRef(?array &$dst, $path, $value);
+
+    /**
+     * @param null|array $dst
+     * @param int        $idx
+     * @param mixed      $value
+     *
+     * @return mixed
+     */
+    public function &setRefIdx(?array &$dst, int $idx, $value);
+
+    /**
+     * @param array|mixed   $array
+     * @param null|callable $of
+     *
+     * @return null|array
+     */
+    public function filterArray($array, callable $of = null): ?array;
+
+    /**
+     * @param array|mixed   $list
+     * @param null|callable $of
+     *
+     * @return null|array
+     */
+    public function filterList($list, callable $of = null): ?array;
+
+    /**
+     * @param array|mixed   $dict
+     * @param null|callable $of
+     *
+     * @return null|array
+     */
+    public function filterDict($dict, callable $of = null): ?array;
+
+    /**
+     * @param array|mixed   $assoc
+     * @param null|callable $of
+     *
+     * @return null|array
+     */
+    public function filterAssoc($assoc, callable $of = null): ?array;
+
+    /**
+     * проверяет, содержит ли массив вложенные массивы
+     *
+     * @param array|mixed $array
+     * @param null|int    $depth
+     *
+     * @return null|array
+     */
+    public function filterArrayDeep($array, int $depth = null): ?array;
+
+    /**
+     * проверяет, можно ли массив безопасно сериализовать
+     *
+     * @param array|mixed $array
+     *
+     * @return null|array
+     */
+    public function filterArrayPlain($array): ?array;
+
+    /**
+     * проверяет, может ли переменная быть приведена к массиву
+     *
+     * @param mixed $value
+     *
+     * @return null|mixed
+     */
+    public function filterArrval($value);
+
+    /**
+     * \Generator может передать любой объект в качестве ключа для foreach, пригодится
+     *
+     * @param int|string|mixed $value
+     *
+     * @return null|int|string
+     */
+    public function filterArrayKey($value);
+
+    /**
+     * @param array        $src
+     * @param string|array $path
+     *
+     * @return array
+     */
+    public function del(array &$src, ...$path): ?array;
+
+    /**
+     * @param array $src
+     * @param int   $idx
+     *
+     * @return array
+     */
+    public function delIdx(array &$src, int $idx): ?array;
+
+    /**
+     * @param array        $src
+     * @param string|array $path
+     *
+     * @return bool
+     */
+    public function delRef(array &$src, ...$path): bool;
+
+    /**
+     * @param array $src
+     * @param int   $idx
+     *
+     * @return bool
+     */
+    public function delRefIdx(array &$src, int $idx): bool;
 
     /**
      * @param mixed $value
@@ -95,47 +228,32 @@ interface IArr
     public function theKeyval($value);
 
     /**
-     * @param int|string|array $keys
-     * @param null|bool        $uniq
-     * @param null|bool        $recursive
-     *
-     * @return string[]
-     */
-    public function keyvals($keys, bool $uniq = null, bool $recursive = null): array;
-
-    /**
-     * @param int|string|array $keys
-     * @param null|bool        $uniq
-     * @param null|bool        $recursive
-     *
-     * @return string[]
-     */
-    public function theKeyvals($keys, bool $uniq = null, bool $recursive = null): array;
-
-    /**
-     * @param array        $src
-     * @param string|array $path
+     * @param array|mixed ...$values
      *
      * @return array
      */
-    public function del(array $src, ...$path): ?array;
+    public function listval(...$values): array;
 
     /**
-     * @param array        $src
-     * @param string|array $path
+     * @param array|mixed ...$lists
      *
-     * @return bool
+     * @return array
      */
-    public function delete(array &$src, ...$path): bool;
+    public function listvalEach(...$lists): array;
 
     /**
-     * @param null|array   $dst
-     * @param string|array $path
-     * @param mixed        $value
+     * @param array|mixed ...$enums
      *
-     * @return mixed
+     * @return array
      */
-    public function &put(?array &$dst, $path, $value);
+    public function enumval(...$enums): array;
+
+    /**
+     * @param array|mixed ...$enums
+     *
+     * @return array
+     */
+    public function enumvalEach(...$enums): array;
 
     /**
      * @param string|string[]|array $path
@@ -154,30 +272,22 @@ interface IArr
     public function pathkey($path, $separators = '.'): string;
 
     /**
-     * @param string|string[]|array $separators
-     * @param string|string[]|array ...$keys
+     * @param int|string|array $keys
+     * @param null|bool        $uniq
+     * @param null|bool        $recursive
      *
-     * @return string
+     * @return string[]
      */
-    public function index($separators = '.', ...$keys): string;
+    public function keyvals($keys, bool $uniq = null, bool $recursive = null): array;
 
     /**
-     * возвращает индекс любого числа аргументов для создания поиска по массивам
+     * @param int|string|array $keys
+     * @param null|bool        $uniq
+     * @param null|bool        $recursive
      *
-     * @param mixed ...$values
-     *
-     * @return string
+     * @return string[]
      */
-    public function indexed(...$values): string;
-
-    /**
-     * в функцию array_intersect_key требуются ключи. можно делать array_flip(), а так будет производительнее
-     *
-     * @param array $array
-     *
-     * @return array
-     */
-    public function clear(array $array): array;
+    public function theKeyvals($keys, bool $uniq = null, bool $recursive = null): array;
 
     /**
      * @param array                 $array
@@ -196,12 +306,38 @@ interface IArr
     public function except(array $array, ...$keys): array;
 
     /**
+     * очищает указанные ключи в массиве. если не передать ключи - очистит все
+     *
      * @param array                 $array
      * @param string|string[]|array ...$keys
      *
      * @return array
      */
-    public function drop(array $array, ...$keys);
+    public function drop(array $array, ...$keys): array;
+
+    /**
+     * возвращает срез массива по числовым порядковым номерам элементов $arr = [ 1, 2, 3, 4 ] -> $arr[-3:2] -> [ 1 ]
+     *
+     * @param array     $array
+     * @param int       $start
+     * @param null|int  $end
+     * @param bool|null $preserveKeys
+     *
+     * @return array
+     */
+    public function slicePos(array $array, int $start, int $end = null, bool $preserveKeys = null): array;
+
+    /**
+     * возвращает срез массива по числовым порядковым номерам элементов, изменяя сам массив $arr = [ 1, 2, 3, 4 ] -> $arr[-3:2] -> [ 1 ]
+     *
+     * @param array    $array
+     * @param int      $start
+     * @param null|int $end
+     * @param mixed    $replacement
+     *
+     * @return array
+     */
+    public function splicePos(array &$array, int $start, int $end = null, $replacement = null): array;
 
     /**
      * array_combine позволяющий передать разное число ключей и значений
@@ -218,19 +354,103 @@ interface IArr
      * array_combine + array_map
      *
      * @param string|array $keys
-     * @param iterable     $collection
+     * @param iterable     $it
      * @param null|bool    $drop
      *
      * @return array
      */
-    public function combineMap(array $keys, iterable $collection, bool $drop = null): array;
+    public function combineMap(array $keys, iterable $it, bool $drop = null): array;
 
     /**
-     * @param array $arr
+     * возвращает массив без повторов
      *
-     * @return void
+     * @param mixed ...$values
+     *
+     * @return array
      */
-    public function reverse(array &$arr): void;
+    public function unique(...$values): array;
+
+    /**
+     * возвращает массив без повторов, в каждом
+     *
+     * @param mixed ...$arrays
+     *
+     * @return array
+     */
+    public function uniqueEach(...$arrays): array;
+
+    /**
+     * возвращает дубликаты во входящем массиве
+     *
+     * @param array|mixed ...$values
+     *
+     * @return array
+     */
+    public function duplicates(...$values): array;
+
+    /**
+     * возвращает дубликаты во входящем массиве, в каждом
+     *
+     * @param array|mixed ...$arrays
+     *
+     * @return array
+     */
+    public function duplicatesEach(...$arrays): array;
+
+    /**
+     * distinct это unique() с сохранением ключей
+     *
+     * @param array|mixed ...$values
+     *
+     * @return array
+     */
+    public function distinct(...$values): array;
+
+    /**
+     * distinct это unique() с сохранением ключей, в каждом
+     *
+     * @param array|mixed ...$arrays
+     *
+     * @return array
+     */
+    public function distinctEach(...$arrays): array;
+
+    /**
+     * array_walk_recursive реализованный через стек и позволяющий получить путь до элемента
+     *
+     * @param array     $array
+     * @param null|bool $childrenFirst
+     * @param null|bool $withParents
+     * @param null|bool $withRoot
+     *
+     * @return \Generator
+     */
+    public function &walk(
+        array &$array,
+        bool $childrenFirst = null,
+        bool $withParents = null,
+        bool $withRoot = null
+    ): \Generator;
+
+    /**
+     * array_walk_recursive реализованный через стек и позволяющий получить путь до элемента
+     * позволяет остановить проход вглубь $gen->push(false), если обработка уровня закончена, а также обходить "только родителей"
+     *
+     * @param array     $array
+     * @param null|bool $withChildren
+     * @param null|bool $withParents
+     * @param null|bool $withRoot
+     * @param null|bool $continue
+     *
+     * @return \Generator
+     */
+    public function &walkeach(
+        array &$array,
+        bool &$continue = null,
+        bool $withChildren = null,
+        bool $withParents = null,
+        bool $withRoot = null
+    ): \Generator;
 
     /**
      * обменивает местами номер элемента массива и номер ключа в массиве
@@ -241,51 +461,54 @@ interface IArr
      *
      * @return array
      */
-    public function zip(array $array, ...$arrays): array;
+    public function zip(array $array, array ...$arrays): array;
 
     /**
-     * разбивает массив на два по указанному булеву критерию
+     * разбивает на два по указанному критерию
      *
      * @param array         $array
-     * @param callable|null $func
+     * @param callable|null $condition
      *
      * @return array
      */
-    public function partition(array $array, callable $func = null): array;
+    public function two(array $array, callable $condition = null): array;
 
     /**
-     * разбивает массив на группированный список и остаток, замыкание должно возвращать имя группы
+     * разбивает на группированный список и остаток, замыкание должно возвращать имя группы
      *
      * @param array         $array
-     * @param \Closure|null $func
+     * @param \Closure|null $fnGroupName
      *
      * @return array
      */
-    public function group(array $array, \Closure $func = null): array;
+    public function group(array $array, \Closure $fnGroupName = null): array;
 
     /**
      * рекурсивно собирает массив в одноуровневый соединяя ключи через разделитель
-     * пустые массивы пропускаются
      *
-     * @param iterable              $iterable
+     * @param array                 $array
      * @param string|string[]|array $separators
      *
      * @return array
      */
-    public function dot(iterable $iterable, $separators = '.'): array;
+    public function dot(array $array, $separators = '.'): array;
 
     /**
      * рекурсивно собирает массив в одноуровневый соединяя ключи через разделитель
-     * пустые массивы и цифровые ключи на последнем уровне остаются массивами
+     * если нет потомков - выводим
+     * если потомок - пустой массив - выводим
+     * если массив потомков содержит цифровой ключ - обработка ветки останавливается и выводим
      *
-     * @param iterable              $iterable
+     * @param array                 $array
      * @param string|string[]|array $separators
      *
      * @return array
      */
-    public function dotarr(iterable $iterable, $separators = '.'): array;
+    public function dotarr(array $array, $separators = '.'): array;
 
     /**
+     * превращает массив из dot-нотации во вложенный
+     *
      * @param array                 $data
      * @param string|string[]|array $separators
      *
@@ -294,59 +517,41 @@ interface IArr
     public function undot(array $data, $separators = '.'): array;
 
     /**
-     * @param array    $array
-     * @param null|int $mode
+     * Вставляет элемент в указанную позиции по номеру (начиная с 0), изменяя числовые индексы существующих элементов
      *
-     * @return \Generator
-     */
-    public function walk(array $array, int $mode = null): \Generator;
-
-    /**
-     * @param iterable $iterable
-     * @param null|int $mode
-     * @param null|int $flags
-     *
-     * @return \Generator
-     */
-    public function crawl(iterable $iterable, int $mode = null, int $flags = null): \Generator;
-
-    /**
-     * @param array    $array
-     * @param callable $callback
-     * @param mixed    ...$args
-     *
-     * @return ZArr
-     */
-    public function walk_recursive(array &$array, $callback, ...$args);
-
-    /**
-     * @param array    $iterable
-     * @param callable $callback
-     * @param mixed    ...$args
-     *
-     * @return ZArr
-     */
-    public function crawl_recursive(iterable $iterable, $callback, ...$args);
-
-    /**
-     * @param array $dst
-     * @param int   $expandIdx
-     * @param mixed $expandValue
+     * @param array       $array
+     * @param int         $pos
+     * @param mixed       $value
+     * @param null|string $key
      *
      * @return array
      */
-    public function expand(array $dst, int $expandIdx, $expandValue): array;
+    public function expand(array $array, int $pos, $value, string $key = null): array;
 
     /**
-     * Вставляет элементы в указанные позиции по индексам, изменяя числовые индексы существующих элементов
+     * Вставляет элементы в указанные позиции (начиная с 0), изменяя числовые индексы существующих элементов
      *
-     * Механизм применяется в dran-n-drop элементов списка при пользовательской сортировке
-     * и в инжекторе зависимостей, чтобы между переданными параметрами воткнуть свой
+     * @param array           $array
+     * @param null|int|string $after
+     * @param mixed           $val
+     * @param null|string     $key
+     * @param null|bool       $strict
      *
-     * @param array   $dst
+     * @return array
+     */
+    public function expandAfter(array $array, $after, $val, string $key = null, bool $strict = null): array;
+
+    /**
+     * Вставляет элементы в указанные позиции (начиная с 0), изменяя числовые индексы существующих элементов
+     *
+     * Механизм применяется
+     * - в dran-n-drop элементов списка при пользовательской сортировке
+     * - в инжекторе зависимостей, чтобы между переданными параметрами воткнуть свой
+     *
+     * @param array   $array
      * @param array[] ...$expands
      *
      * @return array
      */
-    public function expandMany(array $dst, array ...$expands): array;
+    public function expandMany(array $array, array ...$expands): array;
 }

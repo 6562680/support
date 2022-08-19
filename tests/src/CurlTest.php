@@ -2,9 +2,9 @@
 
 namespace Gzhegow\Support\Tests;
 
-use Gzhegow\Support\ZPhp;
+use Gzhegow\Support\XPhp;
 use Gzhegow\Support\IPhp;
-use Gzhegow\Support\ZCurl;
+use Gzhegow\Support\XCurl;
 use Gzhegow\Support\ICurl;
 
 
@@ -12,12 +12,12 @@ class CurlTest extends AbstractTestCase
 {
     protected function getCurl() : ICurl
     {
-        return ZCurl::getInstance();
+        return XCurl::getInstance();
     }
 
     protected function getPhp() : IPhp
     {
-        return ZPhp::getInstance();
+        return XPhp::getInstance();
     }
 
 
@@ -26,19 +26,17 @@ class CurlTest extends AbstractTestCase
      */
     protected function isOnline() : bool
     {
-        if (! isset(static::$isOnline)) {
-            $curl = $this->getCurl();
+        $curl = $this->getCurl();
 
-            $ch = $curl->head('https://my-json-server.typicode.com/typicode/demo/posts');
+        $ch = $curl->head('https://my-json-server.typicode.com/typicode/demo/posts');
 
-            curl_exec($ch);
+        curl_exec($ch);
 
-            $errno = curl_errno($ch);
-
-            static::$isOnline = ! $errno;
+        if (! $result = (0 === curl_errno($ch))) {
+            dump(curl_error($ch));
         }
 
-        return static::$isOnline;
+        return $result;
     }
 
 
@@ -72,7 +70,7 @@ class CurlTest extends AbstractTestCase
 
         $json = '{"id":4,"title":"Post 4"}';
         $ch = $curl->post('https://my-json-server.typicode.com/typicode/demo/posts', $json, [
-            'Content-ZType' => 'application/json',
+            'Content-Type' => 'application/json',
         ]);
 
         $responseJson = json_decode(
@@ -97,7 +95,7 @@ class CurlTest extends AbstractTestCase
 
         $json = '{"title":"Post 4"}';
         $ch = $curl->put('https://my-json-server.typicode.com/typicode/demo/posts/1', $json, [
-            'Content-ZType' => 'application/json',
+            'Content-Type' => 'application/json',
         ]);
 
         $responseJson = json_decode('{"id":1}', true);
@@ -119,7 +117,7 @@ class CurlTest extends AbstractTestCase
 
         $json = '{"title":"Post 1"}';
         $ch = $curl->patch('https://my-json-server.typicode.com/typicode/demo/posts/1', $json, [
-            'Content-ZType' => 'application/json',
+            'Content-Type' => 'application/json',
         ]);
 
         $responseJson = json_decode('{"id":1,"title":"Post 1"}', true);
@@ -140,17 +138,15 @@ class CurlTest extends AbstractTestCase
         $curl = $this->getCurl();
 
         $ch = $curl->delete('https://my-json-server.typicode.com/typicode/demo/posts/1', [
-            'Content-ZType' => 'application/json',
+            'Content-Type' => 'application/json',
         ]);
-
-        $responseJson = json_decode('{}', true);
 
         $response = curl_exec($ch);
         $responseCode = $curl->curlinfoOpt($ch, CURLINFO_HTTP_CODE);
 
         curl_close($ch);
 
-        $this->assertEquals($responseJson, json_decode($response, true));
+        $this->assertEquals('{}', $response);
         $this->assertEquals(200, $responseCode);
     }
 
@@ -281,7 +277,7 @@ class CurlTest extends AbstractTestCase
 
         $curl = $this->getCurl();
 
-        $cbp = $curl->getBlueprint();
+        $cbp = $curl->getCurlBlueprint();
         $cbp->addCurloptArray([
             CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36',
         ]);

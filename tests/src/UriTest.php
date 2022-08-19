@@ -2,7 +2,7 @@
 
 namespace Gzhegow\Support\Tests;
 
-use Gzhegow\Support\ZUri;
+use Gzhegow\Support\XUri;
 use Gzhegow\Support\IUri;
 
 
@@ -10,98 +10,94 @@ class UriTest extends AbstractTestCase
 {
     protected function getUri() : IUri
     {
-        return ZUri::getInstance();
+        return XUri::getInstance();
     }
 
-
-    public function testIsLinkMatch()
-    {
-        $uri = $this->getUri();
-
-        $this->assertEquals(true, $uri->isLinkMatch(
-            'http://login:password@hostname:9090/path?arg=value#anchor',
-            'http://login:password@hostname:9090/path?arg=value#anchor'
-        ));
-
-        $this->assertEquals(true, $uri->isLinkMatch(
-            '/path?arg=value#anchor',
-            'http://login:password@hostname:9090/path?arg=value#anchor'
-        ));
-
-        $this->assertEquals(true, $uri->isLinkMatch(
-            '/path/subpath?arg=value#anchor',
-            'http://login:password@hostname:9090/path/?arg=value#anchor', null, null,
-            false
-        ));
-
-        $this->assertEquals(true, $uri->isLinkMatch(
-            '/path/subpath?arg=value#anchor',
-            'http://login:password@hostname:9090/path/subpath?arg=#anchor', null, null,
-            null, false
-        ));
-
-        $this->assertEquals(true, $uri->isLinkMatch(
-            '/path/subpath?arg=value#anchor',
-            'http://login:password@hostname:9090/path/subpath?arg=value', null, null,
-            null, null, false
-        ));
-    }
 
     public function testIsUrlMatch()
     {
         $uri = $this->getUri();
 
+
         $this->assertEquals(true, $uri->isUrlMatch(
             'http://login:password@hostname:9090/path?arg=value#anchor',
             'http://login:password@hostname:9090/path?arg=value#anchor'
         ));
 
-
-        $this->assertEquals(false, $uri->isUrlMatch(
+        $this->assertEquals(true, $uri->isUrlMatch(
             '/path?arg=value#anchor',
             'http://login:password@hostname:9090/path?arg=value#anchor'
         ));
 
-        $this->assertEquals(false, $uri->isUrlMatch(
-            '/path/subpath?arg=value#anchor',
-            'http://login:password@hostname:9090/path/?arg=value#anchor', null, null,
-            false
-        ));
 
         $this->assertEquals(false, $uri->isUrlMatch(
-            '/path/subpath?arg=value#anchor',
-            'http://login:password@hostname:9090/path/subpath?arg=#anchor', null, null,
-            null, false
-        ));
-
-        $this->assertEquals(false, $uri->isUrlMatch(
-            '/path/subpath?arg=value#anchor',
-            'http://login:password@hostname:9090/path/subpath?arg=value', null, null,
-            null, null, false
-        ));
-
-
-        $this->assertEquals(true, $uri->isUrlMatch(
             'http://login:password@hostname:9090/path?arg=value#anchor',
-            'http://login:password@hostname:9090/path?arg=value#anchor'
+            '/path?arg=value#anchor'
         ));
 
         $this->assertEquals(true, $uri->isUrlMatch(
-            'http://login:password@hostname:9090/path/subpath?arg=value#anchor',
-            'http://login:password@hostname:9090/path/?arg=value#anchor', null, null,
-            false
+            '/path?arg=value#anchor',
+            '/path?arg=value#anchor'
+        ));
+
+
+        $this->assertEquals(false, $uri->isUrlMatch(
+            '/path/',
+            'http://login:password@hostname:9090/path'
         ));
 
         $this->assertEquals(true, $uri->isUrlMatch(
-            'http://login:password@hostname:9090/path/subpath?arg=value#anchor',
-            'http://login:password@hostname:9090/path/subpath?arg=#anchor', null, null,
-            null, false
+            '/path/',
+            'http://login:password@hostname:9090/path/'
+        ));
+
+
+        $this->assertEquals(false, $uri->isUrlMatch(
+            '/path/subpath',
+            'http://login:password@hostname:9090/path'
         ));
 
         $this->assertEquals(true, $uri->isUrlMatch(
-            'http://login:password@hostname:9090/path/subpath?arg=value#anchor',
-            'http://login:password@hostname:9090/path/subpath?arg=value', null, null,
-            null, null, false
+            '/path/subpath',
+            'http://login:password@hostname:9090/path/subpath'
+        ));
+
+
+        $this->assertEquals(false, $uri->isUrlMatch(
+            '/path?arg=value',
+            'http://login:password@hostname:9090/path'
+        ));
+
+        $this->assertEquals(true, $uri->isUrlMatch(
+            '/path?arg=value',
+            'http://login:password@hostname:9090/path?arg=value'
+        ));
+
+
+        $this->assertEquals(false, $uri->isUrlMatch(
+            '/path?arg=value',
+            'http://login:password@hostname:9090/path?arg=value&arg2=value2'
+        ));
+
+        $this->assertEquals(true, $uri->isUrlMatch(
+            '/path?arg=value&arg2=value2',
+            'http://login:password@hostname:9090/path?arg=value'
+        ));
+
+        $this->assertEquals(true, $uri->isUrlMatch(
+            '/path?arg=value&arg2=value2',
+            'http://login:password@hostname:9090/path?arg=value&arg2=value2'
+        ));
+
+
+        $this->assertEquals(false, $uri->isUrlMatch(
+            '/path#anchor',
+            'http://login:password@hostname:9090/path'
+        ));
+
+        $this->assertEquals(true, $uri->isUrlMatch(
+            '/path#anchor',
+            'http://login:password@hostname:9090/path#anchor'
         ));
     }
 
@@ -112,9 +108,9 @@ class UriTest extends AbstractTestCase
 
         $this->assertEquals([
             'hello' => '',
-            'world' => '',
             'foo'   => 'bar',
-        ], $uri->query('hello', [ 'foo' => 'bar' ], 'world'));
+            'world' => [ 1, 2 ],
+        ], $uri->parseQuery('hello', [ 'foo' => 'bar' ], 'world[]=1&world[]=2'));
     }
 
 
@@ -131,7 +127,7 @@ class UriTest extends AbstractTestCase
             'path'     => '',
             'query'    => null,
             'fragment' => null,
-        ], $uri->linkinfo(''));
+        ], $uri->parseUrl(''));
 
         $this->assertEquals([
             'scheme'   => null,
@@ -142,7 +138,7 @@ class UriTest extends AbstractTestCase
             'path'     => '_',
             'query'    => null,
             'fragment' => null,
-        ], $uri->linkinfo("\0"));
+        ], $uri->parseUrl("\0"));
 
         $this->assertEquals([
             'scheme'   => null,
@@ -153,7 +149,7 @@ class UriTest extends AbstractTestCase
             'path'     => '/',
             'query'    => null,
             'fragment' => null,
-        ], $uri->linkinfo('/'));
+        ], $uri->parseUrl('/'));
 
         $this->assertEquals([
             'scheme'   => 'http',
@@ -164,7 +160,7 @@ class UriTest extends AbstractTestCase
             'path'     => '/path',
             'query'    => 'arg=value',
             'fragment' => 'anchor',
-        ], $uri->linkinfo('http://login:password@hostname:9090/path?arg=value#anchor'));
+        ], $uri->parseUrl('http://login:password@hostname:9090/path?arg=value#anchor'));
 
         $this->assertEquals([
             'scheme'   => 'https',
@@ -175,7 +171,7 @@ class UriTest extends AbstractTestCase
             'path'     => '/path',
             'query'    => 'param=value',
             'fragment' => 'hash',
-        ], $uri->linkinfo('https://login:password@www.google.com:80/path?param=value#hash'));
+        ], $uri->parseUrl('https://login:password@www.google.com:80/path?param=value#hash'));
 
         $this->assertEquals([
             'scheme'   => 'https',
@@ -186,7 +182,7 @@ class UriTest extends AbstractTestCase
             'path'     => '/path',
             'query'    => null,
             'fragment' => 'hash?param=value',
-        ], $uri->linkinfo('https://login:password@www.google.com:80/path#hash?param=value'));
+        ], $uri->parseUrl('https://login:password@www.google.com:80/path#hash?param=value'));
     }
 
 
@@ -194,8 +190,8 @@ class UriTest extends AbstractTestCase
     {
         $uri = $this->getUri();
 
-        $this->assertEquals('', $uri->url(null));
-        $this->assertEquals('', $uri->url(''));
+        // $this->assertEquals('', $uri->url(null));
+        // $this->assertEquals('', $uri->url(''));
         $this->assertEquals(
             'http://login:password@hostname:9090/path?arg=value#anchor',
             $uri->url('http://login:password@hostname:9090/path?arg=value#anchor')
@@ -204,7 +200,6 @@ class UriTest extends AbstractTestCase
             'http://login:password@www.google.com:8080/path#hash?param=value',
             $uri->url('http://login:password@www.google.com:8080/path#hash?param=value')
         );
-
         $this->assertEquals(
             'http://login:password@hostname:9090/path',
             $uri->url('http://login:password@hostname:9090/path?arg=value#anchor', [ 'arg' => null ], '')

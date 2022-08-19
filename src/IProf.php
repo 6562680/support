@@ -16,13 +16,6 @@ use Gzhegow\Support\Exceptions\RuntimeException;
 interface IProf
 {
     /**
-     * @param null|string $comment
-     *
-     * @return float
-     */
-    public function tick(?string $comment = ''): float;
-
-    /**
      * @param null|int $decimals
      *
      * @return array
@@ -30,7 +23,21 @@ interface IProf
     public function report(int $decimals = null): array;
 
     /**
-     * @return ZProf
+     * @return XProf
      */
-    public function flush();
+    public function reset();
+
+    /**
+     * @param null|int $decimals
+     *
+     * @return array
+     */
+    public function flush(int $decimals = null): array;
+
+    /**
+     * @param null|string $comment
+     *
+     * @return float
+     */
+    public function tick(?string $comment = ''): float;
 }

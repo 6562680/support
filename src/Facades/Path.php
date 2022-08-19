@@ -11,61 +11,47 @@
 
 namespace Gzhegow\Support\Facades;
 
-use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\IPath;
 use Gzhegow\Support\SupportFactory;
-use Gzhegow\Support\ZPath;
+use Gzhegow\Support\Traits\Load\StrLoadTrait;
+use Gzhegow\Support\XPath;
 
 class Path
 {
     /**
-     * @return ZPath
-     */
-    public static function reset()
-    {
-        return static::getInstance()->reset();
-    }
-
-    /**
-     * @param null|string       $separator
-     * @param null|string|array $delimiters
+     * @param null|string $separator
      *
-     * @return ZPath
+     * @return XPath
      */
-    public static function clone(?string $separator, ?array $delimiters)
-    {
-        return static::getInstance()->clone($separator, $delimiters);
-    }
-
-    /**
-     * @param null|string       $separator
-     * @param null|string|array $delimiters
-     *
-     * @return ZPath
-     */
-    public static function with(?string $separator, ?array $delimiters)
-    {
-        return static::getInstance()->with($separator, $delimiters);
-    }
-
-    /**
-     * @param string $separator
-     *
-     * @return ZPath
-     */
-    public static function withSeparator(string $separator)
+    public static function withSeparator(?string $separator)
     {
         return static::getInstance()->withSeparator($separator);
     }
 
     /**
-     * @param string[] $delimiters
+     * @param null|string[] $separatorAliases
      *
-     * @return ZPath
+     * @return XPath
      */
-    public static function withDelimiters(array $delimiters)
+    public static function withSeparatorAliases(?array $separatorAliases)
     {
-        return static::getInstance()->withDelimiters($delimiters);
+        return static::getInstance()->withSeparatorAliases($separatorAliases);
+    }
+
+    /**
+     * @return string
+     */
+    public static function loadSeparator(): string
+    {
+        return static::getInstance()->loadSeparator();
+    }
+
+    /**
+     * @return string[]
+     */
+    public static function loadSeparatorAliases(): array
+    {
+        return static::getInstance()->loadSeparatorAliases();
     }
 
     /**
@@ -79,9 +65,9 @@ class Path
     /**
      * @return string[]
      */
-    public static function getDelimiters(): array
+    public static function getSeparatorAliases(): array
     {
-        return static::getInstance()->getDelimiters();
+        return static::getInstance()->getSeparatorAliases();
     }
 
     /**

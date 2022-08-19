@@ -2,42 +2,36 @@
 
 require_once __DIR__ . '/generator.php';
 
-require __DIR__ . '/generate.facades.clear.php';
-
 
 $supportFactory = \Gzhegow\Support\SupportFactory::getInstance();
 
-$generator = new Gzhegow_Support_Generator(
-    $supportFactory->getLoader(),
-    $supportFactory->getStr()
-);
+$generator = new Gzhegow_Support_Generator_FacadeGenerator();
 
 
 // list
 $facades = [
-    'Arr'      => [ \Gzhegow\Support\IArr::class, \Gzhegow\Support\ZArr::class ],
-    'Assert'   => [ \Gzhegow\Support\IAssert::class, \Gzhegow\Support\ZAssert::class, \Gzhegow\Support\Generated\GeneratedAssert::class ],
-    'Calendar' => [ \Gzhegow\Support\ICalendar::class, \Gzhegow\Support\ZCalendar::class ],
-    'Cli'      => [ \Gzhegow\Support\ICli::class, \Gzhegow\Support\ZCli::class ],
-    'Cmp'      => [ \Gzhegow\Support\ICmp::class, \Gzhegow\Support\ZCmp::class ],
-    'Criteria' => [ \Gzhegow\Support\ICriteria::class, \Gzhegow\Support\ZCriteria::class ],
-    'Curl'     => [ \Gzhegow\Support\ICurl::class, \Gzhegow\Support\ZCurl::class ],
-    'Debug'    => [ \Gzhegow\Support\IDebug::class, \Gzhegow\Support\ZDebug::class ],
-    'Env'      => [ \Gzhegow\Support\IEnv::class, \Gzhegow\Support\ZEnv::class ],
-    'Filter'   => [ \Gzhegow\Support\IFilter::class, \Gzhegow\Support\ZFilter::class ],
-    'Format'   => [ \Gzhegow\Support\IFormat::class, \Gzhegow\Support\ZFormat::class ],
-    'Fs'       => [ \Gzhegow\Support\IFs::class, \Gzhegow\Support\ZFs::class ],
-    'Loader'   => [ \Gzhegow\Support\ILoader::class, \Gzhegow\Support\ZLoader::class ],
-    'Math'     => [ \Gzhegow\Support\IMath::class, \Gzhegow\Support\ZMath::class ],
-    'Net'      => [ \Gzhegow\Support\INet::class, \Gzhegow\Support\ZNet::class ],
-    'Num'      => [ \Gzhegow\Support\INum::class, \Gzhegow\Support\ZNum::class ],
-    'Path'     => [ \Gzhegow\Support\IPath::class, \Gzhegow\Support\ZPath::class ],
-    'Php'      => [ \Gzhegow\Support\IPhp::class, \Gzhegow\Support\ZPhp::class ],
-    'Preg'     => [ \Gzhegow\Support\IPreg::class, \Gzhegow\Support\ZPreg::class ],
-    'Prof'     => [ \Gzhegow\Support\IProf::class, \Gzhegow\Support\ZProf::class ],
-    'Str'      => [ \Gzhegow\Support\IStr::class, \Gzhegow\Support\ZStr::class ],
-    'Type'     => [ \Gzhegow\Support\IType::class, \Gzhegow\Support\ZType::class, \Gzhegow\Support\Generated\GeneratedType::class ],
-    'Uri'      => [ \Gzhegow\Support\IUri::class, \Gzhegow\Support\ZUri::class ],
+    'Arr'       => [ \Gzhegow\Support\IArr::class, \Gzhegow\Support\XArr::class ],
+    'Cache'     => [ \Gzhegow\Support\ICache::class, \Gzhegow\Support\XCache::class ],
+    'Calendar'  => [ \Gzhegow\Support\ICalendar::class, \Gzhegow\Support\XCalendar::class ],
+    'Cli'       => [ \Gzhegow\Support\ICli::class, \Gzhegow\Support\XCli::class ],
+    'Cmp'       => [ \Gzhegow\Support\ICmp::class, \Gzhegow\Support\XCmp::class ],
+    'Criteria'  => [ \Gzhegow\Support\ICriteria::class, \Gzhegow\Support\XCriteria::class ],
+    'Curl'      => [ \Gzhegow\Support\ICurl::class, \Gzhegow\Support\XCurl::class ],
+    'Debug'     => [ \Gzhegow\Support\IDebug::class, \Gzhegow\Support\XDebug::class ],
+    'Env'       => [ \Gzhegow\Support\IEnv::class, \Gzhegow\Support\XEnv::class ],
+    'Filter'    => [ \Gzhegow\Support\IFilter::class, \Gzhegow\Support\XFilter::class ],
+    'Format'    => [ \Gzhegow\Support\IFormat::class, \Gzhegow\Support\XFormat::class ],
+    'Fs'        => [ \Gzhegow\Support\IFs::class, \Gzhegow\Support\XFs::class ],
+    'Itertools' => [ \Gzhegow\Support\IItertools::class, \Gzhegow\Support\XItertools::class ],
+    'Loader'    => [ \Gzhegow\Support\ILoader::class, \Gzhegow\Support\XLoader::class ],
+    'Math'      => [ \Gzhegow\Support\IMath::class, \Gzhegow\Support\XMath::class ],
+    'Net'       => [ \Gzhegow\Support\INet::class, \Gzhegow\Support\XNet::class ],
+    'Num'       => [ \Gzhegow\Support\INum::class, \Gzhegow\Support\XNum::class ],
+    'Path'      => [ \Gzhegow\Support\IPath::class, \Gzhegow\Support\XPath::class ],
+    'Php'       => [ \Gzhegow\Support\IPhp::class, \Gzhegow\Support\XPhp::class ],
+    'Prof'      => [ \Gzhegow\Support\IProf::class, \Gzhegow\Support\XProf::class ],
+    'Str'       => [ \Gzhegow\Support\IStr::class, \Gzhegow\Support\XStr::class ],
+    'Uri'       => [ \Gzhegow\Support\IUri::class, \Gzhegow\Support\XUri::class ],
 ];
 
 // deps
@@ -84,39 +78,35 @@ foreach ( $facades as $facade => $sourceClasses ) {
 
     // copy methods
     foreach ( $sourceClasses as $sourceClass ) {
-        $moduleCopy = \Nette\PhpGenerator\ClassType::from($sourceClass);
+        $classTypeSource = \Nette\PhpGenerator\ClassType::from($sourceClass, false, false);
 
-        foreach ( $moduleCopy->getMethods() as $method ) {
-            if (! $method->isPublic()) {
+        foreach ( $classTypeSource->getMethods() as $sourceMethod ) {
+            if (! $sourceMethod->isPublic()) {
                 continue;
             }
 
-            if ($method->isStatic()) {
+            if ($sourceMethod->isStatic()) {
                 continue;
             }
 
-            $methodName = $method->getName();
+            $methodName = $sourceMethod->getName();
             if (null !== $generator->getStr()->starts($methodName, '__')) {
                 continue;
             }
 
-            $methodParameters = $method->getParameters();
-            $methodComment = $method->getComment();
-            $methodReturnType = $method->getReturnType();
-
             $arguments = [];
-            $parameters = $method->getParameters();
+            $parameters = $sourceMethod->getParameters();
             $last = array_pop($parameters);
             foreach ( $parameters as $parameter ) {
                 $arguments[] = '$' . $parameter->getName();
             }
             if ($last) {
-                $arguments[] = $method->isVariadic()
+                $arguments[] = $sourceMethod->isVariadic()
                     ? '...$' . $last->getName()
                     : '$' . $last->getName();
             }
 
-            $lines = explode("\n", $methodComment);
+            $lines = explode("\n", $sourceMethod->getComment());
             foreach ( $lines as $i => $line ) {
                 if (false !== mb_strpos($line, $separator = '@return static')) {
                     $parts = explode($separator, $line);
@@ -126,43 +116,38 @@ foreach ( $facades as $facade => $sourceClasses ) {
             }
             $methodCommentNew = implode("\n", $lines);
 
-            $return = null
-                ?? ( $methodReturnType === 'void' ? '' : null )
-                ?? ( $methodReturnType === \Generator::class ? 'yield from ' : null )
-                ?? 'return ';
-
             $methodNew = new \Nette\PhpGenerator\Method($methodName);
-            $methodNew->setReturnNullable($method->isReturnNullable());
-            $methodNew->setReturnReference($method->getReturnReference());
-            $methodNew->setVariadic($method->isVariadic());
-            $methodNew->setParameters($methodParameters);
-            $methodNew->setReturnType($methodReturnType);
-            $methodNew->setPublic();
             $methodNew->setStatic();
+            $methodNew->setPublic();
+            $methodNew->setParameters($sourceMethod->getParameters());
+            $methodNew->setVariadic($sourceMethod->isVariadic());
+            $methodNew->setReturnType($sourceMethod->getReturnType());
+            $methodNew->setReturnNullable($sourceMethod->isReturnNullable());
+            $methodNew->setReturnReference($sourceMethod->getReturnReference());
             $methodNew->setComment($methodCommentNew);
-            $methodNew->setBody(implode("\n", [
-                sprintf(
-                    $return . 'static::getInstance()->' . $methodName . '(%s);',
-                    implode(', ', $arguments),
-                ),
-            ]));
+            $methodNew->setBody(
+                $generator->generateMethodBody(
+                    $sourceMethod,
+                    $methodName, $arguments
+                )
+            );
 
             $classTypeFacade->addMember($methodNew);
         }
     }
 
     // add methods
-    $method = new \Nette\PhpGenerator\Method('getInstance');
-    $method->setPublic();
-    $method->setStatic();
-    $method->setReturnType($interface);
-    $method->setComment(implode("\n", [
+    $sourceMethod = new \Nette\PhpGenerator\Method('getInstance');
+    $sourceMethod->setPublic();
+    $sourceMethod->setStatic();
+    $sourceMethod->setReturnType($interface);
+    $sourceMethod->setComment(implode("\n", [
         '@return ' . substr($interface, strrpos($interface, '\\') + 1),
     ]));
-    $method->setBody(implode("\n", [
+    $sourceMethod->setBody(implode("\n", [
         sprintf('return SupportFactory::getInstance()->get%s();', $facade),
     ]));
-    $classTypeFacade->addMember($method);
+    $classTypeFacade->addMember($sourceMethod);
 
     // add classType to namespace
     $phpNamespace->add($classTypeFacade);

@@ -14,7 +14,9 @@ namespace Gzhegow\Support\Facades;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\ICmp;
 use Gzhegow\Support\SupportFactory;
-use Gzhegow\Support\ZCmp;
+use Gzhegow\Support\Traits\Load\CalendarLoadTrait;
+use Gzhegow\Support\Traits\Load\NumLoadTrait;
+use Gzhegow\Support\XCmp;
 
 class Cmp
 {

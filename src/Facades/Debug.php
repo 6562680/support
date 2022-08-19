@@ -11,34 +11,45 @@
 
 namespace Gzhegow\Support\Facades;
 
-use Gzhegow\Support\Domain\Debug\Message;
+use Gzhegow\Support\Domain\Debug\DebugMessage;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\IDebug;
 use Gzhegow\Support\SupportFactory;
-use Gzhegow\Support\ZDebug;
+use Gzhegow\Support\XDebug;
 
 class Debug
 {
     /**
-     * @param string|array|mixed $message
-     * @param mixed              ...$arguments
+     * @param string|array $message
+     * @param array        ...$placeholders
      *
-     * @return null|Message
+     * @return DebugMessage
      */
-    public static function messageVal($message, ...$arguments): ?Message
+    public static function newDebugMessage($message, ...$placeholders): DebugMessage
     {
-        return static::getInstance()->messageVal($message, ...$arguments);
+        return static::getInstance()->newDebugMessage($message, ...$placeholders);
     }
 
     /**
      * @param string|array|mixed $message
-     * @param mixed              ...$arguments
+     * @param mixed              ...$placeholders
      *
-     * @return Message
+     * @return null|DebugMessage
      */
-    public static function theMessageVal($message, ...$arguments): Message
+    public static function messageVal($message, ...$placeholders): ?DebugMessage
     {
-        return static::getInstance()->theMessageVal($message, ...$arguments);
+        return static::getInstance()->messageVal($message, ...$placeholders);
+    }
+
+    /**
+     * @param string|array|mixed $message
+     * @param mixed              ...$placeholders
+     *
+     * @return DebugMessage
+     */
+    public static function theMessageVal($message, ...$placeholders): DebugMessage
+    {
+        return static::getInstance()->theMessageVal($message, ...$placeholders);
     }
 
     /**
@@ -88,6 +99,19 @@ class Debug
     }
 
     /**
+     * Рекурсивно собирает из дерева исключений сообщения в список
+     *
+     * @param null|\Throwable $e
+     * @param null|int        $limit
+     *
+     * @return array
+     */
+    public static function extractThrowableMessages(\Throwable $e, int $limit = -1)
+    {
+        return static::getInstance()->extractThrowableMessages($e, $limit);
+    }
+
+    /**
      * Извлекает определенные колонки из debug_backtrace()/$throwable->getTrace()
      * может соединить их через разделитель в строку
      *
@@ -99,39 +123,27 @@ class Debug
      *
      * @return array
      */
-    public static function traceReport(
+    public static function buildTraceReport(
         $trace,
         $columns = null,
         string $implode = null,
         int $limit = null,
         int $options = null
     ): array {
-        return static::getInstance()->traceReport($trace, $columns, $implode, $limit, $options);
-    }
-
-    /**
-     * Рекурсивно собирает из дерева исключений сообщения в список
-     *
-     * @param null|\Throwable $e
-     * @param null|int        $limit
-     *
-     * @return array
-     */
-    public static function throwableMessages(\Throwable $e, int $limit = -1)
-    {
-        return static::getInstance()->throwableMessages($e, $limit);
+        return static::getInstance()->buildTraceReport($trace, $columns, $implode, $limit, $options);
     }
 
     /**
      * Возвращает результат var_dump, заменяет все пробелы на один
      *
-     * @param array $arguments
+     * @param           $arg
+     * @param null|bool $return
      *
      * @return string
      */
-    public static function varDump(...$arguments): string
+    public static function varDump($arg, bool $return = null): ?string
     {
-        return static::getInstance()->varDump(...$arguments);
+        return static::getInstance()->varDump($arg, $return);
     }
 
     /**
@@ -158,18 +170,6 @@ class Debug
     public static function varExport($arg, bool $return = null): ?string
     {
         return static::getInstance()->varExport($arg, $return);
-    }
-
-    /**
-     * Заменяет любое число пробелов в тексте на один
-     *
-     * @param string $content
-     *
-     * @return string
-     */
-    public static function dom(string $content): string
-    {
-        return static::getInstance()->dom($content);
     }
 
     /**

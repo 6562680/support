@@ -2,7 +2,7 @@
 
 namespace Gzhegow\Support\Tests;
 
-use Gzhegow\Support\ZProf;
+use Gzhegow\Support\XProf;
 use Gzhegow\Support\IProf;
 
 
@@ -10,7 +10,7 @@ class ProfTest extends AbstractTestCase
 {
     protected function getProf() : IProf
     {
-        return ZProf::getInstance();
+        return XProf::getInstance();
     }
 
 

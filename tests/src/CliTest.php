@@ -3,14 +3,14 @@
 namespace Gzhegow\Support\Tests;
 
 use Gzhegow\Support\ICli;
-use Gzhegow\Support\ZCli;
+use Gzhegow\Support\XCli;
 
 
 class CliTest extends AbstractTestCase
 {
     protected function getCli() : ICli
     {
-        return ZCli::getInstance();
+        return XCli::getInstance();
     }
 
 
@@ -38,29 +38,54 @@ class CliTest extends AbstractTestCase
         rmdir($directory);
     }
 
+
+    public function testMkdir()
+    {
+        $cli = $this->getCli();
+
+
+        $directory = __DIR__ . '/../storage/cli/mkdir';
+        if (is_dir($directory)) rmdir($directory);
+
+        $this->assertDirectoryDoesNotExist($directory);
+
+        $cli->mkdir($directory, null, true);
+
+        $this->assertDirectoryExists($directory);
+
+
+        rmdir($directory);
+    }
+
     public function testRmdir()
     {
         $cli = $this->getCli();
 
-        $directory = __DIR__ . '/../storage/cli/rmdir';
 
-        mkdir($directory);
+        $directory = __DIR__ . '/../storage/cli/rmdir';
+        if (! is_dir($directory)) mkdir($directory);
+
+        $this->assertDirectoryExists($directory);
+
+        $cli->rmdir($directory);
+
+        $this->assertDirectoryDoesNotExist($directory);
+
+
+        $directory = __DIR__ . '/../storage/cli/rmdir';
+        if (! is_dir($directory)) mkdir($directory);
+
         file_put_contents($directory . '/1.txt', __CLASS__);
         file_put_contents($directory . '/2.txt', __CLASS__);
         file_put_contents($directory . '/3.txt', __CLASS__);
 
-        $realpath2 = realpath($directory . '/2.txt');
-
-        $noninteractive = 'yy';
-
-        $cli->rmdir($directory, function (\SplFileInfo $spl) use ($realpath2) {
-            return $spl->getRealPath() === $realpath2;
-        }, null, $noninteractive);
-
-        $this->assertFileExists($realpath2);
         $this->assertDirectoryExists($directory);
 
-        unlink($realpath2);
-        rmdir($directory);
+        $cli->rmdir($directory, true);
+
+        $this->assertDirectoryDoesNotExist($directory);
+
+
+        if (is_dir($directory)) rmdir($directory);
     }
 }

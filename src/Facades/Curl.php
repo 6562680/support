@@ -12,70 +12,34 @@
 namespace Gzhegow\Support\Facades;
 
 use Gzhegow\Support\Domain\Curl\CurlBlueprint;
-use Gzhegow\Support\Domain\Curl\CurloptManager;
-use Gzhegow\Support\Domain\Curl\CurloptManagerInterface;
+use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\ICurl;
 use Gzhegow\Support\SupportFactory;
-use Gzhegow\Support\ZCurl;
+use Gzhegow\Support\Traits\Load\ArrLoadTrait;
+use Gzhegow\Support\Traits\Load\Curl\CurloptManagerLoadTrait;
+use Gzhegow\Support\Traits\Load\FsLoadTrait;
+use Gzhegow\Support\XCurl;
 
 class Curl
 {
     /**
      * @param null|CurlBlueprint $blueprint
      *
-     * @return ZCurl
+     * @return XCurl
      */
-    public static function with(?CurlBlueprint $blueprint)
-    {
-        return static::getInstance()->with($blueprint);
-    }
-
-    /**
-     * @param CurlBlueprint $blueprint
-     *
-     * @return ZCurl
-     */
-    public static function withBlueprint(CurlBlueprint $blueprint)
+    public static function withBlueprint(?CurlBlueprint $blueprint)
     {
         return static::getInstance()->withBlueprint($blueprint);
     }
 
     /**
-     * @return ZCurl
-     */
-    public static function reset()
-    {
-        return static::getInstance()->reset();
-    }
-
-    /**
-     * @param null|CurlBlueprint $blueprint
-     *
-     * @return ZCurl
-     */
-    public static function clone(?CurlBlueprint $blueprint)
-    {
-        return static::getInstance()->clone($blueprint);
-    }
-
-    /**
      * @param null|array $curloptArray
      *
      * @return CurlBlueprint
      */
-    public static function newBlueprint(array $curloptArray = null): CurlBlueprint
+    public static function newCurlBlueprint(array $curloptArray = null): CurlBlueprint
     {
-        return static::getInstance()->newBlueprint($curloptArray);
-    }
-
-    /**
-     * @param null|array $curloptArray
-     *
-     * @return CurlBlueprint
-     */
-    public static function cloneBlueprint(array $curloptArray = null): CurlBlueprint
-    {
-        return static::getInstance()->cloneBlueprint($curloptArray);
+        return static::getInstance()->newCurlBlueprint($curloptArray);
     }
 
     /**
@@ -93,37 +57,29 @@ class Curl
     /**
      * @return CurlBlueprint
      */
-    public static function getBlueprint(): CurlBlueprint
+    public static function getCurlBlueprint(): CurlBlueprint
     {
-        return static::getInstance()->getBlueprint();
+        return static::getInstance()->getCurlBlueprint();
     }
 
     /**
-     * @param null|bool $verbose
+     * @param resource|\CurlHandle $ch
      *
-     * @return array
+     * @return null|resource|\CurlHandle
      */
-    public static function getCurloptArray(bool $verbose = null): array
+    public static function filterCurl($ch)
     {
-        return static::getInstance()->getCurloptArray($verbose);
+        return static::getInstance()->filterCurl($ch);
     }
 
     /**
-     * @return array
-     */
-    public static function getCurloptArrayDefault(): array
-    {
-        return static::getInstance()->getCurloptArrayDefault();
-    }
-
-    /**
-     * @param null|CurloptManagerInterface $curloptManager
+     * @param resource|\CurlHandle $ch
      *
-     * @return CurloptManagerInterface
+     * @return null|resource|\CurlHandle
      */
-    public static function curloptManager(CurloptManagerInterface $curloptManager = null): CurloptManagerInterface
+    public static function filterCurlFresh($ch)
     {
-        return static::getInstance()->curloptManager($curloptManager);
+        return static::getInstance()->filterCurlFresh($ch);
     }
 
     /**
@@ -258,9 +214,9 @@ class Curl
      *
      * @return resource[]|\CurlHandle[]
      */
-    public static function aCurls($curls, bool $uniq = null, bool $recursive = null): array
+    public static function curls($curls, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->aCurls($curls, $uniq, $recursive);
+        return static::getInstance()->curls($curls, $uniq, $recursive);
     }
 
     /**

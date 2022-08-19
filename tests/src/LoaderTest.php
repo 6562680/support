@@ -2,7 +2,7 @@
 
 namespace Gzhegow\Support\Tests;
 
-use Gzhegow\Support\ZLoader;
+use Gzhegow\Support\XLoader;
 use Gzhegow\Support\ILoader;
 
 
@@ -10,7 +10,7 @@ class LoaderTest extends AbstractTestCase
 {
     protected function getLoader() : ILoader
     {
-        return ZLoader::getInstance();
+        return XLoader::getInstance();
     }
 
 
@@ -39,77 +39,17 @@ class LoaderTest extends AbstractTestCase
     {
         $loader = $this->getLoader();
 
-        $class = ZLoader::class;
+        $class = XLoader::class;
         $rootClass = '\\' . $class;
         $object = $loader;
         $reflectionClass = new \ReflectionClass($loader);
-        $className = 'ZLoader';
+        $className = 'XLoader';
 
         $this->assertEquals($rootClass, $loader->useClassVal($class, __CLASS__));
         $this->assertEquals($rootClass, $loader->useClassVal($object, __CLASS__));
         $this->assertEquals($rootClass, $loader->useClassVal($rootClass, __CLASS__));
         $this->assertEquals($rootClass, $loader->useClassVal($reflectionClass, __CLASS__));
         $this->assertEquals($rootClass, $loader->useClassVal($className, __CLASS__));
-    }
-
-
-    public function testIsClassOf()
-    {
-        $loader = $this->getLoader();
-
-        $a = new class extends \StdClass {
-        };
-        $b = new class extends \SplPriorityQueue {
-        };
-        $c = 'StdClass';
-
-        $this->assertEquals(true, $loader->isClassOneOf($a, [ \StdClass::class, \SplPriorityQueue::class ]));
-        $this->assertEquals(true, $loader->isClassOneOf($b, [ \StdClass::class, \SplPriorityQueue::class ]));
-        $this->assertEquals(true, $loader->isClassOneOf($c, [ \StdClass::class, \SplPriorityQueue::class ]));
-    }
-
-    public function testIsSubclassOf()
-    {
-        $loader = $this->getLoader();
-
-        $a = new class extends \StdClass {
-        };
-        $b = new class extends \SplPriorityQueue {
-        };
-        $c = 'StdClass';
-
-        $this->assertEquals(true, $loader->isSubclassOneOf($a, [ \StdClass::class, \SplPriorityQueue::class ]));
-        $this->assertEquals(true, $loader->isSubclassOneOf($b, [ \StdClass::class, \SplPriorityQueue::class ]));
-        $this->assertEquals(false, $loader->isSubclassOneOf($c, [ \StdClass::class, \SplPriorityQueue::class ]));
-    }
-
-    public function testIsInstanceOf()
-    {
-        $loader = $this->getLoader();
-
-        $a = new class extends \StdClass {
-        };
-        $b = new class extends \SplPriorityQueue {
-        };
-
-        $this->assertEquals(true, $loader->isInstanceOneOf($a, [ \StdClass::class, \SplPriorityQueue::class ]));
-        $this->assertEquals(true, $loader->isInstanceOneOf($b, [ \StdClass::class, \SplPriorityQueue::class ]));
-    }
-
-    public function testIsContract()
-    {
-        $loader = $this->getLoader();
-
-        $loader->addContract('myContract', \StdClass::class);
-        $loader->addContract('myContract', \SplPriorityQueue::class);
-
-        $a = new class extends \StdClass {
-        };
-        $b = new class extends \SplPriorityQueue {
-        };
-
-        $this->assertEquals(true, $loader->isContract($a, 'myContract'));
-        $this->assertEquals(true, $loader->isContract($b, 'myContract'));
     }
 
 
@@ -183,7 +123,7 @@ class LoaderTest extends AbstractTestCase
         $d = '\\A\\B\\C\\D';
 
         $this->assertEquals([ 'Gzhegow\Support\Tests', 'LoaderTest' ], $loader->namespaceClass($a));
-        $this->assertEquals([ 'Gzhegow\Support', 'ZLoader' ], $loader->namespaceClass($b));
+        $this->assertEquals([ 'Gzhegow\Support', 'XLoader' ], $loader->namespaceClass($b));
         $this->assertEquals([ 'A\\B\\C', 'D' ], $loader->namespaceClass($c));
         $this->assertEquals([ 'A\\B\\C', 'D' ], $loader->namespaceClass($d));
     }
@@ -213,7 +153,7 @@ class LoaderTest extends AbstractTestCase
         $d = '\\A\\B\\C\\D';
 
         $this->assertEquals('LoaderTest', $loader->className($a));
-        $this->assertEquals('ZLoader', $loader->className($b));
+        $this->assertEquals('XLoader', $loader->className($b));
         $this->assertEquals('D', $loader->className($c));
         $this->assertEquals('D', $loader->className($d));
     }

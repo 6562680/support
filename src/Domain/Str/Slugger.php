@@ -2,9 +2,10 @@
 
 namespace Gzhegow\Support\Domain\Str;
 
-use Gzhegow\Support\IStr;
-use Gzhegow\Support\IPhp;
+use Gzhegow\Support\Traits\Load\StrLoadTrait;
 use Gzhegow\Support\Exceptions\RuntimeException;
+use Gzhegow\Support\Traits\Load\ItertoolsLoadTrait;
+use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\Runtime\UnexpectedValueException;
 
 
@@ -13,21 +14,13 @@ use Gzhegow\Support\Exceptions\Runtime\UnexpectedValueException;
  */
 class Slugger implements SluggerInterface
 {
-    const SYMFONY_ASCII_SLUGGER     = 'Symfony\Component\String\Slugger\AsciiSlugger';
-    const SYMFONY_BINARY_STRING     = 'Symfony\Component\String\BinaryString';
-    const SYMFONY_SLUGGER_INTERFACE = 'Symfony\Component\String\Slugger\SluggerInterface';
+    use ItertoolsLoadTrait;
+    use StrLoadTrait;
 
 
-    /**
-     * @var IStr
-     */
-    protected $str;
-
-
-    /**
-     * @var IPhp
-     */
-    protected $php;
+    const SYMFONY_BINARY_STRING             = 'Symfony\Component\String\BinaryString';
+    const SYMFONY_SLUGGER_ASCII_SLUGGER     = 'Symfony\Component\String\Slugger\AsciiSlugger';
+    const SYMFONY_SLUGGER_SLUGGER_INTERFACE = 'Symfony\Component\String\Slugger\SluggerInterface';
 
 
     /**
@@ -55,18 +48,64 @@ class Slugger implements SluggerInterface
 
 
     /**
-     * Constructor
+     * @param null|object|\Symfony\Component\String\Slugger\SluggerInterface $symfonySlugger
      *
-     * @param IStr $str
-     * @param IPhp $php
+     * @return object
      */
-    public function __construct(
-        IStr $str,
-        IPhp $php
-    )
+    public function withSymfonySlugger(?object $symfonySlugger) : object
     {
-        $this->str = $str;
-        $this->php = $php;
+        if ($symfonySlugger) {
+            if (! is_a($symfonySlugger, $interface = static::SYMFONY_SLUGGER_SLUGGER_INTERFACE)) {
+                throw new RuntimeException([
+                    'Symfony Slugger should implements %s: %s',
+                    $interface,
+                    $symfonySlugger,
+                ]);
+            }
+        }
+
+        $this->symfonySlugger = $symfonySlugger;
+
+        return $this;
+    }
+
+
+    /**
+     * @return \Symfony\Component\String\Slugger\SluggerInterface
+     */
+    public function newSymfonySlugger() : object
+    {
+        $commands = [
+            'composer require symfony/string',
+            'composer require symfony/translation-contracts',
+        ];
+
+        if (! class_exists($class = static::SYMFONY_SLUGGER_ASCII_SLUGGER)) {
+            throw new RuntimeException([
+                'Please, run following: %s',
+                $commands,
+            ]);
+        }
+
+        $defaultLocale = null
+            ?? $this->getLocaleDefault()
+            ?? $this->getLocaleDefaultFromPhp()
+            ?? 'en';
+
+        return new $class($defaultLocale, array_combine(
+            $this->getIgnoreSymbols(),
+            $this->getIgnoreSymbols()
+        ));
+    }
+
+
+    /**
+     * @return \Symfony\Component\String\Slugger\SluggerInterface
+     */
+    public function getSymfonySlugger() : object
+    {
+        return $this->symfonySlugger = $this->symfonySlugger
+            ?? $this->newSymfonySlugger();
     }
 
 
@@ -180,8 +219,13 @@ class Slugger implements SluggerInterface
      */
     public function localeDefault($localeDefault)
     {
-        if (! ( is_string($localeDefault) || is_callable($localeDefault) )) {
-            return $this;
+        if ($localeDefault) {
+            if (! ( is_string($localeDefault) || $localeDefault instanceof \Closure )) {
+                throw new InvalidArgumentException([
+                    'The `localeDefault` should be string or \Closure: %s',
+                    $localeDefault,
+                ]);
+            }
         }
 
         $this->localeDefault = $localeDefault;
@@ -197,11 +241,16 @@ class Slugger implements SluggerInterface
      */
     public function sequencesMap($sequencesMap)
     {
-        if (! ( is_array($sequencesMap) || is_callable($sequencesMap) )) {
-            return $this;
+        if ($sequencesMap) {
+            if (! ( is_array($sequencesMap) || $sequencesMap instanceof \Closure )) {
+                throw new InvalidArgumentException([
+                    'The `sequencesMap` should be array or \Closure: %s',
+                    $sequencesMap,
+                ]);
+            }
         }
 
-        $this->sequencesMap = $sequencesMap;
+        $this->sequencesMap = $sequencesMap ?? [];
 
         return $this;
     }
@@ -213,11 +262,16 @@ class Slugger implements SluggerInterface
      */
     public function symbolsMap($symbolsMap)
     {
-        if (! ( is_array($symbolsMap) || is_callable($symbolsMap) )) {
-            return $this;
+        if ($symbolsMap) {
+            if (! ( is_array($symbolsMap) || $symbolsMap instanceof \Closure )) {
+                throw new InvalidArgumentException([
+                    'The `symbolsMap` should be array or \Closure: %s',
+                    $symbolsMap,
+                ]);
+            }
         }
 
-        $this->symbolsMap = $symbolsMap;
+        $this->symbolsMap = $symbolsMap ?? [];
 
         return $this;
     }
@@ -229,57 +283,18 @@ class Slugger implements SluggerInterface
      */
     public function ignoreSymbols($ignoreSymbols)
     {
-        if (! ( is_array($ignoreSymbols) || is_callable($ignoreSymbols) )) {
-            return $this;
+        if ($ignoreSymbols) {
+            if (! ( is_array($ignoreSymbols) || $ignoreSymbols instanceof \Closure )) {
+                throw new InvalidArgumentException([
+                    'The `ignoreSymbols` should be array or \Closure: %s',
+                    $ignoreSymbols,
+                ]);
+            }
         }
 
-        $this->ignoreSymbols = $ignoreSymbols;
+        $this->ignoreSymbols = $ignoreSymbols ?? [];
 
         return $this;
-    }
-
-
-    /**
-     * @param null|\Symfony\Component\String\Slugger\SluggerInterface $symfonySlugger
-     *
-     * @return \Symfony\Component\String\Slugger\SluggerInterface
-     */
-    public function symfonySlugger($symfonySlugger = null)
-    {
-        $commands = [
-            'composer require symfony/string',
-            'composer require symfony/translation-contracts',
-        ];
-
-        if ($symfonySlugger) {
-            if (! interface_exists($interface = static::SYMFONY_SLUGGER_INTERFACE)) {
-                throw new RuntimeException([ 'Please, run following: %s', $commands ]);
-            }
-
-            if (! is_a($symfonySlugger, $interface)) {
-                throw new RuntimeException([ 'Slugger should implements %s: %s', $interface, $symfonySlugger ]);
-            }
-
-            $this->symfonySlugger = $symfonySlugger;
-        }
-
-        if (! $this->symfonySlugger) {
-            if (! class_exists($class = static::SYMFONY_ASCII_SLUGGER)) {
-                throw new RuntimeException([ 'Please, run following: %s', $commands ]);
-            }
-
-            $defaultLocale = null
-                ?? $this->getLocaleDefault()
-                ?? $this->getLocaleDefaultFromPhp()
-                ?? 'en';
-
-            $this->symfonySlugger = new $class($defaultLocale, array_combine(
-                $this->getIgnoreSymbols(),
-                $this->getIgnoreSymbols()
-            ));
-        }
-
-        return $this->symfonySlugger;
     }
 
 
@@ -292,13 +307,13 @@ class Slugger implements SluggerInterface
      */
     public function slug(string $string, string $delimiter = null, string $locale = null) : ?string
     {
-        $translitSymfonySlugger = null;
         $translitTransliterator = null;
+        $translitSymfonySlugger = null;
         $translitNative = null;
 
         $result = null
-            // ?? ($translitSymfonySlugger = $this->translitSymfonySlugger($string, $delimiter, $locale))
-            // ?? ( $translitTransliterator = $this->translitTransliterator($string, $delimiter, $locale) )
+            ?? ( $translitTransliterator = $this->translitTransliterator($string, $delimiter, $locale) )
+            ?? ( $translitSymfonySlugger = $this->translitSymfonySlugger($string, $delimiter, $locale) )
             ?? ( $translitNative = $this->translitNative($string, $delimiter, $locale) ) //
         ;
 
@@ -313,41 +328,9 @@ class Slugger implements SluggerInterface
      *
      * @return null|string
      */
-    protected function translitSymfonySlugger(string $string, string $delimiter = null, string $locale = null) : ?string
-    {
-        if (! strlen($string)) return '';
-
-        if (! interface_exists($interface = static::SYMFONY_SLUGGER_INTERFACE)) {
-            return null;
-        }
-
-        if (! class_exists($class = static::SYMFONY_BINARY_STRING)) {
-            return null;
-        }
-
-        // @gzhegow > symfony transliterator fails if `intl` is not exists and string is in UTF encoding
-        $isUTF = ( new $class($string) )->{$method = 'isUtf8'}();
-        if ($isUTF && ! ( extension_loaded('intl') && function_exists($func = 'transliterator_transliterate') )) {
-            return null;
-        }
-
-        $delimiter = $delimiter ?? '-';
-
-        $result = $this->symfonySlugger()->slug($string, $delimiter, $locale)->toString();
-
-        return $result;
-    }
-
-    /**
-     * @param string      $string
-     * @param null|string $delimiter
-     * @param null|string $locale
-     *
-     * @return null|string
-     */
     protected function translitTransliterator(string $string, string $delimiter = null, string $locale = null) : ?string
     {
-        if (! strlen($string)) return '';
+        if ('' === $string) return '';
 
         if (! ( extension_loaded('intl') && function_exists($func = 'transliterator_transliterate') )) {
             return null;
@@ -369,19 +352,57 @@ class Slugger implements SluggerInterface
      * @param null|string $delimiter
      * @param null|string $locale
      *
+     * @return null|string
+     */
+    protected function translitSymfonySlugger(string $string, string $delimiter = null, string $locale = null) : ?string
+    {
+        if ('' === $string) return '';
+
+        if (! interface_exists($interface = static::SYMFONY_SLUGGER_SLUGGER_INTERFACE)) {
+            return null;
+        }
+
+        if (! class_exists($class = static::SYMFONY_BINARY_STRING)) {
+            return null;
+        }
+
+        // @gzhegow > symfony transliterator fails if `intl` is not exists and string is in UTF encoding
+        $isUTF = ( new $class($string) )->{$method = 'isUtf8'}();
+        if ($isUTF && ! ( extension_loaded('intl') && function_exists($func = 'transliterator_transliterate') )) {
+            return null;
+        }
+
+        $delimiter = $delimiter ?? '-';
+
+        $result = $this->getSymfonySlugger()->slug($string, $delimiter, $locale)->toString();
+
+        return $result;
+    }
+
+    /**
+     * @param string      $string
+     * @param null|string $delimiter
+     * @param null|string $locale
+     *
      * @return string
      */
     protected function translitNative(string $string, string $delimiter = null, string $locale = null) : string
     {
-        if (! strlen($string)) return '';
+        if ('' === $string) return '';
+
+        $theStr = $this->getStr();
 
         $delimiter = $delimiter ?? '-';
 
         $result = $string;
 
+        $theStr->beginMultibyteMode($theStr::MODE_UNICODE);
+
         $result = $this->transliterateNative($result, $delimiter, $locale);
         $result = $this->transliterateUser($result, $delimiter, $locale);
         $result = $this->transliterateDelimiter($result, $delimiter, $locale);
+
+        $theStr->endMultibyteMode();
 
         return $result;
     }
@@ -419,7 +440,6 @@ class Slugger implements SluggerInterface
 
         return $result;
     }
-
 
     /**
      * @param string      $string
@@ -509,6 +529,9 @@ class Slugger implements SluggerInterface
      */
     protected function prepareSequencesMap(array $sequencesMap) : array
     {
+        $theItertools = $this->getItertools();
+        $theStr = $this->getStr();
+
         $sequences = [];
 
         foreach ( $sequencesMap as $sequence ) {
@@ -518,17 +541,17 @@ class Slugger implements SluggerInterface
             $keysCase = [];
             foreach ( $keys as $idx => $letter ) {
                 $keysCase[ $idx ][] = $letter;
-                $keysCase[ $idx ][] = mb_strtoupper($letter);
+                $keysCase[ $idx ][] = $theStr->mb('strtoupper')($letter);
             }
 
             $sequenceCase = [];
             foreach ( $sequence as $idx => $letter ) {
                 $sequenceCase[ $idx ][] = $letter;
-                $sequenceCase[ $idx ][] = mb_strtoupper($letter);
+                $sequenceCase[ $idx ][] = $theStr->mb('strtoupper')($letter);
             }
 
-            $keysCase = $this->php->sequence(...$keysCase);
-            $sequenceCase = $this->php->sequence(...$sequenceCase);
+            $keysCase = iterator_to_array($theItertools->product(...$keysCase));
+            $sequenceCase = iterator_to_array($theItertools->product(...$sequenceCase));
 
             foreach ( array_keys($keysCase) as $idx ) {
                 $search = implode('', $keysCase[ $idx ]);
@@ -543,7 +566,6 @@ class Slugger implements SluggerInterface
         return $sequences;
     }
 
-
     /**
      * @param array $symbolsMap
      *
@@ -551,28 +573,30 @@ class Slugger implements SluggerInterface
      */
     protected function prepareSymbolsMap(array $symbolsMap)
     {
+        $theStr = $this->getStr();
+
         $symbols = [];
 
         foreach ( $symbolsMap as $a => $b ) {
-            $aLower = mb_strtolower($a);
-            $aUpper = mb_strtoupper($a);
+            $aLower = $theStr->mb('strtolower')($a);
+            $aUpper = $theStr->mb('strtoupper')($a);
 
             $b = is_array($b) ? $b : [ $b ];
 
             $list = [];
             foreach ( $b as $bb ) {
-                $list = array_merge($list, $this->str->split($bb));
+                $list = array_merge($list, $theStr->mb('str_split')($bb));
             }
 
             foreach ( $list as $bb ) {
-                $bbLen = mb_strlen($bb);
-                $bbLower = mb_strtolower($bb);
-                $bbUpper = mb_strtoupper($bb);
+                $bbLen = $theStr->mb('strlen')($bb);
+                $bbLower = $theStr->mb('strtolower')($bb);
+                $bbUpper = $theStr->mb('strtoupper')($bb);
 
                 // incorrect: ß -> 'SS'
                 if (false
-                    || ( $bbLen !== mb_strlen($bbLower) )
-                    || ( $bbLen !== mb_strlen($bbUpper) )
+                    || ( $bbLen !== $theStr->mb('strlen')($bbLower) )
+                    || ( $bbLen !== $theStr->mb('strlen')($bbUpper) )
                 ) {
                     throw new UnexpectedValueException([
                         'Case change cause unexpected lenght difference, you should move pair into sequenceMap: %s / %s',
@@ -594,7 +618,6 @@ class Slugger implements SluggerInterface
         return $symbols;
     }
 
-
     /**
      * @param string|string[] $ignoreSymbols
      *
@@ -606,10 +629,12 @@ class Slugger implements SluggerInterface
             ? $ignoreSymbols
             : ( $ignoreSymbols ? [ $ignoreSymbols ] : [] );
 
+        $theStr = $this->getStr();
+
         $ignore = [];
 
         foreach ( $ignoreSymbols as $symbol ) {
-            foreach ( $this->str->split($symbol) as $sym ) {
+            foreach ( $theStr->mb('str_split')($symbol) as $sym ) {
                 $ignore[ $sym ] = true;
             }
         }
@@ -624,13 +649,13 @@ class Slugger implements SluggerInterface
     protected function fetchSequenceMapNative() : array
     {
         return [
+            'ẚ' => [ 'ẚ' => 'a' ], // [0] => ẚ [1] => ẚ [2] => Aʾ
+            'ß' => [ 'ß' => 'ss' ], // [0] => ß [1] => ß [2] => SS
+
             'ый' => [ 'ы' => 'i', 'й' => 'y' ],
             'ех' => [ 'е' => 'c', 'х' => 'kh' ],
             'сх' => [ 'с' => 'c', 'х' => 'kh' ],
             'цх' => [ 'ц' => 'c', 'х' => 'kh' ],
-
-            'ẚ' => [ 'ẚ' => 'a' ],
-            'ß' => [ 'ß' => 'ss' ],
         ];
     }
 
@@ -642,7 +667,7 @@ class Slugger implements SluggerInterface
         return [
             ' ' => 'ъь',
 
-            'a' => [ 'aàáâãāăȧäảåǎȁąạḁầấẫẩằắẵẳǡǟǻậặæǽǣая' ],
+            'a' => [ 'aàáâãäåæāăąǎǟǡǣǻǽȁȧаḁạảấầẩẫậắằẳẵặ' ],
             'b' => [ 'þб' ],
             'c' => [ 'çćĉċčц' ],
             'd' => [ 'ðďд' ],

@@ -2,7 +2,17 @@
 
 namespace Gzhegow\Support;
 
+use Gzhegow\Support\Domain\Str\Slugger;
+use Gzhegow\Support\Domain\Str\Inflector;
+use Gzhegow\Support\Domain\Curl\CurlBlueprint;
+use Gzhegow\Support\Domain\Debug\DebugMessage;
+use Gzhegow\Support\Domain\Curl\CurloptManager;
 use Gzhegow\Support\Exceptions\RuntimeException;
+use Gzhegow\Support\Domain\Str\SluggerInterface;
+use Gzhegow\Support\Domain\Str\InflectorInterface;
+use Gzhegow\Support\Domain\Math\ValueObject\MathBcval;
+use Gzhegow\Support\Domain\Curl\CurloptManagerInterface;
+use Gzhegow\Support\Domain\Php\ValueObject\PhpInvokableInfo;
 
 
 /**
@@ -24,15 +34,15 @@ class SupportFactory implements SupportFactoryInterface
     /**
      * Constructor
      *
-     * @param null|\Psr\Container\ContainerInterface $container
+     * @param null|object|\Psr\Container\ContainerInterface $container
      *
      * @noinspection PhpFullyQualifiedNameUsageInspection
      */
-    public function __construct($container = null)
+    public function __construct(object $container = null)
     {
         if (null !== $container) {
-            if (! is_a($container, static::PSR_CONTAINER_INTERFACE)) {
-                throw new RuntimeException('Container should implements ' . static::PSR_CONTAINER_INTERFACE);
+            if (! is_a($container, $interface = static::PSR_CONTAINER_INTERFACE)) {
+                throw new RuntimeException('The `container` should implements ' . $interface);
             }
 
             $this->container = $container;
@@ -52,251 +62,259 @@ class SupportFactory implements SupportFactoryInterface
 
 
     /**
-     * @return IArr
+     * @return XArr
      */
-    public function newArr() : IArr
+    public function newArr() : XArr
     {
-        return new ZArr(
-            $this->getFilter(),
-            $this->getPhp(),
-            $this->getStr()
+        return new XArr();
+    }
+
+    /**
+     * @return XCache
+     */
+    public function newCache() : XCache
+    {
+        return new XCache();
+    }
+
+    /**
+     * @return XCalendar
+     */
+    public function newCalendar() : XCalendar
+    {
+        return new XCalendar();
+    }
+
+    /**
+     * @return XCli
+     */
+    public function newCli() : XCli
+    {
+        return new XCli();
+    }
+
+    /**
+     * @return XCmp
+     */
+    public function newCmp() : XCmp
+    {
+        return new XCmp();
+    }
+
+    /**
+     * @return XCriteria
+     */
+    public function newCriteria() : XCriteria
+    {
+        return new XCriteria();
+    }
+
+    /**
+     * @return XCurl
+     */
+    public function newCurl() : XCurl
+    {
+        return new XCurl();
+    }
+
+    /**
+     * @return XDebug
+     */
+    public function newDebug() : XDebug
+    {
+        return new XDebug();
+    }
+
+    /**
+     * @return XEnv
+     */
+    public function newEnv() : XEnv
+    {
+        return new XEnv();
+    }
+
+    /**
+     * @return XFilter
+     */
+    public function newFilter() : XFilter
+    {
+        return new XFilter();
+    }
+
+    /**
+     * @return XFormat
+     */
+    public function newFormat() : XFormat
+    {
+        return new XFormat();
+    }
+
+    /**
+     * @return XFs
+     */
+    public function newFs() : XFs
+    {
+        return new XFs();
+    }
+
+    /**
+     * @return XItertools
+     */
+    public function newItertools() : XItertools
+    {
+        return new XItertools();
+    }
+
+    /**
+     * @return XLoader
+     */
+    public function newLoader() : XLoader
+    {
+        return new XLoader();
+    }
+
+    /**
+     * @return XLogger
+     */
+    public function newLogger() : XLogger
+    {
+        return new XLogger();
+    }
+
+    /**
+     * @return XMath
+     */
+    public function newMath() : XMath
+    {
+        return new XMath();
+    }
+
+    /**
+     * @return XNet
+     */
+    public function newNet() : XNet
+    {
+        return new XNet();
+    }
+
+    /**
+     * @return XNum
+     */
+    public function newNum() : XNum
+    {
+        return new XNum();
+    }
+
+    /**
+     * @return XPath
+     */
+    public function newPath() : XPath
+    {
+        return new XPath();
+    }
+
+    /**
+     * @return XPhp
+     */
+    public function newPhp() : XPhp
+    {
+        return new XPhp();
+    }
+
+    /**
+     * @return XProf
+     */
+    public function newProf() : XProf
+    {
+        return new XProf();
+    }
+
+    /**
+     * @return XStr
+     */
+    public function newStr() : XStr
+    {
+        return new XStr();
+    }
+
+    /**
+     * @return XUri
+     */
+    public function newUri() : XUri
+    {
+        return new XUri();
+    }
+
+
+    /**
+     * @return CurloptManager
+     */
+    public function newCurlCurloptManager() : CurloptManager
+    {
+        return new CurloptManager();
+    }
+
+    /**
+     * @param null|array $curloptArray
+     *
+     * @return CurlBlueprint
+     */
+    public function newCurlCurlBlueprint(array $curloptArray = null) : CurlBlueprint
+    {
+        $curloptArray = $curloptArray ?? [];
+
+        return new CurlBlueprint(
+            $curloptArray
         );
     }
 
+
     /**
-     * @return IAssert
+     * @param string|array $message
+     * @param array        ...$arguments
+     *
+     * @return DebugMessage
      */
-    public function newAssert() : IAssert
+    public function newDebugDebugMessage($message, ...$arguments) : DebugMessage
     {
-        return new ZAssert(
-            $this->getDebug(),
-            $this->getFilter(),
-        );
+        return new DebugMessage($message, ...$arguments);
+    }
+
+
+    /**
+     * @param string $validValue
+     *
+     * @return MathBcval
+     */
+    public function newMathBcval(string $validValue) : MathBcval
+    {
+        return MathBcval::fromValidValue($validValue);
+    }
+
+
+    /**
+     * @return Slugger
+     */
+    public function newStrSlugger() : Slugger
+    {
+        return new Slugger();
     }
 
     /**
-     * @return ICalendar
+     * @return Inflector
      */
-    public function newCalendar() : ICalendar
+    public function newStrInflector() : Inflector
     {
-        return new ZCalendar(
-            $this->getFilter(),
-            $this->getNum(),
-            $this->getPhp(),
-            $this->getStr()
-        );
+        return new Inflector();
     }
 
-    /**
-     * @return ICli
-     */
-    public function newCli() : ICli
-    {
-        return new ZCli(
-            $this->getEnv(),
-            $this->getFs(),
-            $this->getPhp()
-        );
-    }
 
     /**
-     * @return ICmp
+     * @return PhpInvokableInfo
      */
-    public function newCmp() : ICmp
+    public function newPhpInvokableInfo() : PhpInvokableInfo
     {
-        return new ZCmp(
-            $this->getCalendar(),
-            $this->getFilter()
-        );
-    }
-
-    /**
-     * @return ICriteria
-     */
-    public function newCriteria() : ICriteria
-    {
-        return new ZCriteria(
-            $this->getCalendar(),
-            $this->getCmp(),
-            $this->getFilter(),
-            $this->getStr()
-        );
-    }
-
-    /**
-     * @return ICurl
-     */
-    public function newCurl() : ICurl
-    {
-        return new ZCurl(
-            $this->getArr(),
-            $this->getFilter(),
-            $this->getNet(),
-            $this->getPhp()
-        );
-    }
-
-    /**
-     * @return IDebug
-     */
-    public function newDebug() : IDebug
-    {
-        return new ZDebug();
-    }
-
-    /**
-     * @return IEnv
-     */
-    public function newEnv() : IEnv
-    {
-        return new ZEnv();
-    }
-
-    /**
-     * @return IFilter
-     */
-    public function newFilter() : IFilter
-    {
-        return new ZFilter();
-    }
-
-    /**
-     * @return IFormat
-     */
-    public function newFormat() : IFormat
-    {
-        return new ZFormat(
-            $this->getNum()
-        );
-    }
-
-    /**
-     * @return IFs
-     */
-    public function newFs() : IFs
-    {
-        return new ZFs(
-            $this->getFilter(),
-            $this->getPhp()
-        );
-    }
-
-    /**
-     * @return ILoader
-     */
-    public function newLoader() : ILoader
-    {
-        return new ZLoader(
-            $this->getFilter(),
-            $this->getStr()
-        );
-    }
-
-    /**
-     * @return IMath
-     */
-    public function newMath() : IMath
-    {
-        return new ZMath(
-            $this->getFilter(),
-            $this->getNum(),
-            $this->getStr()
-        );
-    }
-
-    /**
-     * @return INet
-     */
-    public function newNet() : INet
-    {
-        return new ZNet(
-            $this->getStr()
-        );
-    }
-
-    /**
-     * @return INum
-     */
-    public function newNum() : INum
-    {
-        return new ZNum(
-            $this->getFilter()
-        );
-    }
-
-    /**
-     * @return IPath
-     */
-    public function newPath() : IPath
-    {
-        return new ZPath(
-            $this->getFilter(),
-            $this->getPhp(),
-            $this->getStr()
-        );
-    }
-
-    /**
-     * @return IPhp
-     */
-    public function newPhp() : IPhp
-    {
-        return new ZPhp(
-            $this->getFilter()
-        );
-    }
-
-    /**
-     * @return IPreg
-     */
-    public function newPreg() : IPreg
-    {
-        return new ZPreg(
-            $this->getStr()
-        );
-    }
-
-    /**
-     * @return IProf
-     */
-    public function newProf() : IProf
-    {
-        return new ZProf(
-            $this->getMath(),
-        );
-    }
-
-    /**
-     * @return IStr
-     */
-    public function newStr() : IStr
-    {
-        return new ZStr(
-            $this->getFilter()
-        );
-    }
-
-    /**
-     * @return IType
-     */
-    public function newType() : IType
-    {
-        return new ZType(
-            $this->getFilter()
-        );
-    }
-
-    /**
-     * @return IUri
-     */
-    public function newUri() : IUri
-    {
-        return new ZUri(
-            $this->getArr(),
-            $this->getFilter(),
-            $this->getPhp(),
-            $this->getStr()
-        );
+        return new PhpInvokableInfo();
     }
 
 
@@ -311,13 +329,13 @@ class SupportFactory implements SupportFactoryInterface
     }
 
     /**
-     * @return IAssert
+     * @return ICache
      */
-    public function getAssert() : IAssert
+    public function getCache() : ICache
     {
         return null
-            ?? $this->containerGet(IAssert::class)
-            ?? $this->newAssert();
+            ?? $this->containerGet(ICache::class)
+            ?? $this->newCache();
     }
 
     /**
@@ -421,6 +439,16 @@ class SupportFactory implements SupportFactoryInterface
     }
 
     /**
+     * @return IItertools
+     */
+    public function getItertools() : IItertools
+    {
+        return null
+            ?? $this->containerGet(IItertools::class)
+            ?? $this->newItertools();
+    }
+
+    /**
      * @return ILoader
      */
     public function getLoader() : ILoader
@@ -428,6 +456,16 @@ class SupportFactory implements SupportFactoryInterface
         return null
             ?? $this->containerGet(ILoader::class)
             ?? $this->newLoader();
+    }
+
+    /**
+     * @return ILogger
+     */
+    public function getLogger() : ILogger
+    {
+        return null
+            ?? $this->containerGet(ILogger::class)
+            ?? $this->newLogger();
     }
 
     /**
@@ -481,16 +519,6 @@ class SupportFactory implements SupportFactoryInterface
     }
 
     /**
-     * @return IPreg
-     */
-    public function getPreg() : IPreg
-    {
-        return null
-            ?? $this->containerGet(IPreg::class)
-            ?? $this->newPreg();
-    }
-
-    /**
      * @return IProf
      */
     public function getProf() : IProf
@@ -511,16 +539,6 @@ class SupportFactory implements SupportFactoryInterface
     }
 
     /**
-     * @return IType
-     */
-    public function getType() : IType
-    {
-        return null
-            ?? $this->containerGet(IType::class)
-            ?? $this->newType();
-    }
-
-    /**
      * @return IUri
      */
     public function getUri() : IUri
@@ -532,13 +550,45 @@ class SupportFactory implements SupportFactoryInterface
 
 
     /**
+     * @return CurloptManagerInterface
+     */
+    public function getCurlCurloptManager() : CurloptManagerInterface
+    {
+        return null
+            ?? $this->containerGet(CurloptManagerInterface::class)
+            ?? $this->newCurlCurloptManager();
+    }
+
+
+    /**
+     * @return SluggerInterface
+     */
+    public function getStrSlugger() : SluggerInterface
+    {
+        return null
+            ?? $this->containerGet(SluggerInterface::class)
+            ?? $this->newStrSlugger();
+    }
+
+    /**
+     * @return InflectorInterface
+     */
+    public function getStrInflector() : InflectorInterface
+    {
+        return null
+            ?? $this->containerGet(InflectorInterface::class)
+            ?? $this->newStrInflector();
+    }
+
+
+    /**
      * @param string $id
      *
      * @return null|mixed
      */
     protected function containerGet(string $id)
     {
-        return $this->container && $this->container->has($id)
+        return $this->containerHas($id)
             ? $this->container->get($id)
             : null;
     }
@@ -546,13 +596,12 @@ class SupportFactory implements SupportFactoryInterface
     /**
      * @param string $id
      *
-     * @return null|mixed
+     * @return bool
      */
     protected function containerHas(string $id)
     {
         return $this->container
-            ? $this->container->has($id)
-            : null;
+            && $this->container->has($id);
     }
 
 

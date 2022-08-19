@@ -2,7 +2,7 @@
 
 namespace Gzhegow\Support\Tests;
 
-use Gzhegow\Support\ZStr;
+use Gzhegow\Support\XStr;
 use Gzhegow\Support\IStr;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
@@ -11,7 +11,7 @@ class StrTest extends AbstractTestCase
 {
     protected function getStr() : IStr
     {
-        return ZStr::getInstance();
+        return XStr::getInstance();
     }
 
 
@@ -569,52 +569,23 @@ class StrTest extends AbstractTestCase
     }
 
 
-
-    public function testExplodeRecursiveSkip()
-    {
-        $str = $this->getStr();
-
-        $this->assertEquals('dadbdcd', $str->explodeRecursiveSkip('', 'dadbdcd'));
-        $this->assertEquals('dadbdcd', $str->explodeRecursiveSkip([ '' ], 'dadbdcd'));
-
-        $this->assertEquals('dadbdcd', $str->explodeRecursiveSkip('?', 'dadbdcd'));
-        $this->assertEquals('dadbdcd', $str->explodeRecursiveSkip([ '?' ], 'dadbdcd'));
-
-        $this->assertEquals([ 'd', 'dbdcd' ], $str->explodeRecursiveSkip('a', 'dadbdcd'));
-        $this->assertEquals([ 'd', 'dbdcd' ], $str->explodeRecursiveSkip([ 'a' ], 'dadbdcd'));
-
-        $this->assertEquals([ 'd', [ 'd', 'dcd' ] ], $str->explodeRecursiveSkip([ 'a', 'b' ], 'dadbdcd'));
-        $this->assertEquals([ 'd', [ 'd', [ 'd', 'd' ] ] ], $str->explodeRecursiveSkip([ 'a', 'b', 'c' ], 'dadbdcd'));
-    }
-
-    public function testBadExplodeRecursiveSkip()
-    {
-        $str = $this->getStr();
-
-        $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->explodeRecursiveSkip(null, 'dadbdcd');
-        });
-
-        $this->assertException(InvalidArgumentException::class, function () use ($str) {
-            $str->explodeRecursiveSkip([ null ], 'dadbdcd');
-        });
-    }
-
-
     public function testImplode()
     {
         $str = $this->getStr();
 
-        $this->assertEquals('', $str->implode(''));
+        // $this->assertEquals('', $str->implode('', null));
+        // $this->assertEquals('', $str->implode('', [ null ]));
+        $this->assertEquals('', $str->implode('', []));
         $this->assertEquals('', $str->implode('', []));
 
+        // $parts = [ null, '', ',', 'a', ',a', new \StdClass(), [ null, '', ',', 'a', ',a', new \StdClass() ] ];
         $parts = [ '', ',', 'a', ',a', [ '', ',', 'a', ',a' ] ];
 
-        $this->assertEquals(',a,a,a,a', $str->implodeSkip('', ...$parts));
-        $this->assertEquals('a,a,a,a', $str->implodeSkip(',', ...$parts));
+        $this->assertEquals(',a,a,a,a', $str->implode('', ...$parts));
+        $this->assertEquals(',,,a,,a,,,,a,,a', $str->implode(',', ...$parts));
     }
 
-    public function testImplodeskip()
+    public function testImplodeSkip()
     {
         $str = $this->getStr();
 
@@ -626,7 +597,7 @@ class StrTest extends AbstractTestCase
         $parts = [ null, '', ',', 'a', ',a', new \StdClass(), [ null, '', ',', 'a', ',a', new \StdClass() ] ];
 
         $this->assertEquals(',a,a,a,a', $str->implodeSkip('', ...$parts));
-        $this->assertEquals('a,a,a,a', $str->implodeSkip(',', ...$parts));
+        $this->assertEquals(',,,a,,a,,,,a,,a', $str->implodeSkip(',', ...$parts));
     }
 
     public function testBadImplode()
@@ -657,7 +628,7 @@ class StrTest extends AbstractTestCase
         $parts = [ '', ',', 'a', ',a', [ '', ',', 'a', ',a' ] ];
 
         $this->assertEquals(',a,a,a,a', $str->join('', ...$parts));
-        $this->assertEquals(',a,a,,a,a', $str->join(',', ...$parts));
+        $this->assertEquals('a,a,a,a', $str->join(',', ...$parts));
     }
 
     public function testJoinskip()
@@ -978,29 +949,37 @@ class StrTest extends AbstractTestCase
     public function testSlug()
     {
         $str = $this->getStr();
-        $slugger = $str->slugger();
+
+        $str->beginMultibyteMode($str::MODE_UNICODE);
 
         $this->assertEquals('privet-mir', $str->slug('Привет Мир'));
         $this->assertEquals('workspace-settings', $str->slug('Wôrķšƥáçè ~~sèťtïñğš~~'));
         $this->assertEquals('set', $str->slug('Сеть'));
 
         $this->assertEquals('privet-mir', $str->slug('Привет.Мир'));
-        $slugger->ignoreSymbols([ '.', ',' ]);
+
+        $str->getSlugger()->ignoreSymbols([ '.', ',' ]);
         $this->assertEquals('privet.mir', $str->slug('Привет.Мир'));
+
+        $str->endMultibyteMode();
     }
 
     public function testSlugify()
     {
         $str = $this->getStr();
-        $slugger = $str->slugger();
+
+        $str->beginMultibyteMode($str::MODE_UNICODE);
 
         $this->assertEquals('Privet-Mir', $str->slugify('Привет Мир'));
         $this->assertEquals('Workspace-settings', $str->slugify('Wôrķšƥáçè ~~sèťtïñğš~~'));
         $this->assertEquals('Set', $str->slugify('Сеть'));
 
         $this->assertEquals('Privet-Mir', $str->slugify('Привет.Мир'));
-        $slugger->ignoreSymbols([ '.', ',' ]);
+
+        $str->getSlugger()->ignoreSymbols([ '.', ',' ]);
         $this->assertEquals('Privet.Mir', $str->slugify('Привет.Мир'));
+
+        $str->endMultibyteMode();
     }
 
 
@@ -1016,22 +995,17 @@ class StrTest extends AbstractTestCase
         $this->assertEquals([ 1 => 'people' ], $str->pluralize('person', 1, 1));
 
 
-        $str->inflector()->doctrineInflector(null);
+        $inflector = $str->getInflector();
+        $doctrineInflector = $inflector->getDoctrineInflector();
+        $symfonyInflector = $inflector->getSymfonyInflector();
 
-        $this->assertEquals('worlds', $str->inflector()->doctrineInflector()->pluralize('world'));
-        $this->assertEquals('people', $str->inflector()->doctrineInflector()->pluralize('person'));
-        $this->assertEquals('personFiles', $str->inflector()->doctrineInflector()->pluralize('personFile'));
+        $this->assertEquals('worlds', $doctrineInflector->pluralize('world'));
+        $this->assertEquals('people', $doctrineInflector->pluralize('person'));
+        $this->assertEquals('personFiles', $doctrineInflector->pluralize('personFile'));
 
-        $str->inflector()->doctrineInflector();
-
-
-        $str->inflector()->symfonyInflector(null);
-
-        $this->assertEquals([ 'worlds' ], $str->inflector()->symfonyInflector()->pluralize('world'));
-        $this->assertEquals([ 'persons', 'people' ], $str->inflector()->symfonyInflector()->pluralize('person'));
-        $this->assertEquals([ 'personFiles' ], $str->inflector()->symfonyInflector()->pluralize('personFile'));
-
-        $str->inflector()->symfonyInflector();
+        $this->assertEquals([ 'worlds' ], $symfonyInflector->pluralize('world'));
+        $this->assertEquals([ 'persons', 'people' ], $symfonyInflector->pluralize('person'));
+        $this->assertEquals([ 'personFiles' ], $symfonyInflector->pluralize('personFile'));
     }
 
     public function testSingularize()
@@ -1043,21 +1017,16 @@ class StrTest extends AbstractTestCase
         $this->assertEquals([ 'personFile' ], $str->singularize('personFiles'));
 
 
-        $str->inflector()->doctrineInflector(null);
+        $inflector = $str->getInflector();
+        $doctrineInflector = $inflector->getDoctrineInflector();
+        $symfonyInflector = $inflector->getSymfonyInflector();
 
-        $this->assertEquals('world', $str->inflector()->doctrineInflector()->singularize('worlds'));
-        $this->assertEquals('person', $str->inflector()->doctrineInflector()->singularize('people'));
-        $this->assertEquals('personFile', $str->inflector()->doctrineInflector()->singularize('personFiles'));
+        $this->assertEquals('world', $doctrineInflector->singularize('worlds'));
+        $this->assertEquals('person', $doctrineInflector->singularize('people'));
+        $this->assertEquals('personFile', $doctrineInflector->singularize('personFiles'));
 
-        $str->inflector()->doctrineInflector();
-
-
-        $str->inflector()->symfonyInflector(null);
-
-        $this->assertEquals([ 'world' ], $str->singularize('worlds'));
-        $this->assertEquals([ 'person' ], $str->singularize('people'));
-        $this->assertEquals([ 'personFile' ], $str->singularize('personFiles'));
-
-        $str->inflector()->symfonyInflector();
+        $this->assertEquals([ 'world' ], $symfonyInflector->singularize('worlds'));
+        $this->assertEquals([ 'person' ], $symfonyInflector->singularize('people'));
+        $this->assertEquals([ 'personFil', 'personFile' ], $symfonyInflector->singularize('personFiles'));
     }
 }

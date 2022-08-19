@@ -16,68 +16,39 @@ use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Exceptions\Runtime\FilesystemException;
 use Gzhegow\Support\IFs;
 use Gzhegow\Support\SupportFactory;
-use Gzhegow\Support\ZFs;
+use Gzhegow\Support\Traits\Load\CliLoadTrait;
+use Gzhegow\Support\Traits\Load\PathLoadTrait;
+use Gzhegow\Support\Traits\Load\StrLoadTrait;
+use Gzhegow\Support\XFs;
 
 class Fs
 {
     /**
-     * @return ZFs
-     */
-    public static function reset()
-    {
-        return static::getInstance()->reset();
-    }
-
-    /**
-     * @param null|string $rootPath
-     * @param null|string $backupPath
-     * @param null|string $backupPathBase
+     * @param null|string $realpath
      *
-     * @return ZFs
+     * @return XFs
      */
-    public static function clone(?string $rootPath, ?string $backupPath, ?string $backupPathBase)
-    {
-        return static::getInstance()->clone($rootPath, $backupPath, $backupPathBase);
-    }
-
-    /**
-     * @param null|string $rootPath
-     * @param null|string $backupPath
-     * @param null|string $backupPathBase
-     *
-     * @return ZFs
-     */
-    public static function with(?string $rootPath, ?string $backupPath, ?string $backupPathBase)
-    {
-        return static::getInstance()->with($rootPath, $backupPath, $backupPathBase);
-    }
-
-    /**
-     * @param string $realpath
-     *
-     * @return ZFs
-     */
-    public static function withRootPath(string $realpath)
+    public static function withRootPath(?string $realpath)
     {
         return static::getInstance()->withRootPath($realpath);
     }
 
     /**
-     * @param string $realpath
+     * @param null|string $realpath
      *
-     * @return ZFs
+     * @return XFs
      */
-    public static function withBackupPath(string $realpath)
+    public static function withBackupPath(?string $realpath)
     {
         return static::getInstance()->withBackupPath($realpath);
     }
 
     /**
-     * @param string $realpath
+     * @param null|string $realpath
      *
-     * @return ZFs
+     * @return XFs
      */
-    public static function withBackupPathBase(string $realpath)
+    public static function withBackupPathBase(?string $realpath)
     {
         return static::getInstance()->withBackupPathBase($realpath);
     }
@@ -85,95 +56,17 @@ class Fs
     /**
      * @return string
      */
-    public static function getRoot(): string
+    public static function loadRootPath(): string
     {
-        return static::getInstance()->getRoot();
+        return static::getInstance()->loadRootPath();
     }
 
     /**
-     * @return bool
+     * @return string
      */
-    public static function isWindows(): bool
+    public static function getRootPath(): string
     {
-        return static::getInstance()->isWindows();
-    }
-
-    /**
-     * @return bool
-     */
-    public static function isNonWindows(): bool
-    {
-        return static::getInstance()->isNonWindows();
-    }
-
-    /**
-     * @param string $value
-     *
-     * @return bool
-     */
-    public static function isFilename($value): bool
-    {
-        return static::getInstance()->isFilename($value);
-    }
-
-    /**
-     * @param string $value
-     *
-     * @return bool
-     */
-    public static function isPath($value): bool
-    {
-        return static::getInstance()->isPath($value);
-    }
-
-    /**
-     * @param string $value
-     *
-     * @return bool
-     */
-    public static function isPathFileExists($value): bool
-    {
-        return static::getInstance()->isPathFileExists($value);
-    }
-
-    /**
-     * @param string $value
-     *
-     * @return bool
-     */
-    public static function isPathDir($value): bool
-    {
-        return static::getInstance()->isPathDir($value);
-    }
-
-    /**
-     * @param string $value
-     *
-     * @return bool
-     */
-    public static function isPathLink($value): bool
-    {
-        return static::getInstance()->isPathLink($value);
-    }
-
-    /**
-     * @param string $value
-     *
-     * @return bool
-     */
-    public static function isPathFile($value): bool
-    {
-        return static::getInstance()->isPathFile($value);
-    }
-
-    /**
-     * @param string $value
-     *
-     * @return bool
-     */
-    public static function isPathImage($value): bool
-    {
-        return static::getInstance()->isPathImage($value);
+        return static::getInstance()->getRootPath();
     }
 
     /**
@@ -248,89 +141,73 @@ class Fs
     }
 
     /**
-     * @return bool
-     */
-    public static function assertWindows(): bool
-    {
-        return static::getInstance()->assertWindows();
-    }
-
-    /**
-     * @return bool
-     */
-    public static function assertNonWindows(): bool
-    {
-        return static::getInstance()->assertNonWindows();
-    }
-
-    /**
-     * @param string $value
+     * @param resource|mixed $h
      *
-     * @return string
+     * @return null|resource
      */
-    public static function assertFilename($value): string
+    public static function filterResource($h)
     {
-        return static::getInstance()->assertFilename($value);
+        return static::getInstance()->filterResource($h);
     }
 
     /**
-     * @param string $value
+     * @param resource|mixed $h
      *
-     * @return string
+     * @return null|resource
      */
-    public static function assertPath($value): string
+    public static function filterResourceOpened($h)
     {
-        return static::getInstance()->assertPath($value);
+        return static::getInstance()->filterResourceOpened($h);
     }
 
     /**
-     * @param string $value
+     * @param resource|mixed $h
      *
-     * @return string
+     * @return null|resource
      */
-    public static function assertPathFileExists($value): string
+    public static function filterResourceClosed($h)
     {
-        return static::getInstance()->assertPathFileExists($value);
+        return static::getInstance()->filterResourceClosed($h);
     }
 
     /**
-     * @param string $value
+     * @param resource|mixed $h
      *
-     * @return string
+     * @return null|resource
      */
-    public static function assertPathDir($value): string
+    public static function filterResourceReadable($h)
     {
-        return static::getInstance()->assertPathDir($value);
+        return static::getInstance()->filterResourceReadable($h);
     }
 
     /**
-     * @param string $value
+     * @param resource|mixed $h
      *
-     * @return string
+     * @return null|resource
      */
-    public static function assertPathLink($value): string
+    public static function filterResourceWritable($h)
     {
-        return static::getInstance()->assertPathLink($value);
+        return static::getInstance()->filterResourceWritable($h);
     }
 
     /**
-     * @param string $value
+     * @param \SplFileInfo|mixed $value
      *
-     * @return string
+     * @return null|\SplFileInfo
      */
-    public static function assertPathFile($value): string
+    public static function filterFileInfo($value): ?\SplFileInfo
     {
-        return static::getInstance()->assertPathFile($value);
+        return static::getInstance()->filterFileInfo($value);
     }
 
     /**
-     * @param string $value
+     * @param \SplFileObject|mixed $value
      *
-     * @return string
+     * @return null|\SplFileObject
      */
-    public static function assertPathImage($value): string
+    public static function filterFileObject($value): ?\SplFileObject
     {
-        return static::getInstance()->assertPathImage($value);
+        return static::getInstance()->filterFileObject($value);
     }
 
     /**
@@ -591,16 +468,6 @@ class Fs
     public static function theSplImageVal($pathOrSpl): \SplFileObject
     {
         return static::getInstance()->theSplImageVal($pathOrSpl);
-    }
-
-    /**
-     * @return \Gzhegow\Support\IPath
-     * @noinspection PhpUnnecessaryFullyQualifiedNameInspection
-     * @noinspection PhpFullyQualifiedNameUsageInspection
-     */
-    public static function path(): \Gzhegow\Support\IPath
-    {
-        return static::getInstance()->path();
     }
 
     /**

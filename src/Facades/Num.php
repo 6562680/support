@@ -14,168 +14,129 @@ namespace Gzhegow\Support\Facades;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\INum;
 use Gzhegow\Support\SupportFactory;
-use Gzhegow\Support\ZNum;
+use Gzhegow\Support\Traits\Load\StrLoadTrait;
+use Gzhegow\Support\XNum;
 
 class Num
 {
     /**
-     * @param int|float|mixed $value
-     *
-     * @return null|int|float
-     */
-    public static function positiveVal($value)
-    {
-        return static::getInstance()->positiveVal($value);
-    }
-
-    /**
-     * @param int|float|mixed $value
-     *
-     * @return null|int|float
-     */
-    public static function nonNegativeVal($value)
-    {
-        return static::getInstance()->nonNegativeVal($value);
-    }
-
-    /**
-     * @param int|float|mixed $value
-     *
-     * @return null|int|float
-     */
-    public static function negativeVal($value)
-    {
-        return static::getInstance()->negativeVal($value);
-    }
-
-    /**
-     * @param int|float|mixed $value
-     *
-     * @return null|int|float
-     */
-    public static function nonPositiveVal($value)
-    {
-        return static::getInstance()->nonPositiveVal($value);
-    }
-
-    /**
-     * @param int|float|mixed $value
-     *
-     * @return int|float
-     */
-    public static function thePositiveVal($value)
-    {
-        return static::getInstance()->thePositiveVal($value);
-    }
-
-    /**
-     * @param int|float|mixed $value
-     *
-     * @return int|float
-     */
-    public static function theNonNegativeVal($value)
-    {
-        return static::getInstance()->theNonNegativeVal($value);
-    }
-
-    /**
-     * @param int|float|mixed $value
-     *
-     * @return int|float
-     */
-    public static function theNegativeVal($value)
-    {
-        return static::getInstance()->theNegativeVal($value);
-    }
-
-    /**
-     * @param int|float|mixed $value
-     *
-     * @return int|float
-     */
-    public static function theNonPositiveVal($value)
-    {
-        return static::getInstance()->theNonPositiveVal($value);
-    }
-
-    /**
      * @param int|mixed $value
      *
      * @return null|int
      */
-    public static function positiveIntval($value): ?int
+    public static function filterInt($value): ?int
     {
-        return static::getInstance()->positiveIntval($value);
+        return static::getInstance()->filterInt($value);
     }
 
     /**
-     * @param int|mixed $value
+     * @param float|mixed $value
      *
-     * @return null|int
+     * @return null|float
      */
-    public static function nonNegativeIntval($value): ?int
+    public static function filterFloat($value): ?float
     {
-        return static::getInstance()->nonNegativeIntval($value);
+        return static::getInstance()->filterFloat($value);
     }
 
     /**
-     * @param int|mixed $value
+     * @param float|mixed $value
      *
-     * @return null|int
+     * @return null|float
      */
-    public static function negativeIntval($value): ?int
+    public static function filterNan($value): ?float
     {
-        return static::getInstance()->negativeIntval($value);
+        return static::getInstance()->filterNan($value);
     }
 
     /**
-     * @param int|mixed $value
+     * @param int|float|mixed $value
      *
-     * @return null|int
+     * @return null|int|float
      */
-    public static function nonPositiveIntval($value): ?int
+    public static function filterNum($value)
     {
-        return static::getInstance()->nonPositiveIntval($value);
+        return static::getInstance()->filterNum($value);
     }
 
     /**
-     * @param int|mixed $value
+     * @param int|string|mixed $value
      *
-     * @return int
+     * @return null|int|string
      */
-    public static function thePositiveIntval($value): int
+    public static function filterIntval($value): ?int
     {
-        return static::getInstance()->thePositiveIntval($value);
+        return static::getInstance()->filterIntval($value);
     }
 
     /**
-     * @param int|mixed $value
+     * @param float|string|mixed $value
      *
-     * @return int
+     * @return null|float|string
      */
-    public static function theNonNegativeIntval($value): int
+    public static function filterFloatval($value): ?float
     {
-        return static::getInstance()->theNonNegativeIntval($value);
+        return static::getInstance()->filterFloatval($value);
     }
 
     /**
-     * @param int|mixed $value
+     * @param int|float|mixed $value
      *
-     * @return int
+     * @return null|int|float|string
      */
-    public static function theNegativeIntval($value): int
+    public static function filterNumval($value)
     {
-        return static::getInstance()->theNegativeIntval($value);
+        return static::getInstance()->filterNumval($value);
     }
 
     /**
-     * @param int|mixed $value
+     * @param int|float|string|mixed $value
      *
-     * @return int
+     * @return null|int|float|string
      */
-    public static function theNonPositiveIntval($value): int
+    public static function filterNumericval($value)
     {
-        return static::getInstance()->theNonPositiveIntval($value);
+        return static::getInstance()->filterNumericval($value);
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int|float
+     */
+    public static function filterNumGt0($value)
+    {
+        return static::getInstance()->filterNumGt0($value);
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int|float
+     */
+    public static function filterNumGte0($value)
+    {
+        return static::getInstance()->filterNumGte0($value);
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int|float
+     */
+    public static function filterNumLt0($value)
+    {
+        return static::getInstance()->filterNumLt0($value);
+    }
+
+    /**
+     * @param int|float|string|mixed $value
+     *
+     * @return null|int|float
+     */
+    public static function filterNumLte0($value)
+    {
+        return static::getInstance()->filterNumLte0($value);
     }
 
     /**
@@ -295,15 +256,15 @@ class Num
     }
 
     /**
-     * @param int|float|string|array $numbers
+     * @param int|float|string|array $numerics
      * @param null|bool              $uniq
      * @param null|bool              $recursive
      *
      * @return string[]
      */
-    public static function numericvals($numbers, bool $uniq = null, bool $recursive = null): array
+    public static function numericvals($numerics, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->numericvals($numbers, $uniq, $recursive);
+        return static::getInstance()->numericvals($numerics, $uniq, $recursive);
     }
 
     /**
@@ -343,15 +304,44 @@ class Num
     }
 
     /**
-     * @param int|float|string|array $numbers
+     * @param int|float|string|array $numerics
      * @param null|bool              $uniq
      * @param null|bool              $recursive
      *
      * @return string[]
      */
-    public static function theNumericvals($numbers, bool $uniq = null, bool $recursive = null): array
+    public static function theNumericvals($numerics, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->theNumericvals($numbers, $uniq, $recursive);
+        return static::getInstance()->theNumericvals($numerics, $uniq, $recursive);
+    }
+
+    /**
+     * @param string|mixed $number
+     * @param string|array $decimalsSeparators
+     * @param string|array $thousandsSeparators
+     *
+     * @return string
+     */
+    public static function numberParse($number, $decimalsSeparators = null, $thousandsSeparators = null): string
+    {
+        return static::getInstance()->numberParse($number, $decimalsSeparators, $thousandsSeparators);
+    }
+
+    /**
+     * @param int|float|string|mixed $number
+     * @param null|int               $decimals
+     * @param null|string            $decimalSeparator
+     * @param null|string            $thousandSeparator
+     *
+     * @return string
+     */
+    public static function numberFormat(
+        $number,
+        int $decimals = null,
+        string $decimalSeparator = null,
+        string $thousandSeparator = null
+    ) {
+        return static::getInstance()->numberFormat($number, $decimals, $decimalSeparator, $thousandSeparator);
     }
 
     /**

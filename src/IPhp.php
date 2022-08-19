@@ -11,86 +11,27 @@
 
 namespace Gzhegow\Support;
 
+use Gzhegow\Support\Domain\Php\ValueObject\PhpInvokableInfo;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Exceptions\Runtime\UnexpectedValueException;
+use Gzhegow\Support\Traits\Load\ArrLoadTrait;
+use Gzhegow\Support\Traits\Load\StrLoadTrait;
 
 interface IPhp
 {
     /**
+     * @return PhpInvokableInfo
+     */
+    public function newInvokableInfo(): PhpInvokableInfo;
+
+    /**
      * @param mixed &$value
      *
      * @return bool
+     * @noinspection PhpParameterByRefIsNotUsedAsReferenceInspection
      */
     public function isBlank(&$value): bool;
-
-    /**
-     * @param mixed &$value
-     *
-     * @return bool
-     */
-    public function isNotBlank(&$value): bool;
-
-    /**
-     * @param string|mixed $phpKeyword
-     *
-     * @return bool
-     */
-    public function isPhpKeyword($phpKeyword): bool;
-
-    /**
-     * @param \Closure $func
-     * @param string   $returnType
-     *
-     * @return bool
-     */
-    public function isFactory(\Closure $func, string $returnType): bool;
-
-    /**
-     * @param mixed ...$items
-     *
-     * @return array
-     */
-    public function listval(...$items): array;
-
-    /**
-     * @param mixed ...$lists
-     *
-     * @return array
-     */
-    public function listvals(...$lists): array;
-
-    /**
-     * Превращает enum-список любой вложенности (значения могут быть в ключах или в полях) в список уникальных значений
-     *
-     * @param mixed ...$items
-     *
-     * @return array
-     */
-    public function enumval(...$items): array;
-
-    /**
-     * Превращает каждый аргумент с помощью enumval
-     *
-     * @param mixed ...$enums
-     *
-     * @return array
-     */
-    public function enumvals(...$enums): array;
-
-    /**
-     * @param mixed ...$values
-     *
-     * @return array
-     */
-    public function queueVal(...$values): array;
-
-    /**
-     * @param mixed ...$values
-     *
-     * @return array
-     */
-    public function stackVal(...$values): array;
 
     /**
      * @param string|mixed $phpKeyword
@@ -100,122 +41,142 @@ interface IPhp
     public function filterPhpKeyword($phpKeyword): ?string;
 
     /**
-     * проверяет возвращаемый тип у замыкания
+     * @param bool|mixed $value
      *
-     * @param \Closure        $factory
-     * @param string|callable $returnType
+     * @return null|bool
+     */
+    public function filterBool($value): ?bool;
+
+    /**
+     * @param string|array|\Closure|callable|mixed $callable
+     * @param null|PhpInvokableInfo                $invokableInfo
+     *
+     * @return null|string|array|\Closure|callable
+     */
+    public function filterCallable($callable, PhpInvokableInfo &$invokableInfo = null);
+
+    /**
+     * @param string|array|callable|mixed $callableString
+     * @param null|PhpInvokableInfo       $invokableInfo
+     *
+     * @return null|string|array|callable
+     */
+    public function filterCallableString($callableString, PhpInvokableInfo &$invokableInfo = null);
+
+    /**
+     * @param string|callable|mixed $callableString
+     * @param null|PhpInvokableInfo $invokableInfo
+     *
+     * @return null|string|callable
+     */
+    public function filterCallableStringFunction($callableString, PhpInvokableInfo &$invokableInfo = null): ?string;
+
+    /**
+     * @param string|callable|mixed $callableString
+     * @param null|PhpInvokableInfo $invokableInfo
+     *
+     * @return null|string|callable
+     */
+    public function filterCallableStringStatic($callableString, PhpInvokableInfo &$invokableInfo = null): ?string;
+
+    /**
+     * @param array|callable|mixed  $callableArray
+     * @param null|PhpInvokableInfo $invokableInfo
+     *
+     * @return null|array|callable
+     */
+    public function filterCallableArray($callableArray, PhpInvokableInfo &$invokableInfo = null): ?array;
+
+    /**
+     * @param array|callable|mixed  $callableArray
+     * @param null|PhpInvokableInfo $invokableInfo
+     *
+     * @return null|array|callable
+     */
+    public function filterCallableArrayStatic($callableArray, PhpInvokableInfo &$invokableInfo = null): ?array;
+
+    /**
+     * @param array|callable|mixed  $callableArray
+     * @param null|PhpInvokableInfo $invokableInfo
+     *
+     * @return null|array|callable
+     */
+    public function filterCallableArrayPublic($callableArray, PhpInvokableInfo &$invokableInfo = null): ?array;
+
+    /**
+     * @param \Closure|mixed        $closure
+     * @param null|PhpInvokableInfo $invokableInfo
      *
      * @return null|\Closure
      */
-    public function filterFactory(\Closure $factory, $returnType): ?\Closure;
+    public function filterClosure($closure, PhpInvokableInfo &$invokableInfo = null): ?\Closure;
 
     /**
-     * @param mixed &$value
+     * @param \Closure              $factory
+     * @param string|callable       $returnType
+     * @param null|PhpInvokableInfo $invokableInfo
      *
-     * @return mixed
+     * @return null|\Closure
      */
-    public function assertBlank(&$value);
+    public function filterClosureFactory($factory, $returnType, PhpInvokableInfo &$invokableInfo = null): ?\Closure;
 
     /**
-     * @param mixed &$value
+     * @param array|mixed $methodArray
      *
-     * @return mixed
+     * @return null|array
      */
-    public function assertNotBlank(&$value);
+    public function filterMethodArray($methodArray): ?array;
 
     /**
-     * @param mixed &$value
+     * @param array|mixed           $methodArray
+     * @param null|PhpInvokableInfo $invokableInfo
      *
-     * @return mixed
+     * @return null|array
      */
-    public function assertIsset(&$value);
+    public function filterMethodArrayReflection($methodArray, PhpInvokableInfo &$invokableInfo = null): ?array;
 
     /**
-     * @param string $key
-     * @param array  $array
+     * @param string|mixed          $handler
+     * @param null|PhpInvokableInfo $invokableInfo
      *
-     * @return mixed
+     * @return null|string|callable
      */
-    public function assertKeyExists(string $key, array $array);
+    public function filterHandler($handler, PhpInvokableInfo &$invokableInfo = null): ?string;
 
     /**
-     * @param string|mixed $phpKeyword
+     * @param object|mixed $value
      *
-     * @return string
+     * @return null|object
      */
-    public function assertPhpKeyword($phpKeyword): string;
+    public function filterThrowable($value);
 
     /**
-     * @param \Closure $func
-     * @param string   $returnType
+     * @param object|mixed $value
      *
-     * @return \Closure
+     * @return null|object
      */
-    public function assertFactory(\Closure $func, $returnType): \Closure;
+    public function filterError($value);
 
     /**
-     * @param mixed ...$values
+     * @param object|mixed $value
      *
-     * @return array
+     * @return null|object
      */
-    public function unique(...$values): array;
+    public function filterException($value);
 
     /**
-     * @param mixed ...$values
+     * @param object|mixed $value
      *
-     * @return array
+     * @return null|object
      */
-    public function uniqueFlatten(...$values): array;
+    public function filterRuntimeException($value);
 
     /**
-     * @param mixed ...$values
+     * @param object|mixed $value
      *
-     * @return array
+     * @return null|object
      */
-    public function duplicates(...$values): array;
-
-    /**
-     * @param mixed ...$values
-     *
-     * @return array
-     */
-    public function duplicatesFlatten(...$values): array;
-
-    /**
-     * unique() с сохранением ключей
-     *
-     * @param mixed ...$values
-     *
-     * @return array
-     */
-    public function distinct(array $values): array;
-
-    /**
-     * генерирует последовательность типа "каждый с каждым из каждого массива" (все возможные пересечения)
-     *
-     * @param mixed ...$arrays
-     *
-     * @return array
-     */
-    public function sequence(...$arrays): array;
-
-    /**
-     * генерирует последовательность типа "каждый с каждым"
-     *
-     * @param mixed ...$values
-     *
-     * @return array
-     */
-    public function sequenceFlatten(...$values): array;
-
-    /**
-     * генерирует последовательность типа "битовая маска" (каждое значение есть или нет, могут быть все или ни одного)
-     *
-     * @param array ...$values
-     *
-     * @return array
-     */
-    public function bitmask(...$values): array;
+    public function filterLogicException($value);
 
     /**
      * возвращает идентификатор значения любой переменной в виде строки для дальнейшего сравнения
@@ -226,7 +187,7 @@ interface IPhp
      *
      * @return string
      */
-    public function hash($value): string;
+    public function uniqhash($value): string;
 
     /**
      * @param object $object
@@ -268,41 +229,13 @@ interface IPhp
      *
      * @return array
      */
-    public function kwargsFlatten(...$arguments): array;
-
-    /**
-     * @param mixed ...$arguments
-     *
-     * @return array
-     */
-    public function kwparams(...$arguments): array;
-
-    /**
-     * @param mixed ...$arguments
-     *
-     * @return array
-     */
-    public function theKwparams(...$arguments): array;
-
-    /**
-     * @param mixed ...$arguments
-     *
-     * @return array
-     */
-    public function kwparamsFlatten(...$arguments): array;
-
-    /**
-     * @param mixed ...$arguments
-     *
-     * @return array
-     */
-    public function theKwparamsFlatten(...$arguments): array;
+    public function kwargsPreserveKeys(...$arguments): array;
 
     /**
      * @param int|float $min
      * @param int|float ...$max
      *
-     * @return ZPhp
+     * @return XPhp
      */
     public function sleep($min, ...$max);
 
@@ -411,4 +344,18 @@ interface IPhp
      * @return null|mixed
      */
     public function overloadIf(?array &$args, $num, callable $if = null);
+
+    /**
+     * @param int|null $limit
+     *
+     * @return string
+     */
+    public function obGetFlush(int $limit = null): string;
+
+    /**
+     * @param int|null $limit
+     *
+     * @return void
+     */
+    public function obEndFlush(int $limit = null);
 }

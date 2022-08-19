@@ -11,118 +11,35 @@
 
 namespace Gzhegow\Support\Facades;
 
+use Gzhegow\Support\Domain\Php\ValueObject\PhpInvokableInfo;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Exceptions\Runtime\UnexpectedValueException;
 use Gzhegow\Support\IPhp;
 use Gzhegow\Support\SupportFactory;
-use Gzhegow\Support\ZPhp;
+use Gzhegow\Support\Traits\Load\ArrLoadTrait;
+use Gzhegow\Support\Traits\Load\StrLoadTrait;
+use Gzhegow\Support\XPhp;
 
 class Php
 {
     /**
+     * @return PhpInvokableInfo
+     */
+    public static function newInvokableInfo(): PhpInvokableInfo
+    {
+        return static::getInstance()->newInvokableInfo();
+    }
+
+    /**
      * @param mixed &$value
      *
      * @return bool
+     * @noinspection PhpParameterByRefIsNotUsedAsReferenceInspection
      */
     public static function isBlank(&$value): bool
     {
         return static::getInstance()->isBlank($value);
-    }
-
-    /**
-     * @param mixed &$value
-     *
-     * @return bool
-     */
-    public static function isNotBlank(&$value): bool
-    {
-        return static::getInstance()->isNotBlank($value);
-    }
-
-    /**
-     * @param string|mixed $phpKeyword
-     *
-     * @return bool
-     */
-    public static function isPhpKeyword($phpKeyword): bool
-    {
-        return static::getInstance()->isPhpKeyword($phpKeyword);
-    }
-
-    /**
-     * @param \Closure $func
-     * @param string   $returnType
-     *
-     * @return bool
-     */
-    public static function isFactory(\Closure $func, string $returnType): bool
-    {
-        return static::getInstance()->isFactory($func, $returnType);
-    }
-
-    /**
-     * @param mixed ...$items
-     *
-     * @return array
-     */
-    public static function listval(...$items): array
-    {
-        return static::getInstance()->listval(...$items);
-    }
-
-    /**
-     * @param mixed ...$lists
-     *
-     * @return array
-     */
-    public static function listvals(...$lists): array
-    {
-        return static::getInstance()->listvals(...$lists);
-    }
-
-    /**
-     * Превращает enum-список любой вложенности (значения могут быть в ключах или в полях) в список уникальных значений
-     *
-     * @param mixed ...$items
-     *
-     * @return array
-     */
-    public static function enumval(...$items): array
-    {
-        return static::getInstance()->enumval(...$items);
-    }
-
-    /**
-     * Превращает каждый аргумент с помощью enumval
-     *
-     * @param mixed ...$enums
-     *
-     * @return array
-     */
-    public static function enumvals(...$enums): array
-    {
-        return static::getInstance()->enumvals(...$enums);
-    }
-
-    /**
-     * @param mixed ...$values
-     *
-     * @return array
-     */
-    public static function queueVal(...$values): array
-    {
-        return static::getInstance()->queueVal(...$values);
-    }
-
-    /**
-     * @param mixed ...$values
-     *
-     * @return array
-     */
-    public static function stackVal(...$values): array
-    {
-        return static::getInstance()->stackVal(...$values);
     }
 
     /**
@@ -136,166 +53,200 @@ class Php
     }
 
     /**
-     * проверяет возвращаемый тип у замыкания
+     * @param bool|mixed $value
      *
-     * @param \Closure        $factory
-     * @param string|callable $returnType
+     * @return null|bool
+     */
+    public static function filterBool($value): ?bool
+    {
+        return static::getInstance()->filterBool($value);
+    }
+
+    /**
+     * @param string|array|\Closure|callable|mixed $callable
+     * @param null|PhpInvokableInfo                $invokableInfo
+     *
+     * @return null|string|array|\Closure|callable
+     */
+    public static function filterCallable($callable, PhpInvokableInfo &$invokableInfo = null)
+    {
+        return static::getInstance()->filterCallable($callable, $invokableInfo);
+    }
+
+    /**
+     * @param string|array|callable|mixed $callableString
+     * @param null|PhpInvokableInfo       $invokableInfo
+     *
+     * @return null|string|array|callable
+     */
+    public static function filterCallableString($callableString, PhpInvokableInfo &$invokableInfo = null)
+    {
+        return static::getInstance()->filterCallableString($callableString, $invokableInfo);
+    }
+
+    /**
+     * @param string|callable|mixed $callableString
+     * @param null|PhpInvokableInfo $invokableInfo
+     *
+     * @return null|string|callable
+     */
+    public static function filterCallableStringFunction(
+        $callableString,
+        PhpInvokableInfo &$invokableInfo = null
+    ): ?string {
+        return static::getInstance()->filterCallableStringFunction($callableString, $invokableInfo);
+    }
+
+    /**
+     * @param string|callable|mixed $callableString
+     * @param null|PhpInvokableInfo $invokableInfo
+     *
+     * @return null|string|callable
+     */
+    public static function filterCallableStringStatic($callableString, PhpInvokableInfo &$invokableInfo = null): ?string
+    {
+        return static::getInstance()->filterCallableStringStatic($callableString, $invokableInfo);
+    }
+
+    /**
+     * @param array|callable|mixed  $callableArray
+     * @param null|PhpInvokableInfo $invokableInfo
+     *
+     * @return null|array|callable
+     */
+    public static function filterCallableArray($callableArray, PhpInvokableInfo &$invokableInfo = null): ?array
+    {
+        return static::getInstance()->filterCallableArray($callableArray, $invokableInfo);
+    }
+
+    /**
+     * @param array|callable|mixed  $callableArray
+     * @param null|PhpInvokableInfo $invokableInfo
+     *
+     * @return null|array|callable
+     */
+    public static function filterCallableArrayStatic($callableArray, PhpInvokableInfo &$invokableInfo = null): ?array
+    {
+        return static::getInstance()->filterCallableArrayStatic($callableArray, $invokableInfo);
+    }
+
+    /**
+     * @param array|callable|mixed  $callableArray
+     * @param null|PhpInvokableInfo $invokableInfo
+     *
+     * @return null|array|callable
+     */
+    public static function filterCallableArrayPublic($callableArray, PhpInvokableInfo &$invokableInfo = null): ?array
+    {
+        return static::getInstance()->filterCallableArrayPublic($callableArray, $invokableInfo);
+    }
+
+    /**
+     * @param \Closure|mixed        $closure
+     * @param null|PhpInvokableInfo $invokableInfo
      *
      * @return null|\Closure
      */
-    public static function filterFactory(\Closure $factory, $returnType): ?\Closure
+    public static function filterClosure($closure, PhpInvokableInfo &$invokableInfo = null): ?\Closure
     {
-        return static::getInstance()->filterFactory($factory, $returnType);
+        return static::getInstance()->filterClosure($closure, $invokableInfo);
     }
 
     /**
-     * @param mixed &$value
+     * @param \Closure              $factory
+     * @param string|callable       $returnType
+     * @param null|PhpInvokableInfo $invokableInfo
      *
-     * @return mixed
+     * @return null|\Closure
      */
-    public static function assertBlank(&$value)
-    {
-        return static::getInstance()->assertBlank($value);
+    public static function filterClosureFactory(
+        $factory,
+        $returnType,
+        PhpInvokableInfo &$invokableInfo = null
+    ): ?\Closure {
+        return static::getInstance()->filterClosureFactory($factory, $returnType, $invokableInfo);
     }
 
     /**
-     * @param mixed &$value
+     * @param array|mixed $methodArray
      *
-     * @return mixed
+     * @return null|array
      */
-    public static function assertNotBlank(&$value)
+    public static function filterMethodArray($methodArray): ?array
     {
-        return static::getInstance()->assertNotBlank($value);
+        return static::getInstance()->filterMethodArray($methodArray);
     }
 
     /**
-     * @param mixed &$value
+     * @param array|mixed           $methodArray
+     * @param null|PhpInvokableInfo $invokableInfo
      *
-     * @return mixed
+     * @return null|array
      */
-    public static function assertIsset(&$value)
+    public static function filterMethodArrayReflection($methodArray, PhpInvokableInfo &$invokableInfo = null): ?array
     {
-        return static::getInstance()->assertIsset($value);
+        return static::getInstance()->filterMethodArrayReflection($methodArray, $invokableInfo);
     }
 
     /**
-     * @param string $key
-     * @param array  $array
+     * @param string|mixed          $handler
+     * @param null|PhpInvokableInfo $invokableInfo
      *
-     * @return mixed
+     * @return null|string|callable
      */
-    public static function assertKeyExists(string $key, array $array)
+    public static function filterHandler($handler, PhpInvokableInfo &$invokableInfo = null): ?string
     {
-        return static::getInstance()->assertKeyExists($key, $array);
+        return static::getInstance()->filterHandler($handler, $invokableInfo);
     }
 
     /**
-     * @param string|mixed $phpKeyword
+     * @param object|mixed $value
      *
-     * @return string
+     * @return null|object
      */
-    public static function assertPhpKeyword($phpKeyword): string
+    public static function filterThrowable($value)
     {
-        return static::getInstance()->assertPhpKeyword($phpKeyword);
+        return static::getInstance()->filterThrowable($value);
     }
 
     /**
-     * @param \Closure $func
-     * @param string   $returnType
+     * @param object|mixed $value
      *
-     * @return \Closure
+     * @return null|object
      */
-    public static function assertFactory(\Closure $func, $returnType): \Closure
+    public static function filterError($value)
     {
-        return static::getInstance()->assertFactory($func, $returnType);
+        return static::getInstance()->filterError($value);
     }
 
     /**
-     * @param mixed ...$values
+     * @param object|mixed $value
      *
-     * @return array
+     * @return null|object
      */
-    public static function unique(...$values): array
+    public static function filterException($value)
     {
-        return static::getInstance()->unique(...$values);
+        return static::getInstance()->filterException($value);
     }
 
     /**
-     * @param mixed ...$values
+     * @param object|mixed $value
      *
-     * @return array
+     * @return null|object
      */
-    public static function uniqueFlatten(...$values): array
+    public static function filterRuntimeException($value)
     {
-        return static::getInstance()->uniqueFlatten(...$values);
+        return static::getInstance()->filterRuntimeException($value);
     }
 
     /**
-     * @param mixed ...$values
+     * @param object|mixed $value
      *
-     * @return array
+     * @return null|object
      */
-    public static function duplicates(...$values): array
+    public static function filterLogicException($value)
     {
-        return static::getInstance()->duplicates(...$values);
-    }
-
-    /**
-     * @param mixed ...$values
-     *
-     * @return array
-     */
-    public static function duplicatesFlatten(...$values): array
-    {
-        return static::getInstance()->duplicatesFlatten(...$values);
-    }
-
-    /**
-     * unique() с сохранением ключей
-     *
-     * @param mixed ...$values
-     *
-     * @return array
-     */
-    public static function distinct(array $values): array
-    {
-        return static::getInstance()->distinct($values);
-    }
-
-    /**
-     * генерирует последовательность типа "каждый с каждым из каждого массива" (все возможные пересечения)
-     *
-     * @param mixed ...$arrays
-     *
-     * @return array
-     */
-    public static function sequence(...$arrays): array
-    {
-        return static::getInstance()->sequence(...$arrays);
-    }
-
-    /**
-     * генерирует последовательность типа "каждый с каждым"
-     *
-     * @param mixed ...$values
-     *
-     * @return array
-     */
-    public static function sequenceFlatten(...$values): array
-    {
-        return static::getInstance()->sequenceFlatten(...$values);
-    }
-
-    /**
-     * генерирует последовательность типа "битовая маска" (каждое значение есть или нет, могут быть все или ни одного)
-     *
-     * @param array ...$values
-     *
-     * @return array
-     */
-    public static function bitmask(...$values): array
-    {
-        return static::getInstance()->bitmask(...$values);
+        return static::getInstance()->filterLogicException($value);
     }
 
     /**
@@ -307,9 +258,9 @@ class Php
      *
      * @return string
      */
-    public static function hash($value): string
+    public static function uniqhash($value): string
     {
-        return static::getInstance()->hash($value);
+        return static::getInstance()->uniqhash($value);
     }
 
     /**
@@ -367,56 +318,16 @@ class Php
      *
      * @return array
      */
-    public static function kwargsFlatten(...$arguments): array
+    public static function kwargsPreserveKeys(...$arguments): array
     {
-        return static::getInstance()->kwargsFlatten(...$arguments);
-    }
-
-    /**
-     * @param mixed ...$arguments
-     *
-     * @return array
-     */
-    public static function kwparams(...$arguments): array
-    {
-        return static::getInstance()->kwparams(...$arguments);
-    }
-
-    /**
-     * @param mixed ...$arguments
-     *
-     * @return array
-     */
-    public static function theKwparams(...$arguments): array
-    {
-        return static::getInstance()->theKwparams(...$arguments);
-    }
-
-    /**
-     * @param mixed ...$arguments
-     *
-     * @return array
-     */
-    public static function kwparamsFlatten(...$arguments): array
-    {
-        return static::getInstance()->kwparamsFlatten(...$arguments);
-    }
-
-    /**
-     * @param mixed ...$arguments
-     *
-     * @return array
-     */
-    public static function theKwparamsFlatten(...$arguments): array
-    {
-        return static::getInstance()->theKwparamsFlatten(...$arguments);
+        return static::getInstance()->kwargsPreserveKeys(...$arguments);
     }
 
     /**
      * @param int|float $min
      * @param int|float ...$max
      *
-     * @return ZPhp
+     * @return XPhp
      */
     public static function sleep($min, ...$max)
     {
@@ -557,6 +468,26 @@ class Php
     public static function overloadIf(?array &$args, $num, callable $if = null)
     {
         return static::getInstance()->overloadIf($args, $num, $if);
+    }
+
+    /**
+     * @param int|null $limit
+     *
+     * @return string
+     */
+    public static function obGetFlush(int $limit = null): string
+    {
+        return static::getInstance()->obGetFlush($limit);
+    }
+
+    /**
+     * @param int|null $limit
+     *
+     * @return void
+     */
+    public static function obEndFlush(int $limit = null)
+    {
+        return static::getInstance()->obEndFlush($limit);
     }
 
     /**

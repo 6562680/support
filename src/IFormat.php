@@ -14,13 +14,31 @@ namespace Gzhegow\Support;
 interface IFormat
 {
     /**
-     * конвертирует цифру размера в читабельный формат (1024 => 1Mb)
+     * Форматирует размер в байтах в читаемый формат
      *
-     * @param int|float|string $filesize
+     * @param int $bytesize
      *
      * @return string
      */
-    public function textFilesize($filesize): string;
+    public function byteText(int $bytesize);
+
+    /**
+     * Форматирует читаемый формат в размер в байтах
+     *
+     * @param string $bytetext
+     *
+     * @return float|int
+     */
+    public function byteSize(string $bytetext);
+
+    /**
+     * Вычищает из JSON комментарии и лишние пустые строки
+     *
+     * @param string $json
+     *
+     * @return string
+     */
+    public function jsonClear(string $json): string;
 
     /**
      * Формирует условие для SQL LIKE %val% запроса, экранируя проценты и подчеркивания

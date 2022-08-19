@@ -12,6 +12,8 @@
 namespace Gzhegow\Support;
 
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+use Gzhegow\Support\Traits\Load\CalendarLoadTrait;
+use Gzhegow\Support\Traits\Load\NumLoadTrait;
 
 interface ICmp
 {

@@ -14,6 +14,15 @@ namespace Gzhegow\Support;
 interface IEnv
 {
     /**
+     * @param string    $key
+     * @param mixed     $default
+     * @param bool|null $runtime
+     *
+     * @return null|array|false|mixed|string
+     */
+    public function env(string $key, $default = null, bool $runtime = null);
+
+    /**
      * @param null|string $option
      * @param null|bool   $runtime
      *

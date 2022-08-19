@@ -14,7 +14,11 @@ namespace Gzhegow\Support\Facades;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\ICriteria;
 use Gzhegow\Support\SupportFactory;
-use Gzhegow\Support\ZCriteria;
+use Gzhegow\Support\Traits\Load\CalendarLoadTrait;
+use Gzhegow\Support\Traits\Load\CmpLoadTrait;
+use Gzhegow\Support\Traits\Load\NumLoadTrait;
+use Gzhegow\Support\Traits\Load\StrLoadTrait;
+use Gzhegow\Support\XCriteria;
 
 class Criteria
 {

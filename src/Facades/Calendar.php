@@ -14,26 +14,29 @@ namespace Gzhegow\Support\Facades;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\ICalendar;
 use Gzhegow\Support\SupportFactory;
-use Gzhegow\Support\ZCalendar;
+use Gzhegow\Support\Traits\Load\ArrLoadTrait;
+use Gzhegow\Support\Traits\Load\NumLoadTrait;
+use Gzhegow\Support\Traits\Load\StrLoadTrait;
+use Gzhegow\Support\XCalendar;
 
 class Calendar
 {
+    /**
+     * @param null|string|\DateTimeZone $timezone
+     *
+     * @return XCalendar
+     */
+    public static function withDefaultTimezone($timezone = null)
+    {
+        return static::getInstance()->withDefaultTimezone($timezone);
+    }
+
     /**
      * @return \DateTimeZone
      */
     public static function getDefaultTimezone(): \DateTimeZone
     {
         return static::getInstance()->getDefaultTimezone();
-    }
-
-    /**
-     * @param string|\DateTimeZone $timezone
-     *
-     * @return ZCalendar
-     */
-    public static function setDefaultTimezone($timezone)
-    {
-        return static::getInstance()->setDefaultTimezone($timezone);
     }
 
     /**
@@ -111,96 +114,6 @@ class Calendar
     public static function isIntersect($dates = [], $datesWith = []): bool
     {
         return static::getInstance()->isIntersect($dates, $datesWith);
-    }
-
-    /**
-     * @param int|float|string|\DateTimeInterface|mixed $date
-     *
-     * @return bool
-     */
-    public static function isDateTimeInterface($date): bool
-    {
-        return static::getInstance()->isDateTimeInterface($date);
-    }
-
-    /**
-     * @param int|float|string|\DateTimeInterface|mixed $date
-     *
-     * @return bool
-     */
-    public static function isDateTimeImmutable($date): bool
-    {
-        return static::getInstance()->isDateTimeImmutable($date);
-    }
-
-    /**
-     * @param int|float|string|\DateTimeInterface|mixed $date
-     *
-     * @return bool
-     */
-    public static function isDateTime($date): bool
-    {
-        return static::getInstance()->isDateTime($date);
-    }
-
-    /**
-     * @param \DateTimeZone $timezone
-     *
-     * @return bool
-     */
-    public static function isDateTimeZone($timezone): bool
-    {
-        return static::getInstance()->isDateTimeZone($timezone);
-    }
-
-    /**
-     * @param string|\DateInterval $interval
-     *
-     * @return bool
-     */
-    public static function isDateInterval($interval): bool
-    {
-        return static::getInstance()->isDateInterval($interval);
-    }
-
-    /**
-     * @param int|float|string|\DateTimeInterface|mixed $date
-     *
-     * @return bool
-     */
-    public static function isIDate($date): bool
-    {
-        return static::getInstance()->isIDate($date);
-    }
-
-    /**
-     * @param int|float|string|\DateTimeInterface|mixed $date
-     *
-     * @return bool
-     */
-    public static function isDate($date): bool
-    {
-        return static::getInstance()->isDate($date);
-    }
-
-    /**
-     * @param string|\DateTimeZone $timezone
-     *
-     * @return bool
-     */
-    public static function isTimezone($timezone): bool
-    {
-        return static::getInstance()->isTimezone($timezone);
-    }
-
-    /**
-     * @param string|\DateInterval $interval
-     *
-     * @return bool
-     */
-    public static function isInterval($interval): bool
-    {
-        return static::getInstance()->isInterval($interval);
     }
 
     /**
@@ -291,96 +204,6 @@ class Calendar
     public static function filterInterval($interval)
     {
         return static::getInstance()->filterInterval($interval);
-    }
-
-    /**
-     * @param \DateTimeInterface|mixed $date
-     *
-     * @return \DateTimeInterface
-     */
-    public static function assertDateTimeInterface($date): \DateTimeInterface
-    {
-        return static::getInstance()->assertDateTimeInterface($date);
-    }
-
-    /**
-     * @param \DateTimeImmutable|mixed $date
-     *
-     * @return \DateTimeImmutable
-     */
-    public static function assertDateTimeImmutable($date): \DateTimeImmutable
-    {
-        return static::getInstance()->assertDateTimeImmutable($date);
-    }
-
-    /**
-     * @param \DateTime|mixed $date
-     *
-     * @return \DateTime
-     */
-    public static function assertDateTime($date): \DateTime
-    {
-        return static::getInstance()->assertDateTime($date);
-    }
-
-    /**
-     * @param \DateTimeZone|mixed $timezone
-     *
-     * @return \DateTimeZone
-     */
-    public static function assertDateTimeZone($timezone): \DateTimeZone
-    {
-        return static::getInstance()->assertDateTimeZone($timezone);
-    }
-
-    /**
-     * @param \DateInterval|mixed $interval
-     *
-     * @return \DateInterval
-     */
-    public static function assertDateInterval($interval): \DateInterval
-    {
-        return static::getInstance()->assertDateInterval($interval);
-    }
-
-    /**
-     * @param int|float|string|\DateTimeInterface|mixed $date
-     *
-     * @return int|float|string|\DateTimeImmutable
-     */
-    public static function assertIDate($date)
-    {
-        return static::getInstance()->assertIDate($date);
-    }
-
-    /**
-     * @param int|float|string|\DateTimeInterface|mixed $date
-     *
-     * @return int|float|string|\DateTime
-     */
-    public static function assertDate($date)
-    {
-        return static::getInstance()->assertDate($date);
-    }
-
-    /**
-     * @param string|\DateTimeZone $timezone
-     *
-     * @return string|\DateTimeZone
-     */
-    public static function assertTimezone($timezone)
-    {
-        return static::getInstance()->assertTimezone($timezone);
-    }
-
-    /**
-     * @param string|\DateInterval $interval
-     *
-     * @return string|\DateInterval
-     */
-    public static function assertInterval($interval)
-    {
-        return static::getInstance()->assertInterval($interval);
     }
 
     /**
@@ -498,99 +321,99 @@ class Calendar
     }
 
     /**
-     * @param int|float|string|\DateTimeInterface|array $dates
+     * @param int|float|string|\DateTimeInterface|array $iDates
      * @param null|bool                                 $uniq
      * @param null|bool                                 $recursive
      *
      * @return \DateTimeImmutable[]
      */
-    public static function iDatevals($dates, bool $uniq = null, bool $recursive = null): array
+    public static function iDatevals($iDates, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->iDatevals($dates, $uniq, $recursive);
+        return static::getInstance()->iDatevals($iDates, $uniq, $recursive);
     }
 
     /**
-     * @param int|float|string|\DateTimeInterface|array $dates
+     * @param int|float|string|\DateTimeInterface|array $iDates
      * @param null|bool                                 $uniq
      * @param null|bool                                 $recursive
      *
      * @return \DateTimeImmutable[]
      */
-    public static function theIDatevals($dates, bool $uniq = null, bool $recursive = null): array
+    public static function theIDatevals($iDates, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->theIDatevals($dates, $uniq, $recursive);
+        return static::getInstance()->theIDatevals($iDates, $uniq, $recursive);
     }
 
     /**
-     * @param \DateTime|array $dates
+     * @param \DateTime|array $dateTimeObjects
      * @param null|bool       $uniq
      * @param null|bool       $recursive
      *
      * @return \DateTime[]
      */
-    public static function dates($dates, bool $uniq = null, bool $recursive = null): array
+    public static function dates($dateTimeObjects, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->dates($dates, $uniq, $recursive);
+        return static::getInstance()->dates($dateTimeObjects, $uniq, $recursive);
     }
 
     /**
-     * @param \DateTime|array $dates
+     * @param \DateTime|array $dateTimeObjects
      * @param null|bool       $uniq
      * @param null|bool       $recursive
      *
      * @return \DateTime[]
      */
-    public static function theDates($dates, bool $uniq = null, bool $recursive = null): array
+    public static function theDates($dateTimeObjects, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->theDates($dates, $uniq, $recursive);
+        return static::getInstance()->theDates($dateTimeObjects, $uniq, $recursive);
     }
 
     /**
-     * @param \DateTimeImmutable|array $dates
+     * @param \DateTimeImmutable|array $dateTimeImmutableObjects
      * @param null|bool                $uniq
      * @param null|bool                $recursive
      *
      * @return \DateTimeImmutable[]
      */
-    public static function iDates($dates, bool $uniq = null, bool $recursive = null): array
+    public static function iDates($dateTimeImmutableObjects, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->iDates($dates, $uniq, $recursive);
+        return static::getInstance()->iDates($dateTimeImmutableObjects, $uniq, $recursive);
     }
 
     /**
-     * @param \DateTimeImmutable|array $dates
+     * @param \DateTimeImmutable|array $dateTimeImmutableObjects
      * @param null|bool                $uniq
      * @param null|bool                $recursive
      *
      * @return \DateTimeImmutable[]
      */
-    public static function theIDates($dates, bool $uniq = null, bool $recursive = null): array
+    public static function theIDates($dateTimeImmutableObjects, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->theIDates($dates, $uniq, $recursive);
+        return static::getInstance()->theIDates($dateTimeImmutableObjects, $uniq, $recursive);
     }
 
     /**
-     * @param \DateTimeInterface|array $dates
+     * @param \DateTimeInterface|array $dateTimeAllObjects
      * @param null|bool                $uniq
      * @param null|bool                $recursive
      *
      * @return \DateTimeInterface[]
      */
-    public static function datesAll($dates, bool $uniq = null, bool $recursive = null): array
+    public static function datesAll($dateTimeAllObjects, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->datesAll($dates, $uniq, $recursive);
+        return static::getInstance()->datesAll($dateTimeAllObjects, $uniq, $recursive);
     }
 
     /**
-     * @param int|float|string|\DateTimeInterface|array $dates
+     * @param int|float|string|\DateTimeInterface|array $dateTimeAllObjects
      * @param null|bool                                 $uniq
      * @param null|bool                                 $recursive
      *
      * @return \DateTimeInterface[]
      */
-    public static function theDatesAll($dates, bool $uniq = null, bool $recursive = null): array
+    public static function theDatesAll($dateTimeAllObjects, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->theDatesAll($dates, $uniq, $recursive);
+        return static::getInstance()->theDatesAll($dateTimeAllObjects, $uniq, $recursive);
     }
 
     /**
@@ -621,11 +444,11 @@ class Calendar
      * @param int|float|string|\DateTimeInterface|mixed $dateA
      * @param int|float|string|\DateTimeInterface|mixed $dateB
      *
-     * @return float
+     * @return string
      */
-    public static function diff($dateA, $dateB): float
+    public static function diffSeconds($dateA, $dateB): string
     {
-        return static::getInstance()->diff($dateA, $dateB);
+        return static::getInstance()->diffSeconds($dateA, $dateB);
     }
 
     /**

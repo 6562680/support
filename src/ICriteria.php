@@ -12,6 +12,10 @@
 namespace Gzhegow\Support;
 
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+use Gzhegow\Support\Traits\Load\CalendarLoadTrait;
+use Gzhegow\Support\Traits\Load\CmpLoadTrait;
+use Gzhegow\Support\Traits\Load\NumLoadTrait;
+use Gzhegow\Support\Traits\Load\StrLoadTrait;
 
 interface ICriteria
 {

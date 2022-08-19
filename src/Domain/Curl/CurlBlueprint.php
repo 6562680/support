@@ -2,10 +2,12 @@
 
 namespace Gzhegow\Support\Domain\Curl;
 
-use Gzhegow\Support\IArr;
-use Gzhegow\Support\INet;
-use Gzhegow\Support\IFilter;
+use Gzhegow\Support\Traits\Load\FsLoadTrait;
+use Gzhegow\Support\Traits\Load\ArrLoadTrait;
+use Gzhegow\Support\Traits\Load\NetLoadTrait;
+use Gzhegow\Support\Traits\Load\StrLoadTrait;
 use Gzhegow\Support\Exceptions\RuntimeException;
+use Gzhegow\Support\Traits\Load\Curl\CurloptManagerLoadTrait;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
@@ -14,66 +16,37 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
  */
 class CurlBlueprint
 {
-    /**
-     * @var IArr
-     */
-    protected $arr;
-    /**
-     * @var IFilter
-     */
-    protected $filter;
-    /**
-     * @var INet
-     */
-    protected $net;
+    use ArrLoadTrait;
+    use FsLoadTrait;
+    use NetLoadTrait;
+    use StrLoadTrait;
 
-    /**
-     * @var CurloptManager
-     */
-    protected $curloptManager;
+    use CurloptManagerLoadTrait;
+
 
     /**
      * @var array
      */
-    protected $curloptArrayInit = [];
+    protected $curloptArray = [];
     /**
      * @var array
      */
-    protected $curloptArray;
-
+    protected $curloptArrayDefault = [];
 
 
     /**
      * Constructor
      *
-     * @param IArr           $arr
-     * @param IFilter        $filter
-     * @param INet           $net
-     *
-     * @param CurloptManager $curloptManager
-     *
-     * @param null|array     $curloptArrayInit
+     * @param null|array $curloptArrayDefault
      */
     public function __construct(
-        IArr $arr,
-        IFilter $filter,
-        INet $net,
-
-        CurloptManager $curloptManager,
-
-        array $curloptArrayInit = null
+        array $curloptArrayDefault = null
     )
     {
-        $curloptArrayInit = $curloptArrayInit ?? [];
+        $curloptArrayDefault = $curloptArrayDefault ?? [];
 
-        $this->arr = $arr;
-        $this->filter = $filter;
-        $this->net = $net;
-
-        $this->curloptManager = $curloptManager;
-
-        $this->curloptArrayInit = $curloptArrayInit;
-        $this->curloptArray = $this->curloptArrayInit;
+        $this->curloptArrayDefault = $curloptArrayDefault;
+        $this->curloptArray = $this->curloptArrayDefault;
     }
 
 
@@ -82,7 +55,7 @@ class CurlBlueprint
      */
     public function resetCurloptArray()
     {
-        $this->curloptArray = $this->curloptArrayInit;
+        $this->curloptArray = $this->curloptArrayDefault;
 
         return $this;
     }
@@ -97,7 +70,7 @@ class CurlBlueprint
      */
     public function get(string $url, $data = null, array $headers = null)
     {
-        return $this->request($this->net::METHOD_GET, $url, $data, $headers);
+        return $this->request($this->getNet()::METHOD_GET, $url, $data, $headers);
     }
 
 
@@ -111,7 +84,7 @@ class CurlBlueprint
         $verbose = $verbose ?? false;
 
         return $verbose
-            ? $this->curloptManager->formatCurloptArray($this->curloptArray)
+            ? $this->getCurloptManager()->formatCurloptArray($this->curloptArray)
             : $this->curloptArray;
     }
 
@@ -124,7 +97,7 @@ class CurlBlueprint
      */
     public function setCurlopt($curlopt, $value)
     {
-        if (null === ( $optCode = $this->curloptManager->curloptCodeVal($curlopt) )) {
+        if (null === ( $optCode = $this->getCurloptManager()->curloptCodeVal($curlopt) )) {
             throw new InvalidArgumentException('Invalid CURL option: ' . $curlopt);
         }
 
@@ -171,7 +144,7 @@ class CurlBlueprint
      */
     public function head(string $url, array $headers = null)
     {
-        return $this->request($this->net::METHOD_HEAD, $url, null, $headers);
+        return $this->request($this->getNet()::METHOD_HEAD, $url, null, $headers);
     }
 
     /**
@@ -182,7 +155,7 @@ class CurlBlueprint
      */
     public function options(string $url, array $headers = null)
     {
-        return $this->request($this->net::METHOD_OPTIONS, $url, null, $headers);
+        return $this->request($this->getNet()::METHOD_OPTIONS, $url, null, $headers);
     }
 
 
@@ -195,7 +168,7 @@ class CurlBlueprint
      */
     public function post(string $url, $data = null, array $headers = null)
     {
-        return $this->request($this->net::METHOD_POST, $url, $data, $headers);
+        return $this->request($this->getNet()::METHOD_POST, $url, $data, $headers);
     }
 
     /**
@@ -207,7 +180,7 @@ class CurlBlueprint
      */
     public function patch(string $url, $data = null, array $headers = null)
     {
-        return $this->request($this->net::METHOD_PATCH, $url, $data, $headers);
+        return $this->request($this->getNet()::METHOD_PATCH, $url, $data, $headers);
     }
 
     /**
@@ -219,7 +192,7 @@ class CurlBlueprint
      */
     public function put(string $url, $data = null, array $headers = null)
     {
-        return $this->request($this->net::METHOD_PUT, $url, $data, $headers);
+        return $this->request($this->getNet()::METHOD_PUT, $url, $data, $headers);
     }
 
     /**
@@ -230,7 +203,7 @@ class CurlBlueprint
      */
     public function delete(string $url, array $headers = null)
     {
-        return $this->request($this->net::METHOD_DELETE, $url, null, $headers);
+        return $this->request($this->getNet()::METHOD_DELETE, $url, null, $headers);
     }
 
 
@@ -243,7 +216,7 @@ class CurlBlueprint
      */
     public function purge(string $url, $data = null, array $headers = null)
     {
-        return $this->request($this->net::METHOD_PURGE, $url, $data, $headers);
+        return $this->request($this->getNet()::METHOD_PURGE, $url, $data, $headers);
     }
 
 
@@ -257,13 +230,15 @@ class CurlBlueprint
      */
     public function request(string $method, string $url, $data = null, array $headers = null)
     {
-        $httpMethod = $this->net->theHttpMethodVal($method);
+        $theNet = $this->getNet();
+
+        $httpMethod = $theNet->theHttpMethodVal($method);
 
         $headers = $headers ?? [];
 
-        $isMethodOptions = ( $this->net::METHOD_OPTIONS === $httpMethod );
-        $isMethodHead = ( $this->net::METHOD_HEAD === $httpMethod );
-        $isMethodGet = ( $this->net::METHOD_GET === $httpMethod );
+        $isMethodOptions = ( $theNet::METHOD_OPTIONS === $httpMethod );
+        $isMethodHead = ( $theNet::METHOD_HEAD === $httpMethod );
+        $isMethodGet = ( $theNet::METHOD_GET === $httpMethod );
 
         $isNoData = 0
             || $isMethodOptions
@@ -285,6 +260,10 @@ class CurlBlueprint
         $files = [];
         $body = '';
         if ($data) {
+            $theArr = $this->getArr();
+            $theFs = $this->getFs();
+            $theStr = $this->getStr();
+
             if ($isNoData) {
                 throw new RuntimeException(
                     'Unable to send data using method: ' . $httpMethod
@@ -293,23 +272,23 @@ class CurlBlueprint
 
             $flatten = [];
             if (is_array($data)) {
-                foreach ( $this->arr->walk($data) as $fullpath => $value ) {
+                foreach ( $theArr->walk($data) as $fullpath => $value ) {
                     $flatten[] = [ $fullpath, $value ];
                 }
-            } elseif (null !== ( $fileObject = $this->filter->filterFileObject($data) )) {
+            } elseif (null !== ( $fileObject = $theFs->filterFileObject($data) )) {
                 $flatten[] = [ [ 'file' ], $fileObject ];
 
-            } elseif (null !== $this->filter->filterStrval($data)) {
+            } elseif (null !== $theStr->filterStrval($data)) {
                 $body = strval($data);
             }
 
             foreach ( $flatten as [ $fullpath, $value ] ) {
-                if (null !== $this->filter->filterStrval($value)) {
-                    $this->arr->set($fields, $fullpath, strval($value));
+                if (null !== $theStr->filterStrval($value)) {
+                    $theArr->set($fields, $fullpath, strval($value));
                 }
 
-                if (null !== ( $fileObject = $this->filter->filterFileObject($value) )) {
-                    $this->arr->set($files, $fullpath,
+                if (null !== ( $fileObject = $theFs->filterFileObject($value) )) {
+                    $theArr->set($files, $fullpath,
                         curl_file_create($fileObject->getRealPath(),
                             mime_content_type($fileObject->getRealPath())
                         )
@@ -331,11 +310,11 @@ class CurlBlueprint
                 }
 
                 if ($fields) {
-                    $headers[] = 'Content-ZType: multipart/form-data';
+                    $headers[] = 'Content-Type: multipart/form-data';
 
                     $key = implode(";\n", [
                         'raw',
-                        'Content-ZType: text/plain',
+                        'Content-Type: text/plain',
                         'Content-Disposition: form-data',
                     ]);
 
@@ -357,7 +336,7 @@ class CurlBlueprint
             $curloptArray[ CURLOPT_HTTPHEADER ] = $headers;
         }
 
-        $curloptArray = $this->curloptManager->mergeCurloptArrays(
+        $curloptArray = $this->getCurloptManager()->mergeCurloptArrays(
             $this->getCurloptArray(),
             $curloptArray
         );

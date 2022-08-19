@@ -12,20 +12,23 @@
 namespace Gzhegow\Support;
 
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+use Gzhegow\Support\Traits\Load\ArrLoadTrait;
+use Gzhegow\Support\Traits\Load\NumLoadTrait;
+use Gzhegow\Support\Traits\Load\StrLoadTrait;
 
 interface ICalendar
 {
     /**
+     * @param null|string|\DateTimeZone $timezone
+     *
+     * @return XCalendar
+     */
+    public function withDefaultTimezone($timezone = null);
+
+    /**
      * @return \DateTimeZone
      */
     public function getDefaultTimezone(): \DateTimeZone;
-
-    /**
-     * @param string|\DateTimeZone $timezone
-     *
-     * @return ZCalendar
-     */
-    public function setDefaultTimezone($timezone);
 
     /**
      * @param int|float|string|\DateTimeInterface|mixed $a
@@ -82,69 +85,6 @@ interface ICalendar
      * @return bool
      */
     public function isIntersect($dates = [], $datesWith = []): bool;
-
-    /**
-     * @param int|float|string|\DateTimeInterface|mixed $date
-     *
-     * @return bool
-     */
-    public function isDateTimeInterface($date): bool;
-
-    /**
-     * @param int|float|string|\DateTimeInterface|mixed $date
-     *
-     * @return bool
-     */
-    public function isDateTimeImmutable($date): bool;
-
-    /**
-     * @param int|float|string|\DateTimeInterface|mixed $date
-     *
-     * @return bool
-     */
-    public function isDateTime($date): bool;
-
-    /**
-     * @param \DateTimeZone $timezone
-     *
-     * @return bool
-     */
-    public function isDateTimeZone($timezone): bool;
-
-    /**
-     * @param string|\DateInterval $interval
-     *
-     * @return bool
-     */
-    public function isDateInterval($interval): bool;
-
-    /**
-     * @param int|float|string|\DateTimeInterface|mixed $date
-     *
-     * @return bool
-     */
-    public function isIDate($date): bool;
-
-    /**
-     * @param int|float|string|\DateTimeInterface|mixed $date
-     *
-     * @return bool
-     */
-    public function isDate($date): bool;
-
-    /**
-     * @param string|\DateTimeZone $timezone
-     *
-     * @return bool
-     */
-    public function isTimezone($timezone): bool;
-
-    /**
-     * @param string|\DateInterval $interval
-     *
-     * @return bool
-     */
-    public function isInterval($interval): bool;
 
     /**
      * @param \DateTimeInterface|mixed $date
@@ -208,69 +148,6 @@ interface ICalendar
      * @return null|string|\DateInterval
      */
     public function filterInterval($interval);
-
-    /**
-     * @param \DateTimeInterface|mixed $date
-     *
-     * @return \DateTimeInterface
-     */
-    public function assertDateTimeInterface($date): \DateTimeInterface;
-
-    /**
-     * @param \DateTimeImmutable|mixed $date
-     *
-     * @return \DateTimeImmutable
-     */
-    public function assertDateTimeImmutable($date): \DateTimeImmutable;
-
-    /**
-     * @param \DateTime|mixed $date
-     *
-     * @return \DateTime
-     */
-    public function assertDateTime($date): \DateTime;
-
-    /**
-     * @param \DateTimeZone|mixed $timezone
-     *
-     * @return \DateTimeZone
-     */
-    public function assertDateTimeZone($timezone): \DateTimeZone;
-
-    /**
-     * @param \DateInterval|mixed $interval
-     *
-     * @return \DateInterval
-     */
-    public function assertDateInterval($interval): \DateInterval;
-
-    /**
-     * @param int|float|string|\DateTimeInterface|mixed $date
-     *
-     * @return int|float|string|\DateTimeImmutable
-     */
-    public function assertIDate($date);
-
-    /**
-     * @param int|float|string|\DateTimeInterface|mixed $date
-     *
-     * @return int|float|string|\DateTime
-     */
-    public function assertDate($date);
-
-    /**
-     * @param string|\DateTimeZone $timezone
-     *
-     * @return string|\DateTimeZone
-     */
-    public function assertTimezone($timezone);
-
-    /**
-     * @param string|\DateInterval $interval
-     *
-     * @return string|\DateInterval
-     */
-    public function assertInterval($interval);
 
     /**
      * @param int|float|string|\DateTimeInterface|mixed $date
@@ -357,76 +234,76 @@ interface ICalendar
     public function theDatevals($dates, bool $uniq = null, bool $recursive = null): array;
 
     /**
-     * @param int|float|string|\DateTimeInterface|array $dates
+     * @param int|float|string|\DateTimeInterface|array $iDates
      * @param null|bool                                 $uniq
      * @param null|bool                                 $recursive
      *
      * @return \DateTimeImmutable[]
      */
-    public function iDatevals($dates, bool $uniq = null, bool $recursive = null): array;
+    public function iDatevals($iDates, bool $uniq = null, bool $recursive = null): array;
 
     /**
-     * @param int|float|string|\DateTimeInterface|array $dates
+     * @param int|float|string|\DateTimeInterface|array $iDates
      * @param null|bool                                 $uniq
      * @param null|bool                                 $recursive
      *
      * @return \DateTimeImmutable[]
      */
-    public function theIDatevals($dates, bool $uniq = null, bool $recursive = null): array;
+    public function theIDatevals($iDates, bool $uniq = null, bool $recursive = null): array;
 
     /**
-     * @param \DateTime|array $dates
+     * @param \DateTime|array $dateTimeObjects
      * @param null|bool       $uniq
      * @param null|bool       $recursive
      *
      * @return \DateTime[]
      */
-    public function dates($dates, bool $uniq = null, bool $recursive = null): array;
+    public function dates($dateTimeObjects, bool $uniq = null, bool $recursive = null): array;
 
     /**
-     * @param \DateTime|array $dates
+     * @param \DateTime|array $dateTimeObjects
      * @param null|bool       $uniq
      * @param null|bool       $recursive
      *
      * @return \DateTime[]
      */
-    public function theDates($dates, bool $uniq = null, bool $recursive = null): array;
+    public function theDates($dateTimeObjects, bool $uniq = null, bool $recursive = null): array;
 
     /**
-     * @param \DateTimeImmutable|array $dates
+     * @param \DateTimeImmutable|array $dateTimeImmutableObjects
      * @param null|bool                $uniq
      * @param null|bool                $recursive
      *
      * @return \DateTimeImmutable[]
      */
-    public function iDates($dates, bool $uniq = null, bool $recursive = null): array;
+    public function iDates($dateTimeImmutableObjects, bool $uniq = null, bool $recursive = null): array;
 
     /**
-     * @param \DateTimeImmutable|array $dates
+     * @param \DateTimeImmutable|array $dateTimeImmutableObjects
      * @param null|bool                $uniq
      * @param null|bool                $recursive
      *
      * @return \DateTimeImmutable[]
      */
-    public function theIDates($dates, bool $uniq = null, bool $recursive = null): array;
+    public function theIDates($dateTimeImmutableObjects, bool $uniq = null, bool $recursive = null): array;
 
     /**
-     * @param \DateTimeInterface|array $dates
+     * @param \DateTimeInterface|array $dateTimeAllObjects
      * @param null|bool                $uniq
      * @param null|bool                $recursive
      *
      * @return \DateTimeInterface[]
      */
-    public function datesAll($dates, bool $uniq = null, bool $recursive = null): array;
+    public function datesAll($dateTimeAllObjects, bool $uniq = null, bool $recursive = null): array;
 
     /**
-     * @param int|float|string|\DateTimeInterface|array $dates
+     * @param int|float|string|\DateTimeInterface|array $dateTimeAllObjects
      * @param null|bool                                 $uniq
      * @param null|bool                                 $recursive
      *
      * @return \DateTimeInterface[]
      */
-    public function theDatesAll($dates, bool $uniq = null, bool $recursive = null): array;
+    public function theDatesAll($dateTimeAllObjects, bool $uniq = null, bool $recursive = null): array;
 
     /**
      * @param int|float|string|\DateTimeInterface|mixed $date
@@ -450,9 +327,9 @@ interface ICalendar
      * @param int|float|string|\DateTimeInterface|mixed $dateA
      * @param int|float|string|\DateTimeInterface|mixed $dateB
      *
-     * @return float
+     * @return string
      */
-    public function diff($dateA, $dateB): float;
+    public function diffSeconds($dateA, $dateB): string;
 
     /**
      * @param string      $format

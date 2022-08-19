@@ -12,88 +12,90 @@
 namespace Gzhegow\Support;
 
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+use Gzhegow\Support\Traits\Load\ArrLoadTrait;
 
 interface IUri
 {
     /**
-     * Compares links, allows to create `active` buttons if urls match
-     *
-     * @param null|string $link
-     *
-     * @param null|string $needle
-     * @param null|array  $needleQuery
-     * @param null|string $needleRef
-     *
-     * @param null|bool   $strict
-     * @param null|bool   $strictQuery
-     * @param null|bool   $strictRef
+     * @param string    $regex
+     * @param null|bool $absolute
      *
      * @return bool
      */
-    public function isLinkMatch(
-        string $link,
-        string $needle = null,
-        array $needleQuery = null,
-        string $needleRef = null,
-        bool $strict = null,
-        bool $strictQuery = null,
-        bool $strictRef = null
-    ): bool;
+    public function isUrlCurrent(string $regex, bool $absolute = null): bool;
 
     /**
-     * Compares urls, allows to create `active` buttons if urls match
+     * @param string $url
+     * @param string $needle
      *
+     * @return bool
+     */
+    public function isUrlMatch(string $url, string $needle): bool;
+
+    /**
+     * @param string|mixed $value
+     *
+     * @return null|string
+     */
+    public function filterLink($value): ?string;
+
+    /**
+     * @param string|mixed $value
+     *
+     * @return null|string
+     */
+    public function filterUrl($value): ?string;
+
+    /**
+     * @param string|null       $url
+     * @param bool|string|array $q
+     * @param bool|string|null  $ref
+     *
+     * @return string
+     */
+    public function link(string $url = null, $q = null, $ref = null): string;
+
+    /**
+     * @param string|null       $url
+     * @param bool|string|array $q
+     * @param bool|string|null  $ref
+     *
+     * @return string
+     */
+    public function url(string $url = null, $q = null, $ref = null): string;
+
+    /**
      * @param null|string $url
      *
-     * @param null|string $needle
-     * @param null|array  $needleQuery
-     * @param null|string $needleRef
-     *
-     * @param null|bool   $strict
-     * @param null|bool   $strictQuery
-     * @param null|bool   $strictRef
-     *
-     * @return bool
+     * @return array
      */
-    public function isUrlMatch(
-        string $url,
-        string $needle = null,
-        array $needleQuery = null,
-        string $needleRef = null,
-        bool $strict = null,
-        bool $strictQuery = null,
-        bool $strictRef = null
-    ): bool;
+    public function parseUrl(string $url = null): array;
 
     /**
-     * @param mixed ...$items
+     * @param string|array ...$queries
      *
      * @return array
      */
-    public function query(...$items): array;
+    public function parseQuery(...$queries): array;
 
     /**
-     * @param string $uri
-     *
-     * @return array
-     */
-    public function linkinfo(string $uri): array;
-
-    /**
-     * @param string|null $link
-     * @param null|array  $query
-     * @param string|null $fragment
+     * @param array $parseUrlResult
      *
      * @return string
      */
-    public function url(string $link = null, array $query = null, string $fragment = null): string;
+    public function buildLink(array $parseUrlResult): string;
 
     /**
-     * @param string|null $link
-     * @param null|array  $query
-     * @param string|null $fragment
+     * @param array $parseUrlResult
      *
      * @return string
      */
-    public function link(string $link = null, array $query = null, string $fragment = null): string;
+    public function buildUrl(array $parseUrlResult): string;
+
+    /**
+     * @param array $parseQueryResult
+     *
+     * @return string
+     */
+    public function buildQuery(array $parseQueryResult): ?string;
 }

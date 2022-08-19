@@ -11,27 +11,19 @@
 
 namespace Gzhegow\Support\Facades;
 
-use Gzhegow\Support\Domain\Arr\ValueObject\ExpandValue;
-use Gzhegow\Support\Exceptions\Error;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\Logic\OutOfRangeException;
+use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Exceptions\Runtime\UnderflowException;
 use Gzhegow\Support\IArr;
 use Gzhegow\Support\SupportFactory;
-use Gzhegow\Support\ZArr;
+use Gzhegow\Support\Traits\Load\NumLoadTrait;
+use Gzhegow\Support\Traits\Load\PhpLoadTrait;
+use Gzhegow\Support\Traits\Load\StrLoadTrait;
+use Gzhegow\Support\XArr;
 
 class Arr
 {
-    /**
-     * @param null|callable $indexer
-     *
-     * @return ZArr
-     */
-    public static function withIndexer(?callable $indexer)
-    {
-        return static::getInstance()->withIndexer($indexer);
-    }
-
     /**
      * @param string|array $path
      * @param array        $src
@@ -39,7 +31,7 @@ class Arr
      *
      * @return mixed
      */
-    public static function get($path, array &$src, $default = "\x00")
+    public static function get($path, array &$src, $default = null)
     {
         return static::getInstance()->get($path, $src, $default);
     }
@@ -60,7 +52,7 @@ class Arr
      * @param string|array $path
      * @param mixed        $value
      *
-     * @return ZArr
+     * @return XArr
      */
     public static function set(?array &$dst, $path, $value)
     {
@@ -68,11 +60,25 @@ class Arr
     }
 
     /**
-     * @return callable
+     * @param int   $idx
+     * @param array $src
+     *
+     * @return mixed
      */
-    public static function getIndexer()
+    public static function getIdx(int $idx, array &$src)
     {
-        return static::getInstance()->getIndexer();
+        return static::getInstance()->getIdx($idx, $src);
+    }
+
+    /**
+     * @param int   $idx
+     * @param array $src
+     *
+     * @return bool
+     */
+    public static function hasIdx(int $idx, array &$src): bool
+    {
+        return static::getInstance()->hasIdx($idx, $src);
     }
 
     /**
@@ -82,9 +88,181 @@ class Arr
      *
      * @return mixed
      */
-    public static function &getRef($path, array &$src, $default = "\x00")
+    public static function &getRef($path, array &$src, $default = null)
     {
         return static::getInstance()->getRef($path, $src, $default);
+    }
+
+    /**
+     * @param int   $idx
+     * @param array $src
+     *
+     * @return mixed
+     */
+    public static function &getRefIdx(int $idx, array &$src)
+    {
+        return static::getInstance()->getRefIdx($idx, $src);
+    }
+
+    /**
+     * @param null|array   $dst
+     * @param string|array $path
+     * @param mixed        $value
+     *
+     * @return mixed
+     */
+    public static function &setRef(?array &$dst, $path, $value)
+    {
+        return static::getInstance()->setRef($dst, $path, $value);
+    }
+
+    /**
+     * @param null|array $dst
+     * @param int        $idx
+     * @param mixed      $value
+     *
+     * @return mixed
+     */
+    public static function &setRefIdx(?array &$dst, int $idx, $value)
+    {
+        return static::getInstance()->setRefIdx($dst, $idx, $value);
+    }
+
+    /**
+     * @param array|mixed   $array
+     * @param null|callable $of
+     *
+     * @return null|array
+     */
+    public static function filterArray($array, callable $of = null): ?array
+    {
+        return static::getInstance()->filterArray($array, $of);
+    }
+
+    /**
+     * @param array|mixed   $list
+     * @param null|callable $of
+     *
+     * @return null|array
+     */
+    public static function filterList($list, callable $of = null): ?array
+    {
+        return static::getInstance()->filterList($list, $of);
+    }
+
+    /**
+     * @param array|mixed   $dict
+     * @param null|callable $of
+     *
+     * @return null|array
+     */
+    public static function filterDict($dict, callable $of = null): ?array
+    {
+        return static::getInstance()->filterDict($dict, $of);
+    }
+
+    /**
+     * @param array|mixed   $assoc
+     * @param null|callable $of
+     *
+     * @return null|array
+     */
+    public static function filterAssoc($assoc, callable $of = null): ?array
+    {
+        return static::getInstance()->filterAssoc($assoc, $of);
+    }
+
+    /**
+     * проверяет, содержит ли массив вложенные массивы
+     *
+     * @param array|mixed $array
+     * @param null|int    $depth
+     *
+     * @return null|array
+     */
+    public static function filterArrayDeep($array, int $depth = null): ?array
+    {
+        return static::getInstance()->filterArrayDeep($array, $depth);
+    }
+
+    /**
+     * проверяет, можно ли массив безопасно сериализовать
+     *
+     * @param array|mixed $array
+     *
+     * @return null|array
+     */
+    public static function filterArrayPlain($array): ?array
+    {
+        return static::getInstance()->filterArrayPlain($array);
+    }
+
+    /**
+     * проверяет, может ли переменная быть приведена к массиву
+     *
+     * @param mixed $value
+     *
+     * @return null|mixed
+     */
+    public static function filterArrval($value)
+    {
+        return static::getInstance()->filterArrval($value);
+    }
+
+    /**
+     * \Generator может передать любой объект в качестве ключа для foreach, пригодится
+     *
+     * @param int|string|mixed $value
+     *
+     * @return null|int|string
+     */
+    public static function filterArrayKey($value)
+    {
+        return static::getInstance()->filterArrayKey($value);
+    }
+
+    /**
+     * @param array        $src
+     * @param string|array $path
+     *
+     * @return array
+     */
+    public static function del(array &$src, ...$path): ?array
+    {
+        return static::getInstance()->del($src, ...$path);
+    }
+
+    /**
+     * @param array $src
+     * @param int   $idx
+     *
+     * @return array
+     */
+    public static function delIdx(array &$src, int $idx): ?array
+    {
+        return static::getInstance()->delIdx($src, $idx);
+    }
+
+    /**
+     * @param array        $src
+     * @param string|array $path
+     *
+     * @return bool
+     */
+    public static function delRef(array &$src, ...$path): bool
+    {
+        return static::getInstance()->delRef($src, ...$path);
+    }
+
+    /**
+     * @param array $src
+     * @param int   $idx
+     *
+     * @return bool
+     */
+    public static function delRefIdx(array &$src, int $idx): bool
+    {
+        return static::getInstance()->delRefIdx($src, $idx);
     }
 
     /**
@@ -128,61 +306,43 @@ class Arr
     }
 
     /**
-     * @param int|string|array $keys
-     * @param null|bool        $uniq
-     * @param null|bool        $recursive
-     *
-     * @return string[]
-     */
-    public static function keyvals($keys, bool $uniq = null, bool $recursive = null): array
-    {
-        return static::getInstance()->keyvals($keys, $uniq, $recursive);
-    }
-
-    /**
-     * @param int|string|array $keys
-     * @param null|bool        $uniq
-     * @param null|bool        $recursive
-     *
-     * @return string[]
-     */
-    public static function theKeyvals($keys, bool $uniq = null, bool $recursive = null): array
-    {
-        return static::getInstance()->theKeyvals($keys, $uniq, $recursive);
-    }
-
-    /**
-     * @param array        $src
-     * @param string|array $path
+     * @param array|mixed ...$values
      *
      * @return array
      */
-    public static function del(array $src, ...$path): ?array
+    public static function listval(...$values): array
     {
-        return static::getInstance()->del($src, ...$path);
+        return static::getInstance()->listval(...$values);
     }
 
     /**
-     * @param array        $src
-     * @param string|array $path
+     * @param array|mixed ...$lists
      *
-     * @return bool
+     * @return array
      */
-    public static function delete(array &$src, ...$path): bool
+    public static function listvalEach(...$lists): array
     {
-        return static::getInstance()->delete($src, ...$path);
+        return static::getInstance()->listvalEach(...$lists);
     }
 
     /**
-     * @param null|array   $dst
-     * @param string|array $path
-     * @param mixed        $value
+     * @param array|mixed ...$enums
      *
-     * @return mixed
+     * @return array
      */
-    public static function &put(?array &$dst, $path, $value)
+    public static function enumval(...$enums): array
     {
-        return static::getInstance()->put($dst, $path, $value);
+        return static::getInstance()->enumval(...$enums);
+    }
+
+    /**
+     * @param array|mixed ...$enums
+     *
+     * @return array
+     */
+    public static function enumvalEach(...$enums): array
+    {
+        return static::getInstance()->enumvalEach(...$enums);
     }
 
     /**
@@ -208,38 +368,27 @@ class Arr
     }
 
     /**
-     * @param string|string[]|array $separators
-     * @param string|string[]|array ...$keys
+     * @param int|string|array $keys
+     * @param null|bool        $uniq
+     * @param null|bool        $recursive
      *
-     * @return string
+     * @return string[]
      */
-    public static function index($separators = '.', ...$keys): string
+    public static function keyvals($keys, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->index($separators, ...$keys);
+        return static::getInstance()->keyvals($keys, $uniq, $recursive);
     }
 
     /**
-     * возвращает индекс любого числа аргументов для создания поиска по массивам
+     * @param int|string|array $keys
+     * @param null|bool        $uniq
+     * @param null|bool        $recursive
      *
-     * @param mixed ...$values
-     *
-     * @return string
+     * @return string[]
      */
-    public static function indexed(...$values): string
+    public static function theKeyvals($keys, bool $uniq = null, bool $recursive = null): array
     {
-        return static::getInstance()->indexed(...$values);
-    }
-
-    /**
-     * в функцию array_intersect_key требуются ключи. можно делать array_flip(), а так будет производительнее
-     *
-     * @param array $array
-     *
-     * @return array
-     */
-    public static function clear(array $array): array
-    {
-        return static::getInstance()->clear($array);
+        return static::getInstance()->theKeyvals($keys, $uniq, $recursive);
     }
 
     /**
@@ -265,14 +414,46 @@ class Arr
     }
 
     /**
+     * очищает указанные ключи в массиве. если не передать ключи - очистит все
+     *
      * @param array                 $array
      * @param string|string[]|array ...$keys
      *
      * @return array
      */
-    public static function drop(array $array, ...$keys)
+    public static function drop(array $array, ...$keys): array
     {
         return static::getInstance()->drop($array, ...$keys);
+    }
+
+    /**
+     * возвращает срез массива по числовым порядковым номерам элементов $arr = [ 1, 2, 3, 4 ] -> $arr[-3:2] -> [ 1 ]
+     *
+     * @param array     $array
+     * @param int       $start
+     * @param null|int  $end
+     * @param bool|null $preserveKeys
+     *
+     * @return array
+     */
+    public static function slicePos(array $array, int $start, int $end = null, bool $preserveKeys = null): array
+    {
+        return static::getInstance()->slicePos($array, $start, $end, $preserveKeys);
+    }
+
+    /**
+     * возвращает срез массива по числовым порядковым номерам элементов, изменяя сам массив $arr = [ 1, 2, 3, 4 ] -> $arr[-3:2] -> [ 1 ]
+     *
+     * @param array    $array
+     * @param int      $start
+     * @param null|int $end
+     * @param mixed    $replacement
+     *
+     * @return array
+     */
+    public static function splicePos(array &$array, int $start, int $end = null, $replacement = null): array
+    {
+        return static::getInstance()->splicePos($array, $start, $end, $replacement);
     }
 
     /**
@@ -293,24 +474,131 @@ class Arr
      * array_combine + array_map
      *
      * @param string|array $keys
-     * @param iterable     $collection
+     * @param iterable     $it
      * @param null|bool    $drop
      *
      * @return array
      */
-    public static function combineMap(array $keys, iterable $collection, bool $drop = null): array
+    public static function combineMap(array $keys, iterable $it, bool $drop = null): array
     {
-        return static::getInstance()->combineMap($keys, $collection, $drop);
+        return static::getInstance()->combineMap($keys, $it, $drop);
     }
 
     /**
-     * @param array $arr
+     * возвращает массив без повторов
      *
-     * @return void
+     * @param mixed ...$values
+     *
+     * @return array
      */
-    public static function reverse(array &$arr): void
+    public static function unique(...$values): array
     {
-        static::getInstance()->reverse($arr);
+        return static::getInstance()->unique(...$values);
+    }
+
+    /**
+     * возвращает массив без повторов, в каждом
+     *
+     * @param mixed ...$arrays
+     *
+     * @return array
+     */
+    public static function uniqueEach(...$arrays): array
+    {
+        return static::getInstance()->uniqueEach(...$arrays);
+    }
+
+    /**
+     * возвращает дубликаты во входящем массиве
+     *
+     * @param array|mixed ...$values
+     *
+     * @return array
+     */
+    public static function duplicates(...$values): array
+    {
+        return static::getInstance()->duplicates(...$values);
+    }
+
+    /**
+     * возвращает дубликаты во входящем массиве, в каждом
+     *
+     * @param array|mixed ...$arrays
+     *
+     * @return array
+     */
+    public static function duplicatesEach(...$arrays): array
+    {
+        return static::getInstance()->duplicatesEach(...$arrays);
+    }
+
+    /**
+     * distinct это unique() с сохранением ключей
+     *
+     * @param array|mixed ...$values
+     *
+     * @return array
+     */
+    public static function distinct(...$values): array
+    {
+        return static::getInstance()->distinct(...$values);
+    }
+
+    /**
+     * distinct это unique() с сохранением ключей, в каждом
+     *
+     * @param array|mixed ...$arrays
+     *
+     * @return array
+     */
+    public static function distinctEach(...$arrays): array
+    {
+        return static::getInstance()->distinctEach(...$arrays);
+    }
+
+    /**
+     * array_walk_recursive реализованный через стек и позволяющий получить путь до элемента
+     *
+     * @param array     $array
+     * @param null|bool $childrenFirst
+     * @param null|bool $withParents
+     * @param null|bool $withRoot
+     *
+     * @return \Generator
+     */
+    public static function &walk(
+        array &$array,
+        bool $childrenFirst = null,
+        bool $withParents = null,
+        bool $withRoot = null
+    ): \Generator {
+        foreach (static::getInstance()->walk($array, $childrenFirst, $withParents, $withRoot) as $ref) {
+            yield $ref;
+        }
+    }
+
+    /**
+     * array_walk_recursive реализованный через стек и позволяющий получить путь до элемента
+     * позволяет остановить проход вглубь $gen->push(false), если обработка уровня закончена, а также обходить "только родителей"
+     *
+     * @param array     $array
+     * @param null|bool $withChildren
+     * @param null|bool $withParents
+     * @param null|bool $withRoot
+     * @param null|bool $continue
+     *
+     * @return \Generator
+     */
+    public static function &walkeach(
+        array &$array,
+        bool &$continue = null,
+        bool $withChildren = null,
+        bool $withParents = null,
+        bool $withRoot = null
+    ): \Generator {
+        foreach (static::getInstance()->walkeach($array, $continue, $withChildren, $withParents, $withRoot) as $ref) {
+            yield $ref;
+        }
     }
 
     /**
@@ -322,66 +610,69 @@ class Arr
      *
      * @return array
      */
-    public static function zip(array $array, ...$arrays): array
+    public static function zip(array $array, array ...$arrays): array
     {
         return static::getInstance()->zip($array, ...$arrays);
     }
 
     /**
-     * разбивает массив на два по указанному булеву критерию
+     * разбивает на два по указанному критерию
      *
      * @param array         $array
-     * @param callable|null $func
+     * @param callable|null $condition
      *
      * @return array
      */
-    public static function partition(array $array, callable $func = null): array
+    public static function two(array $array, callable $condition = null): array
     {
-        return static::getInstance()->partition($array, $func);
+        return static::getInstance()->two($array, $condition);
     }
 
     /**
-     * разбивает массив на группированный список и остаток, замыкание должно возвращать имя группы
+     * разбивает на группированный список и остаток, замыкание должно возвращать имя группы
      *
      * @param array         $array
-     * @param \Closure|null $func
+     * @param \Closure|null $fnGroupName
      *
      * @return array
      */
-    public static function group(array $array, \Closure $func = null): array
+    public static function group(array $array, \Closure $fnGroupName = null): array
     {
-        return static::getInstance()->group($array, $func);
+        return static::getInstance()->group($array, $fnGroupName);
     }
 
     /**
      * рекурсивно собирает массив в одноуровневый соединяя ключи через разделитель
-     * пустые массивы пропускаются
      *
-     * @param iterable              $iterable
+     * @param array                 $array
      * @param string|string[]|array $separators
      *
      * @return array
      */
-    public static function dot(iterable $iterable, $separators = '.'): array
+    public static function dot(array $array, $separators = '.'): array
     {
-        return static::getInstance()->dot($iterable, $separators);
+        return static::getInstance()->dot($array, $separators);
     }
 
     /**
      * рекурсивно собирает массив в одноуровневый соединяя ключи через разделитель
-     * пустые массивы и цифровые ключи на последнем уровне остаются массивами
+     * если нет потомков - выводим
+     * если потомок - пустой массив - выводим
+     * если массив потомков содержит цифровой ключ - обработка ветки останавливается и выводим
      *
-     * @param iterable              $iterable
+     * @param array                 $array
      * @param string|string[]|array $separators
      *
      * @return array
      */
-    public static function dotarr(iterable $iterable, $separators = '.'): array
+    public static function dotarr(array $array, $separators = '.'): array
     {
-        return static::getInstance()->dotarr($iterable, $separators);
+        return static::getInstance()->dotarr($array, $separators);
     }
 
     /**
+     * превращает массив из dot-нотации во вложенный
+     *
      * @param array                 $data
      * @param string|string[]|array $separators
      *
@@ -393,78 +684,51 @@ class Arr
     }
 
     /**
-     * @param array    $array
-     * @param null|int $mode
+     * Вставляет элемент в указанную позиции по номеру (начиная с 0), изменяя числовые индексы существующих элементов
      *
-     * @return \Generator
-     */
-    public static function walk(array $array, int $mode = null): \Generator
-    {
-        yield from static::getInstance()->walk($array, $mode);
-    }
-
-    /**
-     * @param iterable $iterable
-     * @param null|int $mode
-     * @param null|int $flags
-     *
-     * @return \Generator
-     */
-    public static function crawl(iterable $iterable, int $mode = null, int $flags = null): \Generator
-    {
-        yield from static::getInstance()->crawl($iterable, $mode, $flags);
-    }
-
-    /**
-     * @param array    $array
-     * @param callable $callback
-     * @param mixed    ...$args
-     *
-     * @return ZArr
-     */
-    public static function walk_recursive(array &$array, $callback, ...$args)
-    {
-        return static::getInstance()->walk_recursive($array, $callback, ...$args);
-    }
-
-    /**
-     * @param array    $iterable
-     * @param callable $callback
-     * @param mixed    ...$args
-     *
-     * @return ZArr
-     */
-    public static function crawl_recursive(iterable $iterable, $callback, ...$args)
-    {
-        return static::getInstance()->crawl_recursive($iterable, $callback, ...$args);
-    }
-
-    /**
-     * @param array $dst
-     * @param int   $expandIdx
-     * @param mixed $expandValue
+     * @param array       $array
+     * @param int         $pos
+     * @param mixed       $value
+     * @param null|string $key
      *
      * @return array
      */
-    public static function expand(array $dst, int $expandIdx, $expandValue): array
+    public static function expand(array $array, int $pos, $value, string $key = null): array
     {
-        return static::getInstance()->expand($dst, $expandIdx, $expandValue);
+        return static::getInstance()->expand($array, $pos, $value, $key);
     }
 
     /**
-     * Вставляет элементы в указанные позиции по индексам, изменяя числовые индексы существующих элементов
+     * Вставляет элементы в указанные позиции (начиная с 0), изменяя числовые индексы существующих элементов
      *
-     * Механизм применяется в dran-n-drop элементов списка при пользовательской сортировке
-     * и в инжекторе зависимостей, чтобы между переданными параметрами воткнуть свой
+     * @param array           $array
+     * @param null|int|string $after
+     * @param mixed           $val
+     * @param null|string     $key
+     * @param null|bool       $strict
      *
-     * @param array   $dst
+     * @return array
+     */
+    public static function expandAfter(array $array, $after, $val, string $key = null, bool $strict = null): array
+    {
+        return static::getInstance()->expandAfter($array, $after, $val, $key, $strict);
+    }
+
+    /**
+     * Вставляет элементы в указанные позиции (начиная с 0), изменяя числовые индексы существующих элементов
+     *
+     * Механизм применяется
+     * - в dran-n-drop элементов списка при пользовательской сортировке
+     * - в инжекторе зависимостей, чтобы между переданными параметрами воткнуть свой
+     *
+     * @param array   $array
      * @param array[] ...$expands
      *
      * @return array
      */
-    public static function expandMany(array $dst, array ...$expands): array
+    public static function expandMany(array $array, array ...$expands): array
     {
-        return static::getInstance()->expandMany($dst, ...$expands);
+        return static::getInstance()->expandMany($array, ...$expands);
     }
 
     /**

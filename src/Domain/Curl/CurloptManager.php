@@ -2,8 +2,7 @@
 
 namespace Gzhegow\Support\Domain\Curl;
 
-use Gzhegow\Support\IPhp;
-use Gzhegow\Support\IFilter;
+use Gzhegow\Support\Traits\Load\PhpLoadTrait;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
@@ -12,14 +11,8 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
  */
 class CurloptManager implements CurloptManagerInterface
 {
-    /**
-     * @var IFilter
-     */
-    protected $filter;
-    /**
-     * @var IPhp
-     */
-    protected $php;
+    use PhpLoadTrait;
+
 
     /**
      * @var array
@@ -29,22 +22,6 @@ class CurloptManager implements CurloptManagerInterface
      * @var array
      */
     protected $curlinfoCodes;
-
-
-    /**
-     * Constructor
-     *
-     * @param IFilter $filter
-     * @param IPhp    $php
-     */
-    public function __construct(
-        IFilter $filter,
-        IPhp $php
-    )
-    {
-        $this->filter = $filter;
-        $this->php = $php;
-    }
 
 
     /**
@@ -76,11 +53,13 @@ class CurloptManager implements CurloptManagerInterface
         $result = [];
         $resultHeaders = [];
 
-        [ $kwargs, $args ] = $this->php->kwparams(...$curloptArrays);
+        [ $kwargs, $args ] = $this->getPhp()->kwargsPreserveKeys(...$curloptArrays);
 
         foreach ( $kwargs as $curlopt => $val ) {
             if (null === ( $curloptCode = $this->curloptCodeVal($curlopt) )) {
-                throw new InvalidArgumentException('Invalid CURL option: ' . $curlopt);
+                throw new InvalidArgumentException(
+                    'Invalid CURL option: ' . $curlopt
+                );
             }
 
             ( $curloptCode === CURLOPT_HTTPHEADER )
@@ -90,7 +69,9 @@ class CurloptManager implements CurloptManagerInterface
 
         foreach ( $args as $curlopt => $val ) {
             if (null === ( $curloptCode = $this->curloptCodeVal($curlopt) )) {
-                throw new InvalidArgumentException('Invalid CURL option: ' . $curlopt);
+                throw new InvalidArgumentException(
+                    'Invalid CURL option: ' . $curlopt
+                );
             }
 
             ( $curloptCode === CURLOPT_HTTPHEADER )
@@ -152,7 +133,7 @@ class CurloptManager implements CurloptManagerInterface
         if (is_string($curlinfoCode)) {
             $val = $this->getCurlinfoNames()[ $curlinfoCode ] ?? null;
 
-        } elseif (null !== $this->filter->filterInt($curlinfoCode)) {
+        } elseif (is_int($curlinfoCode)) {
             $curlinfoCodes = $this->getCurlinfoCodes();
 
             if (isset($curlinfoCodes[ $curlinfoCode ])) {
@@ -175,7 +156,7 @@ class CurloptManager implements CurloptManagerInterface
         if (is_string($curloptCode)) {
             $val = $this->getCurloptNames()[ $curloptCode ] ?? null;
 
-        } elseif (null !== $this->filter->filterInt($curloptCode)) {
+        } elseif (is_int($curloptCode)) {
             $curloptCodes = $this->getCurloptCodes();
 
             if (isset($curloptCodes[ $curloptCode ])) {

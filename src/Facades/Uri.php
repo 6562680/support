@@ -14,106 +14,125 @@ namespace Gzhegow\Support\Facades;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\IUri;
 use Gzhegow\Support\SupportFactory;
-use Gzhegow\Support\ZUri;
+use Gzhegow\Support\Traits\Load\ArrLoadTrait;
+use Gzhegow\Support\XUri;
 
 class Uri
 {
     /**
-     * Compares links, allows to create `active` buttons if urls match
-     *
-     * @param null|string $link
-     *
-     * @param null|string $needle
-     * @param null|array  $needleQuery
-     * @param null|string $needleRef
-     *
-     * @param null|bool   $strict
-     * @param null|bool   $strictQuery
-     * @param null|bool   $strictRef
+     * @param string    $regex
+     * @param null|bool $absolute
      *
      * @return bool
      */
-    public static function isLinkMatch(
-        string $link,
-        string $needle = null,
-        array $needleQuery = null,
-        string $needleRef = null,
-        bool $strict = null,
-        bool $strictQuery = null,
-        bool $strictRef = null
-    ): bool {
-        return static::getInstance()->isLinkMatch($link, $needle, $needleQuery, $needleRef, $strict, $strictQuery, $strictRef);
+    public static function isUrlCurrent(string $regex, bool $absolute = null): bool
+    {
+        return static::getInstance()->isUrlCurrent($regex, $absolute);
     }
 
     /**
-     * Compares urls, allows to create `active` buttons if urls match
+     * @param string $url
+     * @param string $needle
      *
+     * @return bool
+     */
+    public static function isUrlMatch(string $url, string $needle): bool
+    {
+        return static::getInstance()->isUrlMatch($url, $needle);
+    }
+
+    /**
+     * @param string|mixed $value
+     *
+     * @return null|string
+     */
+    public static function filterLink($value): ?string
+    {
+        return static::getInstance()->filterLink($value);
+    }
+
+    /**
+     * @param string|mixed $value
+     *
+     * @return null|string
+     */
+    public static function filterUrl($value): ?string
+    {
+        return static::getInstance()->filterUrl($value);
+    }
+
+    /**
+     * @param string|null       $url
+     * @param bool|string|array $q
+     * @param bool|string|null  $ref
+     *
+     * @return string
+     */
+    public static function link(string $url = null, $q = null, $ref = null): string
+    {
+        return static::getInstance()->link($url, $q, $ref);
+    }
+
+    /**
+     * @param string|null       $url
+     * @param bool|string|array $q
+     * @param bool|string|null  $ref
+     *
+     * @return string
+     */
+    public static function url(string $url = null, $q = null, $ref = null): string
+    {
+        return static::getInstance()->url($url, $q, $ref);
+    }
+
+    /**
      * @param null|string $url
      *
-     * @param null|string $needle
-     * @param null|array  $needleQuery
-     * @param null|string $needleRef
-     *
-     * @param null|bool   $strict
-     * @param null|bool   $strictQuery
-     * @param null|bool   $strictRef
-     *
-     * @return bool
+     * @return array
      */
-    public static function isUrlMatch(
-        string $url,
-        string $needle = null,
-        array $needleQuery = null,
-        string $needleRef = null,
-        bool $strict = null,
-        bool $strictQuery = null,
-        bool $strictRef = null
-    ): bool {
-        return static::getInstance()->isUrlMatch($url, $needle, $needleQuery, $needleRef, $strict, $strictQuery, $strictRef);
+    public static function parseUrl(string $url = null): array
+    {
+        return static::getInstance()->parseUrl($url);
     }
 
     /**
-     * @param mixed ...$items
+     * @param string|array ...$queries
      *
      * @return array
      */
-    public static function query(...$items): array
+    public static function parseQuery(...$queries): array
     {
-        return static::getInstance()->query(...$items);
+        return static::getInstance()->parseQuery(...$queries);
     }
 
     /**
-     * @param string $uri
-     *
-     * @return array
-     */
-    public static function linkinfo(string $uri): array
-    {
-        return static::getInstance()->linkinfo($uri);
-    }
-
-    /**
-     * @param string|null $link
-     * @param null|array  $query
-     * @param string|null $fragment
+     * @param array $parseUrlResult
      *
      * @return string
      */
-    public static function url(string $link = null, array $query = null, string $fragment = null): string
+    public static function buildLink(array $parseUrlResult): string
     {
-        return static::getInstance()->url($link, $query, $fragment);
+        return static::getInstance()->buildLink($parseUrlResult);
     }
 
     /**
-     * @param string|null $link
-     * @param null|array  $query
-     * @param string|null $fragment
+     * @param array $parseUrlResult
      *
      * @return string
      */
-    public static function link(string $link = null, array $query = null, string $fragment = null): string
+    public static function buildUrl(array $parseUrlResult): string
     {
-        return static::getInstance()->link($link, $query, $fragment);
+        return static::getInstance()->buildUrl($parseUrlResult);
+    }
+
+    /**
+     * @param array $parseQueryResult
+     *
+     * @return string
+     */
+    public static function buildQuery(array $parseQueryResult): ?string
+    {
+        return static::getInstance()->buildQuery($parseQueryResult);
     }
 
     /**

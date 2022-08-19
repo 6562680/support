@@ -2,9 +2,9 @@
 
 namespace Gzhegow\Support\Tests;
 
-use Gzhegow\Support\ZCmp;
+use Gzhegow\Support\XCmp;
 use Gzhegow\Support\ICmp;
-use Gzhegow\Support\ZCalendar;
+use Gzhegow\Support\XCalendar;
 use Gzhegow\Support\ICalendar;
 
 
@@ -12,13 +12,13 @@ class CmpTest extends AbstractTestCase
 {
     protected function getCmp() : ICmp
     {
-        return ZCmp::getInstance();
+        return XCmp::getInstance();
     }
 
 
     protected function getCalendar() : ICalendar
     {
-        return ZCalendar::getInstance();
+        return XCalendar::getInstance();
     }
 
 

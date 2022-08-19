@@ -13,20 +13,44 @@ namespace Gzhegow\Support\Facades;
 
 use Gzhegow\Support\IFormat;
 use Gzhegow\Support\SupportFactory;
-use Gzhegow\Support\ZFormat;
+use Gzhegow\Support\XFormat;
 
 class Format
 {
     /**
-     * конвертирует цифру размера в читабельный формат (1024 => 1Mb)
+     * Форматирует размер в байтах в читаемый формат
      *
-     * @param int|float|string $filesize
+     * @param int $bytesize
      *
      * @return string
      */
-    public static function textFilesize($filesize): string
+    public static function byteText(int $bytesize)
     {
-        return static::getInstance()->textFilesize($filesize);
+        return static::getInstance()->byteText($bytesize);
+    }
+
+    /**
+     * Форматирует читаемый формат в размер в байтах
+     *
+     * @param string $bytetext
+     *
+     * @return float|int
+     */
+    public static function byteSize(string $bytetext)
+    {
+        return static::getInstance()->byteSize($bytetext);
+    }
+
+    /**
+     * Вычищает из JSON комментарии и лишние пустые строки
+     *
+     * @param string $json
+     *
+     * @return string
+     */
+    public static function jsonClear(string $json): string
+    {
+        return static::getInstance()->jsonClear($json);
     }
 
     /**

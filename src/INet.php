@@ -12,6 +12,7 @@
 namespace Gzhegow\Support;
 
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+use Gzhegow\Support\Traits\Load\StrLoadTrait;
 
 interface INet
 {
