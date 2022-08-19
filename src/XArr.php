@@ -1018,16 +1018,17 @@ class XArr implements IArr
         }
 
         $args = [];
+        $kwargs = [];
         foreach ( $values as $i => $v ) {
-            if (is_int($i)) {
-                $args[ $i ] = $v;
-            }
+            is_int($i)
+                ? ( $args[ $i ] = $v )
+                : ( $kwargs[ $i ] = $v );
         }
 
         $result = [];
         foreach ( $keys as $key ) {
-            if (array_key_exists($key, $values)) {
-                $result[ $key ] = $values[ $key ];
+            if (array_key_exists($key, $kwargs)) {
+                $result[ $key ] = $kwargs[ $key ];
 
             } elseif ($args) {
                 unset($values[ key($args) ]);
@@ -1040,7 +1041,7 @@ class XArr implements IArr
         }
 
         if (! $drop) {
-            $diff = array_diff_key($values, $result);
+            $diff = array_diff_key($kwargs, $result);
 
             foreach ( $diff as $key => $val ) {
                 $result[ $key ] = $val;

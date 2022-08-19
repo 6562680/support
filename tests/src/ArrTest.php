@@ -677,13 +677,71 @@ class ArrTest extends AbstractTestCase
         $arr = $this->getArr();
 
         $this->assertEquals([ 1 => 1 ], $arr->combine([ 1 ], 1));
-        $this->assertEquals([ 1 => 1 ], $arr->combine([ 1 ], [ 1, 2 ]));
-
         $this->assertEquals([ 1 => 1, 2 => 1 ], $arr->combine([ 1, 2 ], 1));
+        $this->assertEquals([ 1 => 1 ], $arr->combine([ 1 ], [ 1, 2 ]));
         $this->assertEquals([ 1 => 1, 2 => 2 ], $arr->combine([ 1, 2 ], [ 1, 2 ]));
+
+        $this->assertEquals([ 'foo' => 1 ], $arr->combine([ 'foo' ], 1));
+        $this->assertEquals([ 'foo' => 1, 'bar' => 1 ], $arr->combine([ 'foo', 'bar' ], 1));
+        $this->assertEquals([ 'foo' => 1 ], $arr->combine([ 'foo' ], [ 1, 2 ]));
+        $this->assertEquals([ 'foo' => 1, 'bar' => 2 ], $arr->combine([ 'foo', 'bar' ], [ 1, 2 ]));
+
+        $this->assertEquals([ 'foo' => 1 ], $arr->combine([ 'foo' ], [ 'foo' => 1, 2 ]));
+        $this->assertEquals([ 'foo' => 1 ], $arr->combine([ 'foo' ], [ 'foo' => 1, 2 ], true));
+
+        $this->assertEquals([ 'foo' => 1, 'bar' => 2 ], $arr->combine([ 'foo' ], [ 1, 'bar' => 2 ]));
+        $this->assertEquals([ 'foo' => 1 ], $arr->combine([ 'foo' ], [ 1, 'bar' => 2 ], true));
+
+        $this->assertEquals([ 'foo' => 1, 'bar' => 2 ], $arr->combine([ 'foo' ], [ 'foo' => 1, 'bar' => 2 ]));
+        $this->assertEquals([ 'foo' => 1 ], $arr->combine([ 'foo' ], [ 'foo' => 1, 'bar' => 2 ], true));
+
+        $this->assertEquals([ 'foo' => 1, 'bar' => 2 ], $arr->combine([ 'foo', 'bar' ], [ 1, 2 ]));
+        $this->assertEquals([ 'foo' => 1, 'bar' => 2 ], $arr->combine([ 'foo', 'bar' ], [ 'foo' => 1, 2 ]));
+        $this->assertEquals([ 'foo' => 1, 'bar' => 2 ], $arr->combine([ 'foo', 'bar' ], [ 1, 'bar' => 2 ]));
+        $this->assertEquals([ 'foo' => 1, 'bar' => 2 ], $arr->combine([ 'foo', 'bar' ], [ 'foo' => 1, 'bar' => 2 ]));
 
         $this->assertEquals([ 1 => 1, 2 => 1, 3 => 1 ], $arr->combine([ 1, 2, 3 ], 1));
         $this->assertEquals([ 1 => 1, 2 => 2, 3 => null ], $arr->combine([ 1, 2, 3 ], [ 1, 2 ]));
+    }
+
+    public function testCombineMap()
+    {
+        $arr = $this->getArr();
+
+        $this->assertEquals([
+            [
+                1     => 1,
+                2     => 1,
+                "foo" => 1,
+                "bar" => 1,
+            ],
+            [
+                1     => 1,
+                2     => 2,
+                "foo" => null,
+                "bar" => null,
+            ],
+            [
+                1     => 1,
+                2     => 2,
+                "foo" => 1,
+                "bar" => null,
+            ],
+            [
+                1     => 1,
+                2     => 2,
+                "foo" => 1,
+                "bar" => 2,
+            ],
+        ], $arr->combineMap(
+            [ 1, 2, 'foo', 'bar' ],
+            [
+                1,
+                [ 1, 2 ],
+                [ 1, 2, 'foo' => 1 ],
+                [ 1, 2, 'foo' => 1, 'bar' => 2 ],
+            ]
+        ));
     }
 
 
