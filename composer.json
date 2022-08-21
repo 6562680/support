@@ -35,6 +35,8 @@
     "symfony/translation-contracts": "^2.0",
     "symfony/var-dumper": "^5.0",
     
+    "monolog/monolog": "^2.0",
+    
     "nette/php-generator": "^3.0",
     "nikic/php-parser": "^4.0"
   },

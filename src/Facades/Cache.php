@@ -20,7 +20,7 @@ use Gzhegow\Support\XCache;
 class Cache
 {
     /**
-     * @return \Psr\Cache\CacheItemPoolInterface[]
+     * @return XCache[]|\Psr\Cache\CacheItemPoolInterface[]
      */
     public static function getPools(): array
     {
@@ -30,7 +30,7 @@ class Cache
     /**
      * @param string $poolName
      *
-     * @return \Psr\Cache\CacheItemPoolInterface
+     * @return XCache|\Psr\Cache\CacheItemPoolInterface
      */
     public static function getPool(string $poolName): object
     {
@@ -71,7 +71,7 @@ class Cache
     }
 
     /**
-     * @param null|array $pools
+     * @param null|static[]|\Psr\Cache\CacheItemPoolInterface[] $pools
      *
      * @return void
      */
@@ -81,8 +81,8 @@ class Cache
     }
 
     /**
-     * @param string                                   $poolName
-     * @param object|\Psr\Cache\CacheItemPoolInterface $pool
+     * @param string                                          $poolName
+     * @param object|static|\Psr\Cache\CacheItemPoolInterface $pool
      *
      * @return void
      */
@@ -94,7 +94,7 @@ class Cache
     /**
      * @param null|string $poolName
      *
-     * @return null|object|\Psr\Cache\CacheItemPoolInterface
+     * @return null|object|static|\Psr\Cache\CacheItemPoolInterface
      */
     public static function selectPool(?string $poolName): ?object
     {

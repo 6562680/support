@@ -578,7 +578,7 @@ class Fs
     }
 
     /**
-     * возвращает массив [ drive, relpath ] где drive это 'C:\', 'C:/', '\\', '/', '' или '~',
+     * возвращает массив [ drive, relpath ] где drive это 'C:\', 'C:/', '\\', '/', '~' или '',
      *
      * @param string $path
      *

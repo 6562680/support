@@ -25,14 +25,6 @@ use Gzhegow\Support\XStr;
 class Str
 {
     /**
-     * @return ICache
-     */
-    public static function loadCache(): \Gzhegow\Support\ICache
-    {
-        return static::getInstance()->loadCache();
-    }
-
-    /**
      * @return string
      */
     public static function loadTrims(): string

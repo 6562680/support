@@ -57,31 +57,6 @@ class XStr implements IStr
 
 
     /**
-     * @return ICache
-     */
-    public function loadCache() : ICache
-    {
-        $commands = [
-            'composer require symfony/cache',
-        ];
-
-        if (! class_exists($class = static::SYMFONY_CACHE_ARRAY_ADAPTER)) {
-            throw new RuntimeException([
-                'Please, run following: %s',
-                $commands,
-            ]);
-        }
-
-        $cache = SupportFactory::getInstance()->newCache();
-
-        $cache->addPool($poolName = __CLASS__, new $class());
-        $cache->selectPool($poolName);
-
-        return $cache;
-    }
-
-
-    /**
      * @return string
      */
     public function loadTrims() : string
@@ -207,6 +182,33 @@ class XStr implements IStr
         ];
 
         return $list;
+    }
+
+
+    /**
+     * @return ICache
+     */
+    protected function loadCache() : ICache
+    {
+        $commands = [
+            'composer require symfony/cache',
+        ];
+
+        if (! class_exists($class = static::SYMFONY_CACHE_ARRAY_ADAPTER)) {
+            throw new RuntimeException([
+                'Please, run following: %s',
+                $commands,
+            ]);
+        }
+
+        $cache = SupportFactory::getInstance()->newCache();
+        $cache->addPool($poolName = 'spaceCase', new $class());
+        $cache->selectPool($poolName);
+
+        $root = SupportFactory::getInstance()->getCache();
+        $root->addPool(strtolower(str_replace('\\', '.', __CLASS__)), $cache);
+
+        return $cache;
     }
 
 

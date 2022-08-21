@@ -410,7 +410,7 @@ interface IFs
     public function resolve(...$parts): string;
 
     /**
-     * возвращает массив [ drive, relpath ] где drive это 'C:\', 'C:/', '\\', '/', '' или '~',
+     * возвращает массив [ drive, relpath ] где drive это 'C:\', 'C:/', '\\', '/', '~' или '',
      *
      * @param string $path
      *

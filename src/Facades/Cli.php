@@ -14,13 +14,16 @@ namespace Gzhegow\Support\Facades;
 use Gzhegow\Support\Exceptions\Logic\BadFunctionCallException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\RuntimeException;
+use Gzhegow\Support\Exceptions\Runtime\FilesystemException;
 use Gzhegow\Support\ICli;
 use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\Traits\Load\EnvLoadTrait;
 use Gzhegow\Support\Traits\Load\FsLoadTrait;
+use Gzhegow\Support\Traits\Load\LoggerLoadTrait;
 use Gzhegow\Support\Traits\Load\PhpLoadTrait;
 use Gzhegow\Support\Traits\Load\StrLoadTrait;
 use Gzhegow\Support\XCli;
+use Monolog\Logger;
 
 class Cli
 {
@@ -80,13 +83,13 @@ class Cli
     }
 
     /**
-     * @param string $search
+     * @param string $delimiter
      *
      * @return string
      */
-    public static function cin(string $search = '```'): string
+    public static function cin(string $delimiter = '```'): string
     {
-        return static::getInstance()->cin($search);
+        return static::getInstance()->cin($delimiter);
     }
 
     /**
@@ -138,15 +141,60 @@ class Cli
 
     /**
      * Создает ZIP-архив из папки средствами командной строки
+     * На Windows требует установки 7zip. ZIP-архиваторы чаще установлены у пользователей
      *
-     * @param string $outputPath
-     * @param string ...$pathes
+     * @param string      $zipFilepath
+     * @param null|string $baseDirpath
+     * @param string      ...$pathes
      *
      * @return int
      */
-    public static function zip(string $outputPath, ...$pathes): int
+    public static function zip(string $zipFilepath, string $baseDirpath = null, ...$pathes): int
     {
-        return static::getInstance()->zip($outputPath, ...$pathes);
+        return static::getInstance()->zip($zipFilepath, $baseDirpath, ...$pathes);
+    }
+
+    /**
+     * Распаковывает ZIP-архив средствами командной строки
+     * На Windows требует установки 7zip. ZIP-архиваторы чаще установлены у пользователей
+     *
+     * @param string      $zipFilepath
+     * @param null|string $destDirpath
+     *
+     * @return int
+     */
+    public static function unzip(string $zipFilepath, string $destDirpath = null): int
+    {
+        return static::getInstance()->unzip($zipFilepath, $destDirpath);
+    }
+
+    /**
+     * Создает GZIP-архив из папки средствами командной строки
+     * Tar поставляется в штатной версии Windows 10, чаще установлена у администраторов
+     *
+     * @param string      $tarFilepath
+     * @param null|string $baseDirpath
+     * @param string      ...$pathes
+     *
+     * @return int
+     */
+    public static function tar(string $tarFilepath, string $baseDirpath = null, ...$pathes): int
+    {
+        return static::getInstance()->tar($tarFilepath, $baseDirpath, ...$pathes);
+    }
+
+    /**
+     * Распаковывает GZIP-архив средствами командной строки
+     * Tar поставляется в штатной версии Windows 10, чаще установлена у администраторов
+     *
+     * @param string      $zipFilepath
+     * @param null|string $destDirpath
+     *
+     * @return int
+     */
+    public static function untar(string $zipFilepath, string $destDirpath = null): int
+    {
+        return static::getInstance()->untar($zipFilepath, $destDirpath);
     }
 
     /**

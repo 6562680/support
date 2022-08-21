@@ -17,14 +17,14 @@ use Gzhegow\Support\Exceptions\RuntimeException;
 interface ICache
 {
     /**
-     * @return \Psr\Cache\CacheItemPoolInterface[]
+     * @return XCache[]|\Psr\Cache\CacheItemPoolInterface[]
      */
     public function getPools(): array;
 
     /**
      * @param string $poolName
      *
-     * @return \Psr\Cache\CacheItemPoolInterface
+     * @return XCache|\Psr\Cache\CacheItemPoolInterface
      */
     public function getPool(string $poolName): object;
 
@@ -53,15 +53,15 @@ interface ICache
     public function hasItem($key);
 
     /**
-     * @param null|array $pools
+     * @param null|static[]|\Psr\Cache\CacheItemPoolInterface[] $pools
      *
      * @return void
      */
     public function setPools(?array $pools);
 
     /**
-     * @param string                                   $poolName
-     * @param object|\Psr\Cache\CacheItemPoolInterface $pool
+     * @param string                                          $poolName
+     * @param object|static|\Psr\Cache\CacheItemPoolInterface $pool
      *
      * @return void
      */
@@ -70,7 +70,7 @@ interface ICache
     /**
      * @param null|string $poolName
      *
-     * @return null|object|\Psr\Cache\CacheItemPoolInterface
+     * @return null|object|static|\Psr\Cache\CacheItemPoolInterface
      */
     public function selectPool(?string $poolName): ?object;
 

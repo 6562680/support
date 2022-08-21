@@ -42,5 +42,5 @@ trait CacheLoadTrait
     /**
      * @return ICache
      */
-    abstract public function loadCache() : ICache;
+    abstract protected function loadCache() : ICache;
 }

@@ -5,7 +5,7 @@ namespace Gzhegow\Support;
 use Gzhegow\Support\Exceptions\Exception;
 use Gzhegow\Support\Traits\Load\ArrLoadTrait;
 use Gzhegow\Support\Traits\Load\DebugLoadTrait;
-use Gzhegow\Support\Exceptions\RuntimeException;
+use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
 /**
@@ -21,17 +21,17 @@ class XLogger implements ILogger
 
 
     /**
-     * @var \Psr\Log\LoggerInterface[]
+     * @var static[]|\Psr\Log\LoggerInterface[]
      */
     protected $channels = [];
     /**
-     * @var \Psr\Log\LoggerInterface
+     * @var static|\Psr\Log\LoggerInterface
      */
     protected $channel;
 
 
     /**
-     * @return \Psr\Log\LoggerInterface[]
+     * @return static[]|\Psr\Log\LoggerInterface[]
      */
     public function getChannels() : array
     {
@@ -41,7 +41,7 @@ class XLogger implements ILogger
     /**
      * @param string $channelName
      *
-     * @return \Psr\Log\LoggerInterface
+     * @return static|\Psr\Log\LoggerInterface
      */
     public function getChannel(string $channelName) : object
     {
@@ -58,7 +58,7 @@ class XLogger implements ILogger
 
 
     /**
-     * @param null|array $channels
+     * @param null|static[]|\Psr\Log\LoggerInterface[] $channels
      *
      * @return void
      */
@@ -73,8 +73,8 @@ class XLogger implements ILogger
 
 
     /**
-     * @param string                          $channelName
-     * @param object|\Psr\Log\LoggerInterface $channel
+     * @param string                                 $channelName
+     * @param object|static|\Psr\Log\LoggerInterface $channel
      *
      * @return void
      */
@@ -84,8 +84,17 @@ class XLogger implements ILogger
             throw new \InvalidArgumentException('The `channelName` should be non-empty string');
         }
 
-        if (! is_a($channel, $interface = static::PSR_LOGGER_INTERFACE)) {
-            throw new RuntimeException('The `channel` should implements ' . $interface);
+        $interface = static::PSR_LOGGER_INTERFACE;
+
+        if (! (false
+            || is_a($channel, static::class)
+            || is_a($channel, $interface)
+        )) {
+            throw new InvalidArgumentException([
+                'The `channel` should extends/implements one of: %s / %s',
+                $channel,
+                [ static::class, $interface ],
+            ]);
         }
 
         if (isset($this->channels[ $channelName ])) {
@@ -99,7 +108,7 @@ class XLogger implements ILogger
     /**
      * @param null|string $channelName
      *
-     * @return null|object|\Psr\Log\LoggerInterface
+     * @return null|object|static|\Psr\Log\LoggerInterface
      */
     public function selectChannel(?string $channelName) : ?object
     {

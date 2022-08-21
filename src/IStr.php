@@ -22,11 +22,6 @@ use Gzhegow\Support\Traits\Load\Str\SluggerLoadTrait;
 interface IStr
 {
     /**
-     * @return ICache
-     */
-    public function loadCache(): ICache;
-
-    /**
      * @return string
      */
     public function loadTrims(): string;

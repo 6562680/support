@@ -16,17 +16,17 @@ class XCache implements ICache
 
 
     /**
-     * @var \Psr\Cache\CacheItemPoolInterface[]
+     * @var static[]|\Psr\Cache\CacheItemPoolInterface[]
      */
     protected $pools = [];
     /**
-     * @var \Psr\Cache\CacheItemPoolInterface
+     * @var static|\Psr\Cache\CacheItemPoolInterface
      */
     protected $pool;
 
 
     /**
-     * @return \Psr\Cache\CacheItemPoolInterface[]
+     * @return static[]|\Psr\Cache\CacheItemPoolInterface[]
      */
     public function getPools() : array
     {
@@ -36,7 +36,7 @@ class XCache implements ICache
     /**
      * @param string $poolName
      *
-     * @return \Psr\Cache\CacheItemPoolInterface
+     * @return static|\Psr\Cache\CacheItemPoolInterface
      */
     public function getPool(string $poolName) : object
     {
@@ -117,7 +117,7 @@ class XCache implements ICache
 
 
     /**
-     * @param null|array $pools
+     * @param null|static[]|\Psr\Cache\CacheItemPoolInterface[] $pools
      *
      * @return void
      */
@@ -131,8 +131,8 @@ class XCache implements ICache
     }
 
     /**
-     * @param string                                   $poolName
-     * @param object|\Psr\Cache\CacheItemPoolInterface $pool
+     * @param string                                          $poolName
+     * @param object|static|\Psr\Cache\CacheItemPoolInterface $pool
      *
      * @return void
      */
@@ -142,8 +142,17 @@ class XCache implements ICache
             throw new \InvalidArgumentException('The `poolName` should be non-empty string');
         }
 
-        if (! is_a($pool, $interface = static::PSR_CACHE_ITEM_POOL_INTERFACE)) {
-            throw new RuntimeException('The `pool` should implements ' . $interface);
+        $interface = static::PSR_CACHE_ITEM_POOL_INTERFACE;
+
+        if (! (false
+            || is_a($pool, static::class)
+            || is_a($pool, $interface)
+        )) {
+            throw new RuntimeException([
+                'The `pool` should extends/implements one of: %s / %s',
+                $pool,
+                [ static::class, $interface ],
+            ]);
         }
 
         if (isset($this->pools[ $poolName ])) {
@@ -157,7 +166,7 @@ class XCache implements ICache
     /**
      * @param null|string $poolName
      *
-     * @return null|object|\Psr\Cache\CacheItemPoolInterface
+     * @return null|object|static|\Psr\Cache\CacheItemPoolInterface
      */
     public function selectPool(?string $poolName) : ?object
     {

@@ -72,7 +72,7 @@ class ItertoolsTest extends AbstractTestCase
 
 
         $result = [];
-        foreach ( $itertools->walk([ 1, [ 2, [ 3, [ 4 ] ] ] ]) as $path => $seq ) {
+        foreach ( $itertools->walkeach([ 1, [ 2, [ 3, [ 4 ] ] ] ]) as $path => $seq ) {
             $result[] = [ $path, $seq ];
         }
 
@@ -85,7 +85,7 @@ class ItertoolsTest extends AbstractTestCase
 
 
         $result = [];
-        foreach ( $itertools->walk([ 1, [ 2, [ 3, [ 4 ] ] ] ], $continue, null, true) as $path => $seq ) {
+        foreach ( $itertools->walkeach([ 1, [ 2, [ 3, [ 4 ] ] ] ], $continue, null, true) as $path => $seq ) {
             $result[] = [ $path, $seq ];
         }
 
@@ -101,7 +101,7 @@ class ItertoolsTest extends AbstractTestCase
 
 
         $result = [];
-        foreach ( $itertools->walk([ 1, [ 2, [ 3, [ 4 ] ] ] ], $continue, null, null, true) as $path => $seq ) {
+        foreach ( $itertools->walkeach([ 1, [ 2, [ 3, [ 4 ] ] ] ], $continue, null, null, true) as $path => $seq ) {
             $result[] = [ $path, $seq ];
         }
 
@@ -115,7 +115,7 @@ class ItertoolsTest extends AbstractTestCase
 
 
         $result = [];
-        foreach ( $itertools->walk([ 1, [ 2, [ 3, [ 4 ] ] ] ], $continue, null, true, true) as $path => $seq ) {
+        foreach ( $itertools->walkeach([ 1, [ 2, [ 3, [ 4 ] ] ] ], $continue, null, true, true) as $path => $seq ) {
             $result[] = [ $path, $seq ];
         }
 
@@ -132,7 +132,7 @@ class ItertoolsTest extends AbstractTestCase
 
 
         $result = [];
-        foreach ( $itertools->walk([ [ 1, 1 ], [ [ 2, 2 ], [ [ 3, 3 ], [ 4, 4 ] ] ] ]) as $path => $seq ) {
+        foreach ( $itertools->walkeach([ [ 1, 1 ], [ [ 2, 2 ], [ [ 3, 3 ], [ 4, 4 ] ] ] ]) as $path => $seq ) {
             $result[] = [ $path, $seq ];
         }
 

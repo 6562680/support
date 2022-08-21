@@ -24,6 +24,7 @@ $interfaces = [
     'IFs'        => [ \Gzhegow\Support\XFs::class ],
     'IItertools' => [ \Gzhegow\Support\XItertools::class ],
     'ILoader'    => [ \Gzhegow\Support\XLoader::class ],
+    'ILogger'    => [ \Gzhegow\Support\XLogger::class ],
     'IMath'      => [ \Gzhegow\Support\XMath::class ],
     'INet'       => [ \Gzhegow\Support\XNet::class ],
     'INum'       => [ \Gzhegow\Support\XNum::class ],

@@ -6,11 +6,14 @@
 
 namespace Gzhegow\Support;
 
+use Monolog\Logger;
 use Gzhegow\Support\Traits\Load\FsLoadTrait;
 use Gzhegow\Support\Traits\Load\StrLoadTrait;
 use Gzhegow\Support\Traits\Load\EnvLoadTrait;
 use Gzhegow\Support\Traits\Load\PhpLoadTrait;
 use Gzhegow\Support\Exceptions\RuntimeException;
+use Gzhegow\Support\Traits\Load\LoggerLoadTrait;
+use Gzhegow\Support\Exceptions\Runtime\FilesystemException;
 use Gzhegow\Support\Exceptions\Logic\BadFunctionCallException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
@@ -20,10 +23,41 @@ use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
  */
 class XCli implements ICli
 {
+    const MONOLOG_HANDLER_STREAM_HANDLER = 'Monolog\Handler\StreamHandler';
+
+
     use EnvLoadTrait;
     use FsLoadTrait;
+    use LoggerLoadTrait;
     use PhpLoadTrait;
     use StrLoadTrait;
+
+
+    /**
+     * @return ILogger
+     */
+    protected function loadLogger() : ILogger
+    {
+        $commands = [
+            'composer require monolog/monolog',
+        ];
+
+        if (! class_exists($class = static::MONOLOG_HANDLER_STREAM_HANDLER)) {
+            throw new RuntimeException([
+                'Please, run following: %s',
+                $commands,
+            ]);
+        }
+
+        $logger = SupportFactory::getInstance()->newLogger();
+        $logger->addChannel($channelName = 'stdout', new Logger($channelName, [ new $class('php://stdout') ]));
+        $logger->addChannel($channelName = 'stderr', new Logger($channelName, [ new $class('php://stderr') ]));
+
+        $root = SupportFactory::getInstance()->getLogger();
+        $root->addChannel(strtolower(str_replace('\\', '.', __CLASS__)), $logger);
+
+        return $logger;
+    }
 
 
     /**
@@ -41,7 +75,9 @@ class XCli implements ICli
     public function stop(...$arguments) : void
     {
         if (PHP_SAPI !== 'cli') {
-            throw new BadFunctionCallException('Method should be called in CLI mode: ' . __METHOD__);
+            throw new BadFunctionCallException(
+                'Method should be called in CLI mode: ' . __METHOD__
+            );
         }
 
         $this->pause(...$arguments);
@@ -57,7 +93,9 @@ class XCli implements ICli
     public function pause(...$arguments) : array
     {
         if (PHP_SAPI !== 'cli') {
-            throw new BadFunctionCallException('Method should be called in CLI mode: ' . __METHOD__);
+            throw new BadFunctionCallException(
+                'Method should be called in CLI mode: ' . __METHOD__
+            );
         }
 
         if ($arguments) var_dump(...$arguments);
@@ -92,6 +130,10 @@ class XCli implements ICli
         $theEnv = $this->getEnv();
         $thePhp = $this->getPhp();
 
+        $theLogger = $this->getLogger();
+        $theLoggerStdout = $theLogger->getChannel('stdout');
+        $theLoggerStderr = $theLogger->getChannel('stderr');
+
         $cwd = $cwd ?? getcwd();
         $env = $env ?? $theEnv->getenv();
 
@@ -99,7 +141,9 @@ class XCli implements ICli
             throw new InvalidArgumentException('Cwd should be not empty');
         }
         if (! is_dir($cwd)) {
-            throw new InvalidArgumentException('Cwd directory not exists');
+            throw new InvalidArgumentException([
+                'Directory `cwd` not exists',
+            ]);
         }
 
         [ $env ] = $thePhp->kwargs($env);
@@ -121,15 +165,46 @@ class XCli implements ICli
         fclose($ps[ 0 ]);
 
         // stdout
-        $stdout = stream_get_contents($ps[ 1 ]);
+        $stdout = trim(stream_get_contents($ps[ 1 ]));
         fclose($ps[ 1 ]);
 
         // stderr
-        $stderr = stream_get_contents($ps[ 2 ]);
+        $stderr = trim(stream_get_contents($ps[ 2 ]));
         fclose($ps[ 2 ]);
 
         // return code
         $code = proc_close($h);
+
+        // write to output streams
+        ( null !== $cwd )
+            ? $theLoggerStdout->notice('>>> [ cwd: "' . $cwd . '" ] ' . $cmd)
+            : $theLoggerStdout->notice('>>> ' . $cmd);
+
+        if ($stderr || $stdout) {
+            if ('' !== $stderr) {
+                foreach ( explode("\n", $stderr) as $line ) {
+                    $line = trim($line);
+
+                    if ('' !== $line) {
+                        $theLoggerStderr->error($line);
+                    }
+                }
+            }
+
+            if ('' !== $stdout) {
+                foreach ( explode("\n", $stdout) as $line ) {
+                    $line = trim($line);
+
+                    if ('' !== $line) {
+                        $theLoggerStdout->notice($line);
+                    }
+                }
+            }
+        }
+
+        ( null !== $cwd )
+            ? $theLoggerStdout->notice('<<< [ cwd: "' . $cwd . '" ] ' . $cmd)
+            : $theLoggerStdout->notice('<<< ' . $cmd);
 
         return [ $code, $stderr, $stdout ];
     }
@@ -141,7 +216,9 @@ class XCli implements ICli
     public function readln() : string
     {
         if (PHP_SAPI !== 'cli') {
-            throw new BadFunctionCallException('Method should be called in CLI mode: ' . __METHOD__);
+            throw new BadFunctionCallException(
+                'Method should be called in CLI mode: ' . __METHOD__
+            );
         }
 
         $h = fopen('php://stdin', 'r');
@@ -152,11 +229,11 @@ class XCli implements ICli
     }
 
     /**
-     * @param string $search
+     * @param string $delimiter
      *
      * @return string
      */
-    public function cin(string $search = '```') : string
+    public function cin(string $delimiter = '```') : string
     {
         if (PHP_SAPI !== 'cli') {
             throw new BadFunctionCallException('Method should be called in CLI mode: ' . __METHOD__);
@@ -165,7 +242,7 @@ class XCli implements ICli
         $theStr = $this->getStr();
 
         echo '> Enter text separating lines by pressing ENTER' . PHP_EOL;
-        echo '> TypeService ' . $search . ' when you\'re done...' . PHP_EOL;
+        echo '> Write ' . $delimiter . ' when you\'re done...' . PHP_EOL;
 
         $lines = [];
         $h = fopen('php://stdin', 'r');
@@ -173,12 +250,12 @@ class XCli implements ICli
             $line = trim($line);
 
             if (! $line) {
-                echo '> Write `' . $search . '` when done...' . PHP_EOL;
+                echo '> Write `' . $delimiter . '` when done...' . PHP_EOL;
                 continue;
             }
 
-            $expected_pos = $theStr->mb('strlen')($line) - $theStr->mb('strlen')($search);
-            $pos = $theStr->mb('strrpos')($line, $search);
+            $expected_pos = $theStr->mb('strlen')($line) - $theStr->mb('strlen')($delimiter);
+            $pos = $theStr->mb('strrpos')($line, $delimiter);
 
             // end found
             if ($expected_pos === $pos) {
@@ -217,6 +294,9 @@ class XCli implements ICli
     {
         $theFs = $this->getFs();
 
+        $theLogger = $this->getLogger();
+        $theLoggerStdout = $theLogger->getChannel('stdout');
+
         $backup = $backup ?? true;
         $yesOverwrite = $yesOverwrite ?? 'n';
 
@@ -227,7 +307,7 @@ class XCli implements ICli
 
             $realpath = $theFs->filePut($outputPath, $content);
 
-            echo 'Created file: ' . $theFs->secure($realpath) . PHP_EOL;
+            $theLoggerStdout->notice('Created file: ' . $theFs->secure($realpath));
 
         } else {
             $realpath = realpath($outputPath);
@@ -239,15 +319,15 @@ class XCli implements ICli
             $yes = $this->yes($message, $yesOverwrite);
 
             if (! $yes) {
-                echo 'File exists: ' . $theFs->secure($realpath) . PHP_EOL;
+                $theLoggerStdout->notice('File exists: ' . $theFs->secure($realpath));
 
             } else {
                 $backupPath = $theFs->filePut($realpath, $content, $backup);
 
-                echo 'Replaced ' . $theFs->secure($realpath) . PHP_EOL;
+                $theLoggerStdout->notice('Replaced ' . $theFs->secure($realpath));
 
                 if ($backup) {
-                    echo 'Backup stored at ' . $theFs->secure($backupPath) . PHP_EOL;
+                    $theLoggerStdout->notice('Backup stored at ' . $theFs->secure($backupPath));
                 }
             }
         }
@@ -280,7 +360,7 @@ class XCli implements ICli
 
         $cmd .= '"' . $directory . '"';
 
-        [ $resultMkdir ] = $t = $this->run($cmd);
+        [ $resultMkdir ] = $this->run($cmd);
 
         $resultPermissions = 0;
         if ($permissions && ! $this->isWindows()) {
@@ -325,35 +405,123 @@ class XCli implements ICli
 
     /**
      * Создает ZIP-архив из папки средствами командной строки
+     * На Windows требует установки 7zip. ZIP-архиваторы чаще установлены у пользователей
      *
-     * @param string $outputPath
-     * @param string ...$pathes
+     * @param string      $zipFilepath
+     * @param null|string $baseDirpath
+     * @param string      ...$pathes
      *
      * @return int
      */
-    public function zip(string $outputPath, ...$pathes) : int
+    public function zip(string $zipFilepath, string $baseDirpath = null, ...$pathes) : int
     {
-        if ('' === $outputPath) return 1;
-        if (! $pathes) return 1;
+        if ('' === $zipFilepath) {
+            throw new InvalidArgumentException([
+                'Invalid `zipFilepathOutput`: %s',
+                $zipFilepath,
+            ]);
+        }
 
-        $cmd = 'zip "' . $outputPath . '" ';
+        if (! $pathes) {
+            throw new InvalidArgumentException([
+                'The `pathes` should be not empty: %s',
+                $pathes,
+            ]);
+        }
+
+        if (file_exists($zipFilepath)) {
+            throw new FilesystemException([
+                'File `zipFilepathOutput` already exists: %s',
+                $zipFilepath,
+            ]);
+        }
+
+        $isWindows = $this->isWindows();
+
+        $cwd = null;
+        if (null !== $baseDirpath) {
+            if (! is_dir($baseDirpath)) {
+                throw new FilesystemException([
+                    'Directory `baseDirpath` not exists: %s',
+                    $baseDirpath,
+                ]);
+            }
+
+            $cwd = realpath($baseDirpath);
+
+        } elseif (! $isWindows) {
+            $cwd = '/';
+        }
+
+        if ($isWindows) {
+            $cmd = "7z a -mm=Deflate -mfb=258 -mpass=15 \"$zipFilepath\" ";
+
+            if (null === $cwd) {
+                $cmd .= "-spf2 ";
+            }
+
+        } else {
+            $cmd = "zip -9 \"$zipFilepath\" ";
+        }
 
         $list = [];
+        $drives = [];
         $queue = $pathes;
         while ( null !== ( $k = key($queue) ) ) {
             if (is_array($queue[ $k ])) {
                 $queue = array_merge($queue, $queue[ $k ]);
 
-            } elseif (false
+                unset($queue[ $k ]);
+
+                continue;
+            }
+
+            if (false
                 || ( false === settype($queue[ $k ], 'string') )
                 || ( '' === $queue[ $k ] )
                 || ! file_exists($queue[ $k ])
             ) {
-                continue;
-
-            } else {
-                $list[] = '"' . $queue[ $k ] . '"';
+                throw new FilesystemException([
+                    'File not found: %s',
+                    $queue[ $k ],
+                ]);
             }
+
+            $path = $realpath = realpath($queue[ $k ]);
+
+            if (null !== $cwd) {
+                $relative = str_replace($cwd, '', $realpath);
+
+                if ($realpath === $relative) {
+                    throw new FilesystemException([
+                        'File is located outside `baseDirpath`: %s',
+                        $realpath,
+                    ]);
+                }
+
+                $path = ltrim($relative, DIRECTORY_SEPARATOR);
+
+            } elseif ($this->isWindows()) {
+                $theFs = $theFs ?? $this->getFs();
+
+                [ $drive ] = $theFs->drive($realpath);
+
+                if (false
+                    || ( false !== strpos($drive, ':/') )
+                    || ( false !== strpos($drive, ':\\') )
+                ) {
+                    $drives[ $drive ] = true;
+
+                    if (count($drives) > 1) {
+                        throw new FilesystemException([
+                            'Unable to compress files from different drives: %s',
+                            $drives,
+                        ]);
+                    }
+                }
+            }
+
+            $list[] = '"' . $path . '"';
 
             unset($queue[ $k ]);
         }
@@ -361,6 +529,239 @@ class XCli implements ICli
         if (! $list) return 1;
 
         $cmd .= implode(' ', $list);
+
+        [ $result ] = $this->run($cmd, null, $cwd);
+
+        return $result;
+    }
+
+    /**
+     * Распаковывает ZIP-архив средствами командной строки
+     * На Windows требует установки 7zip. ZIP-архиваторы чаще установлены у пользователей
+     *
+     * @param string      $zipFilepath
+     * @param null|string $destDirpath
+     *
+     * @return int
+     */
+    public function unzip(string $zipFilepath, string $destDirpath = null) : int
+    {
+        if ('' === $zipFilepath) {
+            throw new InvalidArgumentException([
+                'Invalid `zipFilepath`: %s',
+                $zipFilepath,
+            ]);
+        }
+
+        if (isset($destDirpath)) {
+            if ('' === $destDirpath) {
+                throw new InvalidArgumentException([
+                    'Invalid `destinationDir`: %s',
+                    $zipFilepath,
+                ]);
+            }
+
+            if (! is_dir($destDirpath)) {
+                $this->mkdir($destDirpath, null, true);
+            }
+
+            if (( new \FilesystemIterator($destDirpath) )->valid()) {
+                throw new FilesystemException([
+                    'Directory `dirpathDestination` is not empty: %s',
+                    $destDirpath,
+                ]);
+            }
+
+            $destDirpath = realpath($destDirpath);
+        }
+
+        $cmd = $this->isWindows()
+            ? "7z x \"$zipFilepath\" "
+            : "unzip \"$zipFilepath\" ";
+
+        if ('' !== $destDirpath) {
+            $cmd .= $this->isWindows()
+                ? "-o\"$destDirpath\" "
+                : "-d \"$destDirpath\" ";
+        }
+
+        [ $result ] = $this->run($cmd);
+
+        return $result;
+    }
+
+
+    /**
+     * Создает GZIP-архив из папки средствами командной строки
+     * Tar поставляется в штатной версии Windows 10, чаще установлена у администраторов
+     *
+     * @param string      $tarFilepath
+     * @param null|string $baseDirpath
+     * @param string      ...$pathes
+     *
+     * @return int
+     */
+    public function tar(string $tarFilepath, string $baseDirpath = null, ...$pathes) : int
+    {
+        $theEnv = $this->getEnv();
+
+        if ('' === $tarFilepath) {
+            throw new InvalidArgumentException([
+                'Invalid `tarFilepathOutput`: %s',
+                $tarFilepath,
+            ]);
+        }
+
+        if (! $pathes) {
+            throw new InvalidArgumentException([
+                'The `pathes` should be not empty: %s',
+                $pathes,
+            ]);
+        }
+
+        if (file_exists($tarFilepath)) {
+            throw new FilesystemException([
+                'File `tarFilepathOutput` already exists: %s',
+                $tarFilepath,
+            ]);
+        }
+
+        $cwd = null;
+        if (null !== $baseDirpath) {
+            if (! is_dir($baseDirpath)) {
+                throw new FilesystemException([
+                    'Directory `baseDirpath` not exists: %s',
+                    $baseDirpath,
+                ]);
+            }
+
+            $cwd = realpath($baseDirpath);
+        }
+
+        $cmd = "tar -czf \"$tarFilepath\" ";
+
+        if (null !== $cwd) {
+            $cmd .= " -C \"$cwd\" ";
+        }
+
+        $list = [];
+        $queue = $pathes;
+        while ( null !== ( $k = key($queue) ) ) {
+            if (is_array($queue[ $k ])) {
+                $queue = array_merge($queue, $queue[ $k ]);
+
+                unset($queue[ $k ]);
+
+                continue;
+            }
+
+            if (false
+                || ( false === settype($queue[ $k ], 'string') )
+                || ( '' === $queue[ $k ] )
+                || ! file_exists($queue[ $k ])
+            ) {
+                throw new FilesystemException([
+                    'File not found: %s',
+                    $queue[ $k ],
+                ]);
+            }
+
+            $path = $realpath = realpath($queue[ $k ]);
+
+            if (null !== $cwd) {
+                $relative = str_replace($cwd, '', $realpath);
+
+                if ($realpath === $relative) {
+                    throw new FilesystemException([
+                        'File is located outside `baseDirpath`: %s',
+                        $realpath,
+                    ]);
+                }
+
+                $path = ltrim($relative, DIRECTORY_SEPARATOR);
+
+            } elseif ($this->isWindows()) {
+                $theFs = $theFs ?? $this->getFs();
+
+                [ $drive ] = $theFs->drive($realpath);
+
+                if (false
+                    || ( false !== strpos($drive, ':/') )
+                    || ( false !== strpos($drive, ':\\') )
+                ) {
+                    $drives[ $drive ] = true;
+
+                    if (count($drives) > 1) {
+                        throw new FilesystemException([
+                            'Unable to compress files from different drives: %s',
+                            $drives,
+                        ]);
+                    }
+                }
+            }
+
+            $list[] = '"' . $path . '"';
+
+            unset($queue[ $k ]);
+        }
+
+        if (! $list) return 1;
+
+        $cmd .= implode(' ', $list);
+
+        $env = $this->getEnv()->getenv();
+        $env[ 'GZIP' ] = -9;
+
+        [ $result ] = $this->run($cmd, null, $cwd, $env);
+
+        return $result;
+    }
+
+    /**
+     * Распаковывает GZIP-архив средствами командной строки
+     * Tar поставляется в штатной версии Windows 10, чаще установлена у администраторов
+     *
+     * @param string      $zipFilepath
+     * @param null|string $destDirpath
+     *
+     * @return int
+     */
+    public function untar(string $zipFilepath, string $destDirpath = null) : int
+    {
+        if ('' === $zipFilepath) {
+            throw new InvalidArgumentException([
+                'Invalid `zipFilepath`: %s',
+                $zipFilepath,
+            ]);
+        }
+
+        if (isset($destDirpath)) {
+            if ('' === $destDirpath) {
+                throw new InvalidArgumentException([
+                    'Invalid `destinationDir`: %s',
+                    $zipFilepath,
+                ]);
+            }
+
+            if (! is_dir($destDirpath)) {
+                $this->mkdir($destDirpath, null, true);
+            }
+
+            if (( new \FilesystemIterator($destDirpath) )->valid()) {
+                throw new FilesystemException([
+                    'Directory `dirpathDestination` is not empty: %s',
+                    $destDirpath,
+                ]);
+            }
+
+            $destDirpath = realpath($destDirpath);
+        }
+
+        $cmd = "tar -xzf \"$zipFilepath\" ";
+
+        if ('' !== $destDirpath) {
+            $cmd .= "-C \"$destDirpath\" ";
+        }
 
         [ $result ] = $this->run($cmd);
 

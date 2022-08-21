@@ -14,10 +14,13 @@ namespace Gzhegow\Support;
 use Gzhegow\Support\Exceptions\Logic\BadFunctionCallException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\RuntimeException;
+use Gzhegow\Support\Exceptions\Runtime\FilesystemException;
 use Gzhegow\Support\Traits\Load\EnvLoadTrait;
 use Gzhegow\Support\Traits\Load\FsLoadTrait;
+use Gzhegow\Support\Traits\Load\LoggerLoadTrait;
 use Gzhegow\Support\Traits\Load\PhpLoadTrait;
 use Gzhegow\Support\Traits\Load\StrLoadTrait;
+use Monolog\Logger;
 
 interface ICli
 {
@@ -63,11 +66,11 @@ interface ICli
     public function readln(): string;
 
     /**
-     * @param string $search
+     * @param string $delimiter
      *
      * @return string
      */
-    public function cin(string $search = '```'): string;
+    public function cin(string $delimiter = '```'): string;
 
     /**
      * сохраняет файл в указанное место, но выводит предупреждение в консоли, что файл уже есть
@@ -110,13 +113,49 @@ interface ICli
 
     /**
      * Создает ZIP-архив из папки средствами командной строки
+     * На Windows требует установки 7zip. ZIP-архиваторы чаще установлены у пользователей
      *
-     * @param string $outputPath
-     * @param string ...$pathes
+     * @param string      $zipFilepath
+     * @param null|string $baseDirpath
+     * @param string      ...$pathes
      *
      * @return int
      */
-    public function zip(string $outputPath, ...$pathes): int;
+    public function zip(string $zipFilepath, string $baseDirpath = null, ...$pathes): int;
+
+    /**
+     * Распаковывает ZIP-архив средствами командной строки
+     * На Windows требует установки 7zip. ZIP-архиваторы чаще установлены у пользователей
+     *
+     * @param string      $zipFilepath
+     * @param null|string $destDirpath
+     *
+     * @return int
+     */
+    public function unzip(string $zipFilepath, string $destDirpath = null): int;
+
+    /**
+     * Создает GZIP-архив из папки средствами командной строки
+     * Tar поставляется в штатной версии Windows 10, чаще установлена у администраторов
+     *
+     * @param string      $tarFilepath
+     * @param null|string $baseDirpath
+     * @param string      ...$pathes
+     *
+     * @return int
+     */
+    public function tar(string $tarFilepath, string $baseDirpath = null, ...$pathes): int;
+
+    /**
+     * Распаковывает GZIP-архив средствами командной строки
+     * Tar поставляется в штатной версии Windows 10, чаще установлена у администраторов
+     *
+     * @param string      $zipFilepath
+     * @param null|string $destDirpath
+     *
+     * @return int
+     */
+    public function untar(string $zipFilepath, string $destDirpath = null): int;
 
     /**
      * @param string      $message

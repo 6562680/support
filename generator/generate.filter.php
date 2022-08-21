@@ -5,10 +5,7 @@ require_once __DIR__ . '/generator.php';
 
 $supportFactory = \Gzhegow\Support\SupportFactory::getInstance();
 
-$generator = new Gzhegow_Support_Generator_FilterGenerator(
-    $supportFactory->getLoader(),
-    $supportFactory->getStr()
-);
+$generator = new Gzhegow_Support_Generator_FilterGenerator();
 
 
 // list
@@ -26,6 +23,7 @@ $methodSources = [
     'Fs'        => [ \Gzhegow\Support\IFs::class, \Gzhegow\Support\XFs::class ],
     'Itertools' => [ \Gzhegow\Support\IItertools::class, \Gzhegow\Support\XItertools::class ],
     'Loader'    => [ \Gzhegow\Support\ILoader::class, \Gzhegow\Support\XLoader::class ],
+    'Logger'    => [ \Gzhegow\Support\ILogger::class, \Gzhegow\Support\XLogger::class ],
     'Math'      => [ \Gzhegow\Support\IMath::class, \Gzhegow\Support\XMath::class ],
     'Net'       => [ \Gzhegow\Support\INet::class, \Gzhegow\Support\XNet::class ],
     'Num'       => [ \Gzhegow\Support\INum::class, \Gzhegow\Support\XNum::class ],

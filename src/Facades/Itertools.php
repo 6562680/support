@@ -59,14 +59,14 @@ class Itertools
      *
      * @return \Generator
      */
-    public static function walk(
+    public static function walkeach(
         iterable $it,
         bool &$continue = null,
         bool $withChildren = null,
         bool $withParents = null,
         bool $withRoot = null
     ): \Generator {
-        yield from static::getInstance()->walk($it, $continue, $withChildren, $withParents, $withRoot);
+        yield from static::getInstance()->walkeach($it, $continue, $withChildren, $withParents, $withRoot);
     }
 
     /**

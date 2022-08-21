@@ -49,7 +49,7 @@ interface IItertools
      *
      * @return \Generator
      */
-    public function walk(
+    public function walkeach(
         iterable $it,
         bool &$continue = null,
         bool $withChildren = null,
