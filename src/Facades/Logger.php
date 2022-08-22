@@ -13,6 +13,7 @@ namespace Gzhegow\Support\Facades;
 
 use Gzhegow\Support\Exceptions\Exception;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\ILogger;
 use Gzhegow\Support\SupportFactory;
 use Gzhegow\Support\Traits\Load\ArrLoadTrait;
@@ -21,6 +22,14 @@ use Gzhegow\Support\XLogger;
 
 class Logger
 {
+    /**
+     * @return callable[]
+     */
+    public static function getChannelFactories(): array
+    {
+        return static::getInstance()->getChannelFactories();
+    }
+
     /**
      * @return XLogger[]|\Psr\Log\LoggerInterface[]
      */
@@ -40,7 +49,7 @@ class Logger
     }
 
     /**
-     * @param null|static[]|\Psr\Log\LoggerInterface[] $channels
+     * @param null|static[]|\Psr\Log\LoggerInterface[]|callable[] $channels
      *
      * @return void
      */
@@ -50,12 +59,12 @@ class Logger
     }
 
     /**
-     * @param string                                 $channelName
-     * @param object|static|\Psr\Log\LoggerInterface $channel
+     * @param string                                   $channelName
+     * @param static|\Psr\Log\LoggerInterface|callable $channel
      *
      * @return void
      */
-    public static function addChannel(string $channelName, object $channel): void
+    public static function addChannel(string $channelName, $channel): void
     {
         static::getInstance()->addChannel($channelName, $channel);
     }
@@ -68,6 +77,16 @@ class Logger
     public static function selectChannel(?string $channelName): ?object
     {
         return static::getInstance()->selectChannel($channelName);
+    }
+
+    /**
+     * @param string $channelName
+     *
+     * @return XLogger|\Psr\Log\LoggerInterface
+     */
+    public static function resolveChannel(string $channelName): object
+    {
+        return static::getInstance()->resolveChannel($channelName);
     }
 
     /**

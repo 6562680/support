@@ -762,6 +762,29 @@ abstract class GeneratedFilter implements IFilter
     }
 
     /**
+     * @param string|array|callable|mixed $callable
+     * @param null|PhpInvokableInfo       $invokableInfo
+     *
+     * @return bool
+     */
+    public function isCallableOnly($callable, PhpInvokableInfo &$invokableInfo = null): bool
+    {
+        return null !== $this->getPhp()->filterCallableOnly($callable, $invokableInfo);
+    }
+
+    /**
+     * @param \Closure              $factory
+     * @param string|callable       $returnType
+     * @param null|PhpInvokableInfo $invokableInfo
+     *
+     * @return bool
+     */
+    public function isCallableFactory($factory, $returnType, PhpInvokableInfo &$invokableInfo = null): bool
+    {
+        return null !== $this->getPhp()->filterCallableFactory($factory, $returnType, $invokableInfo);
+    }
+
+    /**
      * @param string|array|callable|mixed $callableString
      * @param null|PhpInvokableInfo       $invokableInfo
      *
@@ -836,18 +859,6 @@ abstract class GeneratedFilter implements IFilter
     public function isClosure($closure, PhpInvokableInfo &$invokableInfo = null): bool
     {
         return null !== $this->getPhp()->filterClosure($closure, $invokableInfo);
-    }
-
-    /**
-     * @param \Closure              $factory
-     * @param string|callable       $returnType
-     * @param null|PhpInvokableInfo $invokableInfo
-     *
-     * @return bool
-     */
-    public function isClosureFactory($factory, $returnType, PhpInvokableInfo &$invokableInfo = null): bool
-    {
-        return null !== $this->getPhp()->filterClosureFactory($factory, $returnType, $invokableInfo);
     }
 
     /**
@@ -1812,6 +1823,29 @@ abstract class GeneratedFilter implements IFilter
     }
 
     /**
+     * @param string|array|callable|mixed $callable
+     * @param null|PhpInvokableInfo       $invokableInfo
+     *
+     * @return null|string|array|callable
+     */
+    public function filterCallableOnly($callable, PhpInvokableInfo &$invokableInfo = null)
+    {
+        return $this->getPhp()->filterCallableOnly($callable, $invokableInfo);
+    }
+
+    /**
+     * @param \Closure              $factory
+     * @param string|callable       $returnType
+     * @param null|PhpInvokableInfo $invokableInfo
+     *
+     * @return null|\Closure
+     */
+    public function filterCallableFactory($factory, $returnType, PhpInvokableInfo &$invokableInfo = null): ?\Closure
+    {
+        return $this->getPhp()->filterCallableFactory($factory, $returnType, $invokableInfo);
+    }
+
+    /**
      * @param string|array|callable|mixed $callableString
      * @param null|PhpInvokableInfo       $invokableInfo
      *
@@ -1886,18 +1920,6 @@ abstract class GeneratedFilter implements IFilter
     public function filterClosure($closure, PhpInvokableInfo &$invokableInfo = null): ?\Closure
     {
         return $this->getPhp()->filterClosure($closure, $invokableInfo);
-    }
-
-    /**
-     * @param \Closure              $factory
-     * @param string|callable       $returnType
-     * @param null|PhpInvokableInfo $invokableInfo
-     *
-     * @return null|\Closure
-     */
-    public function filterClosureFactory($factory, $returnType, PhpInvokableInfo &$invokableInfo = null): ?\Closure
-    {
-        return $this->getPhp()->filterClosureFactory($factory, $returnType, $invokableInfo);
     }
 
     /**
@@ -3422,6 +3444,45 @@ abstract class GeneratedFilter implements IFilter
     }
 
     /**
+     * @param string|array|callable|mixed $callable
+     * @param null|PhpInvokableInfo       $invokableInfo
+     *
+     * @return string|array|callable
+     */
+    public function assertCallableOnly($callable, PhpInvokableInfo &$invokableInfo = null)
+    {
+        if (null === ( $var = $this->getPhp()->filterCallableOnly($callable, $invokableInfo) )) {
+            throw $this->getThrowableOr(
+                new InvalidArgumentException($this->getMessageOr(
+                    'Invalid `CallableOnly` passed: %s', ...func_get_args()
+                ))
+            );
+        }
+
+        return $var;
+    }
+
+    /**
+     * @param \Closure              $factory
+     * @param string|callable       $returnType
+     * @param null|PhpInvokableInfo $invokableInfo
+     *
+     * @return \Closure
+     */
+    public function assertCallableFactory($factory, $returnType, PhpInvokableInfo &$invokableInfo = null): ?\Closure
+    {
+        if (null === ( $var = $this->getPhp()->filterCallableFactory($factory, $returnType, $invokableInfo) )) {
+            throw $this->getThrowableOr(
+                new InvalidArgumentException($this->getMessageOr(
+                    'Invalid `CallableFactory` passed: %s', ...func_get_args()
+                ))
+            );
+        }
+
+        return $var;
+    }
+
+    /**
      * @param string|array|callable|mixed $callableString
      * @param null|PhpInvokableInfo       $invokableInfo
      *
@@ -3547,26 +3608,6 @@ abstract class GeneratedFilter implements IFilter
             throw $this->getThrowableOr(
                 new InvalidArgumentException($this->getMessageOr(
                     'Invalid `Closure` passed: %s', ...func_get_args()
-                ))
-            );
-        }
-
-        return $var;
-    }
-
-    /**
-     * @param \Closure              $factory
-     * @param string|callable       $returnType
-     * @param null|PhpInvokableInfo $invokableInfo
-     *
-     * @return \Closure
-     */
-    public function assertClosureFactory($factory, $returnType, PhpInvokableInfo &$invokableInfo = null): ?\Closure
-    {
-        if (null === ( $var = $this->getPhp()->filterClosureFactory($factory, $returnType, $invokableInfo) )) {
-            throw $this->getThrowableOr(
-                new InvalidArgumentException($this->getMessageOr(
-                    'Invalid `ClosureFactory` passed: %s', ...func_get_args()
                 ))
             );
         }

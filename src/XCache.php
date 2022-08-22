@@ -3,7 +3,8 @@
 namespace Gzhegow\Support;
 
 use Gzhegow\Support\Exceptions\RuntimeException;
-use Gzhegow\Support\Exceptions\Logic\Cache\InvalidArgumentException;
+use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+use Gzhegow\Support\Exceptions\Logic\Cache\InvalidArgumentException as CacheInvalidArgumentException;
 
 
 /**
@@ -16,6 +17,10 @@ class XCache implements ICache
 
 
     /**
+     * @var callable[]
+     */
+    protected $poolFactories = [];
+    /**
      * @var static[]|\Psr\Cache\CacheItemPoolInterface[]
      */
     protected $pools = [];
@@ -26,12 +31,21 @@ class XCache implements ICache
 
 
     /**
+     * @return callable[]
+     */
+    public function getPoolFactories() : array
+    {
+        return $this->poolFactories;
+    }
+
+    /**
      * @return static[]|\Psr\Cache\CacheItemPoolInterface[]
      */
     public function getPools() : array
     {
         return $this->pools;
     }
+
 
     /**
      * @param string $poolName
@@ -41,14 +55,13 @@ class XCache implements ICache
     public function getPool(string $poolName) : object
     {
         if (! strlen($poolName)) {
-            throw new \InvalidArgumentException('The `poolName` should be non-empty string');
+            throw new InvalidArgumentException(
+                'The `poolName` should be non-empty string'
+            );
         }
 
-        if (! isset($this->pools[ $poolName ])) {
-            throw new \InvalidArgumentException('Unknown channel: ' . $poolName);
-        }
-
-        return $this->pools[ $poolName ];
+        return $this->pools[ $poolName ]
+            ?? $this->resolvePool($poolName);
     }
 
 
@@ -56,7 +69,7 @@ class XCache implements ICache
      * @param string $key
      *
      * @return \Psr\Cache\CacheItemInterface
-     * @throws InvalidArgumentException
+     * @throws CacheInvalidArgumentException
      */
     public function getItem($key)
     {
@@ -68,7 +81,7 @@ class XCache implements ICache
             $result = $this->pool->getItem($key);
         }
         catch ( \Psr\Cache\InvalidArgumentException $e ) {
-            throw new InvalidArgumentException($e->getMessage(), null, $e);
+            throw new CacheInvalidArgumentException($e->getMessage(), null, $e);
         }
 
         return $result;
@@ -78,7 +91,7 @@ class XCache implements ICache
      * @param string[] $keys
      *
      * @return array|\Traversable|\Psr\Cache\CacheItemInterface[]
-     * @throws InvalidArgumentException
+     * @throws CacheInvalidArgumentException
      */
     public function getItems(array $keys = [])
     {
@@ -90,7 +103,7 @@ class XCache implements ICache
             $result = $this->pool->getItems($keys);
         }
         catch ( \Psr\Cache\InvalidArgumentException $e ) {
-            throw new InvalidArgumentException($e->getMessage(), null, $e);
+            throw new CacheInvalidArgumentException($e->getMessage(), null, $e);
         }
 
         return $result;
@@ -101,7 +114,7 @@ class XCache implements ICache
      * @param string $key
      *
      * @return bool
-     * @throws InvalidArgumentException
+     * @throws CacheInvalidArgumentException
      */
     public function hasItem($key)
     {
@@ -109,7 +122,7 @@ class XCache implements ICache
             $result = $this->pool->hasItem($key);
         }
         catch ( \Psr\Cache\InvalidArgumentException $e ) {
-            throw new InvalidArgumentException($e->getMessage(), null, $e);
+            throw new CacheInvalidArgumentException($e->getMessage(), null, $e);
         }
 
         return $result;
@@ -117,13 +130,14 @@ class XCache implements ICache
 
 
     /**
-     * @param null|static[]|\Psr\Cache\CacheItemPoolInterface[] $pools
+     * @param null|static[]|\Psr\Cache\CacheItemPoolInterface[]|callable[] $pools
      *
      * @return void
      */
     public function setPools(?array $pools)
     {
         $this->pools = [];
+        $this->poolFactories = [];
 
         foreach ( $pools as $poolName => $pool ) {
             $this->addPool($poolName, $pool);
@@ -131,35 +145,42 @@ class XCache implements ICache
     }
 
     /**
-     * @param string                                          $poolName
-     * @param object|static|\Psr\Cache\CacheItemPoolInterface $pool
+     * @param string                                            $poolName
+     * @param static|\Psr\Cache\CacheItemPoolInterface|callable $pool
      *
      * @return void
      */
-    public function addPool(string $poolName, object $pool) : void
+    public function addPool(string $poolName, $pool) : void
     {
         if (! strlen($poolName)) {
-            throw new \InvalidArgumentException('The `poolName` should be non-empty string');
+            throw new InvalidArgumentException(
+                'The `poolName` should be non-empty string'
+            );
         }
 
-        $interface = static::PSR_CACHE_ITEM_POOL_INTERFACE;
+        if (isset($this->pools[ $poolName ])
+            || isset($this->poolFactories[ $poolName ])
+        ) {
+            throw new RuntimeException(
+                'Pool is already exists by name: ' . $poolName
+            );
+        }
 
-        if (! (false
+        $isFactory = false;
+        if (! ( is_a($pool, $interface = static::PSR_CACHE_ITEM_POOL_INTERFACE)
             || is_a($pool, static::class)
-            || is_a($pool, $interface)
+            || ( $isFactory = is_callable($pool) )
         )) {
-            throw new RuntimeException([
-                'The `pool` should extends/implements one of: %s / %s',
+            throw new InvalidArgumentException([
+                'The `pool` should be callable or extends/implements one of: %s / %s',
                 $pool,
                 [ static::class, $interface ],
             ]);
         }
 
-        if (isset($this->pools[ $poolName ])) {
-            throw new \InvalidArgumentException('Pool is already exists by name: ' . $poolName);
-        }
-
-        $this->pools[ $poolName ] = $pool;
+        $isFactory
+            ? $this->poolFactories[ $poolName ] = $pool
+            : $this->pools[ $poolName ] = $pool;
     }
 
 
@@ -170,11 +191,48 @@ class XCache implements ICache
      */
     public function selectPool(?string $poolName) : ?object
     {
-        if ('' !== $poolName) {
+        if (null !== $poolName) {
             $pool = $this->getPool($poolName);
         }
 
         return $this->pool = $pool ?? null;
+    }
+
+
+    /**
+     * @param string $poolName
+     *
+     * @return static|\Psr\Cache\CacheItemPoolInterface
+     */
+    public function resolvePool(string $poolName) : object
+    {
+        if (! isset($this->pools[ $poolName ])) {
+            $factory = $this->poolFactories[ $poolName ] ?? null;
+
+            if (! $factory) {
+                throw new RuntimeException(
+                    'Unknown pool: ' . $poolName
+                );
+            }
+
+            $pool = $factory($this);
+
+            if (! ( is_a($pool, $interface = static::PSR_CACHE_ITEM_POOL_INTERFACE)
+                || is_a($pool, static::class)
+            )) {
+                throw new RuntimeException([
+                    'The `pool` should extends/implements one of: %s / %s',
+                    $pool,
+                    [ static::class, $interface ],
+                ]);
+            }
+
+            $this->pools[ $poolName ] = $pool;
+
+            unset($this->poolFactories[ $poolName ]);
+        }
+
+        return $this->pools[ $poolName ];
     }
 
 
@@ -191,7 +249,7 @@ class XCache implements ICache
      * @param string $key
      *
      * @return bool
-     * @throws InvalidArgumentException
+     * @throws CacheInvalidArgumentException
      */
     public function deleteItem($key)
     {
@@ -199,7 +257,7 @@ class XCache implements ICache
             $result = $this->pool->deleteItem($key);
         }
         catch ( \Psr\Cache\InvalidArgumentException $e ) {
-            throw new InvalidArgumentException($e->getMessage(), null, $e);
+            throw new CacheInvalidArgumentException($e->getMessage(), null, $e);
         }
 
         return $result;
@@ -209,7 +267,7 @@ class XCache implements ICache
      * @param string[] $keys
      *
      * @return bool
-     * @throws InvalidArgumentException
+     * @throws CacheInvalidArgumentException
      */
     public function deleteItems(array $keys)
     {
@@ -217,7 +275,7 @@ class XCache implements ICache
             $result = $this->pool->deleteItems($keys);
         }
         catch ( \Psr\Cache\InvalidArgumentException $e ) {
-            throw new InvalidArgumentException($e->getMessage(), null, $e);
+            throw new CacheInvalidArgumentException($e->getMessage(), null, $e);
         }
 
         return $result;
@@ -232,7 +290,9 @@ class XCache implements ICache
     public function save(object $item)
     {
         if (! is_a($item, $interface = static::PSR_CACHE_ITEM_INTERFACE)) {
-            throw new RuntimeException('The `item` should implements ' . $interface);
+            throw new InvalidArgumentException(
+                'The `item` should implements ' . $interface
+            );
         }
 
         return $this->pool->save($item);
@@ -246,7 +306,9 @@ class XCache implements ICache
     public function saveDeferred(object $item)
     {
         if (! is_a($item, $interface = static::PSR_CACHE_ITEM_INTERFACE)) {
-            throw new RuntimeException('The `item` should implements ' . $interface);
+            throw new InvalidArgumentException(
+                'The `item` should implements ' . $interface
+            );
         }
 
         return $this->pool->saveDeferred($item);

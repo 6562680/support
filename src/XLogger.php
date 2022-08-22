@@ -5,6 +5,7 @@ namespace Gzhegow\Support;
 use Gzhegow\Support\Exceptions\Exception;
 use Gzhegow\Support\Traits\Load\ArrLoadTrait;
 use Gzhegow\Support\Traits\Load\DebugLoadTrait;
+use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 
 
@@ -21,6 +22,10 @@ class XLogger implements ILogger
 
 
     /**
+     * @var callable[]
+     */
+    protected $channelFactories = [];
+    /**
      * @var static[]|\Psr\Log\LoggerInterface[]
      */
     protected $channels = [];
@@ -31,12 +36,21 @@ class XLogger implements ILogger
 
 
     /**
+     * @return callable[]
+     */
+    public function getChannelFactories() : array
+    {
+        return $this->channelFactories;
+    }
+
+    /**
      * @return static[]|\Psr\Log\LoggerInterface[]
      */
     public function getChannels() : array
     {
         return $this->channels;
     }
+
 
     /**
      * @param string $channelName
@@ -46,62 +60,68 @@ class XLogger implements ILogger
     public function getChannel(string $channelName) : object
     {
         if (! strlen($channelName)) {
-            throw new \InvalidArgumentException('The `channelName` should be non-empty string');
+            throw new InvalidArgumentException(
+                'The `channelName` should be non-empty string'
+            );
         }
 
-        if (! isset($this->channels[ $channelName ])) {
-            throw new \InvalidArgumentException('Unknown channel: ' . $channelName);
-        }
-
-        return $this->channels[ $channelName ];
+        return $this->channels[ $channelName ]
+            ?? $this->resolveChannel($channelName);
     }
 
 
     /**
-     * @param null|static[]|\Psr\Log\LoggerInterface[] $channels
+     * @param null|static[]|\Psr\Log\LoggerInterface[]|callable[] $channels
      *
      * @return void
      */
     public function setChannels(?array $channels)
     {
         $this->channels = [];
+        $this->channelFactories = [];
 
         foreach ( $channels as $channelName => $channel ) {
             $this->addChannel($channelName, $channel);
         }
     }
 
-
     /**
-     * @param string                                 $channelName
-     * @param object|static|\Psr\Log\LoggerInterface $channel
+     * @param string                                   $channelName
+     * @param static|\Psr\Log\LoggerInterface|callable $channel
      *
      * @return void
      */
-    public function addChannel(string $channelName, object $channel) : void
+    public function addChannel(string $channelName, $channel) : void
     {
         if (! strlen($channelName)) {
-            throw new \InvalidArgumentException('The `channelName` should be non-empty string');
+            throw new InvalidArgumentException(
+                'The `channelName` should be non-empty string'
+            );
         }
 
-        $interface = static::PSR_LOGGER_INTERFACE;
+        if (isset($this->channels[ $channelName ])
+            || isset($this->channelFactories[ $channelName ])
+        ) {
+            throw new RuntimeException(
+                'Channel is already exists by name: ' . $channelName
+            );
+        }
 
-        if (! (false
+        $isFactory = false;
+        if (! ( is_a($channel, $interface = static::PSR_LOGGER_INTERFACE)
             || is_a($channel, static::class)
-            || is_a($channel, $interface)
+            || ( $isFactory = is_callable($channel) )
         )) {
             throw new InvalidArgumentException([
-                'The `channel` should extends/implements one of: %s / %s',
+                'The `channel` should be callable or extends/implements one of: %s / %s',
                 $channel,
                 [ static::class, $interface ],
             ]);
         }
 
-        if (isset($this->channels[ $channelName ])) {
-            throw new \InvalidArgumentException('Channel is already exists by name: ' . $channelName);
-        }
-
-        $this->channels[ $channelName ] = $channel;
+        $isFactory
+            ? $this->channelFactories[ $channelName ] = $channel
+            : $this->channels[ $channelName ] = $channel;
     }
 
 
@@ -112,11 +132,48 @@ class XLogger implements ILogger
      */
     public function selectChannel(?string $channelName) : ?object
     {
-        if ('' !== $channelName) {
+        if (null !== $channelName) {
             $channel = $this->getChannel($channelName);
         }
 
         return $this->channel = $channel ?? null;
+    }
+
+
+    /**
+     * @param string $channelName
+     *
+     * @return static|\Psr\Log\LoggerInterface
+     */
+    public function resolveChannel(string $channelName) : object
+    {
+        if (! isset($this->channels[ $channelName ])) {
+            $factory = $this->channelFactories[ $channelName ] ?? null;
+
+            if (! $factory) {
+                throw new RuntimeException(
+                    'Unknown channel: ' . $channelName
+                );
+            }
+
+            $channel = $factory($this);
+
+            if (! ( is_a($channel, $interface = static::PSR_LOGGER_INTERFACE)
+                || is_a($channel, static::class)
+            )) {
+                throw new RuntimeException([
+                    'The `channel` should extends/implements one of: %s / %s',
+                    $channel,
+                    [ static::class, $interface ],
+                ]);
+            }
+
+            $this->channels[ $channelName ] = $channel;
+
+            unset($this->channelFactories[ $channelName ]);
+        }
+
+        return $this->channels[ $channelName ];
     }
 
 

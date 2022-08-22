@@ -150,6 +150,97 @@ class XPhp implements IPhp
         return null;
     }
 
+    /**
+     * @param string|array|callable|mixed $callable
+     * @param null|PhpInvokableInfo       $invokableInfo
+     *
+     * @return null|string|array|callable
+     */
+    public function filterCallableOnly($callable, PhpInvokableInfo &$invokableInfo = null) // : ?string|array|\Closure
+    {
+        if (( null !== $this->filterCallableString($callable, $invokableInfo) )
+            || ( null !== $this->filterCallableArray($callable, $invokableInfo) )
+        ) {
+            return $callable;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param \Closure              $factory
+     * @param string|callable       $returnType
+     * @param null|PhpInvokableInfo $invokableInfo
+     *
+     * @return null|\Closure
+     */
+    public function filterCallableFactory($factory, $returnType, PhpInvokableInfo &$invokableInfo = null) : ?\Closure
+    {
+        if (null === $this->filterCallableOnly($factory, $invokableInfo)) {
+            return null;
+        }
+
+        $reflectionFunction = $this->newReflectionFunction($factory);
+
+        $reflectionType = $reflectionFunction->getReturnType();
+
+        // factory requires a type
+        $types = [];
+        if ($reflectionType) {
+            $types = is_a($reflectionType, 'ReflectionUnionType')
+                ? $reflectionType->getTypes()
+                : [ $reflectionType ];
+
+        } elseif ($phpDoc = $reflectionFunction->getDocComment()) {
+            $lines = explode("\n", $phpDoc);
+
+            foreach ( $lines as $line ) {
+                $line = trim($line);
+
+                if (0 === strpos($line, $needle = '* @return ')) {
+                    $line = substr($line, strlen($needle));
+
+                    $types = explode(' ', $line)[ 0 ];
+                    $types = explode('|', $types);
+
+                    break;
+                }
+            }
+        }
+
+        // factory must return only one type
+        if (count($types) > 1) {
+            return null;
+        }
+
+        $type = reset($types);
+
+        $result = null;
+
+        if (is_callable($returnType)) {
+            try {
+                $result = $this->call(null, $returnType, $type)
+                    ? $factory
+                    : null;
+            }
+            catch ( \Throwable $e ) {
+            }
+
+        } elseif (is_a($type, 'ReflectionNamedType')) {
+            if ($type->isBuiltin() && ( $type->getName() === $returnType )) {
+                $result = $factory;
+
+            } elseif (is_a($type->getName(), $returnType, true)) {
+                $result = $factory;
+
+            } elseif ($type === $returnType) {
+                $result = $factory;
+            }
+        }
+
+        return $result;
+    }
+
 
     /**
      * @param string|array|callable|mixed $callableString
@@ -307,69 +398,6 @@ class XPhp implements IPhp
         }
 
         return null;
-    }
-
-    /**
-     * @param \Closure              $factory
-     * @param string|callable       $returnType
-     * @param null|PhpInvokableInfo $invokableInfo
-     *
-     * @return null|\Closure
-     */
-    public function filterClosureFactory($factory, $returnType, PhpInvokableInfo &$invokableInfo = null) : ?\Closure
-    {
-        if (null === $this->filterClosure($factory, $invokableInfo)) {
-            return null;
-        }
-
-        $reflectionFunction = $this->newReflectionFunction($factory);
-
-        $reflectionType = $reflectionFunction->getReturnType();
-
-        // factory requires a type
-        $types = [];
-        if ($reflectionType) {
-            $types = is_a($reflectionType, 'ReflectionUnionType')
-                ? $reflectionType->getTypes()
-                : [ $reflectionType ];
-
-        } else {
-            $lines = array_map('trim', explode("\n", $reflectionFunction->getDocComment()));
-
-            foreach ( $lines as $line ) {
-                if (0 === strpos($line, $needle = '* @return ')) {
-                    $line = substr($line, strlen($needle));
-
-                    $types = explode(' ', $line)[ 0 ];
-                    $types = explode('|', $types);
-                }
-            }
-        }
-
-        // factory must return only one type
-        if (count($types) > 1) {
-            return null;
-        }
-
-        $type = reset($types);
-
-        $returnTypeCallback = is_callable($returnType)
-            ? $this->bind($returnType, $type)
-            : static function ($type) use ($returnType) {
-                if (is_a($type, 'ReflectionNamedType')) {
-                    return false
-                        || ( $type->isBuiltin() && ( $type->getName() !== $returnType ) )
-                        || ( is_a($type->getName(), $returnType, true) );
-                }
-
-                return $type === $returnType;
-            };
-
-        $result = $returnTypeCallback($type)
-            ? $factory
-            : null;
-
-        return $result;
     }
 
 
@@ -732,15 +760,19 @@ class XPhp implements IPhp
      * копирует тело функции и присваивает аргументы на их места в переданном порядке
      * bind('is_array', [], 1, 2) -> Closure of (function is_array($var = []))
      *
-     * @param callable $func
-     * @param mixed    ...$arguments
+     * @param null|object $newthis
+     * @param callable    $func
+     * @param mixed       ...$arguments
      *
      * @return \Closure
      */
-    public function bind(callable $func, ...$arguments) : \Closure
+    public function bind(?object $newthis, callable $func, ...$arguments) : \Closure
     {
-        // string
-        if (is_string($func)) {
+        if (! is_string($func)) {
+            $bind = $arguments;
+
+        } else {
+            // string
             $bind = [];
 
             $rf = $this->newReflectionFunction($func);
@@ -756,10 +788,14 @@ class XPhp implements IPhp
             }
 
             $func = \Closure::fromCallable($func);
+        }
 
-        } else {
-            $bind = $arguments;
+        if (null !== $newthis) {
+            if (! $func instanceof \Closure) {
+                $func = \Closure::fromCallable($func); // throws exception if not possible
+            }
 
+            $func->bindTo($newthis); // throws exception if not possible
         }
 
         $result = function (...$args) use ($func, $bind) {
@@ -779,14 +815,17 @@ class XPhp implements IPhp
      * шорткат для call_user_func с рефлексией, чтобы передать в функцию ожидаемое число аргументов
      * для \Closure не имеет смысла, а для string callable вполне
      *
-     * @param callable $func
-     * @param array    $arguments
+     * @param null|object $newthis
+     * @param callable    $func
+     * @param array       $arguments
      *
      * @return mixed
      */
-    public function call(callable $func, ...$arguments) // : mixed
+    public function call(?object $newthis, callable $func, ...$arguments) // : mixed
     {
-        return call_user_func($this->bind($func, ...$arguments));
+        return call_user_func(
+            $this->bind($newthis, $func, ...$arguments)
+        );
     }
 
     /**
@@ -794,14 +833,17 @@ class XPhp implements IPhp
      * шорткат для call_user_func_array с рефлексией, чтобы передать в функцию ожидаемое число аргументов
      * для \Closure не имеет смысла, а для string callable вполне
      *
-     * @param callable $func
-     * @param array    $arguments
+     * @param null|object $newthis
+     * @param callable    $func
+     * @param array       $arguments
      *
      * @return mixed
      */
-    public function apply(callable $func, array $arguments) // : mixed
+    public function apply(?object $newthis, callable $func, array $arguments) // : mixed
     {
-        return call_user_func($this->bind($func, ...$arguments));
+        return call_user_func(
+            $this->bind($newthis, $func, ...$arguments)
+        );
     }
 
 
@@ -821,7 +863,7 @@ class XPhp implements IPhp
         }
 
         $result = (bool) call_user_func(
-            $this->bind($func, $arg, ...$arguments)
+            $this->bind(null, $func, $arg, ...$arguments)
         );
 
         return $result;
@@ -843,7 +885,7 @@ class XPhp implements IPhp
         }
 
         $result = call_user_func(
-            $this->bind($func, $arg, ...$arguments)
+            $this->bind(null, $func, $arg, ...$arguments)
         );
 
         return $result;
@@ -866,7 +908,7 @@ class XPhp implements IPhp
         }
 
         $result = call_user_func(
-            $this->bind($func, $carry, $arg, ...$arguments)
+            $this->bind(null, $func, $carry, $arg, ...$arguments)
         );
 
         return $result;

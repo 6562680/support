@@ -11,11 +11,17 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Exceptions\Logic\Cache\InvalidArgumentException;
+use Gzhegow\Support\Exceptions\Logic\Cache\InvalidArgumentException as InvalidArgumentException1;
+use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\RuntimeException;
 
 interface ICache
 {
+    /**
+     * @return callable[]
+     */
+    public function getPoolFactories(): array;
+
     /**
      * @return XCache[]|\Psr\Cache\CacheItemPoolInterface[]
      */
@@ -32,7 +38,7 @@ interface ICache
      * @param string $key
      *
      * @return \Psr\Cache\CacheItemInterface
-     * @throws InvalidArgumentException
+     * @throws CacheInvalidArgumentException
      */
     public function getItem($key);
 
@@ -40,7 +46,7 @@ interface ICache
      * @param string[] $keys
      *
      * @return array|\Traversable|\Psr\Cache\CacheItemInterface[]
-     * @throws InvalidArgumentException
+     * @throws CacheInvalidArgumentException
      */
     public function getItems(array $keys = []);
 
@@ -48,24 +54,24 @@ interface ICache
      * @param string $key
      *
      * @return bool
-     * @throws InvalidArgumentException
+     * @throws CacheInvalidArgumentException
      */
     public function hasItem($key);
 
     /**
-     * @param null|static[]|\Psr\Cache\CacheItemPoolInterface[] $pools
+     * @param null|static[]|\Psr\Cache\CacheItemPoolInterface[]|callable[] $pools
      *
      * @return void
      */
     public function setPools(?array $pools);
 
     /**
-     * @param string                                          $poolName
-     * @param object|static|\Psr\Cache\CacheItemPoolInterface $pool
+     * @param string                                            $poolName
+     * @param static|\Psr\Cache\CacheItemPoolInterface|callable $pool
      *
      * @return void
      */
-    public function addPool(string $poolName, object $pool): void;
+    public function addPool(string $poolName, $pool): void;
 
     /**
      * @param null|string $poolName
@@ -73,6 +79,13 @@ interface ICache
      * @return null|object|static|\Psr\Cache\CacheItemPoolInterface
      */
     public function selectPool(?string $poolName): ?object;
+
+    /**
+     * @param string $poolName
+     *
+     * @return XCache|\Psr\Cache\CacheItemPoolInterface
+     */
+    public function resolvePool(string $poolName): object;
 
     /**
      * @return bool
@@ -83,7 +96,7 @@ interface ICache
      * @param string $key
      *
      * @return bool
-     * @throws InvalidArgumentException
+     * @throws CacheInvalidArgumentException
      */
     public function deleteItem($key);
 
@@ -91,7 +104,7 @@ interface ICache
      * @param string[] $keys
      *
      * @return bool
-     * @throws InvalidArgumentException
+     * @throws CacheInvalidArgumentException
      */
     public function deleteItems(array $keys);
 

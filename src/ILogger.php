@@ -13,11 +13,17 @@ namespace Gzhegow\Support;
 
 use Gzhegow\Support\Exceptions\Exception;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
+use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\Traits\Load\ArrLoadTrait;
 use Gzhegow\Support\Traits\Load\DebugLoadTrait;
 
 interface ILogger
 {
+    /**
+     * @return callable[]
+     */
+    public function getChannelFactories(): array;
+
     /**
      * @return XLogger[]|\Psr\Log\LoggerInterface[]
      */
@@ -31,19 +37,19 @@ interface ILogger
     public function getChannel(string $channelName): object;
 
     /**
-     * @param null|static[]|\Psr\Log\LoggerInterface[] $channels
+     * @param null|static[]|\Psr\Log\LoggerInterface[]|callable[] $channels
      *
      * @return void
      */
     public function setChannels(?array $channels);
 
     /**
-     * @param string                                 $channelName
-     * @param object|static|\Psr\Log\LoggerInterface $channel
+     * @param string                                   $channelName
+     * @param static|\Psr\Log\LoggerInterface|callable $channel
      *
      * @return void
      */
-    public function addChannel(string $channelName, object $channel): void;
+    public function addChannel(string $channelName, $channel): void;
 
     /**
      * @param null|string $channelName
@@ -51,6 +57,13 @@ interface ILogger
      * @return null|object|static|\Psr\Log\LoggerInterface
      */
     public function selectChannel(?string $channelName): ?object;
+
+    /**
+     * @param string $channelName
+     *
+     * @return XLogger|\Psr\Log\LoggerInterface
+     */
+    public function resolveChannel(string $channelName): object;
 
     /**
      * @param mixed $message

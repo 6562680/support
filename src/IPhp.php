@@ -56,6 +56,23 @@ interface IPhp
     public function filterCallable($callable, PhpInvokableInfo &$invokableInfo = null);
 
     /**
+     * @param string|array|callable|mixed $callable
+     * @param null|PhpInvokableInfo       $invokableInfo
+     *
+     * @return null|string|array|callable
+     */
+    public function filterCallableOnly($callable, PhpInvokableInfo &$invokableInfo = null);
+
+    /**
+     * @param \Closure              $factory
+     * @param string|callable       $returnType
+     * @param null|PhpInvokableInfo $invokableInfo
+     *
+     * @return null|\Closure
+     */
+    public function filterCallableFactory($factory, $returnType, PhpInvokableInfo &$invokableInfo = null): ?\Closure;
+
+    /**
      * @param string|array|callable|mixed $callableString
      * @param null|PhpInvokableInfo       $invokableInfo
      *
@@ -110,15 +127,6 @@ interface IPhp
      * @return null|\Closure
      */
     public function filterClosure($closure, PhpInvokableInfo &$invokableInfo = null): ?\Closure;
-
-    /**
-     * @param \Closure              $factory
-     * @param string|callable       $returnType
-     * @param null|PhpInvokableInfo $invokableInfo
-     *
-     * @return null|\Closure
-     */
-    public function filterClosureFactory($factory, $returnType, PhpInvokableInfo &$invokableInfo = null): ?\Closure;
 
     /**
      * @param array|mixed $methodArray
@@ -244,36 +252,39 @@ interface IPhp
      * копирует тело функции и присваивает аргументы на их места в переданном порядке
      * bind('is_array', [], 1, 2) -> Closure of (function is_array($var = []))
      *
-     * @param callable $func
-     * @param mixed    ...$arguments
+     * @param null|object $newthis
+     * @param callable    $func
+     * @param mixed       ...$arguments
      *
      * @return \Closure
      */
-    public function bind(callable $func, ...$arguments): \Closure;
+    public function bind(?object $newthis, callable $func, ...$arguments): \Closure;
 
     /**
      * call
      * шорткат для call_user_func с рефлексией, чтобы передать в функцию ожидаемое число аргументов
      * для \Closure не имеет смысла, а для string callable вполне
      *
-     * @param callable $func
-     * @param array    $arguments
+     * @param null|object $newthis
+     * @param callable    $func
+     * @param array       $arguments
      *
      * @return mixed
      */
-    public function call(callable $func, ...$arguments);
+    public function call(?object $newthis, callable $func, ...$arguments);
 
     /**
      * apply
      * шорткат для call_user_func_array с рефлексией, чтобы передать в функцию ожидаемое число аргументов
      * для \Closure не имеет смысла, а для string callable вполне
      *
-     * @param callable $func
-     * @param array    $arguments
+     * @param null|object $newthis
+     * @param callable    $func
+     * @param array       $arguments
      *
      * @return mixed
      */
-    public function apply(callable $func, array $arguments);
+    public function apply(?object $newthis, callable $func, array $arguments);
 
     /**
      * выполняет функцию как шаг array_filter

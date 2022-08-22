@@ -74,6 +74,32 @@ class Php
     }
 
     /**
+     * @param string|array|callable|mixed $callable
+     * @param null|PhpInvokableInfo       $invokableInfo
+     *
+     * @return null|string|array|callable
+     */
+    public static function filterCallableOnly($callable, PhpInvokableInfo &$invokableInfo = null)
+    {
+        return static::getInstance()->filterCallableOnly($callable, $invokableInfo);
+    }
+
+    /**
+     * @param \Closure              $factory
+     * @param string|callable       $returnType
+     * @param null|PhpInvokableInfo $invokableInfo
+     *
+     * @return null|\Closure
+     */
+    public static function filterCallableFactory(
+        $factory,
+        $returnType,
+        PhpInvokableInfo &$invokableInfo = null
+    ): ?\Closure {
+        return static::getInstance()->filterCallableFactory($factory, $returnType, $invokableInfo);
+    }
+
+    /**
      * @param string|array|callable|mixed $callableString
      * @param null|PhpInvokableInfo       $invokableInfo
      *
@@ -150,21 +176,6 @@ class Php
     public static function filterClosure($closure, PhpInvokableInfo &$invokableInfo = null): ?\Closure
     {
         return static::getInstance()->filterClosure($closure, $invokableInfo);
-    }
-
-    /**
-     * @param \Closure              $factory
-     * @param string|callable       $returnType
-     * @param null|PhpInvokableInfo $invokableInfo
-     *
-     * @return null|\Closure
-     */
-    public static function filterClosureFactory(
-        $factory,
-        $returnType,
-        PhpInvokableInfo &$invokableInfo = null
-    ): ?\Closure {
-        return static::getInstance()->filterClosureFactory($factory, $returnType, $invokableInfo);
     }
 
     /**
@@ -339,14 +350,15 @@ class Php
      * копирует тело функции и присваивает аргументы на их места в переданном порядке
      * bind('is_array', [], 1, 2) -> Closure of (function is_array($var = []))
      *
-     * @param callable $func
-     * @param mixed    ...$arguments
+     * @param null|object $newthis
+     * @param callable    $func
+     * @param mixed       ...$arguments
      *
      * @return \Closure
      */
-    public static function bind(callable $func, ...$arguments): \Closure
+    public static function bind(?object $newthis, callable $func, ...$arguments): \Closure
     {
-        return static::getInstance()->bind($func, ...$arguments);
+        return static::getInstance()->bind($newthis, $func, ...$arguments);
     }
 
     /**
@@ -354,14 +366,15 @@ class Php
      * шорткат для call_user_func с рефлексией, чтобы передать в функцию ожидаемое число аргументов
      * для \Closure не имеет смысла, а для string callable вполне
      *
-     * @param callable $func
-     * @param array    $arguments
+     * @param null|object $newthis
+     * @param callable    $func
+     * @param array       $arguments
      *
      * @return mixed
      */
-    public static function call(callable $func, ...$arguments)
+    public static function call(?object $newthis, callable $func, ...$arguments)
     {
-        return static::getInstance()->call($func, ...$arguments);
+        return static::getInstance()->call($newthis, $func, ...$arguments);
     }
 
     /**
@@ -369,14 +382,15 @@ class Php
      * шорткат для call_user_func_array с рефлексией, чтобы передать в функцию ожидаемое число аргументов
      * для \Closure не имеет смысла, а для string callable вполне
      *
-     * @param callable $func
-     * @param array    $arguments
+     * @param null|object $newthis
+     * @param callable    $func
+     * @param array       $arguments
      *
      * @return mixed
      */
-    public static function apply(callable $func, array $arguments)
+    public static function apply(?object $newthis, callable $func, array $arguments)
     {
-        return static::getInstance()->apply($func, $arguments);
+        return static::getInstance()->apply($newthis, $func, $arguments);
     }
 
     /**

@@ -11,7 +11,8 @@
 
 namespace Gzhegow\Support\Facades;
 
-use Gzhegow\Support\Exceptions\Logic\Cache\InvalidArgumentException;
+use Gzhegow\Support\Exceptions\Logic\Cache\InvalidArgumentException as InvalidArgumentException1;
+use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\ICache;
 use Gzhegow\Support\SupportFactory;
@@ -19,6 +20,14 @@ use Gzhegow\Support\XCache;
 
 class Cache
 {
+    /**
+     * @return callable[]
+     */
+    public static function getPoolFactories(): array
+    {
+        return static::getInstance()->getPoolFactories();
+    }
+
     /**
      * @return XCache[]|\Psr\Cache\CacheItemPoolInterface[]
      */
@@ -41,7 +50,7 @@ class Cache
      * @param string $key
      *
      * @return \Psr\Cache\CacheItemInterface
-     * @throws InvalidArgumentException
+     * @throws CacheInvalidArgumentException
      */
     public static function getItem($key)
     {
@@ -52,7 +61,7 @@ class Cache
      * @param string[] $keys
      *
      * @return array|\Traversable|\Psr\Cache\CacheItemInterface[]
-     * @throws InvalidArgumentException
+     * @throws CacheInvalidArgumentException
      */
     public static function getItems(array $keys = [])
     {
@@ -63,7 +72,7 @@ class Cache
      * @param string $key
      *
      * @return bool
-     * @throws InvalidArgumentException
+     * @throws CacheInvalidArgumentException
      */
     public static function hasItem($key)
     {
@@ -71,7 +80,7 @@ class Cache
     }
 
     /**
-     * @param null|static[]|\Psr\Cache\CacheItemPoolInterface[] $pools
+     * @param null|static[]|\Psr\Cache\CacheItemPoolInterface[]|callable[] $pools
      *
      * @return void
      */
@@ -81,12 +90,12 @@ class Cache
     }
 
     /**
-     * @param string                                          $poolName
-     * @param object|static|\Psr\Cache\CacheItemPoolInterface $pool
+     * @param string                                            $poolName
+     * @param static|\Psr\Cache\CacheItemPoolInterface|callable $pool
      *
      * @return void
      */
-    public static function addPool(string $poolName, object $pool): void
+    public static function addPool(string $poolName, $pool): void
     {
         static::getInstance()->addPool($poolName, $pool);
     }
@@ -102,6 +111,16 @@ class Cache
     }
 
     /**
+     * @param string $poolName
+     *
+     * @return XCache|\Psr\Cache\CacheItemPoolInterface
+     */
+    public static function resolvePool(string $poolName): object
+    {
+        return static::getInstance()->resolvePool($poolName);
+    }
+
+    /**
      * @return bool
      */
     public static function clear()
@@ -113,7 +132,7 @@ class Cache
      * @param string $key
      *
      * @return bool
-     * @throws InvalidArgumentException
+     * @throws CacheInvalidArgumentException
      */
     public static function deleteItem($key)
     {
@@ -124,7 +143,7 @@ class Cache
      * @param string[] $keys
      *
      * @return bool
-     * @throws InvalidArgumentException
+     * @throws CacheInvalidArgumentException
      */
     public static function deleteItems(array $keys)
     {
