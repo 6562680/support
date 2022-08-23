@@ -60,25 +60,25 @@ class Arr
     }
 
     /**
-     * @param int   $idx
+     * @param int   $pos
      * @param array $src
      *
      * @return mixed
      */
-    public static function getIdx(int $idx, array &$src)
+    public static function getByPos(int $pos, array &$src)
     {
-        return static::getInstance()->getIdx($idx, $src);
+        return static::getInstance()->getByPos($pos, $src);
     }
 
     /**
-     * @param int   $idx
+     * @param int   $pos
      * @param array $src
      *
      * @return bool
      */
-    public static function hasIdx(int $idx, array &$src): bool
+    public static function hasByPos(int $pos, array &$src): bool
     {
-        return static::getInstance()->hasIdx($idx, $src);
+        return static::getInstance()->hasByPos($pos, $src);
     }
 
     /**
@@ -94,14 +94,14 @@ class Arr
     }
 
     /**
-     * @param int   $idx
+     * @param int   $pos
      * @param array $src
      *
      * @return mixed
      */
-    public static function &getRefIdx(int $idx, array &$src)
+    public static function &getRefByPos(int $pos, array &$src)
     {
-        return static::getInstance()->getRefIdx($idx, $src);
+        return static::getInstance()->getRefByPos($pos, $src);
     }
 
     /**
@@ -118,14 +118,14 @@ class Arr
 
     /**
      * @param null|array $dst
-     * @param int        $idx
+     * @param int        $pos
      * @param mixed      $value
      *
      * @return mixed
      */
-    public static function &setRefIdx(?array &$dst, int $idx, $value)
+    public static function &setRefByPos(?array &$dst, int $pos, $value)
     {
-        return static::getInstance()->setRefIdx($dst, $idx, $value);
+        return static::getInstance()->setRefByPos($dst, $pos, $value);
     }
 
     /**
@@ -234,13 +234,13 @@ class Arr
 
     /**
      * @param array $src
-     * @param int   $idx
+     * @param int   $pos
      *
      * @return array
      */
-    public static function delIdx(array &$src, int $idx): ?array
+    public static function delByPos(array &$src, int $pos): ?array
     {
-        return static::getInstance()->delIdx($src, $idx);
+        return static::getInstance()->delByPos($src, $pos);
     }
 
     /**
@@ -256,13 +256,13 @@ class Arr
 
     /**
      * @param array $src
-     * @param int   $idx
+     * @param int   $pos
      *
      * @return bool
      */
-    public static function delRefIdx(array &$src, int $idx): bool
+    public static function delRefByPos(array &$src, int $pos): bool
     {
-        return static::getInstance()->delRefIdx($src, $idx);
+        return static::getInstance()->delRefByPos($src, $pos);
     }
 
     /**
@@ -414,7 +414,7 @@ class Arr
     }
 
     /**
-     * очищает указанные ключи в массиве. если не передать ключи - очистит все
+     * очищает указанные ключи в массиве и возвращает новый. если не передать ключи - очистит все
      *
      * @param array                 $array
      * @param string|string[]|array ...$keys
@@ -442,7 +442,7 @@ class Arr
     }
 
     /**
-     * возвращает срез массива по числовым порядковым номерам элементов, изменяя сам массив $arr = [ 1, 2, 3, 4 ] -> $arr[-3:2] -> [ 1 ]
+     * возвращает срез массива по числовым порядковым номерам элементов (изменяя сам массив) $arr = [ 1, 2, 3, 4 ] -> $arr[-3:2] -> [ 1 ]
      *
      * @param array    $array
      * @param int      $start
@@ -579,7 +579,7 @@ class Arr
 
     /**
      * array_walk_recursive реализованный через стек и позволяющий получить путь до элемента
-     * позволяет остановить проход вглубь $gen->push(false), если обработка уровня закончена, а также обходить "только родителей"
+     * позволяет остановить проход вглубь &$continue = true/false, если обработка уровня закончена, а также обходить "только родителей"
      *
      * @param array     $array
      * @param null|bool $withChildren

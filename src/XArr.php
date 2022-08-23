@@ -76,27 +76,27 @@ class XArr implements IArr
 
 
     /**
-     * @param int   $idx
+     * @param int   $pos
      * @param array $src
      *
      * @return mixed
      */
-    public function getIdx(int $idx, array &$src)
+    public function getByPos(int $pos, array &$src)
     {
-        $result = $this->getRefIdx($idx, $src);
+        $result = $this->getRefByPos($pos, $src);
 
         return $result;
     }
 
     /**
-     * @param int   $idx
+     * @param int   $pos
      * @param array $src
      *
      * @return bool
      */
-    public function hasIdx(int $idx, array &$src) : bool
+    public function hasByPos(int $pos, array &$src) : bool
     {
-        $this->ref($src, $idx, $error);
+        $this->refByPos($src, $pos, $error);
 
         return $error === static::ERROR_REF_NO_ERROR;
     }
@@ -122,26 +122,26 @@ class XArr implements IArr
         }
 
         throw new OutOfRangeException([
-            'Path not found: %s',
+            'The `path` not found in array: %s',
             $path,
         ]);
     }
 
     /**
-     * @param int   $idx
+     * @param int   $pos
      * @param array $src
      *
      * @return mixed
      */
-    public function &getRefIdx(int $idx, array &$src) // : mixed
+    public function &getRefByPos(int $pos, array &$src) // : mixed
     {
-        $result = $this->refIdx($src, $idx, $error);
+        $result = $this->refByPos($src, $pos, $error);
 
         if (! $error) {
             return $result;
         }
 
-        throw new OutOfRangeException('Index not found: ' . $idx);
+        throw new OutOfRangeException('The `pos` not found in array: ' . $pos);
     }
 
 
@@ -157,7 +157,7 @@ class XArr implements IArr
         $fullpath = $this->path($path);
 
         if (null === key($fullpath)) {
-            throw new InvalidArgumentException([ 'Empty path passed: %s', $path ]);
+            throw new InvalidArgumentException('The `path` should be not-empty');
         }
 
         $last = array_pop($fullpath);
@@ -178,14 +178,14 @@ class XArr implements IArr
 
     /**
      * @param null|array $dst
-     * @param int        $idx
+     * @param int        $pos
      * @param mixed      $value
      *
      * @return mixed
      */
-    public function &setRefIdx(?array &$dst, int $idx, $value) // : mixed
+    public function &setRefByPos(?array &$dst, int $pos, $value) // : mixed
     {
-        $valueRef =& $this->refIdx($dst, $idx, $error);
+        $valueRef =& $this->refByPos($dst, $pos, $error);
 
         if ($error) {
             $valueRef = $value;
@@ -193,7 +193,7 @@ class XArr implements IArr
             return $valueRef;
         }
 
-        throw new OutOfRangeException('Index not found: ' . $idx);
+        throw new OutOfRangeException('The `pos` not found in array: ' . $pos);
     }
 
 
@@ -442,7 +442,7 @@ class XArr implements IArr
     {
         if (false === $this->delRef($src, ...$path)) {
             throw new UnderflowException([
-                'Unable to delete due to missing/invalid key: %s',
+                'Unable to delete due to missing/invalid `path`: %s',
                 $path,
             ]);
         }
@@ -452,16 +452,16 @@ class XArr implements IArr
 
     /**
      * @param array $src
-     * @param int   $idx
+     * @param int   $pos
      *
      * @return array
      */
-    public function delIdx(array &$src, int $idx) : ?array
+    public function delByPos(array &$src, int $pos) : ?array
     {
-        if (false === $this->delRefIdx($src, $idx)) {
+        if (false === $this->delRefByPos($src, $pos)) {
             throw new UnderflowException([
-                'Unable to delete due to missing/invalid idx: %s',
-                $idx,
+                'Unable to delete due to missing/invalid `pos`: %s',
+                $pos,
             ]);
         }
 
@@ -521,17 +521,17 @@ class XArr implements IArr
 
     /**
      * @param array $src
-     * @param int   $idx
+     * @param int   $pos
      *
      * @return bool
      */
-    public function delRefIdx(array &$src, int $idx) : bool
+    public function delRefByPos(array &$src, int $pos) : bool
     {
         $result = false;
 
-        $abs = abs($idx);
+        $abs = abs($pos);
 
-        if ($idx < 0) end($src);
+        if ($pos < 0) end($src);
 
         while ( null !== ( $k = key($src) ) ) {
             if (! $abs--) {
@@ -544,7 +544,7 @@ class XArr implements IArr
                 break;
             }
 
-            ( $idx < 0 )
+            ( $pos < 0 )
                 ? prev($src)
                 : next($src);
         }
@@ -912,7 +912,7 @@ class XArr implements IArr
     }
 
     /**
-     * очищает указанные ключи в массиве. если не передать ключи - очистит все
+     * очищает указанные ключи в массиве и возвращает новый. если не передать ключи - очистит все
      *
      * @param array                 $array
      * @param string|string[]|array ...$keys
@@ -968,7 +968,7 @@ class XArr implements IArr
     }
 
     /**
-     * возвращает срез массива по числовым порядковым номерам элементов, изменяя сам массив $arr = [ 1, 2, 3, 4 ] -> $arr[-3:2] -> [ 1 ]
+     * возвращает срез массива по числовым порядковым номерам элементов (изменяя сам массив) $arr = [ 1, 2, 3, 4 ] -> $arr[-3:2] -> [ 1 ]
      *
      * @param array    $array
      * @param int      $start
@@ -1270,7 +1270,7 @@ class XArr implements IArr
 
     /**
      * array_walk_recursive реализованный через стек и позволяющий получить путь до элемента
-     * позволяет остановить проход вглубь $gen->push(false), если обработка уровня закончена, а также обходить "только родителей"
+     * позволяет остановить проход вглубь &$continue = true/false, если обработка уровня закончена, а также обходить "только родителей"
      *
      * @param array     $array
      * @param null|bool $withChildren
@@ -1641,7 +1641,7 @@ class XArr implements IArr
         $fullpath = $this->path($path);
 
         $ref =& $src;
-        while ( null !== ( $k = key($fullpath) ) ) {
+        while ( null !== key($fullpath) ) {
             $slug = array_shift($fullpath);
 
             if (! array_key_exists($slug, $ref)) {
@@ -1672,18 +1672,18 @@ class XArr implements IArr
 
     /**
      * @param array    $src
-     * @param int      $idx
+     * @param int      $pos
      * @param null|int $error
      *
      * @return mixed
      */
-    protected function &refIdx(array &$src, int $idx, int &$error = null) // : mixed
+    protected function &refByPos(array &$src, int $pos, int &$error = null) // : mixed
     {
         $error = static::ERROR_REF_EMPTY_KEY;
 
-        $abs = abs($idx);
+        $abs = abs($pos);
 
-        if ($idx < 0) end($src);
+        if ($pos < 0) end($src);
 
         $ref =& $src;
         while ( null !== ( $k = key($src) ) ) {
@@ -1695,7 +1695,7 @@ class XArr implements IArr
                 break;
             }
 
-            ( $idx < 0 )
+            ( $pos < 0 )
                 ? prev($src)
                 : next($src);
         }

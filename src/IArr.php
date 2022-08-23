@@ -48,20 +48,20 @@ interface IArr
     public function set(?array &$dst, $path, $value);
 
     /**
-     * @param int   $idx
+     * @param int   $pos
      * @param array $src
      *
      * @return mixed
      */
-    public function getIdx(int $idx, array &$src);
+    public function getByPos(int $pos, array &$src);
 
     /**
-     * @param int   $idx
+     * @param int   $pos
      * @param array $src
      *
      * @return bool
      */
-    public function hasIdx(int $idx, array &$src): bool;
+    public function hasByPos(int $pos, array &$src): bool;
 
     /**
      * @param string|array $path
@@ -73,12 +73,12 @@ interface IArr
     public function &getRef($path, array &$src, $default = null);
 
     /**
-     * @param int   $idx
+     * @param int   $pos
      * @param array $src
      *
      * @return mixed
      */
-    public function &getRefIdx(int $idx, array &$src);
+    public function &getRefByPos(int $pos, array &$src);
 
     /**
      * @param null|array   $dst
@@ -91,12 +91,12 @@ interface IArr
 
     /**
      * @param null|array $dst
-     * @param int        $idx
+     * @param int        $pos
      * @param mixed      $value
      *
      * @return mixed
      */
-    public function &setRefIdx(?array &$dst, int $idx, $value);
+    public function &setRefByPos(?array &$dst, int $pos, $value);
 
     /**
      * @param array|mixed   $array
@@ -177,11 +177,11 @@ interface IArr
 
     /**
      * @param array $src
-     * @param int   $idx
+     * @param int   $pos
      *
      * @return array
      */
-    public function delIdx(array &$src, int $idx): ?array;
+    public function delByPos(array &$src, int $pos): ?array;
 
     /**
      * @param array        $src
@@ -193,11 +193,11 @@ interface IArr
 
     /**
      * @param array $src
-     * @param int   $idx
+     * @param int   $pos
      *
      * @return bool
      */
-    public function delRefIdx(array &$src, int $idx): bool;
+    public function delRefByPos(array &$src, int $pos): bool;
 
     /**
      * @param mixed $value
@@ -306,7 +306,7 @@ interface IArr
     public function except(array $array, ...$keys): array;
 
     /**
-     * очищает указанные ключи в массиве. если не передать ключи - очистит все
+     * очищает указанные ключи в массиве и возвращает новый. если не передать ключи - очистит все
      *
      * @param array                 $array
      * @param string|string[]|array ...$keys
@@ -328,7 +328,7 @@ interface IArr
     public function slicePos(array $array, int $start, int $end = null, bool $preserveKeys = null): array;
 
     /**
-     * возвращает срез массива по числовым порядковым номерам элементов, изменяя сам массив $arr = [ 1, 2, 3, 4 ] -> $arr[-3:2] -> [ 1 ]
+     * возвращает срез массива по числовым порядковым номерам элементов (изменяя сам массив) $arr = [ 1, 2, 3, 4 ] -> $arr[-3:2] -> [ 1 ]
      *
      * @param array    $array
      * @param int      $start
@@ -434,7 +434,7 @@ interface IArr
 
     /**
      * array_walk_recursive реализованный через стек и позволяющий получить путь до элемента
-     * позволяет остановить проход вглубь $gen->push(false), если обработка уровня закончена, а также обходить "только родителей"
+     * позволяет остановить проход вглубь &$continue = true/false, если обработка уровня закончена, а также обходить "только родителей"
      *
      * @param array     $array
      * @param null|bool $withChildren
