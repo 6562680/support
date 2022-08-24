@@ -329,6 +329,11 @@ class XCurl implements ICurl
 
                     continue;
 
+                } elseif ($retryCurl === false) {
+                    unset($curls[ $i ]);
+
+                    continue;
+
                 } elseif (null === $this->filterCurlFresh($retryCurl)) {
                     throw new InvalidArgumentException([
                         'The `current` should be null or fresh curl instance: %s',
