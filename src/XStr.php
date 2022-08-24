@@ -206,7 +206,10 @@ class XStr implements IStr
         $cache->selectPool($poolName);
 
         $root = SupportFactory::getInstance()->getCache();
-        $root->addPool(strtolower(str_replace('\\', '.', __CLASS__)), $cache);
+        $root->addPool(
+            strtolower(str_replace('\\', '.', __CLASS__)),
+            $cache
+        );
 
         return $cache;
     }

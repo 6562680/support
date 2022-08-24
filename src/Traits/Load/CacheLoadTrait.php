@@ -3,6 +3,7 @@
 namespace Gzhegow\Support\Traits\Load;
 
 use Gzhegow\Support\ICache;
+use Gzhegow\Support\SupportFactory;
 
 
 /**
@@ -32,15 +33,18 @@ trait CacheLoadTrait
     /**
      * @return ICache
      */
-    protected function getCache() : ICache
+    protected function loadCache() : ICache
     {
-        return $this->cache = $this->cache
-            ?? $this->loadCache();
+        return SupportFactory::getInstance()->getCache();
     }
 
 
     /**
      * @return ICache
      */
-    abstract protected function loadCache() : ICache;
+    protected function getCache() : ICache
+    {
+        return $this->cache = $this->cache
+            ?? $this->loadCache();
+    }
 }
