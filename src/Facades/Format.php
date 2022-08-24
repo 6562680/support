@@ -54,16 +54,16 @@ class Format
     }
 
     /**
-     * Формирует условие для SQL LIKE %val% запроса, экранируя проценты и подчеркивания
+     * Экранирует специальные символы SQL
      *
      * @param string      $value
      * @param null|string $escape
      *
      * @return string
      */
-    public static function sqlLike(string $value, string $escape = null): string
+    public static function sqlEscape(string $value, string $escape = null): string
     {
-        return static::getInstance()->sqlLike($value, $escape);
+        return static::getInstance()->sqlEscape($value, $escape);
     }
 
     /**

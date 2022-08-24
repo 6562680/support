@@ -53,9 +53,9 @@ class Logger
      *
      * @return void
      */
-    public static function setChannels(?array $channels)
+    public static function setChannels(?array $channels): void
     {
-        return static::getInstance()->setChannels($channels);
+        static::getInstance()->setChannels($channels);
     }
 
     /**
@@ -95,9 +95,9 @@ class Logger
      *
      * @return void
      */
-    public static function emergency($message, array $context = [])
+    public static function emergency($message, array $context = []): void
     {
-        return static::getInstance()->emergency($message, $context);
+        static::getInstance()->emergency($message, $context);
     }
 
     /**
@@ -106,9 +106,9 @@ class Logger
      *
      * @return void
      */
-    public static function alert($message, array $context = [])
+    public static function alert($message, array $context = []): void
     {
-        return static::getInstance()->alert($message, $context);
+        static::getInstance()->alert($message, $context);
     }
 
     /**
@@ -117,9 +117,9 @@ class Logger
      *
      * @return void
      */
-    public static function critical($message, array $context = [])
+    public static function critical($message, array $context = []): void
     {
-        return static::getInstance()->critical($message, $context);
+        static::getInstance()->critical($message, $context);
     }
 
     /**
@@ -128,9 +128,9 @@ class Logger
      *
      * @return void
      */
-    public static function error($message, array $context = [])
+    public static function error($message, array $context = []): void
     {
-        return static::getInstance()->error($message, $context);
+        static::getInstance()->error($message, $context);
     }
 
     /**
@@ -139,9 +139,9 @@ class Logger
      *
      * @return void
      */
-    public static function warning($message, array $context = [])
+    public static function warning($message, array $context = []): void
     {
-        return static::getInstance()->warning($message, $context);
+        static::getInstance()->warning($message, $context);
     }
 
     /**
@@ -150,9 +150,9 @@ class Logger
      *
      * @return void
      */
-    public static function notice($message, array $context = [])
+    public static function notice($message, array $context = []): void
     {
-        return static::getInstance()->notice($message, $context);
+        static::getInstance()->notice($message, $context);
     }
 
     /**
@@ -161,9 +161,9 @@ class Logger
      *
      * @return void
      */
-    public static function info($message, array $context = [])
+    public static function info($message, array $context = []): void
     {
-        return static::getInstance()->info($message, $context);
+        static::getInstance()->info($message, $context);
     }
 
     /**
@@ -172,9 +172,9 @@ class Logger
      *
      * @return void
      */
-    public static function debug($message, array $context = [])
+    public static function debug($message, array $context = []): void
     {
-        return static::getInstance()->debug($message, $context);
+        static::getInstance()->debug($message, $context);
     }
 
     /**
@@ -184,9 +184,9 @@ class Logger
      *
      * @return void
      */
-    public static function log($level, $message, array $context = null)
+    public static function log($level, $message, array $context = null): void
     {
-        return static::getInstance()->log($level, $message, $context);
+        static::getInstance()->log($level, $message, $context);
     }
 
     /**

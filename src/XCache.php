@@ -71,7 +71,7 @@ class XCache implements ICache
      * @return \Psr\Cache\CacheItemInterface
      * @throws CacheInvalidArgumentException
      */
-    public function getItem($key)
+    public function getItem($key) : object
     {
         /**
          * @var \Psr\Cache\CacheItemInterface $result
@@ -93,7 +93,7 @@ class XCache implements ICache
      * @return array|\Traversable|\Psr\Cache\CacheItemInterface[]
      * @throws CacheInvalidArgumentException
      */
-    public function getItems(array $keys = [])
+    public function getItems(array $keys = []) : array
     {
         /**
          * @var array|\Traversable|\Psr\Cache\CacheItemInterface[] $result
@@ -116,7 +116,7 @@ class XCache implements ICache
      * @return bool
      * @throws CacheInvalidArgumentException
      */
-    public function hasItem($key)
+    public function hasItem($key) : bool
     {
         try {
             $result = $this->pool->hasItem($key);
@@ -134,7 +134,7 @@ class XCache implements ICache
      *
      * @return void
      */
-    public function setPools(?array $pools)
+    public function setPools(?array $pools) : void
     {
         $this->pools = [];
         $this->poolFactories = [];
@@ -239,7 +239,7 @@ class XCache implements ICache
     /**
      * @return bool
      */
-    public function clear()
+    public function clear() : bool
     {
         return $this->pool->clear();
     }
@@ -251,7 +251,7 @@ class XCache implements ICache
      * @return bool
      * @throws CacheInvalidArgumentException
      */
-    public function deleteItem($key)
+    public function deleteItem($key) : bool
     {
         try {
             $result = $this->pool->deleteItem($key);
@@ -269,7 +269,7 @@ class XCache implements ICache
      * @return bool
      * @throws CacheInvalidArgumentException
      */
-    public function deleteItems(array $keys)
+    public function deleteItems(array $keys) : bool
     {
         try {
             $result = $this->pool->deleteItems($keys);
@@ -287,7 +287,7 @@ class XCache implements ICache
      *
      * @return bool
      */
-    public function save(object $item)
+    public function save(object $item) : bool
     {
         if (! is_a($item, $interface = static::PSR_CACHE_ITEM_INTERFACE)) {
             throw new InvalidArgumentException(
@@ -303,7 +303,7 @@ class XCache implements ICache
      *
      * @return bool
      */
-    public function saveDeferred(object $item)
+    public function saveDeferred(object $item) : bool
     {
         if (! is_a($item, $interface = static::PSR_CACHE_ITEM_INTERFACE)) {
             throw new InvalidArgumentException(
@@ -318,7 +318,7 @@ class XCache implements ICache
     /**
      * @return bool
      */
-    public function commit()
+    public function commit() : bool
     {
         return $this->pool->commit();
     }

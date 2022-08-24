@@ -368,5 +368,5 @@ interface IPhp
      *
      * @return void
      */
-    public function obEndFlush(int $limit = null);
+    public function obEndFlush(int $limit = null): void;
 }

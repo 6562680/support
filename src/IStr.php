@@ -577,7 +577,7 @@ interface IStr
      *
      * @return void
      */
-    public function implodeRecursive($delimiters, array $strings);
+    public function implodeRecursive($delimiters, array $strings): string;
 
     /**
      * '1:2,3', включая пустые строки, пропускает если нельзя привести к строке, антоним explodeRecursive
@@ -587,7 +587,7 @@ interface IStr
      *
      * @return void
      */
-    public function implodeRecursiveSkip($delimiters, array $strings);
+    public function implodeRecursiveSkip($delimiters, array $strings): string;
 
     /**
      * '1, 2, 3', пропускает пустые строки, исключение если нельзя привести к строке
@@ -617,7 +617,7 @@ interface IStr
      *
      * @return void
      */
-    public function joinRecursive($delimiters, array $strings);
+    public function joinRecursive($delimiters, array $strings): string;
 
     /**
      * '1:2,3', включая пустые строки, пропускает если нельзя привести к строке, антоним explodeRecursive
@@ -627,7 +627,7 @@ interface IStr
      *
      * @return void
      */
-    public function joinRecursiveSkip($delimiters, array $strings);
+    public function joinRecursiveSkip($delimiters, array $strings): string;
 
     /**
      * "`1`, `2` or `3`", всегда пропускает пустые строки, исключение если нельзя привести к строке
@@ -846,12 +846,12 @@ interface IStr
      *
      * @return void
      */
-    public function beginMultibyteMode(string $mode);
+    public function beginMultibyteMode(string $mode): void;
 
     /**
      * @return void
      */
-    public function endMultibyteMode();
+    public function endMultibyteMode(): void;
 
     /**
      * @param string   $mode
@@ -859,7 +859,7 @@ interface IStr
      *
      * @return void
      */
-    public function multibyteMode(string $mode, \Closure $closure);
+    public function multibyteMode(string $mode, \Closure $closure): void;
 
     /**
      * @param string|array|mixed $arguments

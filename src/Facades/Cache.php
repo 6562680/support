@@ -11,7 +11,7 @@
 
 namespace Gzhegow\Support\Facades;
 
-use Gzhegow\Support\Exceptions\Logic\Cache\InvalidArgumentException as InvalidArgumentException1;
+use Gzhegow\Support\Exceptions\Logic\Cache\InvalidArgumentException as CacheInvalidArgumentException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\RuntimeException;
 use Gzhegow\Support\ICache;
@@ -52,7 +52,7 @@ class Cache
      * @return \Psr\Cache\CacheItemInterface
      * @throws CacheInvalidArgumentException
      */
-    public static function getItem($key)
+    public static function getItem($key): object
     {
         return static::getInstance()->getItem($key);
     }
@@ -63,7 +63,7 @@ class Cache
      * @return array|\Traversable|\Psr\Cache\CacheItemInterface[]
      * @throws CacheInvalidArgumentException
      */
-    public static function getItems(array $keys = [])
+    public static function getItems(array $keys = []): array
     {
         return static::getInstance()->getItems($keys);
     }
@@ -74,7 +74,7 @@ class Cache
      * @return bool
      * @throws CacheInvalidArgumentException
      */
-    public static function hasItem($key)
+    public static function hasItem($key): bool
     {
         return static::getInstance()->hasItem($key);
     }
@@ -84,9 +84,9 @@ class Cache
      *
      * @return void
      */
-    public static function setPools(?array $pools)
+    public static function setPools(?array $pools): void
     {
-        return static::getInstance()->setPools($pools);
+        static::getInstance()->setPools($pools);
     }
 
     /**
@@ -123,7 +123,7 @@ class Cache
     /**
      * @return bool
      */
-    public static function clear()
+    public static function clear(): bool
     {
         return static::getInstance()->clear();
     }
@@ -134,7 +134,7 @@ class Cache
      * @return bool
      * @throws CacheInvalidArgumentException
      */
-    public static function deleteItem($key)
+    public static function deleteItem($key): bool
     {
         return static::getInstance()->deleteItem($key);
     }
@@ -145,7 +145,7 @@ class Cache
      * @return bool
      * @throws CacheInvalidArgumentException
      */
-    public static function deleteItems(array $keys)
+    public static function deleteItems(array $keys): bool
     {
         return static::getInstance()->deleteItems($keys);
     }
@@ -155,7 +155,7 @@ class Cache
      *
      * @return bool
      */
-    public static function save(object $item)
+    public static function save(object $item): bool
     {
         return static::getInstance()->save($item);
     }
@@ -165,7 +165,7 @@ class Cache
      *
      * @return bool
      */
-    public static function saveDeferred(object $item)
+    public static function saveDeferred(object $item): bool
     {
         return static::getInstance()->saveDeferred($item);
     }
@@ -173,7 +173,7 @@ class Cache
     /**
      * @return bool
      */
-    public static function commit()
+    public static function commit(): bool
     {
         return static::getInstance()->commit();
     }

@@ -209,6 +209,17 @@ class Curl
 
     /**
      * @param resource|\CurlHandle|array $curls
+     * @param resource|\CurlHandle       $retryCurl
+     *
+     * @return \Generator<array<int,resource|\CurlHandle>>
+     */
+    public static function walkMulti($curls, &$retryCurl): \Generator
+    {
+        yield from static::getInstance()->walkMulti($curls, $retryCurl);
+    }
+
+    /**
+     * @param resource|\CurlHandle|array $curls
      * @param null|bool                  $uniq
      * @param null|bool                  $recursive
      *

@@ -11,7 +11,7 @@
 
 namespace Gzhegow\Support;
 
-use Gzhegow\Support\Exceptions\Logic\Cache\InvalidArgumentException as InvalidArgumentException1;
+use Gzhegow\Support\Exceptions\Logic\Cache\InvalidArgumentException as CacheInvalidArgumentException;
 use Gzhegow\Support\Exceptions\Logic\InvalidArgumentException;
 use Gzhegow\Support\Exceptions\RuntimeException;
 
@@ -40,7 +40,7 @@ interface ICache
      * @return \Psr\Cache\CacheItemInterface
      * @throws CacheInvalidArgumentException
      */
-    public function getItem($key);
+    public function getItem($key): object;
 
     /**
      * @param string[] $keys
@@ -48,7 +48,7 @@ interface ICache
      * @return array|\Traversable|\Psr\Cache\CacheItemInterface[]
      * @throws CacheInvalidArgumentException
      */
-    public function getItems(array $keys = []);
+    public function getItems(array $keys = []): array;
 
     /**
      * @param string $key
@@ -56,14 +56,14 @@ interface ICache
      * @return bool
      * @throws CacheInvalidArgumentException
      */
-    public function hasItem($key);
+    public function hasItem($key): bool;
 
     /**
      * @param null|static[]|\Psr\Cache\CacheItemPoolInterface[]|callable[] $pools
      *
      * @return void
      */
-    public function setPools(?array $pools);
+    public function setPools(?array $pools): void;
 
     /**
      * @param string                                            $poolName
@@ -90,7 +90,7 @@ interface ICache
     /**
      * @return bool
      */
-    public function clear();
+    public function clear(): bool;
 
     /**
      * @param string $key
@@ -98,7 +98,7 @@ interface ICache
      * @return bool
      * @throws CacheInvalidArgumentException
      */
-    public function deleteItem($key);
+    public function deleteItem($key): bool;
 
     /**
      * @param string[] $keys
@@ -106,24 +106,24 @@ interface ICache
      * @return bool
      * @throws CacheInvalidArgumentException
      */
-    public function deleteItems(array $keys);
+    public function deleteItems(array $keys): bool;
 
     /**
      * @param object|\Psr\Cache\CacheItemInterface $item
      *
      * @return bool
      */
-    public function save(object $item);
+    public function save(object $item): bool;
 
     /**
      * @param object|\Psr\Cache\CacheItemInterface $item
      *
      * @return bool
      */
-    public function saveDeferred(object $item);
+    public function saveDeferred(object $item): bool;
 
     /**
      * @return bool
      */
-    public function commit();
+    public function commit(): bool;
 }

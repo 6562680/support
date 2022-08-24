@@ -499,9 +499,9 @@ class Php
      *
      * @return void
      */
-    public static function obEndFlush(int $limit = null)
+    public static function obEndFlush(int $limit = null): void
     {
-        return static::getInstance()->obEndFlush($limit);
+        static::getInstance()->obEndFlush($limit);
     }
 
     /**

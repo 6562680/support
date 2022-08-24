@@ -88,14 +88,14 @@ class XFormat implements IFormat
 
 
     /**
-     * Формирует условие для SQL LIKE %val% запроса, экранируя проценты и подчеркивания
+     * Экранирует специальные символы SQL
      *
      * @param string      $value
      * @param null|string $escape
      *
      * @return string
      */
-    public function sqlLike(string $value, string $escape = null) : string
+    public function sqlEscape(string $value, string $escape = null) : string
     {
         $escape = $escape ?? '\\';
 

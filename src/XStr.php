@@ -1734,7 +1734,7 @@ class XStr implements IStr
      *
      * @return void
      */
-    public function implodeRecursive($delimiters, array $strings)
+    public function implodeRecursive($delimiters, array $strings) : string
     {
         /**
          * @var array $fullpath
@@ -1766,7 +1766,7 @@ class XStr implements IStr
      *
      * @return void
      */
-    public function implodeRecursiveSkip($delimiters, array $strings)
+    public function implodeRecursiveSkip($delimiters, array $strings) : string
     {
         /**
          * @var array $fullpath
@@ -1854,7 +1854,7 @@ class XStr implements IStr
      *
      * @return void
      */
-    public function joinRecursive($delimiters, array $strings)
+    public function joinRecursive($delimiters, array $strings) : string
     {
         /**
          * @var array $fullpath
@@ -1892,7 +1892,7 @@ class XStr implements IStr
      *
      * @return void
      */
-    public function joinRecursiveSkip($delimiters, array $strings)
+    public function joinRecursiveSkip($delimiters, array $strings) : string
     {
         /**
          * @var array $fullpath
@@ -2520,7 +2520,7 @@ class XStr implements IStr
      *
      * @return void
      */
-    public function beginMultibyteMode(string $mode)
+    public function beginMultibyteMode(string $mode) : void
     {
         if (! isset(static::THE_MODE_LIST[ $mode ])) {
             throw new InvalidArgumentException('Unsupported mode: ' . $mode);
@@ -2532,7 +2532,7 @@ class XStr implements IStr
     /**
      * @return void
      */
-    public function endMultibyteMode()
+    public function endMultibyteMode() : void
     {
         array_pop($this->multibyteStack);
 
@@ -2545,7 +2545,7 @@ class XStr implements IStr
      *
      * @return void
      */
-    public function multibyteMode(string $mode, \Closure $closure)
+    public function multibyteMode(string $mode, \Closure $closure) : void
     {
         $this->beginMultibyteMode($mode);
 

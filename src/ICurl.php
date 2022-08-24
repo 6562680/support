@@ -155,6 +155,14 @@ interface ICurl
 
     /**
      * @param resource|\CurlHandle|array $curls
+     * @param resource|\CurlHandle       $retryCurl
+     *
+     * @return \Generator<array<int,resource|\CurlHandle>>
+     */
+    public function walkMulti($curls, &$retryCurl): \Generator;
+
+    /**
+     * @param resource|\CurlHandle|array $curls
      * @param null|bool                  $uniq
      * @param null|bool                  $recursive
      *

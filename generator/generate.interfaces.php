@@ -68,8 +68,8 @@ foreach ( $interfaces as $interface => $sourceClasses ) {
     foreach ( $sourceClasses as $sourceClass ) {
         $phpNamespace->addUse($sourceClass);
 
-        foreach ( $generator->getLoader()->getUseStatements($sourceClass) as $use ) {
-            $phpNamespace->addUse($use);
+        foreach ( $generator->getLoader()->getUseStatements($sourceClass) as $alias => $use ) {
+            $phpNamespace->addUse($use, $alias);
         }
     }
 

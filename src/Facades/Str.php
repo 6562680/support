@@ -760,7 +760,7 @@ class Str
      *
      * @return void
      */
-    public static function implodeRecursive($delimiters, array $strings)
+    public static function implodeRecursive($delimiters, array $strings): string
     {
         return static::getInstance()->implodeRecursive($delimiters, $strings);
     }
@@ -773,7 +773,7 @@ class Str
      *
      * @return void
      */
-    public static function implodeRecursiveSkip($delimiters, array $strings)
+    public static function implodeRecursiveSkip($delimiters, array $strings): string
     {
         return static::getInstance()->implodeRecursiveSkip($delimiters, $strings);
     }
@@ -812,7 +812,7 @@ class Str
      *
      * @return void
      */
-    public static function joinRecursive($delimiters, array $strings)
+    public static function joinRecursive($delimiters, array $strings): string
     {
         return static::getInstance()->joinRecursive($delimiters, $strings);
     }
@@ -825,7 +825,7 @@ class Str
      *
      * @return void
      */
-    public static function joinRecursiveSkip($delimiters, array $strings)
+    public static function joinRecursiveSkip($delimiters, array $strings): string
     {
         return static::getInstance()->joinRecursiveSkip($delimiters, $strings);
     }
@@ -1101,17 +1101,17 @@ class Str
      *
      * @return void
      */
-    public static function beginMultibyteMode(string $mode)
+    public static function beginMultibyteMode(string $mode): void
     {
-        return static::getInstance()->beginMultibyteMode($mode);
+        static::getInstance()->beginMultibyteMode($mode);
     }
 
     /**
      * @return void
      */
-    public static function endMultibyteMode()
+    public static function endMultibyteMode(): void
     {
-        return static::getInstance()->endMultibyteMode();
+        static::getInstance()->endMultibyteMode();
     }
 
     /**
@@ -1120,9 +1120,9 @@ class Str
      *
      * @return void
      */
-    public static function multibyteMode(string $mode, \Closure $closure)
+    public static function multibyteMode(string $mode, \Closure $closure): void
     {
-        return static::getInstance()->multibyteMode($mode, $closure);
+        static::getInstance()->multibyteMode($mode, $closure);
     }
 
     /**

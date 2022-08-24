@@ -32,7 +32,7 @@ class CurlTest extends AbstractTestCase
 
         curl_exec($ch);
 
-        if (! $result = (0 === curl_errno($ch))) {
+        if (! $result = ( 0 === curl_errno($ch) )) {
             dump(curl_error($ch));
         }
 
@@ -166,6 +166,10 @@ class CurlTest extends AbstractTestCase
             true
         );
 
+        foreach ( $hh as $ch ) {
+            echo curl_getinfo($ch, CURLINFO_EFFECTIVE_URL) . PHP_EOL;
+        }
+
         $results = $curl->execMulti($hh);
 
         $responses = array_map(function ($result) {
@@ -206,13 +210,68 @@ class CurlTest extends AbstractTestCase
         $results = [];
 
         $queue = $hh;
-        while ( $slice = array_slice($queue, 0, 2, true) ) {
-            $queue = array_diff_key($queue, $slice);
+        while ( $hhSlice = array_slice($queue, 0, 2, true) ) {
+            $queue = array_diff_key($queue, $hhSlice);
 
-            $results += $curl->execMulti($slice);
+            foreach ( $hhSlice as $ch ) {
+                echo curl_getinfo($ch, CURLINFO_EFFECTIVE_URL) . PHP_EOL;
+            }
+
+            $results += $curl->execMulti($hhSlice);
 
             $php->sleep(1);
         }
+
+        $responses = array_map(function ($result) {
+            return json_decode($result, true);
+        }, $results);
+        $responseKeys = array_keys($responses);
+        $responseCodes = array_map(function ($ch) {
+            return curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+        }, $hh);
+
+        $this->assertEquals(
+            array_combine($responseKeys, [
+                $responseJson,
+                $responseJson,
+                $responseJson,
+            ]),
+            $responses
+        );
+        $this->assertEquals([ 200, 200, 200 ], $responseCodes);
+    }
+
+    public function testWalk()
+    {
+        $this->assertTrue($this->isOnline(), 'Connection timeout');
+
+        $curl = $this->getCurl();
+
+        $hh[] = $curl->get($urls[] = 'https://my-json-server.typicode.com/typicode/demo/posts');
+        $hh[] = $curl->get($urls[] = 'https://my-json-server.typicode.com/typicode/demo/posts');
+        $hh[] = $curl->get($urls[] = 'https://my-json-server.typicode.com/typicode/demo/posts');
+        $errors = [ 1, 1, 1 ];
+
+        $responseJson = json_decode(
+            '[{"id":1,"title":"Post 1"},{"id":2,"title":"Post 2"},{"id":3,"title":"Post 3"}]',
+            true
+        );
+
+        foreach ( $hh as $ch ) {
+            print_r(curl_getinfo($ch, CURLINFO_EFFECTIVE_URL) . PHP_EOL);
+        }
+
+        foreach ( ( $gen = $curl->walkMulti($hh, $retryCh) ) as $retry => [ $i, $ch ] ) {
+            $this->assertEquals(null, $retryCh);
+
+            if (curl_errno($ch) || ( $i >= $retry )) {
+                print_r($retry . ' ' . curl_getinfo($ch, CURLINFO_EFFECTIVE_URL) . PHP_EOL);
+
+                $retryCh = $curl->get($urls[ $i ]);
+            }
+        }
+
+        $results = $gen->getReturn();
 
         $responses = array_map(function ($result) {
             return json_decode($result, true);

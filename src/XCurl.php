@@ -291,30 +291,58 @@ class XCurl implements ICurl
     {
         $curls = $this->theCurls($curls);
 
-        $master = curl_multi_init();
-
-        foreach ( $curls as $ch ) {
-            curl_multi_add_handle($master, $ch);
-        }
-
-        do {
-            $mrc = curl_multi_exec($master, $running);
-
-            if ($running) {
-                curl_multi_select($master);
-            }
-        } while ( $running && $mrc == CURLM_OK );
+        $this->performMulti($curls);
 
         $results = [];
         foreach ( $curls as $idx => $ch ) {
             $results[ $idx ] = curl_multi_getcontent($ch);
-
-            curl_multi_remove_handle($master, $ch);
         }
 
-        curl_multi_close($master);
-
         return $results;
+    }
+
+    /**
+     * @param resource|\CurlHandle|array $curls
+     * @param resource|\CurlHandle       $retryCurl
+     *
+     * @return \Generator<array<int,resource|\CurlHandle>>
+     */
+    public function walkMulti($curls, &$retryCurl) : \Generator
+    {
+        $this->theCurls($curls);
+
+        $curlResults = [];
+
+        $retry = 1;
+        while ( $curls ) {
+            $this->performMulti($curls);
+
+            foreach ( $curls as $i => $curl ) {
+                $retryCurl = null;
+
+                yield $retry => [ $i, $curl ];
+
+                if ($retryCurl === null) {
+                    $curlResults[ $i ] = curl_multi_getcontent($curl);
+
+                    unset($curls[ $i ]);
+
+                    continue;
+
+                } elseif (null === $this->filterCurlFresh($retryCurl)) {
+                    throw new InvalidArgumentException([
+                        'The `current` should be null or fresh curl instance: %s',
+                        $curl,
+                    ]);
+                }
+
+                $curls[ $i ] = $retryCurl;
+            }
+
+            $retry++;
+        }
+
+        return $curlResults;
     }
 
 
@@ -412,6 +440,35 @@ class XCurl implements ICurl
         }
 
         return $result;
+    }
+
+
+    /**
+     * @param resource|\CurlHandle|array $curls
+     *
+     * @return void
+     */
+    protected function performMulti($curls) : void
+    {
+        $master = curl_multi_init();
+
+        foreach ( $curls as $ch ) {
+            curl_multi_add_handle($master, $ch);
+        }
+
+        do {
+            $mrc = curl_multi_exec($master, $running);
+
+            if ($running) {
+                curl_multi_select($master);
+            }
+        } while ( $running && $mrc == CURLM_OK );
+
+        foreach ( $curls as $curl ) {
+            curl_multi_remove_handle($master, $curl);
+        }
+
+        curl_multi_close($master);
     }
 
 
