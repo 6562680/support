@@ -24,7 +24,7 @@ class Format
      *
      * @return string
      */
-    public static function byteText(int $bytesize)
+    public static function byteText(int $bytesize): string
     {
         return static::getInstance()->byteText($bytesize);
     }
@@ -34,7 +34,7 @@ class Format
      *
      * @param string $bytetext
      *
-     * @return float|int
+     * @return int|float
      */
     public static function byteSize(string $bytetext)
     {

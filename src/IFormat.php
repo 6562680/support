@@ -20,14 +20,14 @@ interface IFormat
      *
      * @return string
      */
-    public function byteText(int $bytesize);
+    public function byteText(int $bytesize): string;
 
     /**
      * Форматирует читаемый формат в размер в байтах
      *
      * @param string $bytetext
      *
-     * @return float|int
+     * @return int|float
      */
     public function byteSize(string $bytetext);
 

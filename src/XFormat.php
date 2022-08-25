@@ -19,7 +19,7 @@ class XFormat implements IFormat
      *
      * @return string
      */
-    public function byteText(int $bytesize)
+    public function byteText(int $bytesize) : string
     {
         if ($bytesize == 0) {
             return "0.00 B";
@@ -40,9 +40,9 @@ class XFormat implements IFormat
      *
      * @param string $bytetext
      *
-     * @return float|int
+     * @return int|float
      */
-    public function byteSize(string $bytetext)
+    public function byteSize(string $bytetext) // : int|float
     {
         $bytetext = trim($bytetext);
 

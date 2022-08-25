@@ -244,10 +244,10 @@ class XUri implements IUri
 
         $info += [
             'scheme'   => null,
-            'host'     => null,
-            'port'     => null,
             'user'     => null,
             'pass'     => null,
+            'host'     => null,
+            'port'     => null,
             'path'     => null,
             'query'    => $query,
             'fragment' => $fragment,
@@ -287,7 +287,6 @@ class XUri implements IUri
     }
 
 
-
     /**
      * @param array $parseUrlResult
      *
@@ -295,10 +294,16 @@ class XUri implements IUri
      */
     public function buildLink(array $parseUrlResult) : string
     {
+        $parseUrlResult += [
+            'path'     => null,
+            'query'    => null,
+            'fragment' => null,
+        ];
+
         return ''
-            . ( isset($parseUrlResult[ 'path' ]) ? "{$parseUrlResult['path']}" : '' )
-            . ( isset($parseUrlResult[ 'query' ]) ? "?{$parseUrlResult['query']}" : '' )
-            . ( isset($parseUrlResult[ 'fragment' ]) ? "#{$parseUrlResult['fragment']}" : '' );
+            . ( strlen($var = $parseUrlResult[ 'path' ]) ? "{$var}" : '' )
+            . ( strlen($var = $parseUrlResult[ 'query' ]) ? "?{$var}" : '' )
+            . ( strlen($var = $parseUrlResult[ 'fragment' ]) ? "#{$var}" : '' );
     }
 
     /**
@@ -308,18 +313,37 @@ class XUri implements IUri
      */
     public function buildUrl(array $parseUrlResult) : string
     {
-        return ''
-            . ( isset($parseUrlResult[ 'scheme' ]) ? "{$parseUrlResult['scheme']}:" : '' )
-            . ( ( isset($parseUrlResult[ 'user' ]) || isset($parseUrlResult[ 'host' ]) ) ? '//' : '' )
-            . ( isset($parseUrlResult[ 'user' ]) ? "{$parseUrlResult['user']}" : '' )
-            . ( isset($parseUrlResult[ 'pass' ]) ? ":{$parseUrlResult['pass']}" : '' )
-            . ( isset($parseUrlResult[ 'user' ]) ? '@' : '' )
-            . ( isset($parseUrlResult[ 'host' ]) ? "{$parseUrlResult['host']}" : '' )
-            . ( isset($parseUrlResult[ 'port' ]) ? ":{$parseUrlResult['port']}" : '' )
-            . ( isset($parseUrlResult[ 'path' ]) ? "{$parseUrlResult['path']}" : '' )
-            . ( isset($parseUrlResult[ 'query' ]) ? "?{$parseUrlResult['query']}" : '' )
-            . ( isset($parseUrlResult[ 'fragment' ]) ? "#{$parseUrlResult['fragment']}" : '' );
+        $parseUrlResult += [
+            'scheme'   => null,
+            'user'     => null,
+            'pass'     => null,
+            'host'     => null,
+            'port'     => null,
+            'path'     => null,
+            'query'    => null,
+            'fragment' => null,
+        ];
 
+        $isUser = strlen($varUser = $parseUrlResult[ 'user' ]);
+        $isHost = strlen($varHost = $parseUrlResult[ 'host' ]);
+
+        return ''
+            . ( strlen($var = $parseUrlResult[ 'scheme' ]) ? "{$var}:" : '' )
+            . ( ( $isUser || $isHost ) ? '//' : '' )
+            . ( $isUser ? "{$varUser}" : '' )
+            . ( ( $isUser && strlen($var = $parseUrlResult[ 'pass' ]) ) ? ":{$var}" : '' )
+            . ( $isUser ? '@' : '' )
+            . ( $isHost ? "{$varHost}" : '' )
+            . ( ( $isHost && strlen($var = $parseUrlResult[ 'port' ]) ) ? ":{$var}" : '' )
+            . ( strlen($var = $parseUrlResult[ 'path' ])
+                ? ( $isHost
+                    ? '/' . ltrim($var, '/')
+                    : $var
+                )
+                : ''
+            )
+            . ( strlen($var = $parseUrlResult[ 'query' ]) ? "?{$var}" : '' )
+            . ( strlen($var = $parseUrlResult[ 'fragment' ]) ? "#{$var}" : '' );
     }
 
 
