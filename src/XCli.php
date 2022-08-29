@@ -682,7 +682,7 @@ class XCli implements ICli
             }
 
         } else {
-            $cmd = "zip -9 \"$zipFilepath\" ";
+            $cmd = "zip -r -9 \"$zipFilepath\" ";
         }
 
         $list = [];
