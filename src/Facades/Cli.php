@@ -46,13 +46,13 @@ class Cli
     }
 
     /**
-     * @param string $link
+     * @param string $symlink
      *
      * @return bool
      */
-    public static function isLink(string $link): bool
+    public static function isSymlink(string $symlink): bool
     {
-        return static::getInstance()->isLink($link);
+        return static::getInstance()->isSymlink($symlink);
     }
 
     /**
@@ -151,7 +151,7 @@ class Cli
     }
 
     /**
-     * Создает соединение на директорию средствами командой строки
+     * Создает junction-соединение на директорию средствами командой строки (только для Windows)
      *
      * @param string $target
      * @param string $link
@@ -164,7 +164,7 @@ class Cli
     }
 
     /**
-     * Создает символическую ссылку на директорию средствами командой строки
+     * Создает символическую ссылку средствами командой строки
      * К сожалению, на Windows для создания такой ссылки требуются права администратора или пользователь должен иметь разрешение через групповые политики
      *
      * @param string $target

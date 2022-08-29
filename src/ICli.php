@@ -37,11 +37,11 @@ interface ICli
     public function isJunction(string $junction): bool;
 
     /**
-     * @param string $link
+     * @param string $symlink
      *
      * @return bool
      */
-    public function isLink(string $link): bool;
+    public function isSymlink(string $symlink): bool;
 
     /**
      * @param mixed ...$arguments
@@ -116,7 +116,7 @@ interface ICli
     public function rmdir(string $directory, bool $recursive = null): int;
 
     /**
-     * Создает соединение на директорию средствами командой строки
+     * Создает junction-соединение на директорию средствами командой строки (только для Windows)
      *
      * @param string $target
      * @param string $link
@@ -126,7 +126,7 @@ interface ICli
     public function junction(string $target, string $link): int;
 
     /**
-     * Создает символическую ссылку на директорию средствами командой строки
+     * Создает символическую ссылку средствами командой строки
      * К сожалению, на Windows для создания такой ссылки требуются права администратора или пользователь должен иметь разрешение через групповые политики
      *
      * @param string $target

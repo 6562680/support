@@ -102,14 +102,14 @@ class XCli implements ICli
     }
 
     /**
-     * @param string $link
+     * @param string $symlink
      *
      * @return bool
      */
-    public function isLink(string $link) : bool
+    public function isSymlink(string $symlink) : bool
     {
-        return is_link($link)
-            || $this->isJunction($link);
+        return is_link($symlink)
+            || $this->isJunction($symlink);
     }
 
 
@@ -443,7 +443,7 @@ class XCli implements ICli
 
 
     /**
-     * Создает соединение на директорию средствами командой строки
+     * Создает junction-соединение на директорию средствами командой строки (только для Windows)
      *
      * @param string $target
      * @param string $link
@@ -462,6 +462,12 @@ class XCli implements ICli
             throw new InvalidArgumentException('The `link` should be non-empty string');
         }
 
+        if (! $this->isWindows()) {
+            throw new InvalidArgumentException(
+                'Unable to create junction on non-Windows environment. Use $this->symlink($target, $link) to create symlink'
+            );
+        }
+
         if (! is_dir($target)) {
             throw new InvalidArgumentException([
                 'The `target` should be existing directory: %s',
@@ -474,7 +480,7 @@ class XCli implements ICli
 
             if ($linkRealpath !== realpath($target)) {
                 throw new InvalidArgumentException([
-                    'Symlink is exists, but refers to another location: %s',
+                    'Junction is exists, but refers to another location: %s',
                     $linkRealpath,
                 ]);
             }
@@ -488,18 +494,7 @@ class XCli implements ICli
             ]);
         }
 
-        if (! $this->isWindows()) {
-            $cmd = "ln -s \"$target\" \"$link\" ";
-
-        } else {
-            $cmd = "mklink ";
-
-            if (is_dir($target)) {
-                $cmd .= "/j ";
-            }
-
-            $cmd .= "\"$link\" \"$target\" ";
-        }
+        $cmd = "mklink /j \"$link\" \"$target\" ";
 
         [ $result ] = $this->run($cmd);
 
@@ -507,7 +502,7 @@ class XCli implements ICli
     }
 
     /**
-     * Создает символическую ссылку на директорию средствами командой строки
+     * Создает символическую ссылку средствами командой строки
      * К сожалению, на Windows для создания такой ссылки требуются права администратора или пользователь должен иметь разрешение через групповые политики
      *
      * @param string $target
