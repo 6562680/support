@@ -682,7 +682,7 @@ class XCli implements ICli
             }
 
         } else {
-            $cmd = "zip -r -9 \"$zipFilepath\" ";
+            $cmd = "zip -r -q -9 \"$zipFilepath\" ";
         }
 
         $list = [];
@@ -800,7 +800,7 @@ class XCli implements ICli
 
         $cmd = $this->isWindows()
             ? "7z x \"$zipFilepath\" "
-            : "unzip \"$zipFilepath\" ";
+            : "unzip -q \"$zipFilepath\" ";
 
         if ('' !== $destDirpath) {
             $cmd .= $this->isWindows()
