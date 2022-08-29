@@ -30,6 +30,20 @@ interface ICli
     public function isWindows(): bool;
 
     /**
+     * @param string $junction
+     *
+     * @return bool
+     */
+    public function isJunction(string $junction): bool;
+
+    /**
+     * @param string $link
+     *
+     * @return bool
+     */
+    public function isLink(string $link): bool;
+
+    /**
      * @param mixed ...$arguments
      */
     public function stop(...$arguments): void;

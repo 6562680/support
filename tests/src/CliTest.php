@@ -85,16 +85,9 @@ class CliTest extends AbstractTestCase
         $resultSymlink = $cli->symlink($dirSymlink, $linkSymlink = dirname($dirSymlink) . '/2_link');
         $resultFile = $cli->symlink($file, $linkFile = dirname($file) . '/1.txt_link');
 
-        if ($cli->isWindows()) {
-            if (! $resultJunction) $this->assertTrue(is_dir($linkJunction));
-            if (! $resultSymlink) $this->assertTrue(is_dir($linkSymlink));
-            if (! $resultFile) $this->assertTrue(is_file($linkFile));
-
-        } else {
-            if (! $resultJunction) $this->assertTrue(is_link($linkJunction));
-            if (! $resultSymlink) $this->assertTrue(is_link($linkSymlink));
-            if (! $resultFile) $this->assertTrue(is_link($linkFile));
-        }
+        if (! $resultJunction) $this->assertTrue($cli->isJunction($linkJunction));
+        if (! $resultSymlink) $this->assertTrue(is_link($linkSymlink));
+        if (! $resultFile) $this->assertTrue(is_link($linkFile));
 
         if (! $resultJunction) $this->assertEquals(readlink($linkJunction), realpath($dirJunction));
         if (! $resultSymlink) $this->assertEquals(readlink($linkSymlink), realpath($dirSymlink));

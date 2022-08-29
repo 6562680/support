@@ -70,6 +70,50 @@ class XCli implements ICli
 
 
     /**
+     * @param string $junction
+     *
+     * @return bool
+     */
+    public function isJunction(string $junction) : bool
+    {
+        // https://github.com/composer/composer/blob/main/src/Composer/Util/Filesystem.php#L807
+
+        if (! $this->isWindows()) {
+            return false;
+        }
+
+        clearstatcache(true, $junction);
+
+        if (! is_dir($junction)) {
+            return false;
+        }
+
+        if (is_link($junction)) {
+            return false;
+        }
+
+        $stat = lstat($junction);
+
+        // S_ISDIR test (S_IFDIR is 0x4000, S_IFMT is 0xF000 bitmask)
+        $result = is_array($stat)
+            && 0x4000 !== ( $stat[ 'mode' ] & 0xF000 );
+
+        return $result;
+    }
+
+    /**
+     * @param string $link
+     *
+     * @return bool
+     */
+    public function isLink(string $link) : bool
+    {
+        return is_link($link)
+            || $this->isJunction($link);
+    }
+
+
+    /**
      * @param mixed ...$arguments
      */
     public function stop(...$arguments) : void
@@ -425,7 +469,7 @@ class XCli implements ICli
             ]);
         }
 
-        if (is_link($link)) {
+        if ($this->isJunction($link)) {
             $linkRealpath = realpath(readlink($link));
 
             if ($linkRealpath !== realpath($target)) {
@@ -483,7 +527,7 @@ class XCli implements ICli
             throw new InvalidArgumentException('The `link` should be non-empty string');
         }
 
-        if (! (is_dir($target) || is_file($target))) {
+        if (! ( is_dir($target) || is_file($target) )) {
             throw new InvalidArgumentException([
                 'The `target` should be existing file or directory: %s',
                 $target,

@@ -36,6 +36,26 @@ class Cli
     }
 
     /**
+     * @param string $junction
+     *
+     * @return bool
+     */
+    public static function isJunction(string $junction): bool
+    {
+        return static::getInstance()->isJunction($junction);
+    }
+
+    /**
+     * @param string $link
+     *
+     * @return bool
+     */
+    public static function isLink(string $link): bool
+    {
+        return static::getInstance()->isLink($link);
+    }
+
+    /**
      * @param mixed ...$arguments
      */
     public static function stop(...$arguments): void
