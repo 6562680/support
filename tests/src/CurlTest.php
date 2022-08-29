@@ -54,7 +54,7 @@ class CurlTest extends AbstractTestCase
         );
 
         $response = curl_exec($ch);
-        $responseCode = $curl->curlinfoOpt($ch, CURLINFO_HTTP_CODE);
+        $responseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         curl_close($ch);
 
@@ -79,7 +79,7 @@ class CurlTest extends AbstractTestCase
         );
 
         $response = curl_exec($ch);
-        $responseCode = $curl->curlinfoOpt($ch, CURLINFO_HTTP_CODE);
+        $responseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         curl_close($ch);
 
@@ -101,7 +101,7 @@ class CurlTest extends AbstractTestCase
         $responseJson = json_decode('{"id":1}', true);
 
         $response = curl_exec($ch);
-        $responseCode = $curl->curlinfoOpt($ch, CURLINFO_HTTP_CODE);
+        $responseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         curl_close($ch);
 
@@ -123,7 +123,7 @@ class CurlTest extends AbstractTestCase
         $responseJson = json_decode('{"id":1,"title":"Post 1"}', true);
 
         $response = curl_exec($ch);
-        $responseCode = $curl->curlinfoOpt($ch, CURLINFO_HTTP_CODE);
+        $responseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         curl_close($ch);
 
@@ -142,7 +142,7 @@ class CurlTest extends AbstractTestCase
         ]);
 
         $response = curl_exec($ch);
-        $responseCode = $curl->curlinfoOpt($ch, CURLINFO_HTTP_CODE);
+        $responseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         curl_close($ch);
 

@@ -93,23 +93,14 @@ class Cli
     }
 
     /**
-     * сохраняет файл в указанное место, но выводит предупреждение в консоли, что файл уже есть
-     * предлагает его переписать, сохранив копию
+     * @param string      $message
+     * @param null|string $yesQuestion
      *
-     * @param string      $outputPath
-     * @param string      $content
-     * @param null|bool   $backup
-     * @param null|string $yesOverwrite
-     *
-     * @return string
+     * @return bool
      */
-    public static function filePut(
-        string $outputPath,
-        string $content,
-        bool $backup = null,
-        string &$yesOverwrite = null
-    ): string {
-        return static::getInstance()->filePut($outputPath, $content, $backup, $yesOverwrite);
+    public static function yes(string $message, string &$yesQuestion = null): bool
+    {
+        return static::getInstance()->yes($message, $yesQuestion);
     }
 
     /**
@@ -137,6 +128,53 @@ class Cli
     public static function rmdir(string $directory, bool $recursive = null): int
     {
         return static::getInstance()->rmdir($directory, $recursive);
+    }
+
+    /**
+     * Создает соединение на директорию средствами командой строки
+     *
+     * @param string $target
+     * @param string $link
+     *
+     * @return int
+     */
+    public static function junction(string $target, string $link): int
+    {
+        return static::getInstance()->junction($target, $link);
+    }
+
+    /**
+     * Создает символическую ссылку на директорию средствами командой строки
+     * К сожалению, на Windows для создания такой ссылки требуются права администратора или пользователь должен иметь разрешение через групповые политики
+     *
+     * @param string $target
+     * @param string $link
+     *
+     * @return int
+     */
+    public static function symlink(string $target, string $link): int
+    {
+        return static::getInstance()->symlink($target, $link);
+    }
+
+    /**
+     * сохраняет файл в указанное место, но выводит предупреждение в консоли, что файл уже есть
+     * предлагает его переписать, сохранив копию
+     *
+     * @param string      $outputPath
+     * @param string      $content
+     * @param null|bool   $backup
+     * @param null|string $yesOverwrite
+     *
+     * @return string
+     */
+    public static function filePut(
+        string $outputPath,
+        string $content,
+        bool $backup = null,
+        string &$yesOverwrite = null
+    ): string {
+        return static::getInstance()->filePut($outputPath, $content, $backup, $yesOverwrite);
     }
 
     /**
@@ -195,17 +233,6 @@ class Cli
     public static function untar(string $zipFilepath, string $destDirpath = null): int
     {
         return static::getInstance()->untar($zipFilepath, $destDirpath);
-    }
-
-    /**
-     * @param string      $message
-     * @param null|string $yesQuestion
-     *
-     * @return bool
-     */
-    public static function yes(string $message, string &$yesQuestion = null): bool
-    {
-        return static::getInstance()->yes($message, $yesQuestion);
     }
 
     /**

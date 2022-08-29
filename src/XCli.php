@@ -280,6 +280,255 @@ class XCli implements ICli
 
 
     /**
+     * @param string      $message
+     * @param null|string $yesQuestion
+     *
+     * @return bool
+     */
+    public function yes(string $message, string &$yesQuestion = null) : bool
+    {
+        $yesQuestion = $yesQuestion ?? 'n';
+
+        $yes = ( 'y' === $yesQuestion ) || ( 'yy' === $yesQuestion );
+        $all = ( 'nn' === $yesQuestion ) || ( 'yy' === $yesQuestion );
+
+        if (! $all) {
+            if (! $yes) {
+                $accepted = [ 'yy', 'y', 'n', 'nn' ];
+
+                echo $message . ' [' . implode('/', $accepted) . ']' . PHP_EOL;
+
+                while ( ! in_array($passed = $this->readln(), $accepted) ) {
+                    echo 'Please enter one of: [' . implode('/', $accepted) . ']';
+                }
+
+                $yesQuestion = $passed;
+
+                $yes = ( 'y' === $yesQuestion ) || ( 'yy' === $yesQuestion );
+                $all = ( 'nn' === $yesQuestion ) || ( 'yy' === $yesQuestion );
+            }
+
+            if (! $all) {
+                $yesQuestion = null;
+            }
+        }
+
+        return $yes;
+    }
+
+
+    /**
+     * Создает директорию средствами командной строки
+     *
+     * @param string    $directory
+     * @param null|int  $permissions
+     * @param null|bool $recursive
+     *
+     * @return int
+     */
+    public function mkdir(string $directory, int $permissions = null, bool $recursive = null) : int
+    {
+        $result = 1;
+
+        if ('' === $directory) {
+            throw new InvalidArgumentException('The `directory` should be non-empty string');
+        }
+
+        if (is_dir($directory)) {
+            return $result;
+        }
+
+        $recursive = $recursive ?? false;
+
+        $cmd = 'mkdir ';
+
+        if ($recursive && ! $this->isWindows()) {
+            $cmd .= '-p ';
+        }
+
+        $cmd .= '"' . $directory . '"';
+
+        [ $resultMkdir ] = $this->run($cmd);
+
+        $resultPermissions = 0;
+        if ($permissions && ! $this->isWindows()) {
+            [ $resultPermissions ] = $this->run('chmod ' . $permissions . ' "' . $directory . '"');
+        }
+
+        return intval($resultMkdir || $resultPermissions);
+    }
+
+    /**
+     * Удаляет директорию средствами командой строки
+     *
+     * @param string    $directory
+     * @param null|bool $recursive
+     *
+     * @return int
+     */
+    public function rmdir(string $directory, bool $recursive = null) : int
+    {
+        $result = 1;
+
+        if ('' === $directory) {
+            throw new InvalidArgumentException('The `directory` should be non-empty string');
+        }
+
+        if (! is_dir($directory)) {
+            return $result;
+        }
+
+        $recursive = $recursive ?? false;
+
+        $cmd = $this->isWindows()
+            ? 'rmdir /q '
+            : 'rm -f ';
+
+        if ($recursive) {
+            $cmd .= $this->isWindows()
+                ? '/s '
+                : '-r ';
+        }
+
+        $cmd .= '"' . $directory . '"';
+
+        [ $result ] = $this->run($cmd);
+
+        return $result;
+    }
+
+
+    /**
+     * Создает соединение на директорию средствами командой строки
+     *
+     * @param string $target
+     * @param string $link
+     *
+     * @return int
+     */
+    public function junction(string $target, string $link) : int
+    {
+        $result = 1;
+
+        if ('' === $target) {
+            throw new InvalidArgumentException('The `target` should be non-empty string');
+        }
+
+        if ('' === $link) {
+            throw new InvalidArgumentException('The `link` should be non-empty string');
+        }
+
+        if (! is_dir($target)) {
+            throw new InvalidArgumentException([
+                'The `target` should be existing directory: %s',
+                $target,
+            ]);
+        }
+
+        if (is_link($link)) {
+            $linkRealpath = realpath(readlink($link));
+
+            if ($linkRealpath !== realpath($target)) {
+                throw new InvalidArgumentException([
+                    'Symlink is exists, but refers to another location: %s',
+                    $linkRealpath,
+                ]);
+            }
+
+            return $result;
+
+        } elseif (file_exists($link)) {
+            throw new InvalidArgumentException([
+                'File is already exists and it is not a symlink: %s',
+                $link,
+            ]);
+        }
+
+        if (! $this->isWindows()) {
+            $cmd = "ln -s \"$target\" \"$link\" ";
+
+        } else {
+            $cmd = "mklink ";
+
+            if (is_dir($target)) {
+                $cmd .= "/j ";
+            }
+
+            $cmd .= "\"$link\" \"$target\" ";
+        }
+
+        [ $result ] = $this->run($cmd);
+
+        return $result;
+    }
+
+    /**
+     * Создает символическую ссылку на директорию средствами командой строки
+     * К сожалению, на Windows для создания такой ссылки требуются права администратора или пользователь должен иметь разрешение через групповые политики
+     *
+     * @param string $target
+     * @param string $link
+     *
+     * @return int
+     */
+    public function symlink(string $target, string $link) : int
+    {
+        $result = 1;
+
+        if ('' === $target) {
+            throw new InvalidArgumentException('The `target` should be non-empty string');
+        }
+
+        if ('' === $link) {
+            throw new InvalidArgumentException('The `link` should be non-empty string');
+        }
+
+        if (! (is_dir($target) || is_file($target))) {
+            throw new InvalidArgumentException([
+                'The `target` should be existing file or directory: %s',
+                $target,
+            ]);
+        }
+
+        if (is_link($link)) {
+            $linkRealpath = realpath(readlink($link));
+
+            if ($linkRealpath !== realpath($target)) {
+                throw new InvalidArgumentException([
+                    'Symlink is exists, but refers to another location: %s',
+                    $linkRealpath,
+                ]);
+            }
+
+            return $result;
+
+        } elseif (file_exists($link)) {
+            throw new InvalidArgumentException([
+                'File is already exists and it is not a symlink: %s',
+                $link,
+            ]);
+        }
+
+        if (! $this->isWindows()) {
+            $cmd = "ln -s \"$target\" \"$link\" ";
+
+        } else {
+            $cmd = "mklink ";
+
+            if (is_dir($target)) {
+                $cmd .= "/d ";
+            }
+
+            $cmd .= "\"$link\" \"$target\" ";
+        }
+
+        [ $result ] = $this->run($cmd);
+
+        return $result;
+    }
+
+
+    /**
      * сохраняет файл в указанное место, но выводит предупреждение в консоли, что файл уже есть
      * предлагает его переписать, сохранив копию
      *
@@ -333,73 +582,6 @@ class XCli implements ICli
         }
 
         return $backupPath ?? $realpath;
-    }
-
-
-    /**
-     * Создает директорию средствами командной строки
-     *
-     * @param string    $directory
-     * @param null|int  $permissions
-     * @param null|bool $recursive
-     *
-     * @return int
-     */
-    public function mkdir(string $directory, int $permissions = null, bool $recursive = null) : int
-    {
-        if ('' === $directory) return 1;
-        if (is_dir($directory)) return 1;
-
-        $recursive = $recursive ?? false;
-
-        $cmd = 'mkdir ';
-
-        if ($recursive && ! $this->isWindows()) {
-            $cmd .= '-p ';
-        }
-
-        $cmd .= '"' . $directory . '"';
-
-        [ $resultMkdir ] = $this->run($cmd);
-
-        $resultPermissions = 0;
-        if ($permissions && ! $this->isWindows()) {
-            [ $resultPermissions ] = $this->run('chmod ' . $permissions . ' "' . $directory . '"');
-        }
-
-        return intval($resultMkdir || $resultPermissions);
-    }
-
-    /**
-     * Удаляет директорию средствами командой строки
-     *
-     * @param string    $directory
-     * @param null|bool $recursive
-     *
-     * @return int
-     */
-    public function rmdir(string $directory, bool $recursive = null) : int
-    {
-        if ('' === $directory) return 1;
-        if (! is_dir($directory)) return 1;
-
-        $recursive = $recursive ?? false;
-
-        $cmd = $this->isWindows()
-            ? 'rmdir /q '
-            : 'rm -f ';
-
-        if ($recursive) {
-            $cmd .= $this->isWindows()
-                ? '/s '
-                : '-r ';
-        }
-
-        $cmd .= '"' . $directory . '"';
-
-        [ $result ] = $this->run($cmd);
-
-        return $result;
     }
 
 
@@ -490,16 +672,18 @@ class XCli implements ICli
             $path = $realpath = realpath($queue[ $k ]);
 
             if (null !== $cwd) {
-                $relative = str_replace($cwd, '', $realpath);
-
-                if ($realpath === $relative) {
+                if (0 !== mb_strpos($realpath, $cwd)) {
                     throw new FilesystemException([
                         'File is located outside `baseDirpath`: %s',
                         $realpath,
                     ]);
                 }
 
-                $path = ltrim($relative, DIRECTORY_SEPARATOR);
+                $path = ltrim(str_replace($cwd, '', $realpath), DIRECTORY_SEPARATOR);
+
+                if ('' === $path) {
+                    $path = '.';
+                }
 
             } elseif ($this->isWindows()) {
                 $theFs = $theFs ?? $this->getFs();
@@ -669,16 +853,18 @@ class XCli implements ICli
             $path = $realpath = realpath($queue[ $k ]);
 
             if (null !== $cwd) {
-                $relative = str_replace($cwd, '', $realpath);
-
-                if ($realpath === $relative) {
+                if (0 !== mb_strpos($realpath, $cwd)) {
                     throw new FilesystemException([
                         'File is located outside `baseDirpath`: %s',
                         $realpath,
                     ]);
                 }
 
-                $path = ltrim($relative, DIRECTORY_SEPARATOR);
+                $path = ltrim(str_replace($cwd, '', $realpath), DIRECTORY_SEPARATOR);
+
+                if ('' === $path) {
+                    $path = '.';
+                }
 
             } elseif ($this->isWindows()) {
                 $theFs = $theFs ?? $this->getFs();
@@ -766,44 +952,6 @@ class XCli implements ICli
         [ $result ] = $this->run($cmd);
 
         return $result;
-    }
-
-
-    /**
-     * @param string      $message
-     * @param null|string $yesQuestion
-     *
-     * @return bool
-     */
-    public function yes(string $message, string &$yesQuestion = null) : bool
-    {
-        $yesQuestion = $yesQuestion ?? 'n';
-
-        $yes = ( 'y' === $yesQuestion ) || ( 'yy' === $yesQuestion );
-        $all = ( 'nn' === $yesQuestion ) || ( 'yy' === $yesQuestion );
-
-        if (! $all) {
-            if (! $yes) {
-                $accepted = [ 'yy', 'y', 'n', 'nn' ];
-
-                echo $message . ' [' . implode('/', $accepted) . ']' . PHP_EOL;
-
-                while ( ! in_array($passed = $this->readln(), $accepted) ) {
-                    echo 'Please enter one of: [' . implode('/', $accepted) . ']';
-                }
-
-                $yesQuestion = $passed;
-
-                $yes = ( 'y' === $yesQuestion ) || ( 'yy' === $yesQuestion );
-                $all = ( 'nn' === $yesQuestion ) || ( 'yy' === $yesQuestion );
-            }
-
-            if (! $all) {
-                $yesQuestion = null;
-            }
-        }
-
-        return $yes;
     }
 
 

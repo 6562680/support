@@ -73,22 +73,12 @@ interface ICli
     public function cin(string $delimiter = '```'): string;
 
     /**
-     * сохраняет файл в указанное место, но выводит предупреждение в консоли, что файл уже есть
-     * предлагает его переписать, сохранив копию
+     * @param string      $message
+     * @param null|string $yesQuestion
      *
-     * @param string      $outputPath
-     * @param string      $content
-     * @param null|bool   $backup
-     * @param null|string $yesOverwrite
-     *
-     * @return string
+     * @return bool
      */
-    public function filePut(
-        string $outputPath,
-        string $content,
-        bool $backup = null,
-        string &$yesOverwrite = null
-    ): string;
+    public function yes(string $message, string &$yesQuestion = null): bool;
 
     /**
      * Создает директорию средствами командной строки
@@ -110,6 +100,45 @@ interface ICli
      * @return int
      */
     public function rmdir(string $directory, bool $recursive = null): int;
+
+    /**
+     * Создает соединение на директорию средствами командой строки
+     *
+     * @param string $target
+     * @param string $link
+     *
+     * @return int
+     */
+    public function junction(string $target, string $link): int;
+
+    /**
+     * Создает символическую ссылку на директорию средствами командой строки
+     * К сожалению, на Windows для создания такой ссылки требуются права администратора или пользователь должен иметь разрешение через групповые политики
+     *
+     * @param string $target
+     * @param string $link
+     *
+     * @return int
+     */
+    public function symlink(string $target, string $link): int;
+
+    /**
+     * сохраняет файл в указанное место, но выводит предупреждение в консоли, что файл уже есть
+     * предлагает его переписать, сохранив копию
+     *
+     * @param string      $outputPath
+     * @param string      $content
+     * @param null|bool   $backup
+     * @param null|string $yesOverwrite
+     *
+     * @return string
+     */
+    public function filePut(
+        string $outputPath,
+        string $content,
+        bool $backup = null,
+        string &$yesOverwrite = null
+    ): string;
 
     /**
      * Создает ZIP-архив из папки средствами командной строки
@@ -156,12 +185,4 @@ interface ICli
      * @return int
      */
     public function untar(string $zipFilepath, string $destDirpath = null): int;
-
-    /**
-     * @param string      $message
-     * @param null|string $yesQuestion
-     *
-     * @return bool
-     */
-    public function yes(string $message, string &$yesQuestion = null): bool;
 }

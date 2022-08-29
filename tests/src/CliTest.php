@@ -14,31 +14,6 @@ class CliTest extends AbstractTestCase
     }
 
 
-    public function testFilePut()
-    {
-        $cli = $this->getCli();
-
-        $directory = __DIR__ . '/../storage/cli/filePut';
-        mkdir($directory);
-
-        $file = $directory . '/1.txt';
-
-        $noninteractive = 'yy';
-
-        $realpath = $cli->filePut($file, __CLASS__, true, $noninteractive);
-        $this->assertFileExists($realpath);
-
-        $backupPath = $cli->filePut($file, __CLASS__, true, $noninteractive);
-        $this->assertNotEquals($realpath, $backupPath);
-        $this->assertFileExists($backupPath);
-
-        unlink($realpath);
-        unlink($backupPath);
-
-        rmdir($directory);
-    }
-
-
     public function testMkdir()
     {
         $cli = $this->getCli();
@@ -90,6 +65,71 @@ class CliTest extends AbstractTestCase
     }
 
 
+    public function testJunctionSymlink()
+    {
+        $cli = $this->getCli();
+
+
+        $dir = __DIR__ . '/../storage/cli/symlink';
+        if (is_dir($dir)) $cli->rmdir($dir, true);
+
+
+        $dirJunction = __DIR__ . '/../storage/cli/symlink/1';
+        $dirSymlink = __DIR__ . '/../storage/cli/symlink/2';
+        $file = __DIR__ . '/../storage/cli/symlink/1.txt';
+        if (! is_dir($dirJunction)) mkdir($dirJunction, 0775, true);
+        if (! is_dir($dirSymlink)) mkdir($dirSymlink, 0775, true);
+        if (! is_file($file)) file_put_contents($file, __METHOD__);
+
+        $resultJunction = $cli->junction($dirJunction, $linkJunction = dirname($dirJunction) . '/1_link');
+        $resultSymlink = $cli->symlink($dirSymlink, $linkSymlink = dirname($dirSymlink) . '/2_link');
+        $resultFile = $cli->symlink($file, $linkFile = dirname($file) . '/1.txt_link');
+
+        if ($cli->isWindows()) {
+            if (! $resultJunction) $this->assertTrue(is_dir($linkJunction));
+            if (! $resultSymlink) $this->assertTrue(is_dir($linkSymlink));
+            if (! $resultFile) $this->assertTrue(is_file($linkFile));
+
+        } else {
+            if (! $resultJunction) $this->assertTrue(is_link($linkJunction));
+            if (! $resultSymlink) $this->assertTrue(is_link($linkSymlink));
+            if (! $resultFile) $this->assertTrue(is_link($linkFile));
+        }
+
+        if (! $resultJunction) $this->assertEquals(readlink($linkJunction), realpath($dirJunction));
+        if (! $resultSymlink) $this->assertEquals(readlink($linkSymlink), realpath($dirSymlink));
+        if (! $resultFile) $this->assertEquals(readlink($linkFile), realpath($file));
+
+
+        $cli->rmdir($dir, true);
+    }
+
+
+    public function testFilePut()
+    {
+        $cli = $this->getCli();
+
+        $directory = __DIR__ . '/../storage/cli/filePut';
+        mkdir($directory);
+
+        $file = $directory . '/1.txt';
+
+        $noninteractive = 'yy';
+
+        $realpath = $cli->filePut($file, __CLASS__, true, $noninteractive);
+        $this->assertFileExists($realpath);
+
+        $backupPath = $cli->filePut($file, __CLASS__, true, $noninteractive);
+        $this->assertNotEquals($realpath, $backupPath);
+        $this->assertFileExists($backupPath);
+
+        unlink($realpath);
+        unlink($backupPath);
+
+        rmdir($directory);
+    }
+
+
     public function testZipUnzip()
     {
         $cli = $this->getCli();
@@ -114,6 +154,8 @@ class CliTest extends AbstractTestCase
         if (! is_dir($directory2A = $directory2 . '/a')) mkdir($directory2A, 0775, true);
         if (! is_dir($directory2B = $directory2A . '/b')) mkdir($directory2B, 0775, true);
         if (! is_dir($directory2C = $directory2B . '/c')) mkdir($directory2C, 0775, true);
+
+        $i = 0;
 
         file_put_contents($directory1A . '/a1.txt', str_repeat('0', ++$i));
         file_put_contents($directory1A . '/a2.txt', str_repeat('0', ++$i));
@@ -253,6 +295,8 @@ class CliTest extends AbstractTestCase
         if (! is_dir($directory2A = $directory2 . '/a')) mkdir($directory2A, 0775, true);
         if (! is_dir($directory2B = $directory2A . '/b')) mkdir($directory2B, 0775, true);
         if (! is_dir($directory2C = $directory2B . '/c')) mkdir($directory2C, 0775, true);
+
+        $i = 0;
 
         file_put_contents($directory1A . '/a1.txt', str_repeat('0', ++$i));
         file_put_contents($directory1A . '/a2.txt', str_repeat('0', ++$i));
