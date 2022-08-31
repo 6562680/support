@@ -33,8 +33,6 @@ class PhpInvokableInfo
      */
     protected $object;
 
-    public function __construct() { }
-
 
     /**
      * @return callable

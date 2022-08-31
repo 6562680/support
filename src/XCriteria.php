@@ -91,137 +91,213 @@ class XCriteria implements ICriteria
 
 
     /**
-     * @param int|float|string $needle
      * @param array            $src
+     * @param int|float|string $needle
      * @param null|bool        $coalesce
      *
      * @return bool
      */
-    public function isInNumber($needle, array $src, bool $coalesce = null) : bool
-    {
-        if (null === $this->getNum()->filterNum($needle)) {
-            throw new InvalidArgumentException('Needle should be number');
-        }
-
-        $coalesce = $coalesce ?? false;
-
-        $res = null;
-        foreach ( $src as $val ) {
-            if (0 === ( $res = $this->getCmp()->cmpnum($needle, $val, $coalesce) )) {
-                break;
-            }
-        }
-
-        return 0 === $res;
-    }
-
-
-    /**
-     * @param string    $needle
-     * @param array     $src
-     * @param null|bool $natural
-     * @param null|bool $coalesce
-     *
-     * @return bool
-     */
-    public function isInString($needle, array $src, bool $natural = null, bool $coalesce = null) : bool
-    {
-        if (! is_string($needle)) {
-            throw new InvalidArgumentException('Needle should be string');
-        }
-
-        $coalesce = $coalesce ?? false;
-
-        $res = null;
-        foreach ( $src as $val ) {
-            if (0 === ( $res = $this->getCmp()->cmpstr($needle, $val, $natural, $coalesce) )) {
-                break;
-            }
-        }
-
-        return 0 === $res;
-    }
-
-    /**
-     * @param string    $needle
-     * @param array     $src
-     * @param null|bool $natural
-     * @param null|bool $coalesce
-     *
-     * @return bool
-     */
-    public function isInStringCase($needle, array $src, bool $natural = null, bool $coalesce = null) : bool
-    {
-        if (! is_string($needle)) {
-            throw new InvalidArgumentException('Needle should be string');
-        }
-
-        $coalesce = $coalesce ?? false;
-
-        $res = null;
-        foreach ( $src as $val ) {
-            if (0 === ( $res = $this->getCmp()->cmpstrCase($needle, $val, $natural, $coalesce) )) {
-                break;
-            }
-        }
-
-        return 0 === $res;
-    }
-
-
-    /**
-     * @param \DateTime $needle
-     * @param array     $src
-     * @param null|bool $coalesce
-     *
-     * @return bool
-     */
-    public function isInDate(\DateTime $needle, array $src, bool $coalesce = null) : bool
-    {
-        $coalesce = $coalesce ?? false;
-
-        $res = null;
-        foreach ( $src as $val ) {
-            if (0 === ( $res = $this->getCmp()->cmpdate($needle, $val, $coalesce) )) {
-                break;
-            }
-        }
-
-        return 0 === $res;
-    }
-
-
-    /**
-     * @param int|float $needle
-     * @param array     $src
-     * @param null|bool $coalesce
-     *
-     * @return bool
-     */
-    public function isBetweenNumber($needle, array $src, bool $coalesce = null) : bool
+    public function isInNumeric(array $src, $needle, bool $coalesce = null) : bool
     {
         $theNum = $this->getNum();
 
-        if (null === $theNum->filterNum($needle)) {
-            throw new InvalidArgumentException('Needle should be number');
+        // @gzhegow > string should be converted to int/float otherwise non-comparable
+        if (null !== ( $val = $theNum->numval($needle) )) {
+            $needle = $val;
+
+        } else {
+            throw new InvalidArgumentException([
+                'The `needle` should be numeric or null: %s',
+                $needle,
+            ]);
+        }
+
+        $coalesce = $coalesce ?? false;
+
+        foreach ( $src as $val ) {
+            if (null === $val) {
+                continue;
+            }
+
+            $valNumeric = null
+                ?? ( ( null !== $theNum->filterNum($val) ) ? $val : null )
+                ?? ( ( is_string($val) && is_numeric($val) ) ? $theNum->numval($val) : null )
+                ?? ( $coalesce ? $theNum->numval($val) : null );
+
+            if ($valNumeric == $needle) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+    /**
+     * @param array     $src
+     * @param string    $needle
+     * @param null|bool $natural
+     * @param null|bool $coalesce
+     *
+     * @return bool
+     */
+    public function isInString(array $src, $needle, bool $natural = null, bool $coalesce = null) : bool
+    {
+        if (! is_string($needle)) {
+            throw new InvalidArgumentException([
+                'The `needle` should be string or null: %s',
+                $needle,
+            ]);
+        }
+
+        $coalesce = $coalesce ?? false;
+
+        foreach ( $src as $val ) {
+            if (null === $val) {
+                continue;
+            }
+
+            $valString = null
+                ?? ( is_string($val) ? $val : null )
+                ?? ( $coalesce ? strval($val) : null );
+
+            $isVal = is_string($valString);
+            if ($isVal) {
+                $result = $natural
+                    ? strnatcmp($needle, $valString)
+                    : strcmp($needle, $valString);
+
+                if ($result === 0) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param array     $src
+     * @param string    $needle
+     * @param null|bool $natural
+     * @param null|bool $coalesce
+     *
+     * @return bool
+     */
+    public function isInStringCase(array $src, $needle, bool $natural = null, bool $coalesce = null) : bool
+    {
+        if (! is_string($needle)) {
+            throw new InvalidArgumentException([
+                'The `needle` should be string or null: %s',
+                $needle,
+            ]);
+        }
+
+        $coalesce = $coalesce ?? false;
+
+        foreach ( $src as $val ) {
+            if (null === $val) {
+                continue;
+            }
+
+            $valString = null
+                ?? ( is_string($val) ? $val : null )
+                ?? ( $coalesce ? strval($val) : null );
+
+            $isVal = is_string($valString);
+            if ($isVal) {
+                $result = $natural
+                    ? strnatcasecmp($needle, $valString)
+                    : strcasecmp($needle, $valString);
+
+                if ($result === 0) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+
+    /**
+     * @param array              $src
+     * @param \DateTimeInterface $needle
+     * @param null|bool          $coalesce
+     *
+     * @return bool
+     */
+    public function isInDate(array $src, \DateTimeInterface $needle, bool $coalesce = null) : bool
+    {
+        $theCalendar = $this->getCalendar();
+
+        $coalesce = $coalesce ?? false;
+
+        foreach ( $src as $val ) {
+            if (null === $val) {
+                continue;
+            }
+
+            $valDate = null
+                ?? ( $val instanceof \DateTimeInterface ? $val : null )
+                ?? ( $coalesce ? $theCalendar->dateVal($val) : null );
+
+            if ($valDate instanceof \DateTimeInterface) {
+                if (( $needle <=> $valDate ) === 0) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+
+    /**
+     * @param array            $src
+     * @param int|float|string $needle
+     * @param null|bool        $coalesce
+     *
+     * @return bool
+     */
+    public function isBetweenNumber(array $src, $needle, bool $coalesce = null) : bool
+    {
+        $theNum = $this->getNum();
+
+        // @gzhegow > string should be converted to int/float otherwise non-comparable
+        if (null !== ( $val = $theNum->numval($needle) )) {
+            $needle = $val;
+
+        } else {
+            throw new InvalidArgumentException([
+                'The `needle` should be numeric or null: %s',
+                $needle,
+            ]);
         }
 
         $coalesce = $coalesce ?? false;
 
         $srcNumbers = [];
         foreach ( $src as $i => $val ) {
-            $num = null
-                ?? ( ( null !== $theNum->filterNum($val) ) ? $val : null )
-                ?? ( $coalesce ? floatval($val) : null )
-                ?? null;
+            if (null === $val) {
+                continue;
+            }
 
-            if ($num !== null) {
-                $srcNumbers[ $i ] = $num;
+            $valNumeric = null
+                ?? ( ( null !== $theNum->filterNum($val) ) ? $val : null )
+                ?? ( ( is_string($val) && is_numeric($val) ) ? $theNum->numval($val) : null )
+                ?? ( $coalesce ? $theNum->numval($val) : null );
+
+            if ($valNumeric !== null) {
+                $srcNumbers[ $i ] = $valNumeric;
             }
         }
 
         if (! $srcNumbers) {
-            throw new InvalidArgumentException('Src should contain at least one number');
+            throw new InvalidArgumentException([
+                'The `src` should contain at least one number: %s',
+                $src,
+            ]);
         }
 
         $min = min($srcNumbers);
@@ -233,13 +309,13 @@ class XCriteria implements ICriteria
     }
 
     /**
-     * @param \DateTime $needle
-     * @param array     $src
-     * @param null|bool $coalesce
+     * @param array              $src
+     * @param \DateTimeInterface $needle
+     * @param null|bool          $coalesce
      *
      * @return bool
      */
-    public function isBetweenDate(\DateTime $needle, array $src, bool $coalesce = null) : bool
+    public function isBetweenDate(array $src, \DateTimeInterface $needle, bool $coalesce = null) : bool
     {
         $theCalendar = $this->getCalendar();
 
@@ -247,18 +323,20 @@ class XCriteria implements ICriteria
 
         $srcDates = [];
         foreach ( $src as $i => $val ) {
-            $date = null
-                ?? ( $theCalendar->filterDateTimeInterface($val) ? $val : null )
-                ?? ( $coalesce ? $theCalendar->theDateVal($val) : null )
-                ?? null;
+            $valDate = null
+                ?? ( $val instanceof \DateTimeInterface ? $val : null )
+                ?? ( $coalesce ? $theCalendar->dateVal($val) : null );
 
-            if (null !== $date) {
-                $srcDates[ $i ] = $date;
+            if ($valDate !== null) {
+                $srcDates[ $i ] = $valDate;
             }
         }
 
         if (! $srcDates) {
-            throw new InvalidArgumentException('Src should contain at least one number');
+            throw new InvalidArgumentException([
+                'The `src` should contain at least one \DateTimeInterface: %s',
+                $src,
+            ]);
         }
 
         $result = $theCalendar->isBetween($needle, $srcDates);
@@ -268,66 +346,66 @@ class XCriteria implements ICriteria
 
 
     /**
-     * @param mixed     $needle
-     * @param mixed     $src
-     * @param string    $operator
-     * @param null|bool $coalesce
+     * @param mixed       $needle
+     * @param mixed       $src
+     * @param null|string $operator
+     * @param null|bool   $coalesce
      *
      * @return bool
      */
-    public function satisfy($needle, $src, string $operator, bool $coalesce = null) : bool
+    public function satisfy($needle, $src, string $operator = null, bool $coalesce = null) : bool
     {
+        $operator = $operator ?? static::OPERATOR_EQ;
+        $coalesce = $coalesce ?? false;
+
         if (! isset(static::THE_OPERATOR_LIST[ $operator ])) {
             throw new InvalidArgumentException('Unknown operator: ' . $operator);
         }
 
-        $coalesce = $coalesce ?? false;
-
         if (is_array($needle)) {
             return $this->satisfyArray($src, $needle, $operator);
 
-        } elseif (null !== $this->getNum()->filterNum($needle)) {
+        } elseif (null !== $this->getNum()->filterNumval($needle)) {
             $theCmp = $this->getCmp();
 
-            if ($operator === static::OPERATOR_GT) return 1 === $theCmp->cmpnum($needle, $src, $coalesce);
-            if ($operator === static::OPERATOR_LT) return -1 === $theCmp->cmpnum($needle, $src, $coalesce);
-            if ($operator === static::OPERATOR_GTE) return -1 !== $theCmp->cmpnum($needle, $src, $coalesce);
-            if ($operator === static::OPERATOR_LTE) return 1 !== $theCmp->cmpnum($needle, $src, $coalesce);
+            if ($operator === static::OPERATOR_GT) return 1 === $theCmp->cmpnumeric($needle, $src, $coalesce);
+            if ($operator === static::OPERATOR_LT) return -1 === $theCmp->cmpnumeric($needle, $src, $coalesce);
+            if ($operator === static::OPERATOR_GTE) return -1 !== $theCmp->cmpnumeric($needle, $src, $coalesce);
+            if ($operator === static::OPERATOR_LTE) return 1 !== $theCmp->cmpnumeric($needle, $src, $coalesce);
 
-        } else {
-            if (is_string($needle)) {
-                $theCmp = $this->getCmp();
-                $theStr = $this->getStr();
+        } elseif (is_string($needle)) {
+            $theCmp = $this->getCmp();
 
-                if ($operator === static::OPERATOR_GT) return 1 === $theCmp->cmpstr($needle, $src, $coalesce);
-                if ($operator === static::OPERATOR_LT) return -1 === $theCmp->cmpstr($needle, $src, $coalesce);
-                if ($operator === static::OPERATOR_GTE) return -1 !== $theCmp->cmpstr($needle, $src, $coalesce);
-                if ($operator === static::OPERATOR_LTE) return 1 !== $theCmp->cmpstr($needle, $src, $coalesce);
+            if ($operator === static::OPERATOR_GT) return 1 === $theCmp->cmpstr($needle, $src, $coalesce);
+            if ($operator === static::OPERATOR_LT) return -1 === $theCmp->cmpstr($needle, $src, $coalesce);
+            if ($operator === static::OPERATOR_GTE) return -1 !== $theCmp->cmpstr($needle, $src, $coalesce);
+            if ($operator === static::OPERATOR_LTE) return 1 !== $theCmp->cmpstr($needle, $src, $coalesce);
 
-                if ($operator === static::OPERATOR_BTW) {
-                    return ! ! $theStr->contains($needle, $src, $coalesce);
-                }
-                if ($operator === static::OPERATOR_NBTW) {
-                    return ! $theStr->contains($needle, $src, $coalesce);
-                }
+            $theStr = $this->getStr();
 
-                if ($operator === static::OPERATOR_STARTS) return null !== $theStr->starts($needle, $src, $coalesce);
-                if ($operator === static::OPERATOR_ENDS) return null !== $theStr->ends($needle, $src, $coalesce);
-                if ($operator === static::OPERATOR_NSTARTS) {
-                    return null === $theStr->starts($needle, $src, $coalesce);
-                }
-                if ($operator === static::OPERATOR_NENDS) {
-                    return null === $theStr->ends($needle, $src, $coalesce);
-                }
-
-            } elseif (null !== $this->getCalendar()->filterDateTimeInterface($needle)) {
-                $theCmp = $this->getCmp();
-
-                if ($operator === static::OPERATOR_GT) return 1 === $theCmp->cmpDate($needle, $src);
-                if ($operator === static::OPERATOR_LT) return -1 === $theCmp->cmpDate($needle, $src);
-                if ($operator === static::OPERATOR_GTE) return -1 !== $theCmp->cmpDate($needle, $src);
-                if ($operator === static::OPERATOR_LTE) return 1 !== $theCmp->cmpDate($needle, $src);
+            if ($operator === static::OPERATOR_BTW) {
+                return (bool) $theStr->contains($needle, $src, $coalesce);
             }
+            if ($operator === static::OPERATOR_NBTW) {
+                return ! $theStr->contains($needle, $src, $coalesce);
+            }
+
+            if ($operator === static::OPERATOR_STARTS) return null !== $theStr->starts($needle, $src, $coalesce);
+            if ($operator === static::OPERATOR_ENDS) return null !== $theStr->ends($needle, $src, $coalesce);
+            if ($operator === static::OPERATOR_NSTARTS) {
+                return null === $theStr->starts($needle, $src, $coalesce);
+            }
+            if ($operator === static::OPERATOR_NENDS) {
+                return null === $theStr->ends($needle, $src, $coalesce);
+            }
+
+        } elseif ($needle instanceof \DateTimeInterface) {
+            $theCmp = $this->getCmp();
+
+            if ($operator === static::OPERATOR_GT) return 1 === $theCmp->cmpDate($needle, $src);
+            if ($operator === static::OPERATOR_LT) return -1 === $theCmp->cmpDate($needle, $src);
+            if ($operator === static::OPERATOR_GTE) return -1 !== $theCmp->cmpDate($needle, $src);
+            if ($operator === static::OPERATOR_LTE) return 1 !== $theCmp->cmpDate($needle, $src);
         }
 
         if ($operator === static::OPERATOR_EQ) return $src === $needle;
@@ -337,45 +415,46 @@ class XCriteria implements ICriteria
     }
 
     /**
-     * @param mixed     $needle
-     * @param array     $arr
-     * @param string    $operator
-     * @param null|bool $coalesce
+     * @param mixed       $needle
+     * @param array       $src
+     * @param null|string $operator
+     * @param null|bool   $coalesce
      *
      * @return bool
      */
-    public function satisfyArray($needle, array $arr, string $operator, bool $coalesce = null) : bool
+    public function satisfyArray($needle, array $src, string $operator = null, bool $coalesce = null) : bool
     {
+        $operator = $operator ?? static::OPERATOR_IN;
+        $coalesce = $coalesce ?? false;
+
         if (! isset(static::THE_OPERATOR_LIST[ $operator ])) {
             throw new InvalidArgumentException('Unknown operator: ' . $operator);
         }
 
-        $coalesce = $coalesce ?? false;
+        if (null !== $this->getNum()->filterNumval($needle)) {
+            if ($operator === static::OPERATOR_IN) return $this->isInNumeric($src, $needle, $coalesce);
+            if ($operator === static::OPERATOR_NIN) return ! $this->isInNumeric($src, $needle, $coalesce);
 
-        if (null !== $this->getNum()->filterNum($needle)) {
-            if ($operator === static::OPERATOR_IN) return $this->isInNumber($needle, $arr, $coalesce);
-            if ($operator === static::OPERATOR_NIN) return ! $this->isInNumber($needle, $arr, $coalesce);
-
-            if ($operator === static::OPERATOR_BTW) return $this->isBetweenNumber($needle, $arr, $coalesce);
+            if ($operator === static::OPERATOR_BTW) return $this->isBetweenNumber($src, $needle, $coalesce);
             if ($operator === static::OPERATOR_NBTW) {
-                return ! $this->isBetweenNumber($needle, $arr, $coalesce);
+                return ! $this->isBetweenNumber($src, $needle, $coalesce);
             }
 
         } elseif (is_string($needle)) {
-            if ($operator === static::OPERATOR_IN) return $this->isInString($needle, $arr, $coalesce);
+            if ($operator === static::OPERATOR_IN) return $this->isInString($src, $needle, $coalesce);
             if ($operator === static::OPERATOR_NIN) {
-                return ! $this->isInString($needle, $arr, $coalesce);
+                return ! $this->isInString($src, $needle, $coalesce);
             }
 
-        } elseif ($this->getCalendar()->filterDateTimeInterface($needle)) {
-            if ($operator === static::OPERATOR_IN) return $this->isInDate($needle, $arr, $coalesce);
+        } elseif ($needle instanceof \DateTimeInterface) {
+            if ($operator === static::OPERATOR_IN) return $this->isInDate($src, $needle, $coalesce);
             if ($operator === static::OPERATOR_NIN) {
-                return ! $this->isInDate($needle, $arr, $coalesce);
+                return ! $this->isInDate($src, $needle, $coalesce);
             }
 
-            if ($operator === static::OPERATOR_BTW) return $this->isBetweenDate($needle, $arr, $coalesce);
+            if ($operator === static::OPERATOR_BTW) return $this->isBetweenDate($src, $needle, $coalesce);
             if ($operator === static::OPERATOR_NBTW) {
-                return ! $this->isBetweenDate($needle, $arr, $coalesce);
+                return ! $this->isBetweenDate($src, $needle, $coalesce);
             }
         }
 

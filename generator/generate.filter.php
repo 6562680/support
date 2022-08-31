@@ -7,6 +7,8 @@ $supportFactory = \Gzhegow\Support\SupportFactory::getInstance();
 
 $generator = new Gzhegow_Support_Generator_FilterGenerator();
 
+$theStr = $generator->getStr();
+
 
 // list
 $methodSources = [
@@ -86,7 +88,7 @@ foreach ( $methodSources as $sourceName => [ $interface, $class ] ) {
             continue;
         }
 
-        if (null === ( $filterName = $generator->getStr()->starts($methodName, 'filter') )) {
+        if (null === ( $filterName = $theStr->starts($methodName, 'filter') )) {
             continue;
         }
 

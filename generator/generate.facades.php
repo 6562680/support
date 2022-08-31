@@ -7,6 +7,9 @@ $supportFactory = \Gzhegow\Support\SupportFactory::getInstance();
 
 $generator = new Gzhegow_Support_Generator_FacadeGenerator();
 
+$theStr = $generator->getStr();
+$theLoader = $generator->getLoader();
+
 
 // list
 $facades = [
@@ -38,16 +41,12 @@ $facades = [
 // deps
 $printer = new \Nette\PhpGenerator\PsrPrinter();
 
-foreach ( $facades as $facade => $sourceClasses ) {
+foreach ( $facades as $facade => [ $sourceInterface, $sourceClass ] ) {
     // vars
     $filepath = __ROOT__ . '/src/Facades/' . $facade . '.php';
 
-    // interface
-    $interface = array_shift($sourceClasses);
-
     // original
-    $originalClass = reset($sourceClasses);
-    $originalClassName = substr($originalClass, strrpos($originalClass, '\\') + 1);
+    $sourceClassName = substr($sourceClass, strrpos($sourceClass, '\\') + 1);
 
     // file
     $phpFile = new \Nette\PhpGenerator\PhpFile();
@@ -61,89 +60,88 @@ foreach ( $facades as $facade => $sourceClasses ) {
     ]));
 
     // namespace
-    $phpNamespace = new \Nette\PhpGenerator\PhpNamespace('Gzhegow\\Support\\Facades');
+    $phpNamespace = new \Nette\PhpGenerator\PhpNamespace($namespace = 'Gzhegow\\Support\\Facades');
 
     // class
     $classTypeFacade = new \Nette\PhpGenerator\ClassType($facade);
 
-    // copy uses
+    // add uses
     $phpNamespace->addUse(\Gzhegow\Support\SupportFactory::class);
-    $phpNamespace->addUse($interface);
-    foreach ( $sourceClasses as $sourceClass ) {
-        $phpNamespace->addUse($sourceClass);
+    $phpNamespace->addUse($sourceInterface);
 
-        foreach ( $generator->getLoader()->getUseStatements($sourceClass) as $alias => $use ) {
-            $phpNamespace->addUse($use, $alias);
-        }
+    // copy uses/methods
+    $classTypeSource = \Nette\PhpGenerator\ClassType::from($sourceClass, false, false);
+
+    $sourceUses = [ $theLoader->getUseStatements($sourceClass) ];
+    $sourceMethods = [ $generator->filterMethods($classTypeSource->getMethods()) ];
+    $classTypeCurrent = $classTypeSource;
+    while ( $current = $classTypeCurrent->getExtends() ) {
+        $classTypeCurrent = \Nette\PhpGenerator\ClassType::from($current, false, false);
+
+        $sourceUses[] = $theLoader->getUseStatements($current);
+        $sourceMethods[] = $generator->filterMethods($classTypeCurrent->getMethods());
+    }
+    $sourceUses = array_merge(...$sourceUses);
+    $sourceMethods = array_merge(...$sourceMethods);
+
+    // copy uses
+    $phpNamespace->addUse($sourceClass);
+    foreach ( $sourceUses as $alias => $use ) {
+        $phpNamespace->addUse($use, $alias);
     }
 
     // copy methods
-    foreach ( $sourceClasses as $sourceClass ) {
-        $classTypeSource = \Nette\PhpGenerator\ClassType::from($sourceClass, false, false);
+    foreach ( $sourceMethods as $sourceMethod ) {
+        $methodName = $sourceMethod->getName();
 
-        foreach ( $classTypeSource->getMethods() as $sourceMethod ) {
-            if (! $sourceMethod->isPublic()) {
-                continue;
-            }
-
-            if ($sourceMethod->isStatic()) {
-                continue;
-            }
-
-            $methodName = $sourceMethod->getName();
-            if (null !== $generator->getStr()->starts($methodName, '__')) {
-                continue;
-            }
-
-            $arguments = [];
-            $parameters = $sourceMethod->getParameters();
-            $last = array_pop($parameters);
-            foreach ( $parameters as $parameter ) {
-                $arguments[] = '$' . $parameter->getName();
-            }
-            if ($last) {
-                $arguments[] = $sourceMethod->isVariadic()
-                    ? '...$' . $last->getName()
-                    : '$' . $last->getName();
-            }
-
-            $lines = explode("\n", $sourceMethod->getComment());
-            foreach ( $lines as $i => $line ) {
-                if (false !== mb_strpos($line, $separator = '@return static')) {
-                    $parts = explode($separator, $line);
-
-                    $lines[ $i ] = implode('@return ' . $originalClassName, $parts);
-                }
-            }
-            $methodCommentNew = implode("\n", $lines);
-
-            $methodNew = new \Nette\PhpGenerator\Method($methodName);
-            $methodNew->setStatic();
-            $methodNew->setPublic();
-            $methodNew->setParameters($sourceMethod->getParameters());
-            $methodNew->setVariadic($sourceMethod->isVariadic());
-            $methodNew->setReturnType($sourceMethod->getReturnType());
-            $methodNew->setReturnNullable($sourceMethod->isReturnNullable());
-            $methodNew->setReturnReference($sourceMethod->getReturnReference());
-            $methodNew->setComment($methodCommentNew);
-            $methodNew->setBody(
-                $generator->generateMethodBody(
-                    $sourceMethod,
-                    $methodName, $arguments
-                )
-            );
-
-            $classTypeFacade->addMember($methodNew);
+        $arguments = [];
+        $parameters = $sourceMethod->getParameters();
+        $last = array_pop($parameters);
+        foreach ( $parameters as $parameter ) {
+            $arguments[] = '$' . $parameter->getName();
         }
+        if ($last) {
+            $arguments[] = $sourceMethod->isVariadic()
+                ? '...$' . $last->getName()
+                : '$' . $last->getName();
+        }
+
+        $lines = explode("\n", $sourceMethod->getComment());
+        foreach ( $lines as $i => $line ) {
+            if (false !== mb_strpos($line, $separator = '@return static')) {
+                $parts = explode($separator, $line);
+
+                $lines[ $i ] = implode('@return ' . $sourceClassName, $parts);
+            }
+        }
+        $methodCommentNew = implode("\n", $lines);
+
+        $methodNew = new \Nette\PhpGenerator\Method($methodName);
+        $methodNew->setStatic();
+        $methodNew->setPublic();
+        $methodNew->setParameters($sourceMethod->getParameters());
+        $methodNew->setVariadic($sourceMethod->isVariadic());
+        $methodNew->setReturnType($sourceMethod->getReturnType());
+        $methodNew->setReturnNullable($sourceMethod->isReturnNullable());
+        $methodNew->setReturnReference($sourceMethod->getReturnReference());
+        $methodNew->setComment($methodCommentNew);
+        $methodNew->setBody(
+            $generator->generateMethodBody(
+                $sourceMethod,
+                $methodName, $arguments
+            )
+        );
+
+        $classTypeFacade->addMember($methodNew);
     }
 
     // add methods
     $sourceMethod = new \Nette\PhpGenerator\Method('getInstance');
     $sourceMethod->setPublic();
     $sourceMethod->setStatic();
-    $sourceMethod->setReturnType($interface);
+    $sourceMethod->setReturnType($sourceInterface);
     $sourceMethod->setComment(implode("\n", [
-        '@return ' . substr($interface, strrpos($interface, '\\') + 1),
+        '@return ' . substr($sourceInterface, strrpos($sourceInterface, '\\') + 1),
     ]));
     $sourceMethod->setBody(implode("\n", [
         sprintf('return SupportFactory::getInstance()->get%s();', $facade),

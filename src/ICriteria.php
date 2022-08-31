@@ -20,78 +20,78 @@ use Gzhegow\Support\Traits\Load\StrLoadTrait;
 interface ICriteria
 {
     /**
-     * @param int|float|string $needle
      * @param array            $src
+     * @param int|float|string $needle
      * @param null|bool        $coalesce
      *
      * @return bool
      */
-    public function isInNumber($needle, array $src, bool $coalesce = null): bool;
+    public function isInNumeric(array $src, $needle, bool $coalesce = null): bool;
 
     /**
-     * @param string    $needle
      * @param array     $src
+     * @param string    $needle
      * @param null|bool $natural
      * @param null|bool $coalesce
      *
      * @return bool
      */
-    public function isInString($needle, array $src, bool $natural = null, bool $coalesce = null): bool;
+    public function isInString(array $src, $needle, bool $natural = null, bool $coalesce = null): bool;
 
     /**
-     * @param string    $needle
      * @param array     $src
+     * @param string    $needle
      * @param null|bool $natural
      * @param null|bool $coalesce
      *
      * @return bool
      */
-    public function isInStringCase($needle, array $src, bool $natural = null, bool $coalesce = null): bool;
+    public function isInStringCase(array $src, $needle, bool $natural = null, bool $coalesce = null): bool;
 
     /**
-     * @param \DateTime $needle
-     * @param array     $src
-     * @param null|bool $coalesce
+     * @param array              $src
+     * @param \DateTimeInterface $needle
+     * @param null|bool          $coalesce
      *
      * @return bool
      */
-    public function isInDate(\DateTime $needle, array $src, bool $coalesce = null): bool;
+    public function isInDate(array $src, \DateTimeInterface $needle, bool $coalesce = null): bool;
 
     /**
-     * @param int|float $needle
-     * @param array     $src
-     * @param null|bool $coalesce
+     * @param array            $src
+     * @param int|float|string $needle
+     * @param null|bool        $coalesce
      *
      * @return bool
      */
-    public function isBetweenNumber($needle, array $src, bool $coalesce = null): bool;
+    public function isBetweenNumber(array $src, $needle, bool $coalesce = null): bool;
 
     /**
-     * @param \DateTime $needle
-     * @param array     $src
-     * @param null|bool $coalesce
+     * @param array              $src
+     * @param \DateTimeInterface $needle
+     * @param null|bool          $coalesce
      *
      * @return bool
      */
-    public function isBetweenDate(\DateTime $needle, array $src, bool $coalesce = null): bool;
+    public function isBetweenDate(array $src, \DateTimeInterface $needle, bool $coalesce = null): bool;
 
     /**
-     * @param mixed     $needle
-     * @param mixed     $src
-     * @param string    $operator
-     * @param null|bool $coalesce
+     * @param mixed       $needle
+     * @param mixed       $src
+     * @param null|string $operator
+     * @param null|bool   $coalesce
      *
      * @return bool
      */
-    public function satisfy($needle, $src, string $operator, bool $coalesce = null): bool;
+    public function satisfy($needle, $src, string $operator = null, bool $coalesce = null): bool;
 
     /**
-     * @param mixed     $needle
-     * @param array     $arr
-     * @param string    $operator
-     * @param null|bool $coalesce
+     * @param mixed       $needle
+     * @param array       $src
+     * @param null|string $operator
+     * @param null|bool   $coalesce
      *
      * @return bool
      */
-    public function satisfyArray($needle, array $arr, string $operator, bool $coalesce = null): bool;
+    public function satisfyArray($needle, array $src, string $operator = null, bool $coalesce = null): bool;
 }

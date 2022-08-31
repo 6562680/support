@@ -7,6 +7,9 @@ $supportFactory = \Gzhegow\Support\SupportFactory::getInstance();
 
 $generator = new Gzhegow_Support_Generator();
 
+$theStr = $generator->getStr();
+$theLoader = $generator->getLoader();
+
 
 // list
 $interfaces = [
@@ -58,56 +61,54 @@ foreach ( $interfaces as $interface => $sourceClasses ) {
     ]));
 
     // namespace
-    $phpNamespace = new \Nette\PhpGenerator\PhpNamespace('Gzhegow\\Support');
+    $phpNamespace = new \Nette\PhpGenerator\PhpNamespace($namespace = 'Gzhegow\\Support');
 
     // class
     $classTypeInterface = new \Nette\PhpGenerator\ClassType($interface);
     $classTypeInterface->setInterface();
 
-    // copy uses
-    foreach ( $sourceClasses as $sourceClass ) {
-        $phpNamespace->addUse($sourceClass);
-
-        foreach ( $generator->getLoader()->getUseStatements($sourceClass) as $alias => $use ) {
-            $phpNamespace->addUse($use, $alias);
-        }
-    }
-
-    // copy methods
+    // copy uses/methods
     foreach ( $sourceClasses as $sourceClass ) {
         $classTypeSource = \Nette\PhpGenerator\ClassType::from($sourceClass, false, false);
 
-        // @gzhegow > causes unable to override interface constant
-        // foreach ( $moduleCopy->getConstants() as $constant ) {
-        //     $moduleInterface->addMember($constant);
-        // }
+        $uses = [ $theLoader->getUseStatements($sourceClass) ];
+        $sourceMethods = [ $generator->filterMethods($classTypeSource->getMethods()) ];
+        $classTypeCurrent = $classTypeSource;
+        while ( $current = $classTypeCurrent->getExtends() ) {
+            $classTypeCurrent = \Nette\PhpGenerator\ClassType::from($current, false, false);
 
-        foreach ( $classTypeSource->getMethods() as $method ) {
-            if (! $method->isPublic()) {
+            $uses[] = $theLoader->getUseStatements($current);
+            $sourceMethods[] = $generator->filterMethods($classTypeCurrent->getMethods());
+        }
+        $uses = array_merge(...$uses);
+        $sourceMethods = array_merge(...$sourceMethods);
+
+        // copy uses
+        $phpNamespace->addUse($sourceClass);
+        foreach ( $uses as $alias => $use ) {
+            if ($use === $namespace . '\\' . $interface) {
                 continue;
             }
 
-            if ($method->isStatic()) {
-                continue;
-            }
+            $phpNamespace->addUse($use, $alias);
+        }
 
-            $methodName = $method->getName();
-            if (null !== $generator->getStr()->starts($methodName, '__')) {
-                continue;
-            }
+        // copy methods
+        foreach ( $sourceMethods as $sourceMethod ) {
+            $methodName = $sourceMethod->getName();
 
-            $methodParameters = $method->getParameters();
-            $methodComment = $method->getComment();
-            $methodReturnType = $method->getReturnType();
+            $methodParameters = $sourceMethod->getParameters();
+            $methodComment = $sourceMethod->getComment();
+            $methodReturnType = $sourceMethod->getReturnType();
 
             $arguments = [];
-            $parameters = $method->getParameters();
+            $parameters = $sourceMethod->getParameters();
             $last = array_pop($parameters);
             foreach ( $parameters as $parameter ) {
                 $arguments[] = '$' . $parameter->getName();
             }
             if ($last) {
-                $arguments[] = $method->isVariadic()
+                $arguments[] = $sourceMethod->isVariadic()
                     ? '...$' . $last->getName()
                     : '$' . $last->getName();
             }
@@ -123,9 +124,9 @@ foreach ( $interfaces as $interface => $sourceClasses ) {
             $methodCommentNew = implode("\n", $lines);
 
             $methodNew = new \Nette\PhpGenerator\Method($methodName);
-            $methodNew->setReturnNullable($method->isReturnNullable());
-            $methodNew->setReturnReference($method->getReturnReference());
-            $methodNew->setVariadic($method->isVariadic());
+            $methodNew->setReturnNullable($sourceMethod->isReturnNullable());
+            $methodNew->setReturnReference($sourceMethod->getReturnReference());
+            $methodNew->setVariadic($sourceMethod->isVariadic());
             $methodNew->setParameters($methodParameters);
             $methodNew->setReturnType($methodReturnType);
             $methodNew->setPublic();
@@ -135,7 +136,7 @@ foreach ( $interfaces as $interface => $sourceClasses ) {
         }
     }
 
-    // add to interface to namespace
+    // add interface to namespace
     $phpNamespace->add($classTypeInterface);
 
     // add namespace to php file

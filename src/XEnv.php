@@ -13,82 +13,205 @@ namespace Gzhegow\Support;
 class XEnv implements IEnv
 {
     /**
-     * @param string    $key
-     * @param mixed     $default
-     * @param bool|null $runtime
-     *
-     * @return null|array|false|mixed|string
+     * @var array
      */
-    public function env(string $key, $default = null, bool $runtime = null)
+    protected $envLocal = [];
+    /**
+     * @var array
+     */
+    protected $envRuntime = [];
+
+
+    /**
+     * Constructor
+     */
+    public function __construct()
     {
-        return $_ENV[ $key ]
-            ?? ( ( false !== ( $val = $this->getenv($key, $runtime) ) ) ? $val : null )
-            ?? $default;
+        $this->envLocal = getenv();
+    }
+
+
+    /**
+     * @return void
+     */
+    public function resetEnv() : void
+    {
+        foreach ( $this->envRuntime as $key => $value ) {
+            if (! isset($this->envLocal[ $key ])) {
+                putenv($key); // unset env
+
+            } elseif ($this->envRuntime[ $key ] !== $this->envLocal[ $key ]) {
+                putenv($key . '=' . $this->envLocal[ $key ]); // reset env
+            }
+        }
+
+        $this->envRuntime = [];
+    }
+
+
+    /**
+     * @return array
+     */
+    public function getEnvLocal() : array
+    {
+        return $this->envLocal;
+    }
+
+    /**
+     * @return array
+     */
+    public function getEnvRuntime() : array
+    {
+        return $this->envRuntime;
+    }
+
+
+    /**
+     * @param string    $option
+     * @param mixed     $default
+     * @param null|bool $ignoreCase
+     * @param null|bool $localOnly
+     *
+     * @return null|string|array|mixed
+     */
+    public function env(string $option, $default = null, bool $ignoreCase = null, bool $localOnly = null) // : null|string|array|mixed
+    {
+        $result = null;
+
+        $localOnly = $localOnly ?? false;
+        $ignoreCase = $ignoreCase ?? true;
+
+        if (! $ignoreCase) {
+            $result = null
+                ?? ( ( ! $localOnly ) ? $_ENV[ $option ] : null )
+                ?? ( ( false !== ( $val = $this->getenv($option, false, $localOnly) ) ) ? $val : null )
+                ?? null;
+
+        } else {
+            if (! $localOnly) {
+                $envIgnoreCase = [];
+                foreach ( $_ENV as $key => $val ) {
+                    $envIgnoreCase[ strtoupper($key) ] = $val;
+                }
+
+                $result = null
+                    ?? $_ENV[ $option ]
+                    ?? $envIgnoreCase[ strtoupper($option) ]
+                    ?? null;
+            }
+
+            $result = $result
+                ?? ( ( false !== ( $val = $this->getenv($option, true, $localOnly) ) ) ? $val : null )
+                ?? null;
+        }
+
+        return $result ?? $default;
     }
 
 
     /**
      * @param null|string $option
-     * @param null|bool   $runtime
+     * @param null|bool   $ignoreCase
+     * @param null|bool   $localOnly
      *
-     * @return null|array|false|string
+     * @return string|array|false
      */
-    public function getenv($option = null, bool $runtime = null) // : string|array
+    public function getenv(string $option = null, bool $ignoreCase = null, bool $localOnly = null) // : string|array|false
     {
-        $varname = is_string($option)
-            ? $option
-            : null;
+        $result = false;
 
-        $varname_lower = is_string($option)
-            ? strtolower($option)
-            : null;
+        $ignoreCase = $ignoreCase ?? true;
+        $localOnly = $localOnly ?? false;
 
-        $runtime = null
-            ?? ( is_bool($runtime) ? $runtime : null )
-            ?? ( is_bool($option) ? $option : null )
-            ?? true;
+        $env = $localOnly
+            ? $this->envLocal
+            : getenv();
 
-        $env = getenv();
-        if ($runtime) {
-            $env = array_merge($env, static::$env ?? []);
-        }
+        if (! $ignoreCase) {
+            $result = ( null !== $option )
+                ? ( $env[ $option ] ?? false )
+                : $env;
 
-        // one value
-        if ($varname) {
-            $result = null
-                ?? ( isset($env[ $varname ]) ? getenv($varname, $runtime) : null )
-                ?? ( isset($env[ $varname_lower ]) ? getenv($varname_lower, $runtime) : null );
+        } else {
+            $envIgnoreCase = [];
+            foreach ( $env as $key => $val ) {
+                $envIgnoreCase[ strtoupper($key) ] = $val;
+            }
 
-            return $result;
-        }
+            if (null === $option) {
+                $result = $envIgnoreCase;
 
-        // all values
-        $result = [];
-        $registry = [];
-        foreach ( $env as $key => $item ) {
-            $prev = $registry[ $keyLower = strtolower($key) ] ?? null;
-
-            if (isset($prev)) unset($result[ $prev ]);
-
-            $registry[ $keyLower ] = $key;
-            $result[ $key ] = getenv($key, $runtime);
+            } else {
+                $result = null
+                    ?? $env[ $option ]
+                    ?? $envIgnoreCase[ strtoupper($option) ]
+                    ?? false;
+            }
         }
 
         return $result;
     }
 
+
     /**
-     * @param string $name
-     * @param string $value
+     * @param string    $name
+     * @param string    $value
+     * @param null|bool $ignoreCase
+     *
+     * @return void
+     */
+    public function setenv(string $name, string $value, bool $ignoreCase = null) : void
+    {
+        $ignoreCase = $ignoreCase ?? true;
+
+        $env = $this->getenv(null, false, false);
+
+        $nameParsed = $name;
+        if ($ignoreCase) {
+            foreach ( $env as $key => $val ) {
+                if (strtoupper($name) === strtoupper($key)) {
+                    $nameParsed = $key;
+
+                    break;
+                }
+            }
+        }
+
+        $this->envRuntime[ $nameParsed ] = $value;
+
+        $_ENV[ $nameParsed ] = $value;
+    }
+
+    /**
+     * @param string    $name
+     * @param string    $value
+     * @param null|bool $ignoreCase
      *
      * @return bool
      */
-    public function putenv(string $name, string $value) : bool
+    public function putenv(string $name, string $value, bool $ignoreCase = null) : bool
     {
-        $status = putenv($name . '=' . $value);
+        $ignoreCase = $ignoreCase ?? true;
+
+        $env = $this->getenv(null, false, false);
+
+        $nameParsed = $name;
+        if ($ignoreCase) {
+            foreach ( $env as $key => $val ) {
+                if (strtoupper($name) === strtoupper($key)) {
+                    $nameParsed = $key;
+
+                    break;
+                }
+            }
+        }
+
+        $status = putenv($nameParsed . '=' . $value);
 
         if ($status) {
-            static::$env[ $name ] = $value;
+            $this->envRuntime[ $nameParsed ] = $value;
+
+            $_ENV[ $nameParsed ] = $value;
         }
 
         return $status;
@@ -102,10 +225,4 @@ class XEnv implements IEnv
     {
         return SupportFactory::getInstance()->getEnv();
     }
-
-
-    /**
-     * @var array
-     */
-    protected static $env;
 }

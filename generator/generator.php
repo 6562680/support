@@ -17,6 +17,31 @@ class Gzhegow_Support_Generator
 {
     use LoaderLoadTrait;
     use StrLoadTrait;
+
+
+    /**
+     * @param Method[] $methods
+     *
+     * @return void
+     */
+    public function filterMethods(array $methods) : array
+    {
+        $theStr = $this->getStr();
+
+        foreach ( $methods as $idx => $method ) {
+            if (! $method->isPublic()) {
+                unset($methods[ $idx ]);
+
+            } elseif ($method->isStatic()) {
+                unset($methods[ $idx ]);
+
+            } elseif (null !== $theStr->starts($method->getName(), '__')) {
+                unset($methods[ $idx ]);
+            }
+        }
+
+        return $methods;
+    }
 }
 
 /**

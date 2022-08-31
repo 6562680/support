@@ -71,9 +71,7 @@ class XCalendar implements ICalendar
      */
     public function __construct()
     {
-        $this->defaultTimezone = null
-            ?? new \DateTimeZone(date_default_timezone_get())
-            ?? new \DateTimeZone('UTC');
+        $this->withDefaultTimezone(date_default_timezone_get() ?? 'UTC');
     }
 
 
@@ -155,22 +153,11 @@ class XCalendar implements ICalendar
         $isDateA = $parsedA instanceof \DateTime;
         $isDateB = $parsedB instanceof \DateTime;
 
-        if ($isDateB - $isDateA) {
-            $result = false;
+        if ($cmp = ( $isDateB - $isDateA )) {
+            $result = $cmp > 0;
 
         } else {
-            $interval = $parsedB->diff($parsedA);
-
-            $result = ! $interval->invert
-                && ( ! ( 0
-                    || $interval->y // years
-                    || $interval->m // months
-                    || $interval->d // days
-                    || $interval->h // hours
-                    || $interval->i // minutes
-                    || $interval->s // seconds
-                    || $interval->f // microseconds
-                ) );
+            $result = 0 === ( $parsedA <=> $parsedB );
         }
 
         return $result;
@@ -196,18 +183,7 @@ class XCalendar implements ICalendar
             $result = $cmp < 0;
 
         } else {
-            $interval = $parsedB->diff($parsedA);
-
-            $result = ( $interval->invert )
-                && ( 0
-                    || $interval->y // years
-                    || $interval->m // months
-                    || $interval->d // days
-                    || $interval->h // hours
-                    || $interval->i // minutes
-                    || $interval->s // seconds
-                    || $interval->f // microseconds
-                );
+            $result = -1 === ( $parsedA <=> $parsedB );
         }
 
         return $result;
@@ -233,21 +209,7 @@ class XCalendar implements ICalendar
             $result = $cmp < 0;
 
         } else {
-            $interval = $parsedB->diff($parsedA);
-
-            $result = ( 0
-                || ( $interval->invert )
-                || ( ! $interval->invert
-                    && ! ( 0
-                        || $interval->y // years
-                        || $interval->m // months
-                        || $interval->d // days
-                        || $interval->h // hours
-                        || $interval->i // minutes
-                        || $interval->s // seconds
-                        || $interval->f // microseconds
-                    ) )
-            );
+            $result = 1 !== ( $parsedA <=> $parsedB );
         }
 
         return $result;
@@ -273,18 +235,7 @@ class XCalendar implements ICalendar
             $result = $cmp > 0;
 
         } else {
-            $interval = $parsedB->diff($parsedA);
-
-            $result = ( ! $interval->invert )
-                && ( 0
-                    || $interval->y // years
-                    || $interval->m // months
-                    || $interval->d // days
-                    || $interval->h // hours
-                    || $interval->i // minutes
-                    || $interval->s // seconds
-                    || $interval->f // microseconds
-                );
+            $result = 1 === ( $parsedA <=> $parsedB );
         }
 
         return $result;
@@ -310,21 +261,7 @@ class XCalendar implements ICalendar
             $result = $cmp > 0;
 
         } else {
-            $interval = $parsedB->diff($parsedA);
-
-            $result = ( 0
-                || ( ! $interval->invert )
-                || ( $interval->invert
-                    && ! ( 0
-                        || $interval->y // years
-                        || $interval->m // months
-                        || $interval->d // days
-                        || $interval->h // hours
-                        || $interval->i // minutes
-                        || $interval->s // seconds
-                        || $interval->f // microseconds
-                    ) )
-            );
+            $result = -1 !== ( $parsedA <=> $parsedB );
         }
 
         return $result;

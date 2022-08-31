@@ -18,37 +18,76 @@ use Gzhegow\Support\XEnv;
 class Env
 {
     /**
-     * @param string    $key
-     * @param mixed     $default
-     * @param bool|null $runtime
-     *
-     * @return null|array|false|mixed|string
+     * @return void
      */
-    public static function env(string $key, $default = null, bool $runtime = null)
+    public static function resetEnv(): void
     {
-        return static::getInstance()->env($key, $default, $runtime);
+        static::getInstance()->resetEnv();
+    }
+
+    /**
+     * @return array
+     */
+    public static function getEnvLocal(): array
+    {
+        return static::getInstance()->getEnvLocal();
+    }
+
+    /**
+     * @return array
+     */
+    public static function getEnvRuntime(): array
+    {
+        return static::getInstance()->getEnvRuntime();
+    }
+
+    /**
+     * @param string    $option
+     * @param mixed     $default
+     * @param null|bool $ignoreCase
+     * @param null|bool $localOnly
+     *
+     * @return null|string|array|mixed
+     */
+    public static function env(string $option, $default = null, bool $ignoreCase = null, bool $localOnly = null)
+    {
+        return static::getInstance()->env($option, $default, $ignoreCase, $localOnly);
     }
 
     /**
      * @param null|string $option
-     * @param null|bool   $runtime
+     * @param null|bool   $ignoreCase
+     * @param null|bool   $localOnly
      *
-     * @return null|array|false|string
+     * @return string|array|false
      */
-    public static function getenv($option = null, bool $runtime = null)
+    public static function getenv(string $option = null, bool $ignoreCase = null, bool $localOnly = null)
     {
-        return static::getInstance()->getenv($option, $runtime);
+        return static::getInstance()->getenv($option, $ignoreCase, $localOnly);
     }
 
     /**
-     * @param string $name
-     * @param string $value
+     * @param string    $name
+     * @param string    $value
+     * @param null|bool $ignoreCase
+     *
+     * @return void
+     */
+    public static function setenv(string $name, string $value, bool $ignoreCase = null): void
+    {
+        static::getInstance()->setenv($name, $value, $ignoreCase);
+    }
+
+    /**
+     * @param string    $name
+     * @param string    $value
+     * @param null|bool $ignoreCase
      *
      * @return bool
      */
-    public static function putenv(string $name, string $value): bool
+    public static function putenv(string $name, string $value, bool $ignoreCase = null): bool
     {
-        return static::getInstance()->putenv($name, $value);
+        return static::getInstance()->putenv($name, $value, $ignoreCase);
     }
 
     /**

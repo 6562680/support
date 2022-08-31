@@ -23,103 +23,103 @@ use Gzhegow\Support\XCriteria;
 class Criteria
 {
     /**
-     * @param int|float|string $needle
      * @param array            $src
+     * @param int|float|string $needle
      * @param null|bool        $coalesce
      *
      * @return bool
      */
-    public static function isInNumber($needle, array $src, bool $coalesce = null): bool
+    public static function isInNumeric(array $src, $needle, bool $coalesce = null): bool
     {
-        return static::getInstance()->isInNumber($needle, $src, $coalesce);
+        return static::getInstance()->isInNumeric($src, $needle, $coalesce);
     }
 
     /**
-     * @param string    $needle
      * @param array     $src
+     * @param string    $needle
      * @param null|bool $natural
      * @param null|bool $coalesce
      *
      * @return bool
      */
-    public static function isInString($needle, array $src, bool $natural = null, bool $coalesce = null): bool
+    public static function isInString(array $src, $needle, bool $natural = null, bool $coalesce = null): bool
     {
-        return static::getInstance()->isInString($needle, $src, $natural, $coalesce);
+        return static::getInstance()->isInString($src, $needle, $natural, $coalesce);
     }
 
     /**
-     * @param string    $needle
      * @param array     $src
+     * @param string    $needle
      * @param null|bool $natural
      * @param null|bool $coalesce
      *
      * @return bool
      */
-    public static function isInStringCase($needle, array $src, bool $natural = null, bool $coalesce = null): bool
+    public static function isInStringCase(array $src, $needle, bool $natural = null, bool $coalesce = null): bool
     {
-        return static::getInstance()->isInStringCase($needle, $src, $natural, $coalesce);
+        return static::getInstance()->isInStringCase($src, $needle, $natural, $coalesce);
     }
 
     /**
-     * @param \DateTime $needle
-     * @param array     $src
-     * @param null|bool $coalesce
+     * @param array              $src
+     * @param \DateTimeInterface $needle
+     * @param null|bool          $coalesce
      *
      * @return bool
      */
-    public static function isInDate(\DateTime $needle, array $src, bool $coalesce = null): bool
+    public static function isInDate(array $src, \DateTimeInterface $needle, bool $coalesce = null): bool
     {
-        return static::getInstance()->isInDate($needle, $src, $coalesce);
+        return static::getInstance()->isInDate($src, $needle, $coalesce);
     }
 
     /**
-     * @param int|float $needle
-     * @param array     $src
-     * @param null|bool $coalesce
+     * @param array            $src
+     * @param int|float|string $needle
+     * @param null|bool        $coalesce
      *
      * @return bool
      */
-    public static function isBetweenNumber($needle, array $src, bool $coalesce = null): bool
+    public static function isBetweenNumber(array $src, $needle, bool $coalesce = null): bool
     {
-        return static::getInstance()->isBetweenNumber($needle, $src, $coalesce);
+        return static::getInstance()->isBetweenNumber($src, $needle, $coalesce);
     }
 
     /**
-     * @param \DateTime $needle
-     * @param array     $src
-     * @param null|bool $coalesce
+     * @param array              $src
+     * @param \DateTimeInterface $needle
+     * @param null|bool          $coalesce
      *
      * @return bool
      */
-    public static function isBetweenDate(\DateTime $needle, array $src, bool $coalesce = null): bool
+    public static function isBetweenDate(array $src, \DateTimeInterface $needle, bool $coalesce = null): bool
     {
-        return static::getInstance()->isBetweenDate($needle, $src, $coalesce);
+        return static::getInstance()->isBetweenDate($src, $needle, $coalesce);
     }
 
     /**
-     * @param mixed     $needle
-     * @param mixed     $src
-     * @param string    $operator
-     * @param null|bool $coalesce
+     * @param mixed       $needle
+     * @param mixed       $src
+     * @param null|string $operator
+     * @param null|bool   $coalesce
      *
      * @return bool
      */
-    public static function satisfy($needle, $src, string $operator, bool $coalesce = null): bool
+    public static function satisfy($needle, $src, string $operator = null, bool $coalesce = null): bool
     {
         return static::getInstance()->satisfy($needle, $src, $operator, $coalesce);
     }
 
     /**
-     * @param mixed     $needle
-     * @param array     $arr
-     * @param string    $operator
-     * @param null|bool $coalesce
+     * @param mixed       $needle
+     * @param array       $src
+     * @param null|string $operator
+     * @param null|bool   $coalesce
      *
      * @return bool
      */
-    public static function satisfyArray($needle, array $arr, string $operator, bool $coalesce = null): bool
+    public static function satisfyArray($needle, array $src, string $operator = null, bool $coalesce = null): bool
     {
-        return static::getInstance()->satisfyArray($needle, $arr, $operator, $coalesce);
+        return static::getInstance()->satisfyArray($needle, $src, $operator, $coalesce);
     }
 
     /**

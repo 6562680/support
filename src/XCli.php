@@ -179,7 +179,7 @@ class XCli implements ICli
         $theLoggerStderr = $theLogger->getChannel('stderr');
 
         $cwd = $cwd ?? getcwd();
-        $env = $env ?? $theEnv->getenv();
+        $env = $env ?? $theEnv->getenv(null, false, false);
 
         if ('' === $cwd) {
             throw new InvalidArgumentException('Cwd should be not empty');
@@ -193,7 +193,7 @@ class XCli implements ICli
         [ $env ] = $thePhp->kwargs($env);
         [ $other_options ] = $thePhp->kwargs($other_options);
 
-        $env[ 'PATH' ] = $theEnv->getenv('PATH');
+        $env[ 'PATH' ] = $theEnv->getenv('PATH', true, false);
 
         $h = proc_open($cmd, [
             0 => [ 'pipe', 'r' ],
@@ -249,6 +249,11 @@ class XCli implements ICli
         ( null !== $cwd )
             ? $theLoggerStdout->notice('<<< [ cwd: "' . $cwd . '" ] ' . $cmd)
             : $theLoggerStdout->notice('<<< ' . $cmd);
+
+        if ($this->isWindows()) {
+            $stdout = mb_convert_encoding($stdout, 'utf-8', 'cp866');
+            $stderr = mb_convert_encoding($stderr, 'utf-8', 'cp866');
+        }
 
         return [ $code, $stderr, $stdout ];
     }

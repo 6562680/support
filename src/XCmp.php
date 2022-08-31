@@ -28,19 +28,86 @@ class XCmp implements ICmp
      */
     public function cmp($a, $b) : int
     {
-        $result = null
-            ?? ( $a < $b ? -1 : null )
-            ?? ( $a > $b ? 1 : null )
-            ?? 0;
+        // @gzhegow > named function to use in callable type
+
+        $result = $a <=> $b;
 
         return $result;
     }
 
 
     /**
-     * @param null|int|float|string $a
-     * @param mixed                 $b
-     * @param null|bool             $coalesce
+     * @param null|int       $a
+     * @param null|int|mixed $b
+     * @param null|bool      $coalesce
+     *
+     * @return int
+     */
+    public function cmpint($a, $b, bool $coalesce = null) : int
+    {
+        $theNum = $this->getNum();
+
+        if (( $a !== null )
+            && ( null === $theNum->filterInt($a) )
+        ) {
+            throw new InvalidArgumentException([
+                'The `a` should be int or null: %s',
+                $a,
+            ]);
+        }
+
+        $coalesce = $coalesce ?? false;
+
+        $bInt = ( null !== $b )
+            ? ( null
+                ?? ( ( null !== $theNum->filterInt($b) ) ? $b : null )
+                ?? ( $coalesce ? $theNum->intval($b) : null )
+            )
+            : null;
+
+        $result = $a <=> $bInt;
+
+        return $result;
+    }
+
+    /**
+     * @param null|float       $a
+     * @param null|float|mixed $b
+     * @param null|bool        $coalesce
+     *
+     * @return int
+     */
+    public function cmpfloat($a, $b, bool $coalesce = null) : int
+    {
+        $theNum = $this->getNum();
+
+        if (( $a !== null )
+            && ( null === $theNum->filterFloat($a) )
+        ) {
+            throw new InvalidArgumentException([
+                'The `a` should be float or null: %s',
+                $a,
+            ]);
+        }
+
+        $coalesce = $coalesce ?? false;
+
+        $bFloat = ( null !== $b )
+            ? ( null
+                ?? ( ( null !== $theNum->filterFloat($b) ) ? $b : null )
+                ?? ( $coalesce ? $theNum->floatval($b) : null )
+            )
+            : null;
+
+        $result = $a <=> $bFloat;
+
+        return $result;
+    }
+
+    /**
+     * @param null|int|float       $a
+     * @param null|int|float|mixed $b
+     * @param null|bool            $coalesce
      *
      * @return int
      */
@@ -48,155 +115,180 @@ class XCmp implements ICmp
     {
         $theNum = $this->getNum();
 
-        if (! ( ( $a === null )
-            || ( null !== $theNum->filterNum($a) )
-        )) {
-            throw new InvalidArgumentException('A should be number');
+        if (( $a !== null )
+            && ( null === $theNum->filterNum($a) )
+        ) {
+            throw new InvalidArgumentException([
+                'The `a` should be num or null: %s',
+                $a,
+            ]);
         }
-
-        $result = 0;
 
         $coalesce = $coalesce ?? false;
 
-        $bNumber = null
-            ?? ( ( null === $b ) ? $b : null )
-            ?? ( ( null !== $theNum->filterNum($b) ) ? $b : null )
-            ?? ( $coalesce ? floatval($b) : null );
+        $bNum = ( null !== $b )
+            ? ( null
+                ?? ( ( null !== $theNum->filterNum($b) ) ? $b : null )
+                ?? ( $coalesce ? $theNum->numval($b) : null )
+            )
+            : null;
 
-        $isA = false;
-        $isB = false;
-        if (1
-            && ( $isA = ( null !== $theNum->filterNum($a) ) )
-            && ( $isB = ( null !== $theNum->filterNum($bNumber) ) )
-        ) {
-            $result = null
-                ?? ( $a < $b ? -1 : null )
-                ?? ( $a > $b ? 1 : null )
-                ?? 0;
+        $result = $a <=> $bNum;
+
+        return $result;
+    }
+
+    /**
+     * @param null|int|float|string       $a
+     * @param null|int|float|string|mixed $b
+     * @param null|bool                   $coalesce
+     *
+     * @return int
+     */
+    public function cmpnumeric($a, $b, bool $coalesce = null) : int
+    {
+        $theNum = $this->getNum();
+
+        if ($a !== null) {
+            // @gzhegow > string should be converted to int/float otherwise non-comparable
+            if (null === ( $val = $theNum->numval($a) )) {
+                throw new InvalidArgumentException([
+                    'The `a` should be numeric or null: %s',
+                    $a,
+                ]);
+            }
+
+            $a = $val;
         }
 
-        $result = $result ?? ( $isA - $isB );
+        $coalesce = $coalesce ?? false;
+
+        $bNumeric = ( null !== $b )
+            ? ( null
+                ?? ( ( null !== $theNum->filterNum($b) ) ? $b : null )
+                ?? ( ( is_string($b) && is_numeric($b) ) ? $theNum->numval($b) : null )
+                ?? ( $coalesce ? $theNum->numval($b) : null )
+            )
+            : null;
+
+        $result = $a <=> $bNumeric;
 
         return $result;
     }
 
 
     /**
-     * @param null|string $a
-     * @param mixed       $b
-     * @param null|bool   $natural
-     * @param null|bool   $coalesce
+     * @param null|string       $a
+     * @param null|string|mixed $b
+     * @param null|bool         $natural
+     * @param null|bool         $coalesce
      *
      * @return int
      */
     public function cmpstr($a, $b, bool $natural = null, bool $coalesce = null) : int
     {
-        if (! ( ( $a === null ) || is_string($a) )) {
-            throw new InvalidArgumentException('A should be string');
+        if (( $a !== null )
+            && ! is_string($a)
+        ) {
+            throw new InvalidArgumentException([
+                'The `a` should be string or null: %s',
+                $a,
+            ]);
         }
 
-        $result = 0;
+        $result = null;
 
         $natural = $natural ?? true;
         $coalesce = $coalesce ?? false;
 
-        $bString = null
-            ?? ( ( null === $b ) ? $b : null )
-            ?? ( is_string($b) ? $b : null )
-            ?? ( $coalesce ? strval($b) : null );
+        $bString = ( null !== $b )
+            ? ( null
+                ?? ( is_string($b) ? $b : null )
+                ?? ( $coalesce ? strval($b) : null )
+            )
+            : null;
 
-        $isA = false;
-        $isB = false;
-        if (1
-            && ( $isA = is_string($a) )
-            && ( $isB = is_string($bString) )
-        ) {
+        $isA = is_string($a);
+        $isB = is_string($bString);
+        if ($isA && $isB) {
             $result = $natural
-                ? strnatcmp($a, $b)
-                : strcmp($a, $b);
+                ? strnatcmp($a, $bString)
+                : strcmp($a, $bString);
         }
 
-        $result = $result ?? ( $isA - $isB );
+        $result = $result
+            ?? $isA <=> $isB;
 
         return $result;
     }
 
     /**
-     * @param null|string $a
-     * @param mixed       $b
-     * @param null|bool   $natural
-     * @param null|bool   $coalesce
+     * @param null|string       $a
+     * @param null|string|mixed $b
+     * @param null|bool         $natural
+     * @param null|bool         $coalesce
      *
      * @return int
      */
     public function cmpstrCase($a, $b, bool $natural = null, bool $coalesce = null) : int
     {
-        if (! ( ( $a === null ) || is_string($a) )) {
-            throw new InvalidArgumentException('A should be string');
+        if (( $a !== null )
+            && ! is_string($a)
+        ) {
+            throw new InvalidArgumentException([
+                'The `a` should be string or null: %s',
+                $a,
+            ]);
         }
 
-        $result = 0;
+        $result = null;
 
         $natural = $natural ?? true;
         $coalesce = $coalesce ?? false;
 
-        $bString = null
-            ?? ( ( null === $b ) ? $b : null )
-            ?? ( is_string($b) ? $b : null )
-            ?? ( $coalesce ? strval($b) : null );
+        $bString = ( null !== $b )
+            ? ( null
+                ?? ( is_string($b) ? $b : null )
+                ?? ( $coalesce ? strval($b) : null )
+            )
+            : null;
 
-        $isA = false;
-        $isB = false;
-        if (1
-            && ( $isA = is_string($a) )
-            && ( $isB = is_string($bString) )
-        ) {
+        $isA = is_string($a);
+        $isB = is_string($bString);
+        if ($isA && $isB) {
             $result = $natural
-                ? strnatcasecmp($a, $b)
-                : strcasecmp($a, $b);
+                ? strnatcasecmp($a, $bString)
+                : strcasecmp($a, $bString);
         }
 
-        $result = $result ?? ( $isA - $isB );
+        $result = $result
+            ?? $isA <=> $isB;
 
         return $result;
     }
 
 
     /**
-     * @param null|\DateTime $aDate
-     * @param mixed          $b
-     * @param null|bool      $coalesce
+     * @param null|\DateTimeInterface       $a
+     * @param null|\DateTimeInterface|mixed $b
+     * @param null|bool                     $coalesce
      *
      * @return int
      */
-    public function cmpdate(\DateTime $aDate = null, $b = null, bool $coalesce = null) : int
+    public function cmpdate(\DateTimeInterface $a = null, $b = null, bool $coalesce = null) : int
     {
         $theCalendar = $this->getCalendar();
 
-        $result = 0;
-
         $coalesce = $coalesce ?? false;
 
-        $bDate = null
-            ?? ( ( null === $b ) ? $b : null )
-            ?? ( ( null !== ( $dt = $theCalendar->filterDate($b) ) ) ? $dt : null )
-            ?? ( $coalesce ? $theCalendar->theDateVal($b) : null );
+        $bDate = ( null !== $b )
+            ? ( null
+                ?? ( $b instanceof \DateTimeInterface ? $b : null )
+                ?? ( $coalesce ? $theCalendar->dateVal($b) : null )
+            )
+            : null;
 
-        $isA = false;
-        $isB = false;
-        if (1
-            && ( $isA = ( null !== $theCalendar->filterDateTime($aDate) ) )
-            && ( $isB = ( null !== $theCalendar->filterDateTime($bDate) ) )
-        ) {
-            $diff = $theCalendar->diffSeconds($aDate, $bDate);
-
-            $result = null
-                ?? ( ( $diff < 0 ) ? -1 : null )
-                ?? ( ( $diff > 0 ) ? 1 : null )
-                ?? 0;
-        }
-
-        $result = $result ?? ( $isA - $isB );
+        $result = $a <=> $bDate;
 
         return $result;
     }

@@ -32,9 +32,33 @@ class Cmp
     }
 
     /**
-     * @param null|int|float|string $a
-     * @param mixed                 $b
-     * @param null|bool             $coalesce
+     * @param null|int       $a
+     * @param null|int|mixed $b
+     * @param null|bool      $coalesce
+     *
+     * @return int
+     */
+    public static function cmpint($a, $b, bool $coalesce = null): int
+    {
+        return static::getInstance()->cmpint($a, $b, $coalesce);
+    }
+
+    /**
+     * @param null|float       $a
+     * @param null|float|mixed $b
+     * @param null|bool        $coalesce
+     *
+     * @return int
+     */
+    public static function cmpfloat($a, $b, bool $coalesce = null): int
+    {
+        return static::getInstance()->cmpfloat($a, $b, $coalesce);
+    }
+
+    /**
+     * @param null|int|float       $a
+     * @param null|int|float|mixed $b
+     * @param null|bool            $coalesce
      *
      * @return int
      */
@@ -44,10 +68,22 @@ class Cmp
     }
 
     /**
-     * @param null|string $a
-     * @param mixed       $b
-     * @param null|bool   $natural
-     * @param null|bool   $coalesce
+     * @param null|int|float|string       $a
+     * @param null|int|float|string|mixed $b
+     * @param null|bool                   $coalesce
+     *
+     * @return int
+     */
+    public static function cmpnumeric($a, $b, bool $coalesce = null): int
+    {
+        return static::getInstance()->cmpnumeric($a, $b, $coalesce);
+    }
+
+    /**
+     * @param null|string       $a
+     * @param null|string|mixed $b
+     * @param null|bool         $natural
+     * @param null|bool         $coalesce
      *
      * @return int
      */
@@ -57,10 +93,10 @@ class Cmp
     }
 
     /**
-     * @param null|string $a
-     * @param mixed       $b
-     * @param null|bool   $natural
-     * @param null|bool   $coalesce
+     * @param null|string       $a
+     * @param null|string|mixed $b
+     * @param null|bool         $natural
+     * @param null|bool         $coalesce
      *
      * @return int
      */
@@ -70,15 +106,15 @@ class Cmp
     }
 
     /**
-     * @param null|\DateTime $aDate
-     * @param mixed          $b
-     * @param null|bool      $coalesce
+     * @param null|\DateTimeInterface       $a
+     * @param null|\DateTimeInterface|mixed $b
+     * @param null|bool                     $coalesce
      *
      * @return int
      */
-    public static function cmpdate(\DateTime $aDate = null, $b = null, bool $coalesce = null): int
+    public static function cmpdate(\DateTimeInterface $a = null, $b = null, bool $coalesce = null): int
     {
-        return static::getInstance()->cmpdate($aDate, $b, $coalesce);
+        return static::getInstance()->cmpdate($a, $b, $coalesce);
     }
 
     /**
